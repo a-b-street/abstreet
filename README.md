@@ -37,6 +37,7 @@ Measure the effects:
   - [Map model](docs/articles/map/article.md)
   - [Traffic simulation](docs/articles/trafficsim/article.md)
   - [Running A/B Street in a new city](docs/new_city.md)
+  - [UX design](https://yuwen-li.com/work/abstreet)
 - Presentations
   - April 2020 Rust meetup:
     [recording](https://www.youtube.com/watch?v=chYd5I-5oyc),

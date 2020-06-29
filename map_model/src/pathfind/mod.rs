@@ -7,6 +7,7 @@ mod walking;
 pub use self::driving::cost;
 use self::driving::VehiclePathfinder;
 use self::walking::SidewalkPathfinder;
+pub use self::walking::{one_step_walking_path, walking_cost, walking_path_to_steps, WalkingNode};
 use crate::{
     osm, BusRouteID, BusStopID, Intersection, Lane, LaneID, LaneType, Map, Position, Traversable,
     TurnID, Zone,
@@ -320,18 +321,26 @@ impl Path {
     }
 
     fn prepend(&mut self, other: Path, map: &Map) {
-        match (*other.steps.back().unwrap(), self.steps[0]) {
-            (PathStep::Lane(src), PathStep::Lane(dst)) => {
-                let turn = TurnID {
-                    parent: map.get_l(src).dst_i,
-                    src,
-                    dst,
-                };
-                self.steps.push_front(PathStep::Turn(turn));
-                self.total_length += map.get_t(turn).geom.length();
+        let common_i = map
+            .get_l(other.steps.back().unwrap().as_lane())
+            .common_endpt(map.get_l(self.steps[0].as_lane()));
+        match *other.steps.back().unwrap() {
+            PathStep::Lane(l) => {
+                if map.get_l(l).src_i == common_i {
+                    self.steps.push_front(PathStep::ContraflowLane(l));
+                }
+            }
+            PathStep::ContraflowLane(l) => {
+                if map.get_l(l).dst_i == common_i {
+                    self.steps.push_front(PathStep::Lane(l));
+                }
             }
             _ => unreachable!(),
         }
+
+        let turn = glue(*other.steps.back().unwrap(), self.steps[0], map);
+        self.steps.push_front(PathStep::Turn(turn));
+        self.total_length += map.get_t(turn).geom.length();
         for step in other.steps.into_iter().rev() {
             self.steps.push_front(step);
         }
@@ -340,21 +349,53 @@ impl Path {
     }
 
     fn append(&mut self, other: Path, map: &Map) {
-        match (*self.steps.back().unwrap(), other.steps[0]) {
-            (PathStep::Lane(src), PathStep::Lane(dst)) => {
-                let turn = TurnID {
-                    parent: map.get_l(src).dst_i,
-                    src,
-                    dst,
-                };
-                self.steps.push_back(PathStep::Turn(turn));
-                self.total_length += map.get_t(turn).geom.length();
+        // TODO There's a better way to do this. We might be able to remove a step instead of
+        // doubling back sometimes.
+        let common_i = map
+            .get_l(self.steps.back().unwrap().as_lane())
+            .common_endpt(map.get_l(other.steps[0].as_lane()));
+        match *self.steps.back().unwrap() {
+            PathStep::Lane(l) => {
+                if map.get_l(l).src_i == common_i {
+                    self.steps.push_back(PathStep::ContraflowLane(l));
+                }
+            }
+            PathStep::ContraflowLane(l) => {
+                if map.get_l(l).dst_i == common_i {
+                    self.steps.push_back(PathStep::Lane(l));
+                }
             }
             _ => unreachable!(),
         }
+
+        let turn = glue(*self.steps.back().unwrap(), other.steps[0], map);
+        self.steps.push_back(PathStep::Turn(turn));
+        self.total_length += map.get_t(turn).geom.length();
         self.steps.extend(other.steps);
         self.total_length += other.total_length;
         self.total_lanes += other.total_lanes;
+    }
+}
+
+fn glue(step1: PathStep, step2: PathStep, map: &Map) -> TurnID {
+    match step1 {
+        PathStep::Lane(src) => match step2 {
+            PathStep::Lane(dst) | PathStep::ContraflowLane(dst) => TurnID {
+                parent: map.get_l(src).dst_i,
+                src,
+                dst,
+            },
+            _ => unreachable!(),
+        },
+        PathStep::ContraflowLane(src) => match step2 {
+            PathStep::Lane(dst) | PathStep::ContraflowLane(dst) => TurnID {
+                parent: map.get_l(src).src_i,
+                src,
+                dst,
+            },
+            _ => unreachable!(),
+        },
+        _ => unreachable!(),
     }
 }
 
@@ -553,9 +594,6 @@ impl Pathfinder {
         let end_r = map.get_parent(req.end.lane());
 
         if start_r.is_private() && end_r.is_private() {
-            if req.constraints == PathConstraints::Pedestrian {
-                return None;
-            }
             let zone1 = map.road_to_zone(start_r.id);
             let zone2 = map.road_to_zone(end_r.id);
             if zone1.id == zone2.id {
@@ -634,7 +672,14 @@ impl Pathfinder {
             },
             map,
         )?;
-        req.start = Position::new(dst, Distance::ZERO);
+        req.start = Position::new(
+            dst,
+            match interior_path.steps.back().unwrap() {
+                PathStep::Lane(_) => Distance::ZERO,
+                PathStep::ContraflowLane(_) => map.get_l(dst).length(),
+                _ => unreachable!(),
+            },
+        );
         let mut main_path = match req.constraints {
             PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
@@ -652,15 +697,38 @@ impl Pathfinder {
         zone: &Zone,
         map: &Map,
     ) -> Option<Path> {
-        // TODO Should probably try all combos of incoming/outgoing lanes per border, but I think
-        // generally one should suffice?
-        let src = i
+        // Because sidewalks aren't all immediately linked, insist on a (src, dst) combo that
+        // are actually connected by a turn.
+        let src_choices = i
             .get_incoming_lanes(map, req.constraints)
-            .find(|l| !zone.members.contains(&map.get_l(*l).parent))?;
-        let dst = i
+            .filter(|l| !zone.members.contains(&map.get_l(*l).parent))
+            .collect::<Vec<_>>();
+        let dst_choices = i
             .get_outgoing_lanes(map, req.constraints)
             .into_iter()
-            .find(|l| zone.members.contains(&map.get_l(*l).parent))?;
+            .filter(|l| zone.members.contains(&map.get_l(*l).parent))
+            .collect::<Vec<_>>();
+        let (src, dst) = {
+            let mut result = None;
+            'OUTER: for l1 in src_choices {
+                for l2 in &dst_choices {
+                    if l1 != *l2
+                        && map
+                            .maybe_get_t(TurnID {
+                                parent: i.id,
+                                src: l1,
+                                dst: *l2,
+                            })
+                            .is_some()
+                    {
+                        result = Some((l1, *l2));
+                        break 'OUTER;
+                    }
+                }
+            }
+            result?
+        };
+
         let interior_path = zone.pathfind(
             PathRequest {
                 start: Position::new(dst, Distance::ZERO),
@@ -670,7 +738,15 @@ impl Pathfinder {
             map,
         )?;
         let orig_end_dist = req.end.dist_along();
-        req.end = Position::new(src, map.get_l(src).length());
+        req.end = Position::new(
+            src,
+            match interior_path.steps[0] {
+                PathStep::Lane(_) => map.get_l(src).length(),
+                PathStep::ContraflowLane(_) => Distance::ZERO,
+                _ => unreachable!(),
+            },
+        );
+
         let mut main_path = match req.constraints {
             PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
