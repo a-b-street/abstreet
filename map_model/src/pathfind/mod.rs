@@ -402,7 +402,7 @@ impl fmt::Display for PathRequest {
 
 fn validate_continuity(map: &Map, steps: &Vec<PathStep>) {
     if steps.is_empty() {
-        panic!("Empty Path");
+        panic!("Empty path");
     }
     for pair in steps.windows(2) {
         let from = match pair[0] {
@@ -507,13 +507,90 @@ impl Pathfinder {
         self.walking_with_transit_graph = Some(SidewalkPathfinder::new(map, true, &self.bus_graph));
     }
 
-    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
-        match req.constraints {
+    pub fn pathfind(&self, mut req: PathRequest, map: &Map) -> Option<Path> {
+        let orig_end_dist = req.end.dist_along();
+        let start_r = map.get_parent(req.start.lane());
+        let end_r = map.get_parent(req.end.lane());
+
+        let prepend = if start_r.is_private() {
+            let zone = map.road_to_zone(start_r.id);
+            let (src, dst) = zone.find_border(req.end, false, req.constraints, map)?;
+            let result = zone.pathfind(
+                PathRequest {
+                    start: req.start,
+                    end: Position::new(src, map.get_l(src).length()),
+                    constraints: req.constraints,
+                },
+                map,
+            )?;
+            req.start = Position::new(dst, Distance::ZERO);
+            Some(result)
+        } else {
+            None
+        };
+        let append = if end_r.is_private() {
+            let zone = map.road_to_zone(end_r.id);
+            let (src, dst) = zone.find_border(req.start, true, req.constraints, map)?;
+            let result = zone.pathfind(
+                PathRequest {
+                    start: Position::new(dst, Distance::ZERO),
+                    end: req.end,
+                    constraints: req.constraints,
+                },
+                map,
+            )?;
+            req.end = Position::new(src, Distance::ZERO);
+            Some(result)
+        } else {
+            None
+        };
+
+        let mut main_path = match req.constraints {
             PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
+        }?;
+
+        if let Some(p) = prepend {
+            match (*p.steps.back().unwrap(), main_path.steps[0]) {
+                (PathStep::Lane(src), PathStep::Lane(dst)) => {
+                    let turn = TurnID {
+                        parent: map.get_l(src).dst_i,
+                        src,
+                        dst,
+                    };
+                    main_path.steps.push_front(PathStep::Turn(turn));
+                    main_path.total_length += map.get_t(turn).geom.length();
+                }
+                _ => unreachable!(),
+            }
+            for step in p.steps.into_iter().rev() {
+                main_path.steps.push_front(step);
+            }
+            main_path.total_length += p.total_length;
+            main_path.total_lanes += p.total_lanes;
         }
+        if let Some(p) = append {
+            match (*main_path.steps.back().unwrap(), p.steps[0]) {
+                (PathStep::Lane(src), PathStep::Lane(dst)) => {
+                    let turn = TurnID {
+                        parent: map.get_l(src).dst_i,
+                        src,
+                        dst,
+                    };
+                    main_path.steps.push_back(PathStep::Turn(turn));
+                    main_path.total_length += map.get_t(turn).geom.length();
+                }
+                _ => unreachable!(),
+            }
+            main_path.steps.extend(p.steps);
+            main_path.total_length += p.total_length;
+            main_path.total_lanes += p.total_lanes;
+            main_path.end_dist = orig_end_dist;
+        }
+        validate_continuity(map, &main_path.steps.iter().cloned().collect());
+        Some(main_path)
     }
 
     pub fn should_use_transit(

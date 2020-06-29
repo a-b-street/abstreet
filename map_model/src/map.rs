@@ -745,6 +745,11 @@ impl Map {
         None
     }
 
+    pub fn road_to_zone(&self, r: RoadID) -> &Zone {
+        // TODO Consider indexing
+        self.zones.iter().find(|z| z.members.contains(&r)).unwrap()
+    }
+
     pub fn right_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
         self.driving_side.right_shift(pl, width)
     }
