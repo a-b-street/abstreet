@@ -8,7 +8,8 @@ pub use self::driving::cost;
 use self::driving::VehiclePathfinder;
 use self::walking::SidewalkPathfinder;
 use crate::{
-    osm, BusRouteID, BusStopID, Lane, LaneID, LaneType, Map, Position, Traversable, TurnID,
+    osm, BusRouteID, BusStopID, Intersection, Lane, LaneID, LaneType, Map, Position, Traversable,
+    TurnID, Zone,
 };
 use abstutil::Timer;
 use geom::{Distance, PolyLine, EPSILON_DIST};
@@ -317,6 +318,44 @@ impl Path {
     pub fn get_steps(&self) -> &VecDeque<PathStep> {
         &self.steps
     }
+
+    fn prepend(&mut self, other: Path, map: &Map) {
+        match (*other.steps.back().unwrap(), self.steps[0]) {
+            (PathStep::Lane(src), PathStep::Lane(dst)) => {
+                let turn = TurnID {
+                    parent: map.get_l(src).dst_i,
+                    src,
+                    dst,
+                };
+                self.steps.push_front(PathStep::Turn(turn));
+                self.total_length += map.get_t(turn).geom.length();
+            }
+            _ => unreachable!(),
+        }
+        for step in other.steps.into_iter().rev() {
+            self.steps.push_front(step);
+        }
+        self.total_length += other.total_length;
+        self.total_lanes += other.total_lanes;
+    }
+
+    fn append(&mut self, other: Path, map: &Map) {
+        match (*self.steps.back().unwrap(), other.steps[0]) {
+            (PathStep::Lane(src), PathStep::Lane(dst)) => {
+                let turn = TurnID {
+                    parent: map.get_l(src).dst_i,
+                    src,
+                    dst,
+                };
+                self.steps.push_back(PathStep::Turn(turn));
+                self.total_length += map.get_t(turn).geom.length();
+            }
+            _ => unreachable!(),
+        }
+        self.steps.extend(other.steps);
+        self.total_length += other.total_length;
+        self.total_lanes += other.total_lanes;
+    }
 }
 
 // Who's asking for a path?
@@ -507,73 +546,139 @@ impl Pathfinder {
         self.walking_with_transit_graph = Some(SidewalkPathfinder::new(map, true, &self.bus_graph));
     }
 
-    pub fn pathfind(&self, mut req: PathRequest, map: &Map) -> Option<Path> {
-        let orig_end_dist = req.end.dist_along();
+    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
+        // If we start or end in a private zone, have to stitch together a smaller path with a path
+        // through the main map.
         let start_r = map.get_parent(req.start.lane());
         let end_r = map.get_parent(req.end.lane());
 
-        let prepend = if start_r.is_private() {
+        if start_r.is_private() && end_r.is_private() {
+            if req.constraints == PathConstraints::Pedestrian {
+                return None;
+            }
+            let zone1 = map.road_to_zone(start_r.id);
+            let zone2 = map.road_to_zone(end_r.id);
+            if zone1.id == zone2.id {
+                zone1.pathfind(req, map)
+            } else {
+                // TODO Handle paths going between two different zones
+                None
+            }
+        } else if start_r.is_private() {
+            if req.constraints == PathConstraints::Pedestrian {
+                return None;
+            }
             let zone = map.road_to_zone(start_r.id);
-            let (path, connection) = zone.find_path(&req, false, map)?;
-            req.start = Position::new(connection, Distance::ZERO);
-            Some(path)
-        } else {
-            None
-        };
-        let append = if end_r.is_private() {
-            let zone = map.road_to_zone(end_r.id);
-            let (path, connection) = zone.find_path(&req, true, map)?;
-            req.end = Position::new(connection, map.get_l(connection).length());
-            Some(path)
-        } else {
-            None
-        };
+            let mut borders: Vec<&Intersection> =
+                zone.borders.iter().map(|i| map.get_i(*i)).collect();
+            // TODO Use the CH to pick the lowest overall cost?
+            let pt = req.end.pt(map);
+            borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
 
+            for i in borders {
+                if let Some(result) = self.pathfind_from_zone(i, req.clone(), zone, map) {
+                    validate_continuity(map, &result.steps.iter().cloned().collect());
+                    return Some(result);
+                }
+            }
+            None
+        } else if end_r.is_private() {
+            if req.constraints == PathConstraints::Pedestrian {
+                return None;
+            }
+            let zone = map.road_to_zone(end_r.id);
+            let mut borders: Vec<&Intersection> =
+                zone.borders.iter().map(|i| map.get_i(*i)).collect();
+            // TODO Use the CH to pick the lowest overall cost?
+            let pt = req.start.pt(map);
+            borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
+
+            for i in borders {
+                if let Some(result) = self.pathfind_to_zone(i, req.clone(), zone, map) {
+                    validate_continuity(map, &result.steps.iter().cloned().collect());
+                    return Some(result);
+                }
+            }
+            None
+        } else {
+            match req.constraints {
+                PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
+                PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
+                PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
+                PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
+            }
+        }
+    }
+
+    fn pathfind_from_zone(
+        &self,
+        i: &Intersection,
+        mut req: PathRequest,
+        zone: &Zone,
+        map: &Map,
+    ) -> Option<Path> {
+        // TODO Should probably try all combos of incoming/outgoing lanes per border, but I think
+        // generally one should suffice?
+        let src = i
+            .get_incoming_lanes(map, req.constraints)
+            .find(|l| zone.members.contains(&map.get_l(*l).parent))?;
+        let dst = i
+            .get_outgoing_lanes(map, req.constraints)
+            .into_iter()
+            .find(|l| !zone.members.contains(&map.get_l(*l).parent))?;
+        let interior_path = zone.pathfind(
+            PathRequest {
+                start: req.start,
+                end: Position::new(src, map.get_l(src).length()),
+                constraints: req.constraints,
+            },
+            map,
+        )?;
+        req.start = Position::new(dst, Distance::ZERO);
         let mut main_path = match req.constraints {
             PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
         }?;
+        main_path.prepend(interior_path, map);
+        Some(main_path)
+    }
 
-        if let Some(p) = prepend {
-            match (*p.steps.back().unwrap(), main_path.steps[0]) {
-                (PathStep::Lane(src), PathStep::Lane(dst)) => {
-                    let turn = TurnID {
-                        parent: map.get_l(src).dst_i,
-                        src,
-                        dst,
-                    };
-                    main_path.steps.push_front(PathStep::Turn(turn));
-                    main_path.total_length += map.get_t(turn).geom.length();
-                }
-                _ => unreachable!(),
-            }
-            for step in p.steps.into_iter().rev() {
-                main_path.steps.push_front(step);
-            }
-            main_path.total_length += p.total_length;
-            main_path.total_lanes += p.total_lanes;
-        }
-        if let Some(p) = append {
-            match (*main_path.steps.back().unwrap(), p.steps[0]) {
-                (PathStep::Lane(src), PathStep::Lane(dst)) => {
-                    let turn = TurnID {
-                        parent: map.get_l(src).dst_i,
-                        src,
-                        dst,
-                    };
-                    main_path.steps.push_back(PathStep::Turn(turn));
-                    main_path.total_length += map.get_t(turn).geom.length();
-                }
-                _ => unreachable!(),
-            }
-            main_path.steps.extend(p.steps);
-            main_path.total_length += p.total_length;
-            main_path.total_lanes += p.total_lanes;
-            main_path.end_dist = orig_end_dist;
-        }
-        validate_continuity(map, &main_path.steps.iter().cloned().collect());
+    fn pathfind_to_zone(
+        &self,
+        i: &Intersection,
+        mut req: PathRequest,
+        zone: &Zone,
+        map: &Map,
+    ) -> Option<Path> {
+        // TODO Should probably try all combos of incoming/outgoing lanes per border, but I think
+        // generally one should suffice?
+        let src = i
+            .get_incoming_lanes(map, req.constraints)
+            .find(|l| !zone.members.contains(&map.get_l(*l).parent))?;
+        let dst = i
+            .get_outgoing_lanes(map, req.constraints)
+            .into_iter()
+            .find(|l| zone.members.contains(&map.get_l(*l).parent))?;
+        let interior_path = zone.pathfind(
+            PathRequest {
+                start: Position::new(dst, Distance::ZERO),
+                end: req.end,
+                constraints: req.constraints,
+            },
+            map,
+        )?;
+        let orig_end_dist = req.end.dist_along();
+        req.end = Position::new(src, map.get_l(src).length());
+        let mut main_path = match req.constraints {
+            PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
+            PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
+            PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
+            PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
+        }?;
+        main_path.append(interior_path, map);
+        main_path.end_dist = orig_end_dist;
         Some(main_path)
     }
 
