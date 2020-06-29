@@ -3489,7 +3489,7 @@ dependencies = [
 [[package]]
 name = "usvg"
 version = "0.10.0"
-source = "git+https://github.com/dabreegster/resvg#e1291d4a2a316d2468a6220f7f3312f70a615f8c"
+source = "git+https://github.com/dabreegster/resvg#461adf5298036b64a7854e5157cb0ee533afb392"
 dependencies = [
  "base64 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "data-url 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
