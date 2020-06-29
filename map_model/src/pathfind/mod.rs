@@ -514,33 +514,17 @@ impl Pathfinder {
 
         let prepend = if start_r.is_private() {
             let zone = map.road_to_zone(start_r.id);
-            let (src, dst) = zone.find_border(req.end, false, req.constraints, map)?;
-            let result = zone.pathfind(
-                PathRequest {
-                    start: req.start,
-                    end: Position::new(src, map.get_l(src).length()),
-                    constraints: req.constraints,
-                },
-                map,
-            )?;
-            req.start = Position::new(dst, Distance::ZERO);
-            Some(result)
+            let (path, connection) = zone.find_path(&req, false, map)?;
+            req.start = Position::new(connection, Distance::ZERO);
+            Some(path)
         } else {
             None
         };
         let append = if end_r.is_private() {
             let zone = map.road_to_zone(end_r.id);
-            let (src, dst) = zone.find_border(req.start, true, req.constraints, map)?;
-            let result = zone.pathfind(
-                PathRequest {
-                    start: Position::new(dst, Distance::ZERO),
-                    end: req.end,
-                    constraints: req.constraints,
-                },
-                map,
-            )?;
-            req.end = Position::new(src, Distance::ZERO);
-            Some(result)
+            let (path, connection) = zone.find_path(&req, true, map)?;
+            req.end = Position::new(connection, map.get_l(connection).length());
+            Some(path)
         } else {
             None
         };

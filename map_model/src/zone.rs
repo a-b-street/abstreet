@@ -1,8 +1,9 @@
 use crate::pathfind::cost;
 use crate::{
-    Intersection, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
-    Position, RoadID, TurnID,
+    Intersection, IntersectionID, LaneID, Map, Path, PathRequest, PathStep, Position, RoadID,
+    TurnID,
 };
+use geom::Distance;
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -26,35 +27,57 @@ pub struct Zone {
 }
 
 impl Zone {
-    // If entering, then finds the (last lane outside the zone, first lane inside the zone). If
-    // not, the opposite.
-    pub(crate) fn find_border(
+    // The lane connection returned is the last lane outside the zone if entering, or the first
+    // lane outside the zone if exiting.
+    pub(crate) fn find_path(
         &self,
-        outside: Position,
+        req: &PathRequest,
         entering: bool,
-        constraints: PathConstraints,
         map: &Map,
-    ) -> Option<(LaneID, LaneID)> {
+    ) -> Option<(Path, LaneID)> {
         let mut borders: Vec<&Intersection> = self.borders.iter().map(|i| map.get_i(*i)).collect();
         // TODO Use the CH
-        let pt = outside.pt(map);
+        let pt = if entering { req.start } else { req.end }.pt(map);
         borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
 
         for i in borders {
-            let src = i
-                .get_incoming_lanes(map, constraints)
-                .find(|l| self.members.contains(&map.get_l(*l).parent) == !entering)?;
-            let dst = i
-                .get_outgoing_lanes(map, constraints)
-                .into_iter()
-                .find(|l| self.members.contains(&map.get_l(*l).parent) == entering)?;
-            return Some((src, dst));
+            // TODO Should probably try all combos of incoming/outgoing lanes per border, but I
+            // think generally one should suffice?
+            if let Some(src) = i
+                .get_incoming_lanes(map, req.constraints)
+                .find(|l| self.members.contains(&map.get_l(*l).parent) == !entering)
+            {
+                if let Some(dst) = i
+                    .get_outgoing_lanes(map, req.constraints)
+                    .into_iter()
+                    .find(|l| self.members.contains(&map.get_l(*l).parent) == entering)
+                {
+                    if let Some(interior_path) = self.pathfind(
+                        PathRequest {
+                            start: if entering {
+                                Position::new(dst, Distance::ZERO)
+                            } else {
+                                req.start
+                            },
+                            end: if entering {
+                                req.end
+                            } else {
+                                Position::new(src, map.get_l(src).length())
+                            },
+                            constraints: req.constraints,
+                        },
+                        map,
+                    ) {
+                        return Some((interior_path, if entering { src } else { dst }));
+                    }
+                }
+            }
         }
         None
     }
 
     // Run slower Dijkstra's within the interior of a private zone. Don't go outside the borders.
-    pub(crate) fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
+    fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
         // Edge type is the Turn, but we don't need it
         let mut graph: DiGraphMap<LaneID, TurnID> = DiGraphMap::new();
         for r in &self.members {
@@ -87,6 +110,7 @@ impl Zone {
             }));
         }
         steps.push(PathStep::Lane(req.end.lane()));
+        assert_eq!(steps[0], PathStep::Lane(req.start.lane()));
         Some(Path::new(map, steps, req.end.dist_along()))
     }
 }
