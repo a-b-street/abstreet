@@ -46,6 +46,10 @@ impl CityPicker {
             }
 
             for (name, polygon) in city.regions {
+                // For example, the huge_seattle map isn't bundled in releases.
+                if !abstutil::file_exists(abstutil::path_map(&name)) {
+                    continue;
+                }
                 let color = app.cs.rotating_color_agents(regions.len());
                 if &name == app.primary.map.get_name() {
                     batch.push(color.alpha(0.5), polygon.clone());

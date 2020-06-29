@@ -781,7 +781,7 @@ dependencies = [
  "stdweb 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "stretch 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ttf-parser 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "usvg 0.10.0 (git+https://github.com/dabreegster/resvg)",
+ "usvg 0.10.0 (git+https://github.com/RazrFalcon/resvg)",
  "webgl_stdweb 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "winit 0.22.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -3489,7 +3489,7 @@ dependencies = [
 [[package]]
 name = "usvg"
 version = "0.10.0"
-source = "git+https://github.com/dabreegster/resvg#461adf5298036b64a7854e5157cb0ee533afb392"
+source = "git+https://github.com/RazrFalcon/resvg#b70a71293d86e4bd058970600668e4c9217810b5"
 dependencies = [
  "base64 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "data-url 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -4310,7 +4310,7 @@ dependencies = [
 "checksum unreachable 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "1f2ae5ddb18e1c92664717616dd9549dde73f539f01bd7b77c2edb2446bdff91"
 "checksum untrusted 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)" = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
 "checksum url 2.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "829d4a8476c35c9bf0bbce5a3b23f4106f79728039b726d292bb93bc106787cb"
-"checksum usvg 0.10.0 (git+https://github.com/dabreegster/resvg)" = "<none>"
+"checksum usvg 0.10.0 (git+https://github.com/RazrFalcon/resvg)" = "<none>"
 "checksum utf-8 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a9aee9ba280438b56d1ebc5329f2094f0ff457f811eeeff0b278d75aa99db400"
 "checksum uuid 0.8.1 (git+https://github.com/uuid-rs/uuid?rev=9bb93b6)" = "<none>"
 "checksum vec_map 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "05c78687fb1a80548ae3250346c3db86a80a7cdd77bda190189f2d0a0987c81a"
