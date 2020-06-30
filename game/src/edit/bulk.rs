@@ -3,7 +3,7 @@ use crate::common::CommonState;
 use crate::edit::lanes::try_change_lane_type;
 use crate::edit::{apply_map_edits, change_speed_limit};
 use crate::game::{msg, State, Transition};
-use crate::helpers::ID;
+use crate::helpers::{intersections_from_roads, ID};
 use ezgui::{
     hotkey, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, TextExt, VerticalAlignment, Widget,
@@ -579,20 +579,4 @@ fn make_paint_composite(
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
-}
-
-fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet<IntersectionID> {
-    let mut results = BTreeSet::new();
-    for r in roads {
-        let r = map.get_r(*r);
-        for i in vec![r.src_i, r.dst_i] {
-            if results.contains(&i) {
-                continue;
-            }
-            if map.get_i(i).roads.iter().all(|r| roads.contains(r)) {
-                results.insert(i);
-            }
-        }
-    }
-    results
 }

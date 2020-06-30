@@ -1,5 +1,6 @@
 use crate::app::App;
 use crate::common::CommonState;
+use crate::edit::zones::ZoneEditor;
 use crate::edit::{apply_map_edits, can_edit_lane, change_speed_limit, maybe_edit_intersection};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
@@ -79,7 +80,10 @@ impl LaneEditor {
                 .draw_text(ctx)
                 .centered_horiz(),
             Widget::row(row).centered().margin_below(5),
-            change_speed_limit(ctx, parent.speed_limit).margin_below(5),
+            change_speed_limit(ctx, parent.speed_limit).margin_below(10),
+            Btn::text_fg("Change access restrictions")
+                .build_def(ctx, None)
+                .margin_below(10),
             Widget::row(vec![
                 Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
                 // TODO Handle reverting speed limit too...
@@ -158,6 +162,13 @@ impl State for LaneEditor {
                         try_change_lane_type(self.l, LaneType::Construction, map)
                     }
                     "reverse lane direction" => try_reverse(self.l, map),
+                    "Change access restrictions" => {
+                        return Transition::Push(ZoneEditor::new(
+                            ctx,
+                            app,
+                            app.primary.map.get_l(self.l).parent,
+                        ));
+                    }
                     "Finish" => {
                         return Transition::Pop;
                     }

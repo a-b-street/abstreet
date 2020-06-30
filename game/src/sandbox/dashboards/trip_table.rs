@@ -1,6 +1,8 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
-use crate::helpers::{cmp_duration_shorter, color_for_mode, color_for_trip_phase};
+use crate::helpers::{
+    checkbox_per_mode, cmp_duration_shorter, color_for_mode, color_for_trip_phase,
+};
 use crate::info::{OpenTrip, Tab};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
@@ -324,20 +326,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
     headers.push(btn(SortBy::PercentWaiting, "Percent waiting"));
 
     let mut col = vec![DashTab::TripTable.picker(ctx, app)];
-    let mut filters = Vec::new();
-    for m in TripMode::all() {
-        filters.push(
-            Checkbox::colored(
-                ctx,
-                m.ongoing_verb(),
-                color_for_mode(app, m),
-                opts.modes.contains(&m),
-            )
-            .margin_right(5),
-        );
-        filters.push(m.ongoing_verb().draw_text(ctx).margin_right(10));
-    }
-    col.push(Widget::row(filters).margin_below(5));
+    col.push(checkbox_per_mode(ctx, app, &opts.modes).margin_below(5));
     col.push(
         Widget::row(vec![
             Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts).margin_right(10),

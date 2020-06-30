@@ -3,6 +3,7 @@ mod cluster_traffic_signals;
 mod lanes;
 mod stop_signs;
 mod traffic_signals;
+mod zones;
 
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
 pub use self::lanes::LaneEditor;

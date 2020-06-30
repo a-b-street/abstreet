@@ -273,14 +273,4 @@ impl Lane {
                 0
             })
     }
-
-    pub fn common_endpt(&self, other: &Lane) -> IntersectionID {
-        if self.src_i == other.src_i || self.src_i == other.dst_i {
-            self.src_i
-        } else if self.dst_i == other.src_i || self.dst_i == other.dst_i {
-            self.dst_i
-        } else {
-            panic!("{} and {} don't share an endpoint", self.id, other.id);
-        }
-    }
 }

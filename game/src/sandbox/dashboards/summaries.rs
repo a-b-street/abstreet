@@ -1,11 +1,11 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
-use crate::helpers::color_for_mode;
+use crate::helpers::checkbox_per_mode;
 use crate::sandbox::dashboards::DashTab;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    Checkbox, Choice, Color, CompareTimes, Composite, DrawWithTooltips, EventCtx, GeomBatch,
-    GfxCtx, Line, Outcome, Text, TextExt, Widget,
+    Choice, Color, CompareTimes, Composite, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line,
+    Outcome, Text, Widget,
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
 use sim::TripMode;
@@ -18,30 +18,21 @@ pub struct TripSummaries {
 
 impl TripSummaries {
     pub fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State> {
-        let mut filters = vec![Widget::dropdown(
-            ctx,
-            "filter",
-            filter.changes_pct,
-            vec![
-                Choice::new("any change", None),
-                Choice::new("at least 1% change", Some(0.01)),
-                Choice::new("at least 10% change", Some(0.1)),
-                Choice::new("at least 50% change", Some(0.5)),
-            ],
-        )
-        .margin_right(10)];
-        for m in TripMode::all() {
-            filters.push(
-                Checkbox::colored(
-                    ctx,
-                    m.ongoing_verb(),
-                    color_for_mode(app, m),
-                    filter.modes.contains(&m),
-                )
-                .margin_right(5),
-            );
-            filters.push(m.ongoing_verb().draw_text(ctx).margin_right(10));
-        }
+        let filters = vec![
+            Widget::dropdown(
+                ctx,
+                "filter",
+                filter.changes_pct,
+                vec![
+                    Choice::new("any change", None),
+                    Choice::new("at least 1% change", Some(0.01)),
+                    Choice::new("at least 10% change", Some(0.1)),
+                    Choice::new("at least 50% change", Some(0.5)),
+                ],
+            )
+            .margin_right(10),
+            checkbox_per_mode(ctx, app, &filter.modes),
+        ];
 
         Box::new(TripSummaries {
             composite: Composite::new(

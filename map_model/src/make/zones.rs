@@ -39,18 +39,7 @@ fn floodfill(map: &Map, start: RoadID, id: ZoneID) -> Zone {
             if r.is_private() {
                 queue.push(r.id);
             } else {
-                let current_r = map.get_r(current);
-                if r.src_i == current_r.src_i {
-                    borders.insert(r.src_i);
-                } else if r.src_i == current_r.dst_i {
-                    borders.insert(r.src_i);
-                } else if r.dst_i == current_r.src_i {
-                    borders.insert(r.dst_i);
-                } else if r.dst_i == current_r.dst_i {
-                    borders.insert(r.dst_i);
-                } else {
-                    unreachable!();
-                }
+                borders.insert(map.get_r(current).common_endpt(r));
             }
         }
     }

@@ -1,7 +1,7 @@
 use crate::app::{App, PerMap};
-use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
+use ezgui::{hotkey, Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextExt, TextSpan, Widget};
 use geom::{Duration, Pt2D};
-use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, ParkingLotID, RoadID};
+use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use sim::{AgentID, CarID, PedestrianID, TripMode, TripPhaseType};
 use std::collections::BTreeSet;
 
@@ -198,4 +198,41 @@ pub fn hotkey_btn<I: Into<String>>(ctx: &EventCtx, app: &App, label: I, key: Key
     txt.append(Line(key.describe()).fg(ctx.style().hotkey_color));
     txt.append(Line(format!(" - {}", label)));
     Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering).build_def(ctx, hotkey(key))
+}
+
+pub fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet<IntersectionID> {
+    let mut results = BTreeSet::new();
+    for r in roads {
+        let r = map.get_r(*r);
+        for i in vec![r.src_i, r.dst_i] {
+            if results.contains(&i) {
+                continue;
+            }
+            if map.get_i(i).roads.iter().all(|r| roads.contains(r)) {
+                results.insert(i);
+            }
+        }
+    }
+    results
+}
+
+pub fn checkbox_per_mode(
+    ctx: &mut EventCtx,
+    app: &App,
+    current_state: &BTreeSet<TripMode>,
+) -> Widget {
+    let mut filters = Vec::new();
+    for m in TripMode::all() {
+        filters.push(
+            Checkbox::colored(
+                ctx,
+                m.ongoing_verb(),
+                color_for_mode(app, m),
+                current_state.contains(&m),
+            )
+            .margin_right(5),
+        );
+        filters.push(m.ongoing_verb().draw_text(ctx).margin_right(10));
+    }
+    Widget::row(filters)
 }
