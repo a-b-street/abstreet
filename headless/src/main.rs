@@ -30,7 +30,7 @@ fn main() {
         &mut timer,
     );
     ScenarioModifier::RepeatDays(num_days)
-        .apply(base_scenario)
+        .apply(base_scenario, &mut rng)
         .instantiate(&mut sim, &map, &mut rng, &mut timer);
     timer.done();
 

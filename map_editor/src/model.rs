@@ -584,6 +584,7 @@ impl Model {
             LaneType::Biking => Color::rgb(15, 125, 75),
             LaneType::SharedLeftTurn => Color::YELLOW,
             LaneType::Construction => Color::rgb(255, 109, 0),
+            LaneType::LightRail => Color::hex("#844204"),
         };
         if unset {
             Color::rgba_f(0.9, color.g, color.b, 0.5)
