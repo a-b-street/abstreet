@@ -321,23 +321,6 @@ impl Path {
     }
 
     fn prepend(&mut self, other: Path, map: &Map) {
-        let common_i = map
-            .get_l(other.steps.back().unwrap().as_lane())
-            .common_endpt(map.get_l(self.steps[0].as_lane()));
-        match *other.steps.back().unwrap() {
-            PathStep::Lane(l) => {
-                if map.get_l(l).src_i == common_i {
-                    self.steps.push_front(PathStep::ContraflowLane(l));
-                }
-            }
-            PathStep::ContraflowLane(l) => {
-                if map.get_l(l).dst_i == common_i {
-                    self.steps.push_front(PathStep::Lane(l));
-                }
-            }
-            _ => unreachable!(),
-        }
-
         let turn = glue(*other.steps.back().unwrap(), self.steps[0], map);
         self.steps.push_front(PathStep::Turn(turn));
         self.total_length += map.get_t(turn).geom.length();
@@ -349,25 +332,6 @@ impl Path {
     }
 
     fn append(&mut self, other: Path, map: &Map) {
-        // TODO There's a better way to do this. We might be able to remove a step instead of
-        // doubling back sometimes.
-        let common_i = map
-            .get_l(self.steps.back().unwrap().as_lane())
-            .common_endpt(map.get_l(other.steps[0].as_lane()));
-        match *self.steps.back().unwrap() {
-            PathStep::Lane(l) => {
-                if map.get_l(l).src_i == common_i {
-                    self.steps.push_back(PathStep::ContraflowLane(l));
-                }
-            }
-            PathStep::ContraflowLane(l) => {
-                if map.get_l(l).dst_i == common_i {
-                    self.steps.push_back(PathStep::Lane(l));
-                }
-            }
-            _ => unreachable!(),
-        }
-
         let turn = glue(*self.steps.back().unwrap(), other.steps[0], map);
         self.steps.push_back(PathStep::Turn(turn));
         self.total_length += map.get_t(turn).geom.length();
@@ -648,6 +612,7 @@ impl Pathfinder {
         }
     }
 
+    // TODO Alright, reconsider refactoring pieces of this again. :)
     fn pathfind_from_zone(
         &self,
         i: &Intersection,
@@ -655,19 +620,49 @@ impl Pathfinder {
         zone: &Zone,
         map: &Map,
     ) -> Option<Path> {
-        // TODO Should probably try all combos of incoming/outgoing lanes per border, but I think
-        // generally one should suffice?
-        let src = i
+        // Because sidewalks aren't all immediately linked, insist on a (src, dst) combo that
+        // are actually connected by a turn.
+        let src_choices = i
             .get_incoming_lanes(map, req.constraints)
-            .find(|l| zone.members.contains(&map.get_l(*l).parent))?;
-        let dst = i
+            .filter(|l| zone.members.contains(&map.get_l(*l).parent))
+            .collect::<Vec<_>>();
+        let dst_choices = i
             .get_outgoing_lanes(map, req.constraints)
             .into_iter()
-            .find(|l| !zone.members.contains(&map.get_l(*l).parent))?;
+            .filter(|l| !zone.members.contains(&map.get_l(*l).parent))
+            .collect::<Vec<_>>();
+        let (src, dst) = {
+            let mut result = None;
+            'OUTER: for l1 in src_choices {
+                for l2 in &dst_choices {
+                    if l1 != *l2
+                        && map
+                            .maybe_get_t(TurnID {
+                                parent: i.id,
+                                src: l1,
+                                dst: *l2,
+                            })
+                            .is_some()
+                    {
+                        result = Some((l1, *l2));
+                        break 'OUTER;
+                    }
+                }
+            }
+            result?
+        };
+
         let interior_path = zone.pathfind(
             PathRequest {
                 start: req.start,
-                end: Position::new(src, map.get_l(src).length()),
+                end: Position::new(
+                    src,
+                    if map.get_l(src).dst_i == i.id {
+                        map.get_l(src).length()
+                    } else {
+                        Distance::ZERO
+                    },
+                ),
                 constraints: req.constraints,
             },
             map,
@@ -731,7 +726,14 @@ impl Pathfinder {
 
         let interior_path = zone.pathfind(
             PathRequest {
-                start: Position::new(dst, Distance::ZERO),
+                start: Position::new(
+                    dst,
+                    if map.get_l(dst).src_i == i.id {
+                        Distance::ZERO
+                    } else {
+                        map.get_l(src).length()
+                    },
+                ),
                 end: req.end,
                 constraints: req.constraints,
             },
