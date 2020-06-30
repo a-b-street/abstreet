@@ -371,9 +371,7 @@ impl SpawnTrip {
                     )
                     .choose(rng)
                     // TODO We could be more precise and say exactly what vehicle will be used here
-                    .and_then(|l| {
-                        TripSpec::spawn_vehicle_at(Position::new(*l, Distance::ZERO), is_bike, map)
-                    })
+                    .and_then(|l| TripSpec::spawn_vehicle_at(Position::start(*l), is_bike, map))
                 {
                     TripSpec::VehicleAppearing {
                         start_pos,

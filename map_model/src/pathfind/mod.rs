@@ -655,26 +655,20 @@ impl Pathfinder {
         let interior_path = zone.pathfind(
             PathRequest {
                 start: req.start,
-                end: Position::new(
-                    src,
-                    if map.get_l(src).dst_i == i.id {
-                        map.get_l(src).length()
-                    } else {
-                        Distance::ZERO
-                    },
-                ),
+                end: if map.get_l(src).dst_i == i.id {
+                    Position::end(src, map)
+                } else {
+                    Position::start(src)
+                },
                 constraints: req.constraints,
             },
             map,
         )?;
-        req.start = Position::new(
-            dst,
-            match interior_path.steps.back().unwrap() {
-                PathStep::Lane(_) => Distance::ZERO,
-                PathStep::ContraflowLane(_) => map.get_l(dst).length(),
-                _ => unreachable!(),
-            },
-        );
+        req.start = match interior_path.steps.back().unwrap() {
+            PathStep::Lane(_) => Position::start(dst),
+            PathStep::ContraflowLane(_) => Position::end(dst, map),
+            _ => unreachable!(),
+        };
         let mut main_path = match req.constraints {
             PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
@@ -726,28 +720,22 @@ impl Pathfinder {
 
         let interior_path = zone.pathfind(
             PathRequest {
-                start: Position::new(
-                    dst,
-                    if map.get_l(dst).src_i == i.id {
-                        Distance::ZERO
-                    } else {
-                        map.get_l(src).length()
-                    },
-                ),
+                start: if map.get_l(dst).src_i == i.id {
+                    Position::start(dst)
+                } else {
+                    Position::end(dst, map)
+                },
                 end: req.end,
                 constraints: req.constraints,
             },
             map,
         )?;
         let orig_end_dist = req.end.dist_along();
-        req.end = Position::new(
-            src,
-            match interior_path.steps[0] {
-                PathStep::Lane(_) => map.get_l(src).length(),
-                PathStep::ContraflowLane(_) => Distance::ZERO,
-                _ => unreachable!(),
-            },
-        );
+        req.end = match interior_path.steps[0] {
+            PathStep::Lane(_) => Position::end(src, map),
+            PathStep::ContraflowLane(_) => Position::start(src),
+            _ => unreachable!(),
+        };
 
         let mut main_path = match req.constraints {
             PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),

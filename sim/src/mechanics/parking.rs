@@ -418,12 +418,7 @@ impl ParkingSimState {
                 // Pick the closest to the start of the lane, since that's closest to where we came
                 // from
                 if let Some((spot, pos)) = self
-                    .get_all_free_spots(
-                        Position::new(current, Distance::ZERO),
-                        vehicle,
-                        target,
-                        map,
-                    )
+                    .get_all_free_spots(Position::start(current), vehicle, target, map)
                     .into_iter()
                     .min_by_key(|(_, pos)| pos.dist_along())
                 {

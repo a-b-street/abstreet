@@ -187,12 +187,7 @@ impl Sim {
         // TODO Refactor the logic in router
         let spot = if let Some((spot, _)) = self
             .parking
-            .get_all_free_spots(
-                Position::new(driving_lane, Distance::ZERO),
-                &vehicle,
-                b,
-                map,
-            )
+            .get_all_free_spots(Position::start(driving_lane), &vehicle, b, map)
             .get(0)
         {
             spot.clone()

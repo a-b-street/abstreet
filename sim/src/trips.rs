@@ -5,7 +5,7 @@ use crate::{
     Vehicle, VehicleSpec, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
-use geom::{Distance, Duration, Speed, Time};
+use geom::{Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Path, PathConstraints, PathRequest,
     Position,
@@ -716,12 +716,7 @@ impl TripManager {
                 if let TripEndpoint::Bldg(b) = trip.end {
                     let driving_lane = map.find_driving_lane_near_building(b);
                     if let Some(spot) = parking
-                        .get_all_free_spots(
-                            Position::new(driving_lane, Distance::ZERO),
-                            &vehicle,
-                            b,
-                            map,
-                        )
+                        .get_all_free_spots(Position::start(driving_lane), &vehicle, b, map)
                         // TODO Could pick something closer, but meh, aborted trips are bugs anyway
                         .get(0)
                         .map(|(spot, _)| spot.clone())

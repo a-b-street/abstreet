@@ -223,16 +223,14 @@ impl DrivingGoal {
     pub fn goal_pos(&self, constraints: PathConstraints, map: &Map) -> Position {
         match self {
             DrivingGoal::ParkNear(b) => match constraints {
-                PathConstraints::Car => {
-                    Position::new(map.find_driving_lane_near_building(*b), Distance::ZERO)
-                }
+                PathConstraints::Car => Position::start(map.find_driving_lane_near_building(*b)),
                 PathConstraints::Bike => {
                     let l = map.find_biking_lane_near_building(*b);
                     Position::new(l, map.get_l(l).length() / 2.0)
                 }
                 PathConstraints::Bus | PathConstraints::Pedestrian => unreachable!(),
             },
-            DrivingGoal::Border(_, l, _) => Position::new(*l, map.get_l(*l).length()),
+            DrivingGoal::Border(_, l, _) => Position::end(*l, map),
         }
     }
 
@@ -291,7 +289,7 @@ impl SidewalkSpot {
         SidewalkSpot {
             connection: SidewalkPOI::DeferredParkingSpot,
             // Dummy value
-            sidewalk_pos: Position::new(LaneID(0), Distance::ZERO),
+            sidewalk_pos: Position::start(LaneID(0)),
         }
     }
 
@@ -357,7 +355,7 @@ impl SidewalkSpot {
             .get_outgoing_lanes(map, PathConstraints::Pedestrian);
         if !lanes.is_empty() {
             return Some(SidewalkSpot {
-                sidewalk_pos: Position::new(lanes[0], Distance::ZERO),
+                sidewalk_pos: Position::start(lanes[0]),
                 connection: SidewalkPOI::Border(i, origin),
             });
         }
@@ -366,7 +364,7 @@ impl SidewalkSpot {
             .get_incoming_lanes(map, PathConstraints::Pedestrian)
             .next()
             .map(|l| SidewalkSpot {
-                sidewalk_pos: Position::new(l, map.get_l(l).length()),
+                sidewalk_pos: Position::end(l, map),
                 connection: SidewalkPOI::Border(i, origin),
             })
     }
@@ -382,7 +380,7 @@ impl SidewalkSpot {
             .next()
         {
             return Some(SidewalkSpot {
-                sidewalk_pos: Position::new(l, map.get_l(l).length()),
+                sidewalk_pos: Position::end(l, map),
                 connection: SidewalkPOI::Border(i, destination),
             });
         }
@@ -394,7 +392,7 @@ impl SidewalkSpot {
             return None;
         }
         Some(SidewalkSpot {
-            sidewalk_pos: Position::new(lanes[0], Distance::ZERO),
+            sidewalk_pos: Position::start(lanes[0]),
             connection: SidewalkPOI::Border(i, destination),
         })
     }

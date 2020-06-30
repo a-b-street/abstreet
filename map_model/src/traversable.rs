@@ -21,6 +21,20 @@ impl Position {
         Position { lane, dist_along }
     }
 
+    pub fn start(lane: LaneID) -> Position {
+        Position {
+            lane,
+            dist_along: Distance::ZERO,
+        }
+    }
+
+    pub fn end(lane: LaneID, map: &Map) -> Position {
+        Position {
+            lane,
+            dist_along: map.get_l(lane).length(),
+        }
+    }
+
     pub fn lane(&self) -> LaneID {
         self.lane
     }

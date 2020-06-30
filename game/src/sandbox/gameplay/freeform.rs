@@ -475,7 +475,7 @@ fn pos(endpt: TripEndpoint, mode: TripMode, from: bool, map: &Map) -> Option<Pos
                     map,
                 )
                 .get(0)
-                .map(|l| Position::new(*l, Distance::ZERO))
+                .map(|l| Position::start(*l))
             }),
         },
     }
