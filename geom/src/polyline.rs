@@ -123,36 +123,42 @@ impl PolyLine {
     pub fn maybe_extend(self, other: PolyLine) -> Option<PolyLine> {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
 
-        let (pl1, _) = to_set(self.points());
-        let (pl2, _) = to_set(&other.points()[1..]);
-
         let mut self_pts = self.pts;
         let mut other_pts = other.pts;
 
-        if pl1.intersection(&pl2).next().is_some() {
-            // Happens on some walking turns. Just clip out the loop. Start searching from the end
-            // of 'other'.
-            // TODO Measure the length of the thing being clipped out, to be sure this isn't
-            // running amok.
-            for (other_rev_idx, pt) in other_pts.iter().rev().enumerate() {
-                if pl1.contains(&pt.to_hashable()) {
-                    while self_pts.last().unwrap() != pt {
-                        self_pts.pop();
+        loop {
+            let (pl1, _) = to_set(&self_pts);
+            let (pl2, _) = to_set(&other_pts[1..]);
+
+            if pl1.intersection(&pl2).next().is_some() {
+                // Happens on some walking turns. Just clip out the loop. Start searching from the
+                // end of 'other'.
+                // TODO Measure the length of the thing being clipped out, to be sure this isn't
+                // running amok.
+                for (other_rev_idx, pt) in other_pts.iter().rev().enumerate() {
+                    if pl1.contains(&pt.to_hashable()) {
+                        while self_pts.last().unwrap() != pt {
+                            self_pts.pop();
+                        }
+                        other_pts = other_pts[other_pts.len() - 1 - other_rev_idx..].to_vec();
+                        break;
                     }
-                    other_pts = other_pts[other_pts.len() - 1 - other_rev_idx..].to_vec();
-                    break;
                 }
+                // Repeat this for sanity
+                assert_eq!(*self_pts.last().unwrap(), other_pts[0]);
+            } else {
+                break;
             }
         }
-        // Repeat this for sanity
-        assert_eq!(*self_pts.last().unwrap(), other_pts[0]);
 
         // There's an exciting edge case: the next point to add is on self's last line.
-        let same_line = self_pts[self_pts.len() - 2]
-            .angle_to(self_pts[self_pts.len() - 1])
-            .approx_eq(other_pts[0].angle_to(other_pts[1]), 0.1);
-        if same_line {
-            self_pts.pop();
+        if other_pts.len() >= 2 {
+            let same_line = self_pts[self_pts.len() - 2]
+                .angle_to(self_pts[self_pts.len() - 1])
+                .approx_eq(other_pts[0].angle_to(other_pts[1]), 0.1);
+            if same_line {
+                self_pts.pop();
+            }
         }
         self_pts.extend(other_pts.iter().skip(1));
         PolyLine::maybe_new(self_pts)

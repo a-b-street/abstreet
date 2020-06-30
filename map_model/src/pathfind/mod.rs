@@ -571,9 +571,6 @@ impl Pathfinder {
         } else if let Some(z) = start_r.zone {
             let zone = map.get_z(z);
             if !zone.allow_through_traffic.contains(&req.constraints) {
-                if req.constraints == PathConstraints::Pedestrian {
-                    return None;
-                }
                 let mut borders: Vec<&Intersection> =
                     zone.borders.iter().map(|i| map.get_i(*i)).collect();
                 // TODO Use the CH to pick the lowest overall cost?
@@ -582,7 +579,6 @@ impl Pathfinder {
 
                 for i in borders {
                     if let Some(result) = self.pathfind_from_zone(i, req.clone(), zone, map) {
-                        validate_continuity(map, &result.steps.iter().cloned().collect());
                         return Some(result);
                     }
                 }
@@ -591,9 +587,6 @@ impl Pathfinder {
         } else if let Some(z) = end_r.zone {
             let zone = map.get_z(z);
             if !zone.allow_through_traffic.contains(&req.constraints) {
-                if req.constraints == PathConstraints::Pedestrian {
-                    return None;
-                }
                 let mut borders: Vec<&Intersection> =
                     zone.borders.iter().map(|i| map.get_i(*i)).collect();
                 // TODO Use the CH to pick the lowest overall cost?
@@ -602,7 +595,6 @@ impl Pathfinder {
 
                 for i in borders {
                     if let Some(result) = self.pathfind_to_zone(i, req.clone(), zone, map) {
-                        validate_continuity(map, &result.steps.iter().cloned().collect());
                         return Some(result);
                     }
                 }
@@ -670,10 +662,10 @@ impl Pathfinder {
             },
             map,
         )?;
-        req.start = match interior_path.steps.back().unwrap() {
-            PathStep::Lane(_) => Position::start(dst),
-            PathStep::ContraflowLane(_) => Position::end(dst, map),
-            _ => unreachable!(),
+        req.start = if map.get_l(dst).src_i == i.id {
+            Position::start(dst)
+        } else {
+            Position::end(dst, map)
         };
         let mut main_path = match req.constraints {
             PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
@@ -737,10 +729,10 @@ impl Pathfinder {
             map,
         )?;
         let orig_end_dist = req.end.dist_along();
-        req.end = match interior_path.steps[0] {
-            PathStep::Lane(_) => Position::end(src, map),
-            PathStep::ContraflowLane(_) => Position::start(src),
-            _ => unreachable!(),
+        req.end = if map.get_l(src).dst_i == i.id {
+            Position::end(src, map)
+        } else {
+            Position::start(src)
         };
 
         let mut main_path = match req.constraints {

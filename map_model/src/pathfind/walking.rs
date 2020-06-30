@@ -266,16 +266,24 @@ pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStep>
         let lane = map.get_l(t.src);
         if lane.src_i == t.parent {
             steps.insert(0, PathStep::ContraflowLane(lane.id));
+            steps.insert(0, PathStep::Lane(lane.id));
         } else {
             steps.insert(0, PathStep::Lane(lane.id));
+            steps.insert(0, PathStep::ContraflowLane(lane.id));
         }
     }
     if let PathStep::Turn(t) = steps.last().unwrap() {
+        // TODO Weird hack! But if we wanted to end at a particular sidewalk endpoint and we got
+        // there from a SharedSidewalkCorner, we still want to wind up at the correct spot.
+        //
+        // Can we make the sim layer be OK with starting/ending in a turn?
         let lane = map.get_l(t.dst);
         if lane.src_i == t.parent {
             steps.push(PathStep::Lane(lane.id));
+            steps.push(PathStep::ContraflowLane(lane.id));
         } else {
             steps.push(PathStep::ContraflowLane(lane.id));
+            steps.push(PathStep::Lane(lane.id));
         }
     }
 
