@@ -1391,6 +1391,25 @@ impl TripMode {
             TripMode::Drive => "Car",
         }
     }
+
+    // TODO Collapse these two enums?
+    pub fn to_constraints(self) -> PathConstraints {
+        match self {
+            TripMode::Walk => PathConstraints::Pedestrian,
+            TripMode::Bike => PathConstraints::Bike,
+            TripMode::Transit => PathConstraints::Bus,
+            TripMode::Drive => PathConstraints::Car,
+        }
+    }
+
+    pub fn from_constraints(c: PathConstraints) -> TripMode {
+        match c {
+            PathConstraints::Pedestrian => TripMode::Walk,
+            PathConstraints::Bike => TripMode::Bike,
+            PathConstraints::Bus => TripMode::Transit,
+            PathConstraints::Car => TripMode::Drive,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]

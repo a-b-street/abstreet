@@ -1,5 +1,5 @@
 use crate::raw::{OriginalRoad, RestrictionType};
-use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints};
+use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints, ZoneID};
 use abstutil::{Error, Warn};
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde::{Deserialize, Serialize};
@@ -93,6 +93,7 @@ pub struct Road {
     pub complicated_turn_restrictions: Vec<(RoadID, RoadID)>,
     pub orig_id: OriginalRoad,
     pub speed_limit: Speed,
+    pub zone: Option<ZoneID>,
     pub zorder: isize,
 
     // Invariant: A road must contain at least one child
@@ -415,10 +416,6 @@ impl Road {
         !self.children_forwards.is_empty() && self.children_forwards[0].1 == LaneType::LightRail
     }
 
-    pub fn is_private(&self) -> bool {
-        self.osm_tags.get("access") == Some(&"private".to_string())
-    }
-
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {
         if self.src_i == other.src_i || self.src_i == other.dst_i {
             self.src_i
@@ -426,6 +423,14 @@ impl Road {
             self.dst_i
         } else {
             panic!("{} and {} don't share an endpoint", self.id, other.id);
+        }
+    }
+
+    pub(crate) fn allow_through_traffic(&self, constraints: PathConstraints, map: &Map) -> bool {
+        if let Some(z) = self.zone {
+            map.get_z(z).allow_through_traffic.contains(&constraints)
+        } else {
+            true
         }
     }
 }

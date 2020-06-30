@@ -184,7 +184,7 @@ impl DrawLane {
                 }
             };
         }
-        if road.is_private() {
+        if road.zone.is_some() {
             draw.push(cs.private_road.alpha(0.5), polygon.clone());
         }
 

@@ -134,7 +134,11 @@ fn make_input_graph(
     let mut input_graph = InputGraph::new();
 
     for l in map.all_lanes() {
-        if l.is_sidewalk() && !map.get_r(l.parent).is_private() {
+        if l.is_sidewalk()
+            && map
+                .get_r(l.parent)
+                .allow_through_traffic(PathConstraints::Pedestrian, map)
+        {
             let cost = walking_cost(l.length());
             let n1 = nodes.get(WalkingNode::SidewalkEndpoint(l.id, true));
             let n2 = nodes.get(WalkingNode::SidewalkEndpoint(l.id, false));

@@ -68,7 +68,7 @@ impl DrawMap {
             all_roads.push(
                 if r.is_light_rail() {
                     cs.light_rail_track
-                } else if r.is_private() {
+                } else if r.zone.is_some() {
                     cs.private_road
                 } else {
                     osm_rank_to_color(cs, r.get_rank())

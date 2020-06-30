@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::{App, ShowEverything};
 use crate::common::ColorDiscrete;
 use crate::common::CommonState;
 use crate::game::{State, Transition};
@@ -9,25 +9,31 @@ use ezgui::{
 };
 use map_model::RoadID;
 use maplit::btreeset;
+use sim::{DontDrawAgents, TripMode};
 use std::collections::BTreeSet;
 
 pub struct ZoneEditor {
     composite: Composite,
-    members: BTreeSet<RoadID>,
+    _members: BTreeSet<RoadID>,
     unzoomed: Drawable,
     zoomed: Drawable,
 }
 
 impl ZoneEditor {
     pub fn new(ctx: &mut EventCtx, app: &App, start: RoadID) -> Box<dyn State> {
-        let members = if app.primary.map.get_r(start).is_private() {
-            app.primary.map.road_to_zone(start).members.clone()
+        let (members, allow_through_traffic) = if let Some(z) = app.primary.map.get_r(start).zone {
+            let zone = app.primary.map.get_z(z);
+            (
+                zone.members.clone(),
+                zone.allow_through_traffic
+                    .iter()
+                    .map(|c| TripMode::from_constraints(*c))
+                    .collect(),
+            )
         } else {
             // Starting a new zone
-            btreeset! { start }
+            (btreeset! { start }, BTreeSet::new())
         };
-        // TODO Pull this from the existing zone
-        let allow_thru_trips = BTreeSet::new();
 
         let (unzoomed, zoomed, legend) = draw_zone(ctx, app, &members);
 
@@ -45,7 +51,7 @@ impl ZoneEditor {
                     )
                     .draw(ctx)
                     .margin_below(10),
-                    checkbox_per_mode(ctx, app, &allow_thru_trips).margin_below(10),
+                    checkbox_per_mode(ctx, app, &allow_through_traffic).margin_below(10),
                     Widget::row(vec![
                         Btn::text_fg("Apply").build_def(ctx, hotkey(Key::Enter)),
                         Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
@@ -57,7 +63,7 @@ impl ZoneEditor {
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-            members,
+            _members: members,
             unzoomed,
             zoomed,
         })
@@ -67,13 +73,27 @@ impl ZoneEditor {
 impl State for ZoneEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
-        // Restrict what can be selected.
+
+        // TODO Share with PaintSelect.
         if ctx.redo_mouseover() {
-            app.recalculate_current_selection(ctx);
-            if let Some(ID::Lane(_)) = app.primary.current_selection {
-            } else if let Some(ID::Road(_)) = app.primary.current_selection {
+            app.primary.current_selection = app.calculate_current_selection(
+                ctx,
+                &DontDrawAgents {},
+                &ShowEverything::new(),
+                false,
+                true,
+                false,
+            );
+            if let Some(ID::Road(_)) = app.primary.current_selection {
+            } else if let Some(ID::Lane(l)) = app.primary.current_selection {
+                app.primary.current_selection = Some(ID::Road(app.primary.map.get_l(l).parent));
             } else {
                 app.primary.current_selection = None;
+            }
+            if let Some(ID::Road(r)) = app.primary.current_selection {
+                if app.primary.map.get_r(r).is_light_rail() {
+                    app.primary.current_selection = None;
+                }
             }
         }
 
@@ -94,6 +114,7 @@ impl State for ZoneEditor {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
+        // TODO The currently selected road is covered up pretty badly
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
@@ -112,7 +133,7 @@ fn draw_zone(
     let mut colorer = ColorDiscrete::new(
         app,
         vec![
-            ("restricted road", Color::RED),
+            ("restricted road", Color::CYAN),
             ("entrance/exit", Color::BLUE),
         ],
     );

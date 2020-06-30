@@ -365,7 +365,7 @@ fn glue(step1: PathStep, step2: PathStep, map: &Map) -> TurnID {
 
 // Who's asking for a path?
 // TODO This is an awful name.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PathConstraints {
     Pedestrian,
     Car,
@@ -385,6 +385,7 @@ impl PathConstraints {
         }
     }
 
+    // TODO Handle private zones here?
     pub fn can_use(self, l: &Lane, map: &Map) -> bool {
         match self {
             PathConstraints::Pedestrian => l.is_sidewalk(),
@@ -557,58 +558,63 @@ impl Pathfinder {
         let start_r = map.get_parent(req.start.lane());
         let end_r = map.get_parent(req.end.lane());
 
-        if start_r.is_private() && end_r.is_private() {
-            let zone1 = map.road_to_zone(start_r.id);
-            let zone2 = map.road_to_zone(end_r.id);
-            if zone1.id == zone2.id {
-                zone1.pathfind(req, map)
+        if start_r.zone.is_some() && end_r.zone.is_some() {
+            if start_r.zone == end_r.zone {
+                let zone = map.get_z(start_r.zone.unwrap());
+                if !zone.allow_through_traffic.contains(&req.constraints) {
+                    return zone.pathfind(req, map);
+                }
             } else {
                 // TODO Handle paths going between two different zones
-                None
-            }
-        } else if start_r.is_private() {
-            if req.constraints == PathConstraints::Pedestrian {
                 return None;
             }
-            let zone = map.road_to_zone(start_r.id);
-            let mut borders: Vec<&Intersection> =
-                zone.borders.iter().map(|i| map.get_i(*i)).collect();
-            // TODO Use the CH to pick the lowest overall cost?
-            let pt = req.end.pt(map);
-            borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
-
-            for i in borders {
-                if let Some(result) = self.pathfind_from_zone(i, req.clone(), zone, map) {
-                    validate_continuity(map, &result.steps.iter().cloned().collect());
-                    return Some(result);
+        } else if let Some(z) = start_r.zone {
+            let zone = map.get_z(z);
+            if !zone.allow_through_traffic.contains(&req.constraints) {
+                if req.constraints == PathConstraints::Pedestrian {
+                    return None;
                 }
-            }
-            None
-        } else if end_r.is_private() {
-            if req.constraints == PathConstraints::Pedestrian {
+                let mut borders: Vec<&Intersection> =
+                    zone.borders.iter().map(|i| map.get_i(*i)).collect();
+                // TODO Use the CH to pick the lowest overall cost?
+                let pt = req.end.pt(map);
+                borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
+
+                for i in borders {
+                    if let Some(result) = self.pathfind_from_zone(i, req.clone(), zone, map) {
+                        validate_continuity(map, &result.steps.iter().cloned().collect());
+                        return Some(result);
+                    }
+                }
                 return None;
             }
-            let zone = map.road_to_zone(end_r.id);
-            let mut borders: Vec<&Intersection> =
-                zone.borders.iter().map(|i| map.get_i(*i)).collect();
-            // TODO Use the CH to pick the lowest overall cost?
-            let pt = req.start.pt(map);
-            borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
-
-            for i in borders {
-                if let Some(result) = self.pathfind_to_zone(i, req.clone(), zone, map) {
-                    validate_continuity(map, &result.steps.iter().cloned().collect());
-                    return Some(result);
+        } else if let Some(z) = end_r.zone {
+            let zone = map.get_z(z);
+            if !zone.allow_through_traffic.contains(&req.constraints) {
+                if req.constraints == PathConstraints::Pedestrian {
+                    return None;
                 }
+                let mut borders: Vec<&Intersection> =
+                    zone.borders.iter().map(|i| map.get_i(*i)).collect();
+                // TODO Use the CH to pick the lowest overall cost?
+                let pt = req.start.pt(map);
+                borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
+
+                for i in borders {
+                    if let Some(result) = self.pathfind_to_zone(i, req.clone(), zone, map) {
+                        validate_continuity(map, &result.steps.iter().cloned().collect());
+                        return Some(result);
+                    }
+                }
+                return None;
             }
-            None
-        } else {
-            match req.constraints {
-                PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
-                PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
-                PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
-                PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
-            }
+        }
+
+        match req.constraints {
+            PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
+            PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
+            PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
+            PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
         }
     }
 

@@ -16,7 +16,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
     if !l.is_sidewalk() {
         kv.push(("Type", l.lane_type.describe().to_string()));
     }
-    if r.is_private() {
+    if r.zone.is_some() {
         // TODO Ideally the area name, and be more specific about access restrictions
         kv.push(("Access", "Private".to_string()));
     }

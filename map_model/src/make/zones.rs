@@ -4,7 +4,7 @@ use std::collections::BTreeSet;
 pub fn make_all_zones(map: &Map) -> Vec<Zone> {
     let mut queue = Vec::new();
     for r in map.all_roads() {
-        if r.is_private() {
+        if r.osm_tags.get("access") == Some(&"private".to_string()) {
             queue.push(r.id);
         }
     }
@@ -36,7 +36,7 @@ fn floodfill(map: &Map, start: RoadID, id: ZoneID) -> Zone {
         members.insert(current);
         for r in map.get_next_roads(current) {
             let r = map.get_r(r);
-            if r.is_private() {
+            if r.osm_tags.get("access") == Some(&"private".to_string()) {
                 queue.push(r.id);
             } else {
                 borders.insert(map.get_r(current).common_endpt(r));
@@ -49,5 +49,6 @@ fn floodfill(map: &Map, start: RoadID, id: ZoneID) -> Zone {
         id,
         members,
         borders,
+        allow_through_traffic: BTreeSet::new(),
     }
 }

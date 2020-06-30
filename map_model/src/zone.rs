@@ -24,6 +24,7 @@ pub struct Zone {
     pub id: ZoneID,
     pub members: BTreeSet<RoadID>,
     pub borders: BTreeSet<IntersectionID>,
+    pub allow_through_traffic: BTreeSet<PathConstraints>,
 }
 
 impl Zone {

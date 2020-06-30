@@ -745,11 +745,6 @@ impl Map {
         None
     }
 
-    pub fn road_to_zone(&self, r: RoadID) -> &Zone {
-        // TODO Consider indexing
-        self.zones.iter().find(|z| z.members.contains(&r)).unwrap()
-    }
-
     pub fn right_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
         self.driving_side.right_shift(pl, width)
     }
@@ -1024,6 +1019,7 @@ fn make_half_map(
             } else {
                 0
             },
+            zone: None,
         };
         road.speed_limit = road.speed_limit_from_osm();
 
@@ -1142,6 +1138,11 @@ fn make_half_map(
         make::buildings::make_all_parking_lots(&raw.parking_lots, &raw.parking_aisles, &map, timer);
 
     map.zones = make::zones::make_all_zones(&map);
+    for z in &map.zones {
+        for r in &z.members {
+            map.roads[r.0].zone = Some(z.id);
+        }
+    }
 
     for (idx, a) in raw.areas.iter().enumerate() {
         map.areas.push(Area {
