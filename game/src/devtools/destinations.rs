@@ -48,7 +48,7 @@ impl PopularDestinations {
             }
             // TODO Er, the heatmap actually looks terrible.
             let legend = make_heatmap(ctx, &mut batch, map.get_bounds(), pts, o);
-            Widget::col(o.to_controls(ctx, legend))
+            Widget::col2(o.to_controls(ctx, legend))
         } else {
             let max = per_bldg.max();
             let gradient = colorous::REDS;
@@ -92,12 +92,9 @@ impl PopularDestinations {
             per_bldg,
             draw: ctx.upload(batch),
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Most popular destinations")
-                            .small_heading()
-                            .draw(ctx)
-                            .margin_right(10),
+                Widget::col2(vec![
+                    Widget::row2(vec![
+                        Line("Most popular destinations").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
@@ -106,7 +103,7 @@ impl PopularDestinations {
                     controls,
                     breakdown.draw(ctx),
                 ])
-                .padding(10)
+                .padding(16)
                 .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

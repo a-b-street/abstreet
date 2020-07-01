@@ -30,8 +30,8 @@ impl UberTurnPicker {
         Box::new(UberTurnPicker {
             members,
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
+                Widget::col2(vec![
+                    Widget::row2(vec![
                         Line("Select multiple intersections")
                             .small_heading()
                             .draw(ctx),
@@ -42,7 +42,7 @@ impl UberTurnPicker {
                     Btn::text_fg("View uber-turns").build_def(ctx, hotkey(Key::Enter)),
                     Btn::text_fg("Edit").build_def(ctx, hotkey(Key::E)),
                 ])
-                .padding(10)
+                .padding(16)
                 .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -165,14 +165,13 @@ impl UberTurnViewer {
         Box::new(UberTurnViewer {
             draw: ctx.upload(batch),
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Uber-turn viewer").small_heading().draw(ctx).margin(5),
+                Widget::col2(vec![
+                    Widget::row2(vec![
+                        Line("Uber-turn viewer").small_heading().draw(ctx),
                         Widget::draw_batch(
                             ctx,
                             GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-                        )
-                        .margin(5),
+                        ),
                         if idx == 0 {
                             Btn::text_fg("<").inactive(ctx)
                         } else {
@@ -181,23 +180,20 @@ impl UberTurnViewer {
                                 "previous uber-turn",
                                 hotkey(Key::LeftArrow),
                             )
-                        }
-                        .margin(5),
+                        },
                         Text::from(Line(format!("{}/{}", idx, ic.uber_turns.len())).secondary())
                             .draw(ctx)
-                            .margin(5)
                             .centered_vert(),
                         if ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - 1 {
                             Btn::text_fg(">").inactive(ctx)
                         } else {
                             Btn::text_fg(">").build(ctx, "next uber-turn", hotkey(Key::RightArrow))
-                        }
-                        .margin(5),
+                        },
                         Btn::text_fg("X").build(ctx, "close", hotkey(Key::Escape)),
                     ]),
                     Checkbox::text(ctx, "legal / illegal movements", None, legal_turns),
                 ])
-                .padding(10)
+                .padding(16)
                 .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

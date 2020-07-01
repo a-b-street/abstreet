@@ -30,15 +30,14 @@ impl FixTrafficSignals {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
             top_center: Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     challenge_header(ctx, "Traffic signal survivor"),
-                    Widget::row(vec![
+                    Widget::row2(vec![
                         Line(format!(
                             "Keep delay at all intersections under {}",
                             THRESHOLD
                         ))
-                        .draw(ctx)
-                        .margin_right(16),
+                        .draw(ctx),
                         Btn::svg(
                             "../data/system/assets/tools/hint.svg",
                             RewriteColor::Change(Color::WHITE, app.cs.hovering),
@@ -137,9 +136,9 @@ impl GameplayState for FixTrafficSignals {
                 if dt >= THRESHOLD {
                     self.done = true;
                     self.top_center = Composite::new(
-                        Widget::col(vec![
+                        Widget::col2(vec![
                             challenge_header(ctx, "Traffic signal survivor"),
-                            Widget::row(vec![
+                            Widget::row2(vec![
                                 Line(format!(
                                     "Delay exceeded {} at {}",
                                     THRESHOLD,
@@ -147,8 +146,7 @@ impl GameplayState for FixTrafficSignals {
                                 ))
                                 .fg(Color::RED)
                                 .draw(ctx)
-                                .centered_vert()
-                                .margin_right(10),
+                                .centered_vert(),
                                 Btn::text_fg("try again").build_def(ctx, None),
                             ]),
                         ])
@@ -292,7 +290,7 @@ fn make_meter(
     worst: Option<(IntersectionID, Duration)>,
 ) -> Composite {
     Composite::new(
-        Widget::col(vec![
+        Widget::col2(vec![
             // Separator
             Widget::draw_batch(
                 ctx,
@@ -301,10 +299,9 @@ fn make_meter(
                     Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
                 )]),
             )
-            .margin(15)
             .centered_horiz(),
             if let Some((_, delay)) = worst {
-                Widget::row(vec![
+                Widget::row2(vec![
                     Text::from_all(vec![
                         Line("Worst delay: "),
                         Line(delay.to_string()).fg(if delay < Duration::minutes(5) {
@@ -321,12 +318,11 @@ fn make_meter(
                         .align_right(),
                 ])
             } else {
-                Widget::row(vec![
+                Widget::row2(vec![
                     if app.primary.dirty_from_edits {
                         Btn::plaintext("(!)")
                             .pad(0)
                             .build(ctx, "explain score", None)
-                            .margin_right(10)
                     } else {
                         Widget::nothing()
                     },
@@ -342,7 +338,7 @@ fn make_meter(
             },
         ])
         .bg(app.cs.panel_bg)
-        .padding(20),
+        .padding(35),
     )
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
@@ -379,7 +375,7 @@ fn final_score(
 
 // TODO Can we automatically transform text and SVG colors?
 fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
-    Widget::col(vec![
+    Widget::custom_col(vec![
         Text::from_multiline(vec![
             Line(format!(
                 "Don't let anyone be delayed by one traffic signal more than {}!",
@@ -391,42 +387,36 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
         ])
         .draw(ctx)
         .margin_below(30),
-        Widget::row(vec![
-            Widget::col(vec![
+        Widget::custom_row(vec![
+            Widget::col2(vec![
                 Line("Time").fg(Color::BLACK).draw(ctx),
                 Widget::draw_svg_transform(
                     ctx,
                     "../data/system/assets/tools/time.svg",
                     RewriteColor::ChangeAll(Color::BLACK),
-                )
-                .margin_below(5)
-                .margin_above(5),
+                ),
                 Line("24 hours").fg(Color::BLACK).draw(ctx),
             ]),
-            Widget::col(vec![
+            Widget::col2(vec![
                 Line("Goal").fg(Color::BLACK).draw(ctx),
                 Widget::draw_svg_transform(
                     ctx,
                     "../data/system/assets/tools/location.svg",
                     RewriteColor::ChangeAll(Color::BLACK),
-                )
-                .margin_below(5)
-                .margin_above(5),
+                ),
                 Text::from_multiline(vec![
                     Line("Keep delay at all intersections").fg(Color::BLACK),
                     Line(format!("under {}", THRESHOLD)).fg(Color::BLACK),
                 ])
                 .draw(ctx),
             ]),
-            Widget::col(vec![
+            Widget::col2(vec![
                 Line("Score").fg(Color::BLACK).draw(ctx),
                 Widget::draw_svg_transform(
                     ctx,
                     "../data/system/assets/tools/star.svg",
                     RewriteColor::ChangeAll(Color::BLACK),
-                )
-                .margin_below(5)
-                .margin_above(5),
+                ),
                 Line("How long you survive").fg(Color::BLACK).draw(ctx),
             ]),
         ])

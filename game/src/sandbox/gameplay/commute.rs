@@ -47,9 +47,9 @@ impl OptimizeCommute {
         let trips = app.primary.sim.get_person(person).trips.clone();
         Box::new(OptimizeCommute {
             top_center: Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     challenge_header(ctx, "Optimize the VIP's commute"),
-                    Widget::row(vec![
+                    Widget::row2(vec![
                         format!("Speed up the VIP's trips by {}", goal)
                             .draw_text(ctx)
                             .centered_vert(),
@@ -252,7 +252,7 @@ fn make_meter(
     txt.append(Line(")"));
 
     Composite::new(
-        Widget::col(vec![
+        Widget::col2(vec![
             // Separator
             Widget::draw_batch(
                 ctx,
@@ -261,15 +261,14 @@ fn make_meter(
                     Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
                 )]),
             )
-            .margin(15)
             .centered_horiz(),
-            Widget::row(vec![
-                Btn::svg_def("../data/system/assets/tools/location.svg")
-                    .build(ctx, "locate VIP", None)
-                    .margin_right(10),
-                format!("{}/{} trips done", done, trips)
-                    .draw_text(ctx)
-                    .margin_right(20),
+            Widget::row2(vec![
+                Btn::svg_def("../data/system/assets/tools/location.svg").build(
+                    ctx,
+                    "locate VIP",
+                    None,
+                ),
+                format!("{}/{} trips done", done, trips).draw_text(ctx),
                 txt.draw(ctx),
             ]),
         ])
@@ -364,7 +363,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
     };
 
     Box::new(move |ctx| {
-        Widget::col(vec![
+        Widget::custom_col(vec![
             Text::from_multiline(vec![
                 Line(format!("Speed up the VIP's trips by a total of {}", goal)).fg(Color::BLACK),
                 Line("Ignore the damage done to everyone else.").fg(Color::BLACK),
@@ -372,45 +371,39 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
             .draw(ctx)
             .margin_below(30),
             Widget::row(vec![
-                Widget::col(vec![
+                Widget::col2(vec![
                     Line("Time").fg(Color::BLACK).draw(ctx),
                     Widget::draw_svg_transform(
                         ctx,
                         "../data/system/assets/tools/time.svg",
                         RewriteColor::ChangeAll(Color::BLACK),
-                    )
-                    .margin_below(5)
-                    .margin_above(5),
+                    ),
                     Text::from_multiline(vec![
                         Line("Until the VIP's").fg(Color::BLACK),
                         Line("last trip is done").fg(Color::BLACK),
                     ])
                     .draw(ctx),
                 ]),
-                Widget::col(vec![
+                Widget::col2(vec![
                     Line("Goal").fg(Color::BLACK).draw(ctx),
                     Widget::draw_svg_transform(
                         ctx,
                         "../data/system/assets/tools/location.svg",
                         RewriteColor::ChangeAll(Color::BLACK),
-                    )
-                    .margin_below(5)
-                    .margin_above(5),
+                    ),
                     Text::from_multiline(vec![
                         Line("Speed up the VIP's trips").fg(Color::BLACK),
                         Line(format!("by at least {}", goal)).fg(Color::BLACK),
                     ])
                     .draw(ctx),
                 ]),
-                Widget::col(vec![
+                Widget::col2(vec![
                     Line("Score").fg(Color::BLACK).draw(ctx),
                     Widget::draw_svg_transform(
                         ctx,
                         "../data/system/assets/tools/star.svg",
                         RewriteColor::ChangeAll(Color::BLACK),
-                    )
-                    .margin_below(5)
-                    .margin_above(5),
+                    ),
                     Text::from_multiline(vec![
                         Line("How much time").fg(Color::BLACK),
                         Line("the VIP saves").fg(Color::BLACK),

@@ -79,12 +79,9 @@ impl ViewKML {
             Box::new(ViewKML {
                 draw: ctx.upload(batch),
                 composite: Composite::new(
-                    Widget::col(vec![
-                        Widget::row(vec![
-                            Line("KML viewer")
-                                .small_heading()
-                                .draw(ctx)
-                                .margin_right(10),
+                    Widget::col2(vec![
+                        Widget::row2(vec![
+                            Line("KML viewer").small_heading().draw(ctx),
                             Btn::text_fg("X")
                                 .build(ctx, "close", hotkey(Key::Escape))
                                 .align_right(),
@@ -95,13 +92,13 @@ impl ViewKML {
                             prettyprint_usize(objects.len())
                         )
                         .draw_text(ctx),
-                        Widget::row(vec![
-                            "Query:".draw_text(ctx).margin_right(10),
+                        Widget::row2(vec![
+                            "Query:".draw_text(ctx),
                             Widget::dropdown(ctx, "query", "None".to_string(), choices),
                         ]),
                         "Query matches 0 objects".draw_text(ctx).named("matches"),
                     ])
-                    .padding(10)
+                    .padding(16)
                     .bg(app.cs.panel_bg),
                 )
                 .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

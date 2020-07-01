@@ -27,15 +27,18 @@ impl TitleScreen {
         let mut rng = app.primary.current_flags.sim_flags.make_rng();
         TitleScreen {
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/pregame/logo.svg").margin(5),
+                Widget::col2(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/pregame/logo.svg"),
                     // TODO that nicer font
                     // TODO Any key
-                    Btn::text_bg2("PLAY")
-                        .build(ctx, "start game", hotkeys(vec![Key::Space, Key::Enter]))
-                        .margin(5),
+                    Btn::text_bg2("PLAY").build(
+                        ctx,
+                        "start game",
+                        hotkeys(vec![Key::Space, Key::Enter]),
+                    ),
                 ])
                 .bg(app.cs.grass)
+                .padding(16)
                 .outline(3.0, Color::BLACK)
                 .centered(),
             )
@@ -83,7 +86,7 @@ impl MainMenu {
                 txt.add(Line("Created by Dustin Carlino and Yuwen Li"));
                 txt.draw(ctx).centered_horiz()
             },
-            Widget::row(vec![
+            Widget::row2(vec![
                 Btn::svg(
                     "../data/system/assets/pregame/tutorial.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
@@ -116,7 +119,7 @@ impl MainMenu {
                 .build(ctx, "Challenges", hotkey(Key::C)),
             ])
             .centered(),
-            Widget::row(vec![
+            Widget::row2(vec![
                 Btn::text_bg2("Community Proposals")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, hotkey(Key::P), "Community Proposals");
@@ -138,9 +141,9 @@ impl MainMenu {
                 Btn::text_bg2("Internal Dev Tools").build_def(ctx, hotkey(Key::D)),
             ])
             .centered(),
-            Widget::col(vec![
-                Widget::row(vec![
-                    Btn::text_bg2("About").build_def(ctx, None).margin_right(20),
+            Widget::col2(vec![
+                Widget::row2(vec![
+                    Btn::text_bg2("About").build_def(ctx, None),
                     Btn::text_bg2("Feedback").build_def(ctx, None),
                 ]),
                 built_info::time().draw(ctx),
@@ -149,7 +152,7 @@ impl MainMenu {
         ];
 
         Box::new(MainMenu {
-            composite: Composite::new(Widget::col(col).evenly_spaced())
+            composite: Composite::new(Widget::col2(col).evenly_spaced())
                 .exact_size_percent(90, 85)
                 .build(ctx),
         })
@@ -276,7 +279,7 @@ impl About {
         ];
 
         Box::new(About {
-            composite: Composite::new(Widget::col(col))
+            composite: Composite::new(Widget::custom_col(col))
                 .exact_size_percent(90, 85)
                 .build(ctx),
         })
@@ -375,18 +378,18 @@ impl Proposals {
                 txt.add(Line("Contact dabreegster@gmail.com to add your idea here!"));
                 txt.draw(ctx).centered_horiz().margin_below(20)
             },
-            Widget::row(buttons).flex_wrap(ctx, 80),
+            Widget::custom_row(buttons).flex_wrap(ctx, 80),
         ];
         col.extend(current_tab);
 
         Box::new(Proposals {
             proposals,
-            composite: Composite::new(Widget::col(vec![
+            composite: Composite::new(Widget::custom_col(vec![
                 Btn::svg_def("../data/system/assets/pregame/back.svg")
                     .build(ctx, "back", hotkey(Key::Escape))
                     .align_left()
                     .margin_below(20),
-                Widget::col(col).bg(app.cs.panel_bg).padding(16),
+                Widget::col2(col).bg(app.cs.panel_bg).padding(16),
             ]))
             .exact_size_percent(90, 85)
             .build(ctx),

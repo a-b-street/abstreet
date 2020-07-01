@@ -123,19 +123,15 @@ impl ParkingMapper {
             draw_layer: ctx.upload(batch),
             show,
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Parking mapper")
-                            .small_heading()
-                            .draw(ctx)
-                            .margin_right(10),
+                Widget::col2(vec![
+                    Widget::row2(vec![
+                        Line("Parking mapper").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
-                    ])
-                    .margin_below(5),
-                    Widget::row(vec![
-                        "Change map:".draw_text(ctx).margin_right(10),
+                    ]),
+                    Widget::row2(vec![
+                        "Change map:".draw_text(ctx),
                         Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name())))
                             .build(ctx, "change map", None),
                     ]),
@@ -145,9 +141,8 @@ impl ParkingMapper {
                         prettyprint_usize(done.len() + todo.len()),
                         data.len()
                     )
-                    .draw_text(ctx)
-                    .margin_below(5),
-                    Widget::row(vec![
+                    .draw_text(ctx),
+                    Widget::row2(vec![
                         Widget::dropdown(
                             ctx,
                             "Show",
@@ -165,8 +160,7 @@ impl ParkingMapper {
                                 )
                                 .tooltip("Roads often have the wrong number of lanes tagged"),
                             ],
-                        )
-                        .margin_right(15),
+                        ),
                         ColorLegend::row(
                             ctx,
                             color,
@@ -179,15 +173,12 @@ impl ParkingMapper {
                                 }
                             },
                         ),
-                    ])
-                    .margin_below(5),
+                    ]),
                     Checkbox::text(ctx, "max 3 days parking (default in Seattle)", None, false),
-                    Btn::text_fg("Generate OsmChange file")
-                        .build_def(ctx, None)
-                        .margin_below(30),
+                    Btn::text_fg("Generate OsmChange file").build_def(ctx, None),
                     "Select a road".draw_text(ctx).named("info"),
                 ])
-                .padding(10)
+                .padding(16)
                 .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

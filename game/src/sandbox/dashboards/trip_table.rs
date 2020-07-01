@@ -15,7 +15,7 @@ use geom::{Distance, Duration, Polygon, Pt2D, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use std::collections::{BTreeSet, HashMap};
 
-const ROWS: usize = 10;
+const ROWS: usize = 8;
 
 pub struct TripTable {
     composite: Composite,
@@ -326,14 +326,11 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
     headers.push(btn(SortBy::PercentWaiting, "Percent waiting"));
 
     let mut col = vec![DashTab::TripTable.picker(ctx, app)];
-    col.push(checkbox_per_mode(ctx, app, &opts.modes).margin_below(5));
-    col.push(
-        Widget::row(vec![
-            Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts).margin_right(10),
-            Checkbox::text(ctx, "ending off-map", None, opts.off_map_ends),
-        ])
-        .margin_below(5),
-    );
+    col.push(checkbox_per_mode(ctx, app, &opts.modes));
+    col.push(Widget::row2(vec![
+        Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts),
+        Checkbox::text(ctx, "ending off-map", None, opts.off_map_ends),
+    ]));
     let (_, unfinished, _) = app.primary.sim.num_trips();
     col.push(
         Text::from_multiline(vec![
@@ -346,40 +343,34 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
                 prettyprint_usize(unfinished)
             )),
         ])
-        .draw(ctx)
-        .margin_below(10),
+        .draw(ctx),
     );
 
-    col.push(
-        Widget::row(vec![
-            if opts.skip > 0 {
-                Btn::text_fg("<").build(ctx, "previous trips", None)
+    col.push(Widget::row2(vec![
+        if opts.skip > 0 {
+            Btn::text_fg("<").build(ctx, "previous trips", None)
+        } else {
+            Btn::text_fg("<").inactive(ctx)
+        },
+        format!(
+            "{}-{} of {}",
+            if total_rows > 0 {
+                prettyprint_usize(opts.skip + 1)
             } else {
-                Btn::text_fg("<").inactive(ctx)
-            }
-            .margin_right(10),
-            format!(
-                "{}-{} of {}",
-                if total_rows > 0 {
-                    prettyprint_usize(opts.skip + 1)
-                } else {
-                    "0".to_string()
-                },
-                prettyprint_usize((opts.skip + 1 + ROWS).min(total_rows)),
-                prettyprint_usize(total_rows)
-            )
-            .draw_text(ctx)
-            .margin_right(10),
-            if opts.skip + 1 + ROWS < total_rows {
-                Btn::text_fg(">").build(ctx, "next trips", None)
-            } else {
-                Btn::text_fg(">").inactive(ctx)
+                "0".to_string()
             },
-        ])
-        .margin_below(5),
-    );
+            prettyprint_usize((opts.skip + 1 + ROWS).min(total_rows)),
+            prettyprint_usize(total_rows)
+        )
+        .draw_text(ctx),
+        if opts.skip + 1 + ROWS < total_rows {
+            Btn::text_fg(">").build(ctx, "next trips", None)
+        } else {
+            Btn::text_fg(">").inactive(ctx)
+        },
+    ]));
 
-    col.extend(make_table(
+    col.push(make_table(
         ctx,
         app,
         headers,
@@ -392,11 +383,10 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             0.15 * ctx.canvas.window_width,
         ))
         .named("preview")
-        .centered_horiz()
-        .margin_above(10),
+        .centered_horiz(),
     );
 
-    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
+    Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
         .exact_size_percent(90, 90)
         .build(ctx)
 }
@@ -408,7 +398,7 @@ pub fn make_table(
     headers: Vec<Widget>,
     rows: Vec<(String, Vec<GeomBatch>)>,
     total_width: f64,
-) -> Vec<Widget> {
+) -> Widget {
     let total_width = total_width / ctx.get_scale_factor();
     let mut width_per_col: Vec<f64> = headers
         .iter()
@@ -423,7 +413,7 @@ pub fn make_table(
         / (width_per_col.len() - 1) as f64)
         .max(0.0);
 
-    let mut col = vec![Widget::row(
+    let mut col = vec![Widget::custom_row(
         headers
             .into_iter()
             .enumerate()
@@ -461,7 +451,7 @@ pub fn make_table(
         );
     }
 
-    col
+    Widget::custom_col(col)
 }
 
 pub fn preview_trip(g: &mut GfxCtx, app: &App, composite: &Composite) {

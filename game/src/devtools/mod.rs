@@ -25,24 +25,19 @@ impl DevToolsMode {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(DevToolsMode {
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Internal dev tools")
-                            .small_heading()
-                            .draw(ctx)
-                            .margin_right(10),
+                Widget::col2(vec![
+                    Widget::row2(vec![
+                        Line("Internal dev tools").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
-                    ])
-                    .margin_below(5),
-                    Widget::row(vec![
-                        "Change map:".draw_text(ctx).margin_right(10),
+                    ]),
+                    Widget::row2(vec![
+                        "Change map:".draw_text(ctx),
                         Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name())))
                             .build(ctx, "change map", None),
-                    ])
-                    .margin_below(5),
-                    Widget::row(vec![
+                    ]),
+                    Widget::custom_row(vec![
                         Btn::text_fg("edit a polygon").build_def(ctx, hotkey(Key::E)),
                         Btn::text_fg("draw a polygon").build_def(ctx, hotkey(Key::P)),
                         Btn::text_fg("load scenario").build_def(ctx, hotkey(Key::W)),
@@ -51,7 +46,7 @@ impl DevToolsMode {
                     ])
                     .flex_wrap(ctx, 60),
                 ])
-                .padding(10)
+                .padding(16)
                 .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

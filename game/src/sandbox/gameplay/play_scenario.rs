@@ -101,31 +101,38 @@ fn make_top_center(
     modifiers: &Vec<ScenarioModifier>,
 ) -> Composite {
     let rows = vec![
-        Widget::row(vec![
-            Line("Sandbox").small_heading().draw(ctx).margin(5),
+        Widget::row2(vec![
+            Line("Sandbox").small_heading().draw(ctx),
             Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-            )
-            .margin(5),
-            "Map:".draw_text(ctx).margin(5),
-            Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name())))
-                .build(ctx, "change map", lctrl(Key::L))
-                .margin(5),
-            "Traffic:".draw_text(ctx).margin(5),
-            Btn::text_fg(format!("{} ↓", scenario_name))
-                .build(ctx, "change traffic", hotkey(Key::S))
-                .margin(5),
-            Btn::svg_def("../data/system/assets/tools/edit_map.svg")
-                .build(ctx, "edit map", lctrl(Key::E))
-                .margin(5),
+            ),
+            "Map:".draw_text(ctx),
+            Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name()))).build(
+                ctx,
+                "change map",
+                lctrl(Key::L),
+            ),
+            "Traffic:".draw_text(ctx),
+            Btn::text_fg(format!("{} ↓", scenario_name)).build(
+                ctx,
+                "change traffic",
+                hotkey(Key::S),
+            ),
+            Btn::svg_def("../data/system/assets/tools/edit_map.svg").build(
+                ctx,
+                "edit map",
+                lctrl(Key::E),
+            ),
         ])
         .centered(),
         if scenario_name == "weekday" {
-            Widget::row(vec![
-                Btn::svg_def("../data/system/assets/tools/pencil.svg")
-                    .build(ctx, "edit traffic patterns", None)
-                    .margin_right(15),
+            Widget::row2(vec![
+                Btn::svg_def("../data/system/assets/tools/pencil.svg").build(
+                    ctx,
+                    "edit traffic patterns",
+                    None,
+                ),
                 format!("{} modifications to traffic patterns", modifiers.len()).draw_text(ctx),
             ])
             .centered_horiz()
@@ -134,7 +141,7 @@ fn make_top_center(
         },
     ];
 
-    Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(10))
+    Composite::new(Widget::col2(rows).bg(app.cs.panel_bg).padding(16))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -153,10 +160,7 @@ impl EditScenarioModifiers {
         modifiers: Vec<ScenarioModifier>,
     ) -> Box<dyn State> {
         let mut rows = vec![
-            Line("Modify traffic patterns")
-                .small_heading()
-                .draw(ctx)
-                .margin_below(10),
+            Line("Modify traffic patterns").small_heading().draw(ctx),
             Text::from_multiline(vec![
                 Line(
                     "Data for all of the people in this simulation comes from PSRC's 2014 \
@@ -167,29 +171,23 @@ impl EditScenarioModifiers {
                 Line("You can modify those patterns here. The modifications apply in order."),
             ])
             .wrap_to_pct(ctx, 50)
-            .draw(ctx)
-            .margin_below(10),
+            .draw(ctx),
         ];
         for (idx, m) in modifiers.iter().enumerate() {
             rows.push(
-                Widget::row(vec![
+                Widget::row2(vec![
                     m.describe().draw_text(ctx),
                     Btn::svg_def("../data/system/assets/tools/delete.svg")
                         .build(ctx, format!("delete modifier {}", idx + 1), None)
                         .align_right(),
                 ])
                 .padding(10)
-                .outline(2.0, Color::WHITE)
-                .margin_below(10),
+                .outline(2.0, Color::WHITE),
             );
         }
+        rows.push(Btn::text_bg2("New modification").build_def(ctx, None));
         rows.push(
-            Btn::text_bg2("New modification")
-                .build_def(ctx, None)
-                .margin_below(10),
-        );
-        rows.push(
-            Widget::row(vec![
+            Widget::row2(vec![
                 Btn::text_bg2("Apply").build_def(ctx, hotkey(Key::Enter)),
                 Btn::text_bg2("Discard changes").build_def(ctx, hotkey(Key::Escape)),
             ])
@@ -199,7 +197,7 @@ impl EditScenarioModifiers {
         Box::new(EditScenarioModifiers {
             scenario_name,
             modifiers,
-            composite: Composite::new(Widget::col(rows).padding(16).bg(app.cs.panel_bg))
+            composite: Composite::new(Widget::col2(rows).padding(16).bg(app.cs.panel_bg))
                 .exact_size_percent(80, 80)
                 .build(ctx),
         })

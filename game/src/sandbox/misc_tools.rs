@@ -242,7 +242,7 @@ impl TurnExplorer {
     fn make_panel(ctx: &mut EventCtx, app: &App, l: LaneID, idx: usize) -> Composite {
         let num_turns = app.primary.map.get_turns_from_lane(l).len();
 
-        let mut col = vec![Widget::row(vec![
+        let mut col = vec![Widget::row2(vec![
             Text::from(
                 Line(format!(
                     "Turns from {}",
@@ -250,29 +250,24 @@ impl TurnExplorer {
                 ))
                 .small_heading(),
             )
-            .draw(ctx)
-            .margin(5),
+            .draw(ctx),
             Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-            )
-            .margin(5),
+            ),
             if idx == 0 {
                 Btn::text_fg("<").inactive(ctx)
             } else {
                 Btn::text_fg("<").build(ctx, "previous turn", hotkey(Key::LeftArrow))
-            }
-            .margin(5),
+            },
             Text::from(Line(format!("{}/{}", idx, num_turns)).secondary())
                 .draw(ctx)
-                .margin(5)
                 .centered_vert(),
             if idx == num_turns {
                 Btn::text_fg(">").inactive(ctx)
             } else {
                 Btn::text_fg(">").build(ctx, "next turn", hotkey(Key::RightArrow))
-            }
-            .margin(5),
+            },
             Btn::text_fg("X").build(ctx, "close", hotkey(Key::Escape)),
         ])];
         if idx == 0 {
@@ -319,7 +314,7 @@ impl TurnExplorer {
             col.push(ColorLegend::row(ctx, CONFLICTING_TURN, "conflicting turn"));
         }
 
-        Composite::new(Widget::col(col).bg(app.cs.panel_bg))
+        Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }

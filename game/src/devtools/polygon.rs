@@ -34,8 +34,8 @@ impl PolygonEditor {
         points.pop();
         Box::new(PolygonEditor {
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
+                Widget::col2(vec![
+                    Widget::row2(vec![
                         Line("Polygon editor").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build(ctx, "close", hotkey(Key::Escape))

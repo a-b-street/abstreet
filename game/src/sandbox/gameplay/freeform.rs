@@ -82,24 +82,25 @@ impl GameplayState for Freeform {
 
 fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
     let rows = vec![
-        Widget::row(vec![
-            Line("Sandbox").small_heading().draw(ctx).margin(5),
+        Widget::row2(vec![
+            Line("Sandbox").small_heading().draw(ctx),
             Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-            )
-            .margin(5),
-            "Map:".draw_text(ctx).margin(5),
-            Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name())))
-                .build(ctx, "change map", lctrl(Key::L))
-                .margin(5),
-            "Traffic:".draw_text(ctx).margin(5),
-            Btn::text_fg("none ↓")
-                .build(ctx, "change traffic", hotkey(Key::S))
-                .margin(5),
-            Btn::svg_def("../data/system/assets/tools/edit_map.svg")
-                .build(ctx, "edit map", lctrl(Key::E))
-                .margin(5),
+            ),
+            "Map:".draw_text(ctx),
+            Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name()))).build(
+                ctx,
+                "change map",
+                lctrl(Key::L),
+            ),
+            "Traffic:".draw_text(ctx),
+            Btn::text_fg("none ↓").build(ctx, "change traffic", hotkey(Key::S)),
+            Btn::svg_def("../data/system/assets/tools/edit_map.svg").build(
+                ctx,
+                "edit map",
+                lctrl(Key::E),
+            ),
         ])
         .centered(),
         Btn::text_fg("Start a new trip")
@@ -113,7 +114,7 @@ fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
         .draw(ctx),
     ];
 
-    Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(10))
+    Composite::new(Widget::col2(rows).bg(app.cs.panel_bg).padding(16))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -190,8 +191,8 @@ impl AgentSpawner {
             goal: None,
             confirmed: false,
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
+                Widget::col2(vec![
+                    Widget::row2(vec![
                         Line("New trip").small_heading().draw(ctx),
                         Btn::plaintext("X")
                             .build(ctx, "close", hotkey(Key::Escape))
@@ -199,10 +200,9 @@ impl AgentSpawner {
                     ]),
                     "Click a building or border to specify start"
                         .draw_text(ctx)
-                        .named("instructions")
-                        .margin_below(10),
-                    Widget::row(vec![
-                        "Type of trip:".draw_text(ctx).margin_right(10),
+                        .named("instructions"),
+                    Widget::row2(vec![
+                        "Type of trip:".draw_text(ctx),
                         Widget::dropdown(
                             ctx,
                             "mode",
@@ -212,17 +212,15 @@ impl AgentSpawner {
                                 .map(|m| Choice::new(m.ongoing_verb(), m))
                                 .collect(),
                         ),
-                    ])
-                    .margin_below(10),
-                    Widget::row(vec![
-                        "Number of trips:".draw_text(ctx).margin_right(10),
+                    ]),
+                    Widget::row2(vec![
+                        "Number of trips:".draw_text(ctx),
                         Spinner::new(ctx, (1, 1000), 1).named("number"),
-                    ])
-                    .margin_below(10),
+                    ]),
                     Btn::text_fg("Confirm").inactive(ctx).named("Confirm"),
                 ])
                 .bg(app.cs.panel_bg)
-                .padding(10),
+                .padding(16),
             )
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),

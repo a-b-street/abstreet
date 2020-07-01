@@ -325,20 +325,14 @@ fn make_panel(
     dirty: bool,
 ) -> Composite {
     Composite::new(
-        Widget::col(vec![
-            Widget::row(vec![
-                Line("Story map editor")
-                    .small_heading()
-                    .draw(ctx)
-                    .margin_right(5),
+        Widget::col2(vec![
+            Widget::row2(vec![
+                Line("Story map editor").small_heading().draw(ctx),
                 Widget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),
-                )
-                .margin_right(5),
-                Btn::text_fg(format!("{} ↓", story.name))
-                    .build(ctx, "load", lctrl(Key::L))
-                    .margin_right(5),
+                ),
+                Btn::text_fg(format!("{} ↓", story.name)).build(ctx, "load", lctrl(Key::L)),
                 if dirty {
                     Btn::svg_def("../data/system/assets/tools/save.svg").build(
                         ctx,
@@ -351,13 +345,12 @@ fn make_panel(
                         "../data/system/assets/tools/save.svg",
                         RewriteColor::ChangeAlpha(0.5),
                     )
-                }
-                .margin_right(5),
+                },
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
             ]),
-            Widget::row(vec![
+            Widget::row2(vec![
                 if let Mode::PlacingMarker = mode {
                     Widget::draw_svg_transform(
                         ctx,
@@ -550,8 +543,8 @@ impl Marker {
 
     fn make_editor(&self, ctx: &mut EventCtx, app: &App) -> Composite {
         Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
+            Widget::col2(vec![
+                Widget::row2(vec![
                     Line("Editing marker").small_heading().draw(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))

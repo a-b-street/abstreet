@@ -276,21 +276,15 @@ impl ContextualActions for GameplayMode {
 }
 
 fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
-    Widget::row(vec![
-        Line(title)
-            .small_heading()
-            .draw(ctx)
-            .centered_vert()
-            .margin_right(10),
+    Widget::row2(vec![
+        Line(title).small_heading().draw(ctx).centered_vert(),
         Btn::svg_def("../data/system/assets/tools/info.svg")
             .build(ctx, "instructions", None)
-            .centered_vert()
-            .margin_right(10),
+            .centered_vert(),
         Widget::draw_batch(
             ctx,
             GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-        )
-        .margin_right(10),
+        ),
         Btn::svg_def("../data/system/assets/tools/edit_map.svg")
             .build(ctx, "edit map", lctrl(Key::E))
             .centered_vert(),
@@ -314,24 +308,18 @@ impl FinalScore {
     ) -> Box<dyn State> {
         Box::new(FinalScore {
             composite: Composite::new(
-                Widget::row(vec![
+                Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg")
                         .container()
                         .outline(10.0, Color::BLACK)
                         .padding(10),
-                    Widget::col(vec![
-                        msg.draw_text(ctx).margin_below(5),
+                    Widget::col2(vec![
+                        msg.draw_text(ctx),
                         // TODO Adjust wording
-                        Btn::text_bg2("Keep simulating")
-                            .build_def(ctx, None)
-                            .margin_below(5),
-                        Btn::text_bg2("Try again")
-                            .build_def(ctx, None)
-                            .margin_below(5),
+                        Btn::text_bg2("Keep simulating").build_def(ctx, None),
+                        Btn::text_bg2("Try again").build_def(ctx, None),
                         if next_mode.is_some() {
-                            Btn::text_bg2("Next challenge")
-                                .build_def(ctx, None)
-                                .margin_below(5)
+                            Btn::text_bg2("Next challenge").build_def(ctx, None)
                         } else {
                             Widget::nothing()
                         },

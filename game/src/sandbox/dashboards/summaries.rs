@@ -29,27 +29,24 @@ impl TripSummaries {
                     Choice::new("at least 10% change", Some(0.1)),
                     Choice::new("at least 50% change", Some(0.5)),
                 ],
-            )
-            .margin_right(10),
+            ),
             checkbox_per_mode(ctx, app, &filter.modes),
         ];
 
         Box::new(TripSummaries {
             composite: Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     DashTab::TripSummaries.picker(ctx, app),
-                    Widget::row(filters).centered_horiz().margin_below(10),
-                    summary(ctx, app, &filter).margin_below(10),
-                    Widget::row(vec![
-                        contingency_table(ctx, app, &filter)
-                            .centered_vert()
-                            .margin_right(20),
+                    Widget::row2(filters).centered_horiz(),
+                    summary(ctx, app, &filter),
+                    Widget::row2(vec![
+                        contingency_table(ctx, app, &filter).centered_vert(),
                         scatter_plot(ctx, app, &filter),
                     ])
                     .evenly_spaced(),
                 ])
                 .bg(app.cs.panel_bg)
-                .padding(10),
+                .padding(16),
             )
             .exact_size_percent(90, 90)
             .build(ctx),
@@ -127,8 +124,8 @@ fn summary(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         }
     }
 
-    Widget::col(vec![Widget::row(vec![
-        Widget::col(vec![Text::from_multiline(vec![
+    Widget::col2(vec![Widget::row2(vec![
+        Widget::col2(vec![Text::from_multiline(vec![
             Line(format!("{} trips faster", prettyprint_usize(num_faster))),
             Line(format!("{} total time saved", sum_faster)),
             Line(format!(
@@ -146,10 +143,9 @@ fn summary(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         Line(format!("{} trips unchanged", prettyprint_usize(num_same)))
             .draw(ctx)
             .centered_vert()
-            .margin_horiz(5)
             .outline(2.0, Color::YELLOW)
             .padding(10),
-        Widget::col(vec![Text::from_multiline(vec![
+        Widget::col2(vec![Text::from_multiline(vec![
             Line(format!("{} trips slower", prettyprint_usize(num_slower))),
             Line(format!("{} total time lost", sum_slower)),
             Line(format!(
@@ -317,7 +313,8 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     }
     batch.extend(Color::BLACK, outlines);
 
-    Widget::row(vec![DrawWithTooltips::new(ctx, batch, tooltips)])
+    DrawWithTooltips::new(ctx, batch, tooltips)
+        .container()
         .outline(2.0, Color::WHITE)
         .padding(10)
 }

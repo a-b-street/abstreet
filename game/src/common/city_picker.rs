@@ -61,26 +61,22 @@ impl CityPicker {
             batch = batch.scale(zoom);
         }
 
-        let mut other_cities = vec![Line("Other cities").draw(ctx).margin_below(10)];
+        let mut other_cities = vec![Line("Other cities").draw(ctx)];
         let mut this_city = vec![];
         for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
             if let Some((_, color, _)) = regions.iter().find(|(n, _, _)| &name == n) {
                 let btn = Btn::txt(&name, Text::from(Line(nice_map_name(&name)).fg(*color)))
                     .tooltip(Text::new());
-                this_city.push(
-                    if &name == app.primary.map.get_name() {
-                        btn.inactive(ctx)
-                    } else {
-                        btn.build_def(ctx, None)
-                    }
-                    .margin_below(5),
-                );
+                this_city.push(if &name == app.primary.map.get_name() {
+                    btn.inactive(ctx)
+                } else {
+                    btn.build_def(ctx, None)
+                });
             } else {
                 other_cities.push(
                     Btn::txt(&name, Text::from(Line(nice_map_name(&name))))
                         .tooltip(Text::new())
-                        .build_def(ctx, None)
-                        .margin_below(5),
+                        .build_def(ctx, None),
                 );
             }
         }
@@ -90,22 +86,22 @@ impl CityPicker {
             selected: None,
             on_load,
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
+                Widget::col2(vec![
+                    Widget::row2(vec![
                         Line("Select a region").small_heading().draw(ctx),
                         Btn::plaintext("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    Widget::row(vec![
-                        Widget::col(other_cities).centered_vert(),
+                    Widget::row2(vec![
+                        Widget::col2(other_cities).centered_vert(),
                         Widget::draw_batch(ctx, batch).named("picker"),
-                        Widget::col(this_city).centered_vert(),
+                        Widget::col2(this_city).centered_vert(),
                     ]),
                 ])
                 .bg(app.cs.panel_bg)
                 .outline(2.0, Color::WHITE)
-                .padding(10),
+                .padding(16),
             )
             .build(ctx),
         })

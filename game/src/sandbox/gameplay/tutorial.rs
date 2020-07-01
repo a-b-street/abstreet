@@ -719,38 +719,35 @@ impl TutorialState {
     }
 
     fn make_top_center(&self, ctx: &mut EventCtx, cs: &ColorScheme, edit_map: bool) -> Composite {
-        let mut col = vec![Widget::row(vec![
-            Line("Tutorial").small_heading().draw(ctx).margin(5),
+        let mut col = vec![Widget::row2(vec![
+            Line("Tutorial").small_heading().draw(ctx),
             Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-            )
-            .margin(5),
+            ),
             if self.current.stage == 0 {
                 Btn::text_fg("<").inactive(ctx)
             } else {
                 Btn::text_fg("<").build(ctx, "previous tutorial", None)
-            }
-            .margin(5),
+            },
             {
                 let mut txt = Text::from(Line(format!("Task {}", self.current.stage + 1)));
                 // TODO Smaller font and use alpha for the "/9" part
                 txt.append(Line(format!("/{}", self.stages.len())).fg(Color::grey(0.7)));
-                txt.draw(ctx).margin(5)
+                txt.draw(ctx)
             },
             if self.current.stage == self.stages.len() - 1 {
                 Btn::text_fg(">").inactive(ctx)
             } else {
                 Btn::text_fg(">").build(ctx, "next tutorial", None)
-            }
-            .margin(5),
-            Btn::text_fg("Quit").build_def(ctx, None).margin(5),
+            },
+            Btn::text_fg("Quit").build_def(ctx, None),
         ])
         .centered()];
         {
             let task = self.interaction();
             if task != Task::Nil {
-                col.push(Widget::row(vec![
+                col.push(Widget::row2(vec![
                     Text::from(
                         Line(format!(
                             "Task {}: {}",
@@ -759,8 +756,7 @@ impl TutorialState {
                         ))
                         .small_heading(),
                     )
-                    .draw(ctx)
-                    .margin_right(15),
+                    .draw(ctx),
                     // TODO also text saying "instructions"... can we layout two things easily to
                     // make a button?
                     Btn::svg_def("../data/system/assets/tools/info.svg")
@@ -768,18 +764,20 @@ impl TutorialState {
                         .centered_vert()
                         .align_right(),
                 ]));
-                col.push(task.top_txt(self).draw(ctx).margin(5));
+                col.push(task.top_txt(self).draw(ctx));
             }
         }
         if edit_map {
             col.push(
-                Btn::svg_def("../data/system/assets/tools/edit_map.svg")
-                    .build(ctx, "edit map", lctrl(Key::E))
-                    .margin(5),
+                Btn::svg_def("../data/system/assets/tools/edit_map.svg").build(
+                    ctx,
+                    "edit map",
+                    lctrl(Key::E),
+                ),
             );
         }
 
-        Composite::new(Widget::col(col).bg(cs.panel_bg).padding(16))
+        Composite::new(Widget::col2(col).bg(cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }
@@ -817,7 +815,7 @@ impl TutorialState {
                     }
                     txt.wrap_to_pct(ctx, 30).draw(ctx)
                 }];
-                let mut controls = vec![Widget::row(vec![
+                let mut controls = vec![Widget::row2(vec![
                     if self.current.part > 0 {
                         Btn::svg(
                             "../data/system/assets/tools/prev.svg",
@@ -834,12 +832,10 @@ impl TutorialState {
                             "../data/system/assets/tools/prev.svg",
                             RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
                         )
-                    }
-                    .margin_right(15),
+                    },
                     format!("{}/{}", self.current.part + 1, self.stage().messages.len())
                         .draw_text(ctx)
-                        .centered_vert()
-                        .margin_right(15),
+                        .centered_vert(),
                     if self.current.part == self.stage().messages.len() - 1 {
                         Widget::draw_svg_transform(
                             ctx,
@@ -862,15 +858,14 @@ impl TutorialState {
                 if self.current.part == self.stage().messages.len() - 1 {
                     controls.push(
                         Btn::text_bg2("Try it")
-                            .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
-                            .margin_above(10),
+                            .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter])),
                     );
                 }
-                col.push(Widget::col(controls).align_bottom());
+                col.push(Widget::col2(controls).align_bottom());
 
                 Some(
                     Composite::new(
-                        Widget::col(col)
+                        Widget::col2(col)
                             .bg(app.cs.panel_bg)
                             .outline(5.0, Color::WHITE)
                             .padding(16),

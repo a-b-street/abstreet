@@ -37,7 +37,7 @@ impl DashTab {
                 row.push(Btn::text_bg2(name).build_def(ctx, None));
             }
         }
-        Widget::row(vec![
+        Widget::custom_row(vec![
             // TODO Centered, but actually, we need to set the padding of each button to divide the
             // available space evenly. Fancy fill rules... hmmm.
             Widget::row(row).bg(Color::WHITE).margin_vert(16),

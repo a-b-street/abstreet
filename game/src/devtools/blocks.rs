@@ -71,12 +71,9 @@ impl BlockMap {
 
             draw_all_blocks: ctx.upload(all_blocks),
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Commute map by block")
-                            .small_heading()
-                            .draw(ctx)
-                            .margin_right(10),
+                Widget::col2(vec![
+                    Widget::row2(vec![
+                        Line("Commute map by block").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
@@ -84,7 +81,7 @@ impl BlockMap {
                     Checkbox::text(ctx, "from / to this block", hotkey(Key::Space), true),
                     Checkbox::text(ctx, "arrows / heatmap", hotkey(Key::H), true),
                 ])
-                .padding(10)
+                .padding(16)
                 .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

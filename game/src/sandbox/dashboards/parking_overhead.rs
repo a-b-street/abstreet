@@ -269,7 +269,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
 
     let mut col = vec![DashTab::ParkingOverhead.picker(ctx, app)];
     col.push(
-        Widget::row(vec![
+        Widget::row2(vec![
             Text::from_multiline(vec![
                 Line(
                     "Trips taken by car also include time to walk between the building and \
@@ -296,46 +296,37 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             ))
             .named("preview"),
         ])
-        .evenly_spaced()
-        .margin_below(10),
+        .evenly_spaced(),
     );
-    col.push(
-        Widget::row(vec![
-            Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts).margin_right(10),
-            Checkbox::text(ctx, "ending off-map", None, opts.off_map_ends),
-        ])
-        .margin_below(5),
-    );
-    col.push(
-        Widget::row(vec![
-            if opts.skip > 0 {
-                Btn::text_fg("<").build(ctx, "previous trips", None)
+    col.push(Widget::row2(vec![
+        Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts),
+        Checkbox::text(ctx, "ending off-map", None, opts.off_map_ends),
+    ]));
+    col.push(Widget::row2(vec![
+        if opts.skip > 0 {
+            Btn::text_fg("<").build(ctx, "previous trips", None)
+        } else {
+            Btn::text_fg("<").inactive(ctx)
+        },
+        format!(
+            "{}-{} of {}",
+            if total_rows > 0 {
+                prettyprint_usize(opts.skip + 1)
             } else {
-                Btn::text_fg("<").inactive(ctx)
-            }
-            .margin_right(10),
-            format!(
-                "{}-{} of {}",
-                if total_rows > 0 {
-                    prettyprint_usize(opts.skip + 1)
-                } else {
-                    "0".to_string()
-                },
-                prettyprint_usize((opts.skip + 1 + ROWS).min(total_rows)),
-                prettyprint_usize(total_rows)
-            )
-            .draw_text(ctx)
-            .margin_right(10),
-            if opts.skip + 1 + ROWS < total_rows {
-                Btn::text_fg(">").build(ctx, "next trips", None)
-            } else {
-                Btn::text_fg(">").inactive(ctx)
+                "0".to_string()
             },
-        ])
-        .margin_below(5),
-    );
+            prettyprint_usize((opts.skip + 1 + ROWS).min(total_rows)),
+            prettyprint_usize(total_rows)
+        )
+        .draw_text(ctx),
+        if opts.skip + 1 + ROWS < total_rows {
+            Btn::text_fg(">").build(ctx, "next trips", None)
+        } else {
+            Btn::text_fg(">").inactive(ctx)
+        },
+    ]));
 
-    col.extend(make_table(
+    col.push(make_table(
         ctx,
         app,
         headers,
@@ -343,7 +334,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         0.88 * ctx.canvas.window_width,
     ));
 
-    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
+    Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
         .exact_size_percent(90, 90)
         .build(ctx)
 }
