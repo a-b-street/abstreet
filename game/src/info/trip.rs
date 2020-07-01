@@ -70,8 +70,8 @@ pub fn ongoing(
     let mut col = Vec::new();
 
     {
-        col.push(Widget::row(vec![
-            Widget::row(vec![Line("Trip time").secondary().draw(ctx)])
+        col.push(Widget::custom_row(vec![
+            Widget::custom_row(vec![Line("Trip time").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
             Text::from_all(vec![
                 Line(props.total_time.to_string()),
@@ -81,10 +81,10 @@ pub fn ongoing(
         ]));
     }
     {
-        col.push(Widget::row(vec![
-            Widget::row(vec![Line("Distance").secondary().draw(ctx)])
+        col.push(Widget::custom_row(vec![
+            Widget::custom_row(vec![Line("Distance").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
-            Widget::col(vec![
+            Widget::col2(vec![
                 Text::from_all(vec![
                     Line(props.dist_crossed.describe_rounded()),
                     Line(format!("/{}", props.total_dist.describe_rounded())).secondary(),
@@ -99,10 +99,13 @@ pub fn ongoing(
         ]));
     }
     {
-        col.push(Widget::row(vec![
-            Widget::row(vec![Line("Waiting").secondary().draw(ctx)])
+        col.push(Widget::custom_row(vec![
+            Line("Waiting")
+                .secondary()
+                .draw(ctx)
+                .container()
                 .force_width_pct(ctx, col_width),
-            Widget::col(vec![
+            Widget::col2(vec![
                 format!("{} here", props.waiting_here).draw_text(ctx),
                 Text::from_all(vec![
                     if props.total_waiting != Duration::ZERO {
@@ -130,7 +133,7 @@ pub fn ongoing(
         Some(props.dist_crossed / props.total_dist),
     ));
 
-    Widget::col(col)
+    Widget::col2(col)
 }
 
 pub fn future(
@@ -185,15 +188,14 @@ pub fn future(
                     "This will advance the simulation to {}",
                     start_time.ampm_tostring()
                 ))))
-                .build(ctx, format!("wait for {}", trip), None)
-                .margin_above(10),
+                .build(ctx, format!("wait for {}", trip), None),
         );
         details
             .time_warpers
             .insert(format!("wait for {}", trip), (trip, start_time));
     }
 
-    Widget::col(col)
+    Widget::col2(col)
 }
 
 pub fn finished(
@@ -270,15 +272,15 @@ pub fn finished(
         let col_width = 15;
 
         let total_trip_time = phases.last().as_ref().and_then(|p| p.end_time).unwrap() - start_time;
-        col.push(Widget::row(vec![
-            Widget::row(vec![Line("Trip time").secondary().draw(ctx)])
+        col.push(Widget::custom_row(vec![
+            Widget::custom_row(vec![Line("Trip time").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
             total_trip_time.to_string().draw_text(ctx),
         ]));
 
         let (_, waiting) = app.primary.sim.finished_trip_time(trip).unwrap();
-        col.push(Widget::row(vec![
-            Widget::row(vec![Line("Total waiting time").secondary().draw(ctx)])
+        col.push(Widget::custom_row(vec![
+            Widget::custom_row(vec![Line("Total waiting time").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
             waiting.to_string().draw_text(ctx),
         ]));
@@ -294,7 +296,7 @@ pub fn finished(
         None,
     ));
 
-    Widget::col(col)
+    Widget::col2(col)
 }
 
 pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
@@ -319,7 +321,7 @@ pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
         .into_iter(),
     ));
 
-    Widget::col(col)
+    Widget::col2(col)
 }
 
 fn make_timeline(
@@ -574,10 +576,10 @@ fn make_timeline(
     }
 
     let mut col = vec![
-        Widget::row(vec![start_btn, Widget::row(timeline), goal_btn])
+        Widget::custom_row(vec![start_btn, Widget::custom_row(timeline), goal_btn])
             .evenly_spaced()
             .margin_above(25),
-        Widget::row(vec![
+        Widget::row2(vec![
             start_time.ampm_tostring().draw_text(ctx),
             if let Some(t) = end_time {
                 t.ampm_tostring().draw_text(ctx).align_right()
@@ -585,7 +587,7 @@ fn make_timeline(
                 Widget::nothing()
             },
         ]),
-        Widget::row(vec![
+        Widget::row2(vec![
             {
                 details
                     .time_warpers
@@ -623,8 +625,7 @@ fn make_timeline(
             } else {
                 Widget::nothing()
             },
-        ])
-        .margin_above(5),
+        ]),
     ];
     if path_impossible {
         col.push("Map edits have disconnected the path taken before".draw_text(ctx));
@@ -633,7 +634,7 @@ fn make_timeline(
     if false {
         col.extend(elevation);
     }
-    Widget::col(col)
+    Widget::col2(col)
 }
 
 fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map: &Map) -> Widget {

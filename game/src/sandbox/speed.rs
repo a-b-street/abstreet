@@ -33,7 +33,6 @@ enum SpeedSetting {
 }
 
 impl SpeedControls {
-    // TODO Could use checkbox here, but not sure it'll make things that much simpler.
     fn make_panel(ctx: &mut EventCtx, app: &App, paused: bool, setting: SpeedSetting) -> Composite {
         let mut row = Vec::new();
         row.push(
@@ -51,7 +50,7 @@ impl SpeedControls {
         );
 
         row.push(
-            Widget::row(
+            Widget::custom_row(
                 vec![
                     (SpeedSetting::Realtime, "real-time speed"),
                     (SpeedSetting::Fast, "5x speed"),
@@ -100,7 +99,7 @@ impl SpeedControls {
         );
 
         row.push(
-            Widget::row(vec![
+            Widget::custom_row(vec![
                 Btn::svg_def("../data/system/assets/speed/jump_to_time.svg")
                     .pad(9)
                     .build(ctx, "jump to specific time", hotkey(Key::B)),
@@ -111,7 +110,7 @@ impl SpeedControls {
             .bg(app.cs.section_bg),
         );
 
-        Composite::new(Widget::row(row).bg(app.cs.panel_bg).padding(16))
+        Composite::new(Widget::custom_row(row).bg(app.cs.panel_bg).padding(16))
             .aligned(
                 HorizontalAlignment::Center,
                 VerticalAlignment::BottomAboveOSD,
@@ -350,14 +349,13 @@ impl JumpToTime {
             target,
             maybe_mode,
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
+                Widget::col2(vec![
+                    Widget::row2(vec![
                         Line("Jump to what time?").small_heading().draw(ctx),
                         Btn::plaintext("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
-                    ])
-                    .margin_below(15),
+                    ]),
                     if app.has_prebaked().is_some() {
                         Widget::draw_batch(
                             ctx,
@@ -380,8 +378,7 @@ impl JumpToTime {
                         0.25 * ctx.canvas.window_width,
                         target.to_percent(end_of_day).min(1.0),
                     )
-                    .named("time slider")
-                    .margin_below(15),
+                    .named("time slider"),
                     Btn::text_bg2(format!("Jump to {}", target.ampm_tostring()))
                         .build(ctx, "jump to time", hotkey(Key::Enter))
                         .centered_horiz()
@@ -393,8 +390,7 @@ impl JumpToTime {
                             Polygon::rectangle(0.25 * ctx.canvas.window_width, 2.0),
                         )]),
                     )
-                    .margin_above(20)
-                    .margin_below(20),
+                    .margin_above(10),
                     Btn::text_bg2("Jump to the next delay over 5 minutes")
                         .build_def(ctx, None)
                         .centered_horiz(),
@@ -506,7 +502,7 @@ impl TimeWarpScreen {
             started: Instant::now(),
             traffic_jams,
             composite: Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     Text::new().draw(ctx).named("text"),
                     Btn::text_bg2("stop now")
                         .build_def(ctx, hotkey(Key::Escape))
@@ -644,12 +640,11 @@ impl TimePanel {
         TimePanel {
             time: app.primary.sim.time(),
             composite: Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     Text::from(
                         Line(app.primary.sim.time().ampm_tostring_spacers()).big_heading_styled(),
                     )
                     .draw(ctx)
-                    .margin(10)
                     .centered_horiz(),
                     {
                         let mut batch = GeomBatch::new();
@@ -684,17 +679,16 @@ impl TimePanel {
 
                         Widget::draw_batch(ctx, batch)
                     },
-                    Widget::row(vec![
+                    Widget::custom_row(vec![
                         Line("00:00").small().draw(ctx),
                         Widget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
                         Line("12:00").small().draw(ctx),
                         Widget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
                         Line("24:00").small().draw(ctx),
                     ])
-                    .padding(10)
                     .evenly_spaced(),
                 ])
-                .padding(10)
+                .padding(16)
                 .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)

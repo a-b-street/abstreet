@@ -58,7 +58,7 @@ pub fn traffic(
     )));
     rows.push(txt.draw(ctx));
 
-    rows.push(opts.to_controls(ctx, app).margin_below(15));
+    rows.push(opts.to_controls(ctx, app));
 
     let time = if opts.show_end_of_day {
         app.primary.sim.get_end_of_day()
@@ -98,7 +98,7 @@ pub fn delay(
     let i = app.primary.map.get_i(id);
 
     assert!(i.is_traffic_signal());
-    rows.push(opts.to_controls(ctx, app).margin_below(10));
+    rows.push(opts.to_controls(ctx, app));
 
     rows.push(delay_plot(ctx, app, id, opts));
 
@@ -168,13 +168,10 @@ pub fn current_demand(
     );
 
     rows.push(
-        Widget::col(vec![
-            txt.draw(ctx).margin_below(10),
-            Widget::draw_batch(ctx, batch),
-        ])
-        .padding(10)
-        .bg(app.cs.inner_panel)
-        .outline(2.0, Color::WHITE),
+        Widget::col2(vec![txt.draw(ctx), Widget::draw_batch(ctx, batch)])
+            .padding(10)
+            .bg(app.cs.inner_panel)
+            .outline(2.0, Color::WHITE),
     );
 
     rows
@@ -212,11 +209,8 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
             pts,
         })
         .collect();
-    Widget::col(vec![
-        Line("Delay through intersection")
-            .small_heading()
-            .draw(ctx)
-            .margin_below(10),
+    Widget::col2(vec![
+        Line("Delay through intersection").small_heading().draw(ctx),
         ScatterPlot::new(
             ctx,
             series,
@@ -250,7 +244,7 @@ fn header(
         IntersectionType::Border => format!("Border #{}", id.0),
         IntersectionType::Construction => format!("{} (under construction)", id),
     };
-    rows.push(Widget::row(vec![
+    rows.push(Widget::row2(vec![
         Line(label).small_heading().draw(ctx),
         header_btns(ctx),
     ]));

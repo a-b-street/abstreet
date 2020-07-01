@@ -176,7 +176,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
             // The text is already scaled; don't use Widget::draw_batch and scale it again.
             row.push(JustDraw::wrap(ctx, batch));
         }
-        let x_axis = Widget::row(row).padding(10);
+        let x_axis = Widget::custom_row(row).padding(10).evenly_spaced();
 
         let num_y_labels = 4;
         let mut col = Vec::new();
@@ -185,14 +185,15 @@ impl<T: Yvalue<T>> LinePlot<T> {
             col.push(max_y.from_percent(percent_y).prettyprint().draw_text(ctx));
         }
         col.reverse();
-        let y_axis = Widget::col(col).padding(10);
+        let y_axis = Widget::custom_col(col).padding(10).evenly_spaced();
 
         // Don't let the x-axis fill the parent container
-        Widget::row(vec![Widget::col(vec![
+        Widget::custom_col(vec![
             legend.margin_below(10),
-            Widget::row(vec![y_axis.evenly_spaced(), Widget::new(Box::new(plot))]),
-            x_axis.evenly_spaced(),
-        ])])
+            Widget::custom_row(vec![y_axis, Widget::new(Box::new(plot))]),
+            x_axis,
+        ])
+        .container()
     }
 }
 
@@ -321,14 +322,13 @@ pub fn make_legend<T: Yvalue<T>>(
         }
         seen.insert(s.label.clone());
         if opts.filterable {
-            row.push(Widget::row(vec![
-                Checkbox::colored(ctx, &s.label, s.color, !opts.disabled.contains(&s.label))
-                    .margin_right(8),
+            row.push(Widget::row2(vec![
+                Checkbox::colored(ctx, &s.label, s.color, !opts.disabled.contains(&s.label)),
                 Line(&s.label).draw(ctx),
             ]));
         } else {
             let radius = 15.0;
-            row.push(Widget::row(vec![
+            row.push(Widget::row2(vec![
                 Widget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(
@@ -336,13 +336,12 @@ pub fn make_legend<T: Yvalue<T>>(
                         Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
                             .to_polygon(),
                     )]),
-                )
-                .margin(5),
+                ),
                 s.label.clone().draw_text(ctx),
             ]));
         }
     }
-    Widget::row(row).flex_wrap(ctx, 24)
+    Widget::custom_row(row).flex_wrap(ctx, 24)
 }
 
 // TODO If this proves useful, lift to geom

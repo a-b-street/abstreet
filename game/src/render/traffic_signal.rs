@@ -331,11 +331,11 @@ pub fn make_signal_diagram(
     };
     let mut col = if edit_mode {
         vec![
-            txt_widget.margin_below(10),
+            txt_widget,
             Btn::text_bg2("Edit entire signal").build_def(ctx, hotkey(Key::E)),
         ]
     } else {
-        vec![Widget::row(vec![
+        vec![Widget::row2(vec![
             txt_widget,
             Btn::text_fg("X")
                 .build(ctx, "close", hotkey(Key::Escape))
@@ -353,7 +353,6 @@ pub fn make_signal_diagram(
                     Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
                 )]),
             )
-            .margin(15)
             .centered_horiz(),
         );
 
@@ -381,14 +380,16 @@ pub fn make_signal_diagram(
             hovered.append(normal.clone());
             hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)));
 
-            Btn::custom(normal, hovered, bbox.clone())
-                .build(ctx, format!("phase {}", idx + 1), None)
-                .margin(5)
+            Btn::custom(normal, hovered, bbox.clone()).build(
+                ctx,
+                format!("phase {}", idx + 1),
+                None,
+            )
         };
 
         let phase_col = if edit_mode {
-            Widget::col(vec![
-                Widget::row(vec![
+            Widget::col2(vec![
+                Widget::row2(vec![
                     match phase.phase_type {
                         PhaseType::Fixed(d) => Line(format!("Phase {}: {}", idx + 1, d)),
                         PhaseType::Adaptive(d) => {
@@ -396,8 +397,7 @@ pub fn make_signal_diagram(
                         }
                     }
                     .small_heading()
-                    .draw(ctx)
-                    .margin_right(10),
+                    .draw(ctx),
                     Btn::svg_def("../data/system/assets/tools/edit.svg").build(
                         ctx,
                         format!("change duration of phase {}", idx + 1),
@@ -414,17 +414,15 @@ pub fn make_signal_diagram(
                     } else {
                         Widget::nothing()
                     },
-                ])
-                .margin_below(10),
-                Widget::row(vec![
+                ]),
+                Widget::row2(vec![
                     phase_btn,
-                    Widget::col(vec![
+                    Widget::col2(vec![
                         if idx == 0 {
                             Btn::text_fg("↑").inactive(ctx)
                         } else {
                             Btn::text_fg("↑").build(ctx, format!("move up phase {}", idx + 1), None)
-                        }
-                        .margin_below(5),
+                        },
                         if idx == signal.phases.len() - 1 {
                             Btn::text_fg("↓").inactive(ctx)
                         } else {
@@ -440,7 +438,7 @@ pub fn make_signal_diagram(
                 ]),
             ])
         } else {
-            Widget::col(vec![
+            Widget::col2(vec![
                 match phase.phase_type {
                     PhaseType::Fixed(d) => format!("Phase {}: {}", idx + 1, d).draw_text(ctx),
                     PhaseType::Adaptive(d) => {
@@ -469,14 +467,13 @@ pub fn make_signal_diagram(
                     Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
                 )]),
             )
-            .margin(15)
             .centered_horiz(),
         );
 
         col.push(Btn::text_fg("Add new phase").build_def(ctx, None));
     }
 
-    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
+    Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .exact_size_percent(30, 85)
         .build(ctx)

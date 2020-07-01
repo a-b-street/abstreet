@@ -18,8 +18,8 @@ impl Navigator {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(Navigator {
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
+                Widget::col2(vec![
+                    Widget::row2(vec![
                         Line("Enter a street name").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build(ctx, "close", hotkey(Key::Escape))
@@ -36,6 +36,7 @@ impl Navigator {
                     )
                     .named("street"),
                 ])
+                .padding(16)
                 .bg(app.cs.panel_bg),
             )
             .build(ctx),
@@ -104,8 +105,8 @@ impl CrossStreet {
 
         Box::new(CrossStreet {
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
+                Widget::col2(vec![
+                    Widget::row2(vec![
                         {
                             let mut txt = Text::from(Line("What cross street?").small_heading());
                             // TODO This isn't so clear...
@@ -128,7 +129,8 @@ impl CrossStreet {
                     )
                     .named("street"),
                 ])
-                .bg(app.cs.panel_bg),
+                .bg(app.cs.panel_bg)
+                .padding(16),
             )
             .build(ctx),
             first,

@@ -60,31 +60,21 @@ impl App {
         }
 
         let mut c = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![{
-                    let mut txt = Text::from(
-                        Line("Here's a bunch of text to force some scrolling.").small_heading(),
-                    );
-                    txt.add(
-                        Line(
-                            "Bug: scrolling by clicking and dragging doesn't work while the \
-                             stopwatch is running.",
-                        )
-                        .fg(Color::RED),
-                    );
-                    txt.draw(ctx)
-                }]),
-                Widget::row(vec![
+            Widget::col2(vec![
+                Text::from_multiline(vec![
+                    Line("Here's a bunch of text to force some scrolling.").small_heading(),
+                    Line(
+                        "Bug: scrolling by clicking and dragging doesn't work while the stopwatch \
+                         is running.",
+                    )
+                    .fg(Color::RED),
+                ])
+                .draw(ctx),
+                Widget::row2(vec![
                     // Examples of styling widgets
-                    Widget::col(col1)
-                        .outline(3.0, Color::BLACK)
-                        .padding(5)
-                        .margin_right(5),
-                    Widget::col(col2)
-                        .outline(3.0, Color::BLACK)
-                        .padding(5)
-                        .margin_right(5),
-                    Widget::col(col3).outline(3.0, Color::BLACK).padding(5),
+                    Widget::col2(col1).outline(3.0, Color::BLACK).padding(5),
+                    Widget::col2(col2).outline(3.0, Color::BLACK).padding(5),
+                    Widget::col2(col3).outline(3.0, Color::BLACK).padding(5),
                 ]),
                 LinePlot::new(
                     ctx,
@@ -117,6 +107,7 @@ impl App {
                     },
                 ),
             ])
+            .padding(16)
             .bg(Color::grey(0.4)),
         )
         // Don't let the panel exceed this percentage of the window. Scrollbars appear
@@ -267,36 +258,30 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 
 fn make_controls(ctx: &mut EventCtx) -> Composite {
     Composite::new(
-        Widget::col(vec![
-            {
-                let mut txt = Text::from(Line("ezgui demo").small_heading());
-                txt.add(Line(
-                    "Click and drag to pan, use touchpad or scroll wheel to zoom",
-                ));
-                txt.draw(ctx)
-            },
-            Widget::row(vec![
+        Widget::col2(vec![
+            Text::from_multiline(vec![
+                Line("ezgui demo").small_heading(),
+                Line("Click and drag to pan, use touchpad or scroll wheel to zoom"),
+            ])
+            .draw(ctx),
+            Widget::row2(vec![
                 // This just cycles between two arbitrary buttons
                 Checkbox::new(
                     false,
                     Btn::text_bg1("Pause").build(ctx, "pause the stopwatch", hotkey(Key::Space)),
                     Btn::text_bg1("Resume").build(ctx, "resume the stopwatch", hotkey(Key::Space)),
                 )
-                .named("paused")
-                .margin(5),
-                Btn::text_fg("Reset timer")
-                    .build(ctx, "reset the stopwatch", None)
-                    .margin(5),
-                Btn::text_fg("New faces")
-                    .build(ctx, "generate new faces", hotkey(Key::F))
-                    .margin(5),
-                Checkbox::text(ctx, "Draw scrollable canvas", None, true).margin(5),
-                Checkbox::text(ctx, "Show timeseries", lctrl(Key::T), false).margin(5),
+                .named("paused"),
+                Btn::text_fg("Reset timer").build(ctx, "reset the stopwatch", None),
+                Btn::text_fg("New faces").build(ctx, "generate new faces", hotkey(Key::F)),
+                Checkbox::text(ctx, "Draw scrollable canvas", None, true),
+                Checkbox::text(ctx, "Show timeseries", lctrl(Key::T), false),
             ])
             .evenly_spaced(),
             "Stopwatch: ...".draw_text(ctx).named("stopwatch"),
         ])
-        .bg(Color::grey(0.4)),
+        .bg(Color::grey(0.4))
+        .padding(16),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)

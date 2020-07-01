@@ -234,5 +234,5 @@ pub fn checkbox_per_mode(
         );
         filters.push(m.ongoing_verb().draw_text(ctx).margin_right(10));
     }
-    Widget::row(filters)
+    Widget::custom_row(filters)
 }

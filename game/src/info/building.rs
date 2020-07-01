@@ -119,7 +119,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
         details
             .hyperlinks
             .insert(p.to_string(), Tab::PersonTrips(p, BTreeMap::new()));
-        let widget = Widget::col(vec![
+        let widget = Widget::col2(vec![
             Btn::text_bg1(p.to_string()).build_def(ctx, None),
             if let Some((t, mode)) = next_trip {
                 format!(
@@ -161,7 +161,7 @@ fn header(
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
-    rows.push(Widget::row(vec![
+    rows.push(Widget::row2(vec![
         Line(id.to_string()).small_heading().draw(ctx),
         header_btns(ctx),
     ]));

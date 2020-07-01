@@ -60,7 +60,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
                 ),
             });
         }
-        rows.push("Parking spots available".draw_text(ctx).margin_above(10));
+        rows.push("Parking spots available".draw_text(ctx));
         rows.push(LinePlot::new(
             ctx,
             series,
@@ -130,10 +130,8 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     rows.extend(make_table(ctx, kv.into_iter()));
 
-    rows.push(Widget::row(vec![
-        "Copy OriginalLane to clipboard: "
-            .draw_text(ctx)
-            .margin_right(15),
+    rows.push(Widget::row2(vec![
+        "Copy OriginalLane to clipboard: ".draw_text(ctx),
         Btn::svg_def("../data/system/assets/tools/clipboard.svg").build(
             ctx,
             "copy OriginalLane",
@@ -184,7 +182,7 @@ pub fn traffic(
     )));
     rows.push(txt.draw(ctx));
 
-    rows.push(opts.to_controls(ctx, app).margin_below(15));
+    rows.push(opts.to_controls(ctx, app));
 
     let r = map.get_l(id).parent;
     let time = if opts.show_end_of_day {
@@ -216,7 +214,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
     let r = map.get_r(l.parent);
 
     let label = if l.is_sidewalk() { "Sidewalk" } else { "Lane" };
-    rows.push(Widget::row(vec![
+    rows.push(Widget::row2(vec![
         Line(format!("{} #{}", label, id.0))
             .small_heading()
             .draw(ctx),

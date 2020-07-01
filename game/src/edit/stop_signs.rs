@@ -48,7 +48,7 @@ impl StopSignEditor {
             .collect();
 
         let composite = Composite::new(
-            Widget::col(vec![
+            Widget::col2(vec![
                 "Stop sign editor".draw_text(ctx),
                 if ControlStopSign::new(&app.primary.map, id)
                     != app.primary.map.get_stop_sign(id).clone()
@@ -62,7 +62,7 @@ impl StopSignEditor {
                 Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
             ])
             .bg(app.cs.panel_bg)
-            .padding(10),
+            .padding(16),
         )
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);

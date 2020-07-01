@@ -312,9 +312,11 @@ impl Minimap {
 
 fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composite {
     if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-        return Composite::new(Widget::row(vec![
-            make_tool_panel(ctx, app).align_right().margin_right(16),
-            make_vert_viz_panel(ctx, app).bg(app.cs.panel_bg).padding(7),
+        return Composite::new(Widget::row2(vec![
+            make_tool_panel(ctx, app).align_right(),
+            make_vert_viz_panel(ctx, app)
+                .bg(app.cs.panel_bg)
+                .padding(16),
         ]))
         .aligned(
             HorizontalAlignment::Right,
@@ -326,7 +328,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
     let zoom_col = {
         let mut col = vec![Btn::svg_def("../data/system/assets/speed/speed_up.svg")
             .build(ctx, "zoom in", None)
-            .margin(12)];
+            .margin_below(20)];
         for i in (0..=3).rev() {
             let color = if zoom_lvl < i {
                 Color::WHITE.alpha(0.2)
@@ -341,50 +343,47 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
                     rect,
                 )
                 .build(ctx, format!("zoom to level {}", i + 1), None)
-                .margin(12),
+                .margin_below(20),
             );
         }
         col.push(
-            Btn::svg_def("../data/system/assets/speed/slow_down.svg")
-                .build(ctx, "zoom out", None)
-                .margin(12),
+            Btn::svg_def("../data/system/assets/speed/slow_down.svg").build(ctx, "zoom out", None),
         );
         // The zoom column should start below the "pan up" arrow. But if we put it on the row with
         // <, minimap, and > then it messes up the horizontal alignment of the pan up arrow.
         // Also, double column to avoid the background color stretching to the bottom of the row.
-        Widget::col(vec![Widget::col(col).bg(app.cs.inner_panel)]).margin_above(26)
+        Widget::custom_col(vec![Widget::custom_col(col)
+            .padding(10)
+            .bg(app.cs.inner_panel)])
+        .margin_above(26)
     };
 
     let square_len = 0.15 * ctx.canvas.window_width;
-    let minimap_controls = Widget::col(vec![
+    let minimap_controls = Widget::col2(vec![
         Btn::svg_def("../data/system/assets/minimap/up.svg")
             .build(ctx, "pan up", None)
-            .margin(5)
             .centered_horiz(),
-        Widget::row(vec![
+        Widget::row2(vec![
             Btn::svg_def("../data/system/assets/minimap/left.svg")
                 .build(ctx, "pan left", None)
-                .margin(5)
                 .centered_vert(),
             Filler::new(ScreenDims::new(square_len, square_len)).named("minimap"),
             Btn::svg_def("../data/system/assets/minimap/right.svg")
                 .build(ctx, "pan right", None)
-                .margin(5)
                 .centered_vert(),
         ]),
         Btn::svg_def("../data/system/assets/minimap/down.svg")
             .build(ctx, "pan down", None)
-            .margin(5)
             .centered_horiz(),
     ]);
 
-    Composite::new(Widget::row(vec![
-        make_tool_panel(ctx, app).margin_right(16),
-        Widget::col(vec![
-            Widget::row(vec![minimap_controls, zoom_col]),
+    Composite::new(Widget::row2(vec![
+        make_tool_panel(ctx, app),
+        Widget::col2(vec![
+            Widget::row2(vec![minimap_controls, zoom_col]),
             make_horiz_viz_panel(ctx, app),
         ])
-        .padding(7)
+        .padding(16)
         .bg(app.cs.panel_bg),
     ]))
     .aligned(
@@ -395,8 +394,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
 }
 
 fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
-    // TODO Apply something to everything in the column
-    Widget::col(vec![
+    Widget::col2(vec![
         (if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
             Btn::svg_def("../data/system/assets/minimap/zoom_out_fully.svg").build(
                 ctx,
@@ -410,16 +408,13 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
                 None,
             )
         })
-        .bg(app.cs.inner_panel)
-        .margin_below(16),
+        .bg(app.cs.inner_panel),
         Btn::svg_def("../data/system/assets/tools/layers.svg")
             .build(ctx, "change layers", hotkey(Key::L))
-            .bg(app.cs.inner_panel)
-            .margin_below(16),
+            .bg(app.cs.inner_panel),
         Btn::svg_def("../data/system/assets/tools/search.svg")
             .build(ctx, "search", hotkey(Key::K))
-            .bg(app.cs.inner_panel)
-            .margin_below(16),
+            .bg(app.cs.inner_panel),
     ])
 }
 
@@ -431,7 +426,7 @@ fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     }
     let last = row.pop().unwrap();
     row.push(last.margin_right(0));
-    Widget::row(row)
+    Widget::custom_row(row)
 }
 
 fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
@@ -441,10 +436,8 @@ fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
         let mut row = Vec::new();
         row.push(Checkbox::colored(ctx, label, *color, *enabled).margin_right(8));
         row.push(Line(label).draw(ctx));
-        col.push(Widget::row(row).margin_below(7));
+        col.push(Widget::custom_row(row));
     }
-    let last = col.pop().unwrap();
-    col.push(last.margin_below(0));
 
-    Widget::col(col)
+    Widget::col2(col)
 }

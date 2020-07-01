@@ -273,7 +273,7 @@ fn make_meter(
             ]),
         ])
         .bg(app.cs.panel_bg)
-        .padding(20),
+        .padding(16),
     )
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
@@ -370,7 +370,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
             ])
             .draw(ctx)
             .margin_below(30),
-            Widget::row(vec![
+            Widget::row2(vec![
                 Widget::col2(vec![
                     Line("Time").fg(Color::BLACK).draw(ctx),
                     Widget::draw_svg_transform(

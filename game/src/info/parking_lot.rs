@@ -39,7 +39,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
             ),
         });
     }
-    rows.push("Parking spots available".draw_text(ctx).margin_above(10));
+    rows.push("Parking spots available".draw_text(ctx));
     rows.push(LinePlot::new(
         ctx,
         series,
@@ -56,7 +56,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
 
 fn header(ctx: &EventCtx, details: &mut Details, id: ParkingLotID, tab: Tab) -> Vec<Widget> {
     vec![
-        Widget::row(vec![
+        Widget::row2(vec![
             Line(id.to_string()).small_heading().draw(ctx),
             header_btns(ctx),
         ]),

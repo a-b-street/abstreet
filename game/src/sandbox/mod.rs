@@ -284,21 +284,21 @@ impl AgentMeter {
 
         let rows = vec![
             "Active trips".draw_text(ctx),
-            Widget::row(vec![
-                Widget::row(vec![
+            Widget::custom_row(vec![
+                Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg")
                         .margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Walk]).draw_text(ctx),
                 ]),
-                Widget::row(vec![
+                Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/meters/bike.svg").margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Bike]).draw_text(ctx),
                 ]),
-                Widget::row(vec![
+                Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/meters/car.svg").margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Drive]).draw_text(ctx),
                 ]),
-                Widget::row(vec![
+                Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/meters/bus.svg").margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Transit]).draw_text(ctx),
                 ]),
@@ -312,9 +312,8 @@ impl AgentMeter {
                     Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
                 )]),
             )
-            .margin(15)
             .centered_horiz(),
-            Widget::row(vec![
+            Widget::row2(vec![
                 {
                     let mut txt = Text::new();
                     let pct = if unfinished == 0 {
@@ -335,7 +334,7 @@ impl AgentMeter {
             ]),
         ];
 
-        let composite = Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(20))
+        let composite = Composite::new(Widget::col2(rows).bg(app.cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
 

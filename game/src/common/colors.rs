@@ -142,16 +142,17 @@ impl ColorLegend {
         );
         // Extra wrapping to make the labels stretch against just the scale, not everything else
         // TODO Long labels aren't nicely lined up with the boundaries between buckets
-        Widget::custom_row(vec![Widget::col(vec![
+        Widget::col2(vec![
             Widget::draw_batch(ctx, batch),
-            Widget::row(
+            Widget::custom_row(
                 labels
                     .into_iter()
                     .map(|lbl| Line(lbl).small().draw(ctx))
                     .collect(),
             )
             .evenly_spaced(),
-        ])])
+        ])
+        .container()
     }
 }
 

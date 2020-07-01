@@ -253,7 +253,7 @@ impl InfoPanel {
             if let Some(id) = maybe_id.clone() {
                 for (key, label) in ctx_actions.actions(app, id) {
                     cached_actions.push(key);
-                    col.push(hotkey_btn(ctx, app, label, key).margin(5));
+                    col.push(hotkey_btn(ctx, app, label, key));
                 }
             }
         }
@@ -318,7 +318,7 @@ impl InfoPanel {
             tab,
             time: app.primary.sim.time(),
             is_paused: ctx_actions.is_paused(),
-            composite: Composite::new(Widget::col(col).bg(Color::hex("#5B5B5B")).padding(16))
+            composite: Composite::new(Widget::col2(col).bg(Color::hex("#5B5B5B")).padding(16))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
@@ -489,25 +489,13 @@ fn make_table<I: Into<String>>(
     rows: impl Iterator<Item = (I, String)>,
 ) -> Vec<Widget> {
     rows.map(|(k, v)| {
-        Widget::row(vec![
+        Widget::row2(vec![
             Line(k).secondary().draw(ctx),
             // TODO not quite...
             v.draw_text(ctx).centered_vert().align_right(),
         ])
     })
     .collect()
-
-    // Attempt two
-    /*let mut keys = Text::new();
-    let mut values = Text::new();
-    for (k, v) in rows {
-        keys.add(Line(k));
-        values.add(Line(v));
-    }
-    vec![Widget::row(vec![
-        keys.draw(ctx),
-        values.draw(ctx).centered_vert().bg(Color::GREEN),
-    ])]*/
 }
 
 fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
@@ -537,11 +525,10 @@ fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
 
     let mut plot_opts = PlotOptions::filterable();
     plot_opts.disabled = opts.disabled_series();
-    Widget::col(vec![
+    Widget::col2(vec![
         Line("Number of crossing agents per hour")
             .small_heading()
-            .draw(ctx)
-            .margin_below(10),
+            .draw(ctx),
         LinePlot::new(ctx, series, plot_opts),
     ])
     .padding(10)
@@ -558,22 +545,24 @@ fn make_tabs(
     let mut row = Vec::new();
     for (name, link) in tabs {
         if current_tab == link {
-            row.push(Btn::text_bg2(name).inactive(ctx));
+            row.push(Btn::text_bg2(name).inactive(ctx).centered_vert());
         } else {
             hyperlinks.insert(name.to_string(), link);
-            row.push(Btn::text_bg2(name).build_def(ctx, None));
+            row.push(Btn::text_bg2(name).build_def(ctx, None).centered_vert());
         }
     }
     // TODO Centered, but actually, we need to set the padding of each button to divide the
     // available space evenly. Fancy fill rules... hmmm.
-    Widget::row(row).bg(Color::WHITE).margin_vert(16)
+    Widget::custom_row(row).bg(Color::WHITE).margin_vert(16)
 }
 
 fn header_btns(ctx: &EventCtx) -> Widget {
-    Widget::row(vec![
-        Btn::svg_def("../data/system/assets/tools/location.svg")
-            .build(ctx, "jump to object", hotkey(Key::J))
-            .margin(5),
+    Widget::row2(vec![
+        Btn::svg_def("../data/system/assets/tools/location.svg").build(
+            ctx,
+            "jump to object",
+            hotkey(Key::J),
+        ),
         Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
     ])
     .align_right()
@@ -615,7 +604,7 @@ impl DataOptions {
         if app.has_prebaked().is_none() {
             return Widget::nothing();
         }
-        Widget::row(vec![
+        Widget::row2(vec![
             Checkbox::custom_text(
                 ctx,
                 "Show before changes",

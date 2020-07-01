@@ -72,10 +72,10 @@ impl UI {
             model,
             state: State::viewing(),
             composite: Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     Line("Map Editor").small_heading().draw(ctx),
                     Text::new().draw(ctx).named("current info"),
-                    Widget::col(
+                    Widget::col2(
                         vec![
                             (hotkey(Key::Escape), "quit"),
                             (None, "save raw map"),
@@ -89,7 +89,7 @@ impl UI {
                         .collect(),
                     ),
                 ])
-                .padding(10)
+                .padding(16)
                 .bg(Color::grey(0.4)),
             )
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

@@ -131,16 +131,15 @@ impl Tab {
         master_col.push({
             let mut txt = Text::from(Line("A/B STREET").display_title());
             txt.add(Line("CHALLENGES").big_heading_styled());
-            txt.draw(ctx).centered_horiz().margin_below(20)
+            txt.draw(ctx).centered_horiz()
         });
         master_col.push(
             Btn::text_bg2("Introduction and tutorial")
                 .build_def(ctx, None)
                 .centered_horiz()
                 .bg(app.cs.panel_bg)
-                .padding(10)
-                .outline(10.0, Color::BLACK)
-                .margin_below(10),
+                .padding(16)
+                .outline(2.0, Color::BLACK),
         );
         // Slightly inconsistent: pushes twice and leaves this challenge picker open
         cbs.push((
@@ -156,13 +155,9 @@ impl Tab {
                 Tab::ChallengeStage(ref n, _) => &name == n,
             };
             if current {
-                flex_row.push(Btn::text_bg2(&name).inactive(ctx).margin(10));
+                flex_row.push(Btn::text_bg2(&name).inactive(ctx));
             } else {
-                flex_row.push(
-                    Btn::text_bg2(&name)
-                        .build_def(ctx, hotkey(Key::NUM_KEYS[idx]))
-                        .margin(10),
-                );
+                flex_row.push(Btn::text_bg2(&name).build_def(ctx, hotkey(Key::NUM_KEYS[idx])));
                 cbs.push((
                     name.clone(),
                     Box::new(move |ctx, app| {
@@ -174,12 +169,11 @@ impl Tab {
             }
         }
         master_col.push(
-            Widget::row(flex_row)
+            Widget::custom_row(flex_row)
                 .flex_wrap(ctx, 80)
                 .bg(app.cs.panel_bg)
-                .padding(10)
-                .margin(10)
-                .outline(10.0, Color::BLACK),
+                .padding(16)
+                .outline(2.0, Color::BLACK),
         );
 
         let mut main_row = Vec::new();
@@ -194,9 +188,9 @@ impl Tab {
                 .enumerate()
             {
                 if current == idx {
-                    col.push(Btn::text_fg(&stage.title).inactive(ctx).margin(10));
+                    col.push(Btn::text_fg(&stage.title).inactive(ctx));
                 } else {
-                    col.push(Btn::text_fg(&stage.title).build_def(ctx, None).margin(10));
+                    col.push(Btn::text_fg(&stage.title).build_def(ctx, None));
                     let name = name.to_string();
                     cbs.push((
                         stage.title,
@@ -209,11 +203,10 @@ impl Tab {
                 }
             }
             main_row.push(
-                Widget::col(col)
+                Widget::col2(col)
                     .bg(app.cs.panel_bg)
-                    .padding(10)
-                    .margin(10)
-                    .outline(10.0, Color::BLACK),
+                    .padding(16)
+                    .outline(2.0, Color::BLACK),
             );
         }
 
@@ -227,9 +220,7 @@ impl Tab {
 
             let mut inner_col = vec![
                 txt.draw(ctx),
-                Btn::text_fg("Start!")
-                    .build_def(ctx, hotkey(Key::Enter))
-                    .margin(10),
+                Btn::text_fg("Start!").build_def(ctx, hotkey(Key::Enter)),
             ];
 
             if let Some(scores) = app.session.high_scores.get(&challenge.gameplay) {
@@ -249,11 +240,10 @@ impl Tab {
             }
 
             main_row.push(
-                Widget::col(inner_col)
+                Widget::col2(inner_col)
                     .bg(app.cs.panel_bg)
-                    .padding(10)
-                    .margin(10)
-                    .outline(10.0, Color::BLACK),
+                    .padding(16)
+                    .outline(2.0, Color::BLACK),
             );
             cbs.push((
                 "Start!".to_string(),
@@ -271,10 +261,10 @@ impl Tab {
             ));
         }
 
-        master_col.push(Widget::row(main_row));
+        master_col.push(Widget::row2(main_row));
 
         let mut c = WrappedComposite::new(
-            Composite::new(Widget::col(master_col))
+            Composite::new(Widget::col2(master_col))
                 .exact_size_percent(90, 85)
                 .build(ctx),
         )

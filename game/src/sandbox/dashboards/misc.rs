@@ -34,12 +34,12 @@ impl ActiveTraffic {
 
         Box::new(ActiveTraffic {
             composite: Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     DashTab::ActiveTraffic.picker(ctx, app),
                     LinePlot::new(ctx, active_agents, PlotOptions::fixed()),
                 ])
                 .bg(app.cs.panel_bg)
-                .padding(10),
+                .padding(16),
             )
             .exact_size_percent(90, 90)
             .build(ctx),
@@ -86,11 +86,11 @@ impl BusRoutes {
             Line("Bus routes").small_heading().draw(ctx),
         ];
         for r in routes {
-            col.push(Btn::text_fg(r).build_def(ctx, None).margin(5));
+            col.push(Btn::text_fg(r).build_def(ctx, None));
         }
 
         Box::new(BusRoutes {
-            composite: Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
+            composite: Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
                 .exact_size_percent(90, 90)
                 .build(ctx),
         })

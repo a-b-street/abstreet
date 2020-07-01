@@ -338,7 +338,7 @@ fn make_meter(
             },
         ])
         .bg(app.cs.panel_bg)
-        .padding(35),
+        .padding(16),
     )
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)

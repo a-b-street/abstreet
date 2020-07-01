@@ -85,7 +85,7 @@ impl CompareTimes {
             top_left: ScreenPt::new(0.0, 0.0),
         }));
 
-        let y_axis = Widget::col(
+        let y_axis = Widget::custom_col(
             labels
                 .iter()
                 .rev()
@@ -102,7 +102,7 @@ impl CompareTimes {
             JustDraw::wrap(ctx, label).centered_vert().margin_right(5)
         };
 
-        let x_axis = Widget::row(
+        let x_axis = Widget::custom_row(
             labels
                 .iter()
                 .map(|x| Line(x.to_string()).small().draw(ctx))
@@ -115,12 +115,13 @@ impl CompareTimes {
 
         // It's a bit of work to make both the x and y axis line up with the plot. :)
         let plot_width = plot.get_width_for_forcing();
-        Widget::row(vec![Widget::col(vec![
-            Widget::row(vec![y_label, y_axis, plot]),
-            Widget::col(vec![x_axis, x_label])
+        Widget::custom_col(vec![
+            Widget::custom_row(vec![y_label, y_axis, plot]),
+            Widget::custom_col(vec![x_axis, x_label])
                 .force_width(plot_width)
                 .align_right(),
-        ])])
+        ])
+        .container()
     }
 }
 

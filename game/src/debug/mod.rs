@@ -35,23 +35,21 @@ impl DebugMode {
     pub fn new(ctx: &mut EventCtx, app: &App) -> DebugMode {
         DebugMode {
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
+                Widget::col2(vec![
+                    Widget::row2(vec![
                         Line("Debug Mode").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
                     Text::new().draw(ctx).named("current info"),
-                    Checkbox::text(ctx, "show buildings", hotkey(Key::Num1), true).margin_below(5),
-                    Checkbox::text(ctx, "show intersections", hotkey(Key::Num2), true)
-                        .margin_below(5),
-                    Checkbox::text(ctx, "show lanes", hotkey(Key::Num3), true).margin_below(5),
-                    Checkbox::text(ctx, "show areas", hotkey(Key::Num4), true).margin_below(5),
-                    Checkbox::text(ctx, "show labels", hotkey(Key::Num5), false).margin_below(5),
-                    Checkbox::text(ctx, "show route for all agents", hotkey(Key::R), false)
-                        .margin_below(5),
-                    Widget::col(
+                    Checkbox::text(ctx, "show buildings", hotkey(Key::Num1), true),
+                    Checkbox::text(ctx, "show intersections", hotkey(Key::Num2), true),
+                    Checkbox::text(ctx, "show lanes", hotkey(Key::Num3), true),
+                    Checkbox::text(ctx, "show areas", hotkey(Key::Num4), true),
+                    Checkbox::text(ctx, "show labels", hotkey(Key::Num5), false),
+                    Checkbox::text(ctx, "show route for all agents", hotkey(Key::R), false),
+                    Widget::col2(
                         vec![
                             (lctrl(Key::H), "unhide everything"),
                             (None, "screenshot everything"),
@@ -64,13 +62,11 @@ impl DebugMode {
                             (None, "find bad traffic signals"),
                         ]
                         .into_iter()
-                        .map(|(key, action)| {
-                            Btn::text_fg(action).build_def(ctx, key).margin_below(5)
-                        })
+                        .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
                         .collect(),
                     ),
                 ])
-                .padding(10)
+                .padding(16)
                 .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

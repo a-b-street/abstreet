@@ -78,12 +78,11 @@ impl Wizard {
         if self.tb_comp.is_none() {
             self.tb_comp = Some(
                 Composite::new(
-                    Widget::col(vec![
-                        Widget::row(vec![
+                    Widget::col2(vec![
+                        Widget::row2(vec![
                             Line(query).small_heading().draw(ctx),
                             Btn::text_fg("X")
                                 .build(ctx, "quit", hotkey(Key::Escape))
-                                .margin(5)
                                 .align_right(),
                         ]),
                         Text::new().draw(ctx).named("error"),
@@ -93,7 +92,7 @@ impl Wizard {
                     ])
                     .bg(ctx.style().panel_bg)
                     .outline(5.0, Color::WHITE)
-                    .padding(5),
+                    .padding(16),
                 )
                 .build(ctx),
             );
@@ -264,8 +263,8 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             );
             self.wizard.menu_comp = Some(
                 Composite::new(
-                    Widget::row(vec![
-                        Widget::col(col).margin_right(15),
+                    Widget::row2(vec![
+                        Widget::col2(col),
                         Btn::plaintext("X").build(self.ctx, "quit", hotkey(Key::Escape)),
                     ])
                     .bg(self.ctx.style().panel_bg)
@@ -388,15 +387,13 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         assert!(self.wizard.ack.is_none());
         self.wizard.ack = Some(
             Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     txt.draw(self.ctx),
-                    Btn::text_bg2("OK")
-                        .build(self.ctx, "OK", hotkey(Key::Enter))
-                        .margin(5),
+                    Btn::text_bg2("OK").build(self.ctx, "OK", hotkey(Key::Enter)),
                 ])
                 .bg(self.ctx.style().panel_bg)
                 .outline(10.0, Color::WHITE)
-                .padding(10),
+                .padding(16),
             )
             .build(self.ctx),
         );

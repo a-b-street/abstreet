@@ -156,7 +156,7 @@ impl ScatterPlot {
             // The text is already scaled; don't use Widget::draw_batch and scale it again.
             row.push(JustDraw::wrap(ctx, batch));
         }
-        let x_axis = Widget::row(row).padding(10);
+        let x_axis = Widget::custom_row(row).padding(10).evenly_spaced();
 
         let num_y_labels = 4;
         let mut col = Vec::new();
@@ -165,14 +165,15 @@ impl ScatterPlot {
             col.push(max_y.from_percent(percent_y).prettyprint().draw_text(ctx));
         }
         col.reverse();
-        let y_axis = Widget::col(col).padding(10);
+        let y_axis = Widget::custom_col(col).padding(10).evenly_spaced();
 
         // Don't let the x-axis fill the parent container
-        Widget::row(vec![Widget::col(vec![
+        Widget::custom_col(vec![
             legend.margin_below(10),
-            Widget::row(vec![y_axis.evenly_spaced(), Widget::new(Box::new(plot))]),
-            x_axis.evenly_spaced(),
-        ])])
+            Widget::custom_row(vec![y_axis, Widget::new(Box::new(plot))]),
+            x_axis,
+        ])
+        .container()
     }
 }
 

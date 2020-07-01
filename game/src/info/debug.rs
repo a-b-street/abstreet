@@ -6,7 +6,7 @@ use map_model::AreaID;
 pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widget> {
     let mut rows = vec![];
 
-    rows.push(Widget::row(vec![
+    rows.push(Widget::row2(vec![
         Line(id.to_string()).small_heading().draw(ctx),
         header_btns(ctx),
     ]));

@@ -40,7 +40,7 @@ impl DashTab {
         Widget::custom_row(vec![
             // TODO Centered, but actually, we need to set the padding of each button to divide the
             // available space evenly. Fancy fill rules... hmmm.
-            Widget::row(row).bg(Color::WHITE).margin_vert(16),
+            Widget::custom_row(row).bg(Color::WHITE).margin_vert(16),
             Btn::plaintext("X")
                 .build(ctx, "close", hotkey(Key::Escape))
                 .align_right(),

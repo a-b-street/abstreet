@@ -121,9 +121,9 @@ pub fn trips(
 
         // TODO Style wrong. Button should be the entire row.
         rows.push(
-            Widget::row(vec![
+            Widget::custom_row(vec![
                 format!("Trip {} ", idx + 1).draw_text(ctx).margin_right(21),
-                Widget::row(vec![
+                Widget::row2(vec![
                     Widget::draw_svg_transform(
                         ctx,
                         match trip_mode {
@@ -133,8 +133,7 @@ pub fn trips(
                             TripMode::Transit => "../data/system/assets/meters/bus.svg",
                         },
                         RewriteColor::ChangeAll(color),
-                    )
-                    .margin_right(10),
+                    ),
                     Line(trip_status).small().fg(color).draw(ctx),
                 ])
                 .fully_rounded()
@@ -224,11 +223,7 @@ pub fn bio(
     let batch = GeomBatch::from_svg_contents(svg_data).autocrop();
     let dims = batch.get_dims();
     let batch = batch.scale((200.0 / dims.width).min(200.0 / dims.height));
-    rows.push(
-        Widget::draw_batch(ctx, batch)
-            .centered_horiz()
-            .margin_below(10),
-    );
+    rows.push(Widget::draw_batch(ctx, batch).centered_horiz());
 
     let nickname = petname::Petnames::default().generate(&mut rng, 2, " ");
     let age = rng.gen_range(5, 100);
@@ -267,8 +262,7 @@ pub fn bio(
                 Line("Pandemic model state: ").secondary(),
                 Line(status),
             ])
-            .draw(ctx)
-            .margin_below(5),
+            .draw(ctx),
         );
     }
 
@@ -372,7 +366,7 @@ pub fn crowd(
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
-    rows.push(Widget::row(vec![
+    rows.push(Widget::row2(vec![
         Line("Pedestrian crowd").small_heading().draw(ctx),
         header_btns(ctx),
     ]));
@@ -384,16 +378,10 @@ pub fn crowd(
             .agent_to_person(AgentID::Pedestrian(*id))
             .unwrap();
         // TODO What other info is useful to summarize?
-        rows.push(
-            Widget::row(vec![
-                format!("{})", idx + 1)
-                    .draw_text(ctx)
-                    .centered_vert()
-                    .margin_right(10),
-                Btn::text_fg(person.to_string()).build_def(ctx, None),
-            ])
-            .margin_below(10),
-        );
+        rows.push(Widget::row2(vec![
+            format!("{})", idx + 1).draw_text(ctx).centered_vert(),
+            Btn::text_fg(person.to_string()).build_def(ctx, None),
+        ]));
         details.hyperlinks.insert(
             person.to_string(),
             Tab::PersonTrips(
@@ -420,23 +408,24 @@ pub fn parked_car(
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
-    rows.push(Widget::row(vec![
+    rows.push(Widget::row2(vec![
         Line(format!("Parked car #{}", id.0))
             .small_heading()
             .draw(ctx),
-        Widget::row(vec![
+        Widget::row2(vec![
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {
-                Btn::svg_def("../data/system/assets/tools/location.svg")
-                    .build(ctx, "follow (run the simulation)", hotkey(Key::F))
-                    .margin(5)
+                Btn::svg_def("../data/system/assets/tools/location.svg").build(
+                    ctx,
+                    "follow (run the simulation)",
+                    hotkey(Key::F),
+                )
             } else {
                 // TODO Blink
                 Btn::svg_def("../data/system/assets/tools/location.svg")
                     .normal_color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
                     .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))
-                    .margin(5)
             },
             Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
         ])
@@ -529,7 +518,7 @@ fn header(
         PersonState::OffMap => (None, ("off map", None)),
     };
 
-    rows.push(Widget::row(vec![
+    rows.push(Widget::custom_row(vec![
         Line(format!("{}", id)).small_heading().draw(ctx),
         if let Some(icon) = maybe_icon {
             Widget::draw_svg_transform(ctx, icon, RewriteColor::ChangeAll(Color::hex("#A3A3A3")))
@@ -542,19 +531,20 @@ fn header(
             .fg(Color::hex("#A3A3A3"))
             .draw(ctx)
             .margin_horiz(10),
-        Widget::row(vec![
+        Widget::row2(vec![
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {
-                Btn::svg_def("../data/system/assets/tools/location.svg")
-                    .build(ctx, "follow (run the simulation)", hotkey(Key::F))
-                    .margin(5)
+                Btn::svg_def("../data/system/assets/tools/location.svg").build(
+                    ctx,
+                    "follow (run the simulation)",
+                    hotkey(Key::F),
+                )
             } else {
                 // TODO Blink
                 Btn::svg_def("../data/system/assets/tools/location.svg")
                     .normal_color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
                     .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))
-                    .margin(5)
             },
             Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
         ])
