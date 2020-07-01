@@ -199,7 +199,8 @@ impl AgentSpawner {
                     ]),
                     "Click a building or border to specify start"
                         .draw_text(ctx)
-                        .named("instructions"),
+                        .named("instructions")
+                        .margin_below(10),
                     Widget::row(vec![
                         "Type of trip:".draw_text(ctx).margin_right(10),
                         Widget::dropdown(
@@ -211,11 +212,13 @@ impl AgentSpawner {
                                 .map(|m| Choice::new(m.ongoing_verb(), m))
                                 .collect(),
                         ),
-                    ]),
+                    ])
+                    .margin_below(10),
                     Widget::row(vec![
                         "Number of trips:".draw_text(ctx).margin_right(10),
                         Spinner::new(ctx, (1, 1000), 1).named("number"),
-                    ]),
+                    ])
+                    .margin_below(10),
                     Btn::text_fg("Confirm").inactive(ctx).named("Confirm"),
                 ])
                 .bg(app.cs.panel_bg)

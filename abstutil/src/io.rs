@@ -247,7 +247,7 @@ pub fn list_all_objects(dir: String) -> Vec<String> {
 }
 
 // Load all serialized things from a directory, return sorted by name, with file extension removed.
-// Detects JSON or binary.
+// Detects JSON or binary. Filters out broken files.
 #[cfg(not(target_arch = "wasm32"))]
 pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
     let mut timer = Timer::new(format!("load_all_objects from {}", dir));
@@ -268,14 +268,21 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
                     .to_os_string()
                     .into_string()
                     .unwrap();
-                let load: T = if path_str.ends_with(".json") {
-                    read_json(full_path, &mut timer)
+                let maybe_load: Result<T, Error> = if path_str.ends_with(".json") {
+                    maybe_read_json(full_path.clone(), &mut timer)
                 } else if path_str.ends_with(".bin") {
-                    read_binary(full_path, &mut timer)
+                    maybe_read_binary(full_path.clone(), &mut timer)
                 } else {
                     panic!("Don't know what {} is", full_path);
                 };
-                tree.insert(name, load);
+                match maybe_load {
+                    Ok(x) => {
+                        tree.insert(name, x);
+                    }
+                    Err(err) => {
+                        println!("Couldn't load {}: {}", full_path, err);
+                    }
+                }
             }
         }
         Err(ref e) if e.kind() == ErrorKind::NotFound => {}
