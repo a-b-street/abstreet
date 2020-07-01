@@ -20,8 +20,8 @@ use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, PersistentSplit, RewriteColor, ScreenRectangle, Text, TextExt,
-    VerticalAlignment, Widget, WrappedWizard,
+    Key, Line, Outcome, PersistentSplit, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+    WrappedWizard,
 };
 use geom::Speed;
 use map_model::{
@@ -168,17 +168,29 @@ impl State for EditMode {
         match self.changelist.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "load edits" => {
-                    return Transition::Push(make_load_edits(
-                        app,
-                        self.changelist.rect_of("load edits").clone(),
-                        self.mode.clone(),
-                    ));
+                    if app.primary.map.unsaved_edits() {
+                        return Transition::PushTwice(
+                            make_load_edits(app, self.mode.clone()),
+                            SaveEdits::new(
+                                ctx,
+                                app,
+                                "Do you want to save your edits first?",
+                                true,
+                                Some(Transition::PopTwice),
+                            ),
+                        );
+                    } else {
+                        return Transition::Push(make_load_edits(app, self.mode.clone()));
+                    }
                 }
                 "save edits as" | "save edits" => {
-                    return Transition::Push(WizardState::new(Box::new(|wiz, ctx, app| {
-                        save_edits_as(&mut wiz.wrap(ctx), app)?;
-                        Some(Transition::Pop)
-                    })));
+                    return Transition::Push(SaveEdits::new(
+                        ctx,
+                        app,
+                        "Save your edits",
+                        false,
+                        Some(Transition::Pop),
+                    ));
                 }
                 "undo" => {
                     let mut edits = app.primary.map.get_edits().clone();
@@ -265,6 +277,115 @@ impl State for EditMode {
     }
 }
 
+pub struct SaveEdits {
+    composite: Composite,
+    current_name: String,
+    cancel: Option<Transition>,
+    reset: bool,
+}
+
+impl SaveEdits {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        title: &str,
+        discard: bool,
+        cancel: Option<Transition>,
+    ) -> Box<dyn State> {
+        let initial_name = if app.primary.map.unsaved_edits() {
+            String::new()
+        } else {
+            format!("copy of {}", app.primary.map.get_edits().edits_name)
+        };
+        let btn = SaveEdits::btn(ctx, app, &initial_name);
+        Box::new(SaveEdits {
+            current_name: initial_name.clone(),
+            composite: Composite::new(
+                Widget::col2(vec![
+                    Line(title).small_heading().draw(ctx),
+                    Widget::row2(vec![
+                        "Name:".draw_text(ctx),
+                        Widget::text_entry(ctx, initial_name, true).named("filename"),
+                    ]),
+                    Widget::row2(vec![
+                        btn,
+                        if discard {
+                            Btn::text_bg2("Discard edits").build_def(ctx, None)
+                        } else {
+                            Widget::nothing()
+                        },
+                        if cancel.is_some() {
+                            Btn::text_bg2("Cancel").build_def(ctx, hotkey(Key::Escape))
+                        } else {
+                            Widget::nothing()
+                        },
+                    ]),
+                ])
+                .padding(16)
+                .bg(app.cs.panel_bg),
+            )
+            .build(ctx),
+            cancel,
+            reset: discard,
+        })
+    }
+
+    fn btn(ctx: &mut EventCtx, app: &App, candidate: &str) -> Widget {
+        if candidate.is_empty() {
+            Btn::text_bg2("Save").inactive(ctx)
+        } else if abstutil::file_exists(abstutil::path_edits(app.primary.map.get_name(), candidate))
+        {
+            Btn::text_bg2("Overwrite existing edits").build_def(ctx, None)
+        } else {
+            Btn::text_bg2("Save").build_def(ctx, hotkey(Key::Enter))
+        }
+        .named("save")
+    }
+}
+
+impl State for SaveEdits {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "Save" | "Overwrite existing edits" => {
+                    let mut edits = app.primary.map.get_edits().clone();
+                    edits.edits_name = self.current_name.clone();
+                    app.primary
+                        .map
+                        .apply_edits(edits, &mut Timer::new("name map edits"));
+                    app.primary.map.save_edits();
+                    if self.reset {
+                        apply_map_edits(ctx, app, MapEdits::new());
+                    }
+                    return Transition::Pop;
+                }
+                "Discard edits" => {
+                    apply_map_edits(ctx, app, MapEdits::new());
+                    return Transition::Pop;
+                }
+                "Cancel" => {
+                    return self.cancel.take().unwrap();
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+        let name = self.composite.text_box("filename");
+        if name != self.current_name {
+            self.current_name = name;
+            let btn = SaveEdits::btn(ctx, app, &self.current_name).margin_right(10);
+            self.composite.replace(ctx, "save", btn);
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
+        self.composite.draw(g);
+    }
+}
+
 pub fn save_edits_as(wizard: &mut WrappedWizard, app: &mut App) -> Option<()> {
     let map = &mut app.primary.map;
     let (prompt, new_default_name) = if map.get_edits().edits_name == "untitled edits" {
@@ -313,41 +434,13 @@ pub fn save_edits_as(wizard: &mut WrappedWizard, app: &mut App) -> Option<()> {
     Some(())
 }
 
-fn make_load_edits(app: &App, btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
+fn make_load_edits(app: &App, mode: GameplayMode) -> Box<dyn State> {
     let current_edits_name = app.primary.map.get_edits().edits_name.clone();
 
-    // TODO Weird behavior: if we cancel out of this, the current edits remain blanked out. Woops?
-
     WizardState::new(Box::new(move |wiz, ctx, app| {
-        let mut wizard = wiz.wrap(ctx);
-
-        if app.primary.map.unsaved_edits() {
-            let save = "save edits";
-            let discard = "discard";
-            if wizard
-                .choose_string("Save current edits first?", || vec![save, discard])?
-                .as_str()
-                == save
-            {
-                save_edits_as(&mut wizard, app)?;
-                wizard.reset();
-            }
-        }
-
-        // We need to clear out the current edits first, or from_permanent won't work.
-        apply_map_edits(wizard.ctx, app, MapEdits::new());
-
-        let (_, new_edits) = wizard.choose_exact(
-            (
-                HorizontalAlignment::Centered(btn.center().x),
-                VerticalAlignment::Below(btn.y2 + 15.0),
-            ),
-            None,
-            || {
-                let mut list = Choice::from(
-                    abstutil::load_all_objects(abstutil::path_all_edits(
-                        app.primary.map.get_name(),
-                    ))
+        let (_, new_edits) = wiz.wrap(ctx).choose("Load which edits?", || {
+            let mut list = Choice::from(
+                abstutil::load_all_objects(abstutil::path_all_edits(app.primary.map.get_name()))
                     .into_iter()
                     .chain(abstutil::load_all_objects::<PermanentMapEdits>(
                         "../data/system/proposals".to_string(),
@@ -361,11 +454,10 @@ fn make_load_edits(app: &App, btn: ScreenRectangle, mode: GameplayMode) -> Box<d
                         mode.allows(edits) && edits.edits_name != current_edits_name
                     })
                     .collect(),
-                );
-                list.push(Choice::new("start over with blank edits", MapEdits::new()));
-                list
-            },
-        )?;
+            );
+            list.push(Choice::new("start over with blank edits", MapEdits::new()));
+            list
+        })?;
         apply_map_edits(ctx, app, new_edits);
         Some(Transition::Pop)
     }))
@@ -642,9 +734,20 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
                 "load edits",
                 lctrl(Key::L),
             ),
-            Btn::svg_def("../data/system/assets/tools/save.svg")
-                .build(ctx, "save edits as", lctrl(Key::S))
-                .centered_vert(),
+            (if edits.commands.is_empty() {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/save.svg",
+                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+                )
+            } else {
+                Btn::svg_def("../data/system/assets/tools/save.svg").build(
+                    ctx,
+                    "save edits as",
+                    lctrl(Key::S),
+                )
+            })
+            .centered_vert(),
             (if !edits.commands.is_empty() {
                 Btn::svg_def("../data/system/assets/tools/undo.svg").build(
                     ctx,
