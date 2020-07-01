@@ -6,8 +6,8 @@ mod walking;
 
 pub use self::driving::cost;
 use self::driving::VehiclePathfinder;
-use self::walking::SidewalkPathfinder;
-pub use self::walking::{one_step_walking_path, walking_cost, walking_path_to_steps, WalkingNode};
+use self::walking::{one_step_walking_path, walking_path_to_steps, SidewalkPathfinder};
+pub use self::walking::{walking_cost, WalkingNode};
 use crate::{
     osm, BusRouteID, BusStopID, Intersection, Lane, LaneID, LaneType, Map, Position, Traversable,
     TurnID, Zone,
@@ -320,46 +320,21 @@ impl Path {
         &self.steps
     }
 
-    fn prepend(&mut self, other: Path, map: &Map) {
-        let turn = glue(*other.steps.back().unwrap(), self.steps[0], map);
-        self.steps.push_front(PathStep::Turn(turn));
-        self.total_length += map.get_t(turn).geom.length();
-        for step in other.steps.into_iter().rev() {
-            self.steps.push_front(step);
-        }
-        self.total_length += other.total_length;
-        self.total_lanes += other.total_lanes;
-    }
-
+    // Not for walking paths
     fn append(&mut self, other: Path, map: &Map) {
-        let turn = glue(*self.steps.back().unwrap(), other.steps[0], map);
-        self.steps.push_back(PathStep::Turn(turn));
-        self.total_length += map.get_t(turn).geom.length();
-        self.steps.extend(other.steps);
-        self.total_length += other.total_length;
-        self.total_lanes += other.total_lanes;
-    }
-}
-
-fn glue(step1: PathStep, step2: PathStep, map: &Map) -> TurnID {
-    match step1 {
-        PathStep::Lane(src) => match step2 {
-            PathStep::Lane(dst) | PathStep::ContraflowLane(dst) => TurnID {
+        let turn = match (*self.steps.back().unwrap(), other.steps[0]) {
+            (PathStep::Lane(src), PathStep::Lane(dst)) => TurnID {
                 parent: map.get_l(src).dst_i,
                 src,
                 dst,
             },
             _ => unreachable!(),
-        },
-        PathStep::ContraflowLane(src) => match step2 {
-            PathStep::Lane(dst) | PathStep::ContraflowLane(dst) => TurnID {
-                parent: map.get_l(src).src_i,
-                src,
-                dst,
-            },
-            _ => unreachable!(),
-        },
-        _ => unreachable!(),
+        };
+        self.steps.push_back(PathStep::Turn(turn));
+        self.total_length += map.get_t(turn).geom.length();
+        self.steps.extend(other.steps);
+        self.total_length += other.total_length;
+        self.total_lanes += other.total_lanes;
     }
 }
 
@@ -553,6 +528,10 @@ impl Pathfinder {
     }
 
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
+        if req.start.lane() == req.end.lane() && req.constraints == PathConstraints::Pedestrian {
+            return Some(one_step_walking_path(&req, map));
+        }
+
         // If we start or end in a private zone, have to stitch together a smaller path with a path
         // through the main map.
         let start_r = map.get_parent(req.start.lane());
@@ -562,6 +541,11 @@ impl Pathfinder {
             if start_r.zone == end_r.zone {
                 let zone = map.get_z(start_r.zone.unwrap());
                 if !zone.allow_through_traffic.contains(&req.constraints) {
+                    if req.constraints == PathConstraints::Pedestrian {
+                        let steps =
+                            walking_path_to_steps(zone.pathfind_walking(req.clone(), map)?, map);
+                        return Some(Path::new(map, steps, req.end.dist_along()));
+                    }
                     return zone.pathfind(req, map);
                 }
             } else {
@@ -603,7 +587,10 @@ impl Pathfinder {
         }
 
         match req.constraints {
-            PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
+            PathConstraints::Pedestrian => {
+                let steps = walking_path_to_steps(self.walking_graph.pathfind(&req, map)?, map);
+                Some(Path::new(map, steps, req.end.dist_along()))
+            }
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
@@ -650,31 +637,42 @@ impl Pathfinder {
             result?
         };
 
-        let interior_path = zone.pathfind(
-            PathRequest {
-                start: req.start,
-                end: if map.get_l(src).dst_i == i.id {
-                    Position::end(src, map)
-                } else {
-                    Position::start(src)
-                },
-                constraints: req.constraints,
+        let interior_req = PathRequest {
+            start: req.start,
+            end: if map.get_l(src).dst_i == i.id {
+                Position::end(src, map)
+            } else {
+                Position::start(src)
             },
-            map,
-        )?;
+            constraints: req.constraints,
+        };
         req.start = if map.get_l(dst).src_i == i.id {
             Position::start(dst)
         } else {
             Position::end(dst, map)
         };
-        let mut main_path = match req.constraints {
-            PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
+
+        if let PathConstraints::Pedestrian = req.constraints {
+            let mut interior_path = zone.pathfind_walking(interior_req, map)?;
+            let main_path = if req.start.lane() == req.end.lane() {
+                vec![WalkingNode::closest(req.end, map)]
+            } else {
+                self.walking_graph.pathfind(&req, map)?
+            };
+            interior_path.extend(main_path);
+            let steps = walking_path_to_steps(interior_path, map);
+            return Some(Path::new(map, steps, req.end.dist_along()));
+        }
+
+        let mut interior_path = zone.pathfind(interior_req, map)?;
+        let main_path = match req.constraints {
+            PathConstraints::Pedestrian => unreachable!(),
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
         }?;
-        main_path.prepend(interior_path, map);
-        Some(main_path)
+        interior_path.append(main_path, map);
+        Some(interior_path)
     }
 
     fn pathfind_to_zone(
@@ -716,18 +714,15 @@ impl Pathfinder {
             result?
         };
 
-        let interior_path = zone.pathfind(
-            PathRequest {
-                start: if map.get_l(dst).src_i == i.id {
-                    Position::start(dst)
-                } else {
-                    Position::end(dst, map)
-                },
-                end: req.end,
-                constraints: req.constraints,
+        let interior_req = PathRequest {
+            start: if map.get_l(dst).src_i == i.id {
+                Position::start(dst)
+            } else {
+                Position::end(dst, map)
             },
-            map,
-        )?;
+            end: req.end,
+            constraints: req.constraints,
+        };
         let orig_end_dist = req.end.dist_along();
         req.end = if map.get_l(src).dst_i == i.id {
             Position::end(src, map)
@@ -735,8 +730,21 @@ impl Pathfinder {
             Position::start(src)
         };
 
+        if let PathConstraints::Pedestrian = req.constraints {
+            let interior_path = zone.pathfind_walking(interior_req, map)?;
+            let mut main_path = if req.start.lane() == req.end.lane() {
+                vec![WalkingNode::closest(req.start, map)]
+            } else {
+                self.walking_graph.pathfind(&req, map)?
+            };
+            main_path.extend(interior_path);
+            let steps = walking_path_to_steps(main_path, map);
+            return Some(Path::new(map, steps, req.end.dist_along()));
+        }
+
+        let interior_path = zone.pathfind(interior_req, map)?;
         let mut main_path = match req.constraints {
-            PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
+            PathConstraints::Pedestrian => unreachable!(),
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),

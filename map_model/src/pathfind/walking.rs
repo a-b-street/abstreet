@@ -69,11 +69,9 @@ impl SidewalkPathfinder {
         self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
     }
 
-    pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
-        if req.start.lane() == req.end.lane() {
-            return Some(one_step_walking_path(req, map));
-        }
-
+    // Returns the raw nodes
+    pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
+        assert_ne!(req.start.lane(), req.end.lane());
         let mut calc = self
             .path_calc
             .get_or(|| RefCell::new(fast_paths::create_calculator(&self.graph)))
@@ -83,9 +81,7 @@ impl SidewalkPathfinder {
             self.nodes.get(WalkingNode::closest(req.start, map)),
             self.nodes.get(WalkingNode::closest(req.end, map)),
         )?;
-        let path = self.nodes.translate(&raw_path);
-        let steps = walking_path_to_steps(path, map);
-        Some(Path::new(map, steps, req.end.dist_along()))
+        Some(self.nodes.translate(&raw_path))
     }
 
     // Attempt the pathfinding and see if we should ride a bus.
@@ -266,24 +262,16 @@ pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStep>
         let lane = map.get_l(t.src);
         if lane.src_i == t.parent {
             steps.insert(0, PathStep::ContraflowLane(lane.id));
-            steps.insert(0, PathStep::Lane(lane.id));
         } else {
             steps.insert(0, PathStep::Lane(lane.id));
-            steps.insert(0, PathStep::ContraflowLane(lane.id));
         }
     }
     if let PathStep::Turn(t) = steps.last().unwrap() {
-        // TODO Weird hack! But if we wanted to end at a particular sidewalk endpoint and we got
-        // there from a SharedSidewalkCorner, we still want to wind up at the correct spot.
-        //
-        // Can we make the sim layer be OK with starting/ending in a turn?
         let lane = map.get_l(t.dst);
         if lane.src_i == t.parent {
             steps.push(PathStep::Lane(lane.id));
-            steps.push(PathStep::ContraflowLane(lane.id));
         } else {
             steps.push(PathStep::ContraflowLane(lane.id));
-            steps.push(PathStep::Lane(lane.id));
         }
     }
 

@@ -1,6 +1,4 @@
-use crate::pathfind::{
-    cost, one_step_walking_path, walking_cost, walking_path_to_steps, WalkingNode,
-};
+use crate::pathfind::{cost, walking_cost, WalkingNode};
 use crate::{
     IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoadID, TurnID,
 };
@@ -30,10 +28,7 @@ pub struct Zone {
 impl Zone {
     // Run slower Dijkstra's within the interior of a private zone. Don't go outside the borders.
     pub(crate) fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
-        // TODO Not happy this works so differently
-        if req.constraints == PathConstraints::Pedestrian {
-            return self.pathfind_walking(req, map);
-        }
+        assert_ne!(req.constraints, PathConstraints::Pedestrian);
 
         let mut graph: DiGraphMap<LaneID, TurnID> = DiGraphMap::new();
         for r in &self.members {
@@ -70,11 +65,8 @@ impl Zone {
         Some(Path::new(map, steps, req.end.dist_along()))
     }
 
-    fn pathfind_walking(&self, req: PathRequest, map: &Map) -> Option<Path> {
-        if req.start.lane() == req.end.lane() {
-            return Some(one_step_walking_path(&req, map));
-        }
-
+    // TODO Not happy this works so differently
+    pub(crate) fn pathfind_walking(&self, req: PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
         let mut graph: DiGraphMap<WalkingNode, usize> = DiGraphMap::new();
         for r in &self.members {
             for l in map.get_r(*r).all_lanes() {
@@ -111,9 +103,6 @@ impl Zone {
             |(_, _, cost)| *cost,
             |_| 0,
         )?;
-        let steps = walking_path_to_steps(path, map);
-        assert_eq!(steps[0].as_lane(), req.start.lane());
-        assert_eq!(steps.last().unwrap().as_lane(), req.end.lane());
-        Some(Path::new(map, steps, req.end.dist_along()))
+        Some(path)
     }
 }
