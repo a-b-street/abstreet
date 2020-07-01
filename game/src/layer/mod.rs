@@ -77,7 +77,7 @@ impl PickLayer {
     }
 
     pub fn pick(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let mut col = vec![Widget::row(vec![
+        let mut col = vec![Widget::custom_row(vec![
             Line("Layers").small_heading().draw(ctx),
             Btn::plaintext("X")
                 .build(ctx, "close", hotkey(Key::Escape))
@@ -94,21 +94,20 @@ impl PickLayer {
             } else {
                 hotkey_btn(ctx, app, name, key)
             }
-            .margin_below(10)
         };
 
         col.push(btn("None", Key::N));
 
         col.push(
-            Widget::row(vec![
-                Widget::col(vec![
-                    "Traffic".draw_text(ctx).margin_below(10),
+            Widget::custom_row(vec![
+                Widget::col2(vec![
+                    "Traffic".draw_text(ctx),
                     btn("delay", Key::D),
                     btn("throughput", Key::T),
                     btn("traffic jams", Key::J),
                 ]),
-                Widget::col(vec![
-                    "Map".draw_text(ctx).margin_below(10),
+                Widget::col2(vec![
+                    "Map".draw_text(ctx),
                     btn("map edits", Key::E),
                     btn("parking occupancy", Key::P),
                     btn("bike network", Key::B),
@@ -120,7 +119,7 @@ impl PickLayer {
         );
 
         col.extend(vec![
-            "Experimental".draw_text(ctx).margin_below(10),
+            "Experimental".draw_text(ctx),
             btn("amenities", Key::A),
             btn("backpressure", Key::Z),
             btn("elevation", Key::S),
@@ -130,7 +129,7 @@ impl PickLayer {
         }
 
         Box::new(PickLayer {
-            composite: Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
+            composite: Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
                 .exact_size_percent(35, 70)
                 .build(ctx),
         })

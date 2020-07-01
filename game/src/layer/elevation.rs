@@ -93,10 +93,9 @@ impl Elevation {
         colorer.unzoomed.append(batch);
 
         let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
-                        .margin_right(10),
+            Widget::col2(vec![
+                Widget::row2(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Elevation change".draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
@@ -109,7 +108,7 @@ impl Elevation {
                 .draw(ctx),
                 ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["flat", "steep"]),
             ])
-            .padding(5)
+            .padding(16)
             .bg(app.cs.panel_bg),
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)

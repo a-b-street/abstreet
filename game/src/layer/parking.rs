@@ -156,10 +156,9 @@ impl Occupancy {
         }
 
         let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
-                        .margin_right(10),
+            Widget::col2(vec![
+                Widget::row2(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Parking occupancy".draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
@@ -185,23 +184,20 @@ impl Occupancy {
                         prettyprint_usize(filled_private_spots + avail_private_spots)
                     )),
                 ])
-                .draw(ctx)
-                .margin_below(10),
-                Widget::row(vec![
-                    Checkbox::text(ctx, "On-street spots", None, onstreet).margin_right(15),
+                .draw(ctx),
+                Widget::row2(vec![
+                    Checkbox::text(ctx, "On-street spots", None, onstreet),
                     Checkbox::text(ctx, "Parking lots", None, lots),
                 ])
-                .evenly_spaced()
-                .margin_below(10),
-                Widget::row(vec![
-                    Checkbox::text(ctx, "Public garages", None, garages).margin_right(15),
+                .evenly_spaced(),
+                Widget::row2(vec![
+                    Checkbox::text(ctx, "Public garages", None, garages),
                     Checkbox::text(ctx, "Private buildings", None, private_bldgs),
                 ])
-                .evenly_spaced()
-                .margin_below(10),
+                .evenly_spaced(),
                 ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%", "100%"]),
             ])
-            .padding(5)
+            .padding(16)
             .bg(app.cs.panel_bg),
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)

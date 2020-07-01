@@ -413,9 +413,7 @@ impl State for TrafficSignalEditor {
 
 pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Composite {
     let row = vec![
-        Btn::text_fg("Finish")
-            .build_def(ctx, hotkey(Key::Escape))
-            .margin_right(5),
+        Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
         Btn::text_fg("Preview").build_def(ctx, lctrl(Key::P)),
         (if can_undo {
             Btn::svg_def("../data/system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
@@ -426,7 +424,7 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
                 RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
             )
         })
-        .margin(15),
+        .centered_vert(),
         (if can_redo {
             Btn::svg_def("../data/system/assets/tools/redo.svg").build(
                 ctx,
@@ -441,7 +439,7 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
                 RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
             )
         })
-        .margin(15),
+        .centered_vert(),
         if app.opts.dev {
             Btn::text_fg("Export")
                 .tooltip(Text::from_multiline(vec![
@@ -457,7 +455,7 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
             Widget::nothing()
         },
     ];
-    Composite::new(Widget::row(row).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::row2(row).bg(app.cs.panel_bg).padding(16))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -770,12 +768,12 @@ impl PreviewTrafficSignal {
     fn new(ctx: &mut EventCtx, app: &App) -> PreviewTrafficSignal {
         PreviewTrafficSignal {
             composite: Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     "Previewing traffic signal".draw_text(ctx),
                     Btn::text_fg("back to editing").build_def(ctx, hotkey(Key::Escape)),
                 ])
                 .bg(app.cs.panel_bg)
-                .padding(10),
+                .padding(16),
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),

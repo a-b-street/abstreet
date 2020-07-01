@@ -97,10 +97,9 @@ impl BikeNetwork {
         }
 
         let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
-                        .margin_right(10),
+            Widget::col2(vec![
+                Widget::row2(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Bike network".draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
@@ -113,8 +112,7 @@ impl BikeNetwork {
                         total_dist.describe_rounded()
                     )),
                 ])
-                .draw(ctx)
-                .margin_below(10),
+                .draw(ctx),
                 Line("Throughput on bike lanes").draw(ctx),
                 ColorLegend::gradient(
                     ctx,
@@ -128,7 +126,7 @@ impl BikeNetwork {
                     vec!["lowest count", "highest"],
                 ),
             ])
-            .padding(5)
+            .padding(16)
             .bg(app.cs.panel_bg),
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
@@ -193,10 +191,9 @@ impl Static {
     ) -> Static {
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
-                        .margin_right(10),
+            Widget::col2(vec![
+                Widget::row2(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     title.draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
@@ -205,7 +202,7 @@ impl Static {
                 extra,
                 legend,
             ])
-            .padding(5)
+            .padding(16)
             .bg(app.cs.panel_bg),
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)

@@ -56,22 +56,19 @@ impl LaneEditor {
             ),
             ("contraflow", "reverse lane direction", Key::F, true),
         ] {
-            row.push(
-                if active {
-                    Btn::svg_def(format!("../data/system/assets/edit/{}.svg", icon)).build(
-                        ctx,
-                        label,
-                        hotkey(key),
-                    )
-                } else {
-                    Widget::draw_svg_transform(
-                        ctx,
-                        &format!("../data/system/assets/edit/{}.svg", icon),
-                        RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                    )
-                }
-                .padding(5),
-            );
+            row.push(if active {
+                Btn::svg_def(format!("../data/system/assets/edit/{}.svg", icon)).build(
+                    ctx,
+                    label,
+                    hotkey(key),
+                )
+            } else {
+                Widget::draw_svg_transform(
+                    ctx,
+                    &format!("../data/system/assets/edit/{}.svg", icon),
+                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+                )
+            });
         }
 
         let parent = app.primary.map.get_parent(l);
@@ -79,12 +76,10 @@ impl LaneEditor {
             format!("Convert this lane of {} to what type?", parent.get_name())
                 .draw_text(ctx)
                 .centered_horiz(),
-            Widget::row(row).centered().margin_below(5),
-            change_speed_limit(ctx, parent.speed_limit).margin_below(10),
-            Btn::text_fg("Change access restrictions")
-                .build_def(ctx, None)
-                .margin_below(10),
-            Widget::row(vec![
+            Widget::custom_row(row).centered(),
+            change_speed_limit(ctx, parent.speed_limit),
+            Btn::text_fg("Change access restrictions").build_def(ctx, None),
+            Widget::custom_row(vec![
                 Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
                 // TODO Handle reverting speed limit too...
                 if app.primary.map.get_edits().original_lts.contains_key(&l)
@@ -98,7 +93,7 @@ impl LaneEditor {
             .centered(),
         ];
 
-        let composite = Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
+        let composite = Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 

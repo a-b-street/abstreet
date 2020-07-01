@@ -65,10 +65,9 @@ impl Backpressure {
         }
 
         let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
-                        .margin_right(10),
+            Widget::col2(vec![
+                Widget::row2(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Backpressure".draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
@@ -86,7 +85,7 @@ impl Backpressure {
                     vec!["lowest count", "highest"],
                 ),
             ])
-            .padding(5)
+            .padding(16)
             .bg(app.cs.panel_bg),
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
@@ -167,10 +166,9 @@ impl Throughput {
             return Throughput::compare_throughput(ctx, app);
         }
         let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
-                        .margin_right(10),
+            Widget::col2(vec![
+                Widget::row2(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Throughput".draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
@@ -180,7 +178,7 @@ impl Throughput {
                     .wrap_to_pct(ctx, 15)
                     .draw(ctx),
                 if app.has_prebaked().is_some() {
-                    Checkbox::text(ctx, "Compare before edits", None, false).margin_below(5)
+                    Checkbox::text(ctx, "Compare before edits", None, false)
                 } else {
                     Widget::nothing()
                 },
@@ -190,7 +188,7 @@ impl Throughput {
                     vec!["lowest count", "highest"],
                 ),
             ])
-            .padding(5)
+            .padding(16)
             .bg(app.cs.panel_bg),
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
@@ -267,19 +265,18 @@ impl Throughput {
         }
 
         let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
-                        .margin_right(10),
+            Widget::col2(vec![
+                Widget::row2(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Relative Throughput".draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
-                Checkbox::text(ctx, "Compare before edits", None, true).margin_below(5),
+                Checkbox::text(ctx, "Compare before edits", None, true),
                 scale.make_legend(ctx, vec!["less traffic", "same", "more"]),
             ])
-            .padding(5)
+            .padding(16)
             .bg(app.cs.panel_bg),
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
@@ -381,23 +378,22 @@ impl Delay {
         }
 
         let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
-                        .margin_right(10),
+            Widget::col2(vec![
+                Widget::row2(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Delay (minutes)".draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
                 if app.has_prebaked().is_some() {
-                    Checkbox::text(ctx, "Compare before edits", None, false).margin_below(5)
+                    Checkbox::text(ctx, "Compare before edits", None, false)
                 } else {
                     Widget::nothing()
                 },
                 ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["1", "5", "10", "15+"]),
             ])
-            .padding(5)
+            .padding(16)
             .bg(app.cs.panel_bg),
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
@@ -439,23 +435,22 @@ impl Delay {
         }
 
         let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
-                        .margin_right(10),
+            Widget::col2(vec![
+                Widget::row2(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Delay".draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
-                Checkbox::text(ctx, "Compare before edits", None, true).margin_below(5),
+                Checkbox::text(ctx, "Compare before edits", None, true),
                 ColorLegend::gradient(
                     ctx,
                     &ColorScale(vec![green, Color::WHITE, red]),
                     vec!["faster", "same", "slower"],
                 ),
             ])
-            .padding(5)
+            .padding(16)
             .bg(app.cs.panel_bg),
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
@@ -536,10 +531,9 @@ impl TrafficJams {
         }
 
         let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
-                        .margin_right(10),
+            Widget::col2(vec![
+                Widget::row2(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Traffic jams".draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
@@ -552,7 +546,7 @@ impl TrafficJams {
                 .draw(ctx),
                 format!("{} jams detected", cnt).draw_text(ctx),
             ])
-            .padding(5)
+            .padding(16)
             .bg(app.cs.panel_bg),
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)

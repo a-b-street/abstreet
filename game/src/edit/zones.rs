@@ -39,20 +39,18 @@ impl ZoneEditor {
 
         Box::new(ZoneEditor {
             composite: Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     Line("Editing restricted access zone")
                         .small_heading()
-                        .draw(ctx)
-                        .margin_below(10),
+                        .draw(ctx),
                     legend,
                     Line(
                         "Trips may start or end in this zone, but through-traffic is only allowed \
                          for:",
                     )
-                    .draw(ctx)
-                    .margin_below(10),
-                    checkbox_per_mode(ctx, app, &allow_through_traffic).margin_below(10),
-                    Widget::row(vec![
+                    .draw(ctx),
+                    checkbox_per_mode(ctx, app, &allow_through_traffic),
+                    Widget::custom_row(vec![
                         Btn::text_fg("Apply").build_def(ctx, hotkey(Key::Enter)),
                         Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
                     ])

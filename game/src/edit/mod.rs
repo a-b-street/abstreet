@@ -373,17 +373,17 @@ fn make_load_edits(app: &App, btn: ScreenRectangle, mode: GameplayMode) -> Box<d
 
 fn make_topcenter(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Composite {
     Composite::new(
-        Widget::col(vec![
-            Widget::row(vec![Line("Editing map").small_heading().draw(ctx)])
-                .centered()
-                .margin_below(10),
-            Widget::row(vec![
+        Widget::col2(vec![
+            Line("Editing map")
+                .small_heading()
+                .draw(ctx)
+                .centered_horiz(),
+            Widget::row2(vec![
                 if mode.can_edit_lanes() {
                     Btn::text_fg("bulk edit").build_def(ctx, hotkey(Key::B))
                 } else {
                     Btn::text_fg("bulk edit").inactive(ctx)
-                }
-                .margin_right(15),
+                },
                 PersistentSplit::new(
                     ctx,
                     "finish editing",
@@ -403,8 +403,8 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Composi
                 .bg(app.cs.section_bg),
             ]),
         ])
-        .padding(16)
-        .bg(app.cs.panel_bg),
+        .bg(app.cs.panel_bg)
+        .padding(16),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
@@ -564,11 +564,8 @@ pub fn check_parking_blackholes(
 }
 
 pub fn change_speed_limit(ctx: &mut EventCtx, default: Speed) -> Widget {
-    Widget::row(vec![
-        "Change speed limit:"
-            .draw_text(ctx)
-            .centered_vert()
-            .margin_right(15),
+    Widget::row2(vec![
+        "Change speed limit:".draw_text(ctx).centered_vert(),
         Widget::dropdown(
             ctx,
             "speed limit",
@@ -639,14 +636,15 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
     // change, because nested other places modify it too.
     let edits = app.primary.map.get_edits();
     let mut col = vec![
-        Widget::row(vec![
-            Btn::text_fg(format!("{} ↓", &edits.edits_name))
-                .build(ctx, "load edits", lctrl(Key::L))
-                .margin_right(10),
+        Widget::row2(vec![
+            Btn::text_fg(format!("{} ↓", &edits.edits_name)).build(
+                ctx,
+                "load edits",
+                lctrl(Key::L),
+            ),
             Btn::svg_def("../data/system/assets/tools/save.svg")
                 .build(ctx, "save edits as", lctrl(Key::S))
-                .centered_vert()
-                .margin_right(10),
+                .centered_vert(),
             (if !edits.commands.is_empty() {
                 Btn::svg_def("../data/system/assets/tools/undo.svg").build(
                     ctx,
@@ -661,14 +659,12 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
                 )
             })
             .centered_vert(),
-        ])
-        .margin_below(10),
+        ]),
         if app.primary.map.unsaved_edits() {
             Btn::text_fg("Unsaved edits").build(ctx, "save edits", None)
         } else {
             Btn::text_fg("Autosaved!").inactive(ctx)
-        }
-        .margin_below(10),
+        },
         Text::from_multiline(vec![
             Line(format!("{} lane types changed", edits.original_lts.len())),
             Line(format!("{} lanes reversed", edits.reversed_lanes.len())),
@@ -681,8 +677,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
                 edits.original_intersections.len()
             )),
         ])
-        .draw(ctx)
-        .margin_below(10),
+        .draw(ctx),
     ];
 
     for (idx, cmd) in edits.commands.iter().rev().take(5).enumerate() {
@@ -698,7 +693,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
         col.push(format!("{} more...", edits.commands.len()).draw_text(ctx));
     }
 
-    Composite::new(Widget::col(col).padding(16).bg(app.cs.panel_bg))
+    Composite::new(Widget::col2(col).padding(16).bg(app.cs.panel_bg))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }

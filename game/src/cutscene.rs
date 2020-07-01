@@ -182,7 +182,7 @@ fn make_panel(
     );
 
     let inner = if idx == scenes.len() {
-        Widget::col(vec![
+        Widget::custom_col(vec![
             (make_task)(ctx),
             Btn::txt("Start", Text::from(Line("Start").fg(Color::BLACK)))
                 .build_def(ctx, hotkey(Key::Enter))
@@ -190,30 +190,29 @@ fn make_panel(
                 .align_bottom(),
         ])
     } else {
-        Widget::col(vec![
+        Widget::custom_col(vec![
             match scenes[idx].layout {
-                Layout::PlayerSpeaking => Widget::row(vec![
+                Layout::PlayerSpeaking => Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg"),
-                    Widget::row(vec![
+                    Widget::custom_row(vec![
                         scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                         Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg"),
                     ])
                     .align_right(),
                 ]),
-                Layout::BossSpeaking => Widget::row(vec![
+                Layout::BossSpeaking => Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg"),
                     scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                     Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg")
                         .align_right(),
                 ]),
-                Layout::Extra(name) => Widget::row(vec![
+                Layout::Extra(name) => Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg").align_left(),
-                    Widget::col(vec![
+                    Widget::col2(vec![
                         Widget::draw_svg(
                             ctx,
                             format!("../data/system/assets/characters/{}.svg", name),
-                        )
-                        .margin_below(10),
+                        ),
                         scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                     ]),
                     Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg")
@@ -221,10 +220,8 @@ fn make_panel(
                 ]),
             }
             .margin_above(100),
-            Widget::col(vec![
-                Widget::row(vec![prev.margin_right(15), next])
-                    .centered_horiz()
-                    .margin_below(10),
+            Widget::col2(vec![
+                Widget::row2(vec![prev, next]).centered_horiz(),
                 Btn::txt(
                     "Skip cutscene",
                     Text::from(Line("Skip cutscene").fg(Color::BLACK)),
@@ -238,7 +235,7 @@ fn make_panel(
 
     let col = vec![
         // TODO Can't get this to alignment to work
-        Widget::row(vec![
+        Widget::custom_row(vec![
             Btn::svg_def("../data/system/assets/pregame/back.svg")
                 .build(ctx, "quit", None)
                 .margin_right(100),
@@ -252,7 +249,7 @@ fn make_panel(
             .outline(2.0, Color::BLACK),
     ];
 
-    Composite::new(Widget::col(col))
+    Composite::new(Widget::custom_col(col))
         .exact_size_percent(80, 80)
         .build(ctx)
 }
@@ -265,7 +262,7 @@ impl FYI {
     pub fn new(ctx: &mut EventCtx, contents: Widget, bg: Color) -> Box<dyn State> {
         Box::new(FYI {
             composite: Composite::new(
-                Widget::col(vec![
+                Widget::custom_col(vec![
                     contents,
                     Btn::txt("Okay", Text::from(Line("Okay").fg(Color::BLACK)))
                         .build_def(ctx, hotkeys(vec![Key::Escape, Key::Space, Key::Enter]))

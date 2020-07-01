@@ -89,7 +89,7 @@ impl<'a> ColorDiscrete<'a> {
         (
             ctx.upload(self.unzoomed),
             ctx.upload(self.zoomed),
-            Widget::col(legend),
+            Widget::col2(legend),
         )
     }
 }
@@ -99,7 +99,7 @@ pub struct ColorLegend {}
 impl ColorLegend {
     pub fn row<S: Into<String>>(ctx: &mut EventCtx, color: Color, label: S) -> Widget {
         let radius = 15.0;
-        Widget::row(vec![
+        Widget::row2(vec![
             Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(
@@ -107,7 +107,6 @@ impl ColorLegend {
                     Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
                 )]),
             )
-            .margin(5)
             .centered_vert(),
             Text::from(Line(label)).wrap_to_pct(ctx, 35).draw(ctx),
         ])
@@ -143,7 +142,7 @@ impl ColorLegend {
         );
         // Extra wrapping to make the labels stretch against just the scale, not everything else
         // TODO Long labels aren't nicely lined up with the boundaries between buckets
-        Widget::row(vec![Widget::col(vec![
+        Widget::custom_row(vec![Widget::col(vec![
             Widget::draw_batch(ctx, batch),
             Widget::row(
                 labels

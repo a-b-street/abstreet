@@ -25,19 +25,17 @@ impl RouteSelect {
         app.primary.current_selection = None;
         Box::new(RouteSelect {
             composite: Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     Line("Edit many roads").small_heading().draw(ctx),
                     "Click one intersection to start"
                         .draw_text(ctx)
                         .named("instructions"),
                     Btn::text_fg("Select roads free-hand / paint mode")
-                        .build_def(ctx, hotkey(Key::P))
-                        .margin_above(10)
-                        .margin_below(5),
+                        .build_def(ctx, hotkey(Key::P)),
                     Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
                 ])
                 .bg(app.cs.panel_bg)
-                .padding(10),
+                .padding(16),
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
@@ -183,19 +181,18 @@ impl BulkEdit {
     fn new(ctx: &mut EventCtx, app: &App, roads: Vec<RoadID>, preview: Drawable) -> Box<dyn State> {
         Box::new(BulkEdit {
             composite: Composite::new(
-                Widget::col(vec![
+                Widget::col2(vec![
                     Line(format!("Editing {} roads", roads.len()))
                         .small_heading()
                         .draw(ctx),
-                    Widget::row(vec![
+                    Widget::custom_row(vec![
                         change_speed_limit(ctx, Speed::miles_per_hour(25.0)),
                         Btn::text_fg("Confirm")
                             .build(ctx, "confirm speed limit", None)
                             .align_right(),
-                    ])
-                    .margin_below(5),
-                    Widget::row(vec![
-                        "Change all".draw_text(ctx).centered_vert().margin_right(5),
+                    ]),
+                    Widget::row2(vec![
+                        "Change all".draw_text(ctx).centered_vert(),
                         Widget::dropdown(
                             ctx,
                             "from lt",
@@ -207,9 +204,8 @@ impl BulkEdit {
                                 Choice::new("bus", LaneType::Bus),
                                 Choice::new("construction", LaneType::Construction),
                             ],
-                        )
-                        .margin_right(5),
-                        "lanes to".draw_text(ctx).centered_vert().margin_right(5),
+                        ),
+                        "lanes to".draw_text(ctx).centered_vert(),
                         Widget::dropdown(
                             ctx,
                             "to lt",
@@ -225,12 +221,11 @@ impl BulkEdit {
                         Btn::text_fg("Confirm")
                             .build(ctx, "confirm lanes", None)
                             .align_right(),
-                    ])
-                    .margin_below(5),
+                    ]),
                     Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
                 ])
                 .bg(app.cs.panel_bg)
-                .padding(10),
+                .padding(16),
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
@@ -512,12 +507,9 @@ fn make_paint_composite(
     roads: &BTreeSet<RoadID>,
 ) -> Composite {
     Composite::new(
-        Widget::col(vec![
-            Line("Edit many roads")
-                .small_heading()
-                .draw(ctx)
-                .margin_below(5),
-            Widget::row(vec![
+        Widget::col2(vec![
+            Line("Edit many roads").small_heading().draw(ctx),
+            Widget::custom_row(vec![
                 if mode == Mode::Paint {
                     Widget::draw_svg_transform(
                         ctx,
@@ -560,7 +552,7 @@ fn make_paint_composite(
             ])
             .evenly_spaced(),
             Btn::text_fg("Select roads along a route").build_def(ctx, None),
-            Widget::row(vec![
+            Widget::custom_row(vec![
                 if roads.is_empty() {
                     Btn::text_fg("Edit 0 roads").inactive(ctx)
                 } else {
@@ -575,7 +567,7 @@ fn make_paint_composite(
             .evenly_spaced(),
         ])
         .bg(app.cs.panel_bg)
-        .padding(10),
+        .padding(16),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)

@@ -277,9 +277,42 @@ impl Widget {
     pub fn row(widgets: Vec<Widget>) -> Widget {
         Widget::new(Box::new(Container::new(true, widgets)))
     }
+    pub fn custom_row(widgets: Vec<Widget>) -> Widget {
+        Widget::new(Box::new(Container::new(true, widgets)))
+    }
+    // TODO Rename
+    pub fn row2(widgets: Vec<Widget>) -> Widget {
+        let mut new = Vec::new();
+        let len = widgets.len();
+        // TODO Time for that is_last iterator?
+        for (idx, w) in widgets.into_iter().enumerate() {
+            if idx == len - 1 {
+                new.push(w);
+            } else {
+                new.push(w.margin_right(10));
+            }
+        }
+        Widget::new(Box::new(Container::new(true, new)))
+    }
 
     pub fn col(widgets: Vec<Widget>) -> Widget {
         Widget::new(Box::new(Container::new(false, widgets)))
+    }
+    pub fn custom_col(widgets: Vec<Widget>) -> Widget {
+        Widget::new(Box::new(Container::new(false, widgets)))
+    }
+    pub fn col2(widgets: Vec<Widget>) -> Widget {
+        let mut new = Vec::new();
+        let len = widgets.len();
+        // TODO Time for that is_last iterator?
+        for (idx, w) in widgets.into_iter().enumerate() {
+            if idx == len - 1 {
+                new.push(w);
+            } else {
+                new.push(w.margin_below(10));
+            }
+        }
+        Widget::new(Box::new(Container::new(false, new)))
     }
 
     pub fn nothing() -> Widget {

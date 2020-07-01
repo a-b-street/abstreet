@@ -4,7 +4,7 @@ use crate::layer::{Layer, LayerOutcome};
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Outcome, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D, Time};
 use sim::{GetDrawAgents, PersonState};
@@ -179,47 +179,43 @@ fn make_controls(
     let pct = 100.0 / (model.count_total() as f64);
 
     let mut col = vec![
-        Widget::row(vec![
-            Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
+        Widget::row2(vec![
+            Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
             "Pandemic model".draw_text(ctx),
             Btn::plaintext("X")
                 .build(ctx, "close", hotkey(Key::Escape))
                 .align_right(),
         ]),
-        format!(
-            "{} Sane ({:.1}%)",
-            prettyprint_usize(model.count_sane()),
-            (model.count_sane() as f64) * pct
-        )
-        .draw_text(ctx),
-        format!(
-            "{} Exposed ({:.1}%)",
-            prettyprint_usize(model.count_exposed()),
-            (model.count_exposed() as f64) * pct
-        )
-        .draw_text(ctx),
-        format!(
-            "{} Infected ({:.1}%)",
-            prettyprint_usize(model.count_infected()),
-            (model.count_infected() as f64) * pct
-        )
-        .draw_text(ctx),
-        format!(
-            "{} Recovered ({:.1}%)",
-            prettyprint_usize(model.count_recovered()),
-            (model.count_recovered() as f64) * pct
-        )
-        .draw_text(ctx),
-        format!(
-            "{} Dead ({:.1}%)",
-            prettyprint_usize(model.count_dead()),
-            (model.count_dead() as f64) * pct
-        )
-        .draw_text(ctx),
-    ];
-    col.push(
-        Widget::row(vec![
-            "Filter:".draw_text(ctx).margin_right(5),
+        Text::from_multiline(vec![
+            Line(format!(
+                "{} Sane ({:.1}%)",
+                prettyprint_usize(model.count_sane()),
+                (model.count_sane() as f64) * pct
+            )),
+            Line(format!(
+                "{} Exposed ({:.1}%)",
+                prettyprint_usize(model.count_exposed()),
+                (model.count_exposed() as f64) * pct
+            )),
+            Line(format!(
+                "{} Infected ({:.1}%)",
+                prettyprint_usize(model.count_infected()),
+                (model.count_infected() as f64) * pct
+            )),
+            Line(format!(
+                "{} Recovered ({:.1}%)",
+                prettyprint_usize(model.count_recovered()),
+                (model.count_recovered() as f64) * pct
+            )),
+            Line(format!(
+                "{} Dead ({:.1}%)",
+                prettyprint_usize(model.count_dead()),
+                (model.count_dead() as f64) * pct
+            )),
+        ])
+        .draw(ctx),
+        Widget::row2(vec![
+            "Filter:".draw_text(ctx),
             Widget::dropdown(
                 ctx,
                 "seir",
@@ -232,16 +228,20 @@ fn make_controls(
                     Choice::new("dead", SEIR::Dead),
                 ],
             ),
-        ])
-        .margin_below(5),
-    );
+        ]),
+    ];
 
-    col.push(Checkbox::text(ctx, "Show heatmap", None, opts.heatmap.is_some()).margin_below(5));
+    col.push(Checkbox::text(
+        ctx,
+        "Show heatmap",
+        None,
+        opts.heatmap.is_some(),
+    ));
     if let Some(ref o) = opts.heatmap {
         col.extend(o.to_controls(ctx, legend.unwrap()));
     }
 
-    Composite::new(Widget::col(col).padding(5).bg(app.cs.panel_bg))
+    Composite::new(Widget::col2(col).padding(16).bg(app.cs.panel_bg))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }

@@ -58,63 +58,53 @@ impl OptionsPanel {
     pub fn new(ctx: &mut EventCtx, app: &App) -> OptionsPanel {
         OptionsPanel {
             composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
+                Widget::col2(vec![
+                    Widget::custom_row(vec![
                         Line("Settings").small_heading().draw(ctx),
                         Btn::plaintext("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
-                    ])
-                    .margin_below(10),
-                    "Camera controls".draw_text(ctx).margin_below(10),
-                    Widget::col(vec![
+                    ]),
+                    "Camera controls".draw_text(ctx),
+                    Widget::col2(vec![
                         Checkbox::text(
                             ctx,
                             "Invert direction of vertical scrolling",
                             None,
                             ctx.canvas.invert_scroll,
-                        )
-                        .margin_below(10),
+                        ),
                         Checkbox::text(
                             ctx,
                             "Pan map when cursor is at edge of screen",
                             None,
                             ctx.canvas.edge_auto_panning,
                         )
-                        .named("autopan")
-                        .margin_below(10),
+                        .named("autopan"),
                         Checkbox::text(
                             ctx,
                             "Use touchpad to pan and hold Control to zoom",
                             None,
                             ctx.canvas.touchpad_to_move,
-                        )
-                        .margin_below(10),
+                        ),
                         Checkbox::text(
                             ctx,
                             "Use arrow keys to pan and Q/W to zoom",
                             None,
                             ctx.canvas.keys_to_pan,
-                        )
-                        .margin_below(10),
-                        Widget::row(vec![
-                            "Scroll speed for menus"
-                                .draw_text(ctx)
-                                .centered_vert()
-                                .margin_right(10),
+                        ),
+                        Widget::row2(vec![
+                            "Scroll speed for menus".draw_text(ctx).centered_vert(),
                             Spinner::new(ctx, (1, 50), ctx.canvas.gui_scroll_speed)
                                 .named("gui_scroll_speed"),
                         ]),
                     ])
                     .bg(app.cs.section_bg)
-                    .padding(8)
-                    .margin_below(10),
-                    "Appearance".draw_text(ctx).margin_below(10),
-                    Widget::col(vec![
-                        Checkbox::text(ctx, "Draw road names", None, app.opts.label_roads)
-                            .margin_below(10),
-                        Widget::row(vec![
-                            "Traffic signal rendering:".draw_text(ctx).margin_right(15),
+                    .padding(8),
+                    "Appearance".draw_text(ctx),
+                    Widget::col2(vec![
+                        Checkbox::text(ctx, "Draw road names", None, app.opts.label_roads),
+                        Widget::row2(vec![
+                            "Traffic signal rendering:".draw_text(ctx),
                             Widget::dropdown(
                                 ctx,
                                 "Traffic signal rendering",
@@ -144,25 +134,22 @@ impl OptionsPanel {
                                     ),
                                 ],
                             ),
-                        ])
-                        .margin_below(10),
-                        Widget::row(vec![
-                            "Color scheme:".draw_text(ctx).margin_right(5),
+                        ]),
+                        Widget::row2(vec![
+                            "Color scheme:".draw_text(ctx),
                             Widget::dropdown(
                                 ctx,
                                 "Color scheme",
                                 app.opts.color_scheme,
                                 ColorSchemeChoice::choices(),
                             ),
-                        ])
-                        .margin_below(10),
-                        Widget::row(vec![
+                        ]),
+                        Widget::row2(vec![
                             format!(
                                 "Scale factor for text / UI elements (your monitor is {}):",
                                 ctx.monitor_scale_factor()
                             )
-                            .draw_text(ctx)
-                            .margin_right(15),
+                            .draw_text(ctx),
                             Widget::dropdown(
                                 ctx,
                                 "Scale factor",
@@ -174,12 +161,9 @@ impl OptionsPanel {
                                     Choice::new("2.0", 2.0),
                                 ],
                             ),
-                        ])
-                        .margin_below(10),
-                        Widget::row(vec![
-                            "Camera zoom to switch to unzoomed view"
-                                .draw_text(ctx)
-                                .margin_right(15),
+                        ]),
+                        Widget::row2(vec![
+                            "Camera zoom to switch to unzoomed view".draw_text(ctx),
                             Widget::dropdown(
                                 ctx,
                                 "min zoom",
@@ -193,8 +177,7 @@ impl OptionsPanel {
                                     Choice::new("6.0", 6.0),
                                 ],
                             ),
-                        ])
-                        .margin_below(10),
+                        ]),
                         Checkbox::text(
                             ctx,
                             "Draw enlarged unzoomed agents",
@@ -203,23 +186,19 @@ impl OptionsPanel {
                         ),
                     ])
                     .bg(app.cs.section_bg)
-                    .padding(8)
-                    .margin_below(10),
-                    "Debug".draw_text(ctx).margin_below(10),
-                    Widget::col(vec![
-                        Checkbox::text(ctx, "Enable developer mode", None, app.opts.dev)
-                            .margin_below(10),
+                    .padding(8),
+                    "Debug".draw_text(ctx),
+                    Widget::col2(vec![
+                        Checkbox::text(ctx, "Enable developer mode", None, app.opts.dev),
                         Checkbox::text(
                             ctx,
                             "Draw all agents to debug geometry (Slow!)",
                             None,
                             app.opts.debug_all_agents,
-                        )
-                        .margin_below(10),
+                        ),
                     ])
                     .bg(app.cs.section_bg)
-                    .padding(8)
-                    .margin_below(10),
+                    .padding(8),
                     Btn::text_bg2("Apply")
                         .build_def(ctx, hotkey(Key::Enter))
                         .centered_horiz(),
