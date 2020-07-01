@@ -341,9 +341,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
 
                     running = true;
                 },
-                UpdateType::Pan => {
-
-                },
+                UpdateType::Pan => {},
                 UpdateType::ScreenCaptureEverything{
                     dir,
                     zoom,

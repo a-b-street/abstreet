@@ -54,7 +54,7 @@ impl<'a> EventCtx<'a> {
     }
 
     pub fn canvas_movement(&mut self) {
-        self.canvas.handle_event(&mut self.input)
+        self.updates_requested.extend(self.canvas.handle_event(&mut self.input));
     }
 
     // Use to immediately plumb through an (empty) event to something

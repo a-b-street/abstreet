@@ -10,8 +10,8 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{calculate_corners, DrawOptions};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, UpdateType, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget, Wizard,
+    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget, Wizard,
 };
 use geom::Pt2D;
 use map_model::{ControlTrafficSignal, NORMAL_LANE_THICKNESS};

@@ -5,8 +5,8 @@ use crate::helpers::ID;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
     hotkey, AreaSlider, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Text,
-    VerticalAlignment, Widget,UpdateType
+    HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Text, UpdateType,
+    VerticalAlignment, Widget,
 };
 use geom::{Duration, Polygon, Pt2D, Time};
 use instant::Instant;

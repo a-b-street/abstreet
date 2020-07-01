@@ -6,8 +6,8 @@ use crate::game::{msg, DrawBaselayer, State, Transition};
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
-    hotkey, hotkeys, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome,
-    RewriteColor, Text, Widget, UpdateType
+    hotkey, hotkeys, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, RewriteColor,
+    Text, UpdateType, Widget,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use instant::Instant;

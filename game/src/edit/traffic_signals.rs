@@ -8,9 +8,8 @@ use crate::render::{
 use crate::sandbox::{spawn_agents_around, GameplayMode, SpeedControls, TimePanel};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, VerticalAlignment,
-    Widget,UpdateType
+    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, RewriteColor, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, Duration};
 use map_model::{

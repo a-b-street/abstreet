@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{hotkey, Key, ScreenDims, ScreenPt, ScreenRectangle, UserInput};
+use crate::{hotkey, Key, ScreenDims, ScreenPt, ScreenRectangle, UserInput, UpdateType};
 use abstutil::Timer;
 use geom::{Bounds, Pt2D};
 use serde::{Deserialize, Serialize};
@@ -83,7 +83,7 @@ impl Canvas {
             .min(percent_window * self.window_height / self.map_dims.1)
     }
 
-    pub(crate) fn handle_event(&mut self, input: &mut UserInput) {
+    pub(crate) fn handle_event(&mut self, input: &mut UserInput) -> Option<UpdateType> {
         // Can't start dragging or zooming on top of covered area
         if self.get_cursor_in_map_space().is_some() {
             if self.touchpad_to_move {
@@ -152,6 +152,7 @@ impl Canvas {
             if self.edge_auto_panning
                 && !inner_bounds.contains(cursor_screen_pt)
                 && map_bounds.contains(cursor_map_pt)
+                && input.nonblocking_is_update_event().is_some()
             {
                 let center_pt = self.center_to_screen_pt().to_pt();
                 let displacement_x = cursor_screen_pt.x() - center_pt.x();
@@ -163,8 +164,10 @@ impl Canvas {
                 // Add displacement along each axis
                 self.cam_x += displacement_unit_x * PAN_SPEED;
                 self.cam_y += displacement_unit_y * PAN_SPEED;
+                return Some(UpdateType::Pan)
             }
         }
+        return None
     }
 
     fn zoom(&mut self, delta: f64, focus: (f64, f64)) {

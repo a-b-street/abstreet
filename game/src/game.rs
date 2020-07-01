@@ -75,7 +75,7 @@ impl Game {
 }
 
 impl GUI for Game {
-    fn event(&mut self, ctx: &mut EventCtx){
+    fn event(&mut self, ctx: &mut EventCtx) {
         self.app.per_obj.reset();
 
         let transition = self.states.last_mut().unwrap().event(ctx, &mut self.app);
