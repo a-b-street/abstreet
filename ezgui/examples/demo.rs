@@ -14,6 +14,8 @@ use ezgui::{
     VerticalAlignment, Widget, GUI,
 };
 use geom::{Angle, Duration, Polygon, Pt2D, Time};
+use rand::SeedableRng;
+use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
 
 fn main() {
@@ -154,6 +156,9 @@ impl GUI for App {
                             .named("stopwatch"),
                     );
                 }
+                "generate new faces" => {
+                    self.scrollable_canvas = setup_scrollable_canvas(ctx);
+                }
                 _ => unreachable!(),
             },
             None => {}
@@ -242,6 +247,19 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
             .centered_on(Pt2D::new(600.0, 500.0))
             .rotate(Angle::new_degs(-30.0)),
     );
+
+    let mut rng = XorShiftRng::from_entropy();
+    for i in 0..10 {
+        let mut svg_data = Vec::new();
+        svg_face::generate_face(&mut svg_data, &mut rng).unwrap();
+        let face = GeomBatch::from_svg_contents(svg_data).autocrop();
+        let dims = face.get_dims();
+        batch.append(
+            face.scale((200.0 / dims.width).min(200.0 / dims.height))
+                .translate(250.0 * (i as f64), 0.0),
+        );
+    }
+
     // This is a bit of a hack; it's needed so that zooming in/out has reasonable limits.
     ctx.canvas.map_dims = (5000.0, 5000.0);
     batch.upload(ctx)
@@ -266,8 +284,11 @@ fn make_controls(ctx: &mut EventCtx) -> Composite {
                 )
                 .named("paused")
                 .margin(5),
-                Btn::text_fg("Reset")
+                Btn::text_fg("Reset timer")
                     .build(ctx, "reset the stopwatch", None)
+                    .margin(5),
+                Btn::text_fg("New faces")
+                    .build(ctx, "generate new faces", hotkey(Key::F))
                     .margin(5),
                 Checkbox::text(ctx, "Draw scrollable canvas", None, true).margin(5),
                 Checkbox::text(ctx, "Show timeseries", lctrl(Key::T), false).margin(5),
