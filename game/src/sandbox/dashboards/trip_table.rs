@@ -327,7 +327,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
 
     let mut col = vec![DashTab::TripTable.picker(ctx, app)];
     col.push(checkbox_per_mode(ctx, app, &opts.modes));
-    col.push(Widget::row2(vec![
+    col.push(Widget::row(vec![
         Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts),
         Checkbox::text(ctx, "ending off-map", None, opts.off_map_ends),
     ]));
@@ -346,7 +346,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         .draw(ctx),
     );
 
-    col.push(Widget::row2(vec![
+    col.push(Widget::row(vec![
         if opts.skip > 0 {
             Btn::text_fg("<").build(ctx, "previous trips", None)
         } else {
@@ -386,7 +386,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         .centered_horiz(),
     );
 
-    Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
         .exact_size_percent(90, 90)
         .build(ctx)
 }

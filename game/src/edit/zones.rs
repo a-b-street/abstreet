@@ -39,7 +39,7 @@ impl ZoneEditor {
 
         Box::new(ZoneEditor {
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     Line("Editing restricted access zone")
                         .small_heading()
                         .draw(ctx),

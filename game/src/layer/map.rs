@@ -97,8 +97,8 @@ impl BikeNetwork {
         }
 
         let composite = Composite::new(
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Bike network".draw_text(ctx),
                     Btn::plaintext("X")
@@ -191,8 +191,8 @@ impl Static {
     ) -> Static {
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         let composite = Composite::new(
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     title.draw_text(ctx),
                     Btn::plaintext("X")

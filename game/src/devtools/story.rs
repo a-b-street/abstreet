@@ -325,8 +325,8 @@ fn make_panel(
     dirty: bool,
 ) -> Composite {
     Composite::new(
-        Widget::col2(vec![
-            Widget::row2(vec![
+        Widget::col(vec![
+            Widget::row(vec![
                 Line("Story map editor").small_heading().draw(ctx),
                 Widget::draw_batch(
                     ctx,
@@ -350,7 +350,7 @@ fn make_panel(
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
             ]),
-            Widget::row2(vec![
+            Widget::row(vec![
                 if let Mode::PlacingMarker = mode {
                     Widget::draw_svg_transform(
                         ctx,
@@ -543,8 +543,8 @@ impl Marker {
 
     fn make_editor(&self, ctx: &mut EventCtx, app: &App) -> Composite {
         Composite::new(
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Line("Editing marker").small_heading().draw(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))

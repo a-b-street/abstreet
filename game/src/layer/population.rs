@@ -148,15 +148,15 @@ fn make_controls(
     let (total_ppl, ppl_in_bldg, ppl_off_map) = app.primary.sim.num_ppl();
 
     let mut col = vec![
-        Widget::row2(vec![
+        Widget::row(vec![
             Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
             Line(format!("Population: {}", prettyprint_usize(total_ppl))).draw(ctx),
             Btn::plaintext("X")
                 .build(ctx, "close", hotkey(Key::Escape))
                 .align_right(),
         ]),
-        Widget::row2(vec![
-            Widget::row2(vec![
+        Widget::row(vec![
+            Widget::row(vec![
                 Widget::draw_svg(ctx, "../data/system/assets/tools/home.svg"),
                 Line(prettyprint_usize(ppl_in_bldg)).small().draw(ctx),
             ]),
@@ -177,7 +177,7 @@ fn make_controls(
         col.extend(o.to_controls(ctx, legend.unwrap()));
     }
 
-    Composite::new(Widget::col2(col).padding(16).bg(app.cs.panel_bg))
+    Composite::new(Widget::col(col).padding(16).bg(app.cs.panel_bg))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }

@@ -65,8 +65,8 @@ impl Backpressure {
         }
 
         let composite = Composite::new(
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Backpressure".draw_text(ctx),
                     Btn::plaintext("X")
@@ -166,8 +166,8 @@ impl Throughput {
             return Throughput::compare_throughput(ctx, app);
         }
         let composite = Composite::new(
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Throughput".draw_text(ctx),
                     Btn::plaintext("X")
@@ -265,8 +265,8 @@ impl Throughput {
         }
 
         let composite = Composite::new(
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Relative Throughput".draw_text(ctx),
                     Btn::plaintext("X")
@@ -378,8 +378,8 @@ impl Delay {
         }
 
         let composite = Composite::new(
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Delay (minutes)".draw_text(ctx),
                     Btn::plaintext("X")
@@ -435,8 +435,8 @@ impl Delay {
         }
 
         let composite = Composite::new(
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Delay".draw_text(ctx),
                     Btn::plaintext("X")
@@ -531,8 +531,8 @@ impl TrafficJams {
         }
 
         let composite = Composite::new(
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Traffic jams".draw_text(ctx),
                     Btn::plaintext("X")

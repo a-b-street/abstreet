@@ -58,7 +58,7 @@ impl OptionsPanel {
     pub fn new(ctx: &mut EventCtx, app: &App) -> OptionsPanel {
         OptionsPanel {
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     Widget::custom_row(vec![
                         Line("Settings").small_heading().draw(ctx),
                         Btn::plaintext("X")
@@ -66,7 +66,7 @@ impl OptionsPanel {
                             .align_right(),
                     ]),
                     "Camera controls".draw_text(ctx),
-                    Widget::col2(vec![
+                    Widget::col(vec![
                         Checkbox::text(
                             ctx,
                             "Invert direction of vertical scrolling",
@@ -92,7 +92,7 @@ impl OptionsPanel {
                             None,
                             ctx.canvas.keys_to_pan,
                         ),
-                        Widget::row2(vec![
+                        Widget::row(vec![
                             "Scroll speed for menus".draw_text(ctx).centered_vert(),
                             Spinner::new(ctx, (1, 50), ctx.canvas.gui_scroll_speed)
                                 .named("gui_scroll_speed"),
@@ -101,9 +101,9 @@ impl OptionsPanel {
                     .bg(app.cs.section_bg)
                     .padding(8),
                     "Appearance".draw_text(ctx),
-                    Widget::col2(vec![
+                    Widget::col(vec![
                         Checkbox::text(ctx, "Draw road names", None, app.opts.label_roads),
-                        Widget::row2(vec![
+                        Widget::row(vec![
                             "Traffic signal rendering:".draw_text(ctx),
                             Widget::dropdown(
                                 ctx,
@@ -135,7 +135,7 @@ impl OptionsPanel {
                                 ],
                             ),
                         ]),
-                        Widget::row2(vec![
+                        Widget::row(vec![
                             "Color scheme:".draw_text(ctx),
                             Widget::dropdown(
                                 ctx,
@@ -144,7 +144,7 @@ impl OptionsPanel {
                                 ColorSchemeChoice::choices(),
                             ),
                         ]),
-                        Widget::row2(vec![
+                        Widget::row(vec![
                             format!(
                                 "Scale factor for text / UI elements (your monitor is {}):",
                                 ctx.monitor_scale_factor()
@@ -162,7 +162,7 @@ impl OptionsPanel {
                                 ],
                             ),
                         ]),
-                        Widget::row2(vec![
+                        Widget::row(vec![
                             "Camera zoom to switch to unzoomed view".draw_text(ctx),
                             Widget::dropdown(
                                 ctx,
@@ -188,7 +188,7 @@ impl OptionsPanel {
                     .bg(app.cs.section_bg)
                     .padding(8),
                     "Debug".draw_text(ctx),
-                    Widget::col2(vec![
+                    Widget::col(vec![
                         Checkbox::text(ctx, "Enable developer mode", None, app.opts.dev),
                         Checkbox::text(
                             ctx,

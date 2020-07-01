@@ -86,17 +86,17 @@ impl CityPicker {
             selected: None,
             on_load,
             composite: Composite::new(
-                Widget::col2(vec![
-                    Widget::row2(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("Select a region").small_heading().draw(ctx),
                         Btn::plaintext("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    Widget::row2(vec![
-                        Widget::col2(other_cities).centered_vert(),
+                    Widget::row(vec![
+                        Widget::col(other_cities).centered_vert(),
                         Widget::draw_batch(ctx, batch).named("picker"),
-                        Widget::col2(this_city).centered_vert(),
+                        Widget::col(this_city).centered_vert(),
                     ]),
                 ])
                 .bg(app.cs.panel_bg)

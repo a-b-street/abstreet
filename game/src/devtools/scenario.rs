@@ -48,8 +48,8 @@ impl ScenarioManager {
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         ScenarioManager {
             composite: Composite::new(
-                Widget::col2(vec![
-                    Widget::row2(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line(format!("Scenario {}", scenario.scenario_name))
                             .small_heading()
                             .draw(ctx),

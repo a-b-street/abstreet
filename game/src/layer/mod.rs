@@ -100,13 +100,13 @@ impl PickLayer {
 
         col.push(
             Widget::custom_row(vec![
-                Widget::col2(vec![
+                Widget::col(vec![
                     "Traffic".draw_text(ctx),
                     btn("delay", Key::D),
                     btn("throughput", Key::T),
                     btn("traffic jams", Key::J),
                 ]),
-                Widget::col2(vec![
+                Widget::col(vec![
                     "Map".draw_text(ctx),
                     btn("map edits", Key::E),
                     btn("parking occupancy", Key::P),
@@ -129,7 +129,7 @@ impl PickLayer {
         }
 
         Box::new(PickLayer {
-            composite: Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
+            composite: Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
                 .exact_size_percent(35, 70)
                 .build(ctx),
         })

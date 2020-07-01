@@ -335,7 +335,7 @@ pub fn make_signal_diagram(
             Btn::text_bg2("Edit entire signal").build_def(ctx, hotkey(Key::E)),
         ]
     } else {
-        vec![Widget::row2(vec![
+        vec![Widget::row(vec![
             txt_widget,
             Btn::text_fg("X")
                 .build(ctx, "close", hotkey(Key::Escape))
@@ -388,8 +388,8 @@ pub fn make_signal_diagram(
         };
 
         let phase_col = if edit_mode {
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     match phase.phase_type {
                         PhaseType::Fixed(d) => Line(format!("Phase {}: {}", idx + 1, d)),
                         PhaseType::Adaptive(d) => {
@@ -415,9 +415,9 @@ pub fn make_signal_diagram(
                         Widget::nothing()
                     },
                 ]),
-                Widget::row2(vec![
+                Widget::row(vec![
                     phase_btn,
-                    Widget::col2(vec![
+                    Widget::col(vec![
                         if idx == 0 {
                             Btn::text_fg("↑").inactive(ctx)
                         } else {
@@ -438,7 +438,7 @@ pub fn make_signal_diagram(
                 ]),
             ])
         } else {
-            Widget::col2(vec![
+            Widget::col(vec![
                 match phase.phase_type {
                     PhaseType::Fixed(d) => format!("Phase {}: {}", idx + 1, d).draw_text(ctx),
                     PhaseType::Adaptive(d) => {
@@ -473,7 +473,7 @@ pub fn make_signal_diagram(
         col.push(Btn::text_fg("Add new phase").build_def(ctx, None));
     }
 
-    Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .exact_size_percent(30, 85)
         .build(ctx)

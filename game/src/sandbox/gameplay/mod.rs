@@ -276,7 +276,7 @@ impl ContextualActions for GameplayMode {
 }
 
 fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
-    Widget::row2(vec![
+    Widget::row(vec![
         Line(title).small_heading().draw(ctx).centered_vert(),
         Btn::svg_def("../data/system/assets/tools/info.svg")
             .build(ctx, "instructions", None)
@@ -313,7 +313,7 @@ impl FinalScore {
                         .container()
                         .outline(10.0, Color::BLACK)
                         .padding(10),
-                    Widget::col2(vec![
+                    Widget::col(vec![
                         msg.draw_text(ctx),
                         // TODO Adjust wording
                         Btn::text_bg2("Keep simulating").build_def(ctx, None),

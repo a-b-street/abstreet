@@ -179,7 +179,7 @@ fn make_controls(
     let pct = 100.0 / (model.count_total() as f64);
 
     let mut col = vec![
-        Widget::row2(vec![
+        Widget::row(vec![
             Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
             "Pandemic model".draw_text(ctx),
             Btn::plaintext("X")
@@ -214,7 +214,7 @@ fn make_controls(
             )),
         ])
         .draw(ctx),
-        Widget::row2(vec![
+        Widget::row(vec![
             "Filter:".draw_text(ctx),
             Widget::dropdown(
                 ctx,
@@ -241,7 +241,7 @@ fn make_controls(
         col.extend(o.to_controls(ctx, legend.unwrap()));
     }
 
-    Composite::new(Widget::col2(col).padding(16).bg(app.cs.panel_bg))
+    Composite::new(Widget::col(col).padding(16).bg(app.cs.panel_bg))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }

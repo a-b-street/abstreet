@@ -208,7 +208,7 @@ fn make_panel(
                 ]),
                 Layout::Extra(name) => Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg").align_left(),
-                    Widget::col2(vec![
+                    Widget::col(vec![
                         Widget::draw_svg(
                             ctx,
                             format!("../data/system/assets/characters/{}.svg", name),
@@ -220,8 +220,8 @@ fn make_panel(
                 ]),
             }
             .margin_above(100),
-            Widget::col2(vec![
-                Widget::row2(vec![prev, next]).centered_horiz(),
+            Widget::col(vec![
+                Widget::row(vec![prev, next]).centered_horiz(),
                 Btn::txt(
                     "Skip cutscene",
                     Text::from(Line("Skip cutscene").fg(Color::BLACK)),

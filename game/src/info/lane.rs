@@ -130,7 +130,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     rows.extend(make_table(ctx, kv.into_iter()));
 
-    rows.push(Widget::row2(vec![
+    rows.push(Widget::row(vec![
         "Copy OriginalLane to clipboard: ".draw_text(ctx),
         Btn::svg_def("../data/system/assets/tools/clipboard.svg").build(
             ctx,
@@ -214,7 +214,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
     let r = map.get_r(l.parent);
 
     let label = if l.is_sidewalk() { "Sidewalk" } else { "Lane" };
-    rows.push(Widget::row2(vec![
+    rows.push(Widget::row(vec![
         Line(format!("{} #{}", label, id.0))
             .small_heading()
             .draw(ctx),

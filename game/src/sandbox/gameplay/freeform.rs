@@ -82,7 +82,7 @@ impl GameplayState for Freeform {
 
 fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
     let rows = vec![
-        Widget::row2(vec![
+        Widget::row(vec![
             Line("Sandbox").small_heading().draw(ctx),
             Widget::draw_batch(
                 ctx,
@@ -114,7 +114,7 @@ fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
         .draw(ctx),
     ];
 
-    Composite::new(Widget::col2(rows).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(16))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -191,8 +191,8 @@ impl AgentSpawner {
             goal: None,
             confirmed: false,
             composite: Composite::new(
-                Widget::col2(vec![
-                    Widget::row2(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("New trip").small_heading().draw(ctx),
                         Btn::plaintext("X")
                             .build(ctx, "close", hotkey(Key::Escape))
@@ -201,7 +201,7 @@ impl AgentSpawner {
                     "Click a building or border to specify start"
                         .draw_text(ctx)
                         .named("instructions"),
-                    Widget::row2(vec![
+                    Widget::row(vec![
                         "Type of trip:".draw_text(ctx),
                         Widget::dropdown(
                             ctx,
@@ -213,7 +213,7 @@ impl AgentSpawner {
                                 .collect(),
                         ),
                     ]),
-                    Widget::row2(vec![
+                    Widget::row(vec![
                         "Number of trips:".draw_text(ctx),
                         Spinner::new(ctx, (1, 1000), 1).named("number"),
                     ]),

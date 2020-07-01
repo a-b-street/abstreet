@@ -22,7 +22,7 @@ impl ClusterTrafficSignalEditor {
         app.primary.current_selection = None;
         Box::new(ClusterTrafficSignalEditor {
             composite: Composite::new(
-                Widget::row2(vec![
+                Widget::row(vec![
                     Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape))
                 ])
                 .bg(app.cs.panel_bg),

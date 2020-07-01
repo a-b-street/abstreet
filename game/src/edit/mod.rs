@@ -301,13 +301,13 @@ impl SaveEdits {
         Box::new(SaveEdits {
             current_name: initial_name.clone(),
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     Line(title).small_heading().draw(ctx),
-                    Widget::row2(vec![
+                    Widget::row(vec![
                         "Name:".draw_text(ctx),
                         Widget::text_entry(ctx, initial_name, true).named("filename"),
                     ]),
-                    Widget::row2(vec![
+                    Widget::row(vec![
                         btn,
                         if discard {
                             Btn::text_bg2("Discard edits").build_def(ctx, None)
@@ -465,12 +465,12 @@ fn make_load_edits(app: &App, mode: GameplayMode) -> Box<dyn State> {
 
 fn make_topcenter(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Composite {
     Composite::new(
-        Widget::col2(vec![
+        Widget::col(vec![
             Line("Editing map")
                 .small_heading()
                 .draw(ctx)
                 .centered_horiz(),
-            Widget::row2(vec![
+            Widget::row(vec![
                 if mode.can_edit_lanes() {
                     Btn::text_fg("bulk edit").build_def(ctx, hotkey(Key::B))
                 } else {
@@ -656,7 +656,7 @@ pub fn check_parking_blackholes(
 }
 
 pub fn change_speed_limit(ctx: &mut EventCtx, default: Speed) -> Widget {
-    Widget::row2(vec![
+    Widget::row(vec![
         "Change speed limit:".draw_text(ctx).centered_vert(),
         Widget::dropdown(
             ctx,
@@ -728,7 +728,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
     // change, because nested other places modify it too.
     let edits = app.primary.map.get_edits();
     let mut col = vec![
-        Widget::row2(vec![
+        Widget::row(vec![
             Btn::text_fg(format!("{} ↓", &edits.edits_name)).build(
                 ctx,
                 "load edits",
@@ -796,7 +796,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
         col.push(format!("{} more...", edits.commands.len()).draw_text(ctx));
     }
 
-    Composite::new(Widget::col2(col).padding(16).bg(app.cs.panel_bg))
+    Composite::new(Widget::col(col).padding(16).bg(app.cs.panel_bg))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }

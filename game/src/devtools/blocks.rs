@@ -71,8 +71,8 @@ impl BlockMap {
 
             draw_all_blocks: ctx.upload(all_blocks),
             composite: Composite::new(
-                Widget::col2(vec![
-                    Widget::row2(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("Commute map by block").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build(ctx, "close", hotkey(Key::Escape))

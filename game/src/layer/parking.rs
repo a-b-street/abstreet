@@ -156,8 +156,8 @@ impl Occupancy {
         }
 
         let composite = Composite::new(
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Parking occupancy".draw_text(ctx),
                     Btn::plaintext("X")
@@ -185,12 +185,12 @@ impl Occupancy {
                     )),
                 ])
                 .draw(ctx),
-                Widget::row2(vec![
+                Widget::row(vec![
                     Checkbox::text(ctx, "On-street spots", None, onstreet),
                     Checkbox::text(ctx, "Parking lots", None, lots),
                 ])
                 .evenly_spaced(),
-                Widget::row2(vec![
+                Widget::row(vec![
                     Checkbox::text(ctx, "Public garages", None, garages),
                     Checkbox::text(ctx, "Private buildings", None, private_bldgs),
                 ])

@@ -78,8 +78,8 @@ impl Wizard {
         if self.tb_comp.is_none() {
             self.tb_comp = Some(
                 Composite::new(
-                    Widget::col2(vec![
-                        Widget::row2(vec![
+                    Widget::col(vec![
+                        Widget::row(vec![
                             Line(query).small_heading().draw(ctx),
                             Btn::text_fg("X")
                                 .build(ctx, "quit", hotkey(Key::Escape))
@@ -263,8 +263,8 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             );
             self.wizard.menu_comp = Some(
                 Composite::new(
-                    Widget::row2(vec![
-                        Widget::col2(col),
+                    Widget::row(vec![
+                        Widget::col(col),
                         Btn::plaintext("X").build(self.ctx, "quit", hotkey(Key::Escape)),
                     ])
                     .bg(self.ctx.style().panel_bg)
@@ -387,7 +387,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         assert!(self.wizard.ack.is_none());
         self.wizard.ack = Some(
             Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     txt.draw(self.ctx),
                     Btn::text_bg2("OK").build(self.ctx, "OK", hotkey(Key::Enter)),
                 ])

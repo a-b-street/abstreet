@@ -318,7 +318,7 @@ impl InfoPanel {
             tab,
             time: app.primary.sim.time(),
             is_paused: ctx_actions.is_paused(),
-            composite: Composite::new(Widget::col2(col).bg(Color::hex("#5B5B5B")).padding(16))
+            composite: Composite::new(Widget::col(col).bg(Color::hex("#5B5B5B")).padding(16))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
@@ -489,7 +489,7 @@ fn make_table<I: Into<String>>(
     rows: impl Iterator<Item = (I, String)>,
 ) -> Vec<Widget> {
     rows.map(|(k, v)| {
-        Widget::row2(vec![
+        Widget::row(vec![
             Line(k).secondary().draw(ctx),
             // TODO not quite...
             v.draw_text(ctx).centered_vert().align_right(),
@@ -525,7 +525,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
 
     let mut plot_opts = PlotOptions::filterable();
     plot_opts.disabled = opts.disabled_series();
-    Widget::col2(vec![
+    Widget::col(vec![
         Line("Number of crossing agents per hour")
             .small_heading()
             .draw(ctx),
@@ -557,7 +557,7 @@ fn make_tabs(
 }
 
 fn header_btns(ctx: &EventCtx) -> Widget {
-    Widget::row2(vec![
+    Widget::row(vec![
         Btn::svg_def("../data/system/assets/tools/location.svg").build(
             ctx,
             "jump to object",
@@ -604,7 +604,7 @@ impl DataOptions {
         if app.has_prebaked().is_none() {
             return Widget::nothing();
         }
-        Widget::row2(vec![
+        Widget::row(vec![
             Checkbox::custom_text(
                 ctx,
                 "Show before changes",

@@ -203,7 +203,7 @@ impl Tab {
                 }
             }
             main_row.push(
-                Widget::col2(col)
+                Widget::col(col)
                     .bg(app.cs.panel_bg)
                     .padding(16)
                     .outline(2.0, Color::BLACK),
@@ -240,7 +240,7 @@ impl Tab {
             }
 
             main_row.push(
-                Widget::col2(inner_col)
+                Widget::col(inner_col)
                     .bg(app.cs.panel_bg)
                     .padding(16)
                     .outline(2.0, Color::BLACK),
@@ -261,10 +261,10 @@ impl Tab {
             ));
         }
 
-        master_col.push(Widget::row2(main_row));
+        master_col.push(Widget::row(main_row));
 
         let mut c = WrappedComposite::new(
-            Composite::new(Widget::col2(master_col))
+            Composite::new(Widget::col(master_col))
                 .exact_size_percent(90, 85)
                 .build(ctx),
         )

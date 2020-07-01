@@ -30,9 +30,9 @@ impl FixTrafficSignals {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
             top_center: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     challenge_header(ctx, "Traffic signal survivor"),
-                    Widget::row2(vec![
+                    Widget::row(vec![
                         Line(format!(
                             "Keep delay at all intersections under {}",
                             THRESHOLD
@@ -136,9 +136,9 @@ impl GameplayState for FixTrafficSignals {
                 if dt >= THRESHOLD {
                     self.done = true;
                     self.top_center = Composite::new(
-                        Widget::col2(vec![
+                        Widget::col(vec![
                             challenge_header(ctx, "Traffic signal survivor"),
-                            Widget::row2(vec![
+                            Widget::row(vec![
                                 Line(format!(
                                     "Delay exceeded {} at {}",
                                     THRESHOLD,
@@ -290,7 +290,7 @@ fn make_meter(
     worst: Option<(IntersectionID, Duration)>,
 ) -> Composite {
     Composite::new(
-        Widget::col2(vec![
+        Widget::col(vec![
             // Separator
             Widget::draw_batch(
                 ctx,
@@ -301,7 +301,7 @@ fn make_meter(
             )
             .centered_horiz(),
             if let Some((_, delay)) = worst {
-                Widget::row2(vec![
+                Widget::row(vec![
                     Text::from_all(vec![
                         Line("Worst delay: "),
                         Line(delay.to_string()).fg(if delay < Duration::minutes(5) {
@@ -318,7 +318,7 @@ fn make_meter(
                         .align_right(),
                 ])
             } else {
-                Widget::row2(vec![
+                Widget::row(vec![
                     if app.primary.dirty_from_edits {
                         Btn::plaintext("(!)")
                             .pad(0)
@@ -388,7 +388,7 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
         .draw(ctx)
         .margin_below(30),
         Widget::custom_row(vec![
-            Widget::col2(vec![
+            Widget::col(vec![
                 Line("Time").fg(Color::BLACK).draw(ctx),
                 Widget::draw_svg_transform(
                     ctx,
@@ -397,7 +397,7 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
                 ),
                 Line("24 hours").fg(Color::BLACK).draw(ctx),
             ]),
-            Widget::col2(vec![
+            Widget::col(vec![
                 Line("Goal").fg(Color::BLACK).draw(ctx),
                 Widget::draw_svg_transform(
                     ctx,
@@ -410,7 +410,7 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
                 ])
                 .draw(ctx),
             ]),
-            Widget::col2(vec![
+            Widget::col(vec![
                 Line("Score").fg(Color::BLACK).draw(ctx),
                 Widget::draw_svg_transform(
                     ctx,

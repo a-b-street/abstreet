@@ -27,7 +27,7 @@ impl TitleScreen {
         let mut rng = app.primary.current_flags.sim_flags.make_rng();
         TitleScreen {
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/pregame/logo.svg"),
                     // TODO that nicer font
                     // TODO Any key
@@ -86,7 +86,7 @@ impl MainMenu {
                 txt.add(Line("Created by Dustin Carlino and Yuwen Li"));
                 txt.draw(ctx).centered_horiz()
             },
-            Widget::row2(vec![
+            Widget::row(vec![
                 Btn::svg(
                     "../data/system/assets/pregame/tutorial.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
@@ -119,7 +119,7 @@ impl MainMenu {
                 .build(ctx, "Challenges", hotkey(Key::C)),
             ])
             .centered(),
-            Widget::row2(vec![
+            Widget::row(vec![
                 Btn::text_bg2("Community Proposals")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, hotkey(Key::P), "Community Proposals");
@@ -141,8 +141,8 @@ impl MainMenu {
                 Btn::text_bg2("Internal Dev Tools").build_def(ctx, hotkey(Key::D)),
             ])
             .centered(),
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Btn::text_bg2("About").build_def(ctx, None),
                     Btn::text_bg2("Feedback").build_def(ctx, None),
                 ]),
@@ -152,7 +152,7 @@ impl MainMenu {
         ];
 
         Box::new(MainMenu {
-            composite: Composite::new(Widget::col2(col).evenly_spaced())
+            composite: Composite::new(Widget::col(col).evenly_spaced())
                 .exact_size_percent(90, 85)
                 .build(ctx),
         })
@@ -389,7 +389,7 @@ impl Proposals {
                     .build(ctx, "back", hotkey(Key::Escape))
                     .align_left()
                     .margin_below(20),
-                Widget::col2(col).bg(app.cs.panel_bg).padding(16),
+                Widget::col(col).bg(app.cs.panel_bg).padding(16),
             ]))
             .exact_size_percent(90, 85)
             .build(ctx),

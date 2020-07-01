@@ -93,7 +93,7 @@ impl LaneEditor {
             .centered(),
         ];
 
-        let composite = Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
+        let composite = Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 

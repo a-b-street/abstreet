@@ -84,7 +84,7 @@ pub fn ongoing(
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Distance").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
-            Widget::col2(vec![
+            Widget::col(vec![
                 Text::from_all(vec![
                     Line(props.dist_crossed.describe_rounded()),
                     Line(format!("/{}", props.total_dist.describe_rounded())).secondary(),
@@ -105,7 +105,7 @@ pub fn ongoing(
                 .draw(ctx)
                 .container()
                 .force_width_pct(ctx, col_width),
-            Widget::col2(vec![
+            Widget::col(vec![
                 format!("{} here", props.waiting_here).draw_text(ctx),
                 Text::from_all(vec![
                     if props.total_waiting != Duration::ZERO {
@@ -133,7 +133,7 @@ pub fn ongoing(
         Some(props.dist_crossed / props.total_dist),
     ));
 
-    Widget::col2(col)
+    Widget::col(col)
 }
 
 pub fn future(
@@ -195,7 +195,7 @@ pub fn future(
             .insert(format!("wait for {}", trip), (trip, start_time));
     }
 
-    Widget::col2(col)
+    Widget::col(col)
 }
 
 pub fn finished(
@@ -296,7 +296,7 @@ pub fn finished(
         None,
     ));
 
-    Widget::col2(col)
+    Widget::col(col)
 }
 
 pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
@@ -321,7 +321,7 @@ pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
         .into_iter(),
     ));
 
-    Widget::col2(col)
+    Widget::col(col)
 }
 
 fn make_timeline(
@@ -579,7 +579,7 @@ fn make_timeline(
         Widget::custom_row(vec![start_btn, Widget::custom_row(timeline), goal_btn])
             .evenly_spaced()
             .margin_above(25),
-        Widget::row2(vec![
+        Widget::row(vec![
             start_time.ampm_tostring().draw_text(ctx),
             if let Some(t) = end_time {
                 t.ampm_tostring().draw_text(ctx).align_right()
@@ -587,7 +587,7 @@ fn make_timeline(
                 Widget::nothing()
             },
         ]),
-        Widget::row2(vec![
+        Widget::row(vec![
             {
                 details
                     .time_warpers
@@ -634,7 +634,7 @@ fn make_timeline(
     if false {
         col.extend(elevation);
     }
-    Widget::col2(col)
+    Widget::col(col)
 }
 
 fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map: &Map) -> Widget {

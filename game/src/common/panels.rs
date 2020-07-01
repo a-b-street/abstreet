@@ -18,7 +18,7 @@ pub fn tool_panel(ctx: &mut EventCtx, app: &App) -> WrappedComposite {
         Btn::svg_def("../data/system/assets/tools/settings.svg").build(ctx, "settings", None),
     ];
     WrappedComposite::new(
-        Composite::new(Widget::row2(row).bg(app.cs.panel_bg).padding(16))
+        Composite::new(Widget::row(row).bg(app.cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)
             .build(ctx),
     )

@@ -269,7 +269,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
 
     let mut col = vec![DashTab::ParkingOverhead.picker(ctx, app)];
     col.push(
-        Widget::row2(vec![
+        Widget::row(vec![
             Text::from_multiline(vec![
                 Line(
                     "Trips taken by car also include time to walk between the building and \
@@ -298,11 +298,11 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         ])
         .evenly_spaced(),
     );
-    col.push(Widget::row2(vec![
+    col.push(Widget::row(vec![
         Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts),
         Checkbox::text(ctx, "ending off-map", None, opts.off_map_ends),
     ]));
-    col.push(Widget::row2(vec![
+    col.push(Widget::row(vec![
         if opts.skip > 0 {
             Btn::text_fg("<").build(ctx, "previous trips", None)
         } else {
@@ -334,7 +334,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         0.88 * ctx.canvas.window_width,
     ));
 
-    Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
         .exact_size_percent(90, 90)
         .build(ctx)
 }

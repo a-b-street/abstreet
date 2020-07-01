@@ -48,7 +48,7 @@ impl StopSignEditor {
             .collect();
 
         let composite = Composite::new(
-            Widget::col2(vec![
+            Widget::col(vec![
                 "Stop sign editor".draw_text(ctx),
                 if ControlStopSign::new(&app.primary.map, id)
                     != app.primary.map.get_stop_sign(id).clone()

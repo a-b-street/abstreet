@@ -137,14 +137,14 @@ impl State for PolygonDebugger {
 
 fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
     Composite::new(
-        Widget::col2(vec![
-            Widget::row2(vec![
+        Widget::col(vec![
+            Widget::row(vec![
                 Line("Geometry debugger").small_heading().draw(ctx),
                 Btn::text_fg("X")
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
             ]),
-            Widget::row2(vec![
+            Widget::row(vec![
                 // TODO inactive
                 Btn::text_fg("<").build(ctx, "previous", hotkey(Key::LeftArrow)),
                 "noun X/Y".draw_text(ctx).named("pointer"),

@@ -322,13 +322,13 @@ pub fn make_legend<T: Yvalue<T>>(
         }
         seen.insert(s.label.clone());
         if opts.filterable {
-            row.push(Widget::row2(vec![
+            row.push(Widget::row(vec![
                 Checkbox::colored(ctx, &s.label, s.color, !opts.disabled.contains(&s.label)),
                 Line(&s.label).draw(ctx),
             ]));
         } else {
             let radius = 15.0;
-            row.push(Widget::row2(vec![
+            row.push(Widget::row(vec![
                 Widget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(

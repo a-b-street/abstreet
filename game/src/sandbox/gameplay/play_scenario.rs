@@ -101,7 +101,7 @@ fn make_top_center(
     modifiers: &Vec<ScenarioModifier>,
 ) -> Composite {
     let rows = vec![
-        Widget::row2(vec![
+        Widget::row(vec![
             Line("Sandbox").small_heading().draw(ctx),
             Widget::draw_batch(
                 ctx,
@@ -127,7 +127,7 @@ fn make_top_center(
         ])
         .centered(),
         if scenario_name == "weekday" {
-            Widget::row2(vec![
+            Widget::row(vec![
                 Btn::svg_def("../data/system/assets/tools/pencil.svg").build(
                     ctx,
                     "edit traffic patterns",
@@ -141,7 +141,7 @@ fn make_top_center(
         },
     ];
 
-    Composite::new(Widget::col2(rows).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(16))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -175,7 +175,7 @@ impl EditScenarioModifiers {
         ];
         for (idx, m) in modifiers.iter().enumerate() {
             rows.push(
-                Widget::row2(vec![
+                Widget::row(vec![
                     m.describe().draw_text(ctx),
                     Btn::svg_def("../data/system/assets/tools/delete.svg")
                         .build(ctx, format!("delete modifier {}", idx + 1), None)
@@ -187,7 +187,7 @@ impl EditScenarioModifiers {
         }
         rows.push(Btn::text_bg2("New modification").build_def(ctx, None));
         rows.push(
-            Widget::row2(vec![
+            Widget::row(vec![
                 Btn::text_bg2("Apply").build_def(ctx, hotkey(Key::Enter)),
                 Btn::text_bg2("Discard changes").build_def(ctx, hotkey(Key::Escape)),
             ])
@@ -197,7 +197,7 @@ impl EditScenarioModifiers {
         Box::new(EditScenarioModifiers {
             scenario_name,
             modifiers,
-            composite: Composite::new(Widget::col2(rows).padding(16).bg(app.cs.panel_bg))
+            composite: Composite::new(Widget::col(rows).padding(16).bg(app.cs.panel_bg))
                 .exact_size_percent(80, 80)
                 .build(ctx),
         })

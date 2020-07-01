@@ -35,11 +35,11 @@ impl TripSummaries {
 
         Box::new(TripSummaries {
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     DashTab::TripSummaries.picker(ctx, app),
-                    Widget::row2(filters).centered_horiz(),
+                    Widget::row(filters).centered_horiz(),
                     summary(ctx, app, &filter),
-                    Widget::row2(vec![
+                    Widget::row(vec![
                         contingency_table(ctx, app, &filter).centered_vert(),
                         scatter_plot(ctx, app, &filter),
                     ])
@@ -124,8 +124,8 @@ fn summary(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         }
     }
 
-    Widget::col2(vec![Widget::row2(vec![
-        Widget::col2(vec![Text::from_multiline(vec![
+    Widget::col(vec![Widget::row(vec![
+        Widget::col(vec![Text::from_multiline(vec![
             Line(format!("{} trips faster", prettyprint_usize(num_faster))),
             Line(format!("{} total time saved", sum_faster)),
             Line(format!(
@@ -145,7 +145,7 @@ fn summary(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             .centered_vert()
             .outline(2.0, Color::YELLOW)
             .padding(10),
-        Widget::col2(vec![Text::from_multiline(vec![
+        Widget::col(vec![Text::from_multiline(vec![
             Line(format!("{} trips slower", prettyprint_usize(num_slower))),
             Line(format!("{} total time lost", sum_slower)),
             Line(format!(

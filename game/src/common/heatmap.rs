@@ -36,13 +36,13 @@ impl HeatmapOptions {
     pub fn to_controls(&self, ctx: &mut EventCtx, legend: Widget) -> Vec<Widget> {
         vec![
             // TODO Display the value...
-            Widget::row2(vec![
+            Widget::row(vec![
                 "Resolution (meters)".draw_text(ctx).centered_vert(),
                 Spinner::new(ctx, (1, 100), self.resolution)
                     .named("resolution")
                     .align_right(),
             ]),
-            Widget::row2(vec![
+            Widget::row(vec![
                 "Radius (resolution multiplier)"
                     .draw_text(ctx)
                     .centered_vert(),
@@ -51,7 +51,7 @@ impl HeatmapOptions {
                     .align_right(),
             ]),
             Checkbox::text(ctx, "smoothing", None, self.smoothing),
-            Widget::row2(vec![
+            Widget::row(vec![
                 "Color scheme".draw_text(ctx).centered_vert(),
                 Widget::dropdown(
                     ctx,

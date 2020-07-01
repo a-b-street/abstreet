@@ -312,7 +312,7 @@ impl Minimap {
 
 fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composite {
     if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-        return Composite::new(Widget::row2(vec![
+        return Composite::new(Widget::row(vec![
             make_tool_panel(ctx, app).align_right(),
             make_vert_viz_panel(ctx, app)
                 .bg(app.cs.panel_bg)
@@ -359,11 +359,11 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
     };
 
     let square_len = 0.15 * ctx.canvas.window_width;
-    let minimap_controls = Widget::col2(vec![
+    let minimap_controls = Widget::col(vec![
         Btn::svg_def("../data/system/assets/minimap/up.svg")
             .build(ctx, "pan up", None)
             .centered_horiz(),
-        Widget::row2(vec![
+        Widget::row(vec![
             Btn::svg_def("../data/system/assets/minimap/left.svg")
                 .build(ctx, "pan left", None)
                 .centered_vert(),
@@ -377,10 +377,10 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
             .centered_horiz(),
     ]);
 
-    Composite::new(Widget::row2(vec![
+    Composite::new(Widget::row(vec![
         make_tool_panel(ctx, app),
-        Widget::col2(vec![
-            Widget::row2(vec![minimap_controls, zoom_col]),
+        Widget::col(vec![
+            Widget::row(vec![minimap_controls, zoom_col]),
             make_horiz_viz_panel(ctx, app),
         ])
         .padding(16)
@@ -394,7 +394,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
 }
 
 fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
-    Widget::col2(vec![
+    Widget::col(vec![
         (if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
             Btn::svg_def("../data/system/assets/minimap/zoom_out_fully.svg").build(
                 ctx,
@@ -439,5 +439,5 @@ fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
         col.push(Widget::custom_row(row));
     }
 
-    Widget::col2(col)
+    Widget::col(col)
 }

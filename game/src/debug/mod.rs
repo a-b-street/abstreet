@@ -35,8 +35,8 @@ impl DebugMode {
     pub fn new(ctx: &mut EventCtx, app: &App) -> DebugMode {
         DebugMode {
             composite: Composite::new(
-                Widget::col2(vec![
-                    Widget::row2(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("Debug Mode").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build(ctx, "close", hotkey(Key::Escape))
@@ -49,7 +49,7 @@ impl DebugMode {
                     Checkbox::text(ctx, "show areas", hotkey(Key::Num4), true),
                     Checkbox::text(ctx, "show labels", hotkey(Key::Num5), false),
                     Checkbox::text(ctx, "show route for all agents", hotkey(Key::R), false),
-                    Widget::col2(
+                    Widget::col(
                         vec![
                             (lctrl(Key::H), "unhide everything"),
                             (None, "screenshot everything"),

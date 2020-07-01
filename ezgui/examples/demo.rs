@@ -47,7 +47,7 @@ impl App {
     fn make_timeseries_panel(&self, ctx: &mut EventCtx) -> Composite {
         // Make a table with 3 columns.
         let mut col1 = vec![Line("Time").draw(ctx)];
-        let mut col2 = vec![Line("Linear").draw(ctx)];
+        let mut col = vec![Line("Linear").draw(ctx)];
         let mut col3 = vec![Line("Quadratic").draw(ctx)];
         for s in 0..(self.elapsed.inner_seconds() as usize) {
             col1.push(
@@ -55,12 +55,12 @@ impl App {
                     .secondary()
                     .draw(ctx),
             );
-            col2.push(Line(s.to_string()).secondary().draw(ctx));
+            col.push(Line(s.to_string()).secondary().draw(ctx));
             col3.push(Line(s.pow(2).to_string()).secondary().draw(ctx));
         }
 
         let mut c = Composite::new(
-            Widget::col2(vec![
+            Widget::col(vec![
                 Text::from_multiline(vec![
                     Line("Here's a bunch of text to force some scrolling.").small_heading(),
                     Line(
@@ -70,11 +70,11 @@ impl App {
                     .fg(Color::RED),
                 ])
                 .draw(ctx),
-                Widget::row2(vec![
+                Widget::row(vec![
                     // Examples of styling widgets
-                    Widget::col2(col1).outline(3.0, Color::BLACK).padding(5),
-                    Widget::col2(col2).outline(3.0, Color::BLACK).padding(5),
-                    Widget::col2(col3).outline(3.0, Color::BLACK).padding(5),
+                    Widget::col(col1).outline(3.0, Color::BLACK).padding(5),
+                    Widget::col(col).outline(3.0, Color::BLACK).padding(5),
+                    Widget::col(col3).outline(3.0, Color::BLACK).padding(5),
                 ]),
                 LinePlot::new(
                     ctx,
@@ -258,13 +258,13 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 
 fn make_controls(ctx: &mut EventCtx) -> Composite {
     Composite::new(
-        Widget::col2(vec![
+        Widget::col(vec![
             Text::from_multiline(vec![
                 Line("ezgui demo").small_heading(),
                 Line("Click and drag to pan, use touchpad or scroll wheel to zoom"),
             ])
             .draw(ctx),
-            Widget::row2(vec![
+            Widget::row(vec![
                 // This just cycles between two arbitrary buttons
                 Checkbox::new(
                     false,

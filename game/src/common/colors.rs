@@ -89,7 +89,7 @@ impl<'a> ColorDiscrete<'a> {
         (
             ctx.upload(self.unzoomed),
             ctx.upload(self.zoomed),
-            Widget::col2(legend),
+            Widget::col(legend),
         )
     }
 }
@@ -99,7 +99,7 @@ pub struct ColorLegend {}
 impl ColorLegend {
     pub fn row<S: Into<String>>(ctx: &mut EventCtx, color: Color, label: S) -> Widget {
         let radius = 15.0;
-        Widget::row2(vec![
+        Widget::row(vec![
             Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(
@@ -142,7 +142,7 @@ impl ColorLegend {
         );
         // Extra wrapping to make the labels stretch against just the scale, not everything else
         // TODO Long labels aren't nicely lined up with the boundaries between buckets
-        Widget::col2(vec![
+        Widget::col(vec![
             Widget::draw_batch(ctx, batch),
             Widget::custom_row(
                 labels

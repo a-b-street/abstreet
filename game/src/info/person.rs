@@ -123,7 +123,7 @@ pub fn trips(
         rows.push(
             Widget::custom_row(vec![
                 format!("Trip {} ", idx + 1).draw_text(ctx).margin_right(21),
-                Widget::row2(vec![
+                Widget::row(vec![
                     Widget::draw_svg_transform(
                         ctx,
                         match trip_mode {
@@ -366,7 +366,7 @@ pub fn crowd(
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
-    rows.push(Widget::row2(vec![
+    rows.push(Widget::row(vec![
         Line("Pedestrian crowd").small_heading().draw(ctx),
         header_btns(ctx),
     ]));
@@ -378,7 +378,7 @@ pub fn crowd(
             .agent_to_person(AgentID::Pedestrian(*id))
             .unwrap();
         // TODO What other info is useful to summarize?
-        rows.push(Widget::row2(vec![
+        rows.push(Widget::row(vec![
             format!("{})", idx + 1).draw_text(ctx).centered_vert(),
             Btn::text_fg(person.to_string()).build_def(ctx, None),
         ]));
@@ -408,11 +408,11 @@ pub fn parked_car(
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
-    rows.push(Widget::row2(vec![
+    rows.push(Widget::row(vec![
         Line(format!("Parked car #{}", id.0))
             .small_heading()
             .draw(ctx),
-        Widget::row2(vec![
+        Widget::row(vec![
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {
@@ -531,7 +531,7 @@ fn header(
             .fg(Color::hex("#A3A3A3"))
             .draw(ctx)
             .margin_horiz(10),
-        Widget::row2(vec![
+        Widget::row(vec![
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {

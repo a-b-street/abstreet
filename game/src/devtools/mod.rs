@@ -25,14 +25,14 @@ impl DevToolsMode {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(DevToolsMode {
             composite: Composite::new(
-                Widget::col2(vec![
-                    Widget::row2(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("Internal dev tools").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    Widget::row2(vec![
+                    Widget::row(vec![
                         "Change map:".draw_text(ctx),
                         Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name())))
                             .build(ctx, "change map", None),

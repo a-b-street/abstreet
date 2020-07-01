@@ -79,8 +79,8 @@ impl ViewKML {
             Box::new(ViewKML {
                 draw: ctx.upload(batch),
                 composite: Composite::new(
-                    Widget::col2(vec![
-                        Widget::row2(vec![
+                    Widget::col(vec![
+                        Widget::row(vec![
                             Line("KML viewer").small_heading().draw(ctx),
                             Btn::text_fg("X")
                                 .build(ctx, "close", hotkey(Key::Escape))
@@ -92,7 +92,7 @@ impl ViewKML {
                             prettyprint_usize(objects.len())
                         )
                         .draw_text(ctx),
-                        Widget::row2(vec![
+                        Widget::row(vec![
                             "Query:".draw_text(ctx),
                             Widget::dropdown(ctx, "query", "None".to_string(), choices),
                         ]),

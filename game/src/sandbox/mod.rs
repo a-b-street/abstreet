@@ -313,7 +313,7 @@ impl AgentMeter {
                 )]),
             )
             .centered_horiz(),
-            Widget::row2(vec![
+            Widget::row(vec![
                 {
                     let mut txt = Text::new();
                     let pct = if unfinished == 0 {
@@ -334,7 +334,7 @@ impl AgentMeter {
             ]),
         ];
 
-        let composite = Composite::new(Widget::col2(rows).bg(app.cs.panel_bg).padding(16))
+        let composite = Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
 

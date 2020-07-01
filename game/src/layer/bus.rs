@@ -125,8 +125,8 @@ impl ShowBusRoute {
             unzoomed,
             zoomed,
             composite: Composite::new(
-                Widget::col2(vec![
-                    Widget::row2(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                         Line(&route.name).draw(ctx),
                         Btn::plaintext("X")

@@ -47,9 +47,9 @@ impl OptimizeCommute {
         let trips = app.primary.sim.get_person(person).trips.clone();
         Box::new(OptimizeCommute {
             top_center: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     challenge_header(ctx, "Optimize the VIP's commute"),
-                    Widget::row2(vec![
+                    Widget::row(vec![
                         format!("Speed up the VIP's trips by {}", goal)
                             .draw_text(ctx)
                             .centered_vert(),
@@ -252,7 +252,7 @@ fn make_meter(
     txt.append(Line(")"));
 
     Composite::new(
-        Widget::col2(vec![
+        Widget::col(vec![
             // Separator
             Widget::draw_batch(
                 ctx,
@@ -262,7 +262,7 @@ fn make_meter(
                 )]),
             )
             .centered_horiz(),
-            Widget::row2(vec![
+            Widget::row(vec![
                 Btn::svg_def("../data/system/assets/tools/location.svg").build(
                     ctx,
                     "locate VIP",
@@ -370,8 +370,8 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
             ])
             .draw(ctx)
             .margin_below(30),
-            Widget::row2(vec![
-                Widget::col2(vec![
+            Widget::row(vec![
+                Widget::col(vec![
                     Line("Time").fg(Color::BLACK).draw(ctx),
                     Widget::draw_svg_transform(
                         ctx,
@@ -384,7 +384,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                     ])
                     .draw(ctx),
                 ]),
-                Widget::col2(vec![
+                Widget::col(vec![
                     Line("Goal").fg(Color::BLACK).draw(ctx),
                     Widget::draw_svg_transform(
                         ctx,
@@ -397,7 +397,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                     ])
                     .draw(ctx),
                 ]),
-                Widget::col2(vec![
+                Widget::col(vec![
                     Line("Score").fg(Color::BLACK).draw(ctx),
                     Widget::draw_svg_transform(
                         ctx,

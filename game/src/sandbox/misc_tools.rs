@@ -242,7 +242,7 @@ impl TurnExplorer {
     fn make_panel(ctx: &mut EventCtx, app: &App, l: LaneID, idx: usize) -> Composite {
         let num_turns = app.primary.map.get_turns_from_lane(l).len();
 
-        let mut col = vec![Widget::row2(vec![
+        let mut col = vec![Widget::row(vec![
             Text::from(
                 Line(format!(
                     "Turns from {}",
@@ -314,7 +314,7 @@ impl TurnExplorer {
             col.push(ColorLegend::row(ctx, CONFLICTING_TURN, "conflicting turn"));
         }
 
-        Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
+        Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }

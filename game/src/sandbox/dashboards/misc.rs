@@ -34,7 +34,7 @@ impl ActiveTraffic {
 
         Box::new(ActiveTraffic {
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     DashTab::ActiveTraffic.picker(ctx, app),
                     LinePlot::new(ctx, active_agents, PlotOptions::fixed()),
                 ])
@@ -90,7 +90,7 @@ impl BusRoutes {
         }
 
         Box::new(BusRoutes {
-            composite: Composite::new(Widget::col2(col).bg(app.cs.panel_bg).padding(16))
+            composite: Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
                 .exact_size_percent(90, 90)
                 .build(ctx),
         })

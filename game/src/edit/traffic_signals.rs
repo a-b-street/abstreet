@@ -455,7 +455,7 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
             Widget::nothing()
         },
     ];
-    Composite::new(Widget::row2(row).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::row(row).bg(app.cs.panel_bg).padding(16))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -768,7 +768,7 @@ impl PreviewTrafficSignal {
     fn new(ctx: &mut EventCtx, app: &App) -> PreviewTrafficSignal {
         PreviewTrafficSignal {
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     "Previewing traffic signal".draw_text(ctx),
                     Btn::text_fg("back to editing").build_def(ctx, hotkey(Key::Escape)),
                 ])

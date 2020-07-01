@@ -128,15 +128,6 @@ impl Widget {
         self
     }
 
-    pub fn margin(mut self, pixels: usize) -> Widget {
-        self.layout.style.margin = Rect {
-            start: Dimension::Points(pixels as f32),
-            end: Dimension::Points(pixels as f32),
-            top: Dimension::Points(pixels as f32),
-            bottom: Dimension::Points(pixels as f32),
-        };
-        self
-    }
     pub fn margin_above(mut self, pixels: usize) -> Widget {
         self.layout.style.margin.top = Dimension::Points(pixels as f32);
         self
@@ -274,14 +265,10 @@ impl Widget {
         .outline(ctx.style().outline_thickness, ctx.style().outline_color)
     }
 
-    pub fn row(widgets: Vec<Widget>) -> Widget {
-        Widget::new(Box::new(Container::new(true, widgets)))
-    }
     pub fn custom_row(widgets: Vec<Widget>) -> Widget {
         Widget::new(Box::new(Container::new(true, widgets)))
     }
-    // TODO Rename
-    pub fn row2(widgets: Vec<Widget>) -> Widget {
+    pub fn row(widgets: Vec<Widget>) -> Widget {
         let mut new = Vec::new();
         let len = widgets.len();
         // TODO Time for that is_last iterator?
@@ -295,13 +282,10 @@ impl Widget {
         Widget::new(Box::new(Container::new(true, new)))
     }
 
-    pub fn col(widgets: Vec<Widget>) -> Widget {
-        Widget::new(Box::new(Container::new(false, widgets)))
-    }
     pub fn custom_col(widgets: Vec<Widget>) -> Widget {
         Widget::new(Box::new(Container::new(false, widgets)))
     }
-    pub fn col2(widgets: Vec<Widget>) -> Widget {
+    pub fn col(widgets: Vec<Widget>) -> Widget {
         let mut new = Vec::new();
         let len = widgets.len();
         // TODO Time for that is_last iterator?
@@ -938,7 +922,7 @@ impl CompositeBuilder {
                 .align_window(&ctx.prerender.assets, c.container_dims, c.horiz, c.vert);
         if c.contents_dims.width > c.container_dims.width {
             c.scrollable_x = true;
-            c.top_level = Widget::col(vec![
+            c.top_level = Widget::custom_col(vec![
                 c.top_level,
                 Slider::horizontal(
                     ctx,
@@ -952,7 +936,7 @@ impl CompositeBuilder {
         }
         if c.contents_dims.height > c.container_dims.height {
             c.scrollable_y = true;
-            c.top_level = Widget::row(vec![
+            c.top_level = Widget::custom_row(vec![
                 c.top_level,
                 Slider::vertical(
                     ctx,

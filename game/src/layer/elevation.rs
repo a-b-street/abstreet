@@ -93,8 +93,8 @@ impl Elevation {
         colorer.unzoomed.append(batch);
 
         let composite = Composite::new(
-            Widget::col2(vec![
-                Widget::row2(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
                     "Elevation change".draw_text(ctx),
                     Btn::plaintext("X")

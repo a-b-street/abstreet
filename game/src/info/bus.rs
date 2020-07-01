@@ -15,7 +15,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
 
     let sim = &app.primary.sim;
 
-    rows.push(Widget::row2(vec![
+    rows.push(Widget::row(vec![
         Line("Bus stop").small_heading().draw(ctx),
         header_btns(ctx),
     ]));
@@ -99,7 +99,7 @@ fn bus_header(
     }
 
     let mut rows = vec![];
-    rows.push(Widget::row2(vec![
+    rows.push(Widget::row(vec![
         Line(format!(
             "{} (route {})",
             id,
@@ -145,7 +145,7 @@ fn delays_over_time(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> Widget {
                 .unwrap_or_else(Vec::new),
         });
     }
-    Widget::col2(vec![
+    Widget::col(vec![
         Line("Delays between stops").small_heading().draw(ctx),
         LinePlot::new(ctx, series, PlotOptions::fixed()),
     ])
@@ -163,7 +163,7 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
         .bus_passenger_delays(app.primary.sim.time(), id)
         .collect::<BTreeMap<_, _>>();
     for idx in 0..route.stops.len() {
-        col.push(Widget::row2(vec![
+        col.push(Widget::row(vec![
             format!("Stop {}", idx + 1).draw_text(ctx),
             Btn::svg(
                 "../data/system/assets/tools/pin.svg",
@@ -214,7 +214,7 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
     }
     let timeline = Widget::draw_batch(ctx, batch);
 
-    master_col.push(Widget::row2(vec![timeline, Widget::col2(col)]));
+    master_col.push(Widget::row(vec![timeline, Widget::col(col)]));
 
-    Widget::col2(master_col)
+    Widget::col(master_col)
 }

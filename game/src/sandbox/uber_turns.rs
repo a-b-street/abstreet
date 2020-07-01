@@ -30,8 +30,8 @@ impl UberTurnPicker {
         Box::new(UberTurnPicker {
             members,
             composite: Composite::new(
-                Widget::col2(vec![
-                    Widget::row2(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("Select multiple intersections")
                             .small_heading()
                             .draw(ctx),
@@ -165,8 +165,8 @@ impl UberTurnViewer {
         Box::new(UberTurnViewer {
             draw: ctx.upload(batch),
             composite: Composite::new(
-                Widget::col2(vec![
-                    Widget::row2(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("Uber-turn viewer").small_heading().draw(ctx),
                         Widget::draw_batch(
                             ctx,

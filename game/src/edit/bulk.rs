@@ -25,7 +25,7 @@ impl RouteSelect {
         app.primary.current_selection = None;
         Box::new(RouteSelect {
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     Line("Edit many roads").small_heading().draw(ctx),
                     "Click one intersection to start"
                         .draw_text(ctx)
@@ -181,7 +181,7 @@ impl BulkEdit {
     fn new(ctx: &mut EventCtx, app: &App, roads: Vec<RoadID>, preview: Drawable) -> Box<dyn State> {
         Box::new(BulkEdit {
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     Line(format!("Editing {} roads", roads.len()))
                         .small_heading()
                         .draw(ctx),
@@ -191,7 +191,7 @@ impl BulkEdit {
                             .build(ctx, "confirm speed limit", None)
                             .align_right(),
                     ]),
-                    Widget::row2(vec![
+                    Widget::row(vec![
                         "Change all".draw_text(ctx).centered_vert(),
                         Widget::dropdown(
                             ctx,
@@ -507,7 +507,7 @@ fn make_paint_composite(
     roads: &BTreeSet<RoadID>,
 ) -> Composite {
     Composite::new(
-        Widget::col2(vec![
+        Widget::col(vec![
             Line("Edit many roads").small_heading().draw(ctx),
             Widget::custom_row(vec![
                 if mode == Mode::Paint {

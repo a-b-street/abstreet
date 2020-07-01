@@ -349,8 +349,8 @@ impl JumpToTime {
             target,
             maybe_mode,
             composite: Composite::new(
-                Widget::col2(vec![
-                    Widget::row2(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("Jump to what time?").small_heading().draw(ctx),
                         Btn::plaintext("X")
                             .build(ctx, "close", hotkey(Key::Escape))
@@ -502,7 +502,7 @@ impl TimeWarpScreen {
             started: Instant::now(),
             traffic_jams,
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     Text::new().draw(ctx).named("text"),
                     Btn::text_bg2("stop now")
                         .build_def(ctx, hotkey(Key::Escape))
@@ -640,7 +640,7 @@ impl TimePanel {
         TimePanel {
             time: app.primary.sim.time(),
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     Text::from(
                         Line(app.primary.sim.time().ampm_tostring_spacers()).big_heading_styled(),
                     )

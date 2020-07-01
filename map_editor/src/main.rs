@@ -72,10 +72,10 @@ impl UI {
             model,
             state: State::viewing(),
             composite: Composite::new(
-                Widget::col2(vec![
+                Widget::col(vec![
                     Line("Map Editor").small_heading().draw(ctx),
                     Text::new().draw(ctx).named("current info"),
-                    Widget::col2(
+                    Widget::col(
                         vec![
                             (hotkey(Key::Escape), "quit"),
                             (None, "save raw map"),

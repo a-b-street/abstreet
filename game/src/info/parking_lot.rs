@@ -56,7 +56,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
 
 fn header(ctx: &EventCtx, details: &mut Details, id: ParkingLotID, tab: Tab) -> Vec<Widget> {
     vec![
-        Widget::row2(vec![
+        Widget::row(vec![
             Line(id.to_string()).small_heading().draw(ctx),
             header_btns(ctx),
         ]),

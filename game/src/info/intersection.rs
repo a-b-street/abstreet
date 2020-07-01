@@ -168,7 +168,7 @@ pub fn current_demand(
     );
 
     rows.push(
-        Widget::col2(vec![txt.draw(ctx), Widget::draw_batch(ctx, batch)])
+        Widget::col(vec![txt.draw(ctx), Widget::draw_batch(ctx, batch)])
             .padding(10)
             .bg(app.cs.inner_panel)
             .outline(2.0, Color::WHITE),
@@ -209,7 +209,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
             pts,
         })
         .collect();
-    Widget::col2(vec![
+    Widget::col(vec![
         Line("Delay through intersection").small_heading().draw(ctx),
         ScatterPlot::new(
             ctx,
@@ -244,7 +244,7 @@ fn header(
         IntersectionType::Border => format!("Border #{}", id.0),
         IntersectionType::Construction => format!("{} (under construction)", id),
     };
-    rows.push(Widget::row2(vec![
+    rows.push(Widget::row(vec![
         Line(label).small_heading().draw(ctx),
         header_btns(ctx),
     ]));

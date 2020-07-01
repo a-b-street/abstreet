@@ -719,7 +719,7 @@ impl TutorialState {
     }
 
     fn make_top_center(&self, ctx: &mut EventCtx, cs: &ColorScheme, edit_map: bool) -> Composite {
-        let mut col = vec![Widget::row2(vec![
+        let mut col = vec![Widget::row(vec![
             Line("Tutorial").small_heading().draw(ctx),
             Widget::draw_batch(
                 ctx,
@@ -747,7 +747,7 @@ impl TutorialState {
         {
             let task = self.interaction();
             if task != Task::Nil {
-                col.push(Widget::row2(vec![
+                col.push(Widget::row(vec![
                     Text::from(
                         Line(format!(
                             "Task {}: {}",
@@ -777,7 +777,7 @@ impl TutorialState {
             );
         }
 
-        Composite::new(Widget::col2(col).bg(cs.panel_bg).padding(16))
+        Composite::new(Widget::col(col).bg(cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }
@@ -815,7 +815,7 @@ impl TutorialState {
                     }
                     txt.wrap_to_pct(ctx, 30).draw(ctx)
                 }];
-                let mut controls = vec![Widget::row2(vec![
+                let mut controls = vec![Widget::row(vec![
                     if self.current.part > 0 {
                         Btn::svg(
                             "../data/system/assets/tools/prev.svg",
@@ -861,11 +861,11 @@ impl TutorialState {
                             .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter])),
                     );
                 }
-                col.push(Widget::col2(controls).align_bottom());
+                col.push(Widget::col(controls).align_bottom());
 
                 Some(
                     Composite::new(
-                        Widget::col2(col)
+                        Widget::col(col)
                             .bg(app.cs.panel_bg)
                             .outline(5.0, Color::WHITE)
                             .padding(16),
