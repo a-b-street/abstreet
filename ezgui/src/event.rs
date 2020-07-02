@@ -17,8 +17,7 @@ pub enum Event {
     // events while a key is held down.
     KeyPress(Key),
     KeyRelease(Key),
-    // Some real amount of time has passed since the last update; EventLoopMode::Animation is
-    // active
+    // Some real amount of time has passed since the last update
     Update(Duration),
     MouseMovedTo(ScreenPt),
     WindowLostCursor,

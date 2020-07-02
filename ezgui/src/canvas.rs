@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{hotkey, Key, ScreenDims, ScreenPt, ScreenRectangle, UserInput, UpdateType};
+use crate::{hotkey, Key, ScreenDims, ScreenPt, ScreenRectangle, UpdateType, UserInput};
 use abstutil::Timer;
 use geom::{Bounds, Pt2D};
 use serde::{Deserialize, Serialize};
@@ -166,10 +166,10 @@ impl Canvas {
                 // Add displacement along each axis
                 self.cam_x += displacement_unit_x * PAN_SPEED;
                 self.cam_y += displacement_unit_y * PAN_SPEED;
-                return Some(UpdateType::Pan)
+                return Some(UpdateType::Pan);
             }
         }
-        return None
+        None
     }
 
     fn zoom(&mut self, delta: f64, focus: (f64, f64)) {

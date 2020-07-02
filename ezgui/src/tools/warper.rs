@@ -1,9 +1,5 @@
 use crate::{EventCtx, UpdateType};
-
 use geom::{Line, Pt2D};
-
-
-
 use instant::Instant;
 
 pub struct Warper {
@@ -22,7 +18,7 @@ impl Warper {
         }
     }
 
-    // None means done
+    // false means done
     pub fn event(&self, ctx: &mut EventCtx) -> bool {
         // Actually nothing for us to do
         if self.line.is_none() && self.cam_zoom.0 == self.cam_zoom.1 {

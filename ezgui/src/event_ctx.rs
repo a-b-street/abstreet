@@ -8,7 +8,7 @@ use instant::Instant;
 use std::collections::VecDeque;
 
 #[derive(Clone, PartialEq)]
-pub enum UpdateType{
+pub enum UpdateType {
     InputOnly,
     Game,
     Pan,
@@ -17,7 +17,7 @@ pub enum UpdateType{
         zoom: f64,
         max_x: f64,
         max_y: f64,
-    }
+    },
 }
 
 pub struct EventCtx<'a> {
@@ -27,7 +27,7 @@ pub struct EventCtx<'a> {
     pub canvas: &'a mut Canvas,
     pub prerender: &'a Prerender,
     pub(crate) style: &'a mut Style,
-    pub(crate) updates_requested: Vec<UpdateType>
+    pub(crate) updates_requested: Vec<UpdateType>,
 }
 
 impl<'a> EventCtx<'a> {
@@ -49,12 +49,13 @@ impl<'a> EventCtx<'a> {
         f(self, &mut timer)
     }
 
-    pub fn request_update(&mut self, update_type: UpdateType){
+    pub fn request_update(&mut self, update_type: UpdateType) {
         self.updates_requested.push(update_type);
     }
 
     pub fn canvas_movement(&mut self) {
-        self.updates_requested.extend(self.canvas.handle_event(&mut self.input));
+        self.updates_requested
+            .extend(self.canvas.handle_event(&mut self.input));
     }
 
     // Use to immediately plumb through an (empty) event to something
@@ -69,7 +70,7 @@ impl<'a> EventCtx<'a> {
             canvas: self.canvas,
             prerender: self.prerender,
             style: self.style,
-            updates_requested: vec![]
+            updates_requested: vec![],
         };
         cb(&mut tmp)
     }

@@ -244,8 +244,6 @@ pub enum DrawBaselayer {
 }
 
 pub trait State: downcast_rs::Downcast {
-    // Logically this returns Transition, but since EventLoopMode is almost always
-    // InputOnly, the variations are encoded by Transition.
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition;
     fn draw(&self, g: &mut GfxCtx, app: &App);
 

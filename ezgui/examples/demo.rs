@@ -9,9 +9,9 @@
 // --features wasm-backend --example demo
 
 use ezgui::{
-    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, Text, TextExt,
-    VerticalAlignment, Widget, GUI,UpdateType
+    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, Text, TextExt,
+    UpdateType, VerticalAlignment, Widget, GUI,
 };
 use geom::{Angle, Duration, Polygon, Pt2D, Time};
 use rand::SeedableRng;
@@ -127,7 +127,7 @@ impl App {
 }
 
 impl GUI for App {
-    fn event(&mut self, ctx: &mut EventCtx){
+    fn event(&mut self, ctx: &mut EventCtx) {
         // Allow panning and zooming to work.
         ctx.canvas_movement();
 
@@ -195,7 +195,7 @@ impl GUI for App {
 
         // If we're paused, only call event() again when there's some kind of input. If not, also
         // sprinkle in periodic update events as time passes.
-        if  !self.controls.is_checked("paused")  {
+        if !self.controls.is_checked("paused") {
             ctx.request_update(UpdateType::Game);
         }
     }

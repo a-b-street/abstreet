@@ -3,9 +3,9 @@ mod world;
 
 use abstutil::{CmdArgs, Timer};
 use ezgui::{
-    hotkey, Btn, Canvas, Choice, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, Outcome, ScreenPt, Text, VerticalAlignment, Widget,
-    Wizard, GUI,
+    hotkey, Btn, Canvas, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, ScreenPt, Text, VerticalAlignment, Widget, Wizard,
+    GUI,
 };
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad, RestrictionType};

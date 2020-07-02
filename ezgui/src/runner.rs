@@ -1,6 +1,6 @@
 use crate::assets::Assets;
 use crate::tools::screenshot::screenshot_everything;
-use crate::{text, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, UserInput, UpdateType};
+use crate::{text, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, UpdateType, UserInput};
 use geom::Duration;
 use image::{GenericImageView, Pixel};
 use instant::Instant;
@@ -17,18 +17,6 @@ pub trait GUI {
     fn dump_before_abort(&self, _canvas: &Canvas) {}
     // Only before a normal exit, like window close
     fn before_quit(&self, _canvas: &Canvas) {}
-}
-
-#[derive(Clone, PartialEq)]
-pub enum EventLoopMode {
-    Animation(String),
-    InputOnly,
-    ScreenCaptureEverything {
-        dir: String,
-        zoom: f64,
-        max_x: f64,
-        max_y: f64,
-    },
 }
 
 pub(crate) struct State<G: GUI> {
@@ -122,7 +110,7 @@ impl<G: GUI> State<G> {
                 canvas: &mut self.canvas,
                 prerender,
                 style: &mut self.style,
-                updates_requested: vec![]
+                updates_requested: vec![],
             };
             self.gui.event(&mut ctx);
             // TODO We should always do has_been_consumed, but various hacks prevent this from being
@@ -251,7 +239,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
         canvas: &mut canvas,
         prerender: &prerender,
         style: &mut style,
-        updates_requested: vec![]
+        updates_requested: vec![],
     });
 
     let mut state = State { canvas, gui, style };
@@ -317,19 +305,21 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
                 winit::event_loop::ControlFlow::WaitUntil(Instant::now() + UPDATE_FREQUENCY);
         }
 
-        let (updates, input_used) = state.event(ev, &prerender);
+        let (mut updates, input_used) = state.event(ev, &prerender);
 
         if input_used {
             prerender.request_redraw();
         }
 
-
+        if updates.is_empty() {
+            updates.push(UpdateType::InputOnly);
+        }
         for update in updates {
             match update {
                 UpdateType::InputOnly => {
                     running = false;
                     *control_flow = winit::event_loop::ControlFlow::Wait;
-                },
+                }
                 UpdateType::Game => {
                     // If we just unpaused, then don't act as if lots of time has passed.
                     if !running {
@@ -340,13 +330,13 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
                     }
 
                     running = true;
-                },
-                UpdateType::Pan => {},
-                UpdateType::ScreenCaptureEverything{
+                }
+                UpdateType::Pan => {}
+                UpdateType::ScreenCaptureEverything {
                     dir,
                     zoom,
                     max_x,
-                    max_y
+                    max_y,
                 } => {
                     screenshot_everything(&mut state, &dir, &prerender, zoom, max_x, max_y);
                 }
