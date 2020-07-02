@@ -6,7 +6,7 @@ use crate::game::{State, Transition};
 use crate::helpers::{checkbox_per_mode, intersections_from_roads, ID};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, VerticalAlignment, Widget,
+    Outcome, Text, VerticalAlignment, Widget,
 };
 use map_model::{EditCmd, RoadID};
 use maplit::btreeset;
@@ -16,6 +16,7 @@ use std::collections::BTreeSet;
 pub struct ZoneEditor {
     composite: Composite,
     members: BTreeSet<RoadID>,
+    allow_through_traffic: BTreeSet<TripMode>,
     unzoomed: Drawable,
     zoomed: Drawable,
 }
@@ -46,11 +47,7 @@ impl ZoneEditor {
                         .small_heading()
                         .draw(ctx),
                     legend,
-                    Line(
-                        "Trips may start or end in this zone, but through-traffic is only allowed \
-                         for:",
-                    )
-                    .draw(ctx),
+                    make_instructions(ctx, &allow_through_traffic),
                     checkbox_per_mode(ctx, app, &allow_through_traffic),
                     Widget::custom_row(vec![
                         Btn::text_fg("Apply").build_def(ctx, hotkey(Key::Enter)),
@@ -64,6 +61,7 @@ impl ZoneEditor {
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             members,
+            allow_through_traffic,
             unzoomed,
             zoomed,
         })
@@ -100,17 +98,16 @@ impl State for ZoneEditor {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Apply" => {
-                    let mut new_allow_through_traffic = BTreeSet::new();
-                    for m in TripMode::all() {
-                        if self.composite.is_checked(m.ongoing_verb()) {
-                            new_allow_through_traffic.insert(m.to_constraints());
-                        }
-                    }
                     let old_allow_through_traffic = app
                         .primary
                         .map
                         .get_r(*self.members.iter().next().unwrap())
                         .get_access_restrictions(&app.primary.map);
+                    let new_allow_through_traffic = self
+                        .allow_through_traffic
+                        .iter()
+                        .map(|m| m.to_constraints())
+                        .collect();
 
                     if old_allow_through_traffic != new_allow_through_traffic {
                         let mut edits = app.primary.map.get_edits().clone();
@@ -132,6 +129,18 @@ impl State for ZoneEditor {
                 _ => unreachable!(),
             },
             None => {}
+        }
+
+        let mut new_allow_through_traffic = BTreeSet::new();
+        for m in TripMode::all() {
+            if self.composite.is_checked(m.ongoing_verb()) {
+                new_allow_through_traffic.insert(m);
+            }
+        }
+        if self.allow_through_traffic != new_allow_through_traffic {
+            let instructions = make_instructions(ctx, &new_allow_through_traffic);
+            self.composite.replace(ctx, "instructions", instructions);
+            self.allow_through_traffic = new_allow_through_traffic;
         }
 
         Transition::Keep
@@ -175,4 +184,20 @@ fn draw_zone(
         colorer.add_i(i, "restricted road");
     }
     colorer.build(ctx)
+}
+
+fn make_instructions(ctx: &mut EventCtx, allow_through_traffic: &BTreeSet<TripMode>) -> Widget {
+    if allow_through_traffic == &TripMode::all().into_iter().collect() {
+        Text::from(Line(
+            "Through-traffic is allowed for everyone, meaning this is just a normal public road. \
+             Would you like to restrict it?",
+        ))
+        .wrap_to_pct(ctx, 30)
+        .draw(ctx)
+    } else {
+        Line("Trips may start or end in this zone, but through-traffic is only allowed for:")
+            .draw(ctx)
+    }
+    .margin_below(10)
+    .named("instructions")
 }
