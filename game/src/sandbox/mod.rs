@@ -6,7 +6,7 @@ mod uber_turns;
 
 use self::misc_tools::{RoutePreview, ShowTrafficSignal, TurnExplorer};
 use crate::app::App;
-use crate::common::{tool_panel, CommonState, ContextualActions, Minimap};
+use crate::common::{tool_panel, CommonState, ContextualActions, IsochroneViewer, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{
     apply_map_edits, can_edit_lane, save_edits_as, EditMode, LaneEditor, StopSignEditor,
@@ -391,6 +391,7 @@ impl ContextualActions for Actions {
                     }
                     if app.opts.dev {
                         actions.push((Key::U, "explore uber-turns".to_string()));
+                        actions.push((Key::I, "explore isochrone from here".to_string()));
                     }
                 }
                 ID::Lane(l) => {
@@ -435,6 +436,9 @@ impl ContextualActions for Actions {
             ),
             (ID::Intersection(i), "explore uber-turns") => {
                 Transition::Push(uber_turns::UberTurnPicker::new(ctx, app, i))
+            }
+            (ID::Intersection(i), "explore isochrone from here") => {
+                Transition::Push(IsochroneViewer::new(ctx, app, i))
             }
             (ID::Lane(l), "explore turns from this lane") => {
                 Transition::Push(TurnExplorer::new(ctx, app, l))

@@ -1,6 +1,7 @@
 mod city_picker;
 mod colors;
 mod heatmap;
+mod isochrone;
 mod minimap;
 mod navigate;
 mod panels;
@@ -9,6 +10,7 @@ mod warp;
 pub use self::city_picker::CityPicker;
 pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
 pub use self::heatmap::{make_heatmap, HeatmapOptions};
+pub use self::isochrone::IsochroneViewer;
 pub use self::minimap::Minimap;
 pub use self::panels::tool_panel;
 pub use self::warp::Warping;

@@ -310,3 +310,9 @@ impl std::iter::Sum for Duration {
         sum
     }
 }
+
+impl Default for Duration {
+    fn default() -> Duration {
+        Duration::ZERO
+    }
+}

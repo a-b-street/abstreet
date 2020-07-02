@@ -214,14 +214,14 @@ pub fn make_heatmap(
     ColorLegend::gradient(ctx, &ColorScale(colors), labels)
 }
 
-struct Grid<T> {
-    data: Vec<T>,
-    width: usize,
-    height: usize,
+pub struct Grid<T> {
+    pub data: Vec<T>,
+    pub width: usize,
+    pub height: usize,
 }
 
 impl<T: Copy> Grid<T> {
-    fn new(width: usize, height: usize, default: T) -> Grid<T> {
+    pub fn new(width: usize, height: usize, default: T) -> Grid<T> {
         Grid {
             data: std::iter::repeat(default).take(width * height).collect(),
             width,
@@ -229,7 +229,7 @@ impl<T: Copy> Grid<T> {
         }
     }
 
-    fn idx(&self, x: usize, y: usize) -> usize {
+    pub fn idx(&self, x: usize, y: usize) -> usize {
         // Row-major
         y * self.width + x
     }

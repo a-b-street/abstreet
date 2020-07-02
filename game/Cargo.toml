@@ -25,6 +25,7 @@ kml = { path = "../kml" }
 lttb = "0.2.0"
 maplit = "1.0.2"
 map_model = { path = "../map_model" }
+marching-squares = "0.1.1"
 petgraph = "0.5.0"
 petname = "1.0.12"
 rand = "0.7.0"

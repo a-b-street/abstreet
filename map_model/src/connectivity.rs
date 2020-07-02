@@ -1,7 +1,8 @@
-use crate::{LaneID, Map, PathConstraints};
+use crate::{IntersectionID, LaneID, Map, PathConstraints};
 use abstutil::Timer;
+use geom::Duration;
 use petgraph::graphmap::DiGraphMap;
-use std::collections::{HashSet, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 // SCC = strongly connected component
 
@@ -92,4 +93,18 @@ fn bidi_flood(map: &Map, start: LaneID, largest_group: &HashSet<LaneID>) -> Opti
         }
     }
     None
+}
+
+// TODO Different cost function
+// TODO Cost per building
+pub fn all_costs_from(map: &Map, start: IntersectionID) -> HashMap<IntersectionID, Duration> {
+    let mut graph = DiGraphMap::new();
+    for r in map.all_roads() {
+        graph.add_edge(r.src_i, r.dst_i, r.id);
+    }
+
+    petgraph::algo::dijkstra(&graph, start, None, |(_, _, r)| {
+        let r = map.get_r(*r);
+        r.center_pts.length() / r.speed_limit
+    })
 }
