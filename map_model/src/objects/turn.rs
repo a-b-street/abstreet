@@ -272,9 +272,9 @@ impl TurnGroup {
         {
             return true;
         }
-        // TODO Enable this to make Berlin work. The problematic intersections are even crashing in
-        // the UI when trying to draw the traffic signal arrows, so something really weird is going
-        // on.
+        // TODO If you hit a panic below, you've probably got two separate roads overlapping.
+        // Fix it in OSM. Examples: https://www.openstreetmap.org/changeset/87465499,
+        // https://www.openstreetmap.org/changeset/85952811
         /*if self.geom == other.geom {
             println!("*********** {:?} and {:?} have the same geom", self.id, other.id);
             return true;

@@ -133,7 +133,8 @@ fn make_input_graph(
         if l.is_sidewalk()
             && map
                 .get_r(l.parent)
-                .allow_through_traffic(PathConstraints::Pedestrian, map)
+                .get_access_restrictions(map)
+                .contains(&PathConstraints::Pedestrian)
         {
             let cost = walking_cost(l.length());
             let n1 = nodes.get(WalkingNode::SidewalkEndpoint(l.id, true));

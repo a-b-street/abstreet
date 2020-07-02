@@ -1,7 +1,7 @@
 use crate::raw::{OriginalIntersection, OriginalRoad};
 use crate::{
     connectivity, ControlStopSign, ControlTrafficSignal, IntersectionID, IntersectionType, LaneID,
-    LaneType, Map, RoadID, TurnID,
+    LaneType, Map, PathConstraints, RoadID, TurnID,
 };
 use abstutil::{deserialize_btreemap, retain_btreemap, retain_btreeset, serialize_btreemap, Timer};
 use geom::{Distance, Speed};
@@ -18,6 +18,7 @@ pub struct MapEdits {
     pub reversed_lanes: BTreeSet<LaneID>,
     pub original_intersections: BTreeMap<IntersectionID, EditIntersection>,
     pub changed_speed_limits: BTreeSet<RoadID>,
+    pub changed_access_restrictions: BTreeSet<RoadID>,
 
     // Edits without these are player generated.
     pub proposal_description: Vec<String>,
@@ -56,6 +57,12 @@ pub enum EditCmd {
         new: EditIntersection,
         old: EditIntersection,
     },
+    ChangeAccessRestrictions {
+        id: RoadID,
+        // All means it's not a zone
+        new_allow_through_traffic: BTreeSet<PathConstraints>,
+        old_allow_through_traffic: BTreeSet<PathConstraints>,
+    },
 }
 
 pub struct EditEffects {
@@ -78,6 +85,7 @@ impl MapEdits {
             reversed_lanes: BTreeSet::new(),
             original_intersections: BTreeMap::new(),
             changed_speed_limits: BTreeSet::new(),
+            changed_access_restrictions: BTreeSet::new(),
         }
     }
 
@@ -92,7 +100,7 @@ impl MapEdits {
     }
 
     // TODO Version these? Or it's unnecessary, since we have a command stack.
-    pub(crate) fn save(&self, map: &Map) {
+    fn save(&self, map: &Map) {
         assert_ne!(self.edits_name, "untitled edits");
 
         abstutil::write_json(
@@ -101,11 +109,12 @@ impl MapEdits {
         );
     }
 
-    pub(crate) fn update_derived(&mut self, map: &Map) {
+    fn update_derived(&mut self, map: &Map) {
         let mut orig_lts = BTreeMap::new();
         let mut reversed_lanes = BTreeSet::new();
         let mut orig_intersections: BTreeMap<IntersectionID, EditIntersection> = BTreeMap::new();
         let mut changed_speed_limits = BTreeSet::new();
+        let mut changed_access_restrictions = BTreeSet::new();
 
         for cmd in &self.commands {
             match cmd {
@@ -129,6 +138,9 @@ impl MapEdits {
                         orig_intersections.insert(*i, old.clone());
                     }
                 }
+                EditCmd::ChangeAccessRestrictions { id, .. } => {
+                    changed_access_restrictions.insert(*id);
+                }
             }
         }
 
@@ -139,15 +151,20 @@ impl MapEdits {
         retain_btreeset(&mut changed_speed_limits, |r| {
             map.get_r(*r).speed_limit != map.get_r(*r).speed_limit_from_osm()
         });
+        retain_btreeset(&mut changed_access_restrictions, |r| {
+            let r = map.get_r(*r);
+            r.access_restrictions_from_osm() != r.get_access_restrictions(map)
+        });
 
         self.original_lts = orig_lts;
         self.reversed_lanes = reversed_lanes;
         self.original_intersections = orig_intersections;
         self.changed_speed_limits = changed_speed_limits;
+        self.changed_access_restrictions = changed_access_restrictions;
     }
 
     // Assumes update_derived has been called.
-    pub(crate) fn compress(&mut self, map: &Map) {
+    fn compress(&mut self, map: &Map) {
         for (l, orig_lt) in &self.original_lts {
             self.commands.push(EditCmd::ChangeLaneType {
                 id: *l,
@@ -173,6 +190,13 @@ impl MapEdits {
                 id: *r,
                 new: map.get_r(*r).speed_limit,
                 old: map.get_r(*r).speed_limit_from_osm(),
+            });
+        }
+        for r in &self.changed_access_restrictions {
+            self.commands.push(EditCmd::ChangeAccessRestrictions {
+                id: *r,
+                new_allow_through_traffic: map.get_r(*r).get_access_restrictions(map),
+                old_allow_through_traffic: map.get_r(*r).access_restrictions_from_osm(),
             });
         }
     }
@@ -255,6 +279,11 @@ enum PermanentEditCmd {
         new: PermanentEditIntersection,
         old: PermanentEditIntersection,
     },
+    ChangeAccessRestrictions {
+        id: OriginalRoad,
+        new_allow_through_traffic: BTreeSet<PathConstraints>,
+        old_allow_through_traffic: BTreeSet<PathConstraints>,
+    },
 }
 
 impl PermanentMapEdits {
@@ -293,6 +322,15 @@ impl PermanentMapEdits {
                             old: old.to_permanent(map),
                         }
                     }
+                    EditCmd::ChangeAccessRestrictions {
+                        id,
+                        new_allow_through_traffic,
+                        old_allow_through_traffic,
+                    } => PermanentEditCmd::ChangeAccessRestrictions {
+                        id: map.get_r(*id).orig_id,
+                        new_allow_through_traffic: new_allow_through_traffic.clone(),
+                        old_allow_through_traffic: old_allow_through_traffic.clone(),
+                    },
                 })
                 .collect(),
         }
@@ -338,6 +376,21 @@ impl PermanentMapEdits {
                                 .ok_or(format!("old ChangeIntersection of {} invalid", i))?,
                         })
                     }
+                    PermanentEditCmd::ChangeAccessRestrictions {
+                        id,
+                        new_allow_through_traffic,
+                        old_allow_through_traffic,
+                    } => {
+                        let id = map.find_r_by_osm_id(
+                            id.osm_way_id,
+                            (id.i1.osm_node_id, id.i2.osm_node_id),
+                        )?;
+                        Ok(EditCmd::ChangeAccessRestrictions {
+                            id,
+                            new_allow_through_traffic,
+                            old_allow_through_traffic,
+                        })
+                    }
                 })
                 .collect::<Result<Vec<EditCmd>, String>>()?,
 
@@ -345,6 +398,7 @@ impl PermanentMapEdits {
             reversed_lanes: BTreeSet::new(),
             original_intersections: BTreeMap::new(),
             changed_speed_limits: BTreeSet::new(),
+            changed_access_restrictions: BTreeSet::new(),
         };
         edits.update_derived(map);
         Ok(edits)
@@ -438,16 +492,15 @@ impl EditCmd {
                 EditIntersection::TrafficSignal(_) => format!("traffic signal #{}", i.0),
                 EditIntersection::Closed => format!("close {}", i),
             },
+            // TODO "allow/ban X on Y"
+            EditCmd::ChangeAccessRestrictions { id, .. } => {
+                format!("access restrictions for {}", id)
+            }
         }
     }
 
     // Must be idempotent. True if it actually did anything.
-    pub(crate) fn apply(
-        &self,
-        effects: &mut EditEffects,
-        map: &mut Map,
-        timer: &mut Timer,
-    ) -> bool {
+    fn apply(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) -> bool {
         match self {
             EditCmd::ChangeLaneType { id, lt, .. } => {
                 let id = *id;
@@ -549,11 +602,40 @@ impl EditCmd {
                 }
                 true
             }
+            EditCmd::ChangeAccessRestrictions {
+                id,
+                new_allow_through_traffic,
+                ..
+            } => {
+                if new_allow_through_traffic == &PathConstraints::all() {
+                    // Remove this road from the zone
+                    let z = map.roads[id.0].zone.take().unwrap();
+                    map.zones[z.0].members.remove(&id);
+                    if map.zones[z.0].members.is_empty() {
+                        // TODO delete the zone
+                    } else {
+                        // TODO update borders
+                    }
+                } else if let Some(z) = map.roads[id.0].zone {
+                    // Update an existing zone
+                    map.zones[z.0].allow_through_traffic = new_allow_through_traffic.clone();
+                } else {
+                    // TODO Create a new zone
+                }
+
+                // TODO I'm not sure we can detect if we've actually made a change here or not,
+                // since the first one of these commands for an entire zone will change the zone.
+                effects.changed_roads.insert(*id);
+                let r = map.get_r(*id);
+                effects.changed_intersections.insert(r.src_i);
+                effects.changed_intersections.insert(r.dst_i);
+                true
+            }
         }
     }
 
     // Must be idempotent. True if it actually did anything.
-    pub(crate) fn undo(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) -> bool {
+    fn undo(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) -> bool {
         match self {
             EditCmd::ChangeLaneType { id, orig_lt, lt } => EditCmd::ChangeLaneType {
                 id: *id,
@@ -591,6 +673,16 @@ impl EditCmd {
                 i: *i,
                 old: new.clone(),
                 new: old.clone(),
+            }
+            .apply(effects, map, timer),
+            EditCmd::ChangeAccessRestrictions {
+                id,
+                ref old_allow_through_traffic,
+                ref new_allow_through_traffic,
+            } => EditCmd::ChangeAccessRestrictions {
+                id: *id,
+                old_allow_through_traffic: new_allow_through_traffic.clone(),
+                new_allow_through_traffic: old_allow_through_traffic.clone(),
             }
             .apply(effects, map, timer),
         }

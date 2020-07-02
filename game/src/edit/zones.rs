@@ -1,39 +1,41 @@
 use crate::app::{App, ShowEverything};
 use crate::common::ColorDiscrete;
 use crate::common::CommonState;
+use crate::edit::apply_map_edits;
 use crate::game::{State, Transition};
 use crate::helpers::{checkbox_per_mode, intersections_from_roads, ID};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, VerticalAlignment, Widget,
 };
-use map_model::RoadID;
+use map_model::{EditCmd, RoadID};
 use maplit::btreeset;
 use sim::{DontDrawAgents, TripMode};
 use std::collections::BTreeSet;
 
 pub struct ZoneEditor {
     composite: Composite,
-    _members: BTreeSet<RoadID>,
+    members: BTreeSet<RoadID>,
     unzoomed: Drawable,
     zoomed: Drawable,
 }
 
 impl ZoneEditor {
     pub fn new(ctx: &mut EventCtx, app: &App, start: RoadID) -> Box<dyn State> {
-        let (members, allow_through_traffic) = if let Some(z) = app.primary.map.get_r(start).zone {
-            let zone = app.primary.map.get_z(z);
-            (
-                zone.members.clone(),
-                zone.allow_through_traffic
-                    .iter()
-                    .map(|c| TripMode::from_constraints(*c))
-                    .collect(),
-            )
+        let members = if let Some(z) = app.primary.map.get_r(start).zone {
+            app.primary.map.get_z(z).members.clone()
         } else {
             // Starting a new zone
-            (btreeset! { start }, BTreeSet::new())
+            btreeset! { start }
         };
+        let allow_through_traffic = app
+            .primary
+            .map
+            .get_r(start)
+            .get_access_restrictions(&app.primary.map)
+            .into_iter()
+            .map(|c| TripMode::from_constraints(c))
+            .collect();
 
         let (unzoomed, zoomed, legend) = draw_zone(ctx, app, &members);
 
@@ -61,7 +63,7 @@ impl ZoneEditor {
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-            _members: members,
+            members,
             unzoomed,
             zoomed,
         })
@@ -98,6 +100,30 @@ impl State for ZoneEditor {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Apply" => {
+                    let mut new_allow_through_traffic = BTreeSet::new();
+                    for m in TripMode::all() {
+                        if self.composite.is_checked(m.ongoing_verb()) {
+                            new_allow_through_traffic.insert(m.to_constraints());
+                        }
+                    }
+                    let old_allow_through_traffic = app
+                        .primary
+                        .map
+                        .get_r(*self.members.iter().next().unwrap())
+                        .get_access_restrictions(&app.primary.map);
+
+                    if old_allow_through_traffic != new_allow_through_traffic {
+                        let mut edits = app.primary.map.get_edits().clone();
+                        for r in &self.members {
+                            edits.commands.push(EditCmd::ChangeAccessRestrictions {
+                                id: *r,
+                                old_allow_through_traffic: old_allow_through_traffic.clone(),
+                                new_allow_through_traffic: new_allow_through_traffic.clone(),
+                            });
+                        }
+                        apply_map_edits(ctx, app, edits);
+                    }
+
                     return Transition::Pop;
                 }
                 "Cancel" => {

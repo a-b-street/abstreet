@@ -159,7 +159,8 @@ impl GameplayMode {
             match cmd {
                 EditCmd::ChangeLaneType { .. }
                 | EditCmd::ReverseLane { .. }
-                | EditCmd::ChangeSpeedLimit { .. } => {
+                | EditCmd::ChangeSpeedLimit { .. }
+                | EditCmd::ChangeAccessRestrictions { .. } => {
                     if !self.can_edit_lanes() {
                         return false;
                     }

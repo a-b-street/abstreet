@@ -15,7 +15,7 @@ use crate::{
 use abstutil::Timer;
 use geom::{Distance, PolyLine, EPSILON_DIST};
 use serde::{Deserialize, Serialize};
-use std::collections::VecDeque;
+use std::collections::{BTreeSet, VecDeque};
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -396,6 +396,17 @@ impl PathConstraints {
             }
         }
         choices
+    }
+
+    pub fn all() -> BTreeSet<PathConstraints> {
+        let mut s = BTreeSet::new();
+        s.extend(vec![
+            PathConstraints::Pedestrian,
+            PathConstraints::Car,
+            PathConstraints::Bike,
+            PathConstraints::Bus,
+        ]);
+        s
     }
 }
 

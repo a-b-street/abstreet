@@ -3,7 +3,7 @@ use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstrain
 use abstutil::{Error, Warn};
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
@@ -426,11 +426,19 @@ impl Road {
         }
     }
 
-    pub(crate) fn allow_through_traffic(&self, constraints: PathConstraints, map: &Map) -> bool {
-        if let Some(z) = self.zone {
-            map.get_z(z).allow_through_traffic.contains(&constraints)
+    pub(crate) fn access_restrictions_from_osm(&self) -> BTreeSet<PathConstraints> {
+        if self.osm_tags.get("access") == Some(&"private".to_string()) {
+            BTreeSet::new()
         } else {
-            true
+            PathConstraints::all()
+        }
+    }
+
+    pub fn get_access_restrictions(&self, map: &Map) -> BTreeSet<PathConstraints> {
+        if let Some(z) = self.zone {
+            map.get_z(z).allow_through_traffic.clone()
+        } else {
+            PathConstraints::all()
         }
     }
 }

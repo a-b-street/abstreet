@@ -807,5 +807,6 @@ fn cmd_to_id(cmd: &EditCmd) -> ID {
         EditCmd::ReverseLane { l, .. } => ID::Lane(*l),
         EditCmd::ChangeSpeedLimit { id, .. } => ID::Road(*id),
         EditCmd::ChangeIntersection { i, .. } => ID::Intersection(*i),
+        EditCmd::ChangeAccessRestrictions { id, .. } => ID::Road(*id),
     }
 }
