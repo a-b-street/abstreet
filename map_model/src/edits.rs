@@ -1,7 +1,10 @@
 use crate::raw::{OriginalIntersection, OriginalRoad};
-use crate::{ControlStopSign, IntersectionID, LaneID, LaneType, Map, RoadID, TurnID};
+use crate::{
+    connectivity, ControlStopSign, ControlTrafficSignal, IntersectionID, IntersectionType, LaneID,
+    LaneType, Map, RoadID, TurnID,
+};
 use abstutil::{deserialize_btreemap, retain_btreemap, retain_btreeset, serialize_btreemap, Timer};
-use geom::Speed;
+use geom::{Distance, Speed};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -53,21 +56,6 @@ pub enum EditCmd {
         new: EditIntersection,
         old: EditIntersection,
     },
-}
-
-impl EditCmd {
-    pub fn short_name(&self) -> String {
-        match self {
-            EditCmd::ChangeLaneType { lt, id, .. } => format!("{} on #{}", lt.short_name(), id.0),
-            EditCmd::ReverseLane { l, .. } => format!("reverse {}", l),
-            EditCmd::ChangeSpeedLimit { id, new, .. } => format!("limit {} for {}", new, id),
-            EditCmd::ChangeIntersection { i, new, .. } => match new {
-                EditIntersection::StopSign(_) => format!("stop sign #{}", i.0),
-                EditIntersection::TrafficSignal(_) => format!("traffic signal #{}", i.0),
-                EditIntersection::Closed => format!("close {}", i),
-            },
-        }
-    }
 }
 
 pub struct EditEffects {
@@ -436,5 +424,349 @@ impl OriginalLane {
             return Err(format!("number of lanes has changed in {:?}", self));
         }
         Ok(r.children(self.fwd)[self.idx].0)
+    }
+}
+
+impl EditCmd {
+    pub fn short_name(&self) -> String {
+        match self {
+            EditCmd::ChangeLaneType { lt, id, .. } => format!("{} on #{}", lt.short_name(), id.0),
+            EditCmd::ReverseLane { l, .. } => format!("reverse {}", l),
+            EditCmd::ChangeSpeedLimit { id, new, .. } => format!("limit {} for {}", new, id),
+            EditCmd::ChangeIntersection { i, new, .. } => match new {
+                EditIntersection::StopSign(_) => format!("stop sign #{}", i.0),
+                EditIntersection::TrafficSignal(_) => format!("traffic signal #{}", i.0),
+                EditIntersection::Closed => format!("close {}", i),
+            },
+        }
+    }
+
+    // Must be idempotent. True if it actually did anything.
+    pub(crate) fn apply(
+        &self,
+        effects: &mut EditEffects,
+        map: &mut Map,
+        timer: &mut Timer,
+    ) -> bool {
+        match self {
+            EditCmd::ChangeLaneType { id, lt, .. } => {
+                let id = *id;
+                let lt = *lt;
+
+                let lane = &mut map.lanes[id.0];
+                if lane.lane_type == lt {
+                    return false;
+                }
+
+                lane.lane_type = lt;
+                let r = &mut map.roads[lane.parent.0];
+                let (fwds, idx) = r.dir_and_offset(id);
+                r.children_mut(fwds)[idx] = (id, lt);
+
+                effects.changed_roads.insert(lane.parent);
+                effects.changed_intersections.insert(lane.src_i);
+                effects.changed_intersections.insert(lane.dst_i);
+                let (src_i, dst_i) = (lane.src_i, lane.dst_i);
+                recalculate_turns(src_i, map, effects, timer);
+                recalculate_turns(dst_i, map, effects, timer);
+                true
+            }
+            EditCmd::ReverseLane { l, dst_i } => {
+                let l = *l;
+                let lane = &mut map.lanes[l.0];
+
+                if lane.dst_i == *dst_i {
+                    return false;
+                }
+
+                map.intersections[lane.src_i.0]
+                    .outgoing_lanes
+                    .retain(|x| *x != l);
+                map.intersections[lane.dst_i.0]
+                    .incoming_lanes
+                    .retain(|x| *x != l);
+
+                std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
+                assert_eq!(lane.dst_i, *dst_i);
+                lane.lane_center_pts = lane.lane_center_pts.reversed();
+
+                map.intersections[lane.src_i.0].outgoing_lanes.push(l);
+                map.intersections[lane.dst_i.0].incoming_lanes.push(l);
+
+                // We can only reverse the lane closest to the center.
+                let r = &mut map.roads[lane.parent.0];
+                let dir = *dst_i == r.dst_i;
+                assert_eq!(r.children_mut(!dir).remove(0).0, l);
+                r.children_mut(dir).insert(0, (l, lane.lane_type));
+                effects.changed_roads.insert(r.id);
+                effects.changed_intersections.insert(lane.src_i);
+                effects.changed_intersections.insert(lane.dst_i);
+                let (src_i, dst_i) = (lane.src_i, lane.dst_i);
+                recalculate_turns(src_i, map, effects, timer);
+                recalculate_turns(dst_i, map, effects, timer);
+                true
+            }
+            EditCmd::ChangeSpeedLimit { id, new, .. } => {
+                if map.roads[id.0].speed_limit != *new {
+                    map.roads[id.0].speed_limit = *new;
+                    effects.changed_roads.insert(*id);
+                    true
+                } else {
+                    false
+                }
+            }
+            EditCmd::ChangeIntersection {
+                i,
+                ref new,
+                ref old,
+            } => {
+                if map.get_i_edit(*i) == new.clone() {
+                    return false;
+                }
+
+                map.stop_signs.remove(i);
+                map.traffic_signals.remove(i);
+                effects.changed_intersections.insert(*i);
+                match new {
+                    EditIntersection::StopSign(ref ss) => {
+                        map.intersections[i.0].intersection_type = IntersectionType::StopSign;
+                        map.stop_signs.insert(*i, ss.clone());
+                    }
+                    EditIntersection::TrafficSignal(ref raw_ts) => {
+                        map.intersections[i.0].intersection_type = IntersectionType::TrafficSignal;
+                        map.traffic_signals.insert(
+                            *i,
+                            ControlTrafficSignal::import(raw_ts.clone(), *i, map).unwrap(),
+                        );
+                    }
+                    EditIntersection::Closed => {
+                        map.intersections[i.0].intersection_type = IntersectionType::Construction;
+                    }
+                }
+
+                if old == &EditIntersection::Closed || new == &EditIntersection::Closed {
+                    recalculate_turns(*i, map, effects, timer);
+                }
+                true
+            }
+        }
+    }
+
+    // Must be idempotent. True if it actually did anything.
+    pub(crate) fn undo(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) -> bool {
+        match self {
+            EditCmd::ChangeLaneType { id, orig_lt, lt } => EditCmd::ChangeLaneType {
+                id: *id,
+                lt: *orig_lt,
+                orig_lt: *lt,
+            }
+            .apply(effects, map, timer),
+            EditCmd::ReverseLane { l, dst_i } => {
+                let lane = map.get_l(*l);
+                let other_i = if lane.src_i == *dst_i {
+                    lane.dst_i
+                } else {
+                    lane.src_i
+                };
+                EditCmd::ReverseLane {
+                    l: *l,
+                    dst_i: other_i,
+                }
+                .apply(effects, map, timer)
+            }
+            EditCmd::ChangeSpeedLimit { id, old, .. } => {
+                if map.roads[id.0].speed_limit != *old {
+                    map.roads[id.0].speed_limit = *old;
+                    effects.changed_roads.insert(*id);
+                    true
+                } else {
+                    false
+                }
+            }
+            EditCmd::ChangeIntersection {
+                i,
+                ref old,
+                ref new,
+            } => EditCmd::ChangeIntersection {
+                i: *i,
+                old: new.clone(),
+                new: old.clone(),
+            }
+            .apply(effects, map, timer),
+        }
+    }
+}
+
+// This clobbers previously set traffic signal overrides.
+// TODO Step 1: Detect and warn about that
+// TODO Step 2: Avoid when possible
+fn recalculate_turns(
+    id: IntersectionID,
+    map: &mut Map,
+    effects: &mut EditEffects,
+    timer: &mut Timer,
+) {
+    let i = &mut map.intersections[id.0];
+
+    if i.is_border() {
+        assert!(i.turns.is_empty());
+        return;
+    }
+
+    let mut old_turns = Vec::new();
+    for t in std::mem::replace(&mut i.turns, BTreeSet::new()) {
+        old_turns.push(map.turns.remove(&t).unwrap());
+        effects.deleted_turns.insert(t);
+    }
+
+    if i.is_closed() {
+        return;
+    }
+
+    for t in crate::make::turns::make_all_turns(map.driving_side, i, &map.roads, &map.lanes, timer)
+    {
+        effects.added_turns.insert(t.id);
+        i.turns.insert(t.id);
+        if let Some(_existing_t) = old_turns.iter().find(|turn| turn.id == t.id) {
+            // TODO Except for lookup_idx
+            //assert_eq!(t, *existing_t);
+        }
+        map.turns.insert(t.id, t);
+    }
+
+    match i.intersection_type {
+        IntersectionType::StopSign => {
+            // Stop sign policy usually doesn't depend on incoming lane types, except when changing
+            // to/from construction. To be safe, always regenerate. Edits to stop signs are rare
+            // anyway. And when we're smarter about preserving traffic signal changes in the face
+            // of lane changes, we can do the same here.
+            map.stop_signs.insert(id, ControlStopSign::new(map, id));
+        }
+        IntersectionType::TrafficSignal => {
+            map.traffic_signals
+                .insert(id, ControlTrafficSignal::new(map, id, timer));
+        }
+        IntersectionType::Border | IntersectionType::Construction => unreachable!(),
+    }
+}
+
+impl Map {
+    pub fn get_edits(&self) -> &MapEdits {
+        &self.edits
+    }
+
+    // Panics on borders
+    pub fn get_i_edit(&self, i: IntersectionID) -> EditIntersection {
+        match self.get_i(i).intersection_type {
+            IntersectionType::StopSign => EditIntersection::StopSign(self.get_stop_sign(i).clone()),
+            IntersectionType::TrafficSignal => {
+                EditIntersection::TrafficSignal(self.get_traffic_signal(i).export(self))
+            }
+            IntersectionType::Construction => EditIntersection::Closed,
+            IntersectionType::Border => unreachable!(),
+        }
+    }
+
+    pub fn save_edits(&self) {
+        // Don't overwrite the current edits with the compressed first. Otherwise, undo/redo order
+        // in the UI gets messed up.
+        let mut edits = self.edits.clone();
+        edits.commands.clear();
+        edits.compress(self);
+        edits.save(self);
+    }
+
+    // new_edits assumed to be valid. Returns roads changed, turns deleted, turns added,
+    // intersections modified. Doesn't update pathfinding yet.
+    pub fn apply_edits(
+        &mut self,
+        mut new_edits: MapEdits,
+        timer: &mut Timer,
+    ) -> (
+        BTreeSet<RoadID>,
+        BTreeSet<TurnID>,
+        BTreeSet<TurnID>,
+        BTreeSet<IntersectionID>,
+    ) {
+        // TODO More efficient ways to do this: given two sets of edits, produce a smaller diff.
+        // Simplest strategy: Remove common prefix.
+        let mut effects = EditEffects::new();
+
+        // First undo all existing edits.
+        let mut undo = std::mem::replace(&mut self.edits.commands, Vec::new());
+        undo.reverse();
+        let mut undid = 0;
+        for cmd in &undo {
+            if cmd.undo(&mut effects, self, timer) {
+                undid += 1;
+            }
+        }
+        timer.note(format!("Undid {} / {} existing edits", undid, undo.len()));
+
+        // Apply new edits.
+        let mut applied = 0;
+        for cmd in &new_edits.commands {
+            if cmd.apply(&mut effects, self, timer) {
+                applied += 1;
+            }
+        }
+        timer.note(format!(
+            "Applied {} / {} new edits",
+            applied,
+            new_edits.commands.len()
+        ));
+
+        // Might need to update bus stops.
+        for id in &effects.changed_roads {
+            let stops = self.get_r(*id).all_bus_stops(self);
+            for s in stops {
+                let sidewalk_pos = self.get_bs(s).sidewalk_pos;
+                // Must exist, because we aren't allowed to orphan a bus stop.
+                let driving_lane = self
+                    .get_r(*id)
+                    .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Driving, LaneType::Bus])
+                    .unwrap();
+                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, self);
+                self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
+            }
+        }
+
+        new_edits.update_derived(self);
+        self.edits = new_edits;
+        self.pathfinder_dirty = true;
+        (
+            // TODO We just care about contraflow roads here
+            effects.changed_roads,
+            effects.deleted_turns,
+            // Some of these might've been added, then later deleted.
+            effects
+                .added_turns
+                .into_iter()
+                .filter(|t| self.turns.contains_key(t))
+                .collect(),
+            effects.changed_intersections,
+        )
+    }
+
+    pub fn recalculate_pathfinding_after_edits(&mut self, timer: &mut Timer) {
+        if !self.pathfinder_dirty {
+            return;
+        }
+
+        let mut pathfinder = self.pathfinder.take().unwrap();
+        pathfinder.apply_edits(self, timer);
+        self.pathfinder = Some(pathfinder);
+
+        // Also recompute parking blackholes. This is cheap enough to do from scratch.
+        timer.start("recompute parking blackholes");
+        for l in self.lanes.iter_mut() {
+            l.parking_blackhole = None;
+        }
+        for (l, redirect) in connectivity::redirect_parking_blackholes(self, timer) {
+            self.lanes[l.0].parking_blackhole = Some(redirect);
+        }
+        timer.stop("recompute parking blackholes");
+
+        self.pathfinder_dirty = false;
     }
 }
