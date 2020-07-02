@@ -70,17 +70,17 @@ for building those maps -- see below.
 You can skip this section if you're just touching code in `game`, `ezgui`, and
 `sim`.
 
-The first stage of the importer, `--raw`, will download input files from OSM,
-King County GIS, and so on. If the mirrors are slow or the files vanish, you
-could fill out `data/config` and use the `updater` described above to grab the
-latest input.
-
 To run all pieces of the importer, you'll need some extra dependencies:
 
 - `osmconvert`: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download
 - `libgdal-dev`: See https://gdal.org/ if your OS package manager doesn't have
   this
 - Standard Unix utilities: `curl`, `unzip`, `gunzip`
+
+The first stage of the importer, `--raw`, will download input files from OSM,
+King County GIS, and so on. If the mirrors are slow or the files vanish, you
+could fill out `data/config` and use the `updater` described above to grab the
+latest input.
 
 You can rerun specific stages of the importer:
 
@@ -97,8 +97,8 @@ You can also make the importer [import a new city](new_city.md).
 
 ## Understanding stuff
 
-The docs listed at https://github.com/dabreegster/abstreet#documentation
-explain things like map importing and how the traffic simulation works.
+The docs listed at https://github.com/dabreegster/abstreet#documentation explain
+things like map importing and how the traffic simulation works.
 
 ### Code organization
 
