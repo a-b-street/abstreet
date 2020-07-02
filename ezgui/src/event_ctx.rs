@@ -7,7 +7,7 @@ use geom::Polygon;
 use instant::Instant;
 use std::collections::VecDeque;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum UpdateType {
     InputOnly,
     Game,
@@ -72,7 +72,9 @@ impl<'a> EventCtx<'a> {
             style: self.style,
             updates_requested: vec![],
         };
-        cb(&mut tmp)
+        let result = cb(&mut tmp);
+        self.updates_requested.extend(tmp.updates_requested);
+        result
     }
 
     pub fn redo_mouseover(&self) -> bool {

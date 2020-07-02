@@ -483,7 +483,6 @@ impl TimeWarpScreen {
         target: Time,
         mut traffic_jams: bool,
     ) -> Box<dyn State> {
-        ctx.request_update(UpdateType::Game);
         if traffic_jams {
             if app.primary.sim_cb.is_none() {
                 app.primary.sim_cb = Some(Box::new(FindDelayedIntersections {
