@@ -703,7 +703,7 @@ impl Map {
                     return Some(tg.id);
                 }
             }
-            unreachable!()
+            panic!("{} doesn't belong to any turn groups", t);
         }
         None
     }
@@ -795,7 +795,7 @@ impl Map {
         match self.get_i(i).intersection_type {
             IntersectionType::StopSign => EditIntersection::StopSign(self.get_stop_sign(i).clone()),
             IntersectionType::TrafficSignal => {
-                EditIntersection::TrafficSignal(self.get_traffic_signal(i).clone())
+                EditIntersection::TrafficSignal(self.get_traffic_signal(i).export(self))
             }
             IntersectionType::Construction => EditIntersection::Closed,
             IntersectionType::Border => unreachable!(),
@@ -1276,9 +1276,12 @@ impl EditCmd {
                         map.intersections[i.0].intersection_type = IntersectionType::StopSign;
                         map.stop_signs.insert(*i, ss.clone());
                     }
-                    EditIntersection::TrafficSignal(ref ts) => {
+                    EditIntersection::TrafficSignal(ref raw_ts) => {
                         map.intersections[i.0].intersection_type = IntersectionType::TrafficSignal;
-                        map.traffic_signals.insert(*i, ts.clone());
+                        map.traffic_signals.insert(
+                            *i,
+                            ControlTrafficSignal::import(raw_ts.clone(), *i, map).unwrap(),
+                        );
                     }
                     EditIntersection::Closed => {
                         map.intersections[i.0].intersection_type = IntersectionType::Construction;

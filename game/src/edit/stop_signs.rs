@@ -150,11 +150,14 @@ impl State for StopSignEditor {
                     edits.commands.push(EditCmd::ChangeIntersection {
                         i: self.id,
                         old: app.primary.map.get_i_edit(self.id),
-                        new: EditIntersection::TrafficSignal(ControlTrafficSignal::new(
-                            &app.primary.map,
-                            self.id,
-                            &mut Timer::throwaway(),
-                        )),
+                        new: EditIntersection::TrafficSignal(
+                            ControlTrafficSignal::new(
+                                &app.primary.map,
+                                self.id,
+                                &mut Timer::throwaway(),
+                            )
+                            .export(&app.primary.map),
+                        ),
                     });
                     apply_map_edits(ctx, app, edits);
                     return Transition::Replace(Box::new(TrafficSignalEditor::new(

@@ -183,13 +183,16 @@ impl Phase {
 
     pub fn get_priority_of_turn(&self, t: TurnID, parent: &ControlTrafficSignal) -> TurnPriority {
         // TODO Cache this?
-        let g = parent
+        if let Some(g) = parent
             .turn_groups
             .values()
             .find(|g| g.members.contains(&t))
             .map(|g| g.id)
-            .unwrap();
-        self.get_priority_of_group(g)
+        {
+            self.get_priority_of_group(g)
+        } else {
+            panic!("{} doesn't belong to any turn groups", t);
+        }
     }
 
     pub fn get_priority_of_group(&self, g: TurnGroupID) -> TurnPriority {

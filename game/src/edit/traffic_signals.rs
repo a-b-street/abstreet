@@ -488,7 +488,7 @@ pub fn change_traffic_signal(signal: ControlTrafficSignal, ctx: &mut EventCtx, a
     edits.commands.push(EditCmd::ChangeIntersection {
         i: signal.id,
         old,
-        new: EditIntersection::TrafficSignal(signal),
+        new: EditIntersection::TrafficSignal(signal.export(&app.primary.map)),
     });
     apply_map_edits(ctx, app, edits);
 }

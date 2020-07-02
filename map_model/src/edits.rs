@@ -1,7 +1,5 @@
 use crate::raw::{OriginalIntersection, OriginalRoad};
-use crate::{
-    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, LaneType, Map, RoadID, TurnID,
-};
+use crate::{ControlStopSign, IntersectionID, LaneID, LaneType, Map, RoadID, TurnID};
 use abstutil::{deserialize_btreemap, retain_btreemap, retain_btreeset, serialize_btreemap, Timer};
 use geom::Speed;
 use serde::{Deserialize, Serialize};
@@ -27,7 +25,9 @@ pub struct MapEdits {
 #[derive(Debug, Clone, PartialEq)]
 pub enum EditIntersection {
     StopSign(ControlStopSign),
-    TrafficSignal(ControlTrafficSignal),
+    // Don't keep ControlTrafficSignal here, because it contains turn groups that should be
+    // generated after all lane edits are applied.
+    TrafficSignal(seattle_traffic_signals::TrafficSignal),
     Closed,
 }
 
@@ -373,8 +373,8 @@ impl EditIntersection {
                     .map(|(r, val)| (map.get_r(*r).orig_id, val.must_stop))
                     .collect(),
             },
-            EditIntersection::TrafficSignal(ref ts) => {
-                PermanentEditIntersection::TrafficSignal(ts.export(map))
+            EditIntersection::TrafficSignal(ref raw_ts) => {
+                PermanentEditIntersection::TrafficSignal(raw_ts.clone())
             }
             EditIntersection::Closed => PermanentEditIntersection::Closed,
         }
@@ -405,9 +405,9 @@ impl PermanentEditIntersection {
 
                 Some(EditIntersection::StopSign(ss))
             }
-            PermanentEditIntersection::TrafficSignal(ts) => Some(EditIntersection::TrafficSignal(
-                ControlTrafficSignal::import(ts, i, map)?,
-            )),
+            PermanentEditIntersection::TrafficSignal(ts) => {
+                Some(EditIntersection::TrafficSignal(ts))
+            }
             PermanentEditIntersection::Closed => Some(EditIntersection::Closed),
         }
     }
