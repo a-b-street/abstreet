@@ -3,7 +3,7 @@ use crate::options::Options;
 use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
-use ezgui::{Canvas, Drawable, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
+use ezgui::{Canvas, Drawable, EventCtx, GfxCtx, Wizard, GUI};
 use geom::Polygon;
 use map_model::PermanentMapEdits;
 
@@ -76,17 +76,14 @@ impl Game {
 }
 
 impl GUI for Game {
-    fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
+    fn event(&mut self, ctx: &mut EventCtx) {
         self.app.per_obj.reset();
 
         let transition = self.states.last_mut().unwrap().event(ctx, &mut self.app);
         // If we fall through, there's a new state that we need to wakeup.
         match transition {
             Transition::Keep => {
-                return EventLoopMode::InputOnly;
-            }
-            Transition::KeepWithMode(evmode) => {
-                return evmode;
+                return;
             }
             Transition::KeepWithMouseover => {}
             Transition::Pop => {
@@ -278,7 +275,6 @@ downcast_rs::impl_downcast!(State);
 
 pub enum Transition {
     Keep,
-    KeepWithMode(EventLoopMode),
     KeepWithMouseover,
     Pop,
     PopTwice,

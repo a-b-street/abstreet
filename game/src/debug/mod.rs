@@ -10,8 +10,8 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{calculate_corners, DrawOptions};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget, Wizard,
+    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget, Wizard,
 };
 use geom::Pt2D;
 use map_model::{ControlTrafficSignal, NORMAL_LANE_THICKNESS};
@@ -199,12 +199,13 @@ impl State for DebugMode {
                 "screenshot everything" => {
                     let bounds = app.primary.map.get_bounds();
                     assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
-                    return Transition::KeepWithMode(EventLoopMode::ScreenCaptureEverything {
+                    ctx.request_update(UpdateType::ScreenCaptureEverything {
                         dir: abstutil::path_pending_screenshots(app.primary.map.get_name()),
                         zoom: 3.0,
                         max_x: bounds.max_x,
                         max_y: bounds.max_y,
                     });
+                    return Transition::Keep;
                 }
                 "find bad traffic signals" => {
                     find_bad_signals(app);
