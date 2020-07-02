@@ -272,6 +272,13 @@ impl TurnGroup {
         {
             return true;
         }
+        // TODO Enable this to make Berlin work. The problematic intersections are even crashing in
+        // the UI when trying to draw the traffic signal arrows, so something really weird is going
+        // on.
+        /*if self.geom == other.geom {
+            println!("*********** {:?} and {:?} have the same geom", self.id, other.id);
+            return true;
+        }*/
         self.geom.intersection(&other.geom).is_some()
     }
 }

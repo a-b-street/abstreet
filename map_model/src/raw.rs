@@ -364,7 +364,9 @@ impl RestrictionType {
             | "no_straight_on"
             | "no_u_turn"
             | "no_anything"
-            | "conditional=no_left_turn" => Some(RestrictionType::BanTurns),
+            | "conditional=no_left_turn"
+            | "no_entry"
+            | "psv" => Some(RestrictionType::BanTurns),
             "only_left_turn" | "only_right_turn" | "only_straight_on" => {
                 Some(RestrictionType::OnlyAllowTurns)
             }

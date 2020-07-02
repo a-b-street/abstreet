@@ -232,7 +232,8 @@ impl Lane {
         let parts: Vec<&str> = all.split('|').collect();
         // TODO Verify the number of lanes matches up
         let part = parts.get(offset)?;
-        if part == &"none" {
+        // TODO Probably the target lane should get marked as LaneType::Bus
+        if part == &"no" || part == &"none" || part == &"yes" || part == &"psv" || part == &"bus" {
             return None;
         }
         Some(part.split(';').flat_map(|s| match s {
@@ -245,7 +246,7 @@ impl Lane {
                 TurnType::LaneChangeRight,
             ],
             // TODO Check this more carefully
-            "slight_right" | "slight right" | "merge_to_right" => vec![
+            "slight_right" | "slight right" | "merge_to_right" | "sharp_right" => vec![
                 TurnType::Straight,
                 TurnType::LaneChangeRight,
                 TurnType::Right,

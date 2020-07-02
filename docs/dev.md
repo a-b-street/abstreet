@@ -72,9 +72,12 @@ You can skip this section if you're just touching code in `game`, `ezgui`, and
 
 To run all pieces of the importer, you'll need some extra dependencies:
 
-- `osmconvert`: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download
+- `osmconvert`: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download or
+  https://github.com/interline-io/homebrew-planetutils#installation for Mac
 - `libgdal-dev`: See https://gdal.org/ if your OS package manager doesn't have
-  this
+  this. If you keep hitting linking errors, then just remove
+  `--features scenarios` from `import.sh`. You won't be able to build the
+  Seattle scenarios.
 - Standard Unix utilities: `curl`, `unzip`, `gunzip`
 
 The first stage of the importer, `--raw`, will download input files from OSM,
