@@ -325,7 +325,7 @@ impl InfoPanel {
                 )
                 // TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
                 .exact_size_percent(30, 60)
-                .build(ctx),
+                .build_custom(ctx),
             unzoomed: details.unzoomed.upload(ctx),
             zoomed: details.zoomed.upload(ctx),
             hyperlinks: details.hyperlinks,

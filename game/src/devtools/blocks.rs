@@ -70,20 +70,16 @@ impl BlockMap {
             scenario,
 
             draw_all_blocks: ctx.upload(all_blocks),
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Commute map by block").small_heading().draw(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    Checkbox::text(ctx, "from / to this block", hotkey(Key::Space), true),
-                    Checkbox::text(ctx, "arrows / heatmap", hotkey(Key::H), true),
-                ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Commute map by block").small_heading().draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Checkbox::text(ctx, "from / to this block", hotkey(Key::Space), true),
+                Checkbox::text(ctx, "arrows / heatmap", hotkey(Key::H), true),
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
         })

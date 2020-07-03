@@ -241,7 +241,7 @@ fn make_controls(
         col.extend(o.to_controls(ctx, legend.unwrap()));
     }
 
-    Composite::new(Widget::col(col).padding(16).bg(app.cs.panel_bg))
+    Composite::new(Widget::col(col))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }

@@ -64,30 +64,26 @@ impl Backpressure {
             }
         }
 
-        let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
-                    "Backpressure".draw_text(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                Text::from(
-                    Line("This counts all active trips passing through a road in the future")
-                        .secondary(),
-                )
-                .wrap_to_pct(ctx, 15)
-                .draw(ctx),
-                ColorLegend::gradient(
-                    ctx,
-                    &app.cs.good_to_bad_red,
-                    vec!["lowest count", "highest"],
-                ),
-            ])
-            .padding(16)
-            .bg(app.cs.panel_bg),
-        )
+        let composite = Composite::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                "Backpressure".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Text::from(
+                Line("This counts all active trips passing through a road in the future")
+                    .secondary(),
+            )
+            .wrap_to_pct(ctx, 15)
+            .draw(ctx),
+            ColorLegend::gradient(
+                ctx,
+                &app.cs.good_to_bad_red,
+                vec!["lowest count", "highest"],
+            ),
+        ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
 
@@ -165,32 +161,28 @@ impl Throughput {
         if compare {
             return Throughput::compare_throughput(ctx, app);
         }
-        let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
-                    "Throughput".draw_text(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                Text::from(Line("This counts all people crossing since midnight").secondary())
-                    .wrap_to_pct(ctx, 15)
-                    .draw(ctx),
-                if app.has_prebaked().is_some() {
-                    Checkbox::text(ctx, "Compare before edits", None, false)
-                } else {
-                    Widget::nothing()
-                },
-                ColorLegend::gradient(
-                    ctx,
-                    &app.cs.good_to_bad_red,
-                    vec!["lowest count", "highest"],
-                ),
-            ])
-            .padding(16)
-            .bg(app.cs.panel_bg),
-        )
+        let composite = Composite::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                "Throughput".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Text::from(Line("This counts all people crossing since midnight").secondary())
+                .wrap_to_pct(ctx, 15)
+                .draw(ctx),
+            if app.has_prebaked().is_some() {
+                Checkbox::text(ctx, "Compare before edits", None, false)
+            } else {
+                Widget::nothing()
+            },
+            ColorLegend::gradient(
+                ctx,
+                &app.cs.good_to_bad_red,
+                vec!["lowest count", "highest"],
+            ),
+        ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
 
@@ -264,21 +256,17 @@ impl Throughput {
             }
         }
 
-        let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
-                    "Relative Throughput".draw_text(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                Checkbox::text(ctx, "Compare before edits", None, true),
-                scale.make_legend(ctx, vec!["less traffic", "same", "more"]),
-            ])
-            .padding(16)
-            .bg(app.cs.panel_bg),
-        )
+        let composite = Composite::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                "Relative Throughput".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Checkbox::text(ctx, "Compare before edits", None, true),
+            scale.make_legend(ctx, vec!["less traffic", "same", "more"]),
+        ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
         let (unzoomed, zoomed) = colorer.build(ctx);
@@ -377,25 +365,21 @@ impl Delay {
             colorer.add_i(i, color);
         }
 
-        let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
-                    "Delay (minutes)".draw_text(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                if app.has_prebaked().is_some() {
-                    Checkbox::text(ctx, "Compare before edits", None, false)
-                } else {
-                    Widget::nothing()
-                },
-                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["1", "5", "10", "15+"]),
-            ])
-            .padding(16)
-            .bg(app.cs.panel_bg),
-        )
+        let composite = Composite::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                "Delay (minutes)".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            if app.has_prebaked().is_some() {
+                Checkbox::text(ctx, "Compare before edits", None, false)
+            } else {
+                Widget::nothing()
+            },
+            ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["1", "5", "10", "15+"]),
+        ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
         let (unzoomed, zoomed) = colorer.build(ctx);
@@ -434,25 +418,21 @@ impl Delay {
             }
         }
 
-        let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
-                    "Delay".draw_text(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                Checkbox::text(ctx, "Compare before edits", None, true),
-                ColorLegend::gradient(
-                    ctx,
-                    &ColorScale(vec![green, Color::WHITE, red]),
-                    vec!["faster", "same", "slower"],
-                ),
-            ])
-            .padding(16)
-            .bg(app.cs.panel_bg),
-        )
+        let composite = Composite::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                "Delay".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Checkbox::text(ctx, "Compare before edits", None, true),
+            ColorLegend::gradient(
+                ctx,
+                &ColorScale(vec![green, Color::WHITE, red]),
+                vec!["faster", "same", "slower"],
+            ),
+        ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
         let (unzoomed, zoomed) = colorer.build(ctx);
@@ -530,25 +510,21 @@ impl TrafficJams {
             zoomed.push(Color::WHITE.alpha(0.4), epicenter);
         }
 
-        let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
-                    "Traffic jams".draw_text(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                Text::from(
-                    Line("A jam starts when delay exceeds 5 mins, then spreads out").secondary(),
-                )
-                .wrap_to_pct(ctx, 15)
-                .draw(ctx),
-                format!("{} jams detected", cnt).draw_text(ctx),
-            ])
-            .padding(16)
-            .bg(app.cs.panel_bg),
-        )
+        let composite = Composite::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                "Traffic jams".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Text::from(
+                Line("A jam starts when delay exceeds 5 mins, then spreads out").secondary(),
+            )
+            .wrap_to_pct(ctx, 15)
+            .draw(ctx),
+            format!("{} jams detected", cnt).draw_text(ctx),
+        ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
 

@@ -53,20 +53,16 @@ impl Floodfiller {
 
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         Box::new(Floodfiller {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line(title).small_heading().draw(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    format!("{} unreachable lanes", num_unreachable).draw_text(ctx),
-                    legend,
-                ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line(title).small_heading().draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                format!("{} unreachable lanes", num_unreachable).draw_text(ctx),
+                legend,
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             unzoomed,

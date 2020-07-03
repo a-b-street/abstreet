@@ -71,27 +71,23 @@ impl UI {
         UI {
             model,
             state: State::viewing(),
-            composite: Composite::new(
-                Widget::col(vec![
-                    Line("Map Editor").small_heading().draw(ctx),
-                    Text::new().draw(ctx).named("current info"),
-                    Widget::col(
-                        vec![
-                            (hotkey(Key::Escape), "quit"),
-                            (None, "save raw map"),
-                            (hotkey(Key::J), "warp to something"),
-                            (hotkey(Key::G), "preview all intersections"),
-                            (None, "find overlapping intersections"),
-                            (hotkey(Key::Z), "find/clear short roads"),
-                        ]
-                        .into_iter()
-                        .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
-                        .collect(),
-                    ),
-                ])
-                .padding(16)
-                .bg(Color::grey(0.4)),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Line("Map Editor").small_heading().draw(ctx),
+                Text::new().draw(ctx).named("current info"),
+                Widget::col(
+                    vec![
+                        (hotkey(Key::Escape), "quit"),
+                        (None, "save raw map"),
+                        (hotkey(Key::J), "warp to something"),
+                        (hotkey(Key::G), "preview all intersections"),
+                        (None, "find overlapping intersections"),
+                        (hotkey(Key::Z), "find/clear short roads"),
+                    ]
+                    .into_iter()
+                    .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
+                    .collect(),
+                ),
+            ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             popup: None,

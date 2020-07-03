@@ -68,7 +68,7 @@ impl GameplayState for Freeform {
                     app,
                     GameplayMode::Freeform(abstutil::path_map(app.primary.map.get_name())),
                 )))),
-                "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, app, None))),
+                "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, None))),
                 _ => unreachable!(),
             },
             None => None,
@@ -114,7 +114,7 @@ fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
         .draw(ctx),
     ];
 
-    Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::col(rows))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -185,43 +185,39 @@ struct AgentSpawner {
 }
 
 impl AgentSpawner {
-    fn new(ctx: &mut EventCtx, app: &App, start: Option<BuildingID>) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, start: Option<BuildingID>) -> Box<dyn State> {
         let mut spawner = AgentSpawner {
             source: None,
             goal: None,
             confirmed: false,
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("New trip").small_heading().draw(ctx),
-                        Btn::plaintext("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    "Click a building or border to specify start"
-                        .draw_text(ctx)
-                        .named("instructions"),
-                    Widget::row(vec![
-                        "Type of trip:".draw_text(ctx),
-                        Widget::dropdown(
-                            ctx,
-                            "mode",
-                            TripMode::Drive,
-                            TripMode::all()
-                                .into_iter()
-                                .map(|m| Choice::new(m.ongoing_verb(), m))
-                                .collect(),
-                        ),
-                    ]),
-                    Widget::row(vec![
-                        "Number of trips:".draw_text(ctx),
-                        Spinner::new(ctx, (1, 1000), 1).named("number"),
-                    ]),
-                    Btn::text_fg("Confirm").inactive(ctx).named("Confirm"),
-                ])
-                .bg(app.cs.panel_bg)
-                .padding(16),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("New trip").small_heading().draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                "Click a building or border to specify start"
+                    .draw_text(ctx)
+                    .named("instructions"),
+                Widget::row(vec![
+                    "Type of trip:".draw_text(ctx),
+                    Widget::dropdown(
+                        ctx,
+                        "mode",
+                        TripMode::Drive,
+                        TripMode::all()
+                            .into_iter()
+                            .map(|m| Choice::new(m.ongoing_verb(), m))
+                            .collect(),
+                    ),
+                ]),
+                Widget::row(vec![
+                    "Number of trips:".draw_text(ctx),
+                    Spinner::new(ctx, (1, 1000), 1).named("number"),
+                ]),
+                Btn::text_fg("Confirm").inactive(ctx).named("Confirm"),
+            ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
         };
@@ -573,9 +569,7 @@ pub fn actions(_: &App, id: ID) -> Vec<(Key, String)> {
 
 pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
     match (id, action.as_ref()) {
-        (ID::Building(b), "start a trip here") => {
-            Transition::Push(AgentSpawner::new(ctx, app, Some(b)))
-        }
+        (ID::Building(b), "start a trip here") => Transition::Push(AgentSpawner::new(ctx, Some(b))),
         (ID::Intersection(id), "spawn agents here") => {
             spawn_agents_around(id, app);
             Transition::Keep

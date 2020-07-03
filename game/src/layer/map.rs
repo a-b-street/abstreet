@@ -96,39 +96,35 @@ impl BikeNetwork {
             }
         }
 
-        let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
-                    "Bike network".draw_text(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                Text::from_multiline(vec![
-                    Line(format!("{} lanes", num_lanes)),
-                    Line(format!(
-                        "total distance of {}",
-                        total_dist.describe_rounded()
-                    )),
-                ])
-                .draw(ctx),
-                Line("Throughput on bike lanes").draw(ctx),
-                ColorLegend::gradient(
-                    ctx,
-                    &app.cs.good_to_bad_green,
-                    vec!["lowest count", "highest"],
-                ),
-                Line("Throughput on unprotected roads").draw(ctx),
-                ColorLegend::gradient(
-                    ctx,
-                    &app.cs.good_to_bad_red,
-                    vec!["lowest count", "highest"],
-                ),
+        let composite = Composite::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                "Bike network".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Text::from_multiline(vec![
+                Line(format!("{} lanes", num_lanes)),
+                Line(format!(
+                    "total distance of {}",
+                    total_dist.describe_rounded()
+                )),
             ])
-            .padding(16)
-            .bg(app.cs.panel_bg),
-        )
+            .draw(ctx),
+            Line("Throughput on bike lanes").draw(ctx),
+            ColorLegend::gradient(
+                ctx,
+                &app.cs.good_to_bad_green,
+                vec!["lowest count", "highest"],
+            ),
+            Line("Throughput on unprotected roads").draw(ctx),
+            ColorLegend::gradient(
+                ctx,
+                &app.cs.good_to_bad_red,
+                vec!["lowest count", "highest"],
+            ),
+        ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
 
@@ -183,28 +179,23 @@ impl Layer for Static {
 impl Static {
     fn new(
         ctx: &mut EventCtx,
-        app: &App,
         colorer: ColorDiscrete,
         name: &'static str,
         title: String,
         extra: Widget,
     ) -> Static {
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
-        let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
-                    title.draw_text(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                extra,
-                legend,
-            ])
-            .padding(16)
-            .bg(app.cs.panel_bg),
-        )
+        let composite = Composite::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                title.draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            extra,
+            legend,
+        ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
 
@@ -236,7 +227,6 @@ impl Static {
 
         Static::new(
             ctx,
-            app,
             colorer,
             "bus network",
             "Bus network".to_string(),
@@ -263,7 +253,6 @@ impl Static {
 
         Static::new(
             ctx,
-            app,
             colorer,
             "map edits",
             format!("Map edits ({})", edits.edits_name),
@@ -317,7 +306,6 @@ impl Static {
 
         Static::new(
             ctx,
-            app,
             colorer,
             "amenities",
             "Amenities".to_string(),

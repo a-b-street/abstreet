@@ -25,28 +25,18 @@ pub struct PolygonEditor {
 }
 
 impl PolygonEditor {
-    pub fn new(
-        ctx: &mut EventCtx,
-        app: &App,
-        name: String,
-        mut points: Vec<LonLat>,
-    ) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, name: String, mut points: Vec<LonLat>) -> Box<dyn State> {
         points.pop();
         Box::new(PolygonEditor {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Polygon editor").small_heading().draw(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    Btn::text_fg("export as an Osmosis polygon filter")
-                        .build_def(ctx, hotkey(Key::X)),
-                ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Polygon editor").small_heading().draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Btn::text_fg("export as an Osmosis polygon filter").build_def(ctx, hotkey(Key::X)),
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             name,

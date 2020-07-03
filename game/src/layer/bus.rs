@@ -124,21 +124,17 @@ impl ShowBusRoute {
             labels,
             unzoomed,
             zoomed,
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
-                        Line(&route.name).draw(ctx),
-                        Btn::plaintext("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    format!("{} buses", bus_locations.len()).draw_text(ctx),
-                    legend,
-                ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                    Line(&route.name).draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                format!("{} buses", bus_locations.len()).draw_text(ctx),
+                legend,
+            ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx),
             bus_locations,

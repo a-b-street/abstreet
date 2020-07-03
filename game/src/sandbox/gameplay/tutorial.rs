@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors::ColorScheme;
 use crate::common::{tool_panel, Minimap, Warping};
 use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
@@ -167,24 +166,24 @@ impl Tutorial {
                 Some(ID::Lane(l)) => {
                     if app.primary.map.get_l(l).is_biking() && !tut.inspected_bike_lane {
                         tut.inspected_bike_lane = true;
-                        self.top_center = tut.make_top_center(ctx, &app.cs, false);
+                        self.top_center = tut.make_top_center(ctx, false);
                     }
                 }
                 Some(ID::Building(_)) => {
                     if !tut.inspected_building {
                         tut.inspected_building = true;
-                        self.top_center = tut.make_top_center(ctx, &app.cs, false);
+                        self.top_center = tut.make_top_center(ctx, false);
                     }
                 }
                 Some(ID::Intersection(i)) => {
                     let i = app.primary.map.get_i(i);
                     if i.is_stop_sign() && !tut.inspected_stop_sign {
                         tut.inspected_stop_sign = true;
-                        self.top_center = tut.make_top_center(ctx, &app.cs, false);
+                        self.top_center = tut.make_top_center(ctx, false);
                     }
                     if i.is_border() && !tut.inspected_border {
                         tut.inspected_border = true;
-                        self.top_center = tut.make_top_center(ctx, &app.cs, false);
+                        self.top_center = tut.make_top_center(ctx, false);
                     }
                 }
                 _ => {}
@@ -210,7 +209,7 @@ impl Tutorial {
             if !tut.was_paused && is_paused {
                 tut.num_pauses += 1;
                 tut.was_paused = true;
-                self.top_center = tut.make_top_center(ctx, &app.cs, false);
+                self.top_center = tut.make_top_center(ctx, false);
             }
             if tut.num_pauses == 3 {
                 tut.next();
@@ -226,14 +225,14 @@ impl Tutorial {
                 .is_none();
             if !tut.car_parked && is_parked && tut.following_car {
                 tut.car_parked = true;
-                self.top_center = tut.make_top_center(ctx, &app.cs, false);
+                self.top_center = tut.make_top_center(ctx, false);
             }
 
             if following_car && !tut.following_car {
                 // TODO There's a delay of one event before the checklist updates, because the
                 // info panel opening happens at the end of the event. Not a big deal.
                 tut.following_car = true;
-                self.top_center = tut.make_top_center(ctx, &app.cs, false);
+                self.top_center = tut.make_top_center(ctx, false);
             }
 
             if tut.prank_done {
@@ -718,7 +717,7 @@ impl TutorialState {
         }
     }
 
-    fn make_top_center(&self, ctx: &mut EventCtx, cs: &ColorScheme, edit_map: bool) -> Composite {
+    fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Composite {
         let mut col = vec![Widget::row(vec![
             Line("Tutorial").small_heading().draw(ctx),
             Widget::draw_batch(
@@ -777,7 +776,7 @@ impl TutorialState {
             );
         }
 
-        Composite::new(Widget::col(col).bg(cs.panel_bg).padding(16))
+        Composite::new(Widget::col(col))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }
@@ -801,7 +800,7 @@ impl TutorialState {
         };
 
         Box::new(Tutorial {
-            top_center: self.make_top_center(ctx, &app.cs, last_finished_task >= Task::WatchBikes),
+            top_center: self.make_top_center(ctx, last_finished_task >= Task::WatchBikes),
             last_finished_task,
 
             msg_panel: if let Some((ref lines, horiz_align, _)) = self.lines() {
@@ -864,15 +863,10 @@ impl TutorialState {
                 col.push(Widget::col(controls).align_bottom());
 
                 Some(
-                    Composite::new(
-                        Widget::col(col)
-                            .bg(app.cs.panel_bg)
-                            .outline(5.0, Color::WHITE)
-                            .padding(16),
-                    )
-                    .exact_size_percent(40, 40)
-                    .aligned(*horiz_align, VerticalAlignment::Center)
-                    .build(ctx),
+                    Composite::new(Widget::col(col).outline(5.0, Color::WHITE))
+                        .exact_size_percent(40, 40)
+                        .aligned(*horiz_align, VerticalAlignment::Center)
+                        .build(ctx),
                 )
             } else {
                 None
@@ -902,7 +896,7 @@ impl TutorialState {
             fire_station: app.primary.map.find_b_by_osm_id(731238736).unwrap(),
         };
 
-        let tool_panel = tool_panel(ctx, app);
+        let tool_panel = tool_panel(ctx);
         let time = TimePanel::new(ctx, app);
         let speed = SpeedControls::new(ctx, app);
         let agent_meter = AgentMeter::new(ctx, app);
@@ -1245,7 +1239,7 @@ impl TutorialState {
                 ),
         );
 
-        let top_center = state.make_top_center(ctx, &app.cs, true);
+        let top_center = state.make_top_center(ctx, true);
         state.stages.push(
             Stage::new(Task::FixBikes)
                 .spawn_scenario(bike_lane_scenario)

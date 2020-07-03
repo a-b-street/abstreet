@@ -46,27 +46,23 @@ impl OptimizeCommute {
         let person = app.primary.sim.find_person_by_orig_id(orig_person).unwrap();
         let trips = app.primary.sim.get_person(person).trips.clone();
         Box::new(OptimizeCommute {
-            top_center: Composite::new(
-                Widget::col(vec![
-                    challenge_header(ctx, "Optimize the VIP's commute"),
-                    Widget::row(vec![
-                        format!("Speed up the VIP's trips by {}", goal)
-                            .draw_text(ctx)
-                            .centered_vert(),
-                        Btn::svg(
-                            "../data/system/assets/tools/hint.svg",
-                            RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                        )
-                        .build(ctx, "hint", None)
-                        .align_right(),
-                    ]),
-                ])
-                .bg(app.cs.panel_bg)
-                .padding(16),
-            )
+            top_center: Composite::new(Widget::col(vec![
+                challenge_header(ctx, "Optimize the VIP's commute"),
+                Widget::row(vec![
+                    format!("Speed up the VIP's trips by {}", goal)
+                        .draw_text(ctx)
+                        .centered_vert(),
+                    Btn::svg(
+                        "../data/system/assets/tools/hint.svg",
+                        RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                    )
+                    .build(ctx, "hint", None)
+                    .align_right(),
+                ]),
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-            meter: make_meter(ctx, app, Duration::ZERO, Duration::ZERO, 0, trips.len()),
+            meter: make_meter(ctx, Duration::ZERO, Duration::ZERO, 0, trips.len()),
             person,
             mode: GameplayMode::OptimizeCommute(orig_person, goal),
             goal,
@@ -150,7 +146,7 @@ impl GameplayState for OptimizeCommute {
             self.time = app.primary.sim.time();
 
             let (before, after, done) = get_score(app, &self.trips);
-            self.meter = make_meter(ctx, app, before, after, done, self.trips.len());
+            self.meter = make_meter(ctx, before, after, done, self.trips.len());
             self.meter.align_below(
                 ctx,
                 &controls.agent_meter.as_ref().unwrap().composite,
@@ -241,7 +237,6 @@ fn get_score(app: &App, trips: &Vec<TripID>) -> (Duration, Duration, usize) {
 
 fn make_meter(
     ctx: &mut EventCtx,
-    app: &App,
     before: Duration,
     after: Duration,
     done: usize,
@@ -251,30 +246,22 @@ fn make_meter(
     txt.append_all(cmp_duration_shorter(after, before));
     txt.append(Line(")"));
 
-    Composite::new(
-        Widget::col(vec![
-            // Separator
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(
-                    Color::WHITE,
-                    Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
-                )]),
-            )
-            .centered_horiz(),
-            Widget::row(vec![
-                Btn::svg_def("../data/system/assets/tools/location.svg").build(
-                    ctx,
-                    "locate VIP",
-                    None,
-                ),
-                format!("{}/{} trips done", done, trips).draw_text(ctx),
-                txt.draw(ctx),
-            ]),
-        ])
-        .bg(app.cs.panel_bg)
-        .padding(16),
-    )
+    Composite::new(Widget::col(vec![
+        // Separator
+        Widget::draw_batch(
+            ctx,
+            GeomBatch::from(vec![(
+                Color::WHITE,
+                Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+            )]),
+        )
+        .centered_horiz(),
+        Widget::row(vec![
+            Btn::svg_def("../data/system/assets/tools/location.svg").build(ctx, "locate VIP", None),
+            format!("{}/{} trips done", done, trips).draw_text(ctx),
+            txt.draw(ctx),
+        ]),
+    ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
 }

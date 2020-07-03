@@ -92,25 +92,21 @@ impl Elevation {
         }
         colorer.unzoomed.append(batch);
 
-        let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
-                    "Elevation change".draw_text(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                Text::from_multiline(vec![
-                    Line(format!("Steepest road: {:.0}% grade", max * 100.0)),
-                    Line("Note: elevation data is currently wrong!").secondary(),
-                ])
-                .draw(ctx),
-                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["flat", "steep"]),
+        let composite = Composite::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                "Elevation change".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Text::from_multiline(vec![
+                Line(format!("Steepest road: {:.0}% grade", max * 100.0)),
+                Line("Note: elevation data is currently wrong!").secondary(),
             ])
-            .padding(16)
-            .bg(app.cs.panel_bg),
-        )
+            .draw(ctx),
+            ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["flat", "steep"]),
+        ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
 

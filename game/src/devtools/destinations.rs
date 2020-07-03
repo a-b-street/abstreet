@@ -91,21 +91,17 @@ impl PopularDestinations {
         Box::new(PopularDestinations {
             per_bldg,
             draw: ctx.upload(batch),
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Most popular destinations").small_heading().draw(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    Checkbox::text(ctx, "Show heatmap", None, opts.is_some()),
-                    controls,
-                    breakdown.draw(ctx),
-                ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Most popular destinations").small_heading().draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Checkbox::text(ctx, "Show heatmap", None, opts.is_some()),
+                controls,
+                breakdown.draw(ctx),
+            ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             opts,

@@ -64,7 +64,7 @@ impl SandboxMode {
                     None
                 },
                 tool_panel: if gameplay.has_tool_panel() {
-                    Some(tool_panel(ctx, app))
+                    Some(tool_panel(ctx))
                 } else {
                     None
                 },
@@ -126,7 +126,7 @@ impl State for SandboxMode {
 
         // Order here is pretty arbitrary
         if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
-            return Transition::Push(Box::new(DebugMode::new(ctx, app)));
+            return Transition::Push(Box::new(DebugMode::new(ctx)));
         }
 
         if let Some(ref mut m) = self.controls.minimap {
@@ -335,7 +335,7 @@ impl AgentMeter {
             ]),
         ];
 
-        let composite = Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(16))
+        let composite = Composite::new(Widget::col(rows))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
 

@@ -78,29 +78,25 @@ impl ViewKML {
 
             Box::new(ViewKML {
                 draw: ctx.upload(batch),
-                composite: Composite::new(
-                    Widget::col(vec![
-                        Widget::row(vec![
-                            Line("KML viewer").small_heading().draw(ctx),
-                            Btn::text_fg("X")
-                                .build(ctx, "close", hotkey(Key::Escape))
-                                .align_right(),
-                        ]),
-                        format!(
-                            "{}: {} objects",
-                            dataset_name,
-                            prettyprint_usize(objects.len())
-                        )
-                        .draw_text(ctx),
-                        Widget::row(vec![
-                            "Query:".draw_text(ctx),
-                            Widget::dropdown(ctx, "query", "None".to_string(), choices),
-                        ]),
-                        "Query matches 0 objects".draw_text(ctx).named("matches"),
-                    ])
-                    .padding(16)
-                    .bg(app.cs.panel_bg),
-                )
+                composite: Composite::new(Widget::col(vec![
+                    Widget::row(vec![
+                        Line("KML viewer").small_heading().draw(ctx),
+                        Btn::text_fg("X")
+                            .build(ctx, "close", hotkey(Key::Escape))
+                            .align_right(),
+                    ]),
+                    format!(
+                        "{}: {} objects",
+                        dataset_name,
+                        prettyprint_usize(objects.len())
+                    )
+                    .draw_text(ctx),
+                    Widget::row(vec![
+                        "Query:".draw_text(ctx),
+                        Widget::dropdown(ctx, "query", "None".to_string(), choices),
+                    ]),
+                    "Query matches 0 objects".draw_text(ctx).named("matches"),
+                ]))
                 .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
                 .build(ctx),
                 objects,

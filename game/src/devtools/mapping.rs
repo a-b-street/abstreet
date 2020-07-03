@@ -122,65 +122,63 @@ impl ParkingMapper {
         Box::new(ParkingMapper {
             draw_layer: ctx.upload(batch),
             show,
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Parking mapper").small_heading().draw(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    Widget::row(vec![
-                        "Change map:".draw_text(ctx),
-                        Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name())))
-                            .build(ctx, "change map", None),
-                    ]),
-                    format!(
-                        "{} / {} ways done (you've mapped {})",
-                        prettyprint_usize(done.len()),
-                        prettyprint_usize(done.len() + todo.len()),
-                        data.len()
-                    )
-                    .draw_text(ctx),
-                    Widget::row(vec![
-                        Widget::dropdown(
-                            ctx,
-                            "Show",
-                            show,
-                            vec![
-                                Choice::new("missing tags", Show::TODO),
-                                Choice::new("already mapped", Show::Done),
-                                Choice::new("divided highways", Show::DividedHighways).tooltip(
-                                    "Roads divided in OSM often have the wrong number of lanes \
-                                     tagged",
-                                ),
-                                Choice::new(
-                                    "buildings and parking lots overlapping roads",
-                                    Show::OverlappingStuff,
-                                )
-                                .tooltip("Roads often have the wrong number of lanes tagged"),
-                            ],
-                        ),
-                        ColorLegend::row(
-                            ctx,
-                            color,
-                            match show {
-                                Show::TODO => "TODO",
-                                Show::Done => "done",
-                                Show::DividedHighways => "divided highways",
-                                Show::OverlappingStuff => {
-                                    "buildings and parking lots overlapping roads"
-                                }
-                            },
-                        ),
-                    ]),
-                    Checkbox::text(ctx, "max 3 days parking (default in Seattle)", None, false),
-                    Btn::text_fg("Generate OsmChange file").build_def(ctx, None),
-                    "Select a road".draw_text(ctx).named("info"),
-                ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Parking mapper").small_heading().draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Widget::row(vec![
+                    "Change map:".draw_text(ctx),
+                    Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name()))).build(
+                        ctx,
+                        "change map",
+                        None,
+                    ),
+                ]),
+                format!(
+                    "{} / {} ways done (you've mapped {})",
+                    prettyprint_usize(done.len()),
+                    prettyprint_usize(done.len() + todo.len()),
+                    data.len()
+                )
+                .draw_text(ctx),
+                Widget::row(vec![
+                    Widget::dropdown(
+                        ctx,
+                        "Show",
+                        show,
+                        vec![
+                            Choice::new("missing tags", Show::TODO),
+                            Choice::new("already mapped", Show::Done),
+                            Choice::new("divided highways", Show::DividedHighways).tooltip(
+                                "Roads divided in OSM often have the wrong number of lanes tagged",
+                            ),
+                            Choice::new(
+                                "buildings and parking lots overlapping roads",
+                                Show::OverlappingStuff,
+                            )
+                            .tooltip("Roads often have the wrong number of lanes tagged"),
+                        ],
+                    ),
+                    ColorLegend::row(
+                        ctx,
+                        color,
+                        match show {
+                            Show::TODO => "TODO",
+                            Show::Done => "done",
+                            Show::DividedHighways => "divided highways",
+                            Show::OverlappingStuff => {
+                                "buildings and parking lots overlapping roads"
+                            }
+                        },
+                    ),
+                ]),
+                Checkbox::text(ctx, "max 3 days parking (default in Seattle)", None, false),
+                Btn::text_fg("Generate OsmChange file").build_def(ctx, None),
+                "Select a road".draw_text(ctx).named("info"),
+            ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             selected: None,

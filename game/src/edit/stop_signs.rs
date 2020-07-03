@@ -47,23 +47,19 @@ impl StopSignEditor {
             })
             .collect();
 
-        let composite = Composite::new(
-            Widget::col(vec![
-                "Stop sign editor".draw_text(ctx),
-                if ControlStopSign::new(&app.primary.map, id)
-                    != app.primary.map.get_stop_sign(id).clone()
-                {
-                    Btn::text_fg("reset to default").build_def(ctx, hotkey(Key::R))
-                } else {
-                    Btn::text_fg("reset to default").inactive(ctx)
-                },
-                Btn::text_fg("close intersection for construction").build_def(ctx, hotkey(Key::C)),
-                Btn::text_fg("convert to traffic signal").build_def(ctx, None),
-                Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
-            ])
-            .bg(app.cs.panel_bg)
-            .padding(16),
-        )
+        let composite = Composite::new(Widget::col(vec![
+            "Stop sign editor".draw_text(ctx),
+            if ControlStopSign::new(&app.primary.map, id)
+                != app.primary.map.get_stop_sign(id).clone()
+            {
+                Btn::text_fg("reset to default").build_def(ctx, hotkey(Key::R))
+            } else {
+                Btn::text_fg("reset to default").inactive(ctx)
+            },
+            Btn::text_fg("close intersection for construction").build_def(ctx, hotkey(Key::C)),
+            Btn::text_fg("convert to traffic signal").build_def(ctx, None),
+            Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
+        ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
 

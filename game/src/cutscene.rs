@@ -251,7 +251,7 @@ fn make_panel(
 
     Composite::new(Widget::custom_col(col))
         .exact_size_percent(80, 80)
-        .build(ctx)
+        .build_custom(ctx)
 }
 
 pub struct FYI {
@@ -273,7 +273,7 @@ impl FYI {
                 .bg(bg),
             )
             .exact_size_percent(50, 50)
-            .build(ctx),
+            .build_custom(ctx),
         })
     }
 }

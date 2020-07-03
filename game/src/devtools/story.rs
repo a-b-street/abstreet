@@ -36,12 +36,12 @@ enum Mode {
 }
 
 impl StoryMapEditor {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn State> {
         let story = StoryMap::new();
         let mode = Mode::View;
         let dirty = false;
         Box::new(StoryMapEditor {
-            composite: make_panel(ctx, app, &story, &mode, dirty),
+            composite: make_panel(ctx, &story, &mode, dirty),
             story,
             mode,
             dirty,
@@ -49,8 +49,8 @@ impl StoryMapEditor {
         })
     }
 
-    fn redo_panel(&mut self, ctx: &mut EventCtx, app: &App) {
-        self.composite = make_panel(ctx, app, &self.story, &self.mode, self.dirty);
+    fn redo_panel(&mut self, ctx: &mut EventCtx) {
+        self.composite = make_panel(ctx, &self.story, &self.mode, self.dirty);
     }
 }
 
@@ -78,8 +78,7 @@ impl State for StoryMapEditor {
                         self.mode =
                             Mode::Dragging(ctx.canvas.get_cursor_in_map_space().unwrap(), idx);
                     } else if app.per_obj.left_click(ctx, "edit marker") {
-                        self.mode =
-                            Mode::Editing(idx, self.story.markers[idx].make_editor(ctx, app));
+                        self.mode = Mode::Editing(idx, self.story.markers[idx].make_editor(ctx));
                     }
                 }
             }
@@ -95,9 +94,8 @@ impl State for StoryMapEditor {
                             .markers
                             .push(Marker::new(ctx, vec![pt], String::new()));
                         self.dirty = true;
-                        self.redo_panel(ctx, app);
-                        self.mode =
-                            Mode::Editing(idx, self.story.markers[idx].make_editor(ctx, app));
+                        self.redo_panel(ctx);
+                        self.mode = Mode::Editing(idx, self.story.markers[idx].make_editor(ctx));
                     }
                 }
             }
@@ -118,7 +116,7 @@ impl State for StoryMapEditor {
                                 self.story.markers[idx].event.clone(),
                             );
                             self.dirty = true;
-                            self.redo_panel(ctx, app);
+                            self.redo_panel(ctx);
                         }
                     }
                 }
@@ -133,7 +131,7 @@ impl State for StoryMapEditor {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "close" => {
                             self.mode = Mode::View;
-                            self.redo_panel(ctx, app);
+                            self.redo_panel(ctx);
                         }
                         "confirm" => {
                             self.story.markers[idx] = Marker::new(
@@ -143,14 +141,14 @@ impl State for StoryMapEditor {
                             );
                             self.dirty = true;
                             self.mode = Mode::View;
-                            self.redo_panel(ctx, app);
+                            self.redo_panel(ctx);
                         }
                         "delete" => {
                             self.mode = Mode::View;
                             self.hovering = None;
                             self.story.markers.remove(idx);
                             self.dirty = true;
-                            self.redo_panel(ctx, app);
+                            self.redo_panel(ctx);
                         }
                         _ => unreachable!(),
                     },
@@ -171,8 +169,8 @@ impl State for StoryMapEditor {
                         .markers
                         .push(Marker::new(ctx, result.into_points(), String::new()));
                     self.dirty = true;
-                    self.redo_panel(ctx, app);
-                    self.mode = Mode::Editing(idx, self.story.markers[idx].make_editor(ctx, app));
+                    self.redo_panel(ctx);
+                    self.mode = Mode::Editing(idx, self.story.markers[idx].make_editor(ctx));
                 }
             }
         }
@@ -192,13 +190,13 @@ impl State for StoryMapEditor {
                                 editor.story.name = name;
                                 editor.story.save(app);
                                 editor.dirty = false;
-                                editor.redo_panel(ctx, app);
+                                editor.redo_panel(ctx);
                             })))
                         })));
                     } else {
                         self.story.save(app);
                         self.dirty = false;
-                        self.redo_panel(ctx, app);
+                        self.redo_panel(ctx);
                     }
                 }
                 "load" => {
@@ -242,27 +240,27 @@ impl State for StoryMapEditor {
                             },
                         )?;
                         let story = StoryMap::load(ctx, app, raw).unwrap();
-                        Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
+                        Some(Transition::PopWithData(Box::new(move |state, ctx, _| {
                             let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
                             editor.story = story;
                             editor.dirty = false;
-                            editor.redo_panel(ctx, app);
+                            editor.redo_panel(ctx);
                         })))
                     })));
                 }
                 "new marker" => {
                     self.hovering = None;
                     self.mode = Mode::PlacingMarker;
-                    self.redo_panel(ctx, app);
+                    self.redo_panel(ctx);
                 }
                 "draw freehand" => {
                     self.hovering = None;
                     self.mode = Mode::Freehand(None);
-                    self.redo_panel(ctx, app);
+                    self.redo_panel(ctx);
                 }
                 "pan" => {
                     self.mode = Mode::View;
-                    self.redo_panel(ctx, app);
+                    self.redo_panel(ctx);
                 }
                 _ => unreachable!(),
             },
@@ -317,84 +315,74 @@ impl State for StoryMapEditor {
     }
 }
 
-fn make_panel(
-    ctx: &mut EventCtx,
-    app: &App,
-    story: &StoryMap,
-    mode: &Mode,
-    dirty: bool,
-) -> Composite {
-    Composite::new(
-        Widget::col(vec![
-            Widget::row(vec![
-                Line("Story map editor").small_heading().draw(ctx),
-                Widget::draw_batch(
+fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) -> Composite {
+    Composite::new(Widget::col(vec![
+        Widget::row(vec![
+            Line("Story map editor").small_heading().draw(ctx),
+            Widget::draw_batch(
+                ctx,
+                GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),
+            ),
+            Btn::text_fg(format!("{} ↓", story.name)).build(ctx, "load", lctrl(Key::L)),
+            if dirty {
+                Btn::svg_def("../data/system/assets/tools/save.svg").build(
                     ctx,
-                    GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),
+                    "save",
+                    lctrl(Key::S),
+                )
+            } else {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/save.svg",
+                    RewriteColor::ChangeAlpha(0.5),
+                )
+            },
+            Btn::plaintext("X")
+                .build(ctx, "close", hotkey(Key::Escape))
+                .align_right(),
+        ]),
+        Widget::row(vec![
+            if let Mode::PlacingMarker = mode {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/timeline/goal_pos.svg",
+                    RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#4CA7E9")),
+                )
+            } else {
+                Btn::svg_def("../data/system/assets/timeline/goal_pos.svg").build(
+                    ctx,
+                    "new marker",
+                    hotkey(Key::M),
+                )
+            },
+            if let Mode::View = mode {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/pan.svg",
+                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                )
+            } else {
+                Btn::svg_def("../data/system/assets/tools/pan.svg").build(
+                    ctx,
+                    "pan",
+                    hotkey(Key::Escape),
+                )
+            },
+            match mode {
+                Mode::Freehand(_) => Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/select.svg",
+                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 ),
-                Btn::text_fg(format!("{} ↓", story.name)).build(ctx, "load", lctrl(Key::L)),
-                if dirty {
-                    Btn::svg_def("../data/system/assets/tools/save.svg").build(
-                        ctx,
-                        "save",
-                        lctrl(Key::S),
-                    )
-                } else {
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/save.svg",
-                        RewriteColor::ChangeAlpha(0.5),
-                    )
-                },
-                Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
-                    .align_right(),
-            ]),
-            Widget::row(vec![
-                if let Mode::PlacingMarker = mode {
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/timeline/goal_pos.svg",
-                        RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#4CA7E9")),
-                    )
-                } else {
-                    Btn::svg_def("../data/system/assets/timeline/goal_pos.svg").build(
-                        ctx,
-                        "new marker",
-                        hotkey(Key::M),
-                    )
-                },
-                if let Mode::View = mode {
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/pan.svg",
-                        RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                    )
-                } else {
-                    Btn::svg_def("../data/system/assets/tools/pan.svg").build(
-                        ctx,
-                        "pan",
-                        hotkey(Key::Escape),
-                    )
-                },
-                match mode {
-                    Mode::Freehand(_) => Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/select.svg",
-                        RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                    ),
-                    _ => Btn::svg_def("../data/system/assets/tools/select.svg").build(
-                        ctx,
-                        "draw freehand",
-                        hotkey(Key::P),
-                    ),
-                },
-            ])
-            .evenly_spaced(),
+                _ => Btn::svg_def("../data/system/assets/tools/select.svg").build(
+                    ctx,
+                    "draw freehand",
+                    hotkey(Key::P),
+                ),
+            },
         ])
-        .padding(16)
-        .bg(app.cs.panel_bg),
-    )
+        .evenly_spaced(),
+    ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
 }
@@ -541,22 +529,18 @@ impl Marker {
         batch.draw(g);
     }
 
-    fn make_editor(&self, ctx: &mut EventCtx, app: &App) -> Composite {
-        Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Line("Editing marker").small_heading().draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                Btn::text_fg("delete").build_def(ctx, None),
-                Widget::text_entry(ctx, self.event.clone(), true).named("event"),
-                Btn::text_fg("confirm").build_def(ctx, hotkey(Key::Enter)),
-            ])
-            .padding(16)
-            .bg(app.cs.panel_bg),
-        )
+    fn make_editor(&self, ctx: &mut EventCtx) -> Composite {
+        Composite::new(Widget::col(vec![
+            Widget::row(vec![
+                Line("Editing marker").small_heading().draw(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Btn::text_fg("delete").build_def(ctx, None),
+            Widget::text_entry(ctx, self.event.clone(), true).named("event"),
+            Btn::text_fg("confirm").build_def(ctx, hotkey(Key::Enter)),
+        ]))
         .build(ctx)
     }
 }

@@ -473,7 +473,7 @@ pub fn make_signal_diagram(
         col.push(Btn::text_fg("Add new phase").build_def(ctx, None));
     }
 
-    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::col(col))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .exact_size_percent(30, 85)
         .build(ctx)

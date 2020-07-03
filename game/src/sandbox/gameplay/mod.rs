@@ -331,7 +331,7 @@ impl FinalScore {
                 ])
                 .bg(app.cs.panel_bg),
             )
-            .build(ctx),
+            .build_custom(ctx),
             retry: mode,
             next_mode,
         })

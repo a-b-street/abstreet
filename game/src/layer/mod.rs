@@ -129,7 +129,7 @@ impl PickLayer {
         }
 
         Box::new(PickLayer {
-            composite: Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
+            composite: Composite::new(Widget::col(col))
                 .exact_size_percent(35, 70)
                 .build(ctx),
         })

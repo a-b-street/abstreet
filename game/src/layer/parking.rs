@@ -155,51 +155,47 @@ impl Occupancy {
             }
         }
 
-        let composite = Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
-                    "Parking occupancy".draw_text(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                Text::from_multiline(vec![
-                    Line(format!(
-                        "{:.0}% of the population owns a car",
-                        if total_ppl == 0 {
-                            0.0
-                        } else {
-                            100.0 * (has_car as f64) / (total_ppl as f64)
-                        }
-                    )),
-                    Line(format!(
-                        "{} / {} public spots filled",
-                        prettyprint_usize(filled_spots.len()),
-                        prettyprint_usize(filled_spots.len() + avail_spots.len())
-                    )),
-                    Line(format!(
-                        "{} / {} private spots filled",
-                        prettyprint_usize(filled_private_spots),
-                        prettyprint_usize(filled_private_spots + avail_private_spots)
-                    )),
-                ])
-                .draw(ctx),
-                Widget::row(vec![
-                    Checkbox::text(ctx, "On-street spots", None, onstreet),
-                    Checkbox::text(ctx, "Parking lots", None, lots),
-                ])
-                .evenly_spaced(),
-                Widget::row(vec![
-                    Checkbox::text(ctx, "Public garages", None, garages),
-                    Checkbox::text(ctx, "Private buildings", None, private_bldgs),
-                ])
-                .evenly_spaced(),
-                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%", "100%"]),
+        let composite = Composite::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                "Parking occupancy".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Text::from_multiline(vec![
+                Line(format!(
+                    "{:.0}% of the population owns a car",
+                    if total_ppl == 0 {
+                        0.0
+                    } else {
+                        100.0 * (has_car as f64) / (total_ppl as f64)
+                    }
+                )),
+                Line(format!(
+                    "{} / {} public spots filled",
+                    prettyprint_usize(filled_spots.len()),
+                    prettyprint_usize(filled_spots.len() + avail_spots.len())
+                )),
+                Line(format!(
+                    "{} / {} private spots filled",
+                    prettyprint_usize(filled_private_spots),
+                    prettyprint_usize(filled_private_spots + avail_private_spots)
+                )),
             ])
-            .padding(16)
-            .bg(app.cs.panel_bg),
-        )
+            .draw(ctx),
+            Widget::row(vec![
+                Checkbox::text(ctx, "On-street spots", None, onstreet),
+                Checkbox::text(ctx, "Parking lots", None, lots),
+            ])
+            .evenly_spaced(),
+            Widget::row(vec![
+                Checkbox::text(ctx, "Public garages", None, garages),
+                Checkbox::text(ctx, "Private buildings", None, private_bldgs),
+            ])
+            .evenly_spaced(),
+            ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%", "100%"]),
+        ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
 

@@ -42,7 +42,7 @@ impl TitleScreen {
                 .outline(3.0, Color::BLACK)
                 .centered(),
             )
-            .build(ctx),
+            .build_custom(ctx),
             screensaver: Screensaver::start_bounce(&mut rng, ctx, &app.primary.map),
             rng,
         }
@@ -155,7 +155,7 @@ impl MainMenu {
         Box::new(MainMenu {
             composite: Composite::new(Widget::col(col).evenly_spaced())
                 .exact_size_percent(90, 85)
-                .build(ctx),
+                .build_custom(ctx),
         })
     }
 }
@@ -282,7 +282,7 @@ impl About {
         Box::new(About {
             composite: Composite::new(Widget::custom_col(col))
                 .exact_size_percent(90, 85)
-                .build(ctx),
+                .build_custom(ctx),
         })
     }
 }
@@ -393,7 +393,7 @@ impl Proposals {
                 Widget::col(col).bg(app.cs.panel_bg).padding(16),
             ]))
             .exact_size_percent(90, 85)
-            .build(ctx),
+            .build_custom(ctx),
             current,
         })
     }

@@ -41,23 +41,19 @@ impl ZoneEditor {
         let (unzoomed, zoomed, legend) = draw_zone(ctx, app, &members);
 
         Box::new(ZoneEditor {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Line("Editing restricted access zone")
-                        .small_heading()
-                        .draw(ctx),
-                    legend,
-                    make_instructions(ctx, &allow_through_traffic),
-                    checkbox_per_mode(ctx, app, &allow_through_traffic),
-                    Widget::custom_row(vec![
-                        Btn::text_fg("Apply").build_def(ctx, hotkey(Key::Enter)),
-                        Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
-                    ])
-                    .evenly_spaced(),
+            composite: Composite::new(Widget::col(vec![
+                Line("Editing restricted access zone")
+                    .small_heading()
+                    .draw(ctx),
+                legend,
+                make_instructions(ctx, &allow_through_traffic),
+                checkbox_per_mode(ctx, app, &allow_through_traffic),
+                Widget::custom_row(vec![
+                    Btn::text_fg("Apply").build_def(ctx, hotkey(Key::Enter)),
+                    Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
                 ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+                .evenly_spaced(),
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             members,

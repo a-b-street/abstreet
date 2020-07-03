@@ -24,19 +24,14 @@ impl RouteSelect {
     fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
         app.primary.current_selection = None;
         Box::new(RouteSelect {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Line("Edit many roads").small_heading().draw(ctx),
-                    "Click one intersection to start"
-                        .draw_text(ctx)
-                        .named("instructions"),
-                    Btn::text_fg("Select roads free-hand / paint mode")
-                        .build_def(ctx, hotkey(Key::P)),
-                    Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
-                ])
-                .bg(app.cs.panel_bg)
-                .padding(16),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Line("Edit many roads").small_heading().draw(ctx),
+                "Click one intersection to start"
+                    .draw_text(ctx)
+                    .named("instructions"),
+                Btn::text_fg("Select roads free-hand / paint mode").build_def(ctx, hotkey(Key::P)),
+                Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             i1: None,
@@ -115,7 +110,7 @@ impl State for RouteSelect {
                     && app.per_obj.left_click(ctx, "end here")
                 {
                     let (_, roads, preview) = self.preview_path.take().unwrap();
-                    return Transition::Replace(BulkEdit::new(ctx, app, roads, preview));
+                    return Transition::Replace(BulkEdit::new(ctx, roads, preview));
                 }
             } else {
                 self.preview_path = None;
@@ -178,55 +173,51 @@ struct BulkEdit {
 }
 
 impl BulkEdit {
-    fn new(ctx: &mut EventCtx, app: &App, roads: Vec<RoadID>, preview: Drawable) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, roads: Vec<RoadID>, preview: Drawable) -> Box<dyn State> {
         Box::new(BulkEdit {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Line(format!("Editing {} roads", roads.len()))
-                        .small_heading()
-                        .draw(ctx),
-                    Widget::custom_row(vec![
-                        change_speed_limit(ctx, Speed::miles_per_hour(25.0)),
-                        Btn::text_fg("Confirm")
-                            .build(ctx, "confirm speed limit", None)
-                            .align_right(),
-                    ]),
-                    Widget::row(vec![
-                        "Change all".draw_text(ctx).centered_vert(),
-                        Widget::dropdown(
-                            ctx,
-                            "from lt",
-                            LaneType::Driving,
-                            vec![
-                                Choice::new("driving", LaneType::Driving),
-                                Choice::new("parking", LaneType::Parking),
-                                Choice::new("bike", LaneType::Biking),
-                                Choice::new("bus", LaneType::Bus),
-                                Choice::new("construction", LaneType::Construction),
-                            ],
-                        ),
-                        "lanes to".draw_text(ctx).centered_vert(),
-                        Widget::dropdown(
-                            ctx,
-                            "to lt",
-                            LaneType::Bus,
-                            vec![
-                                Choice::new("driving", LaneType::Driving),
-                                Choice::new("parking", LaneType::Parking),
-                                Choice::new("bike", LaneType::Biking),
-                                Choice::new("bus", LaneType::Bus),
-                                Choice::new("construction", LaneType::Construction),
-                            ],
-                        ),
-                        Btn::text_fg("Confirm")
-                            .build(ctx, "confirm lanes", None)
-                            .align_right(),
-                    ]),
-                    Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
-                ])
-                .bg(app.cs.panel_bg)
-                .padding(16),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Line(format!("Editing {} roads", roads.len()))
+                    .small_heading()
+                    .draw(ctx),
+                Widget::custom_row(vec![
+                    change_speed_limit(ctx, Speed::miles_per_hour(25.0)),
+                    Btn::text_fg("Confirm")
+                        .build(ctx, "confirm speed limit", None)
+                        .align_right(),
+                ]),
+                Widget::row(vec![
+                    "Change all".draw_text(ctx).centered_vert(),
+                    Widget::dropdown(
+                        ctx,
+                        "from lt",
+                        LaneType::Driving,
+                        vec![
+                            Choice::new("driving", LaneType::Driving),
+                            Choice::new("parking", LaneType::Parking),
+                            Choice::new("bike", LaneType::Biking),
+                            Choice::new("bus", LaneType::Bus),
+                            Choice::new("construction", LaneType::Construction),
+                        ],
+                    ),
+                    "lanes to".draw_text(ctx).centered_vert(),
+                    Widget::dropdown(
+                        ctx,
+                        "to lt",
+                        LaneType::Bus,
+                        vec![
+                            Choice::new("driving", LaneType::Driving),
+                            Choice::new("parking", LaneType::Parking),
+                            Choice::new("bike", LaneType::Biking),
+                            Choice::new("bus", LaneType::Bus),
+                            Choice::new("construction", LaneType::Construction),
+                        ],
+                    ),
+                    Btn::text_fg("Confirm")
+                        .build(ctx, "confirm lanes", None)
+                        .align_right(),
+                ]),
+                Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             roads,
@@ -302,7 +293,7 @@ impl PaintSelect {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
         app.primary.current_selection = None;
         Box::new(PaintSelect {
-            composite: make_paint_composite(ctx, app, Mode::Paint, &BTreeSet::new()),
+            composite: make_paint_composite(ctx, Mode::Paint, &BTreeSet::new()),
             roads: BTreeSet::new(),
             preview: None,
             mode: Mode::Paint,
@@ -385,7 +376,7 @@ impl State for PaintSelect {
                         );
                     }
                     self.preview = Some(ctx.upload(batch));
-                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
+                    self.composite = make_paint_composite(ctx, self.mode, &self.roads);
                 }
             }
         }
@@ -395,18 +386,18 @@ impl State for PaintSelect {
                 "paint" => {
                     self.dragging = false;
                     self.mode = Mode::Paint;
-                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
+                    self.composite = make_paint_composite(ctx, self.mode, &self.roads);
                 }
                 "erase" => {
                     self.dragging = false;
                     self.mode = Mode::Erase;
-                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
+                    self.composite = make_paint_composite(ctx, self.mode, &self.roads);
                 }
                 "pan" => {
                     app.primary.current_selection = None;
                     self.dragging = false;
                     self.mode = Mode::Pan;
-                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
+                    self.composite = make_paint_composite(ctx, self.mode, &self.roads);
                 }
                 "Cancel" => {
                     return Transition::Pop;
@@ -417,7 +408,6 @@ impl State for PaintSelect {
                 "edit roads" => {
                     return Transition::Replace(BulkEdit::new(
                         ctx,
-                        app,
                         self.roads.iter().cloned().collect(),
                         self.preview.take().unwrap(),
                     ));
@@ -500,75 +490,66 @@ fn change_lane_types(
     errors
 }
 
-fn make_paint_composite(
-    ctx: &mut EventCtx,
-    app: &App,
-    mode: Mode,
-    roads: &BTreeSet<RoadID>,
-) -> Composite {
-    Composite::new(
-        Widget::col(vec![
-            Line("Edit many roads").small_heading().draw(ctx),
-            Widget::custom_row(vec![
-                if mode == Mode::Paint {
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/pencil.svg",
-                        RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                    )
-                } else {
-                    Btn::svg_def("../data/system/assets/tools/pencil.svg").build(
-                        ctx,
-                        "paint",
-                        hotkey(Key::P),
-                    )
-                },
-                if mode == Mode::Erase {
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/eraser.svg",
-                        RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                    )
-                } else {
-                    Btn::svg_def("../data/system/assets/tools/eraser.svg").build(
-                        ctx,
-                        "erase",
-                        hotkey(Key::Backspace),
-                    )
-                },
-                if mode == Mode::Pan {
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/pan.svg",
-                        RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                    )
-                } else {
-                    Btn::svg_def("../data/system/assets/tools/pan.svg").build(
-                        ctx,
-                        "pan",
-                        hotkey(Key::Escape),
-                    )
-                },
-            ])
-            .evenly_spaced(),
-            Btn::text_fg("Select roads along a route").build_def(ctx, None),
-            Widget::custom_row(vec![
-                if roads.is_empty() {
-                    Btn::text_fg("Edit 0 roads").inactive(ctx)
-                } else {
-                    Btn::text_fg(format!("Edit {} roads", roads.len())).build(
-                        ctx,
-                        "edit roads",
-                        hotkey(Key::E),
-                    )
-                },
-                Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
-            ])
-            .evenly_spaced(),
+fn make_paint_composite(ctx: &mut EventCtx, mode: Mode, roads: &BTreeSet<RoadID>) -> Composite {
+    Composite::new(Widget::col(vec![
+        Line("Edit many roads").small_heading().draw(ctx),
+        Widget::custom_row(vec![
+            if mode == Mode::Paint {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/pencil.svg",
+                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                )
+            } else {
+                Btn::svg_def("../data/system/assets/tools/pencil.svg").build(
+                    ctx,
+                    "paint",
+                    hotkey(Key::P),
+                )
+            },
+            if mode == Mode::Erase {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/eraser.svg",
+                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                )
+            } else {
+                Btn::svg_def("../data/system/assets/tools/eraser.svg").build(
+                    ctx,
+                    "erase",
+                    hotkey(Key::Backspace),
+                )
+            },
+            if mode == Mode::Pan {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/pan.svg",
+                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                )
+            } else {
+                Btn::svg_def("../data/system/assets/tools/pan.svg").build(
+                    ctx,
+                    "pan",
+                    hotkey(Key::Escape),
+                )
+            },
         ])
-        .bg(app.cs.panel_bg)
-        .padding(16),
-    )
+        .evenly_spaced(),
+        Btn::text_fg("Select roads along a route").build_def(ctx, None),
+        Widget::custom_row(vec![
+            if roads.is_empty() {
+                Btn::text_fg("Edit 0 roads").inactive(ctx)
+            } else {
+                Btn::text_fg(format!("Edit {} roads", roads.len())).build(
+                    ctx,
+                    "edit roads",
+                    hotkey(Key::E),
+                )
+            },
+            Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
+        ])
+        .evenly_spaced(),
+    ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
 }

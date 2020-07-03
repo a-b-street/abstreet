@@ -29,26 +29,22 @@ pub struct FixTrafficSignals {
 impl FixTrafficSignals {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
-            top_center: Composite::new(
-                Widget::col(vec![
-                    challenge_header(ctx, "Traffic signal survivor"),
-                    Widget::row(vec![
-                        Line(format!(
-                            "Keep delay at all intersections under {}",
-                            THRESHOLD
-                        ))
-                        .draw(ctx),
-                        Btn::svg(
-                            "../data/system/assets/tools/hint.svg",
-                            RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                        )
-                        .build(ctx, "hint", None)
-                        .align_right(),
-                    ]),
-                ])
-                .bg(app.cs.panel_bg)
-                .padding(16),
-            )
+            top_center: Composite::new(Widget::col(vec![
+                challenge_header(ctx, "Traffic signal survivor"),
+                Widget::row(vec![
+                    Line(format!(
+                        "Keep delay at all intersections under {}",
+                        THRESHOLD
+                    ))
+                    .draw(ctx),
+                    Btn::svg(
+                        "../data/system/assets/tools/hint.svg",
+                        RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                    )
+                    .build(ctx, "hint", None)
+                    .align_right(),
+                ]),
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             meter: make_meter(ctx, app, None),
@@ -135,24 +131,20 @@ impl GameplayState for FixTrafficSignals {
                 self.meter = make_meter(ctx, app, Some((i, dt)));
                 if dt >= THRESHOLD {
                     self.done = true;
-                    self.top_center = Composite::new(
-                        Widget::col(vec![
-                            challenge_header(ctx, "Traffic signal survivor"),
-                            Widget::row(vec![
-                                Line(format!(
-                                    "Delay exceeded {} at {}",
-                                    THRESHOLD,
-                                    app.primary.sim.time()
-                                ))
-                                .fg(Color::RED)
-                                .draw(ctx)
-                                .centered_vert(),
-                                Btn::text_fg("try again").build_def(ctx, None),
-                            ]),
-                        ])
-                        .bg(app.cs.panel_bg)
-                        .padding(16),
-                    )
+                    self.top_center = Composite::new(Widget::col(vec![
+                        challenge_header(ctx, "Traffic signal survivor"),
+                        Widget::row(vec![
+                            Line(format!(
+                                "Delay exceeded {} at {}",
+                                THRESHOLD,
+                                app.primary.sim.time()
+                            ))
+                            .fg(Color::RED)
+                            .draw(ctx)
+                            .centered_vert(),
+                            Btn::text_fg("try again").build_def(ctx, None),
+                        ]),
+                    ]))
                     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
                     .build(ctx);
 
@@ -289,57 +281,52 @@ fn make_meter(
     app: &App,
     worst: Option<(IntersectionID, Duration)>,
 ) -> Composite {
-    Composite::new(
-        Widget::col(vec![
-            // Separator
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(
-                    Color::WHITE,
-                    Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
-                )]),
-            )
-            .centered_horiz(),
-            if let Some((_, delay)) = worst {
-                Widget::row(vec![
-                    Text::from_all(vec![
-                        Line("Worst delay: "),
-                        Line(delay.to_string()).fg(if delay < Duration::minutes(5) {
-                            Color::hex("#F9EC51")
-                        } else if delay < Duration::minutes(15) {
-                            Color::hex("#EE702E")
-                        } else {
-                            Color::hex("#EB3223")
-                        }),
-                    ])
-                    .draw(ctx),
-                    Btn::svg_def("../data/system/assets/tools/location.svg")
-                        .build(ctx, "go to slowest intersection", None)
-                        .align_right(),
-                ])
-            } else {
-                Widget::row(vec![
-                    if app.primary.dirty_from_edits {
-                        Btn::plaintext("(!)")
-                            .pad(0)
-                            .build(ctx, "explain score", None)
+    Composite::new(Widget::col(vec![
+        // Separator
+        Widget::draw_batch(
+            ctx,
+            GeomBatch::from(vec![(
+                Color::WHITE,
+                Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+            )]),
+        )
+        .centered_horiz(),
+        if let Some((_, delay)) = worst {
+            Widget::row(vec![
+                Text::from_all(vec![
+                    Line("Worst delay: "),
+                    Line(delay.to_string()).fg(if delay < Duration::minutes(5) {
+                        Color::hex("#F9EC51")
+                    } else if delay < Duration::minutes(15) {
+                        Color::hex("#EE702E")
                     } else {
-                        Widget::nothing()
-                    },
-                    Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()])
-                        .draw(ctx),
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/location.svg",
-                        RewriteColor::ChangeAlpha(0.5),
-                    )
-                    .align_right(),
+                        Color::hex("#EB3223")
+                    }),
                 ])
-            },
-        ])
-        .bg(app.cs.panel_bg)
-        .padding(16),
-    )
+                .draw(ctx),
+                Btn::svg_def("../data/system/assets/tools/location.svg")
+                    .build(ctx, "go to slowest intersection", None)
+                    .align_right(),
+            ])
+        } else {
+            Widget::row(vec![
+                if app.primary.dirty_from_edits {
+                    Btn::plaintext("(!)")
+                        .pad(0)
+                        .build(ctx, "explain score", None)
+                } else {
+                    Widget::nothing()
+                },
+                Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()]).draw(ctx),
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/location.svg",
+                    RewriteColor::ChangeAlpha(0.5),
+                )
+                .align_right(),
+            ])
+        },
+    ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
 }

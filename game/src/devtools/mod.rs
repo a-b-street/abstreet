@@ -24,31 +24,30 @@ pub struct DevToolsMode {
 impl DevToolsMode {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(DevToolsMode {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Internal dev tools").small_heading().draw(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    Widget::row(vec![
-                        "Change map:".draw_text(ctx),
-                        Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name())))
-                            .build(ctx, "change map", None),
-                    ]),
-                    Widget::custom_row(vec![
-                        Btn::text_fg("edit a polygon").build_def(ctx, hotkey(Key::E)),
-                        Btn::text_fg("draw a polygon").build_def(ctx, hotkey(Key::P)),
-                        Btn::text_fg("load scenario").build_def(ctx, hotkey(Key::W)),
-                        Btn::text_fg("view KML").build_def(ctx, hotkey(Key::K)),
-                        Btn::text_fg("story maps").build_def(ctx, hotkey(Key::S)),
-                    ])
-                    .flex_wrap(ctx, 60),
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Internal dev tools").small_heading().draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Widget::row(vec![
+                    "Change map:".draw_text(ctx),
+                    Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name()))).build(
+                        ctx,
+                        "change map",
+                        None,
+                    ),
+                ]),
+                Widget::custom_row(vec![
+                    Btn::text_fg("edit a polygon").build_def(ctx, hotkey(Key::E)),
+                    Btn::text_fg("draw a polygon").build_def(ctx, hotkey(Key::P)),
+                    Btn::text_fg("load scenario").build_def(ctx, hotkey(Key::W)),
+                    Btn::text_fg("view KML").build_def(ctx, hotkey(Key::K)),
+                    Btn::text_fg("story maps").build_def(ctx, hotkey(Key::S)),
                 ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+                .flex_wrap(ctx, 60),
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
         })
@@ -68,7 +67,6 @@ impl State for DevToolsMode {
                 "draw a polygon" => {
                     return Transition::Push(polygon::PolygonEditor::new(
                         ctx,
-                        app,
                         "name goes here".to_string(),
                         Vec::new(),
                     ));
@@ -80,7 +78,7 @@ impl State for DevToolsMode {
                     return Transition::Push(WizardState::new(Box::new(choose_kml)));
                 }
                 "story maps" => {
-                    return Transition::Push(story::StoryMapEditor::new(ctx, app));
+                    return Transition::Push(story::StoryMapEditor::new(ctx));
                 }
                 "change map" => {
                     return Transition::Push(CityPicker::new(
@@ -123,14 +121,14 @@ fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<
     )))
 }
 
-fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
+fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, _: &mut App) -> Option<Transition> {
     // TODO Sorry, Seattle only right now
     let name = wiz.wrap(ctx).choose_string("Edit which polygon?", || {
         abstutil::list_all_objects("../data/input/seattle/polygons/".to_string())
     })?;
     match LonLat::read_osmosis_polygon(format!("../data/input/seattle/polygons/{}.poly", name)) {
         Ok(pts) => Some(Transition::Replace(polygon::PolygonEditor::new(
-            ctx, app, name, pts,
+            ctx, name, pts,
         ))),
         Err(err) => {
             println!("Bad polygon {}: {}", name, err);

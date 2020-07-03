@@ -110,7 +110,7 @@ impl SpeedControls {
             .bg(app.cs.section_bg),
         );
 
-        Composite::new(Widget::custom_row(row).bg(app.cs.panel_bg).padding(16))
+        Composite::new(Widget::custom_row(row))
             .aligned(
                 HorizontalAlignment::Center,
                 VerticalAlignment::BottomAboveOSD,
@@ -348,56 +348,52 @@ impl JumpToTime {
         JumpToTime {
             target,
             maybe_mode,
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Jump to what time?").small_heading().draw(ctx),
-                        Btn::plaintext("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    if app.has_prebaked().is_some() {
-                        Widget::draw_batch(
-                            ctx,
-                            GeomBatch::from(vec![(
-                                Color::WHITE.alpha(0.7),
-                                area_under_curve(
-                                    app.prebaked().active_agents(end_of_day),
-                                    // TODO Auto fill width
-                                    500.0,
-                                    50.0,
-                                ),
-                            )]),
-                        )
-                    } else {
-                        Widget::nothing()
-                    },
-                    // TODO Auto-fill width?
-                    AreaSlider::new(
-                        ctx,
-                        0.25 * ctx.canvas.window_width,
-                        target.to_percent(end_of_day).min(1.0),
-                    )
-                    .named("time slider"),
-                    Btn::text_bg2(format!("Jump to {}", target.ampm_tostring()))
-                        .build(ctx, "jump to time", hotkey(Key::Enter))
-                        .centered_horiz()
-                        .named("jump to time"),
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Jump to what time?").small_heading().draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                if app.has_prebaked().is_some() {
                     Widget::draw_batch(
                         ctx,
                         GeomBatch::from(vec![(
-                            Color::WHITE,
-                            Polygon::rectangle(0.25 * ctx.canvas.window_width, 2.0),
+                            Color::WHITE.alpha(0.7),
+                            area_under_curve(
+                                app.prebaked().active_agents(end_of_day),
+                                // TODO Auto fill width
+                                500.0,
+                                50.0,
+                            ),
                         )]),
                     )
-                    .margin_above(10),
-                    Btn::text_bg2("Jump to the next delay over 5 minutes")
-                        .build_def(ctx, None)
-                        .centered_horiz(),
-                ])
-                .bg(app.cs.panel_bg)
-                .padding(16),
-            )
+                } else {
+                    Widget::nothing()
+                },
+                // TODO Auto-fill width?
+                AreaSlider::new(
+                    ctx,
+                    0.25 * ctx.canvas.window_width,
+                    target.to_percent(end_of_day).min(1.0),
+                )
+                .named("time slider"),
+                Btn::text_bg2(format!("Jump to {}", target.ampm_tostring()))
+                    .build(ctx, "jump to time", hotkey(Key::Enter))
+                    .centered_horiz()
+                    .named("jump to time"),
+                Widget::draw_batch(
+                    ctx,
+                    GeomBatch::from(vec![(
+                        Color::WHITE,
+                        Polygon::rectangle(0.25 * ctx.canvas.window_width, 2.0),
+                    )]),
+                )
+                .margin_above(10),
+                Btn::text_bg2("Jump to the next delay over 5 minutes")
+                    .build_def(ctx, None)
+                    .centered_horiz(),
+            ]))
             .build(ctx),
         }
     }
@@ -501,16 +497,12 @@ impl TimeWarpScreen {
             target,
             started: Instant::now(),
             traffic_jams,
-            composite: Composite::new(
-                Widget::col(vec![
-                    Text::new().draw(ctx).named("text"),
-                    Btn::text_bg2("stop now")
-                        .build_def(ctx, hotkey(Key::Escape))
-                        .centered_horiz(),
-                ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Text::new().draw(ctx).named("text"),
+                Btn::text_bg2("stop now")
+                    .build_def(ctx, hotkey(Key::Escape))
+                    .centered_horiz(),
+            ]))
             .build(ctx),
         })
     }
@@ -640,58 +632,54 @@ impl TimePanel {
     pub fn new(ctx: &mut EventCtx, app: &App) -> TimePanel {
         TimePanel {
             time: app.primary.sim.time(),
-            composite: Composite::new(
-                Widget::col(vec![
-                    Text::from(
-                        Line(app.primary.sim.time().ampm_tostring_spacers()).big_heading_styled(),
-                    )
-                    .draw(ctx)
-                    .centered_horiz(),
-                    {
-                        let mut batch = GeomBatch::new();
-                        // This is manually tuned
-                        let width = 300.0;
-                        let height = 15.0;
-                        // Just clamp if we simulate past the expected end
-                        let percent = app
-                            .primary
-                            .sim
-                            .time()
-                            .to_percent(app.primary.sim.get_end_of_day())
-                            .min(1.0);
+            composite: Composite::new(Widget::col(vec![
+                Text::from(
+                    Line(app.primary.sim.time().ampm_tostring_spacers()).big_heading_styled(),
+                )
+                .draw(ctx)
+                .centered_horiz(),
+                {
+                    let mut batch = GeomBatch::new();
+                    // This is manually tuned
+                    let width = 300.0;
+                    let height = 15.0;
+                    // Just clamp if we simulate past the expected end
+                    let percent = app
+                        .primary
+                        .sim
+                        .time()
+                        .to_percent(app.primary.sim.get_end_of_day())
+                        .min(1.0);
 
-                        // TODO Why is the rounding so hard? The white background is always rounded
-                        // at both ends. The moving bar should always be rounded on the left, flat
-                        // on the right, except at the very end (for the last 'radius' pixels). And
-                        // when the width is too small for the radius, this messes up.
+                    // TODO Why is the rounding so hard? The white background is always rounded
+                    // at both ends. The moving bar should always be rounded on the left, flat
+                    // on the right, except at the very end (for the last 'radius' pixels). And
+                    // when the width is too small for the radius, this messes up.
 
-                        batch.push(Color::WHITE, Polygon::rectangle(width, height));
+                    batch.push(Color::WHITE, Polygon::rectangle(width, height));
 
-                        if percent != 0.0 {
-                            batch.push(
-                                if percent < 0.25 || percent > 0.75 {
-                                    app.cs.night_time_slider
-                                } else {
-                                    app.cs.day_time_slider
-                                },
-                                Polygon::rectangle(percent * width, height),
-                            );
-                        }
+                    if percent != 0.0 {
+                        batch.push(
+                            if percent < 0.25 || percent > 0.75 {
+                                app.cs.night_time_slider
+                            } else {
+                                app.cs.day_time_slider
+                            },
+                            Polygon::rectangle(percent * width, height),
+                        );
+                    }
 
-                        Widget::draw_batch(ctx, batch)
-                    },
-                    Widget::custom_row(vec![
-                        Line("00:00").small().draw(ctx),
-                        Widget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
-                        Line("12:00").small().draw(ctx),
-                        Widget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
-                        Line("24:00").small().draw(ctx),
-                    ])
-                    .evenly_spaced(),
+                    Widget::draw_batch(ctx, batch)
+                },
+                Widget::custom_row(vec![
+                    Line("00:00").small().draw(ctx),
+                    Widget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
+                    Line("12:00").small().draw(ctx),
+                    Widget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
+                    Line("24:00").small().draw(ctx),
                 ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+                .evenly_spaced(),
+            ]))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .build(ctx),
         }

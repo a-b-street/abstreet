@@ -18,19 +18,15 @@ impl IsochroneViewer {
     pub fn new(ctx: &mut EventCtx, app: &App, start: IntersectionID) -> Box<dyn State> {
         let draw = make_isochrone(ctx, app, start);
         Box::new(IsochroneViewer {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Isochrone").small_heading().draw(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    // TODO legend, mode picker
-                ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Isochrone").small_heading().draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                // TODO legend, mode picker
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             draw,

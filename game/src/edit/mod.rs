@@ -56,7 +56,7 @@ impl EditMode {
         let edits = app.primary.map.get_edits();
         let layer = crate::layer::map::Static::edits(ctx, app);
         EditMode {
-            tool_panel: tool_panel(ctx, app),
+            tool_panel: tool_panel(ctx),
             top_center: make_topcenter(ctx, app, &mode),
             changelist: make_changelist(ctx, app),
             orig_edits: edits.clone(),
@@ -150,7 +150,7 @@ impl State for EditMode {
         }
 
         if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
-            return Transition::Push(Box::new(DebugMode::new(ctx, app)));
+            return Transition::Push(Box::new(DebugMode::new(ctx)));
         }
 
         match self.top_center.event(ctx) {
@@ -300,30 +300,26 @@ impl SaveEdits {
         let btn = SaveEdits::btn(ctx, app, &initial_name);
         Box::new(SaveEdits {
             current_name: initial_name.clone(),
-            composite: Composite::new(
-                Widget::col(vec![
-                    Line(title).small_heading().draw(ctx),
-                    Widget::row(vec![
-                        "Name:".draw_text(ctx),
-                        Widget::text_entry(ctx, initial_name, true).named("filename"),
-                    ]),
-                    Widget::row(vec![
-                        btn,
-                        if discard {
-                            Btn::text_bg2("Discard edits").build_def(ctx, None)
-                        } else {
-                            Widget::nothing()
-                        },
-                        if cancel.is_some() {
-                            Btn::text_bg2("Cancel").build_def(ctx, hotkey(Key::Escape))
-                        } else {
-                            Widget::nothing()
-                        },
-                    ]),
-                ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Line(title).small_heading().draw(ctx),
+                Widget::row(vec![
+                    "Name:".draw_text(ctx),
+                    Widget::text_entry(ctx, initial_name, true).named("filename"),
+                ]),
+                Widget::row(vec![
+                    btn,
+                    if discard {
+                        Btn::text_bg2("Discard edits").build_def(ctx, None)
+                    } else {
+                        Widget::nothing()
+                    },
+                    if cancel.is_some() {
+                        Btn::text_bg2("Cancel").build_def(ctx, hotkey(Key::Escape))
+                    } else {
+                        Widget::nothing()
+                    },
+                ]),
+            ]))
             .build(ctx),
             cancel,
             reset: discard,
@@ -464,40 +460,36 @@ fn make_load_edits(app: &App, mode: GameplayMode) -> Box<dyn State> {
 }
 
 fn make_topcenter(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Composite {
-    Composite::new(
-        Widget::col(vec![
-            Line("Editing map")
-                .small_heading()
-                .draw(ctx)
-                .centered_horiz(),
-            Widget::row(vec![
-                if mode.can_edit_lanes() {
-                    Btn::text_fg("bulk edit").build_def(ctx, hotkey(Key::B))
-                } else {
-                    Btn::text_fg("bulk edit").inactive(ctx)
-                },
-                PersistentSplit::new(
-                    ctx,
-                    "finish editing",
-                    app.opts.resume_after_edit,
-                    hotkey(Key::Escape),
-                    vec![
-                        Choice::new(
-                            format!(
-                                "Finish & resume from {}",
-                                app.suspended_sim.as_ref().unwrap().time().ampm_tostring()
-                            ),
-                            true,
+    Composite::new(Widget::col(vec![
+        Line("Editing map")
+            .small_heading()
+            .draw(ctx)
+            .centered_horiz(),
+        Widget::row(vec![
+            if mode.can_edit_lanes() {
+                Btn::text_fg("bulk edit").build_def(ctx, hotkey(Key::B))
+            } else {
+                Btn::text_fg("bulk edit").inactive(ctx)
+            },
+            PersistentSplit::new(
+                ctx,
+                "finish editing",
+                app.opts.resume_after_edit,
+                hotkey(Key::Escape),
+                vec![
+                    Choice::new(
+                        format!(
+                            "Finish & resume from {}",
+                            app.suspended_sim.as_ref().unwrap().time().ampm_tostring()
                         ),
-                        Choice::new("Finish & restart from midnight", false),
-                    ],
-                )
-                .bg(app.cs.section_bg),
-            ]),
-        ])
-        .bg(app.cs.panel_bg)
-        .padding(16),
-    )
+                        true,
+                    ),
+                    Choice::new("Finish & restart from midnight", false),
+                ],
+            )
+            .bg(app.cs.section_bg),
+        ]),
+    ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
 }
@@ -796,7 +788,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
         col.push(format!("{} more...", edits.commands.len()).draw_text(ctx));
     }
 
-    Composite::new(Widget::col(col).padding(16).bg(app.cs.panel_bg))
+    Composite::new(Widget::col(col))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }

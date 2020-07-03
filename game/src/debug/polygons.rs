@@ -22,13 +22,31 @@ pub enum Item {
 impl PolygonDebugger {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &App,
         noun: &str,
         items: Vec<Item>,
         center: Option<Pt2D>,
     ) -> Box<dyn State> {
         Box::new(PolygonDebugger {
-            composite: make_panel(ctx, app),
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Geometry debugger").small_heading().draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Widget::row(vec![
+                    // TODO inactive
+                    Btn::text_fg("<").build(ctx, "previous", hotkey(Key::LeftArrow)),
+                    "noun X/Y".draw_text(ctx).named("pointer"),
+                    Btn::text_fg(">").build(ctx, "next", hotkey(Key::RightArrow)),
+                ])
+                .evenly_spaced(),
+                Slider::horizontal(ctx, 100.0, 25.0, 0.0)
+                    .named("slider")
+                    .centered_horiz(),
+            ]))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
             noun: noun.to_string(),
             items,
             center,
@@ -133,31 +151,4 @@ impl State for PolygonDebugger {
 
         self.composite.draw(g);
     }
-}
-
-fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
-    Composite::new(
-        Widget::col(vec![
-            Widget::row(vec![
-                Line("Geometry debugger").small_heading().draw(ctx),
-                Btn::text_fg("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
-                    .align_right(),
-            ]),
-            Widget::row(vec![
-                // TODO inactive
-                Btn::text_fg("<").build(ctx, "previous", hotkey(Key::LeftArrow)),
-                "noun X/Y".draw_text(ctx).named("pointer"),
-                Btn::text_fg(">").build(ctx, "next", hotkey(Key::RightArrow)),
-            ])
-            .evenly_spaced(),
-            Slider::horizontal(ctx, 100.0, 25.0, 0.0)
-                .named("slider")
-                .centered_horiz(),
-        ])
-        .bg(app.cs.panel_bg)
-        .padding(16),
-    )
-    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-    .build(ctx)
 }

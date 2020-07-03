@@ -34,20 +34,16 @@ impl TripSummaries {
         ];
 
         Box::new(TripSummaries {
-            composite: Composite::new(
-                Widget::col(vec![
-                    DashTab::TripSummaries.picker(ctx, app),
-                    Widget::row(filters).centered_horiz(),
-                    summary(ctx, app, &filter),
-                    Widget::row(vec![
-                        contingency_table(ctx, app, &filter).centered_vert(),
-                        scatter_plot(ctx, app, &filter),
-                    ])
-                    .evenly_spaced(),
+            composite: Composite::new(Widget::col(vec![
+                DashTab::TripSummaries.picker(ctx, app),
+                Widget::row(filters).centered_horiz(),
+                summary(ctx, app, &filter),
+                Widget::row(vec![
+                    contingency_table(ctx, app, &filter).centered_vert(),
+                    scatter_plot(ctx, app, &filter),
                 ])
-                .bg(app.cs.panel_bg)
-                .padding(16),
-            )
+                .evenly_spaced(),
+            ]))
             .exact_size_percent(90, 90)
             .build(ctx),
             filter,

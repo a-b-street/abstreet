@@ -334,7 +334,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         0.88 * ctx.canvas.window_width,
     ));
 
-    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::col(col))
         .exact_size_percent(90, 90)
         .build(ctx)
 }

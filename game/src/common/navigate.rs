@@ -17,28 +17,24 @@ pub struct Navigator {
 impl Navigator {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(Navigator {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Enter a street name").small_heading().draw(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    Autocomplete::new(
-                        ctx,
-                        app.primary
-                            .map
-                            .all_roads()
-                            .iter()
-                            .map(|r| (r.get_name(), r.id))
-                            .collect(),
-                    )
-                    .named("street"),
-                ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Enter a street name").small_heading().draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Autocomplete::new(
+                    ctx,
+                    app.primary
+                        .map
+                        .all_roads()
+                        .iter()
+                        .map(|r| (r.get_name(), r.id))
+                        .collect(),
+                )
+                .named("street"),
+            ]))
             .build(ctx),
         })
     }
@@ -104,34 +100,30 @@ impl CrossStreet {
         }
 
         Box::new(CrossStreet {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        {
-                            let mut txt = Text::from(Line("What cross street?").small_heading());
-                            // TODO This isn't so clear...
-                            txt.add(Line(format!(
-                                "(Or just quit to go to {})",
-                                map.get_r(first[0]).get_name(),
-                            )));
-                            txt.draw(ctx)
-                        },
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    Autocomplete::new(
-                        ctx,
-                        cross_streets
-                            .into_iter()
-                            .map(|r| (map.get_r(r).get_name(), r))
-                            .collect(),
-                    )
-                    .named("street"),
-                ])
-                .bg(app.cs.panel_bg)
-                .padding(16),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    {
+                        let mut txt = Text::from(Line("What cross street?").small_heading());
+                        // TODO This isn't so clear...
+                        txt.add(Line(format!(
+                            "(Or just quit to go to {})",
+                            map.get_r(first[0]).get_name(),
+                        )));
+                        txt.draw(ctx)
+                    },
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Autocomplete::new(
+                    ctx,
+                    cross_streets
+                        .into_iter()
+                        .map(|r| (map.get_r(r).get_name(), r))
+                        .collect(),
+                )
+                .named("street"),
+            ]))
             .build(ctx),
             first,
             draw: ctx.upload(batch),

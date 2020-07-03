@@ -32,47 +32,43 @@ pub struct DebugMode {
 }
 
 impl DebugMode {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> DebugMode {
+    pub fn new(ctx: &mut EventCtx) -> DebugMode {
         DebugMode {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Debug Mode").small_heading().draw(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    Text::new().draw(ctx).named("current info"),
-                    Checkbox::text(ctx, "show buildings", hotkey(Key::Num1), true),
-                    Checkbox::text(ctx, "show intersections", hotkey(Key::Num2), true),
-                    Checkbox::text(ctx, "show lanes", hotkey(Key::Num3), true),
-                    Checkbox::text(ctx, "show areas", hotkey(Key::Num4), true),
-                    Checkbox::text(ctx, "show labels", hotkey(Key::Num5), false),
-                    Checkbox::text(ctx, "show route for all agents", hotkey(Key::R), false),
-                    Widget::col(
-                        vec![
-                            (lctrl(Key::H), "unhide everything"),
-                            (None, "screenshot everything"),
-                            (hotkey(Key::Slash), "search OSM metadata"),
-                            (lctrl(Key::Slash), "clear OSM search results"),
-                            (hotkey(Key::O), "save sim state"),
-                            (hotkey(Key::Y), "load previous sim state"),
-                            (hotkey(Key::U), "load next sim state"),
-                            (None, "pick a savestate to load"),
-                            (None, "find bad traffic signals"),
-                        ]
-                        .into_iter()
-                        .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
-                        .collect(),
-                    ),
-                ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Debug Mode").small_heading().draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Text::new().draw(ctx).named("current info"),
+                Checkbox::text(ctx, "show buildings", hotkey(Key::Num1), true),
+                Checkbox::text(ctx, "show intersections", hotkey(Key::Num2), true),
+                Checkbox::text(ctx, "show lanes", hotkey(Key::Num3), true),
+                Checkbox::text(ctx, "show areas", hotkey(Key::Num4), true),
+                Checkbox::text(ctx, "show labels", hotkey(Key::Num5), false),
+                Checkbox::text(ctx, "show route for all agents", hotkey(Key::R), false),
+                Widget::col(
+                    vec![
+                        (lctrl(Key::H), "unhide everything"),
+                        (None, "screenshot everything"),
+                        (hotkey(Key::Slash), "search OSM metadata"),
+                        (lctrl(Key::Slash), "clear OSM search results"),
+                        (hotkey(Key::O), "save sim state"),
+                        (hotkey(Key::Y), "load previous sim state"),
+                        (hotkey(Key::U), "load next sim state"),
+                        (None, "pick a savestate to load"),
+                        (None, "find bad traffic signals"),
+                    ]
+                    .into_iter()
+                    .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
+                    .collect(),
+                ),
+            ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx, app),
+            tool_panel: tool_panel(ctx),
             objects: objects::ObjectDebugger::new(),
             hidden: HashSet::new(),
             layers: ShowLayers::new(),
@@ -499,7 +495,6 @@ impl ContextualActions for Actions {
                 pts_without_last.pop();
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
-                    app,
                     "point",
                     pts.iter().map(|pt| polygons::Item::Point(*pt)).collect(),
                     Some(Pt2D::center(&pts_without_last)),
@@ -508,7 +503,6 @@ impl ContextualActions for Actions {
             (ID::Intersection(i), "debug sidewalk corners") => {
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
-                    app,
                     "corner",
                     calculate_corners(app.primary.map.get_i(i), &app.primary.map)
                         .into_iter()
@@ -520,7 +514,6 @@ impl ContextualActions for Actions {
             (ID::Lane(l), "debug lane geometry") => {
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
-                    app,
                     "point",
                     app.primary
                         .map
@@ -536,7 +529,6 @@ impl ContextualActions for Actions {
             (ID::Lane(l), "debug lane triangles geometry") => {
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
-                    app,
                     "triangle",
                     app.primary
                         .draw_map
@@ -560,7 +552,6 @@ impl ContextualActions for Actions {
                 };
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
-                    app,
                     "point",
                     pts.iter().map(|pt| polygons::Item::Point(*pt)).collect(),
                     Some(center),
@@ -569,7 +560,6 @@ impl ContextualActions for Actions {
             (ID::Area(a), "debug area triangles") => {
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
-                    app,
                     "triangle",
                     app.primary
                         .map

@@ -99,9 +99,7 @@ impl CityPicker {
                         Widget::col(this_city).centered_vert(),
                     ]),
                 ])
-                .bg(app.cs.panel_bg)
-                .outline(2.0, Color::WHITE)
-                .padding(16),
+                .outline(2.0, Color::WHITE),
             )
             .build(ctx),
         })

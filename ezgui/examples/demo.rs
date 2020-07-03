@@ -59,57 +59,51 @@ impl App {
             col3.push(Line(s.pow(2).to_string()).secondary().draw(ctx));
         }
 
-        let mut c = Composite::new(
-            Widget::col(vec![
-                Text::from_multiline(vec![
-                    Line("Here's a bunch of text to force some scrolling.").small_heading(),
-                    Line(
-                        "Bug: scrolling by clicking and dragging doesn't work while the stopwatch \
-                         is running.",
-                    )
-                    .fg(Color::RED),
-                ])
-                .draw(ctx),
-                Widget::row(vec![
-                    // Examples of styling widgets
-                    Widget::col(col1).outline(3.0, Color::BLACK).padding(5),
-                    Widget::col(col).outline(3.0, Color::BLACK).padding(5),
-                    Widget::col(col3).outline(3.0, Color::BLACK).padding(5),
-                ]),
-                LinePlot::new(
-                    ctx,
-                    vec![
-                        Series {
-                            label: "Linear".to_string(),
-                            color: Color::GREEN,
-                            // These points are (x axis = Time, y axis = usize)
-                            pts: (0..(self.elapsed.inner_seconds() as usize))
-                                .map(|s| (Time::START_OF_DAY + Duration::seconds(s as f64), s))
-                                .collect(),
-                        },
-                        Series {
-                            label: "Quadratic".to_string(),
-                            color: Color::BLUE,
-                            pts: (0..(self.elapsed.inner_seconds() as usize))
-                                .map(|s| {
-                                    (Time::START_OF_DAY + Duration::seconds(s as f64), s.pow(2))
-                                })
-                                .collect(),
-                        },
-                    ],
-                    PlotOptions {
-                        filterable: false,
-                        // Without this, the plot doesn't stretch to cover times in between whole
-                        // seconds.
-                        max_x: Some(Time::START_OF_DAY + self.elapsed),
-                        max_y: None,
-                        disabled: HashSet::new(),
-                    },
-                ),
+        let mut c = Composite::new(Widget::col(vec![
+            Text::from_multiline(vec![
+                Line("Here's a bunch of text to force some scrolling.").small_heading(),
+                Line(
+                    "Bug: scrolling by clicking and dragging doesn't work while the stopwatch is \
+                     running.",
+                )
+                .fg(Color::RED),
             ])
-            .padding(16)
-            .bg(Color::grey(0.4)),
-        )
+            .draw(ctx),
+            Widget::row(vec![
+                // Examples of styling widgets
+                Widget::col(col1).outline(3.0, Color::BLACK).padding(5),
+                Widget::col(col).outline(3.0, Color::BLACK).padding(5),
+                Widget::col(col3).outline(3.0, Color::BLACK).padding(5),
+            ]),
+            LinePlot::new(
+                ctx,
+                vec![
+                    Series {
+                        label: "Linear".to_string(),
+                        color: Color::GREEN,
+                        // These points are (x axis = Time, y axis = usize)
+                        pts: (0..(self.elapsed.inner_seconds() as usize))
+                            .map(|s| (Time::START_OF_DAY + Duration::seconds(s as f64), s))
+                            .collect(),
+                    },
+                    Series {
+                        label: "Quadratic".to_string(),
+                        color: Color::BLUE,
+                        pts: (0..(self.elapsed.inner_seconds() as usize))
+                            .map(|s| (Time::START_OF_DAY + Duration::seconds(s as f64), s.pow(2)))
+                            .collect(),
+                    },
+                ],
+                PlotOptions {
+                    filterable: false,
+                    // Without this, the plot doesn't stretch to cover times in between whole
+                    // seconds.
+                    max_x: Some(Time::START_OF_DAY + self.elapsed),
+                    max_y: None,
+                    disabled: HashSet::new(),
+                },
+            ),
+        ]))
         // Don't let the panel exceed this percentage of the window. Scrollbars appear
         // automatically if needed.
         .max_size_percent(30, 40)
@@ -255,32 +249,28 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 }
 
 fn make_controls(ctx: &mut EventCtx) -> Composite {
-    Composite::new(
-        Widget::col(vec![
-            Text::from_multiline(vec![
-                Line("ezgui demo").small_heading(),
-                Line("Click and drag to pan, use touchpad or scroll wheel to zoom"),
-            ])
-            .draw(ctx),
-            Widget::row(vec![
-                // This just cycles between two arbitrary buttons
-                Checkbox::new(
-                    false,
-                    Btn::text_bg1("Pause").build(ctx, "pause the stopwatch", hotkey(Key::Space)),
-                    Btn::text_bg1("Resume").build(ctx, "resume the stopwatch", hotkey(Key::Space)),
-                )
-                .named("paused"),
-                Btn::text_fg("Reset timer").build(ctx, "reset the stopwatch", None),
-                Btn::text_fg("New faces").build(ctx, "generate new faces", hotkey(Key::F)),
-                Checkbox::text(ctx, "Draw scrollable canvas", None, true),
-                Checkbox::text(ctx, "Show timeseries", lctrl(Key::T), false),
-            ])
-            .evenly_spaced(),
-            "Stopwatch: ...".draw_text(ctx).named("stopwatch"),
+    Composite::new(Widget::col(vec![
+        Text::from_multiline(vec![
+            Line("ezgui demo").small_heading(),
+            Line("Click and drag to pan, use touchpad or scroll wheel to zoom"),
         ])
-        .bg(Color::grey(0.4))
-        .padding(16),
-    )
+        .draw(ctx),
+        Widget::row(vec![
+            // This just cycles between two arbitrary buttons
+            Checkbox::new(
+                false,
+                Btn::text_bg1("Pause").build(ctx, "pause the stopwatch", hotkey(Key::Space)),
+                Btn::text_bg1("Resume").build(ctx, "resume the stopwatch", hotkey(Key::Space)),
+            )
+            .named("paused"),
+            Btn::text_fg("Reset timer").build(ctx, "reset the stopwatch", None),
+            Btn::text_fg("New faces").build(ctx, "generate new faces", hotkey(Key::F)),
+            Checkbox::text(ctx, "Draw scrollable canvas", None, true),
+            Checkbox::text(ctx, "Show timeseries", lctrl(Key::T), false),
+        ])
+        .evenly_spaced(),
+        "Stopwatch: ...".draw_text(ctx).named("stopwatch"),
+    ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
 }

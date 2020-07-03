@@ -79,7 +79,6 @@ impl GameplayState for PlayScenario {
                 )))),
                 "edit traffic patterns" => Some(Transition::Push(EditScenarioModifiers::new(
                     ctx,
-                    app,
                     self.scenario_name.clone(),
                     self.modifiers.clone(),
                 ))),
@@ -141,7 +140,7 @@ fn make_top_center(
         },
     ];
 
-    Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::col(rows))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -155,7 +154,6 @@ struct EditScenarioModifiers {
 impl EditScenarioModifiers {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &App,
         scenario_name: String,
         modifiers: Vec<ScenarioModifier>,
     ) -> Box<dyn State> {
@@ -197,7 +195,7 @@ impl EditScenarioModifiers {
         Box::new(EditScenarioModifiers {
             scenario_name,
             modifiers,
-            composite: Composite::new(Widget::col(rows).padding(16).bg(app.cs.panel_bg))
+            composite: Composite::new(Widget::col(rows))
                 .exact_size_percent(80, 80)
                 .build(ctx),
         })
@@ -233,7 +231,6 @@ impl State for EditScenarioModifiers {
                     self.modifiers.remove(idx);
                     return Transition::Replace(EditScenarioModifiers::new(
                         ctx,
-                        app,
                         self.scenario_name.clone(),
                         self.modifiers.clone(),
                     ));
@@ -254,7 +251,7 @@ impl State for EditScenarioModifiers {
 
 // TODO Wizard isn't the right UI for this
 fn new_modifier(scenario_name: String, modifiers: Vec<ScenarioModifier>) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, app| {
+    WizardState::new(Box::new(move |wiz, ctx, _| {
         let mut wizard = wiz.wrap(ctx);
         let new_mod = match wizard
             .choose_string("", || {
@@ -274,7 +271,6 @@ fn new_modifier(scenario_name: String, modifiers: Vec<ScenarioModifier>) -> Box<
         mods.push(new_mod);
         Some(Transition::PopThenReplace(EditScenarioModifiers::new(
             ctx,
-            app,
             scenario_name.clone(),
             mods,
         )))

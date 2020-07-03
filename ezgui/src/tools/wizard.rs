@@ -90,9 +90,7 @@ impl Wizard {
                             .named("input"),
                         Btn::text_bg2("Done").build(ctx, "done", hotkey(Key::Enter)),
                     ])
-                    .bg(ctx.style().panel_bg)
-                    .outline(5.0, Color::WHITE)
-                    .padding(16),
+                    .outline(5.0, Color::WHITE),
                 )
                 .build(ctx),
             );
@@ -267,9 +265,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                         Widget::col(col),
                         Btn::plaintext("X").build(self.ctx, "quit", hotkey(Key::Escape)),
                     ])
-                    .bg(self.ctx.style().panel_bg)
-                    .outline(5.0, Color::WHITE)
-                    .padding(16),
+                    .outline(5.0, Color::WHITE),
                 )
                 .aligned(horiz, vert)
                 .build(self.ctx),
@@ -391,9 +387,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                     txt.draw(self.ctx),
                     Btn::text_bg2("OK").build(self.ctx, "OK", hotkey(Key::Enter)),
                 ])
-                .bg(self.ctx.style().panel_bg)
-                .outline(10.0, Color::WHITE)
-                .padding(16),
+                .outline(10.0, Color::WHITE),
             )
             .build(self.ctx),
         );

@@ -881,7 +881,12 @@ impl Composite {
 }
 
 impl CompositeBuilder {
-    pub fn build(self, ctx: &mut EventCtx) -> Composite {
+    pub fn build(mut self, ctx: &mut EventCtx) -> Composite {
+        self.top_level = self.top_level.padding(16).bg(ctx.style.panel_bg);
+        self.build_custom(ctx)
+    }
+
+    pub fn build_custom(self, ctx: &mut EventCtx) -> Composite {
         let mut c = Composite {
             top_level: self.top_level,
 

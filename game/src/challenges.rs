@@ -266,7 +266,7 @@ impl Tab {
         let mut c = WrappedComposite::new(
             Composite::new(Widget::col(master_col))
                 .exact_size_percent(90, 85)
-                .build(ctx),
+                .build_custom(ctx),
         )
         .cb("back", Box::new(|_, _| Some(Transition::Pop)));
         for (name, cb) in cbs {

@@ -322,7 +322,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
             HorizontalAlignment::Right,
             VerticalAlignment::BottomAboveOSD,
         )
-        .build(ctx);
+        .build_custom(ctx);
     }
 
     let zoom_col = {
@@ -390,7 +390,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
         HorizontalAlignment::Right,
         VerticalAlignment::BottomAboveOSD,
     )
-    .build(ctx)
+    .build_custom(ctx)
 }
 
 fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {

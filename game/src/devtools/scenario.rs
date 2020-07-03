@@ -47,40 +47,36 @@ impl ScenarioManager {
 
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         ScenarioManager {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        Line(format!("Scenario {}", scenario.scenario_name))
-                            .small_heading()
-                            .draw(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    Btn::text_fg("block map").build_def(ctx, hotkey(Key::B)),
-                    Btn::text_fg("popular destinations").build_def(ctx, hotkey(Key::D)),
-                    Text::from_multiline(vec![
-                        Line(format!(
-                            "{} people",
-                            prettyprint_usize(scenario.people.len())
-                        )),
-                        Line(format!(
-                            "seed {} parked cars",
-                            prettyprint_usize(total_cars_needed)
-                        )),
-                        Line(format!(
-                            "{} parking spots",
-                            prettyprint_usize(free_parking_spots.len()),
-                        )),
-                        Line(""),
-                        Line("Parked cars per building"),
-                    ])
-                    .draw(ctx),
-                    legend,
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line(format!("Scenario {}", scenario.scenario_name))
+                        .small_heading()
+                        .draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Btn::text_fg("block map").build_def(ctx, hotkey(Key::B)),
+                Btn::text_fg("popular destinations").build_def(ctx, hotkey(Key::D)),
+                Text::from_multiline(vec![
+                    Line(format!(
+                        "{} people",
+                        prettyprint_usize(scenario.people.len())
+                    )),
+                    Line(format!(
+                        "seed {} parked cars",
+                        prettyprint_usize(total_cars_needed)
+                    )),
+                    Line(format!(
+                        "{} parking spots",
+                        prettyprint_usize(free_parking_spots.len()),
+                    )),
+                    Line(""),
+                    Line("Parked cars per building"),
                 ])
-                .padding(16)
-                .bg(app.cs.panel_bg),
-            )
+                .draw(ctx),
+                legend,
+            ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             unzoomed,

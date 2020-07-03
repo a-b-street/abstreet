@@ -386,7 +386,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         .centered_horiz(),
     );
 
-    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
+    Composite::new(Widget::col(col))
         .exact_size_percent(90, 90)
         .build(ctx)
 }

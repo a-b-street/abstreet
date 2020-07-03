@@ -314,7 +314,7 @@ impl TurnExplorer {
             col.push(ColorLegend::row(ctx, CONFLICTING_TURN, "conflicting turn"));
         }
 
-        Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
+        Composite::new(Widget::col(col))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }

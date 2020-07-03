@@ -21,12 +21,9 @@ impl ClusterTrafficSignalEditor {
     pub fn new(ctx: &mut EventCtx, app: &mut App, ic: &IntersectionCluster) -> Box<dyn State> {
         app.primary.current_selection = None;
         Box::new(ClusterTrafficSignalEditor {
-            composite: Composite::new(
-                Widget::row(vec![
-                    Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape))
-                ])
-                .bg(app.cs.panel_bg),
-            )
+            composite: Composite::new(Widget::row(vec![
+                Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape))
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             groups: DrawUberTurnGroup::new(ic, &app.primary.map),
