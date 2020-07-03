@@ -11,6 +11,7 @@ use sim::{AgentID, CarID};
 use std::collections::BTreeMap;
 
 pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
+    let bs = app.primary.map.get_bs(id);
     let mut rows = vec![];
 
     let sim = &app.primary.sim;
@@ -19,7 +20,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         Line("Bus stop").small_heading().draw(ctx),
         header_btns(ctx),
     ]));
-    rows.push(format!("On {}", app.primary.map.get_parent(id.sidewalk).get_name()).draw_text(ctx));
+    rows.push(Line(&bs.name).draw(ctx));
 
     let all_arrivals = &sim.get_analytics().bus_arrivals;
     for r in app.primary.map.get_routes_serving_stop(id) {
@@ -56,6 +57,12 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         }
         rows.push(txt.draw(ctx));
     }
+
+    // Draw where the bus/train stops
+    details.zoomed.push(
+        app.cs.bus_body.alpha(0.5),
+        Circle::new(bs.driving_pos.pt(&app.primary.map), Distance::meters(2.5)).to_polygon(),
+    );
 
     rows
 }

@@ -1,4 +1,4 @@
-use crate::make::sidewalk_finder::find_sidewalk_points;
+use crate::make::match_points_to_lanes;
 use crate::raw::{OriginalBuilding, RawBuilding, RawParkingLot};
 use crate::{
     osm, Building, BuildingID, FrontPath, LaneID, LaneType, Map, OffstreetParking, ParkingLot,
@@ -27,10 +27,11 @@ pub fn make_all_buildings(
     // equiv_pos could be a little closer, so use two buffers
     let sidewalk_buffer = Distance::meters(7.5);
     let driveway_buffer = Distance::meters(7.0);
-    let sidewalk_pts = find_sidewalk_points(
+    let sidewalk_pts = match_points_to_lanes(
         map.get_bounds(),
         query,
         map.all_lanes(),
+        |l| l.is_sidewalk(),
         // Don't put connections too close to intersections
         sidewalk_buffer,
         // Try not to skip any buildings, but more than 1km from a sidewalk is a little much
@@ -134,10 +135,11 @@ pub fn make_all_parking_lots(
 
     let sidewalk_buffer = Distance::meters(7.5);
     let driveway_buffer = Distance::meters(7.0);
-    let sidewalk_pts = find_sidewalk_points(
+    let sidewalk_pts = match_points_to_lanes(
         map.get_bounds(),
         query,
         map.all_lanes(),
+        |l| l.is_sidewalk(),
         sidewalk_buffer,
         Distance::meters(1000.0),
         timer,

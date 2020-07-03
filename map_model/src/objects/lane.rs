@@ -5,6 +5,7 @@ use crate::{
 };
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeSet;
 use std::fmt;
 
 // Bit longer than the longest car.
@@ -102,7 +103,8 @@ pub struct Lane {
 
     // Sorted by distance of the front path
     pub building_paths: Vec<BuildingID>,
-    pub bus_stops: Vec<BusStopID>,
+    // Meaningless order
+    pub bus_stops: BTreeSet<BusStopID>,
 
     // If set, cars trying to park near here should actually start their search at this other lane.
     // Only populated for driving lanes inevitably leading to borders.

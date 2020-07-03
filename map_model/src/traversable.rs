@@ -3,7 +3,7 @@ use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Position {
     // Don't let callers construct a Position directly, so it's easy to find callers of new().
     lane: LaneID,

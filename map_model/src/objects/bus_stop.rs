@@ -5,9 +5,9 @@ use std::fmt;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct BusStopID {
     pub sidewalk: LaneID,
-    // This might actually not be contiguous and correct; we could remove a stop in between two
-    // others
-    pub idx: usize,
+    // As long as this is unique per lane, this value is otherwise meaningless. Not contiguous or
+    // ordered in any way.
+    pub(crate) idx: usize,
 }
 
 impl fmt::Display for BusStopID {
@@ -28,8 +28,8 @@ impl fmt::Display for BusRouteID {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct BusStop {
     pub id: BusStopID,
-    // These might be on opposite sides of the road in the case of one-ways. Shouldn't matter
-    // anywhere.
+    pub name: String,
+    // These may be on different roads entirely, like for light rail platforms.
     pub driving_pos: Position,
     pub sidewalk_pos: Position,
 }

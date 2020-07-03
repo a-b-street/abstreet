@@ -3,7 +3,6 @@ mod buildings;
 mod bus_stops;
 pub mod initial;
 mod remove_disconnected;
-mod sidewalk_finder;
 pub mod traffic_signals;
 pub mod turns;
 mod zones;
@@ -13,11 +12,11 @@ use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, Area, AreaID, BusRouteID, ControlStopSign, ControlTrafficSignal,
     Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Map, MapEdits,
-    PathConstraints, Road, RoadID, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+    PathConstraints, Position, Road, RoadID, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use abstutil::Timer;
-use geom::{Distance, PolyLine, Polygon, Speed};
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use geom::{Bounds, Distance, FindClosest, HashablePt2D, PolyLine, Polygon, Speed, EPSILON_DIST};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 impl Map {
     pub fn create_from_raw(mut raw: RawMap, build_ch: bool, timer: &mut Timer) -> Map {
@@ -179,7 +178,7 @@ impl Map {
                     lane_type: lane.lane_type,
                     parent: road_id,
                     building_paths: Vec::new(),
-                    bus_stops: Vec::new(),
+                    bus_stops: BTreeSet::new(),
                     parking_blackhole: None,
                 });
             }
@@ -302,18 +301,15 @@ impl Map {
             timer.stop("setup (most of) Pathfinder");
 
             {
-                let (stops, routes) = bus_stops::make_bus_stops(
-                    &map,
-                    &raw.bus_routes,
-                    &map.gps_bounds,
-                    &map.bounds,
-                    timer,
-                );
-                map.bus_stops = stops;
-                // The IDs are sorted in the BTreeMap, so this order winds up correct.
-                for id in map.bus_stops.keys() {
-                    map.lanes[id.sidewalk.0].bus_stops.push(*id);
+                // Turn the two directions of each route into one loop. Need to do something better
+                // with borders later.
+                for r in &mut raw.new_bus_routes {
+                    r.fwd_stops.extend(r.back_stops.drain(..));
                 }
+
+                let (stops, routes) =
+                    bus_stops::make_bus_stops(&mut map, &raw.new_bus_routes, timer);
+                map.bus_stops = stops;
 
                 timer.start_iter("verify bus routes are connected", routes.len());
                 for mut r in routes {
@@ -329,18 +325,16 @@ impl Map {
                     }
                 }
 
-                // Remove orphaned bus stops
-                let mut remove_stops = HashSet::new();
-                for id in map.bus_stops.keys() {
-                    if map.get_routes_serving_stop(*id).is_empty() {
-                        remove_stops.insert(*id);
-                    }
-                }
-                for id in &remove_stops {
-                    map.bus_stops.remove(id);
-                    map.lanes[id.sidewalk.0]
-                        .bus_stops
-                        .retain(|stop| !remove_stops.contains(stop))
+                // Remove orphaned bus stops. This messes up the BusStopID indexing.
+                for id in map
+                    .bus_stops
+                    .keys()
+                    .filter(|id| map.get_routes_serving_stop(**id).is_empty())
+                    .cloned()
+                    .collect::<Vec<_>>()
+                {
+                    map.bus_stops.remove(&id);
+                    map.lanes[id.sidewalk.0].bus_stops.remove(&id);
                 }
             }
 
@@ -389,4 +383,54 @@ fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
         .iter()
         .any(|l| lanes[l.0].is_driving());
     has_driving_in != has_driving_out
+}
+
+// If the result doesn't contain a requested point, then there was no matching lane close
+// enough.
+fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
+    bounds: &Bounds,
+    pts: HashSet<HashablePt2D>,
+    lanes: &Vec<Lane>,
+    filter: F,
+    buffer: Distance,
+    max_dist_away: Distance,
+    timer: &mut Timer,
+) -> HashMap<HashablePt2D, Position> {
+    if pts.is_empty() {
+        return HashMap::new();
+    }
+
+    let mut closest: FindClosest<LaneID> = FindClosest::new(bounds);
+    timer.start_iter("index lanes", lanes.len());
+    for l in lanes {
+        timer.next();
+        if filter(l) && l.length() > (buffer + EPSILON_DIST) * 2.0 {
+            closest.add(
+                l.id,
+                l.lane_center_pts
+                    .exact_slice(buffer, l.lane_center_pts.length() - buffer)
+                    .points(),
+            );
+        }
+    }
+
+    // For each point, find the closest point to any lane, using the quadtree to prune the
+    // search.
+    let mut results: HashMap<HashablePt2D, Position> = HashMap::new();
+    timer.start_iter("find closest lane point", pts.len());
+    for query_pt in pts {
+        timer.next();
+        if let Some((l, pt)) = closest.closest_pt(query_pt.to_pt2d(), max_dist_away) {
+            if let Some(dist_along) = lanes[l.0].dist_along_of_point(pt) {
+                results.insert(query_pt, Position::new(l, dist_along));
+            } else {
+                panic!(
+                    "{} isn't on {} according to dist_along_of_point, even though closest_point \
+                     thinks it is.\n{}",
+                    pt, l, lanes[l.0].lane_center_pts
+                );
+            }
+        }
+    }
+    results
 }

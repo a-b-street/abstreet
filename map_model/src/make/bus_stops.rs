@@ -1,107 +1,153 @@
-use crate::make::sidewalk_finder::find_sidewalk_points;
+use crate::make::match_points_to_lanes;
+use crate::raw::{RawBusRoute, RawBusStop};
 use crate::{
-    BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathConstraints, PathRequest,
-    Position,
+    BusRoute, BusRouteID, BusStop, BusStopID, LaneType, Map, PathConstraints, PathRequest, Position,
 };
-use abstutil::{MultiMap, Timer};
-use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Pt2D};
-use gtfs;
+use abstutil::Timer;
+use geom::{Distance, HashablePt2D};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
+struct Matcher {
+    sidewalk_pts: HashMap<HashablePt2D, Position>,
+    bus_pts: HashMap<HashablePt2D, Position>,
+    light_rail_pts: HashMap<HashablePt2D, Position>,
+}
+
+impl Matcher {
+    fn new(bus_routes: &Vec<RawBusRoute>, map: &Map, timer: &mut Timer) -> Matcher {
+        // Match all of the points to an exact position along a lane.
+        let mut lookup_sidewalk_pts = HashSet::new();
+        let mut lookup_bus_pts = HashSet::new();
+        let mut lookup_light_rail_pts = HashSet::new();
+        for r in bus_routes {
+            for stop in &r.fwd_stops {
+                if r.is_bus {
+                    lookup_bus_pts.insert(stop.vehicle_pos.to_hashable());
+                } else {
+                    lookup_light_rail_pts.insert(stop.vehicle_pos.to_hashable());
+                }
+                if let Some(pt) = stop.ped_pos {
+                    lookup_sidewalk_pts.insert(pt.to_hashable());
+                }
+            }
+        }
+        let sidewalk_pts = match_points_to_lanes(
+            map.get_bounds(),
+            lookup_sidewalk_pts,
+            map.all_lanes(),
+            |l| l.is_sidewalk(),
+            Distance::ZERO,
+            Distance::meters(10.0),
+            timer,
+        );
+        let bus_pts = match_points_to_lanes(
+            map.get_bounds(),
+            lookup_bus_pts,
+            map.all_lanes(),
+            |l| l.is_bus() || l.is_driving(),
+            // TODO Buffer?
+            Distance::ZERO,
+            Distance::meters(10.0),
+            timer,
+        );
+        let light_rail_pts = match_points_to_lanes(
+            map.get_bounds(),
+            lookup_light_rail_pts,
+            map.all_lanes(),
+            |l| l.lane_type == LaneType::LightRail,
+            // TODO Buffer?
+            Distance::ZERO,
+            Distance::meters(10.0),
+            timer,
+        );
+        Matcher {
+            sidewalk_pts,
+            bus_pts,
+            light_rail_pts,
+        }
+    }
+
+    // returns (sidewalk, driving)
+    fn lookup(&self, is_bus: bool, stop: &RawBusStop, map: &Map) -> Option<(Position, Position)> {
+        let driving_pos = if is_bus {
+            self.bus_pts.get(&stop.vehicle_pos.to_hashable())?
+        } else {
+            self.light_rail_pts.get(&stop.vehicle_pos.to_hashable())?
+        };
+        // Explicit platform?
+        if let Some(pt) = stop.ped_pos {
+            let sidewalk_pos = self.sidewalk_pts.get(&pt.to_hashable())?;
+            return Some((*sidewalk_pos, *driving_pos));
+        }
+        if !is_bus {
+            // Light rail needs explicit platforms
+            return None;
+        }
+
+        // Manually snap a bus position to a sidewalk
+        let sidewalk = map
+            .get_parent(driving_pos.lane())
+            .find_closest_lane(driving_pos.lane(), vec![LaneType::Sidewalk])
+            .ok()?;
+        let sidewalk_pos = driving_pos.equiv_pos(sidewalk, Distance::ZERO, map);
+        Some((sidewalk_pos, *driving_pos))
+    }
+}
+
 pub fn make_bus_stops(
-    map: &Map,
-    bus_routes: &Vec<gtfs::Route>,
-    gps_bounds: &GPSBounds,
-    bounds: &Bounds,
+    map: &mut Map,
+    bus_routes: &Vec<RawBusRoute>,
     timer: &mut Timer,
 ) -> (BTreeMap<BusStopID, BusStop>, Vec<BusRoute>) {
     timer.start("make bus stops");
-    let mut bus_stop_pts: HashSet<HashablePt2D> = HashSet::new();
-    let mut route_lookups: HashMap<String, Vec<HashablePt2D>> = HashMap::new();
-    for route in bus_routes {
-        for gps in &route.stops {
-            if let Some(pt) = Pt2D::from_gps(*gps, gps_bounds) {
-                let hash_pt = pt.to_hashable();
-                bus_stop_pts.insert(hash_pt);
-                route_lookups
-                    .entry(route.name.clone())
-                    .or_insert_with(Vec::new)
-                    .push(hash_pt);
-            }
-        }
-    }
+    let matcher = Matcher::new(bus_routes, map, timer);
 
-    let mut stops_per_sidewalk: MultiMap<LaneID, (Distance, HashablePt2D)> = MultiMap::new();
-    for (pt, pos) in find_sidewalk_points(
-        bounds,
-        bus_stop_pts,
-        map.all_lanes(),
-        Distance::ZERO,
-        Distance::meters(10.0),
-        timer,
-    )
-    .into_iter()
-    {
-        stops_per_sidewalk.insert(pos.lane(), (pos.dist_along(), pt));
-    }
-    let mut point_to_stop_id: HashMap<HashablePt2D, BusStopID> = HashMap::new();
+    // TODO I'm assuming the vehicle_pos <-> driving_pos relation is one-to-one...
+    let mut pt_to_stop: BTreeMap<(Position, Position), BusStopID> = BTreeMap::new();
     let mut bus_stops: BTreeMap<BusStopID, BusStop> = BTreeMap::new();
-
-    for (sidewalk_id, dists_set) in stops_per_sidewalk.consume().into_iter() {
-        let road = map.get_parent(sidewalk_id);
-        if let Ok(driving_lane) =
-            road.find_closest_lane(sidewalk_id, vec![LaneType::Driving, LaneType::Bus])
-        {
-            let mut dists: Vec<(Distance, HashablePt2D)> = dists_set.into_iter().collect();
-            dists.sort_by_key(|(dist, _)| *dist);
-            for (idx, (dist_along, orig_pt)) in dists.into_iter().enumerate() {
-                let stop_id = BusStopID {
-                    sidewalk: sidewalk_id,
-                    idx,
-                };
-                point_to_stop_id.insert(orig_pt, stop_id);
-                let sidewalk_pos = Position::new(sidewalk_id, dist_along);
-                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, map);
-                bus_stops.insert(
-                    stop_id,
-                    BusStop {
-                        id: stop_id,
-                        sidewalk_pos,
-                        driving_pos,
-                    },
-                );
-            }
-        } else {
-            timer.warn(format!(
-                "Can't find driving lane next to {}: {:?} and {:?}",
-                sidewalk_id, road.children_forwards, road.children_backwards
-            ));
-        }
-    }
-
     let mut routes: Vec<BusRoute> = Vec::new();
-    for route in bus_routes {
-        let route_name = route.name.to_string();
-        let stops: Vec<BusStopID> = route_lookups
-            .remove(&route_name)
-            .unwrap_or_else(Vec::new)
-            .into_iter()
-            .filter_map(|pt| point_to_stop_id.get(&pt))
-            .cloned()
-            .collect();
-        let id = BusRouteID(routes.len());
+
+    for r in bus_routes {
+        let mut stops = Vec::new();
+        for stop in &r.fwd_stops {
+            if let Some((sidewalk_pos, driving_pos)) = matcher.lookup(r.is_bus, stop, map) {
+                // Create a new bus stop if needed.
+                let stop_id = if let Some(id) = pt_to_stop.get(&(sidewalk_pos, driving_pos)) {
+                    *id
+                } else {
+                    let id = BusStopID {
+                        sidewalk: sidewalk_pos.lane(),
+                        idx: map.get_l(sidewalk_pos.lane()).bus_stops.len(),
+                    };
+                    pt_to_stop.insert((sidewalk_pos, driving_pos), id);
+                    map.lanes[sidewalk_pos.lane().0].bus_stops.insert(id);
+                    bus_stops.insert(
+                        id,
+                        BusStop {
+                            id,
+                            name: stop.name.clone(),
+                            driving_pos,
+                            sidewalk_pos,
+                        },
+                    );
+                    id
+                };
+                stops.push(stop_id);
+            }
+        }
         routes.push(BusRoute {
-            id,
-            name: route_name.to_string(),
+            id: BusRouteID(routes.len()),
+            name: r.name.clone(),
             stops,
         });
     }
+
     timer.stop("make bus stops");
     (bus_stops, routes)
 }
 
+// Trim out stops if needed; map borders sometimes mean some paths don't work.
 pub fn fix_bus_route(map: &Map, r: &mut BusRoute) -> bool {
-    // Trim out stops if needed; map borders sometimes mean some paths don't work.
     let mut stops = Vec::new();
     for stop in r.stops.drain(..) {
         if stops.is_empty() {
