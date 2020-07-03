@@ -510,14 +510,10 @@ impl ContextualActions for Actions {
                     ctx,
                     app,
                     "corner",
-                    calculate_corners(
-                        app.primary.map.get_i(i),
-                        &app.primary.map,
-                        &mut Timer::new("calculate corners"),
-                    )
-                    .into_iter()
-                    .map(|poly| polygons::Item::Polygon(poly))
-                    .collect(),
+                    calculate_corners(app.primary.map.get_i(i), &app.primary.map)
+                        .into_iter()
+                        .map(|poly| polygons::Item::Polygon(poly))
+                        .collect(),
                     None,
                 ))
             }

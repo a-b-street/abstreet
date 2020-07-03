@@ -8,7 +8,6 @@ use crate::render::{
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
-use map_model::raw::DrivingSide;
 use map_model::{
     Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
 };
@@ -34,7 +33,7 @@ impl DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
         default_geom.push(cs.normal_intersection, i.polygon.clone());
-        default_geom.extend(cs.sidewalk, calculate_corners(i, map, timer));
+        default_geom.extend(cs.sidewalk, calculate_corners(i, map));
 
         for turn in map.get_turns_in_intersection(i.id) {
             // Avoid double-rendering
@@ -185,8 +184,7 @@ impl Renderable for DrawIntersection {
 }
 
 // TODO Temporarily public for debugging.
-// TODO This should just draw the turn geometry thickened, once that's stable.
-pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<Polygon> {
+pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
     let mut corners = Vec::new();
 
     for turn in map.get_turns_in_intersection(i.id) {
@@ -206,43 +204,22 @@ pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
-            let src_line = map.left_shift_line(l1.last_line(), width / 2.0);
-            let dst_line = map.left_shift_line(l2.first_line(), width / 2.0);
-
-            let pt_maybe_in_intersection = src_line.infinite().intersection(&dst_line.infinite());
-            // Now find all of the points on the intersection polygon between the two sidewalks.
-            let corner1 = map.right_shift_line(l1.last_line(), width / 2.0).pt2();
-            let corner2 = map.right_shift_line(l2.first_line(), width / 2.0).pt1();
-            // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
-            // TODO This threshold is higher than the 0.1 intersection polygons use to dedupe
-            // because of jagged lane teeth from bad polyline shifting. Seemingly.
-            let mut i_pts = i.polygon.points().clone();
-            if map.get_driving_side() == DrivingSide::Left {
-                i_pts.reverse();
-            }
-            if let Some(mut pts_between) =
-                Pt2D::find_pts_between(&i_pts, corner2, corner1, Distance::meters(0.5))
-            {
-                pts_between.push(src_line.pt2());
-                // If the intersection of the two lines isn't actually inside, then just exclude
-                // this point. Or if src_line and dst_line were parallel (actually, colinear), then
-                // skip it.
-                if let Some(pt) = pt_maybe_in_intersection {
-                    if i.polygon.contains_pt(pt) {
-                        pts_between.push(pt);
-                    }
-                }
-                pts_between.push(dst_line.pt1());
-                corners.push(Polygon::new(&pts_between));
-            } else {
-                timer.warn(format!(
-                    "Couldn't make geometry for {}. look for {} to {} in {:?}",
-                    turn.id,
-                    corner2,
-                    corner1,
-                    i.polygon.points()
-                ));
-            }
+            let mut pts = map
+                .left_shift(turn.geom.clone(), width / 2.0)
+                .unwrap()
+                .into_points();
+            pts.push(map.left_shift_line(l2.first_line(), width / 2.0).pt1());
+            pts.push(map.right_shift_line(l2.first_line(), width / 2.0).pt1());
+            pts.extend(
+                map.right_shift(turn.geom.clone(), width / 2.0)
+                    .unwrap()
+                    .reversed()
+                    .into_points(),
+            );
+            pts.push(map.right_shift_line(l1.last_line(), width / 2.0).pt2());
+            pts.push(map.left_shift_line(l1.last_line(), width / 2.0).pt2());
+            pts.push(pts[0]);
+            corners.push(Polygon::new(&pts));
         }
     }
 

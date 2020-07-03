@@ -130,10 +130,16 @@ impl CommonState {
                     osd.append(Line(l.to_string()).fg(id_color));
                     osd.append(Line(" is "));
                 }
+                let r = map.get_parent(l);
                 osd.append_all(vec![
                     Line(format!("{} of ", map.get_l(l).lane_type.describe())),
-                    Line(map.get_parent(l).get_name()).fg(name_color),
+                    Line(r.get_name()).fg(name_color),
                 ]);
+                if app.opts.dev {
+                    osd.append(Line(" ("));
+                    osd.append(Line(r.id.to_string()).fg(id_color));
+                    osd.append(Line(")"));
+                }
             }
             ID::Building(b) => {
                 if app.opts.dev {
