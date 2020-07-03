@@ -27,6 +27,7 @@ pub struct RawMap {
     )]
     pub buildings: BTreeMap<OriginalBuilding, RawBuilding>,
     pub bus_routes: Vec<Route>,
+    pub new_bus_routes: Vec<RawBusRoute>,
     pub areas: Vec<RawArea>,
     pub parking_lots: Vec<RawParkingLot>,
     pub parking_aisles: Vec<Vec<Pt2D>>,
@@ -94,6 +95,7 @@ impl RawMap {
             intersections: BTreeMap::new(),
             buildings: BTreeMap::new(),
             bus_routes: Vec::new(),
+            new_bus_routes: Vec::new(),
             areas: Vec::new(),
             parking_lots: Vec::new(),
             parking_aisles: Vec::new(),
@@ -420,4 +422,22 @@ impl DrivingSide {
             DrivingSide::Left => a.opposite(),
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RawBusRoute {
+    pub name: String,
+    pub osm_rel_id: i64,
+    // If not, light rail
+    pub is_bus: bool,
+    pub fwd_stops: Vec<RawBusStop>,
+    pub back_stops: Vec<RawBusStop>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RawBusStop {
+    pub name: String,
+    pub vehicle_pos: Pt2D,
+    // If it's not explicitly mapped, we'll do equiv_pos.
+    pub ped_pos: Option<Pt2D>,
 }

@@ -1,10 +1,10 @@
 use abstutil::{FileWithProgress, Timer};
 use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use map_model::raw::{
-    OriginalBuilding, RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType,
+    OriginalBuilding, RawArea, RawBuilding, RawBusRoute, RawBusStop, RawMap, RawParkingLot,
+    RawRoad, RestrictionType,
 };
 use map_model::{osm, AreaType};
-use osm_xml;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 pub fn extract_osm(
@@ -276,20 +276,9 @@ pub fn extract_osm(
                     },
                 );
             }
-            /*} else if tags.get("type") == Some(&"route_master".to_string()) {
-            let name = tags.get("name").unwrap();
-            //let mut fwd_stops = Vec::new();
-            //let mut back_stops = Vec::new();
-            for member in &rel.members {
-                if let osm_xml::Member::Relation(rel_ref, _) = member {
-                    if let osm_xml::Reference::Relation(inner_rel) = doc.resolve_reference(&rel_ref) {
-                        let inner_tags = tags_to_map(&inner_rel.tags);
-                        assert_eq!(inner_tags.get("type"), Some(&"route".to_string()));
-                        for member in &inner_rel.members {
-                        }
-                    }
-                }
-            }*/
+        } else if tags.get("type") == Some(&"route_master".to_string()) {
+            map.new_bus_routes
+                .extend(extract_route(&tags, rel, &doc, &id_to_way, &map.gps_bounds));
         }
     }
 
@@ -604,4 +593,118 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
     }
     assert_eq!(trimmed_pts[0], *trimmed_pts.last().unwrap());
     Some(Polygon::new(&trimmed_pts))
+}
+
+fn extract_route(
+    master_tags: &BTreeMap<String, String>,
+    master_rel: &osm_xml::Relation,
+    doc: &osm_xml::OSM,
+    id_to_way: &HashMap<i64, Vec<Pt2D>>,
+    gps_bounds: &GPSBounds,
+) -> Option<RawBusRoute> {
+    let route_name = master_tags.get("name")?.clone();
+    let is_bus = match master_tags.get("route_master")?.as_ref() {
+        "bus" => true,
+        "light_rail" => false,
+        x => {
+            println!("Skipping route {} of unknown type {}", route_name, x);
+            return None;
+        }
+    };
+
+    let mut directions = Vec::new();
+    for (_, route_member) in get_members(master_rel, doc) {
+        if let osm_xml::Reference::Relation(route_rel) = route_member {
+            let route_tags = tags_to_map(&route_rel.tags);
+            assert_eq!(route_tags.get("type"), Some(&"route".to_string()));
+            // Gather stops in order. Platforms may exist or not; match them up by name.
+            let mut stops = Vec::new();
+            let mut platforms = HashMap::new();
+            for (role, member) in get_members(&route_rel, doc) {
+                if role == "stop" {
+                    if let osm_xml::Reference::Node(node) = member {
+                        stops.push(RawBusStop {
+                            name: tags_to_map(&node.tags)
+                                .get("name")
+                                .cloned()
+                                .unwrap_or_else(|| format!("stop #{}", stops.len() + 1)),
+                            vehicle_pos: Pt2D::forcibly_from_gps(
+                                LonLat::new(node.lon, node.lat),
+                                gps_bounds,
+                            ),
+                            ped_pos: None,
+                        });
+                    }
+                } else if role == "platform" {
+                    let (platform_name, pt) = match member {
+                        osm_xml::Reference::Node(node) => (
+                            tags_to_map(&node.tags)
+                                .get("name")
+                                .cloned()
+                                .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
+                            Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), gps_bounds),
+                        ),
+                        osm_xml::Reference::Way(way) => (
+                            tags_to_map(&way.tags)
+                                .get("name")
+                                .cloned()
+                                .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
+                            if let Some(ref pts) = id_to_way.get(&way.id) {
+                                Pt2D::center(pts)
+                            } else {
+                                continue;
+                            },
+                        ),
+                        _ => continue,
+                    };
+                    platforms.insert(platform_name, pt);
+                }
+            }
+            for stop in &mut stops {
+                if let Some(pt) = platforms.remove(&stop.name) {
+                    stop.ped_pos = Some(pt);
+                }
+            }
+            if stops.len() >= 2 {
+                directions.push(stops);
+            }
+        }
+    }
+
+    if directions.len() == 2 {
+        Some(RawBusRoute {
+            name: route_name,
+            is_bus,
+            osm_rel_id: master_rel.id,
+            // The direction is arbitrary right now
+            fwd_stops: directions.pop().unwrap(),
+            back_stops: directions.pop().unwrap(),
+        })
+    } else {
+        println!(
+            "Skipping route {} with {} sub-routes",
+            route_name,
+            directions.len()
+        );
+        None
+    }
+}
+
+// Work around osm_xml's API, which shows the node/way/relation distinction twice. This returns
+// (role, resolved node/way/relation)
+fn get_members<'a>(
+    rel: &'a osm_xml::Relation,
+    doc: &'a osm_xml::OSM,
+) -> Vec<(&'a String, osm_xml::Reference<'a>)> {
+    rel.members
+        .iter()
+        .map(|member| {
+            let (id_ref, role) = match member {
+                osm_xml::Member::Node(id, role)
+                | osm_xml::Member::Way(id, role)
+                | osm_xml::Member::Relation(id, role) => (id, role),
+            };
+            (role, doc.resolve_reference(id_ref))
+        })
+        .collect()
 }
