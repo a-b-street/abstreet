@@ -21,7 +21,6 @@ pub struct Options {
     pub public_offstreet_parking: Option<String>,
     pub private_offstreet_parking: PrivateOffstreetParking,
     pub sidewalks: Option<String>,
-    pub gtfs: Option<String>,
     pub elevation: Option<String>,
     pub clip: Option<String>,
     pub drive_on_right: bool,
@@ -67,11 +66,6 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     apply_private_offstreet_parking(&mut map, opts.private_offstreet_parking);
     if let Some(ref path) = opts.sidewalks {
         use_sidewalk_hints(&mut map, path.clone(), timer);
-    }
-    if let Some(ref path) = opts.gtfs {
-        timer.start("load GTFS");
-        map.bus_routes = gtfs::load(path);
-        timer.stop("load GTFS");
     }
     if let Some(ref path) = opts.elevation {
         use_elevation(&mut map, path, timer);

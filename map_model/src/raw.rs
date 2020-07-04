@@ -2,7 +2,6 @@ use crate::make::initial::lane_specs::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, RoadSpec};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Timer, Warn};
 use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
-use gtfs::Route;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
@@ -26,8 +25,7 @@ pub struct RawMap {
         deserialize_with = "deserialize_btreemap"
     )]
     pub buildings: BTreeMap<OriginalBuilding, RawBuilding>,
-    pub bus_routes: Vec<Route>,
-    pub new_bus_routes: Vec<RawBusRoute>,
+    pub bus_routes: Vec<RawBusRoute>,
     pub areas: Vec<RawArea>,
     pub parking_lots: Vec<RawParkingLot>,
     pub parking_aisles: Vec<Vec<Pt2D>>,
@@ -95,7 +93,6 @@ impl RawMap {
             intersections: BTreeMap::new(),
             buildings: BTreeMap::new(),
             bus_routes: Vec::new(),
-            new_bus_routes: Vec::new(),
             areas: Vec::new(),
             parking_lots: Vec::new(),
             parking_aisles: Vec::new(),

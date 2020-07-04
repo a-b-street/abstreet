@@ -112,7 +112,6 @@ Constructing the map:
 
 - `convert_osm`: extract useful data from OpenStreetMap and other data sources,
   emit intermediate map format
-- `gtfs`: simple library to just extract coordinates of bus stops
 - `kml`: extract shapes from KML shapefiles
 - `map_model`: the final representation of the map, also conversion from the
   intermediate map format into the final format

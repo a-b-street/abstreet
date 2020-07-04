@@ -163,7 +163,6 @@ fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool) {
             public_offstreet_parking: None,
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
             sidewalks: None,
-            gtfs: None,
             elevation: None,
             clip,
             drive_on_right,

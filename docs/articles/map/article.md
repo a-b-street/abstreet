@@ -145,7 +145,6 @@ takes a few seconds to load a serialized map.
   dataset
   - Match each sidewalk line to the nearest edge of a road
   - Update the road to have a sidewalk on none, one, or both sides
-- `lib.rs` using the `gtfs` crate: Load bus route info from GTFS
 - `lib.rs` using the `srtm` module: Load (extremely poor quality) elevation data
 
 ## RawMap to InitialMap

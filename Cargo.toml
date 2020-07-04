@@ -6,7 +6,6 @@ members = [
   "ezgui",
   "game",
   "geom",
-  "gtfs",
   "headless",
   "importer",
   "kml",

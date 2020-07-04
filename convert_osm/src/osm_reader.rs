@@ -277,7 +277,7 @@ pub fn extract_osm(
                 );
             }
         } else if tags.get("type") == Some(&"route_master".to_string()) {
-            map.new_bus_routes
+            map.bus_routes
                 .extend(extract_route(&tags, rel, &doc, &id_to_way, &map.gps_bounds));
         }
     }

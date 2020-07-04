@@ -303,12 +303,11 @@ impl Map {
             {
                 // Turn the two directions of each route into one loop. Need to do something better
                 // with borders later.
-                for r in &mut raw.new_bus_routes {
+                for r in &mut raw.bus_routes {
                     r.fwd_stops.extend(r.back_stops.drain(..));
                 }
 
-                let (stops, routes) =
-                    bus_stops::make_bus_stops(&mut map, &raw.new_bus_routes, timer);
+                let (stops, routes) = bus_stops::make_bus_stops(&mut map, &raw.bus_routes, timer);
                 map.bus_stops = stops;
 
                 timer.start_iter("verify bus routes are connected", routes.len());

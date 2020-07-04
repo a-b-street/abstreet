@@ -26,7 +26,6 @@ pub fn osm_to_raw(name: &str) {
             public_offstreet_parking: None,
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
             sidewalks: None,
-            gtfs: None,
             elevation: None,
             clip: Some(format!("../data/input/austin/polygons/{}.poly", name)),
             drive_on_right: true,

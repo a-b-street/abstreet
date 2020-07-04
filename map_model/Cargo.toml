@@ -9,7 +9,6 @@ aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 fast_paths = { git = "https://github.com/easbar/fast_paths" }
 geom = { path = "../geom" }
-gtfs = { path = "../gtfs" }
 nbez = "0.1.0"
 petgraph = "0.5.0"
 serde = "1.0.110"

@@ -8,7 +8,6 @@ edition = "2018"
 abstutil = { path = "../abstutil" }
 byteorder = "1.3.4"
 geom = { path = "../geom" }
-gtfs = { path = "../gtfs" }
 kml = { path = "../kml" }
 osm-xml = "0.6.2"
 map_model = { path = "../map_model" }
