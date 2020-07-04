@@ -236,3 +236,13 @@ pub fn checkbox_per_mode(
     }
     Widget::custom_row(filters)
 }
+
+pub fn copy_to_clipboard(x: String) {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use clipboard::{ClipboardContext, ClipboardProvider};
+
+        let mut cb: ClipboardContext = ClipboardProvider::new().unwrap();
+        cb.set_contents(x).unwrap();
+    }
+}

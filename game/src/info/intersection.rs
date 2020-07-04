@@ -2,7 +2,9 @@ use crate::app::App;
 use crate::helpers::color_for_mode;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{Color, EventCtx, GeomBatch, Line, PlotOptions, ScatterPlot, Series, Text, Widget};
+use ezgui::{
+    Btn, Color, EventCtx, GeomBatch, Line, PlotOptions, ScatterPlot, Series, Text, Widget,
+};
 use geom::{ArrowCap, Distance, Duration, PolyLine, Time};
 use map_model::{IntersectionID, IntersectionType};
 use sim::TripMode;
@@ -21,10 +23,23 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
         // TODO The spacing is ignored, so use -
         txt.add(Line(format!("- {}", r)));
     }
-    if app.opts.dev {
-        txt.add(Line(format!("OSM node ID: {}", i.orig_id.osm_node_id)).secondary());
-    }
     rows.push(txt.draw(ctx));
+
+    if app.opts.dev {
+        rows.push(Widget::row(vec![
+            Line(format!(
+                "Copy OSM node ID {} to clipboard: ",
+                i.orig_id.osm_node_id,
+            ))
+            .secondary()
+            .draw(ctx),
+            Btn::svg_def("../data/system/assets/tools/clipboard.svg").build(
+                ctx,
+                "copy OSM node ID",
+                None,
+            ),
+        ]));
+    }
 
     rows
 }

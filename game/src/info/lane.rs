@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
 use ezgui::{Btn, EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Widget};
-use map_model::{LaneID, OriginalLane};
+use map_model::LaneID;
 use std::collections::HashSet;
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec<Widget> {
@@ -146,20 +146,6 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
     rows.extend(make_table(ctx, r.osm_tags.clone().into_iter()));
 
     rows
-}
-
-pub fn copy_orig_lane(app: &App, id: LaneID) {
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        use clipboard::{ClipboardContext, ClipboardProvider};
-
-        let mut cb: ClipboardContext = ClipboardProvider::new().unwrap();
-        cb.set_contents(format!(
-            "{:?}",
-            OriginalLane::to_permanent(id, &app.primary.map)
-        ))
-        .unwrap();
-    }
 }
 
 pub fn traffic(

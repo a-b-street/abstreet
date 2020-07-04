@@ -10,7 +10,7 @@ mod trip;
 use crate::app::App;
 use crate::common::Warping;
 use crate::game::Transition;
-use crate::helpers::{color_for_mode, hotkey_btn, ID};
+use crate::helpers::{color_for_mode, copy_to_clipboard, hotkey_btn, ID};
 use crate::sandbox::{SandboxMode, TimeWarpScreen};
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -18,7 +18,9 @@ use ezgui::{
     VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Time};
-use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, ParkingLotID};
+use map_model::{
+    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, OriginalLane, ParkingLotID,
+};
 use sim::{
     AgentID, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID, TripMode,
     VehicleType,
@@ -437,13 +439,20 @@ impl InfoPanel {
                     )
                 } else if action == "copy OriginalLane" {
                     // TODO Not happy about this :(
-                    lane::copy_orig_lane(
-                        app,
-                        match maybe_id {
-                            Some(ID::Lane(l)) => l,
-                            _ => unreachable!(),
-                        },
-                    );
+                    if let Some(ID::Lane(l)) = maybe_id {
+                        copy_to_clipboard(format!(
+                            "{:?}",
+                            OriginalLane::to_permanent(l, &app.primary.map)
+                        ));
+                    }
+                    return (false, None);
+                } else if action == "copy OSM node ID" {
+                    if let Some(ID::Intersection(i)) = maybe_id {
+                        copy_to_clipboard(format!(
+                            "{}",
+                            app.primary.map.get_i(i).orig_id.osm_node_id
+                        ));
+                    }
                     return (false, None);
                 } else {
                     let mut close_panel = true;

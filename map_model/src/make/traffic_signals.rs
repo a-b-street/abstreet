@@ -528,14 +528,21 @@ pub fn synchronize(map: &mut Map) {
     for (i1, i2) in pairs {
         let ts1 = map.get_traffic_signal(i1);
         let ts2 = map.get_traffic_signal(i2);
-        let flip = ts1.phases[0].protected_groups.iter().any(|tg1| {
+        let flip1 = ts1.phases[0].protected_groups.iter().any(|tg1| {
             !tg1.crosswalk
                 && ts2.phases[1]
                     .protected_groups
                     .iter()
                     .any(|tg2| !tg2.crosswalk && (tg1.to == tg2.from || tg1.from == tg2.to))
         });
-        if flip {
+        let flip2 = ts1.phases[1].protected_groups.iter().any(|tg1| {
+            !tg1.crosswalk
+                && ts2.phases[0]
+                    .protected_groups
+                    .iter()
+                    .any(|tg2| !tg2.crosswalk && (tg1.to == tg2.from || tg1.from == tg2.to))
+        });
+        if flip1 || flip2 {
             println!(
                 "Flipping phase order of {} and {} to synchronize them",
                 i1, i2

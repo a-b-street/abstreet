@@ -253,8 +253,11 @@ pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStep>
                 }
             };
             // Could assert the intersection matches (l2, l2_endpt).
-            let turn = map.get_turn_between(l1, l2, i).unwrap();
-            steps.push(PathStep::Turn(turn));
+            if let Some(turn) = map.get_turn_between(l1, l2, i) {
+                steps.push(PathStep::Turn(turn));
+            } else {
+                panic!("No turn from {} to {} at {}", l1, l2, i);
+            }
         }
     }
 
