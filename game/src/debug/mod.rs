@@ -1,6 +1,7 @@
 mod floodfill;
 mod objects;
 mod polygons;
+pub mod shared_row;
 
 use crate::app::{App, ShowLayers, ShowObject};
 use crate::common::{tool_panel, CommonState, ContextualActions};

@@ -293,7 +293,7 @@ impl PaintSelect {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
         app.primary.current_selection = None;
         Box::new(PaintSelect {
-            composite: make_paint_composite(ctx, Mode::Paint, &BTreeSet::new()),
+            composite: make_paint_composite(ctx, app, Mode::Paint, &BTreeSet::new()),
             roads: BTreeSet::new(),
             preview: None,
             mode: Mode::Paint,
@@ -376,7 +376,7 @@ impl State for PaintSelect {
                         );
                     }
                     self.preview = Some(ctx.upload(batch));
-                    self.composite = make_paint_composite(ctx, self.mode, &self.roads);
+                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
                 }
             }
         }
@@ -386,18 +386,18 @@ impl State for PaintSelect {
                 "paint" => {
                     self.dragging = false;
                     self.mode = Mode::Paint;
-                    self.composite = make_paint_composite(ctx, self.mode, &self.roads);
+                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
                 }
                 "erase" => {
                     self.dragging = false;
                     self.mode = Mode::Erase;
-                    self.composite = make_paint_composite(ctx, self.mode, &self.roads);
+                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
                 }
                 "pan" => {
                     app.primary.current_selection = None;
                     self.dragging = false;
                     self.mode = Mode::Pan;
-                    self.composite = make_paint_composite(ctx, self.mode, &self.roads);
+                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
                 }
                 "Cancel" => {
                     return Transition::Pop;
@@ -411,6 +411,12 @@ impl State for PaintSelect {
                         self.roads.iter().cloned().collect(),
                         self.preview.take().unwrap(),
                     ));
+                }
+                "export roads to shared-row" => {
+                    crate::debug::shared_row::export(
+                        self.roads.iter().cloned().collect(),
+                        &app.primary.map,
+                    );
                 }
                 _ => unreachable!(),
             },
@@ -490,7 +496,12 @@ fn change_lane_types(
     errors
 }
 
-fn make_paint_composite(ctx: &mut EventCtx, mode: Mode, roads: &BTreeSet<RoadID>) -> Composite {
+fn make_paint_composite(
+    ctx: &mut EventCtx,
+    app: &App,
+    mode: Mode,
+    roads: &BTreeSet<RoadID>,
+) -> Composite {
     Composite::new(Widget::col(vec![
         Line("Edit many roads").small_heading().draw(ctx),
         Widget::custom_row(vec![
@@ -536,7 +547,7 @@ fn make_paint_composite(ctx: &mut EventCtx, mode: Mode, roads: &BTreeSet<RoadID>
         ])
         .evenly_spaced(),
         Btn::text_fg("Select roads along a route").build_def(ctx, None),
-        Widget::custom_row(vec![
+        Widget::row(vec![
             if roads.is_empty() {
                 Btn::text_fg("Edit 0 roads").inactive(ctx)
             } else {
@@ -545,6 +556,15 @@ fn make_paint_composite(ctx: &mut EventCtx, mode: Mode, roads: &BTreeSet<RoadID>
                     "edit roads",
                     hotkey(Key::E),
                 )
+            },
+            if app.opts.dev {
+                Btn::text_fg(format!("Export {} roads to shared-row", roads.len())).build(
+                    ctx,
+                    "export roads to shared-row",
+                    None,
+                )
+            } else {
+                Widget::nothing()
             },
             Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
         ])

@@ -19,6 +19,7 @@ clipboard = { version = "0.5.0", optional = true }
 colorous = "1.0.1"
 downcast-rs = "1.1.1"
 ezgui = { path = "../ezgui", default-features=false }
+geojson = "0.19.0"
 geom = { path = "../geom" }
 instant = "0.1.2"
 kml = { path = "../kml" }
@@ -32,6 +33,7 @@ rand = "0.7.0"
 rand_xorshift = "0.2.0"
 reqwest = { version = "0.10.6", optional = true, default-features=false, features=["blocking", "rustls-tls"] }
 serde = "1.0.110"
+serde_json = "1.0.40"
 svg_face = "0.1.2"
 sim = { path = "../sim" }
 webbrowser = { version = "0.5.2", optional = true }
