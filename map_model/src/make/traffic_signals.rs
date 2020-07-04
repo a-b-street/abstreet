@@ -1,10 +1,10 @@
 use crate::{
-    ControlTrafficSignal, IntersectionID, Map, Phase, RoadID, TurnGroup, TurnGroupID, TurnPriority,
-    TurnType,
+    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Phase, RoadID, TurnGroup,
+    TurnGroupID, TurnPriority, TurnType,
 };
 use abstutil::Timer;
 use geom::Duration;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 
 pub fn get_possible_policies(
     map: &Map,
@@ -499,4 +499,48 @@ fn helper(items: &[usize], max_size: usize) -> Vec<Partition> {
         results.push(partition);
     }
     results
+}
+
+pub fn synchronize(map: &mut Map) {
+    let mut seen = HashSet::new();
+    let mut pairs = Vec::new();
+    let handmapped = seattle_traffic_signals::load_all_data().unwrap();
+    for i in map.all_intersections() {
+        if !i.is_traffic_signal()
+            || seen.contains(&i.id)
+            || handmapped.contains_key(&i.orig_id.osm_node_id)
+        {
+            continue;
+        }
+        if let Some(list) = IntersectionCluster::autodetect(i.id, map) {
+            let list = list.into_iter().collect::<Vec<_>>();
+            if list.len() == 2
+                && map.get_traffic_signal(list[0]).phases.len() == 2
+                && map.get_traffic_signal(list[1]).phases.len() == 2
+            {
+                pairs.push((list[0], list[1]));
+                seen.insert(list[0]);
+                seen.insert(list[1]);
+            }
+        }
+    }
+
+    for (i1, i2) in pairs {
+        let ts1 = map.get_traffic_signal(i1);
+        let ts2 = map.get_traffic_signal(i2);
+        let flip = ts1.phases[0].protected_groups.iter().any(|tg1| {
+            !tg1.crosswalk
+                && ts2.phases[1]
+                    .protected_groups
+                    .iter()
+                    .any(|tg2| !tg2.crosswalk && (tg1.to == tg2.from || tg1.from == tg2.to))
+        });
+        if flip {
+            println!(
+                "Flipping phase order of {} and {} to synchronize them",
+                i1, i2
+            );
+            map.traffic_signals.get_mut(&i1).unwrap().phases.swap(0, 1);
+        }
+    }
 }

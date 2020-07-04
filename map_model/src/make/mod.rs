@@ -292,6 +292,8 @@ impl Map {
         map.stop_signs = stop_signs;
         map.traffic_signals = traffic_signals;
 
+        traffic_signals::synchronize(&mut map);
+
         // Here's a fun one: we can't set up walking_using_transit yet, because we haven't
         // finalized bus stops and routes. We need the bus graph in place for that. So setup
         // pathfinding in two stages.
