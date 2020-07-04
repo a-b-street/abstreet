@@ -109,13 +109,7 @@ fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     let mut roads = map.get_i(i).roads.iter();
     let r1 = *roads.next().unwrap();
     let r2 = *roads.next().unwrap();
-    // TODO One-ways downtown should also have crosswalks.
-    let has_crosswalks = !map.get_r(r1).children_backwards.is_empty()
-        || !map.get_r(r2).children_backwards.is_empty();
-    let mut phases = vec![vec![(vec![r1, r2], TurnType::Straight, PROTECTED)]];
-    if has_crosswalks {
-        phases.push(vec![(vec![r1, r2], TurnType::Crosswalk, PROTECTED)]);
-    }
+    let phases = vec![vec![(vec![r1, r2], TurnType::Straight, PROTECTED)]];
 
     let phases = make_phases(map, i, phases);
 
@@ -154,14 +148,12 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
                 (vec![north, south], TurnType::Right, YIELD),
                 (vec![north, south], TurnType::Left, YIELD),
                 (vec![east], TurnType::Right, YIELD),
-                (vec![east], TurnType::Crosswalk, PROTECTED),
             ],
             vec![
                 (vec![east], TurnType::Straight, PROTECTED),
                 (vec![east], TurnType::Right, YIELD),
                 (vec![east], TurnType::Left, YIELD),
                 (vec![north, south], TurnType::Right, YIELD),
-                (vec![north, south], TurnType::Crosswalk, PROTECTED),
             ],
         ],
     );
@@ -196,14 +188,12 @@ fn four_way_four_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSig
                 (vec![north, south], TurnType::Straight, PROTECTED),
                 (vec![north, south], TurnType::Right, YIELD),
                 (vec![east, west], TurnType::Right, YIELD),
-                (vec![east, west], TurnType::Crosswalk, PROTECTED),
             ],
             vec![(vec![north, south], TurnType::Left, PROTECTED)],
             vec![
                 (vec![east, west], TurnType::Straight, PROTECTED),
                 (vec![east, west], TurnType::Right, YIELD),
                 (vec![north, south], TurnType::Right, YIELD),
-                (vec![north, south], TurnType::Crosswalk, PROTECTED),
             ],
             vec![(vec![east, west], TurnType::Left, PROTECTED)],
         ],
@@ -239,14 +229,12 @@ fn four_way_two_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSign
                 (vec![north, south], TurnType::Right, YIELD),
                 (vec![north, south], TurnType::Left, YIELD),
                 (vec![east, west], TurnType::Right, YIELD),
-                (vec![east, west], TurnType::Crosswalk, PROTECTED),
             ],
             vec![
                 (vec![east, west], TurnType::Straight, PROTECTED),
                 (vec![east, west], TurnType::Right, YIELD),
                 (vec![east, west], TurnType::Left, YIELD),
                 (vec![north, south], TurnType::Right, YIELD),
-                (vec![north, south], TurnType::Crosswalk, PROTECTED),
             ],
         ],
     );
@@ -284,7 +272,6 @@ fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         vec![
             vec![
                 (vec![r1], TurnType::Straight, PROTECTED),
-                (vec![r1], TurnType::Crosswalk, PROTECTED),
                 // TODO Technically, upgrade to protected if there's no opposing crosswalk --
                 // even though it doesn't matter much.
                 (vec![r1], TurnType::Right, YIELD),
@@ -294,7 +281,6 @@ fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
             ],
             vec![
                 (vec![r2], TurnType::Straight, PROTECTED),
-                (vec![r2], TurnType::Crosswalk, PROTECTED),
                 // TODO Technically, upgrade to protected if there's no opposing crosswalk --
                 // even though it doesn't matter much.
                 (vec![r2], TurnType::Right, YIELD),
@@ -416,6 +402,20 @@ fn make_phases(
                         TurnPriority::Yield
                     },
                 );
+            }
+        }
+
+        // Add in all compatible crosswalks. Specifying this in specs explicitly doesn't work when
+        // crosswalks stretch across a road strangely, which happens when one side of a road is
+        // missing a sidewalk.
+        // TODO If a phase has no protected turns at all, this adds the crosswalk to multiple
+        // phases in a pretty weird way. It'd be better to add to just one phase -- the one with
+        // the least conflicting yields.
+        for group in turn_groups.values() {
+            if group.turn_type == TurnType::Crosswalk
+                && phase.could_be_protected(group.id, &turn_groups)
+            {
+                phase.edit_group(group, TurnPriority::Protected);
             }
         }
 
