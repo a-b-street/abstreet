@@ -32,6 +32,8 @@ pub struct BusStop {
     // These may be on different roads entirely, like for light rail platforms.
     pub driving_pos: Position,
     pub sidewalk_pos: Position,
+    // If it's both, train overrides bus
+    pub is_train_stop: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

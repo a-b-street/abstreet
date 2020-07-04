@@ -26,9 +26,16 @@ impl DrawBusStop {
 
         let mut icon = GeomBatch::new();
         icon.append(
-            GeomBatch::mapspace_svg(prerender, "../data/system/assets/meters/bus.svg")
-                .scale(0.05)
-                .centered_on(center),
+            GeomBatch::mapspace_svg(
+                prerender,
+                if stop.is_train_stop {
+                    "../data/system/assets/map/light_rail.svg"
+                } else {
+                    "../data/system/assets/meters/bus.svg"
+                },
+            )
+            .scale(0.05)
+            .centered_on(center),
         );
         let mut batch = GeomBatch::new();
         batch.push(

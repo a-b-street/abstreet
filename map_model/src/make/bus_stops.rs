@@ -128,6 +128,7 @@ pub fn make_bus_stops(
                             name: stop.name.clone(),
                             driving_pos,
                             sidewalk_pos,
+                            is_train_stop: !r.is_bus,
                         },
                     );
                     id
