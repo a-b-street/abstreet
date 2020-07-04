@@ -172,7 +172,7 @@ impl UberTurnViewer {
                     } else {
                         Btn::text_fg("<").build(ctx, "previous uber-turn", hotkey(Key::LeftArrow))
                     },
-                    Text::from(Line(format!("{}/{}", idx, ic.uber_turns.len())).secondary())
+                    Text::from(Line(format!("{}/{}", idx + 1, ic.uber_turns.len())).secondary())
                         .draw(ctx)
                         .centered_vert(),
                     if ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - 1 {

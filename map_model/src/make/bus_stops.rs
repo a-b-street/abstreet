@@ -60,6 +60,7 @@ impl Matcher {
             Distance::meters(10.0),
             timer,
         );
+
         Matcher {
             sidewalk_pts,
             bus_pts,
@@ -69,28 +70,40 @@ impl Matcher {
 
     // returns (sidewalk, driving)
     fn lookup(&self, is_bus: bool, stop: &RawBusStop, map: &Map) -> Option<(Position, Position)> {
-        let driving_pos = if is_bus {
-            self.bus_pts.get(&stop.vehicle_pos.to_hashable())?
-        } else {
-            self.light_rail_pts.get(&stop.vehicle_pos.to_hashable())?
-        };
-        // Explicit platform?
-        if let Some(pt) = stop.ped_pos {
-            let sidewalk_pos = self.sidewalk_pts.get(&pt.to_hashable())?;
-            return Some((*sidewalk_pos, *driving_pos));
-        }
         if !is_bus {
-            // Light rail needs explicit platforms
-            return None;
+            // Light rail needs explicit platforms.
+            let sidewalk_pos = *self.sidewalk_pts.get(&stop.ped_pos?.to_hashable())?;
+            let driving_pos = *self.light_rail_pts.get(&stop.vehicle_pos.to_hashable())?;
+            return Some((sidewalk_pos, driving_pos));
         }
 
-        // Manually snap a bus position to a sidewalk
+        // Because the stop is usually mapped on the road center-line, the matched side-of-the-road
+        // is often wrong. If we have the bus stop, actually use that and get the equivalent
+        // position on the closest driving/bus lane.
+        if let Some(pt) = stop.ped_pos {
+            let sidewalk_pos = *self.sidewalk_pts.get(&pt.to_hashable())?;
+            let lane = map
+                .get_parent(sidewalk_pos.lane())
+                .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Bus, LaneType::Driving])
+                .ok()?;
+            let driving_pos = sidewalk_pos.equiv_pos(lane, Distance::ZERO, map);
+            return Some((sidewalk_pos, driving_pos));
+        }
+
+        // We only have the driving position. First find the sidewalk, then snap it to the
+        // rightmost driving/bus lane.
+        let orig_driving_pos = *self.bus_pts.get(&stop.vehicle_pos.to_hashable())?;
         let sidewalk = map
-            .get_parent(driving_pos.lane())
-            .find_closest_lane(driving_pos.lane(), vec![LaneType::Sidewalk])
+            .get_parent(orig_driving_pos.lane())
+            .find_closest_lane(orig_driving_pos.lane(), vec![LaneType::Sidewalk])
             .ok()?;
-        let sidewalk_pos = driving_pos.equiv_pos(sidewalk, Distance::ZERO, map);
-        Some((sidewalk_pos, *driving_pos))
+        let sidewalk_pos = orig_driving_pos.equiv_pos(sidewalk, Distance::ZERO, map);
+        let lane = map
+            .get_parent(sidewalk_pos.lane())
+            .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Bus, LaneType::Driving])
+            .ok()?;
+        let driving_pos = sidewalk_pos.equiv_pos(lane, Distance::ZERO, map);
+        Some((sidewalk_pos, driving_pos))
     }
 }
 
