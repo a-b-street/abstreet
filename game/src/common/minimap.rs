@@ -5,7 +5,8 @@ use crate::layer::PickLayer;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, ScreenDims, ScreenPt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, ScreenDims, ScreenPt, Spinner, VerticalAlignment,
+    Widget,
 };
 use geom::{Distance, Polygon, Pt2D, Ring};
 
@@ -190,6 +191,9 @@ impl Minimap {
             },
             None => {}
         }
+        if self.composite.has_widget("zorder") {
+            app.primary.show_zorder = self.composite.spinner("zorder");
+        }
         // TODO an outcome for a checkbox flipping state could be useful
         let mut toggle = None;
         for (label, _, enabled) in &app.agent_cs.rows {
@@ -352,9 +356,16 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
         // The zoom column should start below the "pan up" arrow. But if we put it on the row with
         // <, minimap, and > then it messes up the horizontal alignment of the pan up arrow.
         // Also, double column to avoid the background color stretching to the bottom of the row.
-        Widget::custom_col(vec![Widget::custom_col(col)
-            .padding(10)
-            .bg(app.cs.inner_panel)])
+        Widget::custom_col(vec![
+            Widget::custom_col(col).padding(10).bg(app.cs.inner_panel),
+            if app.opts.dev {
+                Spinner::new(ctx, app.primary.zorder_range, app.primary.show_zorder)
+                    .named("zorder")
+                    .margin_above(10)
+            } else {
+                Widget::nothing()
+            },
+        ])
         .margin_above(26)
     };
 

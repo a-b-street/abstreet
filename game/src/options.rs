@@ -93,7 +93,7 @@ impl OptionsPanel {
                     ),
                     Widget::row(vec![
                         "Scroll speed for menus".draw_text(ctx).centered_vert(),
-                        Spinner::new(ctx, (1, 50), ctx.canvas.gui_scroll_speed)
+                        Spinner::new(ctx, (1, 50), ctx.canvas.gui_scroll_speed as isize)
                             .named("gui_scroll_speed"),
                     ]),
                 ])
@@ -230,7 +230,8 @@ impl State for OptionsPanel {
                         .composite
                         .is_checked("Use arrow keys to pan and Q/W to zoom");
                     ctx.canvas.edge_auto_panning = self.composite.is_checked("autopan");
-                    ctx.canvas.gui_scroll_speed = self.composite.spinner("gui_scroll_speed");
+                    ctx.canvas.gui_scroll_speed =
+                        self.composite.spinner("gui_scroll_speed") as usize;
 
                     app.opts.label_roads = self.composite.is_checked("Draw road names");
                     let style = self.composite.dropdown_value("Traffic signal rendering");

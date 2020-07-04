@@ -798,7 +798,7 @@ impl Composite {
         self.find::<TextBox>(name).get_line()
     }
 
-    pub fn spinner(&self, name: &str) -> usize {
+    pub fn spinner(&self, name: &str) -> isize {
         self.find::<Spinner>(name).current
     }
 

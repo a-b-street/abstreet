@@ -436,6 +436,8 @@ impl App {
             }
         }
 
+        borrows.retain(|x| x.get_zorder() <= self.primary.show_zorder);
+
         // This is a stable sort.
         borrows.sort_by_key(|x| x.get_zorder());
 
@@ -511,6 +513,8 @@ pub struct PerMap {
     pub current_flags: Flags,
     pub last_warped_from: Option<(Pt2D, f64)>,
     pub sim_cb: Option<Box<dyn SimCallback>>,
+    pub show_zorder: isize,
+    pub zorder_range: (isize, isize),
     // If we ever left edit mode and resumed without restarting from midnight, this is true.
     pub dirty_from_edits: bool,
 }
@@ -526,6 +530,13 @@ impl PerMap {
         timer.stop("draw_map");
         mem.reset("DrawMap", timer);
 
+        let mut low_z = 0;
+        let mut high_z = 0;
+        for r in map.all_roads() {
+            low_z = low_z.min(r.zorder);
+            high_z = high_z.max(r.zorder);
+        }
+
         PerMap {
             map,
             draw_map,
@@ -534,6 +545,8 @@ impl PerMap {
             current_flags: flags.clone(),
             last_warped_from: None,
             sim_cb: None,
+            zorder_range: (low_z, high_z),
+            show_zorder: high_z,
             dirty_from_edits: false,
         }
     }

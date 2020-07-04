@@ -248,7 +248,7 @@ impl State for AgentSpawner {
                     let mut scenario = Scenario::empty(map, "one-shot");
                     let from = self.source.take().unwrap();
                     let to = self.goal.take().unwrap().0;
-                    for i in 0..self.composite.spinner("number") {
+                    for i in 0..self.composite.spinner("number") as usize {
                         scenario.people.push(PersonSpec {
                             id: PersonID(app.primary.sim.get_all_people().len() + i),
                             orig_id: None,

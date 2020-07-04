@@ -11,9 +11,9 @@ const TEXT_WIDTH: f64 = 2.0 * text::MAX_CHAR_WIDTH;
 // TODO Allow click and hold
 // TODO Grey out the buttons when we're maxed out
 pub struct Spinner {
-    low: usize,
-    high: usize,
-    pub current: usize,
+    low: isize,
+    high: isize,
+    pub current: isize,
 
     up: Button,
     down: Button,
@@ -23,7 +23,7 @@ pub struct Spinner {
 }
 
 impl Spinner {
-    pub fn new(ctx: &EventCtx, (low, high): (usize, usize), current: usize) -> Widget {
+    pub fn new(ctx: &EventCtx, (low, high): (isize, isize), current: isize) -> Widget {
         let up = Btn::text_fg("▲")
             .build(ctx, "increase value", None)
             .take_btn();
