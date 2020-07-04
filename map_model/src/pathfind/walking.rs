@@ -256,6 +256,10 @@ pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStep>
             if let Some(turn) = map.get_turn_between(l1, l2, i) {
                 steps.push(PathStep::Turn(turn));
             } else {
+                println!("walking_path_to_steps has a weird path:");
+                for s in &path {
+                    println!("- {:?}", s);
+                }
                 panic!("No turn from {} to {} at {}", l1, l2, i);
             }
         }

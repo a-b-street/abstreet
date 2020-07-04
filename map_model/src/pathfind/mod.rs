@@ -666,7 +666,12 @@ impl Pathfinder {
         if let PathConstraints::Pedestrian = req.constraints {
             let mut interior_path = zone.pathfind_walking(interior_req, map)?;
             let main_path = if req.start.lane() == req.end.lane() {
-                vec![WalkingNode::closest(req.end, map)]
+                let mut one_step = vec![
+                    WalkingNode::closest(req.start, map),
+                    WalkingNode::closest(req.end, map),
+                ];
+                one_step.dedup();
+                one_step
             } else {
                 self.walking_graph.pathfind(&req, map)?
             };
@@ -744,13 +749,19 @@ impl Pathfinder {
         if let PathConstraints::Pedestrian = req.constraints {
             let interior_path = zone.pathfind_walking(interior_req, map)?;
             let mut main_path = if req.start.lane() == req.end.lane() {
-                vec![WalkingNode::closest(req.start, map)]
+                let mut one_step = vec![
+                    WalkingNode::closest(req.start, map),
+                    WalkingNode::closest(req.end, map),
+                ];
+                one_step.dedup();
+                one_step
             } else {
                 self.walking_graph.pathfind(&req, map)?
             };
+
             main_path.extend(interior_path);
             let steps = walking_path_to_steps(main_path, map);
-            return Some(Path::new(map, steps, req.end.dist_along()));
+            return Some(Path::new(map, steps, orig_end_dist));
         }
 
         let interior_path = zone.pathfind(interior_req, map)?;
