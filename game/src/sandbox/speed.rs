@@ -1,11 +1,12 @@
-use crate::app::{App, FindDelayedIntersections};
+use crate::app::{App, FindDelayedIntersections, ShowEverything};
 use crate::common::Warping;
-use crate::game::{msg, State, Transition};
+use crate::game::{msg, DrawBaselayer, State, Transition};
 use crate::helpers::ID;
+use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, AreaSlider, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
+    hotkey, AreaSlider, Btn, Checkbox, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Text, UpdateType,
     VerticalAlignment, Widget,
 };
@@ -393,6 +394,14 @@ impl JumpToTime {
                 Btn::text_bg2("Jump to the next delay over 5 minutes")
                     .build_def(ctx, None)
                     .centered_horiz(),
+                Checkbox::text(
+                    ctx,
+                    "don't draw (for faster simulations)",
+                    None,
+                    app.opts.dont_draw_time_warp,
+                )
+                .margin_above(30)
+                .named("don't draw"),
             ]))
             .build(ctx),
         }
@@ -434,6 +443,7 @@ impl State for JumpToTime {
             },
             None => {}
         }
+        app.opts.dont_draw_time_warp = self.composite.is_checked("don't draw");
         let target = app
             .primary
             .sim
@@ -609,8 +619,23 @@ impl State for TimeWarpScreen {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        if app.opts.dont_draw_time_warp {
+            g.clear(app.cs.section_bg);
+        } else {
+            app.draw(
+                g,
+                DrawOptions::new(),
+                &app.primary.sim,
+                &ShowEverything::new(),
+            );
+            State::grey_out_map(g, app);
+        }
+
         self.composite.draw(g);
     }
 

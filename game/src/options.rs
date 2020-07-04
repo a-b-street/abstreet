@@ -21,6 +21,7 @@ pub struct Options {
 
     pub time_increment: Duration,
     pub resume_after_edit: bool,
+    pub dont_draw_time_warp: bool,
 }
 
 impl Options {
@@ -37,6 +38,7 @@ impl Options {
 
             time_increment: Duration::minutes(10),
             resume_after_edit: true,
+            dont_draw_time_warp: false,
         }
     }
 }
