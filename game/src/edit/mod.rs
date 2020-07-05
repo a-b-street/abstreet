@@ -10,7 +10,9 @@ pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
 pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
-pub use self::validate::{check_parking_blackholes, check_sidewalk_connectivity};
+pub use self::validate::{
+    check_parking_blackholes, check_sidewalk_connectivity, try_change_lt, try_reverse,
+};
 use crate::app::{App, ShowEverything};
 use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
@@ -347,7 +349,7 @@ impl State for SaveEdits {
                     edits.edits_name = self.current_name.clone();
                     app.primary
                         .map
-                        .apply_edits(edits, &mut Timer::new("name map edits"));
+                        .must_apply_edits(edits, &mut Timer::new("name map edits"));
                     app.primary.map.save_edits();
                     if self.reset {
                         apply_map_edits(ctx, app, MapEdits::new());
@@ -424,7 +426,7 @@ pub fn save_edits_as(wizard: &mut WrappedWizard, app: &mut App) -> Option<()> {
 
     let mut edits = map.get_edits().clone();
     edits.edits_name = name;
-    map.apply_edits(edits, &mut Timer::new("name map edits"));
+    map.must_apply_edits(edits, &mut Timer::new("name map edits"));
     map.save_edits();
     Some(())
 }
@@ -497,7 +499,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
 
     let (roads_changed, turns_deleted, turns_added, mut modified_intersections) =
-        app.primary.map.apply_edits(edits, &mut timer);
+        app.primary.map.must_apply_edits(edits, &mut timer);
 
     for r in roads_changed {
         let road = app.primary.map.get_r(r);

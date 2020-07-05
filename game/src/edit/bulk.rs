@@ -1,7 +1,6 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::edit::lanes::try_change_lane_type;
-use crate::edit::{apply_map_edits, change_speed_limit};
+use crate::edit::{apply_map_edits, change_speed_limit, try_change_lt};
 use crate::game::{msg, State, Transition};
 use crate::helpers::{intersections_from_roads, ID};
 use ezgui::{
@@ -249,15 +248,12 @@ impl State for BulkEdit {
                     return Transition::Keep;
                 }
                 "confirm lanes" => {
-                    return Transition::Push(msg(
-                        "Edited lane types",
-                        change_lane_types(
-                            ctx,
-                            app,
-                            &self.roads,
-                            self.composite.dropdown_value("from lt"),
-                            self.composite.dropdown_value("to lt"),
-                        ),
+                    return Transition::Push(change_lane_types(
+                        ctx,
+                        app,
+                        &self.roads,
+                        self.composite.dropdown_value("from lt"),
+                        self.composite.dropdown_value("to lt"),
                     ));
                 }
                 _ => unreachable!(),
@@ -458,14 +454,16 @@ fn change_lane_types(
     roads: &Vec<RoadID>,
     from: LaneType,
     to: LaneType,
-) -> Vec<String> {
+) -> Box<dyn State> {
     let mut changes = 0;
     let mut errors = Vec::new();
-    ctx.loading_screen("change lane types", |ctx, _| {
+    ctx.loading_screen("change lane types", |ctx, timer| {
+        timer.start_iter("transform roads", roads.len());
         for r in roads {
+            timer.next();
             for l in app.primary.map.get_r(*r).all_lanes() {
                 if app.primary.map.get_l(l).lane_type == from {
-                    match try_change_lane_type(l, to, &app.primary.map) {
+                    match try_change_lt(&mut app.primary.map, l, to) {
                         Ok(cmd) => {
                             let mut edits = app.primary.map.get_edits().clone();
                             edits.commands.push(cmd);
@@ -483,17 +481,18 @@ fn change_lane_types(
         }
     });
 
-    errors.insert(
-        0,
-        format!(
+    // TODO Need to express the errors in some form that we can union here.
+
+    msg(
+        "Changed lane types",
+        vec![format!(
             "Changed {} {:?} lanes to {:?} lanes. {} errors",
             changes,
             from,
             to,
             errors.len()
-        ),
-    );
-    errors
+        )],
+    )
 }
 
 fn make_paint_composite(

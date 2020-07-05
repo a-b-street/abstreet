@@ -771,11 +771,30 @@ impl Map {
         edits.save(self);
     }
 
-    // new_edits assumed to be valid. Returns roads changed, turns deleted, turns added,
-    // intersections modified. Doesn't update pathfinding yet.
-    pub fn apply_edits(
+    pub fn must_apply_edits(
+        &mut self,
+        new_edits: MapEdits,
+        timer: &mut Timer,
+    ) -> (
+        BTreeSet<RoadID>,
+        BTreeSet<TurnID>,
+        BTreeSet<TurnID>,
+        BTreeSet<IntersectionID>,
+    ) {
+        self.apply_edits(new_edits, true, timer)
+    }
+
+    pub fn try_apply_edits(&mut self, new_edits: MapEdits, timer: &mut Timer) {
+        self.apply_edits(new_edits, false, timer);
+    }
+
+    // new_edits don't necessarily have to be valid; this could be used for speculatively testing
+    // edits. Returns roads changed, turns deleted, turns added, intersections modified. Doesn't
+    // update pathfinding yet.
+    fn apply_edits(
         &mut self,
         mut new_edits: MapEdits,
+        enforce_valid: bool,
         timer: &mut Timer,
     ) -> (
         BTreeSet<RoadID>,
@@ -812,17 +831,22 @@ impl Map {
         ));
 
         // Might need to update bus stops.
-        for id in &effects.changed_roads {
-            let stops = self.get_r(*id).all_bus_stops(self);
-            for s in stops {
-                let sidewalk_pos = self.get_bs(s).sidewalk_pos;
-                // Must exist, because we aren't allowed to orphan a bus stop.
-                let driving_lane = self
-                    .get_r(*id)
-                    .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Driving, LaneType::Bus])
-                    .unwrap();
-                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, self);
-                self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
+        if enforce_valid {
+            for id in &effects.changed_roads {
+                let stops = self.get_r(*id).all_bus_stops(self);
+                for s in stops {
+                    let sidewalk_pos = self.get_bs(s).sidewalk_pos;
+                    // Must exist, because we aren't allowed to orphan a bus stop.
+                    let driving_lane = self
+                        .get_r(*id)
+                        .find_closest_lane(
+                            sidewalk_pos.lane(),
+                            vec![LaneType::Driving, LaneType::Bus],
+                        )
+                        .unwrap();
+                    let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, self);
+                    self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
+                }
             }
         }
 
