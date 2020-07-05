@@ -19,7 +19,6 @@ pub use crate::render::area::DrawArea;
 use crate::render::bike::DrawBike;
 use crate::render::car::DrawCar;
 pub use crate::render::intersection::{calculate_corners, DrawIntersection};
-pub use crate::render::lane::DrawLane;
 pub use crate::render::map::{AgentCache, AgentColorScheme, DrawMap};
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;

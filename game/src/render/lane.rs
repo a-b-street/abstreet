@@ -1,24 +1,131 @@
 use crate::app::App;
-use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
-use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
+use ezgui::{Drawable, GeomBatch, GfxCtx, RewriteColor};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH};
+use std::cell::RefCell;
 
-// Split into two phases like this, because AlmostDrawLane can be created in parallel, but GPU
-// upload has to be serial.
-pub struct AlmostDrawLane {
+pub struct DrawLane {
     pub id: LaneID,
-    polygon: Polygon,
+    pub polygon: Polygon,
     zorder: isize,
-    draw_default: GeomBatch,
+
+    draw_default: RefCell<Option<Drawable>>,
 }
 
-impl AlmostDrawLane {
-    pub fn finish(mut self, prerender: &Prerender, _: &ColorScheme, lane: &Lane) -> DrawLane {
-        // Need prerender to load the (cached) SVGs
+impl DrawLane {
+    pub fn new(lane: &Lane, map: &Map) -> DrawLane {
+        DrawLane {
+            id: lane.id,
+            polygon: lane.lane_center_pts.make_polygons(lane.width),
+            zorder: map.get_r(lane.parent).zorder,
+            draw_default: RefCell::new(None),
+        }
+    }
+
+    pub fn clear_rendering(&mut self) {
+        *self.draw_default.borrow_mut() = None;
+    }
+
+    fn render(&self, g: &mut GfxCtx, app: &App) -> Drawable {
+        let map = &app.primary.map;
+        let lane = map.get_l(self.id);
+        let road = map.get_r(lane.parent);
+
+        let mut draw = GeomBatch::new();
+        let mut timer = Timer::throwaway();
+        if lane.lane_type != LaneType::LightRail {
+            draw.push(
+                match lane.lane_type {
+                    LaneType::Driving => app.cs.driving_lane,
+                    LaneType::Bus => app.cs.bus_lane,
+                    LaneType::Parking => app.cs.parking_lane,
+                    LaneType::Sidewalk => app.cs.sidewalk,
+                    LaneType::Biking => app.cs.bike_lane,
+                    LaneType::SharedLeftTurn => app.cs.driving_lane,
+                    LaneType::Construction => app.cs.parking_lane,
+                    LaneType::LightRail => unreachable!(),
+                },
+                self.polygon.clone(),
+            );
+        }
+        match lane.lane_type {
+            LaneType::Sidewalk => {
+                draw.extend(app.cs.sidewalk_lines, calculate_sidewalk_lines(lane));
+            }
+            LaneType::Parking => {
+                draw.extend(
+                    app.cs.general_road_marking,
+                    calculate_parking_lines(map, lane),
+                );
+            }
+            LaneType::Driving | LaneType::Bus => {
+                draw.extend(
+                    app.cs.general_road_marking,
+                    calculate_driving_lines(map, lane, road, &mut timer),
+                );
+                draw.extend(
+                    app.cs.general_road_marking,
+                    calculate_turn_markings(map, lane, &mut timer),
+                );
+                draw.extend(
+                    app.cs.general_road_marking,
+                    calculate_one_way_markings(lane, road),
+                );
+            }
+            LaneType::Biking => {}
+            LaneType::SharedLeftTurn => {
+                draw.push(
+                    app.cs.road_center_line,
+                    lane.lane_center_pts
+                        .shift_right(lane.width / 2.0)
+                        .get(&mut timer)
+                        .make_polygons(Distance::meters(0.25)),
+                );
+                draw.push(
+                    app.cs.road_center_line,
+                    lane.lane_center_pts
+                        .shift_left(lane.width / 2.0)
+                        .get(&mut timer)
+                        .make_polygons(Distance::meters(0.25)),
+                );
+            }
+            LaneType::Construction => {}
+            LaneType::LightRail => {
+                let track_width = lane.width / 4.0;
+                draw.push(
+                    app.cs.light_rail_track,
+                    lane.lane_center_pts
+                        .shift_right((lane.width - track_width) / 2.5)
+                        .get(&mut timer)
+                        .make_polygons(track_width),
+                );
+                draw.push(
+                    app.cs.light_rail_track,
+                    lane.lane_center_pts
+                        .shift_left((lane.width - track_width) / 2.5)
+                        .get(&mut timer)
+                        .make_polygons(track_width),
+                );
+
+                // Start away from the intersections
+                let tile_every = Distance::meters(3.0);
+                let mut dist_along = tile_every;
+                while dist_along < lane.lane_center_pts.length() - tile_every {
+                    let (pt, angle) = lane.dist_along(dist_along);
+                    // Reuse perp_line. Project away an arbitrary amount
+                    let pt2 = pt.project_away(Distance::meters(1.0), angle);
+                    draw.push(
+                        app.cs.light_rail_track,
+                        perp_line(Line::new(pt, pt2), lane.width).make_polygons(track_width),
+                    );
+                    dist_along += tile_every;
+                }
+            }
+        }
+
         if lane.is_bus() || lane.is_biking() || lane.lane_type == LaneType::Construction {
             let buffer = Distance::meters(2.0);
             let btwn = Distance::meters(30.0);
@@ -28,9 +135,9 @@ impl AlmostDrawLane {
             while dist + buffer <= len {
                 let (pt, angle) = lane.lane_center_pts.dist_along(dist);
                 if lane.is_bus() {
-                    self.draw_default.append(
+                    draw.append(
                         GeomBatch::mapspace_svg(
-                            prerender,
+                            g.prerender,
                             "../data/system/assets/map/bus_only.svg",
                         )
                         .scale(0.06)
@@ -38,17 +145,20 @@ impl AlmostDrawLane {
                         .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
                     );
                 } else if lane.is_biking() {
-                    self.draw_default.append(
-                        GeomBatch::mapspace_svg(prerender, "../data/system/assets/meters/bike.svg")
-                            .scale(0.06)
-                            .centered_on(pt)
-                            .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
+                    draw.append(
+                        GeomBatch::mapspace_svg(
+                            g.prerender,
+                            "../data/system/assets/meters/bike.svg",
+                        )
+                        .scale(0.06)
+                        .centered_on(pt)
+                        .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
                     );
                 } else if lane.lane_type == LaneType::Construction {
                     // TODO Still not quite centered right, but close enough
-                    self.draw_default.append(
+                    draw.append(
                         GeomBatch::mapspace_svg(
-                            prerender,
+                            g.prerender,
                             "../data/system/assets/map/under_construction.svg",
                         )
                         .scale(0.05)
@@ -63,137 +173,15 @@ impl AlmostDrawLane {
             }
         }
 
-        if self.zorder < 0 {
-            self.draw_default = self.draw_default.color(RewriteColor::ChangeAlpha(0.5));
-        }
-
-        DrawLane {
-            id: self.id,
-            polygon: self.polygon,
-            zorder: self.zorder,
-            draw_default: prerender.upload(self.draw_default),
-        }
-    }
-}
-
-pub struct DrawLane {
-    pub id: LaneID,
-    pub polygon: Polygon,
-    zorder: isize,
-
-    draw_default: Drawable,
-}
-
-impl DrawLane {
-    pub fn new(
-        lane: &Lane,
-        map: &Map,
-        draw_lane_markings: bool,
-        cs: &ColorScheme,
-        timer: &mut Timer,
-    ) -> AlmostDrawLane {
-        let road = map.get_r(lane.parent);
-        let polygon = lane.lane_center_pts.make_polygons(lane.width);
-
-        let mut draw = GeomBatch::new();
-        if lane.lane_type != LaneType::LightRail {
-            draw.push(
-                match lane.lane_type {
-                    LaneType::Driving => cs.driving_lane,
-                    LaneType::Bus => cs.bus_lane,
-                    LaneType::Parking => cs.parking_lane,
-                    LaneType::Sidewalk => cs.sidewalk,
-                    LaneType::Biking => cs.bike_lane,
-                    LaneType::SharedLeftTurn => cs.driving_lane,
-                    LaneType::Construction => cs.parking_lane,
-                    LaneType::LightRail => unreachable!(),
-                },
-                polygon.clone(),
-            );
-        }
-        if draw_lane_markings {
-            match lane.lane_type {
-                LaneType::Sidewalk => {
-                    draw.extend(cs.sidewalk_lines, calculate_sidewalk_lines(lane));
-                }
-                LaneType::Parking => {
-                    draw.extend(cs.general_road_marking, calculate_parking_lines(map, lane));
-                }
-                LaneType::Driving | LaneType::Bus => {
-                    draw.extend(
-                        cs.general_road_marking,
-                        calculate_driving_lines(map, lane, road, timer),
-                    );
-                    draw.extend(
-                        cs.general_road_marking,
-                        calculate_turn_markings(map, lane, timer),
-                    );
-                    draw.extend(
-                        cs.general_road_marking,
-                        calculate_one_way_markings(lane, road),
-                    );
-                }
-                LaneType::Biking => {}
-                LaneType::SharedLeftTurn => {
-                    draw.push(
-                        cs.road_center_line,
-                        lane.lane_center_pts
-                            .shift_right(lane.width / 2.0)
-                            .get(timer)
-                            .make_polygons(Distance::meters(0.25)),
-                    );
-                    draw.push(
-                        cs.road_center_line,
-                        lane.lane_center_pts
-                            .shift_left(lane.width / 2.0)
-                            .get(timer)
-                            .make_polygons(Distance::meters(0.25)),
-                    );
-                }
-                LaneType::Construction => {}
-                LaneType::LightRail => {
-                    let track_width = lane.width / 4.0;
-                    draw.push(
-                        cs.light_rail_track,
-                        lane.lane_center_pts
-                            .shift_right((lane.width - track_width) / 2.5)
-                            .get(timer)
-                            .make_polygons(track_width),
-                    );
-                    draw.push(
-                        cs.light_rail_track,
-                        lane.lane_center_pts
-                            .shift_left((lane.width - track_width) / 2.5)
-                            .get(timer)
-                            .make_polygons(track_width),
-                    );
-
-                    // Start away from the intersections
-                    let tile_every = Distance::meters(3.0);
-                    let mut dist_along = tile_every;
-                    while dist_along < lane.lane_center_pts.length() - tile_every {
-                        let (pt, angle) = lane.dist_along(dist_along);
-                        // Reuse perp_line. Project away an arbitrary amount
-                        let pt2 = pt.project_away(Distance::meters(1.0), angle);
-                        draw.push(
-                            cs.light_rail_track,
-                            perp_line(Line::new(pt, pt2), lane.width).make_polygons(track_width),
-                        );
-                        dist_along += tile_every;
-                    }
-                }
-            };
-        }
         if road.zone.is_some() {
-            draw.push(cs.private_road.alpha(0.5), polygon.clone());
+            draw.push(app.cs.private_road.alpha(0.5), self.polygon.clone());
         }
 
-        AlmostDrawLane {
-            id: lane.id,
-            polygon,
-            zorder: road.zorder,
-            draw_default: draw,
+        if self.zorder < 0 {
+            draw = draw.color(RewriteColor::ChangeAlpha(0.5));
         }
+
+        g.upload(draw)
     }
 }
 
@@ -202,8 +190,14 @@ impl Renderable for DrawLane {
         ID::Lane(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
-        g.redraw(&self.draw_default);
+    fn draw(&self, g: &mut GfxCtx, app: &App, _: &DrawOptions) {
+        // Lazily calculate, because these are expensive to all do up-front, and most players won't
+        // exhaustively see every lane during a single session
+        let mut draw = self.draw_default.borrow_mut();
+        if draw.is_none() {
+            *draw = Some(self.render(g, app));
+        }
+        g.redraw(draw.as_ref().unwrap());
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {

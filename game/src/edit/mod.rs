@@ -15,7 +15,7 @@ use crate::debug::DebugMode;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::render::{DrawIntersection, DrawLane, DrawRoad};
+use crate::render::{DrawIntersection, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
 use ezgui::{
@@ -508,15 +508,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
         // An edit to one lane potentially affects markings in all lanes in the same road, because
         // of one-way markings, driving lines, etc.
         for l in road.all_lanes() {
-            let lane = app.primary.map.get_l(l);
-            app.primary.draw_map.lanes[l.0] = DrawLane::new(
-                lane,
-                &app.primary.map,
-                app.primary.current_flags.draw_lane_markings,
-                &app.cs,
-                &mut timer,
-            )
-            .finish(ctx.prerender, &app.cs, lane);
+            app.primary.draw_map.lanes[l.0].clear_rendering();
         }
     }
 

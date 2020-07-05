@@ -1,4 +1,4 @@
-use crate::app::{App, Flags};
+use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::building::DrawBuilding;
@@ -46,13 +46,7 @@ pub struct DrawMap {
 }
 
 impl DrawMap {
-    pub fn new(
-        map: &Map,
-        flags: &Flags,
-        cs: &ColorScheme,
-        ctx: &EventCtx,
-        timer: &mut Timer,
-    ) -> DrawMap {
+    pub fn new(map: &Map, cs: &ColorScheme, ctx: &EventCtx, timer: &mut Timer) -> DrawMap {
         let mut roads: Vec<DrawRoad> = Vec::new();
         timer.start_iter("make DrawRoads", map.all_roads().len());
         for r in map.all_roads() {
@@ -85,24 +79,11 @@ impl DrawMap {
         let draw_all_thick_roads = all_roads.upload(ctx);
         timer.stop("generate thick roads");
 
-        let almost_lanes =
-            timer.parallelize("prepare DrawLanes", map.all_lanes().iter().collect(), |l| {
-                DrawLane::new(
-                    l,
-                    map,
-                    flags.draw_lane_markings,
-                    cs,
-                    // TODO Really parallelize should give us something thread-safe that can at
-                    // least take notes.
-                    &mut Timer::throwaway(),
-                )
-            });
-        timer.start_iter("finalize DrawLanes", almost_lanes.len());
         let mut lanes: Vec<DrawLane> = Vec::new();
-        for almost in almost_lanes {
+        timer.start_iter("make DrawLanes", map.all_lanes().len());
+        for l in map.all_lanes() {
             timer.next();
-            let lane = map.get_l(almost.id);
-            lanes.push(almost.finish(ctx.prerender, cs, lane));
+            lanes.push(DrawLane::new(l, map));
         }
 
         let mut intersections: Vec<DrawIntersection> = Vec::new();

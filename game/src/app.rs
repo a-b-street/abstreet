@@ -497,7 +497,6 @@ impl ShowObject for ShowEverything {
 #[derive(Clone)]
 pub struct Flags {
     pub sim_flags: SimFlags,
-    pub draw_lane_markings: bool,
     // Number of agents to generate when requested. If unspecified, trips to/from borders will be
     // included.
     pub num_agents: Option<usize>,
@@ -526,7 +525,7 @@ impl PerMap {
         mem.reset("Map and Sim", timer);
 
         timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, &flags, cs, ctx, timer);
+        let draw_map = DrawMap::new(&map, cs, ctx, timer);
         timer.stop("draw_map");
         mem.reset("DrawMap", timer);
 
