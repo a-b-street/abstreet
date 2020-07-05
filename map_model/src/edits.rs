@@ -587,6 +587,9 @@ impl EditCmd {
                     }
                     EditIntersection::TrafficSignal(ref raw_ts) => {
                         map.intersections[i.0].intersection_type = IntersectionType::TrafficSignal;
+                        if old == &EditIntersection::Closed {
+                            recalculate_turns(*i, map, effects, timer);
+                        }
                         map.traffic_signals.insert(
                             *i,
                             ControlTrafficSignal::import(raw_ts.clone(), *i, map).unwrap(),

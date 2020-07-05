@@ -571,6 +571,7 @@ pub fn close_intersection(
     });
     apply_map_edits(ctx, app, edits);
 
+    // TODO Differential SCC... are we breaking anything new?
     let (_, disconnected) = connectivity::find_scc(&app.primary.map, PathConstraints::Pedestrian);
     if disconnected.is_empty() {
         // Success! Quit the stop sign / signal editor.
