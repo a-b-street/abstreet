@@ -100,6 +100,9 @@ impl EditMode {
                 } else {
                     app.primary.sim = old_sim;
                     app.primary.dirty_from_edits = true;
+                    app.primary
+                        .sim
+                        .handle_live_edited_traffic_signals(&app.primary.map);
                     Transition::Pop
                 }
             } else {

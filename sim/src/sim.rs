@@ -861,6 +861,10 @@ impl Sim {
         );
         self.scheduler.after_savestate(paths);
     }
+
+    pub fn handle_live_edited_traffic_signals(&mut self, map: &Map) {
+        self.intersections.handle_live_edited_traffic_signals(map)
+    }
 }
 
 // Queries of all sorts

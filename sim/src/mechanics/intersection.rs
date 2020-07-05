@@ -449,6 +449,22 @@ impl IntersectionSimState {
         }
         (state.current_phase, state.phase_ends_at - now)
     }
+
+    pub fn handle_live_edited_traffic_signals(&mut self, map: &Map) {
+        for state in self.state.values_mut() {
+            if let Some(ts) = map.maybe_get_traffic_signal(state.id) {
+                if state.current_phase >= ts.phases.len() {
+                    // Just jump back to the first one. Shrug.
+                    state.current_phase = 0;
+                    println!(
+                        "WARNING: Traffic signal {} was live-edited in the middle of a phase, so \
+                         jumping back to the first phase",
+                        state.id
+                    );
+                }
+            }
+        }
+    }
 }
 
 impl IntersectionSimState {
