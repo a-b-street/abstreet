@@ -19,7 +19,7 @@ pub fn get_possible_policies(
         .unwrap()
         .remove(&map.get_i(id).orig_id.osm_node_id)
     {
-        if let Some(ts) = ControlTrafficSignal::import(raw, id, map) {
+        if let Ok(ts) = ControlTrafficSignal::import(raw, id, map) {
             results.push(("hand-mapped current real settings".to_string(), ts));
         } else {
             timer.error(format!(

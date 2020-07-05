@@ -157,7 +157,7 @@ pub fn trips(
                 Btn::plaintext(if open_trips.contains_key(t) {
                     "↓"
                 } else {
-                    "▲"
+                    "↑"
                 })
                 .build(
                     ctx,

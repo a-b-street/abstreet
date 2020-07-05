@@ -262,7 +262,7 @@ impl ControlTrafficSignal {
         raw: seattle_traffic_signals::TrafficSignal,
         id: IntersectionID,
         map: &Map,
-    ) -> Option<ControlTrafficSignal> {
+    ) -> Result<ControlTrafficSignal, String> {
         let mut phases = Vec::new();
         for p in raw.phases {
             let num_protected = p.protected_turns.len();
@@ -291,7 +291,10 @@ impl ControlTrafficSignal {
                     },
                 });
             } else {
-                return None;
+                return Err(format!(
+                    "Failed to import some of the turn groups for {}",
+                    raw.intersection_osm_node_id
+                ));
             }
         }
         ControlTrafficSignal {
@@ -301,7 +304,6 @@ impl ControlTrafficSignal {
             turn_groups: TurnGroup::for_i(id, map),
         }
         .validate()
-        .ok()
     }
 }
 

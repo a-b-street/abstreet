@@ -861,4 +861,14 @@ impl Map {
 
         self.pathfinder_dirty = false;
     }
+
+    // Since the player is in the middle of editing, the signal may not be valid. Don't go through
+    // the entire apply_edits flow.
+    pub fn incremental_edit_traffic_signal(&mut self, signal: ControlTrafficSignal) {
+        assert_eq!(
+            self.get_i(signal.id).intersection_type,
+            IntersectionType::TrafficSignal
+        );
+        self.traffic_signals.insert(signal.id, signal);
+    }
 }

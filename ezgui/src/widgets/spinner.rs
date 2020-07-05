@@ -24,7 +24,7 @@ pub struct Spinner {
 
 impl Spinner {
     pub fn new(ctx: &EventCtx, (low, high): (isize, isize), current: isize) -> Widget {
-        let up = Btn::text_fg("▲")
+        let up = Btn::text_fg("↑")
             .build(ctx, "increase value", None)
             .take_btn();
         let down = Btn::text_fg("↓")
