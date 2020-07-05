@@ -180,7 +180,7 @@ fn make_input_graph(
 
         // Connect each adjacent stop along a route, with the cost based on how long it'll take a
         // bus to drive between the stops. Optimistically assume no waiting time at a stop.
-        for route in map.get_all_bus_routes() {
+        for route in map.all_bus_routes() {
             for (stop1, stop2) in
                 route
                     .stops

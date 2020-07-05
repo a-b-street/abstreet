@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::common::CommonState;
-use crate::edit::{apply_map_edits, close_intersection, TrafficSignalEditor};
+use crate::edit::{apply_map_edits, check_sidewalk_connectivity, TrafficSignalEditor};
 use crate::game::{State, Transition};
 use crate::render::DrawIntersection;
 use crate::sandbox::GameplayMode;
@@ -139,7 +139,20 @@ impl State for StopSignEditor {
                     )));
                 }
                 "close intersection for construction" => {
-                    return close_intersection(ctx, app, self.id, true);
+                    let cmd = EditCmd::ChangeIntersection {
+                        i: self.id,
+                        old: app.primary.map.get_i_edit(self.id),
+                        new: EditIntersection::Closed,
+                    };
+                    if let Some(err) = check_sidewalk_connectivity(ctx, app, cmd.clone()) {
+                        return Transition::Push(err);
+                    } else {
+                        let mut edits = app.primary.map.get_edits().clone();
+                        edits.commands.push(cmd);
+                        apply_map_edits(ctx, app, edits);
+
+                        return Transition::Pop;
+                    }
                 }
                 "convert to traffic signal" => {
                     let mut edits = app.primary.map.get_edits().clone();

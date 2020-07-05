@@ -1,6 +1,6 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::edit::{apply_map_edits, close_intersection, StopSignEditor};
+use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::render::{
     draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS,
@@ -567,7 +567,20 @@ fn edit_entire_signal(
                         .incremental_edit_traffic_signal(orig.clone());
                 }
 
-                Some(close_intersection(ctx, app, i, false))
+                let cmd = EditCmd::ChangeIntersection {
+                    i,
+                    old: app.primary.map.get_i_edit(i),
+                    new: EditIntersection::Closed,
+                };
+                if let Some(err) = check_sidewalk_connectivity(ctx, app, cmd.clone()) {
+                    Some(Transition::Replace(err))
+                } else {
+                    let mut edits = app.primary.map.get_edits().clone();
+                    edits.commands.push(cmd);
+                    apply_map_edits(ctx, app, edits);
+
+                    Some(Transition::PopTwice)
+                }
             }
             x if x == offset => {
                 let new_duration = wizard.input_usize_prefilled(

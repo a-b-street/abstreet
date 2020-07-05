@@ -362,7 +362,7 @@ impl Map {
         &self.bus_routes[route.0]
     }
 
-    pub fn get_all_bus_routes(&self) -> &Vec<BusRoute> {
+    pub fn all_bus_routes(&self) -> &Vec<BusRoute> {
         &self.bus_routes
     }
 

@@ -3,16 +3,18 @@ mod cluster_traffic_signals;
 mod lanes;
 mod stop_signs;
 mod traffic_signals;
+mod validate;
 mod zones;
 
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
 pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
+pub use self::validate::{check_parking_blackholes, check_sidewalk_connectivity};
 use crate::app::{App, ShowEverything};
-use crate::common::{tool_panel, ColorDiscrete, CommonState, Warping};
+use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
-use crate::game::{msg, State, Transition, WizardState};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{DrawIntersection, DrawRoad};
@@ -24,10 +26,7 @@ use ezgui::{
     WrappedWizard,
 };
 use geom::Speed;
-use map_model::{
-    connectivity, EditCmd, EditIntersection, IntersectionID, LaneID, LaneType, MapEdits,
-    PathConstraints, PermanentMapEdits,
-};
+use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits, PermanentMapEdits};
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 
@@ -547,103 +546,6 @@ pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, app: &App) -> bool {
         && !app.primary.map.get_l(l).is_sidewalk()
         && app.primary.map.get_l(l).lane_type != LaneType::SharedLeftTurn
         && app.primary.map.get_l(l).lane_type != LaneType::LightRail
-}
-
-pub fn close_intersection(
-    ctx: &mut EventCtx,
-    app: &mut App,
-    i: IntersectionID,
-    pop_once: bool,
-) -> Transition {
-    let (_, disconnected_before) =
-        connectivity::find_scc(&app.primary.map, PathConstraints::Pedestrian);
-
-    let mut edits = app.primary.map.get_edits().clone();
-    edits.commands.push(EditCmd::ChangeIntersection {
-        i,
-        old: app.primary.map.get_i_edit(i),
-        new: EditIntersection::Closed,
-    });
-    apply_map_edits(ctx, app, edits);
-
-    let (_, disconnected_after) =
-        connectivity::find_scc(&app.primary.map, PathConstraints::Pedestrian);
-    let newly_disconnected = disconnected_after
-        .difference(&disconnected_before)
-        .collect::<Vec<_>>();
-    if newly_disconnected.is_empty() {
-        // Success! Quit the stop sign / signal editor.
-        if pop_once {
-            return Transition::Pop;
-        } else {
-            return Transition::PopTwice;
-        }
-    }
-
-    let mut edits = app.primary.map.get_edits().clone();
-    edits.commands.pop();
-    apply_map_edits(ctx, app, edits);
-
-    let mut err_state = msg(
-        "Error",
-        vec![format!(
-            "Can't close this intersection; {} sidewalks disconnected",
-            newly_disconnected.len()
-        )],
-    );
-
-    let mut c = ColorDiscrete::new(app, vec![("disconnected", Color::RED)]);
-    for l in newly_disconnected {
-        c.add_l(*l, "disconnected");
-    }
-
-    let (unzoomed, zoomed, _) = c.build(ctx);
-    err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some((unzoomed, zoomed));
-    if pop_once {
-        Transition::Push(err_state)
-    } else {
-        Transition::Replace(err_state)
-    }
-}
-
-#[allow(unused)]
-pub fn check_parking_blackholes(
-    ctx: &mut EventCtx,
-    app: &mut App,
-    edits: MapEdits,
-) -> Option<Box<dyn State>> {
-    let orig_edits = app.primary.map.get_edits().clone();
-    let mut ok_originally = BTreeSet::new();
-    for l in app.primary.map.all_lanes() {
-        if l.parking_blackhole.is_none() {
-            ok_originally.insert(l.id);
-            // TODO Only matters if there's any parking here anyways
-        }
-    }
-
-    apply_map_edits(ctx, app, edits);
-    let mut num_problems = 0;
-    let mut c = ColorDiscrete::new(app, vec![("parking disconnected", Color::RED)]);
-    for (l, _) in
-        connectivity::redirect_parking_blackholes(&app.primary.map, &mut Timer::throwaway())
-    {
-        if ok_originally.contains(&l) {
-            num_problems += 1;
-            c.add_l(l, "parking disconnected");
-        }
-    }
-    if num_problems == 0 {
-        None
-    } else {
-        let mut err_state = msg(
-            "Error",
-            vec![format!("{} lanes have parking disconnected", num_problems)],
-        );
-        let (unzoomed, zoomed, _) = c.build(ctx);
-        err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some((unzoomed, zoomed));
-        apply_map_edits(ctx, app, orig_edits);
-        Some(err_state)
-    }
 }
 
 pub fn change_speed_limit(ctx: &mut EventCtx, default: Speed) -> Widget {
