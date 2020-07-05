@@ -9,7 +9,7 @@ use crate::app::App;
 use crate::common::{tool_panel, CommonState, ContextualActions, IsochroneViewer, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{
-    apply_map_edits, can_edit_lane, save_edits_as, EditMode, LaneEditor, StopSignEditor,
+    apply_map_edits, can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor,
     TrafficSignalEditor,
 };
 use crate::game::{State, Transition, WizardState};
@@ -241,35 +241,52 @@ pub fn maybe_exit_sandbox() -> Transition {
 }
 
 fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let mut wizard = wiz.wrap(ctx);
-    let unsaved = app.primary.map.unsaved_edits();
-    let (resp, _) = wizard.choose("Are you ready to leave this mode?", || {
-        let mut choices = Vec::new();
-        choices.push(Choice::new("keep playing", ()));
-        if unsaved {
-            choices.push(Choice::new("save edits first", ()));
-        }
-        choices.push(Choice::new("quit to main screen", ()).key(Key::Q));
-        choices
-    })?;
+    let (resp, _) = wiz
+        .wrap(ctx)
+        .choose("Are you ready to leave this mode?", || {
+            vec![
+                Choice::new("keep playing", ()),
+                Choice::new("quit to main screen", ()).key(Key::Q),
+            ]
+        })?;
     if resp == "keep playing" {
         return Some(Transition::Pop);
     }
-    if resp == "save edits first" {
-        save_edits_as(&mut wizard, app)?;
+
+    ctx.canvas.save_camera_state(app.primary.map.get_name());
+    if app.primary.map.unsaved_edits() {
+        return Some(Transition::PushTwice(
+            Box::new(BackToMainMenu),
+            SaveEdits::new(
+                ctx,
+                app,
+                "Do you want to save your edits first?",
+                true,
+                None,
+            ),
+        ));
     }
-    ctx.loading_screen("reset map and sim", |ctx, mut timer| {
-        if !app.primary.map.get_edits().commands.is_empty() {
+    Some(Transition::Replace(Box::new(BackToMainMenu)))
+}
+
+struct BackToMainMenu;
+
+impl State for BackToMainMenu {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.loading_screen("reset map and sim", |ctx, mut timer| {
+            // Always safe to do this
             apply_map_edits(ctx, app, MapEdits::new());
             app.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);
-        }
-        app.primary.clear_sim();
-        app.set_prebaked(None);
-    });
-    ctx.canvas.save_camera_state(app.primary.map.get_name());
-    Some(Transition::Clear(vec![MainMenu::new(ctx, app)]))
+
+            app.primary.clear_sim();
+            app.set_prebaked(None);
+        });
+        Transition::Clear(vec![MainMenu::new(ctx, app)])
+    }
+
+    fn draw(&self, _: &mut GfxCtx, _: &App) {}
 }
 
 pub struct AgentMeter {
