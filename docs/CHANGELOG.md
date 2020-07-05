@@ -484,3 +484,16 @@ changes here.
 - starting a new traffic scenario modifier system, to repeat entire scenario or outright cancel trips for some people. many more ideas for filters and actions coming soon.
 - starting to represent private roads
 - add a very simple actuated traffic signal
+
+0.2.2
+
+- the default traffic signal configuration is much smarter now, handling roads with some sidewalks missing and automatically synchronizing pairs of adjacent lights
+- much faster startup time for large maps
+- better UX for handling unsaved edits
+- access-restricted zones: changing existing zones almost completely works, except for granting new access to pedestrians
+- new sidewalk corner rendering, more rounded
+- ui style standardized for margins, padding
+- Javed got camera panning when your cursor is at the edge of the screen to work; enable it in settings
+- pulling bus stop/route info from OSM, not GTFS. steps towards light rail.
+- experimenting with controls for hiding bridges to see roads underneath; try them in dev mode (ctrl+S)
+- many bug fixes
