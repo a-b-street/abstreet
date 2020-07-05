@@ -555,6 +555,9 @@ pub fn close_intersection(
     i: IntersectionID,
     pop_once: bool,
 ) -> Transition {
+    let (_, disconnected_before) =
+        connectivity::find_scc(&app.primary.map, PathConstraints::Pedestrian);
+
     let mut edits = app.primary.map.get_edits().clone();
     edits.commands.push(EditCmd::ChangeIntersection {
         i,
@@ -563,9 +566,12 @@ pub fn close_intersection(
     });
     apply_map_edits(ctx, app, edits);
 
-    // TODO Differential SCC... are we breaking anything new?
-    let (_, disconnected) = connectivity::find_scc(&app.primary.map, PathConstraints::Pedestrian);
-    if disconnected.is_empty() {
+    let (_, disconnected_after) =
+        connectivity::find_scc(&app.primary.map, PathConstraints::Pedestrian);
+    let newly_disconnected = disconnected_after
+        .difference(&disconnected_before)
+        .collect::<Vec<_>>();
+    if newly_disconnected.is_empty() {
         // Success! Quit the stop sign / signal editor.
         if pop_once {
             return Transition::Pop;
@@ -582,13 +588,13 @@ pub fn close_intersection(
         "Error",
         vec![format!(
             "Can't close this intersection; {} sidewalks disconnected",
-            disconnected.len()
+            newly_disconnected.len()
         )],
     );
 
     let mut c = ColorDiscrete::new(app, vec![("disconnected", Color::RED)]);
-    for l in disconnected {
-        c.add_l(l, "disconnected");
+    for l in newly_disconnected {
+        c.add_l(*l, "disconnected");
     }
 
     let (unzoomed, zoomed, _) = c.build(ctx);
