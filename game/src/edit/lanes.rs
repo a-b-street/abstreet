@@ -1,7 +1,10 @@
 use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::zones::ZoneEditor;
-use crate::edit::{apply_map_edits, can_edit_lane, change_speed_limit, maybe_edit_intersection};
+use crate::edit::{
+    apply_map_edits, can_edit_lane, change_speed_limit, check_bus_connectivity,
+    maybe_edit_intersection,
+};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::render::Renderable;
@@ -181,13 +184,17 @@ impl State for LaneEditor {
                     Ok(cmd) => {
                         let mut edits = app.primary.map.get_edits().clone();
                         edits.commands.push(cmd);
-                        apply_map_edits(ctx, app, edits);
-                        return Transition::Replace(Box::new(LaneEditor::new(
-                            ctx,
-                            app,
-                            self.l,
-                            self.mode.clone(),
-                        )));
+
+                        if let Some(err) = check_bus_connectivity(ctx, app, edits) {
+                            return Transition::Push(err);
+                        } else {
+                            return Transition::Replace(Box::new(LaneEditor::new(
+                                ctx,
+                                app,
+                                self.l,
+                                self.mode.clone(),
+                            )));
+                        }
                     }
                     Err(err) => {
                         return Transition::Push(msg("Error", vec![err]));
@@ -267,15 +274,6 @@ fn can_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Option<String
         ));
     }
 
-    // Don't let players orphan a bus stop.
-    if !r.all_bus_stops(map).is_empty()
-        && !proposed_lts
-            .iter()
-            .any(|lt| *lt == LaneType::Driving || *lt == LaneType::Bus)
-    {
-        return Some(format!("You need a driving or bus lane for the bus stop!"));
-    }
-
     let all_types: BTreeSet<LaneType> = other_side
         .into_iter()
         .chain(proposed_lts.iter().cloned())
@@ -291,6 +289,7 @@ fn can_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Option<String
     None
 }
 
+// The caller must call check_bus_connectivity!
 pub fn try_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Result<EditCmd, String> {
     if let Some(err) = can_change_lane_type(l, new_lt, map) {
         return Err(err);

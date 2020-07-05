@@ -1,4 +1,4 @@
-use crate::{IntersectionID, LaneID, Map, PathConstraints};
+use crate::{BusStopID, IntersectionID, LaneID, Map, PathConstraints, PathRequest};
 use abstutil::Timer;
 use geom::Duration;
 use petgraph::graphmap::DiGraphMap;
@@ -107,4 +107,25 @@ pub fn all_costs_from(map: &Map, start: IntersectionID) -> HashMap<IntersectionI
         let r = map.get_r(*r);
         r.center_pts.length() / r.speed_limit
     })
+}
+
+pub fn check_bus_routes(map: &Map) -> Vec<(BusStopID, BusStopID)> {
+    let mut problems = Vec::new();
+    for r in map.all_bus_routes() {
+        for (idx, stop1_id) in r.stops.iter().enumerate() {
+            let stop1 = map.get_bs(*stop1_id);
+            let stop2_idx = if idx + 1 == r.stops.len() { 0 } else { idx + 1 };
+            if map
+                .pathfind(PathRequest {
+                    start: stop1.driving_pos,
+                    end: map.get_bs(r.stops[stop2_idx]).driving_pos,
+                    constraints: PathConstraints::Bus,
+                })
+                .is_none()
+            {
+                problems.push((*stop1_id, r.stops[stop2_idx]));
+            }
+        }
+    }
+    problems
 }

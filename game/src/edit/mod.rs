@@ -549,6 +549,10 @@ pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, app: &App) -> bool {
         && app.primary.map.get_l(l).lane_type != LaneType::LightRail
 }
 
+// TODO Refactor these. Express as the tentative EditCmd to do, then return an optional error
+// state. Always put the map back in its original state, regardless of success. That'll let these
+// checks be chained better.
+
 pub fn close_intersection(
     ctx: &mut EventCtx,
     app: &mut App,
@@ -572,6 +576,25 @@ pub fn close_intersection(
         .difference(&disconnected_before)
         .collect::<Vec<_>>();
     if newly_disconnected.is_empty() {
+        // Another check to do first.
+        let mut edits = app.primary.map.get_edits().clone();
+        edits.commands.pop();
+        apply_map_edits(ctx, app, edits);
+
+        let mut edits = app.primary.map.get_edits().clone();
+        edits.commands.push(EditCmd::ChangeIntersection {
+            i,
+            old: app.primary.map.get_i_edit(i),
+            new: EditIntersection::Closed,
+        });
+        if let Some(err) = check_bus_connectivity(ctx, app, edits) {
+            if pop_once {
+                return Transition::Push(err);
+            } else {
+                return Transition::Replace(err);
+            }
+        }
+
         // Success! Quit the stop sign / signal editor.
         if pop_once {
             return Transition::Pop;
@@ -603,6 +626,36 @@ pub fn close_intersection(
         Transition::Push(err_state)
     } else {
         Transition::Replace(err_state)
+    }
+}
+
+pub fn check_bus_connectivity(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    edits: MapEdits,
+) -> Option<Box<dyn State>> {
+    let orig_edits = app.primary.map.get_edits().clone();
+    apply_map_edits(ctx, app, edits);
+
+    let mut num_problems = 0;
+    // TODO Should we show pairs of stops? It's probably clear enough
+    let mut c = ColorDiscrete::new(app, vec![("bus stop disconnected", Color::RED)]);
+    for (bs1, bs2) in connectivity::check_bus_routes(&app.primary.map) {
+        num_problems += 1;
+        c.add_bs(bs1, "bus stop disconnected");
+        c.add_bs(bs2, "bus stop disconnected");
+    }
+    if num_problems == 0 {
+        None
+    } else {
+        let mut err_state = msg(
+            "Error",
+            vec![format!("{} bus stops have been disconnected", num_problems)],
+        );
+        let (unzoomed, zoomed, _) = c.build(ctx);
+        err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some((unzoomed, zoomed));
+        apply_map_edits(ctx, app, orig_edits);
+        Some(err_state)
     }
 }
 

@@ -70,7 +70,7 @@ impl BusRoutes {
         let mut routes: Vec<String> = app
             .primary
             .map
-            .get_all_bus_routes()
+            .all_bus_routes()
             .iter()
             .map(|r| r.name.clone())
             .collect();
