@@ -10,15 +10,14 @@ pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
 use crate::challenges::{challenges_picker, Challenge};
 use crate::common::ContextualActions;
-use crate::edit::{apply_map_edits, save_edits_as};
-use crate::game::{State, Transition, WizardState};
+use crate::edit::{apply_map_edits, SaveEdits};
+use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::pregame::MainMenu;
 use crate::sandbox::{SandboxControls, SandboxMode};
 use abstutil::Timer;
 use ezgui::{
-    lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, TextExt,
-    Widget, Wizard,
+    lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, TextExt, Widget,
 };
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
@@ -297,6 +296,9 @@ pub struct FinalScore {
     composite: Composite,
     retry: GameplayMode,
     next_mode: Option<GameplayMode>,
+
+    chose_next: bool,
+    chose_back_to_challenges: bool,
 }
 
 impl FinalScore {
@@ -334,6 +336,8 @@ impl FinalScore {
             .build_custom(ctx),
             retry: mode,
             next_mode,
+            chose_next: false,
+            chose_back_to_challenges: false,
         })
     }
 }
@@ -342,42 +346,73 @@ impl State for FinalScore {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "Keep simulating" => Transition::Pop,
-                "Try again" => Transition::PopThenReplace(Box::new(SandboxMode::new(
-                    ctx,
-                    app,
-                    self.retry.clone(),
-                ))),
+                "Keep simulating" => {
+                    return Transition::Pop;
+                }
+                "Try again" => {
+                    return Transition::PopThenReplace(Box::new(SandboxMode::new(
+                        ctx,
+                        app,
+                        self.retry.clone(),
+                    )));
+                }
                 "Next challenge" => {
+                    self.chose_next = true;
                     if app.primary.map.unsaved_edits() {
-                        Transition::Push(WizardState::new(Box::new(maybe_save_first)))
-                    } else {
-                        Transition::Clear(vec![
-                            MainMenu::new(ctx, app),
-                            Box::new(SandboxMode::new(ctx, app, self.next_mode.clone().unwrap())),
-                            (Challenge::find(self.next_mode.as_ref().unwrap())
-                                .0
-                                .cutscene
-                                .unwrap())(
-                                ctx, app, self.next_mode.as_ref().unwrap()
-                            ),
-                        ])
+                        return Transition::Push(SaveEdits::new(
+                            ctx,
+                            app,
+                            "Do you want to save your edits first?",
+                            true,
+                            None,
+                        ));
                     }
                 }
                 "Back to challenges" => {
+                    self.chose_back_to_challenges = true;
                     if app.primary.map.unsaved_edits() {
-                        Transition::Push(WizardState::new(Box::new(maybe_save_first)))
-                    } else {
-                        Transition::Clear(vec![
-                            MainMenu::new(ctx, app),
-                            challenges_picker(ctx, app),
-                        ])
+                        return Transition::Push(SaveEdits::new(
+                            ctx,
+                            app,
+                            "Do you want to save your edits first?",
+                            true,
+                            None,
+                        ));
                     }
                 }
                 _ => unreachable!(),
             },
-            None => Transition::Keep,
+            None => {}
         }
+
+        if self.chose_next || self.chose_back_to_challenges {
+            ctx.loading_screen("reset map and sim", |ctx, mut timer| {
+                // Always safe to do this
+                apply_map_edits(ctx, app, MapEdits::new());
+                app.primary
+                    .map
+                    .recalculate_pathfinding_after_edits(&mut timer);
+
+                app.primary.clear_sim();
+                app.set_prebaked(None);
+            });
+        }
+
+        if self.chose_next {
+            return Transition::Clear(vec![
+                MainMenu::new(ctx, app),
+                Box::new(SandboxMode::new(ctx, app, self.next_mode.clone().unwrap())),
+                (Challenge::find(self.next_mode.as_ref().unwrap())
+                    .0
+                    .cutscene
+                    .unwrap())(ctx, app, self.next_mode.as_ref().unwrap()),
+            ]);
+        }
+        if self.chose_back_to_challenges {
+            return Transition::Clear(vec![MainMenu::new(ctx, app), challenges_picker(ctx, app)]);
+        }
+
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
@@ -385,24 +420,4 @@ impl State for FinalScore {
         g.clear(app.cs.grass);
         self.composite.draw(g);
     }
-}
-
-fn maybe_save_first(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let mut wizard = wiz.wrap(ctx);
-    let (resp, _) = wizard.choose("Wait, do you want to save your map edits first?", || {
-        vec![Choice::new("save", ()), Choice::new("discard", ())]
-    })?;
-    if resp == "save" {
-        save_edits_as(&mut wizard, app)?;
-    }
-    ctx.loading_screen("reset map and sim", |ctx, mut timer| {
-        if !app.primary.map.get_edits().commands.is_empty() {
-            apply_map_edits(ctx, app, MapEdits::new());
-            app.primary
-                .map
-                .recalculate_pathfinding_after_edits(&mut timer);
-        }
-    });
-    // TODO Don't make the player pick the FinalScore thing again :(
-    Some(Transition::Pop)
 }

@@ -25,7 +25,6 @@ use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment,
     Key, Line, Outcome, PersistentSplit, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
-    WrappedWizard,
 };
 use geom::Speed;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits, PermanentMapEdits};
@@ -384,54 +383,6 @@ impl State for SaveEdits {
         State::grey_out_map(g, app);
         self.composite.draw(g);
     }
-}
-
-pub fn save_edits_as(wizard: &mut WrappedWizard, app: &mut App) -> Option<()> {
-    let map = &mut app.primary.map;
-    let (prompt, new_default_name) = if map.get_edits().edits_name == "untitled edits" {
-        ("Name these edits", "".to_string())
-    } else {
-        (
-            "Name the new copy of these edits",
-            format!("copy of {}", map.get_edits().edits_name),
-        )
-    };
-
-    let name = loop {
-        let candidate = wizard.input_something(
-            prompt,
-            Some(new_default_name.clone()),
-            Box::new(|l| {
-                let l = l.trim().to_string();
-                if l.contains("/") || l == "untitled edits" || l == "" {
-                    None
-                } else {
-                    Some(l)
-                }
-            }),
-        )?;
-        if abstutil::file_exists(abstutil::path_edits(map.get_name(), &candidate)) {
-            let overwrite = "Overwrite";
-            let rename = "Rename";
-            if wizard
-                .choose_string(&format!("Edits named {} already exist", candidate), || {
-                    vec![overwrite, rename]
-                })?
-                .as_str()
-                == overwrite
-            {
-                break candidate;
-            }
-        } else {
-            break candidate;
-        }
-    };
-
-    let mut edits = map.get_edits().clone();
-    edits.edits_name = name;
-    map.must_apply_edits(edits, &mut Timer::new("name map edits"));
-    map.save_edits();
-    Some(())
 }
 
 fn make_load_edits(app: &App, mode: GameplayMode) -> Box<dyn State> {
