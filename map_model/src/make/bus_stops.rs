@@ -185,17 +185,10 @@ pub fn fix_bus_route(map: &Map, r: &mut BusRoute) -> bool {
 }
 
 fn check_stops(stop1: BusStopID, stop2: BusStopID, map: &Map) -> bool {
-    let bs1 = map.get_bs(stop1);
-    let bs2 = map.get_bs(stop2);
-    // This is coming up because the dist_along's are in a bad order. But why should
-    // this happen at all?
-    let ok1 = bs1.driving_pos.lane() != bs2.driving_pos.lane();
-    let ok2 = map
-        .pathfind(PathRequest {
-            start: bs1.driving_pos,
-            end: bs2.driving_pos,
-            constraints: PathConstraints::Bus,
-        })
-        .is_some();
-    ok1 && ok2
+    map.pathfind(PathRequest {
+        start: map.get_bs(stop1).driving_pos,
+        end: map.get_bs(stop2).driving_pos,
+        constraints: PathConstraints::Bus,
+    })
+    .is_some()
 }
