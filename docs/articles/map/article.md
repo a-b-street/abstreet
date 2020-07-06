@@ -97,7 +97,7 @@ messy and for now, most of these aren't quite guaranteed to be true.
 - Connectivity -- any sidewalk should be reachable from any other, and most
   driving lanes should be accessible from any others. There are exceptions due
   to border intersections -- if a car spawns on a highway along the border of
-  the map, it may be forced to disappear on the opposie border of the map, if
+  the map, it may be forced to disappear on the opposite border of the map, if
   the highway happens to not have any exits within the map boundary.
 
 ## From OSM to RawMap (`convert_osm` crate)
