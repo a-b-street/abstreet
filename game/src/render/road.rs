@@ -20,7 +20,7 @@ impl DrawRoad {
         let mut draw = GeomBatch::new();
         let center = r.get_current_center(map);
         let width = Distance::meters(0.25);
-        let color = if r.zone.is_some() {
+        let color = if r.is_private() {
             cs.road_center_line.lerp(cs.private_road, 0.5)
         } else {
             cs.road_center_line
@@ -70,12 +70,12 @@ impl Renderable for DrawRoad {
                     if r.center_pts.length() >= Distance::meters(30.0) && name != "???" {
                         // TODO If it's definitely straddling bus/bike lanes, change the color? Or
                         // even easier, just skip the center lines?
-                        let fg = if r.zone.is_some() {
+                        let fg = if r.is_private() {
                             app.cs.road_center_line.lerp(app.cs.private_road, 0.5)
                         } else {
                             app.cs.road_center_line
                         };
-                        let bg = if r.zone.is_some() {
+                        let bg = if r.is_private() {
                             app.cs.driving_lane.lerp(app.cs.private_road, 0.5)
                         } else {
                             app.cs.driving_lane

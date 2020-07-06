@@ -5,16 +5,16 @@ pub mod initial;
 mod remove_disconnected;
 pub mod traffic_signals;
 pub mod turns;
-mod zones;
 
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, Area, AreaID, BusRouteID, ControlStopSign, ControlTrafficSignal,
     Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Map, MapEdits,
-    PathConstraints, Position, Road, RoadID, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+    PathConstraints, Position, Road, RoadID, Zone, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use abstutil::Timer;
+use enumset::EnumSet;
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, PolyLine, Polygon, Speed, EPSILON_DIST};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
@@ -136,9 +136,10 @@ impl Map {
                 } else {
                     0
                 },
-                zone: None,
+                allow_through_traffic: EnumSet::new(),
             };
             road.speed_limit = road.speed_limit_from_osm();
+            road.allow_through_traffic = road.access_restrictions_from_osm();
 
             for lane in &r.lane_specs {
                 let id = LaneID(map.lanes.len());
@@ -257,12 +258,7 @@ impl Map {
         map.parking_lots =
             buildings::make_all_parking_lots(&raw.parking_lots, &raw.parking_aisles, &map, timer);
 
-        map.zones = zones::make_all_zones(&map);
-        for z in &map.zones {
-            for r in &z.members {
-                map.roads[r.0].zone = Some(z.id);
-            }
-        }
+        map.zones = Zone::make_all(&map);
 
         for (idx, a) in raw.areas.iter().enumerate() {
             map.areas.push(Area {

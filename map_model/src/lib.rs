@@ -26,7 +26,7 @@ pub use crate::objects::road::{DirectedRoadID, Road, RoadID};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::objects::traffic_signals::{ControlTrafficSignal, Phase, PhaseType};
 pub use crate::objects::turn::{Turn, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType};
-pub use crate::objects::zone::{Zone, ZoneID};
+pub use crate::objects::zone::Zone;
 pub use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn, UberTurnGroup};
 use crate::pathfind::Pathfinder;
 pub use crate::pathfind::{Path, PathConstraints, PathRequest, PathStep};
@@ -67,7 +67,6 @@ pub struct Map {
     bus_routes: Vec<BusRoute>,
     areas: Vec<Area>,
     parking_lots: Vec<ParkingLot>,
-    zones: Vec<Zone>,
     boundary_polygon: Polygon,
 
     // Note that border nodes belong in neither!
@@ -81,6 +80,8 @@ pub struct Map {
     // TODO Argh, hack, initialization order is hard!
     pathfinder: Option<Pathfinder>,
     pathfinder_dirty: bool,
+    // Not the source of truth, just cached.
+    zones: Vec<Zone>,
 
     city_name: String,
     name: String,

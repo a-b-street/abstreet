@@ -13,9 +13,10 @@ use crate::{
     TurnID, Zone,
 };
 use abstutil::Timer;
+use enumset::EnumSetType;
 use geom::{Distance, PolyLine, EPSILON_DIST};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeSet, VecDeque};
+use std::collections::VecDeque;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -340,7 +341,7 @@ impl Path {
 
 // Who's asking for a path?
 // TODO This is an awful name.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Serialize, Deserialize, PartialOrd, Ord, EnumSetType)]
 pub enum PathConstraints {
     Pedestrian,
     Car,
@@ -396,17 +397,6 @@ impl PathConstraints {
             }
         }
         choices
-    }
-
-    pub fn all() -> BTreeSet<PathConstraints> {
-        let mut s = BTreeSet::new();
-        s.extend(vec![
-            PathConstraints::Pedestrian,
-            PathConstraints::Car,
-            PathConstraints::Bike,
-            PathConstraints::Bus,
-        ]);
-        s
     }
 }
 
@@ -548,55 +538,56 @@ impl Pathfinder {
         let start_r = map.get_parent(req.start.lane());
         let end_r = map.get_parent(req.end.lane());
 
-        if start_r.zone.is_some() && end_r.zone.is_some() {
-            if start_r.zone == end_r.zone {
-                let zone = map.get_z(start_r.zone.unwrap());
-                if !zone.allow_through_traffic.contains(&req.constraints) {
-                    if req.constraints == PathConstraints::Pedestrian {
-                        let steps =
-                            walking_path_to_steps(zone.pathfind_walking(req.clone(), map)?, map);
-                        return Some(Path::new(map, steps, req.end.dist_along()));
+        match (start_r.get_zone(map), end_r.get_zone(map)) {
+            (Some(z1), Some(z2)) => {
+                if z1 == z2 {
+                    if !z1.allow_through_traffic.contains(req.constraints) {
+                        if req.constraints == PathConstraints::Pedestrian {
+                            let steps =
+                                walking_path_to_steps(z1.pathfind_walking(req.clone(), map)?, map);
+                            return Some(Path::new(map, steps, req.end.dist_along()));
+                        }
+                        return z1.pathfind(req, map);
                     }
-                    return zone.pathfind(req, map);
+                } else {
+                    // TODO Handle paths going between two different zones
+                    return None;
                 }
-            } else {
-                // TODO Handle paths going between two different zones
-                return None;
             }
-        } else if let Some(z) = start_r.zone {
-            let zone = map.get_z(z);
-            if !zone.allow_through_traffic.contains(&req.constraints) {
-                let mut borders: Vec<&Intersection> =
-                    zone.borders.iter().map(|i| map.get_i(*i)).collect();
-                // TODO Use the CH to pick the lowest overall cost?
-                let pt = req.end.pt(map);
-                borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
+            (Some(zone), None) => {
+                if !zone.allow_through_traffic.contains(req.constraints) {
+                    let mut borders: Vec<&Intersection> =
+                        zone.borders.iter().map(|i| map.get_i(*i)).collect();
+                    // TODO Use the CH to pick the lowest overall cost?
+                    let pt = req.end.pt(map);
+                    borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
 
-                for i in borders {
-                    if let Some(result) = self.pathfind_from_zone(i, req.clone(), zone, map) {
-                        return Some(result);
+                    for i in borders {
+                        if let Some(result) = self.pathfind_from_zone(i, req.clone(), zone, map) {
+                            return Some(result);
+                        }
                     }
+                    return None;
                 }
-                return None;
             }
-        } else if let Some(z) = end_r.zone {
-            let zone = map.get_z(z);
-            if !zone.allow_through_traffic.contains(&req.constraints) {
-                let mut borders: Vec<&Intersection> =
-                    zone.borders.iter().map(|i| map.get_i(*i)).collect();
-                // TODO Use the CH to pick the lowest overall cost?
-                let pt = req.start.pt(map);
-                borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
+            (None, Some(zone)) => {
+                if !zone.allow_through_traffic.contains(req.constraints) {
+                    let mut borders: Vec<&Intersection> =
+                        zone.borders.iter().map(|i| map.get_i(*i)).collect();
+                    // TODO Use the CH to pick the lowest overall cost?
+                    let pt = req.start.pt(map);
+                    borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
 
-                for i in borders {
-                    if let Some(result) = self.pathfind_to_zone(i, req.clone(), zone, map) {
-                        return Some(result);
+                    for i in borders {
+                        if let Some(result) = self.pathfind_to_zone(i, req.clone(), zone, map) {
+                            return Some(result);
+                        }
                     }
+                    return None;
                 }
-                return None;
             }
+            (None, None) => {}
         }
-
         match req.constraints {
             PathConstraints::Pedestrian => {
                 let steps = walking_path_to_steps(self.walking_graph.pathfind(&req, map)?, map);

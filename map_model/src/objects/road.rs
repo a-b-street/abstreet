@@ -1,9 +1,10 @@
 use crate::raw::{OriginalRoad, RestrictionType};
-use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints, ZoneID};
+use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints, Zone};
 use abstutil::{Error, Warn};
+use enumset::EnumSet;
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, HashSet};
 use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
@@ -93,7 +94,7 @@ pub struct Road {
     pub complicated_turn_restrictions: Vec<(RoadID, RoadID)>,
     pub orig_id: OriginalRoad,
     pub speed_limit: Speed,
-    pub zone: Option<ZoneID>,
+    pub allow_through_traffic: EnumSet<PathConstraints>,
     pub zorder: isize,
 
     // Invariant: A road must contain at least one child
@@ -426,19 +427,28 @@ impl Road {
         }
     }
 
-    pub(crate) fn access_restrictions_from_osm(&self) -> BTreeSet<PathConstraints> {
+    pub fn is_private(&self) -> bool {
+        self.allow_through_traffic != EnumSet::all()
+    }
+
+    pub(crate) fn access_restrictions_from_osm(&self) -> EnumSet<PathConstraints> {
         if self.osm_tags.get("access") == Some(&"private".to_string()) {
-            BTreeSet::new()
+            EnumSet::new()
         } else {
-            PathConstraints::all()
+            EnumSet::all()
         }
     }
 
-    pub fn get_access_restrictions(&self, map: &Map) -> BTreeSet<PathConstraints> {
-        if let Some(z) = self.zone {
-            map.get_z(z).allow_through_traffic.clone()
-        } else {
-            PathConstraints::all()
+    pub fn get_zone<'a>(&self, map: &'a Map) -> Option<&'a Zone> {
+        if !self.is_private() {
+            return None;
         }
+        // Insist on it existing
+        Some(
+            map.zones
+                .iter()
+                .find(|z| z.members.contains(&self.id))
+                .unwrap(),
+        )
     }
 }

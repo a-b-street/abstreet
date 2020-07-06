@@ -4,6 +4,7 @@ use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition};
 use crate::helpers::{checkbox_per_mode, intersections_from_roads, ID};
+use enumset::EnumSet;
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Text, VerticalAlignment, Widget,
@@ -23,17 +24,15 @@ pub struct ZoneEditor {
 
 impl ZoneEditor {
     pub fn new(ctx: &mut EventCtx, app: &App, start: RoadID) -> Box<dyn State> {
-        let members = if let Some(z) = app.primary.map.get_r(start).zone {
-            app.primary.map.get_z(z).members.clone()
+        let start = app.primary.map.get_r(start);
+        let members = if let Some(z) = start.get_zone(&app.primary.map) {
+            z.members.clone()
         } else {
             // Starting a new zone
-            btreeset! { start }
+            btreeset! { start.id }
         };
-        let allow_through_traffic = app
-            .primary
-            .map
-            .get_r(start)
-            .get_access_restrictions(&app.primary.map)
+        let allow_through_traffic = start
+            .allow_through_traffic
             .into_iter()
             .map(|c| TripMode::from_constraints(c))
             .collect();
@@ -98,12 +97,12 @@ impl State for ZoneEditor {
                         .primary
                         .map
                         .get_r(*self.members.iter().next().unwrap())
-                        .get_access_restrictions(&app.primary.map);
+                        .allow_through_traffic;
                     let new_allow_through_traffic = self
                         .allow_through_traffic
                         .iter()
                         .map(|m| m.to_constraints())
-                        .collect();
+                        .collect::<EnumSet<_>>();
 
                     if old_allow_through_traffic != new_allow_through_traffic {
                         let mut edits = app.primary.map.get_edits().clone();

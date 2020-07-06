@@ -173,7 +173,7 @@ impl DrawLane {
             }
         }
 
-        if road.zone.is_some() {
+        if road.is_private() {
             draw.push(app.cs.private_road.alpha(0.5), self.polygon.clone());
         }
 

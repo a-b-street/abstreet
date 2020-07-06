@@ -1,9 +1,10 @@
 use crate::raw::{OriginalIntersection, OriginalRoad};
 use crate::{
     connectivity, ControlStopSign, ControlTrafficSignal, IntersectionID, IntersectionType, LaneID,
-    LaneType, Map, PathConstraints, RoadID, TurnID,
+    LaneType, Map, PathConstraints, RoadID, TurnID, Zone,
 };
 use abstutil::{deserialize_btreemap, retain_btreemap, retain_btreeset, serialize_btreemap, Timer};
+use enumset::EnumSet;
 use geom::{Distance, Speed};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -60,8 +61,8 @@ pub enum EditCmd {
     ChangeAccessRestrictions {
         id: RoadID,
         // All means it's not a zone
-        new_allow_through_traffic: BTreeSet<PathConstraints>,
-        old_allow_through_traffic: BTreeSet<PathConstraints>,
+        new_allow_through_traffic: EnumSet<PathConstraints>,
+        old_allow_through_traffic: EnumSet<PathConstraints>,
     },
 }
 
@@ -153,7 +154,7 @@ impl MapEdits {
         });
         retain_btreeset(&mut changed_access_restrictions, |r| {
             let r = map.get_r(*r);
-            r.access_restrictions_from_osm() != r.get_access_restrictions(map)
+            r.access_restrictions_from_osm() != r.allow_through_traffic
         });
 
         self.original_lts = orig_lts;
@@ -195,7 +196,7 @@ impl MapEdits {
         for r in &self.changed_access_restrictions {
             self.commands.push(EditCmd::ChangeAccessRestrictions {
                 id: *r,
-                new_allow_through_traffic: map.get_r(*r).get_access_restrictions(map),
+                new_allow_through_traffic: map.get_r(*r).allow_through_traffic,
                 old_allow_through_traffic: map.get_r(*r).access_restrictions_from_osm(),
             });
         }
@@ -281,8 +282,8 @@ enum PermanentEditCmd {
     },
     ChangeAccessRestrictions {
         id: OriginalRoad,
-        new_allow_through_traffic: BTreeSet<PathConstraints>,
-        old_allow_through_traffic: BTreeSet<PathConstraints>,
+        new_allow_through_traffic: EnumSet<PathConstraints>,
+        old_allow_through_traffic: EnumSet<PathConstraints>,
     },
 }
 
@@ -328,8 +329,8 @@ impl PermanentMapEdits {
                         old_allow_through_traffic,
                     } => PermanentEditCmd::ChangeAccessRestrictions {
                         id: map.get_r(*id).orig_id,
-                        new_allow_through_traffic: new_allow_through_traffic.clone(),
-                        old_allow_through_traffic: old_allow_through_traffic.clone(),
+                        new_allow_through_traffic: *new_allow_through_traffic,
+                        old_allow_through_traffic: *old_allow_through_traffic,
                     },
                 })
                 .collect(),
@@ -610,24 +611,10 @@ impl EditCmd {
                 new_allow_through_traffic,
                 ..
             } => {
-                if new_allow_through_traffic == &PathConstraints::all() {
-                    // Remove this road from the zone
-                    let z = map.roads[id.0].zone.take().unwrap();
-                    map.zones[z.0].members.remove(&id);
-                    if map.zones[z.0].members.is_empty() {
-                        // TODO delete the zone
-                    } else {
-                        // TODO update borders
-                    }
-                } else if let Some(z) = map.roads[id.0].zone {
-                    // Update an existing zone
-                    map.zones[z.0].allow_through_traffic = new_allow_through_traffic.clone();
-                } else {
-                    // TODO Create a new zone
+                if map.get_r(*id).allow_through_traffic == *new_allow_through_traffic {
+                    return false;
                 }
-
-                // TODO I'm not sure we can detect if we've actually made a change here or not,
-                // since the first one of these commands for an entire zone will change the zone.
+                map.roads[id.0].allow_through_traffic = *new_allow_through_traffic;
                 effects.changed_roads.insert(*id);
                 let r = map.get_r(*id);
                 effects.changed_intersections.insert(r.src_i);
@@ -680,12 +667,12 @@ impl EditCmd {
             .apply(effects, map, timer),
             EditCmd::ChangeAccessRestrictions {
                 id,
-                ref old_allow_through_traffic,
-                ref new_allow_through_traffic,
+                old_allow_through_traffic,
+                new_allow_through_traffic,
             } => EditCmd::ChangeAccessRestrictions {
                 id: *id,
-                old_allow_through_traffic: new_allow_through_traffic.clone(),
-                new_allow_through_traffic: old_allow_through_traffic.clone(),
+                old_allow_through_traffic: *new_allow_through_traffic,
+                new_allow_through_traffic: *old_allow_through_traffic,
             }
             .apply(effects, map, timer),
         }
@@ -848,6 +835,10 @@ impl Map {
                     self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
                 }
             }
+        }
+
+        if !effects.changed_roads.is_empty() {
+            self.zones = Zone::make_all(self);
         }
 
         new_edits.update_derived(self);

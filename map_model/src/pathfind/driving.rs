@@ -164,8 +164,8 @@ fn make_input_graph(
         if constraints.can_use(l, map)
             && map
                 .get_r(l.parent)
-                .get_access_restrictions(map)
-                .contains(&constraints)
+                .allow_through_traffic
+                .contains(constraints)
         {
             let indices = uber_turn_entrances.get(l.id);
             if indices.is_empty() {

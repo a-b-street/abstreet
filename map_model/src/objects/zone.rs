@@ -2,32 +2,46 @@ use crate::pathfind::{cost, walking_cost, WalkingNode};
 use crate::{
     IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoadID, TurnID,
 };
+use enumset::EnumSet;
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
-use std::fmt;
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct ZoneID(pub usize);
-
-impl fmt::Display for ZoneID {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Zone #{}", self.0)
-    }
-}
-
-// A contiguous set of roads with access restrictions
-#[derive(Serialize, Deserialize, Debug)]
+// A contiguous set of roads with access restrictions. This is derived from all the map's roads and
+// kept cached for performance.
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Zone {
-    pub id: ZoneID,
     pub members: BTreeSet<RoadID>,
     pub borders: BTreeSet<IntersectionID>,
-    pub allow_through_traffic: BTreeSet<PathConstraints>,
+    pub allow_through_traffic: EnumSet<PathConstraints>,
 }
 
 impl Zone {
+    pub fn make_all(map: &Map) -> Vec<Zone> {
+        let mut queue = Vec::new();
+        for r in map.all_roads() {
+            if r.is_private() {
+                queue.push(r.id);
+            }
+        }
+
+        let mut zones = Vec::new();
+        let mut seen = BTreeSet::new();
+        while !queue.is_empty() {
+            let start = queue.pop().unwrap();
+            if seen.contains(&start) {
+                continue;
+            }
+            let zone = floodfill(map, start);
+            seen.extend(zone.members.clone());
+            zones.push(zone);
+        }
+
+        zones
+    }
+
     // Run slower Dijkstra's within the interior of a private zone. Don't go outside the borders.
-    pub(crate) fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
+    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
         assert_ne!(req.constraints, PathConstraints::Pedestrian);
 
         let mut graph: DiGraphMap<LaneID, TurnID> = DiGraphMap::new();
@@ -66,7 +80,7 @@ impl Zone {
     }
 
     // TODO Not happy this works so differently
-    pub(crate) fn pathfind_walking(&self, req: PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
+    pub fn pathfind_walking(&self, req: PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
         let mut graph: DiGraphMap<WalkingNode, usize> = DiGraphMap::new();
         for r in &self.members {
             for l in map.get_r(*r).all_lanes() {
@@ -104,5 +118,34 @@ impl Zone {
             |_| 0,
         )?;
         Some(path)
+    }
+}
+
+fn floodfill(map: &Map, start: RoadID) -> Zone {
+    let match_constraints = map.get_r(start).allow_through_traffic;
+    let mut queue = vec![start];
+    let mut members = BTreeSet::new();
+    let mut borders = BTreeSet::new();
+    while !queue.is_empty() {
+        let current = queue.pop().unwrap();
+        if members.contains(&current) {
+            continue;
+        }
+        members.insert(current);
+        for r in map.get_next_roads(current) {
+            let r = map.get_r(r);
+            if r.allow_through_traffic == match_constraints {
+                queue.push(r.id);
+            } else {
+                borders.insert(map.get_r(current).common_endpt(r));
+            }
+        }
+    }
+    assert!(!members.is_empty());
+    assert!(!borders.is_empty());
+    Zone {
+        members,
+        borders,
+        allow_through_traffic: match_constraints,
     }
 }

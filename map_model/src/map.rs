@@ -3,7 +3,7 @@ use crate::{
     Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID, ControlStopSign,
     ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapEdits,
     ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, Position, Road, RoadID, Turn,
-    TurnGroupID, TurnID, TurnType, Zone, ZoneID,
+    TurnGroupID, TurnID, TurnType,
 };
 use abstutil::{Error, Timer, Warn};
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
@@ -134,10 +134,6 @@ impl Map {
         &self.parking_lots
     }
 
-    pub fn all_zones(&self) -> &Vec<Zone> {
-        &self.zones
-    }
-
     pub fn maybe_get_r(&self, id: RoadID) -> Option<&Road> {
         self.roads.get(id.0)
     }
@@ -209,10 +205,6 @@ impl Map {
 
     pub fn get_pl(&self, id: ParkingLotID) -> &ParkingLot {
         &self.parking_lots[id.0]
-    }
-
-    pub fn get_z(&self, id: ZoneID) -> &Zone {
-        &self.zones[id.0]
     }
 
     pub fn get_stop_sign(&self, id: IntersectionID) -> &ControlStopSign {

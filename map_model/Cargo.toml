@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
+enumset = { version = "1.0.0", features=["serde"] }
 fast_paths = { git = "https://github.com/easbar/fast_paths" }
 geom = { path = "../geom" }
 nbez = "0.1.0"
