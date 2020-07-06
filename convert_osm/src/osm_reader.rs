@@ -262,13 +262,15 @@ pub fn extract_osm(
                 .next()
                 .and_then(|id| id_to_way.get(&id))
             {
-                if pts.len() < 3 {
+                let mut deduped = pts.clone();
+                deduped.dedup();
+                if deduped.len() < 3 {
                     continue;
                 }
                 map.buildings.insert(
                     OriginalBuilding { osm_way_id: rel.id },
                     RawBuilding {
-                        polygon: Polygon::new(pts),
+                        polygon: Polygon::new(&deduped),
                         public_garage_name: None,
                         num_parking_spots: 0,
                         amenities: get_bldg_amenities(&tags),
