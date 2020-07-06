@@ -96,8 +96,11 @@ impl DebugMode {
                 abstutil::prettyprint_usize(n)
             )));
         }
-        self.composite
-            .replace(ctx, "current info", txt.draw(ctx).named("current info"));
+        self.composite.replace(
+            ctx,
+            "current info",
+            txt.draw(ctx).named("current info").margin_below(10),
+        );
     }
 }
 
