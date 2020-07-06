@@ -1,6 +1,7 @@
 mod bulk;
 mod cluster_traffic_signals;
 mod lanes;
+mod select;
 mod stop_signs;
 mod traffic_signals;
 mod validate;
@@ -159,7 +160,7 @@ impl State for EditMode {
         match self.top_center.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "bulk edit" => {
-                    return Transition::Push(bulk::PaintSelect::new(ctx, app));
+                    return Transition::Push(select::BulkSelect::new(ctx, app));
                 }
                 "finish editing" => {
                     return self.quit(ctx, app);
