@@ -266,13 +266,15 @@ pub fn make_weekday_scenario(
             )
         })
     {
-        let idx = individ_trips.len();
-        individ_trips.push(Some(IndividTrip {
-            depart,
-            trip,
-            cancelled: false,
-        }));
-        trips_per_person.insert(person, (seq, idx));
+        if let Some(trip) = trip {
+            let idx = individ_trips.len();
+            individ_trips.push(Some(IndividTrip {
+                depart,
+                trip,
+                cancelled: false,
+            }));
+            trips_per_person.insert(person, (seq, idx));
+        }
     }
     timer.note(format!(
         "{} clipped trips down to {}, over {} people",
