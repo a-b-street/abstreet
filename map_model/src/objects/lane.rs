@@ -261,7 +261,10 @@ impl Lane {
                 // left turns.
                 vec![TurnType::Left]
             }
-            _ => panic!("What's turn restriction {}?", s),
+            s => {
+                println!("Unknown turn restriction {}", s);
+                vec![]
+            }
         }))
     }
 

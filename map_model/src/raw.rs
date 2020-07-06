@@ -353,25 +353,18 @@ pub struct TurnRestriction(pub OriginalRoad, pub RestrictionType, pub OriginalRo
 
 impl RestrictionType {
     pub fn new(restriction: &str) -> Option<RestrictionType> {
-        // Ignore the TurnType. Between two roads, there's only one category of TurnType (treating
-        // Straight/LaneChangeLeft/LaneChangeRight as the same).
-        //
-        // Strip off time restrictions (like " @ (Mo-Fr 06:00-09:00, 15:00-18:30)")
-        match restriction.split(" @ ").next().unwrap() {
-            "no_left_turn"
-            | "no_right_turn"
-            | "no_straight_on"
-            | "no_u_turn"
-            | "no_anything"
-            | "conditional=no_left_turn"
-            | "no_entry"
-            | "psv" => Some(RestrictionType::BanTurns),
-            "only_left_turn" | "only_right_turn" | "only_straight_on" => {
-                Some(RestrictionType::OnlyAllowTurns)
-            }
-            // TODO Support this
-            "no_right_turn_on_red" => None,
-            _ => panic!("Unknown turn restriction {}", restriction),
+        // TODO There's a huge space of things not represented yet: time conditions, bus-only, no
+        // right turn on red...
+
+        // There are so many possibilities:
+        // https://taginfo.openstreetmap.org/keys/restriction#values
+        // Just attempt to bucket into allow / deny.
+        if restriction.contains("no_") || restriction == "psv" {
+            Some(RestrictionType::BanTurns)
+        } else if restriction.contains("only_") {
+            Some(RestrictionType::OnlyAllowTurns)
+        } else {
+            None
         }
     }
 }
