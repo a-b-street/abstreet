@@ -154,7 +154,12 @@ async fn check_links() {
         println!("> Check remote for {}", file);
         let url = entry.dropbox_url.unwrap();
         let url = format!("{}{}", &url[..url.len() - 1], "1");
-        if let Err(err) = client.head(&url).send().await.unwrap().error_for_status() {
+        if let Err(err) = client
+            .head(&url)
+            .send()
+            .await
+            .and_then(|res| res.error_for_status())
+        {
             println!("{} broken: {}", url, err);
         }
     }

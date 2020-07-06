@@ -122,7 +122,15 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         if osm_tags.get("cycleway:right") == Some(&"lane".to_string()) {
             fwd_side.push(LaneType::Biking);
         }
-        if osm_tags.get("cycleway:left") == Some(&"lane".to_string()) {
+        if osm_tags.get("cycleway:left") == Some(&"lane".to_string())
+            || osm_tags.get("cycleway:left") == Some(&"opposite_lane".to_string())
+            || osm_tags.get("cycleway") == Some(&"opposite_lane".to_string())
+        {
+            back_side.push(LaneType::Biking);
+        }
+
+        // Cycleway isn't explicitly specified, but this is a reasonable assumption anyway.
+        if back_side.is_empty() && osm_tags.get("oneway:bicycle") == Some(&"no".to_string()) {
             back_side.push(LaneType::Biking);
         }
     }
