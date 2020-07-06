@@ -360,30 +360,32 @@ fn deadend(
     let pt2 = pl_b.reversed().safe_dist_along(len).map(|(pt, _)| pt);
     if let (Some(pt1), Some(pt2)) = (pt1, pt2) {
         let r = roads.get_mut(&id).unwrap();
-        if r.src_i == i {
-            r.trimmed_center_pts = r
-                .trimmed_center_pts
-                .exact_slice(len, r.trimmed_center_pts.length());
-        } else {
-            r.trimmed_center_pts = r
-                .trimmed_center_pts
-                .exact_slice(Distance::ZERO, r.trimmed_center_pts.length() - len);
-        }
+        if r.trimmed_center_pts.length() >= len + 3.0 * geom::EPSILON_DIST {
+            if r.src_i == i {
+                r.trimmed_center_pts = r
+                    .trimmed_center_pts
+                    .exact_slice(len, r.trimmed_center_pts.length());
+            } else {
+                r.trimmed_center_pts = r
+                    .trimmed_center_pts
+                    .exact_slice(Distance::ZERO, r.trimmed_center_pts.length() - len);
+            }
 
-        (
-            close_off_polygon(vec![pt1, pt2, pl_b.last_pt(), pl_a.last_pt()]),
-            Vec::new(),
-        )
-    } else {
-        timer.warn(format!(
-            "{} is a dead-end for {}, which is too short to make degenerate intersection geometry",
-            i, id
-        ));
-        (
-            vec![pl_a.last_pt(), pl_b.last_pt(), pl_a.last_pt()],
-            Vec::new(),
-        )
+            return (
+                close_off_polygon(vec![pt1, pt2, pl_b.last_pt(), pl_a.last_pt()]),
+                Vec::new(),
+            );
+        }
     }
+
+    timer.warn(format!(
+        "{} is a dead-end for {}, which is too short to make degenerate intersection geometry",
+        i, id
+    ));
+    (
+        vec![pl_a.last_pt(), pl_b.last_pt(), pl_a.last_pt()],
+        Vec::new(),
+    )
 }
 
 fn close_off_polygon(mut pts: Vec<Pt2D>) -> Vec<Pt2D> {

@@ -89,6 +89,12 @@ impl PolyLine {
         PolyLine { pts, length }
     }
 
+    // First dedupes adjacent points. If the result is only 1 point, will panic.
+    pub fn deduping_new(mut pts: Vec<Pt2D>) -> PolyLine {
+        pts.dedup();
+        PolyLine::new(pts)
+    }
+
     pub fn to_thick_boundary(
         &self,
         self_width: Distance,

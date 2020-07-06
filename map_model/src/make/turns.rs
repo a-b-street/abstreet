@@ -450,7 +450,7 @@ fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
     // Jut out a bit into the intersection, cross over, then jut back in. Assumes sidewalks are the
     // same width.
     let line = Line::new(l1_pt, l2_pt).shift_either_direction(direction * l1.width / 2.0);
-    let geom_fwds = PolyLine::new(vec![l1_pt, line.pt1(), line.pt2(), l2_pt]);
+    let geom_fwds = PolyLine::deduping_new(vec![l1_pt, line.pt1(), line.pt2(), l2_pt]);
 
     vec![
         Turn {
@@ -499,25 +499,25 @@ fn make_degenerate_crosswalks(
                 id: turn_id(i, l1_in.id, l1_out.id),
                 turn_type: TurnType::Crosswalk,
                 other_crosswalk_ids: all_ids.clone(),
-                geom: PolyLine::new(vec![l1_in.last_pt(), pt1, pt2, l1_out.first_pt()]),
+                geom: PolyLine::deduping_new(vec![l1_in.last_pt(), pt1, pt2, l1_out.first_pt()]),
             },
             Turn {
                 id: turn_id(i, l1_out.id, l1_in.id),
                 turn_type: TurnType::Crosswalk,
                 other_crosswalk_ids: all_ids.clone(),
-                geom: PolyLine::new(vec![l1_out.first_pt(), pt2, pt1, l1_in.last_pt()]),
+                geom: PolyLine::deduping_new(vec![l1_out.first_pt(), pt2, pt1, l1_in.last_pt()]),
             },
             Turn {
                 id: turn_id(i, l2_in.id, l2_out.id),
                 turn_type: TurnType::Crosswalk,
                 other_crosswalk_ids: all_ids.clone(),
-                geom: PolyLine::new(vec![l2_in.last_pt(), pt2, pt1, l2_out.first_pt()]),
+                geom: PolyLine::deduping_new(vec![l2_in.last_pt(), pt2, pt1, l2_out.first_pt()]),
             },
             Turn {
                 id: turn_id(i, l2_out.id, l2_in.id),
                 turn_type: TurnType::Crosswalk,
                 other_crosswalk_ids: all_ids.clone(),
-                geom: PolyLine::new(vec![l2_out.first_pt(), pt1, pt2, l2_in.last_pt()]),
+                geom: PolyLine::deduping_new(vec![l2_out.first_pt(), pt1, pt2, l2_in.last_pt()]),
             },
         ]
         .into_iter()
