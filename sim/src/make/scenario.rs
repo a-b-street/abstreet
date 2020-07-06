@@ -470,15 +470,20 @@ impl SpawnTrip {
         }
     }
 
-    pub fn new(from: TripEndpoint, to: TripEndpoint, mode: TripMode, map: &Map) -> SpawnTrip {
-        match mode {
+    pub fn new(
+        from: TripEndpoint,
+        to: TripEndpoint,
+        mode: TripMode,
+        map: &Map,
+    ) -> Option<SpawnTrip> {
+        Some(match mode {
             TripMode::Drive => match from {
                 TripEndpoint::Bldg(b) => {
-                    SpawnTrip::UsingParkedCar(b, to.driving_goal(PathConstraints::Car, map))
+                    SpawnTrip::UsingParkedCar(b, to.driving_goal(PathConstraints::Car, map)?)
                 }
                 TripEndpoint::Border(i, ref origin) => SpawnTrip::FromBorder {
-                    dr: map.get_i(i).some_outgoing_road(map).unwrap(),
-                    goal: to.driving_goal(PathConstraints::Car, map),
+                    dr: map.get_i(i).some_outgoing_road(map)?,
+                    goal: to.driving_goal(PathConstraints::Car, map)?,
                     is_bike: false,
                     origin: origin.clone(),
                 },
@@ -486,21 +491,21 @@ impl SpawnTrip {
             TripMode::Bike => match from {
                 TripEndpoint::Bldg(b) => SpawnTrip::UsingBike(
                     SidewalkSpot::building(b, map),
-                    to.driving_goal(PathConstraints::Bike, map),
+                    to.driving_goal(PathConstraints::Bike, map)?,
                 ),
                 TripEndpoint::Border(i, ref origin) => SpawnTrip::FromBorder {
-                    dr: map.get_i(i).some_outgoing_road(map).unwrap(),
-                    goal: to.driving_goal(PathConstraints::Bike, map),
+                    dr: map.get_i(i).some_outgoing_road(map)?,
+                    goal: to.driving_goal(PathConstraints::Bike, map)?,
                     is_bike: true,
                     origin: origin.clone(),
                 },
             },
             TripMode::Walk => {
-                SpawnTrip::JustWalking(from.start_sidewalk_spot(map), to.end_sidewalk_spot(map))
+                SpawnTrip::JustWalking(from.start_sidewalk_spot(map)?, to.end_sidewalk_spot(map)?)
             }
             TripMode::Transit => {
-                let start = from.start_sidewalk_spot(map);
-                let goal = to.end_sidewalk_spot(map);
+                let start = from.start_sidewalk_spot(map)?;
+                let goal = to.end_sidewalk_spot(map)?;
                 if let Some((stop1, stop2, route)) =
                     map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
                 {
@@ -511,7 +516,7 @@ impl SpawnTrip {
                     SpawnTrip::JustWalking(start, goal)
                 }
             }
-        }
+        })
     }
 }
 

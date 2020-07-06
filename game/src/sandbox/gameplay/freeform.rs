@@ -228,7 +228,8 @@ impl AgentSpawner {
                 "instructions",
                 "Click a building or border to specify end"
                     .draw_text(ctx)
-                    .named("instructions"),
+                    .named("instructions")
+                    .margin_below(10),
             );
         }
         Box::new(spawner)
@@ -249,20 +250,22 @@ impl State for AgentSpawner {
                     let from = self.source.take().unwrap();
                     let to = self.goal.take().unwrap().0;
                     for i in 0..self.composite.spinner("number") as usize {
-                        scenario.people.push(PersonSpec {
-                            id: PersonID(app.primary.sim.get_all_people().len() + i),
-                            orig_id: None,
-                            trips: vec![IndividTrip {
-                                depart: app.primary.sim.time(),
-                                trip: SpawnTrip::new(
-                                    from.clone(),
-                                    to.clone(),
-                                    self.composite.dropdown_value("mode"),
-                                    map,
-                                ),
-                                cancelled: false,
-                            }],
-                        });
+                        if let Some(trip) = SpawnTrip::new(
+                            from.clone(),
+                            to.clone(),
+                            self.composite.dropdown_value("mode"),
+                            map,
+                        ) {
+                            scenario.people.push(PersonSpec {
+                                id: PersonID(app.primary.sim.get_all_people().len() + i),
+                                orig_id: None,
+                                trips: vec![IndividTrip {
+                                    depart: app.primary.sim.time(),
+                                    trip,
+                                    cancelled: false,
+                                }],
+                            });
+                        }
                     }
                     let mut rng = app.primary.current_flags.sim_flags.make_rng();
                     scenario.instantiate(
@@ -304,7 +307,8 @@ impl State for AgentSpawner {
                     "instructions",
                     "Click a building or border to specify end"
                         .draw_text(ctx)
-                        .named("instructions"),
+                        .named("instructions")
+                        .margin_below(10),
                 );
             }
         }
@@ -346,7 +350,8 @@ impl State for AgentSpawner {
                     "instructions",
                     "Click a building or border to specify end"
                         .draw_text(ctx)
-                        .named("instructions"),
+                        .named("instructions")
+                        .margin_below(10),
                 );
             } else if self.source.is_some() && self.source != Some(hovering.clone()) {
                 if self
@@ -381,7 +386,8 @@ impl State for AgentSpawner {
                         "instructions",
                         "Confirm the trip settings"
                             .draw_text(ctx)
-                            .named("instructions"),
+                            .named("instructions")
+                            .margin_below(10),
                     );
                     self.composite.replace(
                         ctx,

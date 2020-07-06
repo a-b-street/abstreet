@@ -7,11 +7,11 @@ use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{SandboxControls, SandboxMode};
 use ezgui::{
-    hotkey, lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::Polygon;
-use sim::ScenarioModifier;
+use sim::{ScenarioModifier, TripMode};
 
 pub struct PlayScenario {
     top_center: Composite,
@@ -255,7 +255,11 @@ fn new_modifier(scenario_name: String, modifiers: Vec<ScenarioModifier>) -> Box<
         let mut wizard = wiz.wrap(ctx);
         let new_mod = match wizard
             .choose_string("", || {
-                vec!["repeat days", "cancel all trips for some people"]
+                vec![
+                    "repeat days",
+                    "cancel all trips for some people",
+                    "change mode for some people",
+                ]
             })?
             .as_str()
         {
@@ -264,6 +268,17 @@ fn new_modifier(scenario_name: String, modifiers: Vec<ScenarioModifier>) -> Box<
             ),
             x if x == "cancel all trips for some people" => ScenarioModifier::CancelPeople(
                 wizard.input_percent("What percent of people should cancel trips? (0 to 100)")?,
+            ),
+            x if x == "change mode for some people" => ScenarioModifier::ChangeMode(
+                wizard.input_percent("What percent of people should change mode? (0 to 100)")?,
+                wizard
+                    .choose("Force them to use what mode?", || {
+                        TripMode::all()
+                            .into_iter()
+                            .map(|m| Choice::new(m.ongoing_verb(), m))
+                            .collect()
+                    })?
+                    .1,
             ),
             _ => unreachable!(),
         };

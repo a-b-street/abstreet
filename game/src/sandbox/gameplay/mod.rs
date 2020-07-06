@@ -125,7 +125,7 @@ impl GameplayMode {
             };
             if let GameplayMode::PlayScenario(_, _, ref modifiers) = self {
                 for m in modifiers {
-                    scenario = m.apply(scenario, &mut rng);
+                    scenario = m.apply(map, scenario, &mut rng);
                 }
             }
             scenario

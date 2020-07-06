@@ -1480,34 +1480,37 @@ pub enum PersonState {
 }
 
 impl TripEndpoint {
-    pub(crate) fn start_sidewalk_spot(&self, map: &Map) -> SidewalkSpot {
+    pub(crate) fn start_sidewalk_spot(&self, map: &Map) -> Option<SidewalkSpot> {
         match self {
-            TripEndpoint::Bldg(b) => SidewalkSpot::building(*b, map),
+            TripEndpoint::Bldg(b) => Some(SidewalkSpot::building(*b, map)),
             TripEndpoint::Border(i, origin) => {
-                SidewalkSpot::start_at_border(*i, origin.clone(), map).unwrap()
+                SidewalkSpot::start_at_border(*i, origin.clone(), map)
             }
         }
     }
 
-    pub(crate) fn end_sidewalk_spot(&self, map: &Map) -> SidewalkSpot {
+    pub(crate) fn end_sidewalk_spot(&self, map: &Map) -> Option<SidewalkSpot> {
         match self {
-            TripEndpoint::Bldg(b) => SidewalkSpot::building(*b, map),
+            TripEndpoint::Bldg(b) => Some(SidewalkSpot::building(*b, map)),
             TripEndpoint::Border(i, destination) => {
-                SidewalkSpot::end_at_border(*i, destination.clone(), map).unwrap()
+                SidewalkSpot::end_at_border(*i, destination.clone(), map)
             }
         }
     }
 
-    pub(crate) fn driving_goal(&self, constraints: PathConstraints, map: &Map) -> DrivingGoal {
+    pub(crate) fn driving_goal(
+        &self,
+        constraints: PathConstraints,
+        map: &Map,
+    ) -> Option<DrivingGoal> {
         match self {
-            TripEndpoint::Bldg(b) => DrivingGoal::ParkNear(*b),
+            TripEndpoint::Bldg(b) => Some(DrivingGoal::ParkNear(*b)),
             TripEndpoint::Border(i, destination) => DrivingGoal::end_at_border(
-                map.get_i(*i).some_incoming_road(map).unwrap(),
+                map.get_i(*i).some_incoming_road(map)?,
                 constraints,
                 destination.clone(),
                 map,
-            )
-            .unwrap(),
+            ),
         }
     }
 }
