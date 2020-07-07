@@ -13,19 +13,17 @@ pub struct City {
 
 impl City {
     pub fn new(huge_map: &Map) -> City {
-        let mut regions = abstutil::list_all_objects(format!(
-            "{}/input/{}/polygons",
-            *abstutil::ROOT_DIR,
+        let mut regions = abstutil::list_all_objects(abstutil::path(format!(
+            "input/{}/polygons",
             huge_map.get_city_name()
-        ))
+        )))
         .into_iter()
         .map(|name| {
-            let pts = LonLat::read_osmosis_polygon(format!(
-                "{}/input/{}/polygons/{}.poly",
-                *abstutil::ROOT_DIR,
+            let pts = LonLat::read_osmosis_polygon(abstutil::path(format!(
+                "input/{}/polygons/{}.poly",
                 huge_map.get_city_name(),
                 name
-            ))
+            )))
             .unwrap();
             (
                 name,

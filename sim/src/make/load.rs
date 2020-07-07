@@ -74,10 +74,7 @@ impl SimFlags {
 
         let mut opts = self.opts.clone();
 
-        if self
-            .load
-            .starts_with(&format!("{}/player/saves/", *abstutil::ROOT_DIR))
-        {
+        if self.load.starts_with(&abstutil::path("player/saves/")) {
             timer.note(format!("Resuming from {}", self.load));
 
             let mut sim: Sim = abstutil::read_binary(self.load.clone(), timer);
@@ -90,10 +87,7 @@ impl SimFlags {
             sim.restore_paths(&map, timer);
 
             (map, sim, rng)
-        } else if self
-            .load
-            .starts_with(&format!("{}/system/scenarios/", *abstutil::ROOT_DIR))
-        {
+        } else if self.load.starts_with(&abstutil::path("system/scenarios/")) {
             timer.note(format!(
                 "Seeding the simulation from scenario {}",
                 self.load

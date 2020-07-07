@@ -12,6 +12,7 @@ use std::fs::File;
 use std::io::{stdout, BufReader, BufWriter, Error, ErrorKind, Read, Write};
 use std::path::Path;
 
+// TODO Need to update the relative data/ directory stuff for wasm
 #[cfg(target_arch = "wasm32")]
 static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!("../data/system");
 

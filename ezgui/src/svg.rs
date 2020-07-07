@@ -17,7 +17,7 @@ pub fn load_svg(prerender: &Prerender, filename: &str, scale_factor: f64) -> (Ge
         return pair;
     }
 
-    let path = format!("{}/{}", *abstutil::ROOT_DIR, filename);
+    let path = abstutil::path(filename);
     let raw = if let Ok(raw) = abstutil::slurp_file(&path) {
         raw
     } else {

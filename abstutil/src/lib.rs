@@ -62,8 +62,12 @@ pub fn plain_list_names(names: BTreeSet<String>) -> String {
 }
 
 lazy_static::lazy_static! {
-    pub static ref ROOT_DIR: String = {
-        if file_exists("data/".to_string()) {
+    static ref ROOT_DIR: String = {
+        // If you're packaging for a release and need the data directory to be in some fixed
+        // location: ABST_DATA_DIR=/some/path cargo build ...
+        if let Some(dir) = option_env!("ABST_DATA_DIR") {
+            dir.trim_end_matches('/').to_string()
+        } else if file_exists("data/".to_string()) {
             "data".to_string()
         } else if file_exists("../data/".to_string()) {
             "../data".to_string()

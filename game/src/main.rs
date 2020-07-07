@@ -58,10 +58,7 @@ fn main() {
         }
     }
     let mut settings = ezgui::Settings::new("A/B Street");
-    settings.window_icon(format!(
-        "{}/system/assets/pregame/icon.png",
-        *abstutil::ROOT_DIR
-    ));
+    settings.window_icon(abstutil::path("system/assets/pregame/icon.png"));
     if args.enabled("--enable_profiler") {
         settings.enable_profiling();
     }

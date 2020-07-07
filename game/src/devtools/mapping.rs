@@ -552,14 +552,13 @@ fn generate_osmc(
         modified_ways.push(stripped.to_string());
     }
 
-    let path = "../diff.osc";
-    let mut f = File::create(path)?;
+    let mut f = File::create("diff.osc")?;
     writeln!(f, "<osmChange version=\"0.6\" generator=\"abst\"><modify>")?;
     for w in modified_ways {
         writeln!(f, "  {}", w)?;
     }
     writeln!(f, "</modify></osmChange>")?;
-    timer.note(format!("Wrote {}", path));
+    timer.note(format!("Wrote diff.osc"));
     Ok(())
 }
 

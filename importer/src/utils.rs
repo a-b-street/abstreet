@@ -6,7 +6,7 @@ use std::process::Command;
 // uncompresses .zip and .gz files. .kml files are automatically clipped to a hardcoded boundary of
 // Seattle.
 pub fn download(output: &str, url: &str) {
-    let output = format!("{}/{}", *abstutil::ROOT_DIR, output);
+    let output = abstutil::path(output);
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
         return;
@@ -67,9 +67,9 @@ pub fn download(output: &str, url: &str) {
 // Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.
 // Skips if the output exists.
 pub fn osmconvert(input: &str, clipping_polygon: String, output: String) {
-    let input = format!("{}/{}", *abstutil::ROOT_DIR, input);
-    let clipping_polygon = format!("{}/{}", *abstutil::ROOT_DIR, clipping_polygon);
-    let output = format!("{}/{}", *abstutil::ROOT_DIR, output);
+    let input = abstutil::path(input);
+    let clipping_polygon = abstutil::path(clipping_polygon);
+    let output = abstutil::path(output);
 
     if Path::new(&output).exists() {
         println!("- {} already exists", output);

@@ -221,7 +221,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
     let prerender = Prerender {
         assets: Assets::new(
             settings.default_font_size,
-            format!("{}/system/fonts", *abstutil::ROOT_DIR),
+            abstutil::path("system/fonts"),
             settings
                 .scale_factor
                 .unwrap_or_else(|| prerender_innards.monitor_scale_factor()),

@@ -233,10 +233,7 @@ impl State for TrafficSignalEditor {
                 "Export" => {
                     let ts = orig_signal.export(&app.primary.map);
                     abstutil::write_json(
-                        format!(
-                            "../traffic_signal_data/{}.json",
-                            ts.intersection_osm_node_id
-                        ),
+                        format!("traffic_signal_data/{}.json", ts.intersection_osm_node_id),
                         &ts,
                     );
                 }
