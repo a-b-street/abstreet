@@ -58,7 +58,7 @@ impl Game {
         }
 
         let states: Vec<Box<dyn State>> = if title {
-            vec![Box::new(TitleScreen::new(ctx, &app))]
+            vec![Box::new(TitleScreen::new(ctx, &mut app))]
         } else {
             // TODO We're assuming we never wind up starting freeform mode with a synthetic map
             let mode = maybe_mode.unwrap_or_else(|| {

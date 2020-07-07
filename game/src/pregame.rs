@@ -5,6 +5,7 @@ use crate::edit::apply_map_edits;
 use crate::game::{msg, DrawBaselayer, State, Transition};
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode};
+use abstutil::Timer;
 use ezgui::{
     hotkey, hotkeys, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, RewriteColor,
     Text, UpdateType, Widget,
@@ -14,6 +15,7 @@ use instant::Instant;
 use map_model::{Map, PermanentMapEdits};
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
+use sim::ScenarioGenerator;
 use std::collections::HashMap;
 
 pub struct TitleScreen {
@@ -22,9 +24,12 @@ pub struct TitleScreen {
     rng: XorShiftRng,
 }
 
+const MULTIPLIER: f64 = 3.0;
+
 impl TitleScreen {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> TitleScreen {
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> TitleScreen {
         let mut rng = app.primary.current_flags.sim_flags.make_rng();
+
         TitleScreen {
             composite: Composite::new(
                 Widget::col(vec![
@@ -43,7 +48,7 @@ impl TitleScreen {
                 .centered(),
             )
             .build_custom(ctx),
-            screensaver: Screensaver::start_bounce(&mut rng, ctx, &app.primary.map),
+            screensaver: Screensaver::start_bounce(&mut rng, ctx, app),
             rng,
         }
     }
@@ -61,8 +66,7 @@ impl State for TitleScreen {
             None => {}
         }
 
-        self.screensaver
-            .update(&mut self.rng, ctx, &app.primary.map);
+        self.screensaver.update(&mut self.rng, ctx, app);
         ctx.request_update(UpdateType::Game);
         Transition::Keep
     }
@@ -479,9 +483,14 @@ struct Screensaver {
 }
 
 impl Screensaver {
-    fn start_bounce(rng: &mut XorShiftRng, ctx: &mut EventCtx, map: &Map) -> Screensaver {
+    fn start_bounce(rng: &mut XorShiftRng, ctx: &mut EventCtx, app: &mut App) -> Screensaver {
+        let scenario_generator = ScenarioGenerator::small_run(&app.primary.map);
+        let mut timer = Timer::new("screensaver start timer");
+        let scenario = scenario_generator.generate(&app.primary.map, rng, &mut timer);
+        scenario.instantiate(&mut app.primary.sim, &app.primary.map, rng, &mut timer);
+
         let at = ctx.canvas.center_to_map_pt();
-        let bounds = map.get_bounds();
+        let bounds = app.primary.map.get_bounds();
         // TODO Ideally bounce off the edge of the map
         let goto = Pt2D::new(
             rng.gen_range(0.0, bounds.max_x),
@@ -497,16 +506,22 @@ impl Screensaver {
         }
     }
 
-    fn update(&mut self, rng: &mut XorShiftRng, ctx: &mut EventCtx, map: &Map) {
-        if ctx.input.nonblocking_is_update_event().is_some() {
+    fn update(&mut self, rng: &mut XorShiftRng, ctx: &mut EventCtx, app: &mut App) {
+        if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             ctx.input.use_update_event();
             let dist_along = Duration::realtime_elapsed(self.started) * SPEED;
             if dist_along < self.line.length() {
                 ctx.canvas
                     .center_on_map_pt(self.line.dist_along(dist_along));
             } else {
-                *self = Screensaver::start_bounce(rng, ctx, map)
+                *self = Screensaver::start_bounce(rng, ctx, app);
             }
+            app.primary.sim.time_limited_step(
+                &app.primary.map,
+                MULTIPLIER * dt,
+                Duration::seconds(0.033),
+                &mut app.primary.sim_cb,
+            );
         }
     }
 }
