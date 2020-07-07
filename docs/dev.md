@@ -15,7 +15,7 @@ One-time setup:
 
 2.  Grab the minimal amount of data to get started: `cargo run --bin updater`.
 
-3.  Run the game: `cd game; RUST_BACKTRACE=1 cargo run --release`
+3.  Run the game: `RUST_BACKTRACE=1 cargo run --bin game --release`
 
 ## Development tips
 
@@ -30,17 +30,17 @@ One-time setup:
   - To warp to an object by numeric ID: press **Control+j**
   - To enter debug mode with all sorts of goodies: press **Control+D**
 - You can start the game in different modes using flags:
-  - `cargo run -- --dev ../data/system/maps/downtown.bin` starts on a particular
-    map
-  - `cargo run ../data/system/scenarios/downtown/weekday.bin` starts with a
-    scenario (which is tied to a certain map)
-  - `cargo run -- --challenge=trafficsig/tut2` starts on a particular challenge.
-    See the list of aliases by passing in a bad value here.
-  - `cargo run ../data/player/saves/montlake/no_edits_unnamed/00h00m20.3s.bin`
+  - `cargo run --bin game -- --dev data/system/maps/downtown.bin` starts on a
+    particular map
+  - `cargo run --bin game -- data/system/scenarios/downtown/weekday.bin` starts
+    with a scenario (which is tied to a certain map)
+  - `cargo run --bin game -- --challenge=trafficsig/tut2` starts on a particular
+    challenge. See the list of aliases by passing in a bad value here.
+  - `cargo run --bin game -- data/player/saves/montlake/no_edits_unnamed/00h00m20.3s.bin`
     restores an exact simulation state. Savestates are found in debug mode
     (**Control+D**) -- they're probably confusing for the normal player
     experience, so they're hidden for now.
-  - `cargo run -- --tutorial=12` starts somewhere in the tutorial
+  - `cargo run --bin game -- --tutorial=12` starts somewhere in the tutorial
   - Adding `--edits='name of edits'` starts with edits applied to the map.
 - All code is automatically formatted using
   https://github.com/rust-lang/rustfmt; please run `cargo +nightly fmt` before

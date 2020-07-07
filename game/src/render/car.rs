@@ -68,7 +68,7 @@ impl DrawCar {
         draw_default.push(zoomed_color_car(&input, cs), body_polygon.clone());
         if input.status == CarStatus::Parked {
             draw_default.append(
-                GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/parked_car.svg")
+                GeomBatch::mapspace_svg(prerender, "system/assets/map/parked_car.svg")
                     .scale(0.01)
                     .centered_on(input.body.middle()),
             );

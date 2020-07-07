@@ -6,18 +6,17 @@ hit problems. I'd really appreciate help and PRs to improve this.
 
 ## Quick start
 
-If you have a `.osm` file, you can just run
-`./import.sh --oneshot=/absolute/path/to/map.osm`. This tool will generate a new
-file in `data/system/maps` that you can then load in the game. (If you can't run
-`import.sh`, make sure you have all [dependencies](dev.md#building-map-data).
+If you have a `.osm` file, you can just run `./import.sh --oneshot=map.osm`.
+This tool will generate a new file in `data/system/maps` that you can then load
+in the game. (If you can't run `import.sh`, make sure you have all
+[dependencies](dev.md#building-map-data).
 
-If you're using a binary release, you have to be sure to run the tool from the
-`importer/` directory, so that `../data/` exists:
-`cd importer; ./importer --oneshot=/absolute/path/to/file.osm`
+If you're using a binary release, run `./importer/importer --oneshot=map.osm`
+instead of `import.sh`.
 
 If you have an Osmosis polygon filter (see below), you can also pass
-`--oneshot_clip=/absolute/path/to/clip.poly` to improve the result. You should
-first make sure your .osm has been clipped:
+`--oneshot_clip=clip.poly` to improve the result. You should first make sure
+your .osm has been clipped:
 `osmconvert large_map.osm -B=clipping.poly --complete-ways -o=smaller_map.osm`.
 
 You can also try `--oneshot_drive_on_left`, but you'll spot some bugs. Get in

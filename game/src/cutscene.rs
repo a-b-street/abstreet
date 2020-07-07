@@ -163,19 +163,19 @@ fn make_panel(
 ) -> Composite {
     let prev = if idx > 0 {
         Btn::svg(
-            "../data/system/assets/tools/prev.svg",
+            "system/assets/tools/prev.svg",
             RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
         .build(ctx, "back", hotkey(Key::LeftArrow))
     } else {
         Widget::draw_svg_transform(
             ctx,
-            "../data/system/assets/tools/prev.svg",
+            "system/assets/tools/prev.svg",
             RewriteColor::ChangeAlpha(0.3),
         )
     };
     let next = Btn::svg(
-        "../data/system/assets/tools/next.svg",
+        "system/assets/tools/next.svg",
         RewriteColor::Change(Color::WHITE, app.cs.hovering),
     )
     .build(
@@ -196,30 +196,25 @@ fn make_panel(
         Widget::custom_col(vec![
             match scenes[idx].layout {
                 Layout::PlayerSpeaking => Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg"),
+                    Widget::draw_svg(ctx, "system/assets/characters/boss.svg"),
                     Widget::custom_row(vec![
                         scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
-                        Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg"),
+                        Widget::draw_svg(ctx, "system/assets/characters/player.svg"),
                     ])
                     .align_right(),
                 ]),
                 Layout::BossSpeaking => Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg"),
+                    Widget::draw_svg(ctx, "system/assets/characters/boss.svg"),
                     scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
-                    Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg")
-                        .align_right(),
+                    Widget::draw_svg(ctx, "system/assets/characters/player.svg").align_right(),
                 ]),
                 Layout::Extra(name) => Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg").align_left(),
+                    Widget::draw_svg(ctx, "system/assets/characters/boss.svg").align_left(),
                     Widget::col(vec![
-                        Widget::draw_svg(
-                            ctx,
-                            format!("../data/system/assets/characters/{}.svg", name),
-                        ),
+                        Widget::draw_svg(ctx, format!("system/assets/characters/{}.svg", name)),
                         scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                     ]),
-                    Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg")
-                        .align_right(),
+                    Widget::draw_svg(ctx, "system/assets/characters/player.svg").align_right(),
                 ]),
             }
             .margin_above(100),
@@ -239,7 +234,7 @@ fn make_panel(
     let col = vec![
         // TODO Can't get this to alignment to work
         Widget::custom_row(vec![
-            Btn::svg_def("../data/system/assets/pregame/back.svg")
+            Btn::svg_def("system/assets/pregame/back.svg")
                 .build(ctx, "quit", None)
                 .margin_right(100),
             Line(name).big_heading_styled().draw(ctx),

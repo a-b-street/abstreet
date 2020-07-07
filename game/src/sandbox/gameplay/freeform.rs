@@ -96,11 +96,7 @@ fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
             ),
             "Traffic:".draw_text(ctx),
             Btn::text_fg("none ↓").build(ctx, "change traffic", hotkey(Key::S)),
-            Btn::svg_def("../data/system/assets/tools/edit_map.svg").build(
-                ctx,
-                "edit map",
-                lctrl(Key::E),
-            ),
+            Btn::svg_def("system/assets/tools/edit_map.svg").build(ctx, "edit map", lctrl(Key::E)),
         ])
         .centered(),
         Btn::text_fg("Start a new trip")

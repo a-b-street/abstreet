@@ -278,14 +278,14 @@ impl ContextualActions for GameplayMode {
 fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
     Widget::row(vec![
         Line(title).small_heading().draw(ctx).centered_vert(),
-        Btn::svg_def("../data/system/assets/tools/info.svg")
+        Btn::svg_def("system/assets/tools/info.svg")
             .build(ctx, "instructions", None)
             .centered_vert(),
         Widget::draw_batch(
             ctx,
             GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
         ),
-        Btn::svg_def("../data/system/assets/tools/edit_map.svg")
+        Btn::svg_def("system/assets/tools/edit_map.svg")
             .build(ctx, "edit map", lctrl(Key::E))
             .centered_vert(),
     ])
@@ -312,7 +312,7 @@ impl FinalScore {
         Box::new(FinalScore {
             composite: Composite::new(
                 Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg")
+                    Widget::draw_svg(ctx, "system/assets/characters/boss.svg")
                         .container()
                         .outline(10.0, Color::BLACK)
                         .padding(10),

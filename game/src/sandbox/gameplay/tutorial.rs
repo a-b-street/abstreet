@@ -758,7 +758,7 @@ impl TutorialState {
                     .draw(ctx),
                     // TODO also text saying "instructions"... can we layout two things easily to
                     // make a button?
-                    Btn::svg_def("../data/system/assets/tools/info.svg")
+                    Btn::svg_def("system/assets/tools/info.svg")
                         .build(ctx, "instructions", None)
                         .centered_vert()
                         .align_right(),
@@ -767,13 +767,11 @@ impl TutorialState {
             }
         }
         if edit_map {
-            col.push(
-                Btn::svg_def("../data/system/assets/tools/edit_map.svg").build(
-                    ctx,
-                    "edit map",
-                    lctrl(Key::E),
-                ),
-            );
+            col.push(Btn::svg_def("system/assets/tools/edit_map.svg").build(
+                ctx,
+                "edit map",
+                lctrl(Key::E),
+            ));
         }
 
         Composite::new(Widget::col(col))
@@ -817,7 +815,7 @@ impl TutorialState {
                 let mut controls = vec![Widget::row(vec![
                     if self.current.part > 0 {
                         Btn::svg(
-                            "../data/system/assets/tools/prev.svg",
+                            "system/assets/tools/prev.svg",
                             RewriteColor::Change(Color::WHITE, app.cs.hovering),
                         )
                         .build(
@@ -828,7 +826,7 @@ impl TutorialState {
                     } else {
                         Widget::draw_svg_transform(
                             ctx,
-                            "../data/system/assets/tools/prev.svg",
+                            "system/assets/tools/prev.svg",
                             RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
                         )
                     },
@@ -838,13 +836,13 @@ impl TutorialState {
                     if self.current.part == self.stage().messages.len() - 1 {
                         Widget::draw_svg_transform(
                             ctx,
-                            "../data/system/assets/tools/next.svg",
+                            "system/assets/tools/next.svg",
                             RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
                         )
                         .named("next message")
                     } else {
                         Btn::svg(
-                            "../data/system/assets/tools/next.svg",
+                            "system/assets/tools/next.svg",
                             RewriteColor::Change(Color::WHITE, app.cs.hovering),
                         )
                         .build(

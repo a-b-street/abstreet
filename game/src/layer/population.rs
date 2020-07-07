@@ -149,7 +149,7 @@ fn make_controls(
 
     let mut col = vec![
         Widget::row(vec![
-            Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+            Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
             Line(format!("Population: {}", prettyprint_usize(total_ppl))).draw(ctx),
             Btn::plaintext("X")
                 .build(ctx, "close", hotkey(Key::Escape))
@@ -157,7 +157,7 @@ fn make_controls(
         ]),
         Widget::row(vec![
             Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/tools/home.svg"),
+                Widget::draw_svg(ctx, "system/assets/tools/home.svg"),
                 Line(prettyprint_usize(ppl_in_bldg)).small().draw(ctx),
             ]),
             Line(format!("Off-map: {}", prettyprint_usize(ppl_off_map)))

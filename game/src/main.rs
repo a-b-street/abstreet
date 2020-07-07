@@ -57,8 +57,11 @@ fn main() {
             );
         }
     }
-    let mut settings = ezgui::Settings::new("A/B Street", "../data/system/fonts");
-    settings.window_icon("../data/system/assets/pregame/icon.png");
+    let mut settings = ezgui::Settings::new("A/B Street");
+    settings.window_icon(format!(
+        "{}/system/assets/pregame/icon.png",
+        *abstutil::ROOT_DIR
+    ));
     if args.enabled("--enable_profiler") {
         settings.enable_profiling();
     }
@@ -98,8 +101,8 @@ fn main() {
     if mode.is_none() && flags.sim_flags.load.contains("scenarios/") {
         // TODO regex
         let parts = flags.sim_flags.load.split("/").collect::<Vec<_>>();
-        let map_path = abstutil::path_map(parts[4]);
-        let scenario = abstutil::basename(parts[5]);
+        let map_path = abstutil::path_map(parts[parts.len() - 2]);
+        let scenario = abstutil::basename(parts[parts.len() - 1]);
         flags.sim_flags.load = map_path.clone();
         mode = Some(sandbox::GameplayMode::PlayScenario(
             map_path,

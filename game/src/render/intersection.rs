@@ -69,12 +69,9 @@ impl DrawIntersection {
             IntersectionType::Construction => {
                 // TODO Centering seems weird
                 default_geom.append(
-                    GeomBatch::mapspace_svg(
-                        prerender,
-                        "../data/system/assets/map/under_construction.svg",
-                    )
-                    .scale(0.08)
-                    .centered_on(i.polygon.center()),
+                    GeomBatch::mapspace_svg(prerender, "system/assets/map/under_construction.svg")
+                        .scale(0.08)
+                        .centered_on(i.polygon.center()),
                 );
             }
             IntersectionType::TrafficSignal => {}

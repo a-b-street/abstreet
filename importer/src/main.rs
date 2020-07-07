@@ -71,7 +71,7 @@ fn main() {
         vec![n]
     } else {
         println!("- Working on all {} maps", job.city);
-        abstutil::list_all_objects(format!("../data/input/{}/polygons", job.city))
+        abstutil::list_all_objects(abstutil::path(format!("input/{}/polygons", job.city)))
     };
 
     let mut timer = abstutil::Timer::new("import map data");

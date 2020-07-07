@@ -35,7 +35,7 @@ impl Game {
             .current_flags
             .sim_flags
             .load
-            .starts_with("../data/player/saves/")
+            .starts_with("player/saves/")
         {
             assert!(maybe_mode.is_none());
             Some(app.primary.clear_sim())

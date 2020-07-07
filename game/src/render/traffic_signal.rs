@@ -72,7 +72,7 @@ pub fn draw_signal_phase(
                 } else {
                     let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
                     batch.append(
-                        GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/walk.svg")
+                        GeomBatch::mapspace_svg(prerender, "system/assets/map/walk.svg")
                             .scale(0.07)
                             .centered_on(center)
                             .rotate(angle)
@@ -84,7 +84,7 @@ pub fn draw_signal_phase(
             for g in dont_walk {
                 let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
                 batch.append(
-                    GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/dont_walk.svg")
+                    GeomBatch::mapspace_svg(prerender, "system/assets/map/dont_walk.svg")
                         .scale(0.07)
                         .centered_on(center)
                         .rotate(angle),
@@ -161,7 +161,7 @@ pub fn draw_signal_phase(
                 } else {
                     let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
                     batch.append(
-                        GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/walk.svg")
+                        GeomBatch::mapspace_svg(prerender, "system/assets/map/walk.svg")
                             .scale(0.07)
                             .centered_on(center)
                             .rotate(angle),
@@ -172,7 +172,7 @@ pub fn draw_signal_phase(
             for g in dont_walk {
                 let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
                 batch.append(
-                    GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/dont_walk.svg")
+                    GeomBatch::mapspace_svg(prerender, "system/assets/map/dont_walk.svg")
                         .scale(0.07)
                         .centered_on(center)
                         .rotate(angle),
@@ -398,7 +398,7 @@ pub fn make_signal_diagram(
                     }
                     .small_heading()
                     .draw(ctx),
-                    Btn::svg_def("../data/system/assets/tools/edit.svg").build(
+                    Btn::svg_def("system/assets/tools/edit.svg").build(
                         ctx,
                         format!("change duration of phase {}", idx + 1),
                         if selected == idx {
@@ -408,7 +408,7 @@ pub fn make_signal_diagram(
                         },
                     ),
                     if signal.phases.len() > 1 {
-                        Btn::svg_def("../data/system/assets/tools/delete.svg")
+                        Btn::svg_def("system/assets/tools/delete.svg")
                             .build(ctx, format!("delete phase {}", idx + 1), None)
                             .align_right()
                     } else {

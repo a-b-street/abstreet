@@ -118,16 +118,12 @@ fn make_top_center(
                 "change traffic",
                 hotkey(Key::S),
             ),
-            Btn::svg_def("../data/system/assets/tools/edit_map.svg").build(
-                ctx,
-                "edit map",
-                lctrl(Key::E),
-            ),
+            Btn::svg_def("system/assets/tools/edit_map.svg").build(ctx, "edit map", lctrl(Key::E)),
         ])
         .centered(),
         if scenario_name == "weekday" {
             Widget::row(vec![
-                Btn::svg_def("../data/system/assets/tools/pencil.svg").build(
+                Btn::svg_def("system/assets/tools/pencil.svg").build(
                     ctx,
                     "edit traffic patterns",
                     None,
@@ -175,7 +171,7 @@ impl EditScenarioModifiers {
             rows.push(
                 Widget::row(vec![
                     m.describe().draw_text(ctx),
-                    Btn::svg_def("../data/system/assets/tools/delete.svg")
+                    Btn::svg_def("system/assets/tools/delete.svg")
                         .build(ctx, format!("delete modifier {}", idx + 1), None)
                         .align_right(),
                 ])

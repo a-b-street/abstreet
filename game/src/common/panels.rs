@@ -9,12 +9,8 @@ pub fn tool_panel(ctx: &mut EventCtx) -> WrappedComposite {
     let row = vec![
         // TODO Maybe this is confusing -- it doesn't jump to the title screen necessarily.
         // Caller has to handle this one
-        Btn::svg_def("../data/system/assets/tools/home.svg").build(
-            ctx,
-            "back",
-            hotkey(Key::Escape),
-        ),
-        Btn::svg_def("../data/system/assets/tools/settings.svg").build(ctx, "settings", None),
+        Btn::svg_def("system/assets/tools/home.svg").build(ctx, "back", hotkey(Key::Escape)),
+        Btn::svg_def("system/assets/tools/settings.svg").build(ctx, "settings", None),
     ];
     WrappedComposite::new(
         Composite::new(Widget::row(row))

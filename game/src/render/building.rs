@@ -50,7 +50,7 @@ impl DrawBuilding {
         {
             // Might need to scale down more for some buildings, but so far, this works everywhere.
             bldg_batch.append(
-                GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/parking.svg")
+                GeomBatch::mapspace_svg(prerender, "system/assets/map/parking.svg")
                     .scale(0.1)
                     .centered_on(bldg.label_center),
             );

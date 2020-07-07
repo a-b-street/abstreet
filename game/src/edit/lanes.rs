@@ -59,7 +59,7 @@ impl LaneEditor {
             ("contraflow", "reverse lane direction", Key::F, true),
         ] {
             row.push(if active {
-                Btn::svg_def(format!("../data/system/assets/edit/{}.svg", icon)).build(
+                Btn::svg_def(format!("system/assets/edit/{}.svg", icon)).build(
                     ctx,
                     label,
                     hotkey(key),
@@ -67,7 +67,7 @@ impl LaneEditor {
             } else {
                 Widget::draw_svg_transform(
                     ctx,
-                    &format!("../data/system/assets/edit/{}.svg", icon),
+                    &format!("system/assets/edit/{}.svg", icon),
                     RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
                 )
             });

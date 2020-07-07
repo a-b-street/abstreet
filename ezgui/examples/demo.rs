@@ -1,6 +1,3 @@
-// You have to run from the ezgui crate (abstreet/ezgui), due to relative paths to fonts and
-// images.
-//
 // To run:
 // > cargo run --example demo
 //
@@ -21,10 +18,7 @@ use std::collections::HashSet;
 fn main() {
     // Control flow surrendered here. App implements State, which has an event handler and a draw
     // callback.
-    ezgui::run(
-        ezgui::Settings::new("ezgui demo", "../data/system/fonts"),
-        |ctx| App::new(ctx),
-    );
+    ezgui::run(ezgui::Settings::new("ezgui demo"), |ctx| App::new(ctx));
 }
 
 struct App {
@@ -219,7 +213,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
     );
     // SVG support using lyon and usvg. Map-space means don't scale for high DPI monitors.
     batch.append(
-        GeomBatch::mapspace_svg(&ctx.prerender, "../data/system/assets/pregame/logo.svg")
+        GeomBatch::mapspace_svg(&ctx.prerender, "system/assets/pregame/logo.svg")
             .translate(300.0, 300.0),
     );
     // Text rendering also goes through lyon and usvg.

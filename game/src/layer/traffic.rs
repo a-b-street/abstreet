@@ -66,7 +66,7 @@ impl Backpressure {
 
         let composite = Composite::new(Widget::col(vec![
             Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Backpressure".draw_text(ctx),
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))
@@ -163,7 +163,7 @@ impl Throughput {
         }
         let composite = Composite::new(Widget::col(vec![
             Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Throughput".draw_text(ctx),
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))
@@ -258,7 +258,7 @@ impl Throughput {
 
         let composite = Composite::new(Widget::col(vec![
             Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Relative Throughput".draw_text(ctx),
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))
@@ -367,7 +367,7 @@ impl Delay {
 
         let composite = Composite::new(Widget::col(vec![
             Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Delay (minutes)".draw_text(ctx),
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))
@@ -420,7 +420,7 @@ impl Delay {
 
         let composite = Composite::new(Widget::col(vec![
             Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Delay".draw_text(ctx),
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))
@@ -512,7 +512,7 @@ impl TrafficJams {
 
         let composite = Composite::new(Widget::col(vec![
             Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Traffic jams".draw_text(ctx),
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))

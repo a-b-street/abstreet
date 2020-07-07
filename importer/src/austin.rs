@@ -2,7 +2,7 @@ use crate::utils::{download, osmconvert};
 
 fn input() {
     download(
-        "../data/input/austin/osm/Austin.osm",
+        "input/austin/osm/Austin.osm",
         "https://download.bbbike.org/osm/bbbike/Austin/Austin.osm.gz",
     );
 }
@@ -10,15 +10,15 @@ fn input() {
 pub fn osm_to_raw(name: &str) {
     input();
     osmconvert(
-        "../data/input/austin/osm/Austin.osm",
-        format!("../data/input/austin/polygons/{}.poly", name),
-        format!("../data/input/austin/osm/{}.osm", name),
+        "input/austin/osm/Austin.osm",
+        format!("input/austin/polygons/{}.poly", name),
+        format!("input/austin/osm/{}.osm", name),
     );
 
     println!("- Running convert_osm");
     let map = convert_osm::convert(
         convert_osm::Options {
-            osm_input: format!("../data/input/austin/osm/{}.osm", name),
+            osm_input: abstutil::path(format!("input/austin/osm/{}.osm", name)),
             city_name: "austin".to_string(),
             name: name.to_string(),
 
@@ -27,12 +27,15 @@ pub fn osm_to_raw(name: &str) {
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
             sidewalks: None,
             elevation: None,
-            clip: Some(format!("../data/input/austin/polygons/{}.poly", name)),
+            clip: Some(abstutil::path(format!(
+                "input/austin/polygons/{}.poly",
+                name
+            ))),
             drive_on_right: true,
         },
         &mut abstutil::Timer::throwaway(),
     );
-    let output = format!("../data/input/raw_maps/{}.bin", name);
+    let output = abstutil::path(format!("input/raw_maps/{}.bin", name));
     println!("- Saving {}", output);
     abstutil::write_binary(output, &map);
 }

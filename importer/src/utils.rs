@@ -6,12 +6,13 @@ use std::process::Command;
 // uncompresses .zip and .gz files. .kml files are automatically clipped to a hardcoded boundary of
 // Seattle.
 pub fn download(output: &str, url: &str) {
-    if Path::new(output).exists() {
+    let output = format!("{}/{}", *abstutil::ROOT_DIR, output);
+    if Path::new(&output).exists() {
         println!("- {} already exists", output);
         return;
     }
     // Create the directory
-    std::fs::create_dir_all(Path::new(output).parent().unwrap())
+    std::fs::create_dir_all(Path::new(&output).parent().unwrap())
         .expect("Creating parent dir failed");
 
     let tmp = "tmp_output";
@@ -32,9 +33,9 @@ pub fn download(output: &str, url: &str) {
     // Argh the Dropbox URL is .zip?dl=0
     if url.contains(".zip") {
         let unzip_to = if output.ends_with("/") {
-            output.to_string()
+            output
         } else {
-            Path::new(output).parent().unwrap().display().to_string()
+            Path::new(&output).parent().unwrap().display().to_string()
         };
         println!("- Unzipping into {}", unzip_to);
         run(Command::new("unzip").arg(tmp).arg("-d").arg(unzip_to));
@@ -52,7 +53,7 @@ pub fn download(output: &str, url: &str) {
             &mut abstutil::Timer::new("extracting shapes from KML"),
         )
         .unwrap();
-        abstutil::write_binary(output.to_string(), &shapes);
+        abstutil::write_binary(output.clone(), &shapes);
         // Keep the intermediate file; otherwise we inadvertently grab new upstream data when
         // changing some binary formats
         run(Command::new("mv")
@@ -66,6 +67,10 @@ pub fn download(output: &str, url: &str) {
 // Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.
 // Skips if the output exists.
 pub fn osmconvert(input: &str, clipping_polygon: String, output: String) {
+    let input = format!("{}/{}", *abstutil::ROOT_DIR, input);
+    let clipping_polygon = format!("{}/{}", *abstutil::ROOT_DIR, clipping_polygon);
+    let output = format!("{}/{}", *abstutil::ROOT_DIR, output);
+
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
         return;
@@ -115,7 +120,7 @@ pub fn raw_to_map(name: &str, build_ch: bool, timer: &mut Timer) -> map_model::M
     if map.get_name() == "huge_seattle" {
         timer.start("generating city manifest");
         abstutil::write_binary(
-            format!("../data/system/cities/{}.bin", map.get_city_name()),
+            abstutil::path(format!("system/cities/{}.bin", map.get_city_name())),
             &map_model::City::new(&map),
         );
         timer.stop("generating city manifest");

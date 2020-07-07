@@ -33,11 +33,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
             ))
             .secondary()
             .draw(ctx),
-            Btn::svg_def("../data/system/assets/tools/clipboard.svg").build(
-                ctx,
-                "copy OSM node ID",
-                None,
-            ),
+            Btn::svg_def("system/assets/tools/clipboard.svg").build(ctx, "copy OSM node ID", None),
         ]));
     }
 

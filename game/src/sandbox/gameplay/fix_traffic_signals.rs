@@ -38,7 +38,7 @@ impl FixTrafficSignals {
                     ))
                     .draw(ctx),
                     Btn::svg(
-                        "../data/system/assets/tools/hint.svg",
+                        "system/assets/tools/hint.svg",
                         RewriteColor::Change(Color::WHITE, app.cs.hovering),
                     )
                     .build(ctx, "hint", None)
@@ -304,7 +304,7 @@ fn make_meter(
                     }),
                 ])
                 .draw(ctx),
-                Btn::svg_def("../data/system/assets/tools/location.svg")
+                Btn::svg_def("system/assets/tools/location.svg")
                     .build(ctx, "go to slowest intersection", None)
                     .align_right(),
             ])
@@ -320,7 +320,7 @@ fn make_meter(
                 Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()]).draw(ctx),
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/location.svg",
+                    "system/assets/tools/location.svg",
                     RewriteColor::ChangeAlpha(0.5),
                 )
                 .align_right(),
@@ -379,7 +379,7 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
                 Line("Time").fg(Color::BLACK).draw(ctx),
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/time.svg",
+                    "system/assets/tools/time.svg",
                     RewriteColor::ChangeAll(Color::BLACK),
                 ),
                 Line("24 hours").fg(Color::BLACK).draw(ctx),
@@ -388,7 +388,7 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
                 Line("Goal").fg(Color::BLACK).draw(ctx),
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/location.svg",
+                    "system/assets/tools/location.svg",
                     RewriteColor::ChangeAll(Color::BLACK),
                 ),
                 Text::from_multiline(vec![
@@ -401,7 +401,7 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
                 Line("Score").fg(Color::BLACK).draw(ctx),
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/star.svg",
+                    "system/assets/tools/star.svg",
                     RewriteColor::ChangeAll(Color::BLACK),
                 ),
                 Line("How long you survive").fg(Color::BLACK).draw(ctx),

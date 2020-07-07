@@ -28,7 +28,7 @@ impl TitleScreen {
         TitleScreen {
             composite: Composite::new(
                 Widget::col(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/pregame/logo.svg"),
+                    Widget::draw_svg(ctx, "system/assets/pregame/logo.svg"),
                     // TODO that nicer font
                     // TODO Any key
                     Btn::text_bg2("PLAY").build(
@@ -79,7 +79,7 @@ pub struct MainMenu {
 impl MainMenu {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let col = vec![
-            Btn::svg_def("../data/system/assets/pregame/quit.svg")
+            Btn::svg_def("system/assets/pregame/quit.svg")
                 .build(ctx, "quit", hotkey(Key::Escape))
                 .align_left(),
             {
@@ -89,7 +89,7 @@ impl MainMenu {
             },
             Widget::row(vec![
                 Btn::svg(
-                    "../data/system/assets/pregame/tutorial.svg",
+                    "system/assets/pregame/tutorial.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
                 .tooltip({
@@ -99,7 +99,7 @@ impl MainMenu {
                 })
                 .build(ctx, "Tutorial", hotkey(Key::T)),
                 Btn::svg(
-                    "../data/system/assets/pregame/sandbox.svg",
+                    "system/assets/pregame/sandbox.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
                 .tooltip({
@@ -109,7 +109,7 @@ impl MainMenu {
                 })
                 .build(ctx, "Sandbox mode", hotkey(Key::S)),
                 Btn::svg(
-                    "../data/system/assets/pregame/challenges.svg",
+                    "system/assets/pregame/challenges.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
                 .tooltip({
@@ -243,7 +243,7 @@ struct About {
 impl About {
     fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let col = vec![
-            Btn::svg_def("../data/system/assets/pregame/back.svg")
+            Btn::svg_def("system/assets/pregame/back.svg")
                 .build(ctx, "back", hotkey(Key::Escape))
                 .align_left(),
             {
@@ -331,7 +331,7 @@ impl Proposals {
         let mut buttons = Vec::new();
         let mut current_tab = Vec::new();
         for (name, edits) in
-            abstutil::load_all_objects::<PermanentMapEdits>("../data/system/proposals".to_string())
+            abstutil::load_all_objects::<PermanentMapEdits>("system/proposals".to_string())
         {
             if current == Some(name.clone()) {
                 let mut txt = Text::new();
@@ -386,7 +386,7 @@ impl Proposals {
         Box::new(Proposals {
             proposals,
             composite: Composite::new(Widget::custom_col(vec![
-                Btn::svg_def("../data/system/assets/pregame/back.svg")
+                Btn::svg_def("system/assets/pregame/back.svg")
                     .build(ctx, "back", hotkey(Key::Escape))
                     .align_left()
                     .margin_below(20),

@@ -358,33 +358,27 @@ fn make_timeline(
         }
 
         details.unzoomed.append(
-            GeomBatch::mapspace_svg(
-                ctx.prerender,
-                "../data/system/assets/timeline/start_pos.svg",
-            )
-            .scale(3.0)
-            .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-            .color(RewriteColor::Change(
-                Color::hex("#5B5B5B"),
-                Color::hex("#CC4121"),
-            ))
-            .centered_on(center),
+            GeomBatch::mapspace_svg(ctx.prerender, "system/assets/timeline/start_pos.svg")
+                .scale(3.0)
+                .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
+                .color(RewriteColor::Change(
+                    Color::hex("#5B5B5B"),
+                    Color::hex("#CC4121"),
+                ))
+                .centered_on(center),
         );
         details.zoomed.append(
-            GeomBatch::mapspace_svg(
-                ctx.prerender,
-                "../data/system/assets/timeline/start_pos.svg",
-            )
-            .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-            .color(RewriteColor::Change(
-                Color::hex("#5B5B5B"),
-                Color::hex("#CC4121"),
-            ))
-            .centered_on(center),
+            GeomBatch::mapspace_svg(ctx.prerender, "system/assets/timeline/start_pos.svg")
+                .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
+                .color(RewriteColor::Change(
+                    Color::hex("#5B5B5B"),
+                    Color::hex("#CC4121"),
+                ))
+                .centered_on(center),
         );
 
         Btn::svg(
-            "../data/system/assets/timeline/start_pos.svg",
+            "system/assets/timeline/start_pos.svg",
             RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
         .tooltip(Text::from(Line(name)))
@@ -410,7 +404,7 @@ fn make_timeline(
         }
 
         details.unzoomed.append(
-            GeomBatch::mapspace_svg(ctx.prerender, "../data/system/assets/timeline/goal_pos.svg")
+            GeomBatch::mapspace_svg(ctx.prerender, "system/assets/timeline/goal_pos.svg")
                 .scale(3.0)
                 .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
                 .color(RewriteColor::Change(
@@ -420,7 +414,7 @@ fn make_timeline(
                 .centered_on(center),
         );
         details.zoomed.append(
-            GeomBatch::mapspace_svg(ctx.prerender, "../data/system/assets/timeline/goal_pos.svg")
+            GeomBatch::mapspace_svg(ctx.prerender, "system/assets/timeline/goal_pos.svg")
                 .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
                 .color(RewriteColor::Change(
                     Color::hex("#5B5B5B"),
@@ -430,7 +424,7 @@ fn make_timeline(
         );
 
         Btn::svg(
-            "../data/system/assets/timeline/goal_pos.svg",
+            "system/assets/timeline/goal_pos.svg",
             RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
         .tooltip(Text::from(Line(name)))
@@ -484,7 +478,7 @@ fn make_timeline(
                 normal.append(
                     GeomBatch::screenspace_svg(
                         ctx.prerender,
-                        "../data/system/assets/timeline/current_pos.svg",
+                        "system/assets/timeline/current_pos.svg",
                     )
                     .centered_on(Pt2D::new(p * phase_width, 7.5 * ctx.get_scale_factor())),
                 );
@@ -494,22 +488,18 @@ fn make_timeline(
             GeomBatch::screenspace_svg(
                 ctx.prerender,
                 match p.phase_type {
-                    TripPhaseType::Driving => "../data/system/assets/timeline/driving.svg",
-                    TripPhaseType::Walking => "../data/system/assets/timeline/walking.svg",
-                    TripPhaseType::Biking => "../data/system/assets/timeline/biking.svg",
-                    TripPhaseType::Parking => "../data/system/assets/timeline/parking.svg",
+                    TripPhaseType::Driving => "system/assets/timeline/driving.svg",
+                    TripPhaseType::Walking => "system/assets/timeline/walking.svg",
+                    TripPhaseType::Biking => "system/assets/timeline/biking.svg",
+                    TripPhaseType::Parking => "system/assets/timeline/parking.svg",
                     TripPhaseType::WaitingForBus(_, _) => {
-                        "../data/system/assets/timeline/waiting_for_bus.svg"
+                        "system/assets/timeline/waiting_for_bus.svg"
                     }
-                    TripPhaseType::RidingBus(_, _, _) => {
-                        "../data/system/assets/timeline/riding_bus.svg"
-                    }
+                    TripPhaseType::RidingBus(_, _, _) => "system/assets/timeline/riding_bus.svg",
                     TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
-                    TripPhaseType::DelayedStart => {
-                        "../data/system/assets/timeline/delayed_start.svg"
-                    }
+                    TripPhaseType::DelayedStart => "system/assets/timeline/delayed_start.svg",
                     // TODO What icon should represent this?
-                    TripPhaseType::Remote => "../data/system/assets/timeline/delayed_start.svg",
+                    TripPhaseType::Remote => "system/assets/timeline/delayed_start.svg",
                 },
             )
             .centered_on(
@@ -593,7 +583,7 @@ fn make_timeline(
                     .time_warpers
                     .insert(format!("jump to {}", start_time), (trip, start_time));
                 Btn::svg(
-                    "../data/system/assets/speed/info_jump_to_time.svg",
+                    "system/assets/speed/info_jump_to_time.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
                 .tooltip({
@@ -610,7 +600,7 @@ fn make_timeline(
                     .time_warpers
                     .insert(format!("jump to {}", t), (trip, t));
                 Btn::svg(
-                    "../data/system/assets/speed/info_jump_to_time.svg",
+                    "system/assets/speed/info_jump_to_time.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
                 .tooltip({

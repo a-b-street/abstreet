@@ -502,7 +502,7 @@ fn preview_route(g: &mut GfxCtx, app: &App, trip: TripID) -> GeomBatch {
 
     let (_, start, end, _) = app.primary.sim.trip_info(trip);
     batch.append(
-        GeomBatch::mapspace_svg(g.prerender, "../data/system/assets/timeline/start_pos.svg")
+        GeomBatch::mapspace_svg(g.prerender, "system/assets/timeline/start_pos.svg")
             .scale(10.0)
             .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
             .color(RewriteColor::Change(
@@ -515,7 +515,7 @@ fn preview_route(g: &mut GfxCtx, app: &App, trip: TripID) -> GeomBatch {
             }),
     );
     batch.append(
-        GeomBatch::mapspace_svg(g.prerender, "../data/system/assets/timeline/goal_pos.svg")
+        GeomBatch::mapspace_svg(g.prerender, "system/assets/timeline/goal_pos.svg")
             .scale(10.0)
             .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
             .color(RewriteColor::Change(

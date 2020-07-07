@@ -22,7 +22,7 @@ impl SimFlags {
         SimFlags {
             load: args
                 .optional_free()
-                .unwrap_or_else(|| "../data/system/maps/montlake.bin".to_string()),
+                .unwrap_or_else(|| abstutil::path_map("montlake")),
             rng_seed,
             opts: SimOptions {
                 run_name: args
@@ -74,7 +74,10 @@ impl SimFlags {
 
         let mut opts = self.opts.clone();
 
-        if self.load.starts_with("../data/player/saves/") {
+        if self
+            .load
+            .starts_with(&format!("{}/player/saves/", *abstutil::ROOT_DIR))
+        {
             timer.note(format!("Resuming from {}", self.load));
 
             let mut sim: Sim = abstutil::read_binary(self.load.clone(), timer);
@@ -87,7 +90,10 @@ impl SimFlags {
             sim.restore_paths(&map, timer);
 
             (map, sim, rng)
-        } else if self.load.starts_with("../data/system/scenarios/") {
+        } else if self
+            .load
+            .starts_with(&format!("{}/system/scenarios/", *abstutil::ROOT_DIR))
+        {
             timer.note(format!(
                 "Seeding the simulation from scenario {}",
                 self.load

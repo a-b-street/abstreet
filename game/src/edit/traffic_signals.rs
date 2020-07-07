@@ -424,17 +424,17 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
         Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
         Btn::text_fg("Preview").build_def(ctx, lctrl(Key::P)),
         (if can_undo {
-            Btn::svg_def("../data/system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
+            Btn::svg_def("system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
         } else {
             Widget::draw_svg_transform(
                 ctx,
-                "../data/system/assets/tools/undo.svg",
+                "system/assets/tools/undo.svg",
                 RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
             )
         })
         .centered_vert(),
         (if can_redo {
-            Btn::svg_def("../data/system/assets/tools/redo.svg").build(
+            Btn::svg_def("system/assets/tools/redo.svg").build(
                 ctx,
                 "redo",
                 // TODO ctrl+shift+Z!
@@ -443,7 +443,7 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
         } else {
             Widget::draw_svg_transform(
                 ctx,
-                "../data/system/assets/tools/redo.svg",
+                "system/assets/tools/redo.svg",
                 RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
             )
         })

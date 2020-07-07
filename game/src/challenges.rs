@@ -124,7 +124,7 @@ impl Tab {
         let mut cbs: Vec<(String, Callback)> = Vec::new();
 
         master_col.push(
-            Btn::svg_def("../data/system/assets/pregame/back.svg")
+            Btn::svg_def("system/assets/pregame/back.svg")
                 .build(ctx, "back", hotkey(Key::Escape))
                 .align_left(),
         );

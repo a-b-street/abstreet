@@ -160,7 +160,6 @@ impl<G: GUI> State<G> {
 
 pub struct Settings {
     window_title: String,
-    font_dir: String,
     profiling_enabled: bool,
     default_font_size: usize,
     dump_raw_events: bool,
@@ -169,10 +168,9 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub fn new(window_title: &str, font_dir: &str) -> Settings {
+    pub fn new(window_title: &str) -> Settings {
         Settings {
             window_title: window_title.to_string(),
-            font_dir: font_dir.to_string(),
             profiling_enabled: false,
             default_font_size: text::DEFAULT_FONT_SIZE,
             dump_raw_events: false,
@@ -199,8 +197,8 @@ impl Settings {
         self.scale_factor = Some(scale_factor);
     }
 
-    pub fn window_icon(&mut self, path: &str) {
-        self.window_icon = Some(path.to_string());
+    pub fn window_icon(&mut self, path: String) {
+        self.window_icon = Some(path);
     }
 }
 
@@ -223,7 +221,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
     let prerender = Prerender {
         assets: Assets::new(
             settings.default_font_size,
-            settings.font_dir,
+            format!("{}/system/fonts", *abstutil::ROOT_DIR),
             settings
                 .scale_factor
                 .unwrap_or_else(|| prerender_innards.monitor_scale_factor()),

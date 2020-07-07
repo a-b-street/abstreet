@@ -262,9 +262,9 @@ impl State for BulkSelect {
         if g.canvas.get_cursor_in_map_space().is_some() {
             if let Some(cursor) = match self.mode {
                 Mode::Pan => None,
-                Mode::Paint => Some("../data/system/assets/tools/pencil.svg"),
-                Mode::Erase => Some("../data/system/assets/tools/eraser.svg"),
-                Mode::Route { .. } => Some("../data/system/assets/timeline/start_pos.svg"),
+                Mode::Paint => Some("system/assets/tools/pencil.svg"),
+                Mode::Erase => Some("system/assets/tools/eraser.svg"),
+                Mode::Route { .. } => Some("system/assets/timeline/start_pos.svg"),
             } {
                 let mut batch = GeomBatch::new();
                 batch.append(
@@ -307,24 +307,20 @@ fn make_composite(
             if let Mode::Paint = mode {
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/pencil.svg",
+                    "system/assets/tools/pencil.svg",
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("../data/system/assets/tools/pencil.svg").build(
-                    ctx,
-                    "paint",
-                    hotkey(Key::P),
-                )
+                Btn::svg_def("system/assets/tools/pencil.svg").build(ctx, "paint", hotkey(Key::P))
             },
             if let Mode::Erase = mode {
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/eraser.svg",
+                    "system/assets/tools/eraser.svg",
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("../data/system/assets/tools/eraser.svg").build(
+                Btn::svg_def("system/assets/tools/eraser.svg").build(
                     ctx,
                     "erase",
                     hotkey(Key::Backspace),
@@ -333,11 +329,11 @@ fn make_composite(
             if let Mode::Route { .. } = mode {
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/timeline/start_pos.svg",
+                    "system/assets/timeline/start_pos.svg",
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("../data/system/assets/timeline/start_pos.svg").build(
+                Btn::svg_def("system/assets/timeline/start_pos.svg").build(
                     ctx,
                     "select along route",
                     hotkey(Key::R),
@@ -346,15 +342,11 @@ fn make_composite(
             if let Mode::Pan = mode {
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/pan.svg",
+                    "system/assets/tools/pan.svg",
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("../data/system/assets/tools/pan.svg").build(
-                    ctx,
-                    "pan",
-                    hotkey(Key::Escape),
-                )
+                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", hotkey(Key::Escape))
             },
         ])
         .evenly_spaced(),

@@ -157,7 +157,7 @@ impl Occupancy {
 
         let composite = Composite::new(Widget::col(vec![
             Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Parking occupancy".draw_text(ctx),
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))

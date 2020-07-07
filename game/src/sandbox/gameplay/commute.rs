@@ -53,7 +53,7 @@ impl OptimizeCommute {
                         .draw_text(ctx)
                         .centered_vert(),
                     Btn::svg(
-                        "../data/system/assets/tools/hint.svg",
+                        "system/assets/tools/hint.svg",
                         RewriteColor::Change(Color::WHITE, app.cs.hovering),
                     )
                     .build(ctx, "hint", None)
@@ -257,7 +257,7 @@ fn make_meter(
         )
         .centered_horiz(),
         Widget::row(vec![
-            Btn::svg_def("../data/system/assets/tools/location.svg").build(ctx, "locate VIP", None),
+            Btn::svg_def("system/assets/tools/location.svg").build(ctx, "locate VIP", None),
             format!("{}/{} trips done", done, trips).draw_text(ctx),
             txt.draw(ctx),
         ]),
@@ -362,7 +362,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                     Line("Time").fg(Color::BLACK).draw(ctx),
                     Widget::draw_svg_transform(
                         ctx,
-                        "../data/system/assets/tools/time.svg",
+                        "system/assets/tools/time.svg",
                         RewriteColor::ChangeAll(Color::BLACK),
                     ),
                     Text::from_multiline(vec![
@@ -375,7 +375,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                     Line("Goal").fg(Color::BLACK).draw(ctx),
                     Widget::draw_svg_transform(
                         ctx,
-                        "../data/system/assets/tools/location.svg",
+                        "system/assets/tools/location.svg",
                         RewriteColor::ChangeAll(Color::BLACK),
                     ),
                     Text::from_multiline(vec![
@@ -388,7 +388,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                     Line("Score").fg(Color::BLACK).draw(ctx),
                     Widget::draw_svg_transform(
                         ctx,
-                        "../data/system/assets/tools/star.svg",
+                        "system/assets/tools/star.svg",
                         RewriteColor::ChangeAll(Color::BLACK),
                     ),
                     Text::from_multiline(vec![

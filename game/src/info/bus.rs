@@ -173,7 +173,7 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
         col.push(Widget::row(vec![
             format!("Stop {}", idx + 1).draw_text(ctx),
             Btn::svg(
-                "../data/system/assets/tools/pin.svg",
+                "system/assets/tools/pin.svg",
                 RewriteColor::Change(Color::hex("#CC4121"), app.cs.hovering),
             )
             .build(ctx, format!("Stop {}", idx + 1), None),

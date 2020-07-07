@@ -61,78 +61,97 @@ pub fn plain_list_names(names: BTreeSet<String>) -> String {
     s
 }
 
+lazy_static::lazy_static! {
+    pub static ref ROOT_DIR: String = {
+        if file_exists("data/".to_string()) {
+            "data".to_string()
+        } else if file_exists("../data/".to_string()) {
+            "../data".to_string()
+        } else {
+            panic!("Can't find the data/ directory");
+        }
+    };
+}
+
+pub fn path<I: Into<String>>(p: I) -> String {
+    format!("{}/{}", *ROOT_DIR, p.into())
+}
+
 // System data (Players can't edit, needed at runtime)
 
 pub fn path_map(map_name: &str) -> String {
-    format!("../data/system/maps/{}.bin", map_name)
+    format!("{}/system/maps/{}.bin", *ROOT_DIR, map_name)
 }
 pub fn path_all_maps() -> String {
-    format!("../data/system/maps")
+    format!("{}/system/maps", *ROOT_DIR)
 }
 
 pub fn path_prebaked_results(map_name: &str, scenario_name: &str) -> String {
     format!(
-        "../data/system/prebaked_results/{}/{}.bin",
-        map_name, scenario_name
+        "{}/system/prebaked_results/{}/{}.bin",
+        *ROOT_DIR, map_name, scenario_name
     )
 }
 
 pub fn path_scenario(map_name: &str, scenario_name: &str) -> String {
     format!(
-        "../data/system/scenarios/{}/{}.bin",
-        map_name, scenario_name
+        "{}/system/scenarios/{}/{}.bin",
+        *ROOT_DIR, map_name, scenario_name
     )
 }
 pub fn path_all_scenarios(map_name: &str) -> String {
-    format!("../data/system/scenarios/{}", map_name)
+    format!("{}/system/scenarios/{}", *ROOT_DIR, map_name)
 }
 
 pub fn path_synthetic_map(map_name: &str) -> String {
-    format!("../data/system/synthetic_maps/{}.json", map_name)
+    format!("{}/system/synthetic_maps/{}.json", *ROOT_DIR, map_name)
 }
 pub fn path_all_synthetic_maps() -> String {
-    format!("../data/system/synthetic_maps")
+    format!("{}/system/synthetic_maps", *ROOT_DIR)
 }
 
 // Player data (Players edit this)
 
 pub fn path_camera_state(map_name: &str) -> String {
-    format!("../data/player/camera_state/{}.json", map_name)
+    format!("{}/player/camera_state/{}.json", *ROOT_DIR, map_name)
 }
 
 pub fn path_edits(map_name: &str, edits_name: &str) -> String {
-    format!("../data/player/edits/{}/{}.json", map_name, edits_name)
+    format!(
+        "{}/player/edits/{}/{}.json",
+        *ROOT_DIR, map_name, edits_name
+    )
 }
 pub fn path_all_edits(map_name: &str) -> String {
-    format!("../data/player/edits/{}", map_name)
+    format!("{}/player/edits/{}", *ROOT_DIR, map_name)
 }
 
 pub fn path_save(map_name: &str, edits_name: &str, run_name: &str, time: String) -> String {
     format!(
-        "../data/player/saves/{}/{}_{}/{}.bin",
-        map_name, edits_name, run_name, time
+        "{}/player/saves/{}/{}_{}/{}.bin",
+        *ROOT_DIR, map_name, edits_name, run_name, time
     )
 }
 pub fn path_all_saves(map_name: &str, edits_name: &str, run_name: &str) -> String {
     format!(
-        "../data/player/saves/{}/{}_{}",
-        map_name, edits_name, run_name
+        "{}/player/saves/{}/{}_{}",
+        *ROOT_DIR, map_name, edits_name, run_name
     )
 }
 
 // Input data (For developers to build maps, not needed at runtime)
 
 pub fn path_pending_screenshots(map_name: &str) -> String {
-    format!("../data/input/screenshots/pending_{}", map_name)
+    format!("{}/input/screenshots/pending_{}", *ROOT_DIR, map_name)
 }
 
 pub fn path_popdat() -> String {
-    format!("../data/input/seattle/popdat.bin")
+    format!("{}/input/seattle/popdat.bin", *ROOT_DIR)
 }
 
 pub fn path_raw_map(map_name: &str) -> String {
-    format!("../data/input/raw_maps/{}.bin", map_name)
+    format!("{}/input/raw_maps/{}.bin", map_name, *ROOT_DIR)
 }
 pub fn path_all_raw_maps() -> String {
-    format!("../data/input/raw_maps")
+    format!("{}/input/raw_maps", *ROOT_DIR)
 }

@@ -733,8 +733,7 @@ fn find_short_roads(model: &Model) -> HashSet<OriginalRoad> {
 }
 
 fn main() {
-    ezgui::run(
-        ezgui::Settings::new("Synthetic map editor", "../data/system/fonts"),
-        |ctx| UI::new(ctx),
-    );
+    ezgui::run(ezgui::Settings::new("Synthetic map editor"), |ctx| {
+        UI::new(ctx)
+    });
 }

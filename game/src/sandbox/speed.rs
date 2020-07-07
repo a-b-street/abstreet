@@ -38,13 +38,15 @@ impl SpeedControls {
         let mut row = Vec::new();
         row.push(
             if paused {
-                Btn::svg_def("../data/system/assets/speed/triangle.svg")
+                Btn::svg_def("system/assets/speed/triangle.svg")
                     .pad(9)
                     .build(ctx, "play", hotkey(Key::Space))
             } else {
-                Btn::svg_def("../data/system/assets/speed/pause.svg")
-                    .pad(9)
-                    .build(ctx, "pause", hotkey(Key::Space))
+                Btn::svg_def("system/assets/speed/pause.svg").pad(9).build(
+                    ctx,
+                    "pause",
+                    hotkey(Key::Space),
+                )
             }
             .bg(app.cs.section_bg)
             .margin_right(16),
@@ -64,7 +66,7 @@ impl SpeedControls {
                     txt.extend(Text::tooltip(ctx, hotkey(Key::LeftArrow), "slow down"));
                     txt.extend(Text::tooltip(ctx, hotkey(Key::RightArrow), "speed up"));
 
-                    Btn::svg_def("../data/system/assets/speed/triangle.svg")
+                    Btn::svg_def("system/assets/speed/triangle.svg")
                         .normal_color(if setting >= s {
                             RewriteColor::NoOp
                         } else {
@@ -101,12 +103,14 @@ impl SpeedControls {
 
         row.push(
             Widget::custom_row(vec![
-                Btn::svg_def("../data/system/assets/speed/jump_to_time.svg")
+                Btn::svg_def("system/assets/speed/jump_to_time.svg")
                     .pad(9)
                     .build(ctx, "jump to specific time", hotkey(Key::B)),
-                Btn::svg_def("../data/system/assets/speed/reset.svg")
-                    .pad(9)
-                    .build(ctx, "reset to midnight", hotkey(Key::X)),
+                Btn::svg_def("system/assets/speed/reset.svg").pad(9).build(
+                    ctx,
+                    "reset to midnight",
+                    hotkey(Key::X),
+                ),
             ])
             .bg(app.cs.section_bg),
         );
@@ -698,9 +702,9 @@ impl TimePanel {
                 },
                 Widget::custom_row(vec![
                     Line("00:00").small().draw(ctx),
-                    Widget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
+                    Widget::draw_svg(ctx, "system/assets/speed/sunrise.svg"),
                     Line("12:00").small().draw(ctx),
-                    Widget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
+                    Widget::draw_svg(ctx, "system/assets/speed/sunset.svg"),
                     Line("24:00").small().draw(ctx),
                 ])
                 .evenly_spaced(),

@@ -124,9 +124,9 @@ fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<
 fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, _: &mut App) -> Option<Transition> {
     // TODO Sorry, Seattle only right now
     let name = wiz.wrap(ctx).choose_string("Edit which polygon?", || {
-        abstutil::list_all_objects("../data/input/seattle/polygons/".to_string())
+        abstutil::list_all_objects("input/seattle/polygons/".to_string())
     })?;
-    match LonLat::read_osmosis_polygon(format!("../data/input/seattle/polygons/{}.poly", name)) {
+    match LonLat::read_osmosis_polygon(format!("input/seattle/polygons/{}.poly", name)) {
         Ok(pts) => Some(Transition::Replace(polygon::PolygonEditor::new(
             ctx, name, pts,
         ))),
@@ -140,7 +140,7 @@ fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, _: &mut App) -> Option<T
 fn choose_kml(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
     // TODO Sorry, Seattle only right now
     let path = wiz.wrap(ctx).choose_string("View what KML dataset?", || {
-        abstutil::list_dir(std::path::Path::new("../data/input/seattle/"))
+        abstutil::list_dir(std::path::Path::new("input/seattle/"))
             .into_iter()
             .filter(|x| x.ends_with(".bin") && !x.ends_with("popdat.bin"))
             .collect()

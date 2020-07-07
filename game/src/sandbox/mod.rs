@@ -304,20 +304,19 @@ impl AgentMeter {
             "Active trips".draw_text(ctx),
             Widget::custom_row(vec![
                 Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg")
-                        .margin_right(5),
+                    Widget::draw_svg(ctx, "system/assets/meters/pedestrian.svg").margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Walk]).draw_text(ctx),
                 ]),
                 Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/meters/bike.svg").margin_right(5),
+                    Widget::draw_svg(ctx, "system/assets/meters/bike.svg").margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Bike]).draw_text(ctx),
                 ]),
                 Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/meters/car.svg").margin_right(5),
+                    Widget::draw_svg(ctx, "system/assets/meters/car.svg").margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Drive]).draw_text(ctx),
                 ]),
                 Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/meters/bus.svg").margin_right(5),
+                    Widget::draw_svg(ctx, "system/assets/meters/bus.svg").margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Transit]).draw_text(ctx),
                 ]),
             ])
@@ -346,7 +345,7 @@ impl AgentMeter {
                     )));
                     txt.draw(ctx)
                 },
-                Btn::svg_def("../data/system/assets/meters/trip_histogram.svg")
+                Btn::svg_def("system/assets/meters/trip_histogram.svg")
                     .build(ctx, "more data", hotkey(Key::Q))
                     .align_right(),
             ]),

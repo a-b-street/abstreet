@@ -213,7 +213,7 @@ impl State for StoryMapEditor {
                             || {
                                 let mut list = Vec::new();
                                 for (name, story) in abstutil::load_all_objects::<RecordedStoryMap>(
-                                    "../data/player/stories".to_string(),
+                                    "player/stories".to_string(),
                                 ) {
                                     if story.name == current {
                                         continue;
@@ -284,7 +284,7 @@ impl State for StoryMapEditor {
                 if g.canvas.get_cursor_in_map_space().is_some() {
                     let batch = GeomBatch::screenspace_svg(
                         g.prerender,
-                        "../data/system/assets/timeline/goal_pos.svg",
+                        "system/assets/timeline/goal_pos.svg",
                     )
                     .centered_on(g.canvas.get_cursor().to_pt())
                     .color(RewriteColor::Change(Color::hex("#5B5B5B"), Color::GREEN));
@@ -325,15 +325,11 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
             ),
             Btn::text_fg(format!("{} ↓", story.name)).build(ctx, "load", lctrl(Key::L)),
             if dirty {
-                Btn::svg_def("../data/system/assets/tools/save.svg").build(
-                    ctx,
-                    "save",
-                    lctrl(Key::S),
-                )
+                Btn::svg_def("system/assets/tools/save.svg").build(ctx, "save", lctrl(Key::S))
             } else {
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/save.svg",
+                    "system/assets/tools/save.svg",
                     RewriteColor::ChangeAlpha(0.5),
                 )
             },
@@ -345,11 +341,11 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
             if let Mode::PlacingMarker = mode {
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/timeline/goal_pos.svg",
+                    "system/assets/timeline/goal_pos.svg",
                     RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("../data/system/assets/timeline/goal_pos.svg").build(
+                Btn::svg_def("system/assets/timeline/goal_pos.svg").build(
                     ctx,
                     "new marker",
                     hotkey(Key::M),
@@ -358,23 +354,19 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
             if let Mode::View = mode {
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/pan.svg",
+                    "system/assets/tools/pan.svg",
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("../data/system/assets/tools/pan.svg").build(
-                    ctx,
-                    "pan",
-                    hotkey(Key::Escape),
-                )
+                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", hotkey(Key::Escape))
             },
             match mode {
                 Mode::Freehand(_) => Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/select.svg",
+                    "system/assets/tools/select.svg",
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 ),
-                _ => Btn::svg_def("../data/system/assets/tools/select.svg").build(
+                _ => Btn::svg_def("system/assets/tools/select.svg").build(
                     ctx,
                     "draw freehand",
                     hotkey(Key::P),
@@ -440,10 +432,7 @@ impl StoryMap {
                 })
                 .collect(),
         };
-        abstutil::write_json(
-            format!("../data/player/stories/{}.json", story.name),
-            &story,
-        );
+        abstutil::write_json(format!("player/stories/{}.json", story.name), &story);
     }
 }
 
@@ -453,16 +442,13 @@ impl Marker {
 
         let hitbox = if pts.len() == 1 {
             batch.append(
-                GeomBatch::screenspace_svg(
-                    ctx.prerender,
-                    "../data/system/assets/timeline/goal_pos.svg",
-                )
-                .scale(2.0)
-                .centered_on(pts[0])
-                .color(RewriteColor::Change(
-                    Color::hex("#5B5B5B"),
-                    Color::hex("#FE3D00"),
-                )),
+                GeomBatch::screenspace_svg(ctx.prerender, "system/assets/timeline/goal_pos.svg")
+                    .scale(2.0)
+                    .centered_on(pts[0])
+                    .color(RewriteColor::Change(
+                        Color::hex("#5B5B5B"),
+                        Color::hex("#FE3D00"),
+                    )),
             );
             batch.append(
                 Text::from(Line(&event))
@@ -500,13 +486,10 @@ impl Marker {
         let mut batch = GeomBatch::new();
         if self.pts.len() == 1 {
             batch.append(
-                GeomBatch::screenspace_svg(
-                    g.prerender,
-                    "../data/system/assets/timeline/goal_pos.svg",
-                )
-                .scale(2.0)
-                .centered_on(self.pts[0])
-                .color(RewriteColor::Change(Color::hex("#5B5B5B"), app.cs.hovering)),
+                GeomBatch::screenspace_svg(g.prerender, "system/assets/timeline/goal_pos.svg")
+                    .scale(2.0)
+                    .centered_on(self.pts[0])
+                    .color(RewriteColor::Change(Color::hex("#5B5B5B"), app.cs.hovering)),
             );
             batch.append(
                 Text::from(Line(&self.event))

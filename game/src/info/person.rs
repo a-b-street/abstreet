@@ -127,10 +127,10 @@ pub fn trips(
                     Widget::draw_svg_transform(
                         ctx,
                         match trip_mode {
-                            TripMode::Walk => "../data/system/assets/meters/pedestrian.svg",
-                            TripMode::Bike => "../data/system/assets/meters/bike.svg",
-                            TripMode::Drive => "../data/system/assets/meters/car.svg",
-                            TripMode::Transit => "../data/system/assets/meters/bus.svg",
+                            TripMode::Walk => "system/assets/meters/pedestrian.svg",
+                            TripMode::Bike => "system/assets/meters/bike.svg",
+                            TripMode::Drive => "system/assets/meters/car.svg",
+                            TripMode::Transit => "system/assets/meters/bus.svg",
                         },
                         RewriteColor::ChangeAll(color),
                     ),
@@ -416,14 +416,14 @@ pub fn parked_car(
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {
-                Btn::svg_def("../data/system/assets/tools/location.svg").build(
+                Btn::svg_def("system/assets/tools/location.svg").build(
                     ctx,
                     "follow (run the simulation)",
                     hotkey(Key::F),
                 )
             } else {
                 // TODO Blink
-                Btn::svg_def("../data/system/assets/tools/location.svg")
+                Btn::svg_def("system/assets/tools/location.svg")
                     .normal_color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
                     .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))
             },
@@ -481,10 +481,7 @@ fn header(
             ctx.canvas
                 .center_on_map_pt(app.primary.map.get_b(b).label_center);
             building::draw_occupants(details, app, b, Some(id));
-            (
-                None,
-                ("indoors", Some("../data/system/assets/tools/home.svg")),
-            )
+            (None, ("indoors", Some("system/assets/tools/home.svg")))
         }
         PersonState::Trip(t) => (
             Some(t),
@@ -493,21 +490,16 @@ fn header(
                     ctx.canvas.center_on_map_pt(pt);
                 }
                 match a {
-                    AgentID::Pedestrian(_) => (
-                        "walking",
-                        Some("../data/system/assets/meters/pedestrian.svg"),
-                    ),
+                    AgentID::Pedestrian(_) => {
+                        ("walking", Some("system/assets/meters/pedestrian.svg"))
+                    }
                     AgentID::Car(c) => match c.1 {
-                        VehicleType::Car => {
-                            ("driving", Some("../data/system/assets/meters/car.svg"))
-                        }
-                        VehicleType::Bike => {
-                            ("biking", Some("../data/system/assets/meters/bike.svg"))
-                        }
+                        VehicleType::Car => ("driving", Some("system/assets/meters/car.svg")),
+                        VehicleType::Bike => ("biking", Some("system/assets/meters/bike.svg")),
                         VehicleType::Bus => unreachable!(),
                     },
                     AgentID::BusPassenger(_, _) => {
-                        ("riding a bus", Some("../data/system/assets/meters/bus.svg"))
+                        ("riding a bus", Some("system/assets/meters/bus.svg"))
                     }
                 }
             } else {
@@ -535,14 +527,14 @@ fn header(
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {
-                Btn::svg_def("../data/system/assets/tools/location.svg").build(
+                Btn::svg_def("system/assets/tools/location.svg").build(
                     ctx,
                     "follow (run the simulation)",
                     hotkey(Key::F),
                 )
             } else {
                 // TODO Blink
-                Btn::svg_def("../data/system/assets/tools/location.svg")
+                Btn::svg_def("system/assets/tools/location.svg")
                     .normal_color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
                     .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))
             },

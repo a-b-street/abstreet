@@ -330,7 +330,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
     }
 
     let zoom_col = {
-        let mut col = vec![Btn::svg_def("../data/system/assets/speed/speed_up.svg")
+        let mut col = vec![Btn::svg_def("system/assets/speed/speed_up.svg")
             .build(ctx, "zoom in", None)
             .margin_below(20)];
         for i in (0..=3).rev() {
@@ -350,9 +350,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
                 .margin_below(20),
             );
         }
-        col.push(
-            Btn::svg_def("../data/system/assets/speed/slow_down.svg").build(ctx, "zoom out", None),
-        );
+        col.push(Btn::svg_def("system/assets/speed/slow_down.svg").build(ctx, "zoom out", None));
         // The zoom column should start below the "pan up" arrow. But if we put it on the row with
         // <, minimap, and > then it messes up the horizontal alignment of the pan up arrow.
         // Also, double column to avoid the background color stretching to the bottom of the row.
@@ -371,19 +369,19 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
 
     let square_len = 0.15 * ctx.canvas.window_width;
     let minimap_controls = Widget::col(vec![
-        Btn::svg_def("../data/system/assets/minimap/up.svg")
+        Btn::svg_def("system/assets/minimap/up.svg")
             .build(ctx, "pan up", None)
             .centered_horiz(),
         Widget::row(vec![
-            Btn::svg_def("../data/system/assets/minimap/left.svg")
+            Btn::svg_def("system/assets/minimap/left.svg")
                 .build(ctx, "pan left", None)
                 .centered_vert(),
             Filler::new(ScreenDims::new(square_len, square_len)).named("minimap"),
-            Btn::svg_def("../data/system/assets/minimap/right.svg")
+            Btn::svg_def("system/assets/minimap/right.svg")
                 .build(ctx, "pan right", None)
                 .centered_vert(),
         ]),
-        Btn::svg_def("../data/system/assets/minimap/down.svg")
+        Btn::svg_def("system/assets/minimap/down.svg")
             .build(ctx, "pan down", None)
             .centered_horiz(),
     ]);
@@ -407,23 +405,23 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
 fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     Widget::col(vec![
         (if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
-            Btn::svg_def("../data/system/assets/minimap/zoom_out_fully.svg").build(
+            Btn::svg_def("system/assets/minimap/zoom_out_fully.svg").build(
                 ctx,
                 "zoom out fully",
                 None,
             )
         } else {
-            Btn::svg_def("../data/system/assets/minimap/zoom_in_fully.svg").build(
+            Btn::svg_def("system/assets/minimap/zoom_in_fully.svg").build(
                 ctx,
                 "zoom in fully",
                 None,
             )
         })
         .bg(app.cs.inner_panel),
-        Btn::svg_def("../data/system/assets/tools/layers.svg")
+        Btn::svg_def("system/assets/tools/layers.svg")
             .build(ctx, "change layers", hotkey(Key::L))
             .bg(app.cs.inner_panel),
-        Btn::svg_def("../data/system/assets/tools/search.svg")
+        Btn::svg_def("system/assets/tools/search.svg")
             .build(ctx, "search", hotkey(Key::K))
             .bg(app.cs.inner_panel),
     ])

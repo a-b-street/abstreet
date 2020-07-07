@@ -29,9 +29,9 @@ impl DrawBusStop {
             GeomBatch::mapspace_svg(
                 prerender,
                 if stop.is_train_stop {
-                    "../data/system/assets/map/light_rail.svg"
+                    "system/assets/map/light_rail.svg"
                 } else {
-                    "../data/system/assets/meters/bus.svg"
+                    "system/assets/meters/bus.svg"
                 },
             )
             .scale(0.05)

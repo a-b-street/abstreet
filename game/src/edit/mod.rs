@@ -395,7 +395,7 @@ fn make_load_edits(app: &App, mode: GameplayMode) -> Box<dyn State> {
                 abstutil::load_all_objects(abstutil::path_all_edits(app.primary.map.get_name()))
                     .into_iter()
                     .chain(abstutil::load_all_objects::<PermanentMapEdits>(
-                        "../data/system/proposals".to_string(),
+                        "system/proposals".to_string(),
                     ))
                     .filter_map(|(path, perma)| {
                         PermanentMapEdits::from_permanent(perma, &app.primary.map)
@@ -587,11 +587,11 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
             (if edits.commands.is_empty() {
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/save.svg",
+                    "system/assets/tools/save.svg",
                     RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
                 )
             } else {
-                Btn::svg_def("../data/system/assets/tools/save.svg").build(
+                Btn::svg_def("system/assets/tools/save.svg").build(
                     ctx,
                     "save edits as",
                     lctrl(Key::S),
@@ -599,15 +599,11 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
             })
             .centered_vert(),
             (if !edits.commands.is_empty() {
-                Btn::svg_def("../data/system/assets/tools/undo.svg").build(
-                    ctx,
-                    "undo",
-                    lctrl(Key::Z),
-                )
+                Btn::svg_def("system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
             } else {
                 Widget::draw_svg_transform(
                     ctx,
-                    "../data/system/assets/tools/undo.svg",
+                    "system/assets/tools/undo.svg",
                     RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
                 )
             })

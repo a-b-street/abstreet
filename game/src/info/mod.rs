@@ -567,7 +567,7 @@ fn make_tabs(
 
 fn header_btns(ctx: &EventCtx) -> Widget {
     Widget::row(vec![
-        Btn::svg_def("../data/system/assets/tools/location.svg").build(
+        Btn::svg_def("system/assets/tools/location.svg").build(
             ctx,
             "jump to object",
             hotkey(Key::J),

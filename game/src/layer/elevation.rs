@@ -94,7 +94,7 @@ impl Elevation {
 
         let composite = Composite::new(Widget::col(vec![
             Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg"),
+                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Elevation change".draw_text(ctx),
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))

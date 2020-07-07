@@ -17,10 +17,11 @@ pub fn load_svg(prerender: &Prerender, filename: &str, scale_factor: f64) -> (Ge
         return pair;
     }
 
-    let raw = if let Ok(raw) = abstutil::slurp_file(&filename) {
+    let path = format!("{}/{}", *abstutil::ROOT_DIR, filename);
+    let raw = if let Ok(raw) = abstutil::slurp_file(&path) {
         raw
     } else {
-        panic!("Can't read {}", filename);
+        panic!("Can't read {}", path);
     };
     let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
     let mut batch = GeomBatch::new();

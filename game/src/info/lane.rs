@@ -132,11 +132,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     rows.push(Widget::row(vec![
         "Copy OriginalLane to clipboard: ".draw_text(ctx),
-        Btn::svg_def("../data/system/assets/tools/clipboard.svg").build(
-            ctx,
-            "copy OriginalLane",
-            None,
-        ),
+        Btn::svg_def("system/assets/tools/clipboard.svg").build(ctx, "copy OriginalLane", None),
     ]));
 
     let mut txt = Text::from(Line(""));

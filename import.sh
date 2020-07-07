@@ -1,5 +1,3 @@
 #!/bin/bash
 
-cd importer;
-RUST_BACKTRACE=1 cargo run --release --features scenarios -- $@;
-cd ..;
+RUST_BACKTRACE=1 cargo run --release --manifest-path importer/Cargo.toml --features scenarios -- $@;
