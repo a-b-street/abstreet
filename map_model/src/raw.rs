@@ -43,7 +43,7 @@ pub struct RawMap {
 //   checks.
 // - TODO Look at some stable ID standard like linear referencing
 // (https://github.com/opentraffic/architecture/issues/1).
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OriginalRoad {
     pub osm_way_id: i64,
     pub i1: OriginalIntersection,
@@ -51,13 +51,13 @@ pub struct OriginalRoad {
 }
 
 // A way to refer to intersections across many maps.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OriginalIntersection {
     pub osm_node_id: i64,
 }
 
 // A way to refer to buildings across many maps.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OriginalBuilding {
     pub osm_way_id: i64,
 }
@@ -66,21 +66,44 @@ impl fmt::Display for OriginalRoad {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "OriginalRoad(way {} between node {} to {})",
+            "OriginalRoad(https://www.openstreetmap.org/way/{} from https://www.openstreetmap.org/node/{} to https://www.openstreetmap.org/node/{})",
             self.osm_way_id, self.i1.osm_node_id, self.i2.osm_node_id
         )
+    }
+}
+impl fmt::Debug for OriginalRoad {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
     }
 }
 
 impl fmt::Display for OriginalIntersection {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "OriginalIntersection({})", self.osm_node_id)
+        write!(
+            f,
+            "OriginalIntersection(https://www.openstreetmap.org/node/{})",
+            self.osm_node_id
+        )
+    }
+}
+impl fmt::Debug for OriginalIntersection {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
     }
 }
 
 impl fmt::Display for OriginalBuilding {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "OriginalBuilding({})", self.osm_way_id)
+        write!(
+            f,
+            "OriginalBuilding(https://www.openstreetmap.org/way/{})",
+            self.osm_way_id
+        )
+    }
+}
+impl fmt::Debug for OriginalBuilding {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
     }
 }
 

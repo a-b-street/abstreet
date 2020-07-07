@@ -224,7 +224,7 @@ impl Map {
             }
 
             if i.incoming_lanes.is_empty() || i.outgoing_lanes.is_empty() {
-                timer.warn(format!("{:?} is orphaned!", i));
+                timer.warn(format!("{} is orphaned!", i.orig_id));
                 continue;
             }
 

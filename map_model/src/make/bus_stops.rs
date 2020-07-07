@@ -189,7 +189,7 @@ fn check_stops(route: &str, stop1: BusStopID, stop2: BusStopID, map: &Map) -> bo
     let end = map.get_bs(stop2).driving_pos;
     if start.lane() == end.lane() && start.dist_along() > end.dist_along() {
         println!(
-            "Route {} has two bus stops seemingly out of order somewhere on {:?}",
+            "Route {} has two bus stops seemingly out of order somewhere on {}",
             route,
             map.get_parent(start.lane()).orig_id
         );
