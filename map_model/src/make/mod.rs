@@ -251,7 +251,7 @@ impl Map {
             // TODO Could be more performant and cleanly written
             let mut bldgs = map.lanes[lane.0].building_paths.clone();
             bldgs.push(b.id);
-            bldgs.sort_by_key(|b| map.buildings[b.0].front_path.sidewalk.dist_along());
+            bldgs.sort_by_key(|b| map.buildings[b.0 as usize].front_path.sidewalk.dist_along());
             map.lanes[lane.0].building_paths = bldgs;
         }
 

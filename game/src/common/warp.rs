@@ -106,7 +106,7 @@ fn inner_warp(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
             }
             'l' => ID::Lane(LaneID(idx)),
             'i' => ID::Intersection(IntersectionID(idx)),
-            'b' => ID::Building(BuildingID(idx)),
+            'b' => ID::Building(BuildingID(idx as u32)),
             'a' => ID::Area(AreaID(idx)),
             'p' => ID::Pedestrian(PedestrianID(idx)),
             'P' => {

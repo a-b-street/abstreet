@@ -253,7 +253,7 @@ impl DrawMap {
     }
 
     pub fn get_b(&self, id: BuildingID) -> &DrawBuilding {
-        &self.buildings[id.0]
+        &self.buildings[id.0 as usize]
     }
 
     pub fn get_pl(&self, id: ParkingLotID) -> &DrawParkingLot {
