@@ -21,10 +21,11 @@ pub fn extract_osm(
     HashSet<HashablePt2D>,
     // OSM Node IDs
     HashMap<HashablePt2D, i64>,
-    // Simple turn restrictions: (restriction type, from way ID, via node ID, to way ID)
-    Vec<(RestrictionType, i64, i64, i64)>,
-    // Complicated turn restrictions: (from way ID, via way ID, to way ID)
-    Vec<(i64, i64, i64)>,
+    // Simple turn restrictions: (relation ID, restriction type, from way ID, via node ID, to way
+    // ID)
+    Vec<(i64, RestrictionType, i64, i64, i64)>,
+    // Complicated turn restrictions: (relation ID, from way ID, via way ID, to way ID)
+    Vec<(i64, i64, i64, i64)>,
     // Amenities (location, name, amenity type)
     Vec<(Pt2D, String, String)>,
 ) {
@@ -230,16 +231,16 @@ pub fn extract_osm(
                 if let Some(rt) = RestrictionType::new(restriction) {
                     if let (Some(from), Some(via), Some(to)) = (from_way_id, via_node_id, to_way_id)
                     {
-                        simple_turn_restrictions.push((rt, from, via, to));
+                        simple_turn_restrictions.push((rel.id, rt, from, via, to));
                     } else if let (Some(from), Some(via), Some(to)) =
                         (from_way_id, via_way_id, to_way_id)
                     {
                         if rt == RestrictionType::BanTurns {
-                            complicated_turn_restrictions.push((from, via, to));
+                            complicated_turn_restrictions.push((rel.id, from, via, to));
                         } else {
                             timer.warn(format!(
-                                "Weird complicated turn restriction from {} to {} via {}: {}",
-                                from, to, via, restriction
+                                "Weird complicated turn restriction \"{}\" from way {} to way {} via way {}: https://www.openstreetmap.org/relation/{}",
+                                restriction, from, to, via, rel.id
                             ));
                         }
                     }

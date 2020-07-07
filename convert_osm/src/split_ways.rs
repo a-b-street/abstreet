@@ -20,8 +20,8 @@ pub fn split_up_roads(
         Vec<(i64, RawRoad)>,
         HashSet<HashablePt2D>,
         HashMap<HashablePt2D, i64>,
-        Vec<(RestrictionType, i64, i64, i64)>,
-        Vec<(i64, i64, i64)>,
+        Vec<(i64, RestrictionType, i64, i64, i64)>,
+        Vec<(i64, i64, i64, i64)>,
         Vec<(Pt2D, String, String)>,
     ),
     timer: &mut Timer,
@@ -108,7 +108,7 @@ pub fn split_up_roads(
 
     // Resolve simple turn restrictions (via a node)
     let mut restrictions = Vec::new();
-    for (restriction, from_osm, via_osm, to_osm) in simple_turn_restrictions {
+    for (rel_osm, restriction, from_osm, via_osm, to_osm) in simple_turn_restrictions {
         let roads = map.roads_per_intersection(OriginalIntersection {
             osm_node_id: via_osm,
         });
@@ -121,8 +121,8 @@ pub fn split_up_roads(
             }
             _ => {
                 timer.warn(format!(
-                    "Couldn't resolve {:?} from {} to {} via node {}",
-                    restriction, from_osm, to_osm, via_osm
+                    "Couldn't resolve {:?} from way {} to way {} via node {}: see https://www.openstreetmap.org/relation/{}",
+                    restriction, from_osm, to_osm, via_osm, rel_osm
                 ));
             }
         }
@@ -138,7 +138,7 @@ pub fn split_up_roads(
     // Resolve complicated turn restrictions (via a way). TODO Only handle via ways immediately
     // connected to both roads, for now
     let mut complicated_restrictions = Vec::new();
-    for (from_osm, via_osm, to_osm) in complicated_turn_restrictions {
+    for (rel_osm, from_osm, via_osm, to_osm) in complicated_turn_restrictions {
         let via_candidates: Vec<OriginalRoad> = map
             .roads
             .keys()
@@ -147,9 +147,9 @@ pub fn split_up_roads(
             .collect();
         if via_candidates.len() != 1 {
             timer.warn(format!(
-                "Couldn't resolve turn restriction from {} to {} via way {}. Candidate roads for \
-                 via: {:?}",
-                from_osm, to_osm, via_osm, via_candidates
+                "Couldn't resolve turn restriction from way {} to way {} via way {}. Candidate roads for \
+                 via: {:?}. See https://www.openstreetmap.org/relation/{}",
+                from_osm, to_osm, via_osm, via_candidates, rel_osm
             ));
             continue;
         }
