@@ -145,10 +145,6 @@ pub fn path_all_saves(map_name: &str, edits_name: &str, run_name: &str) -> Strin
 
 // Input data (For developers to build maps, not needed at runtime)
 
-pub fn path_pending_screenshots(map_name: &str) -> String {
-    format!("{}/input/screenshots/pending_{}", *ROOT_DIR, map_name)
-}
-
 pub fn path_popdat() -> String {
     format!("{}/input/seattle/popdat.bin", *ROOT_DIR)
 }

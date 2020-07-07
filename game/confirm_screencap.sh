@@ -2,5 +2,7 @@
 
 name=$1;
 
-rm -rf ../data/input/screenshots/${name} diff;
-mv ../data/input/screenshots/pending_${name} ../data/input/screenshots/${name};
+rm -rf ../data/input/screenshots/${name}.zip diff screens_before;
+zip -r $name screenshots_${name};
+mv ${name}.zip ../data/input/screenshots/;
+rm -rf screenshots_${name};

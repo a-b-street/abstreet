@@ -200,7 +200,7 @@ impl State for DebugMode {
                     let bounds = app.primary.map.get_bounds();
                     assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
                     ctx.request_update(UpdateType::ScreenCaptureEverything {
-                        dir: abstutil::path_pending_screenshots(app.primary.map.get_name()),
+                        dir: format!("screenshots_{}", app.primary.map.get_name()),
                         zoom: 3.0,
                         max_x: bounds.max_x,
                         max_y: bounds.max_y,

@@ -1,8 +1,13 @@
 #!/bin/bash
 
 name=$1;
-before=../data/input/screenshots/$name;
-after=../data/input/screenshots/pending_$name;
+
+mkdir screens_before;
+cd screens_before;
+unzip ../../data/input/screenshots/${name}.zip;
+cd ..;
+before=screens_before/screenshots_${name};
+after=screenshots_${name};
 
 rm -rf diff
 mkdir diff

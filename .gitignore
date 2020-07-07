@@ -22,8 +22,7 @@ data/input/seattle/sidewalks.kml
 data/input/seattle/trips_2014.csv
 
 data/input/raw_maps
-data/input/screenshots/*/*.gif
-data/input/screenshots/*/combine.sh
+data/input/screenshots/*.zip
 
 data/player
 

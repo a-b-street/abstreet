@@ -11,6 +11,10 @@ data/input/raw_maps/montlake.bin,749507726d6acc94fbde892bf78bd137,https://www.dr
 data/input/raw_maps/south_seattle.bin,4dba5a22610c3ce88fc45b705a682e19,https://www.dropbox.com/s/xa6bmlxa7a25l2k/south_seattle.bin.zip?dl=0
 data/input/raw_maps/udistrict.bin,d0dee6bcc4d48865679e940259068b6a,https://www.dropbox.com/s/pordmxw0adnujec/udistrict.bin.zip?dl=0
 data/input/raw_maps/west_seattle.bin,1a7f2dc27fe28a5af452daf16086351c,https://www.dropbox.com/s/cunj31v1z0ju4k8/west_seattle.bin.zip?dl=0
+data/input/screenshots/downtown.zip,8a3b19b42e65d0d908dba97d49e0fa92,https://www.dropbox.com/s/qawd35wz62m2acl/downtown.zip.zip?dl=0
+data/input/screenshots/lakeslice.zip,113d630e7e03ca8f85c521d3d0c42004,https://www.dropbox.com/s/z0z96lsn7bunqfy/lakeslice.zip.zip?dl=0
+data/input/screenshots/montlake.zip,e5f67c5cf572e2b8d30f5bc10c264662,https://www.dropbox.com/s/r9vkgwesqklfuq2/montlake.zip.zip?dl=0
+data/input/screenshots/udistrict.zip,9d44d66fff69a6e27a9db86a4245afe7,https://www.dropbox.com/s/ecnt1tyza48y9o2/udistrict.zip.zip?dl=0
 data/input/seattle/N47W122.hgt,0db4e23e51f7680538b0bbbc72208e07,https://www.dropbox.com/s/mmb4mgutwotijdw/N47W122.hgt.zip?dl=0
 data/input/seattle/blockface.bin,add872bab9040ae911366328a230f8b5,https://www.dropbox.com/s/rxd2care60tbe75/blockface.bin.zip?dl=0
 data/input/seattle/blockface.kml,350bd9e59bf2af4e885a7c0741e6ee6b,https://www.dropbox.com/s/ukknmpjdvilncq9/blockface.kml.zip?dl=0
