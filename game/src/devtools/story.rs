@@ -213,7 +213,7 @@ impl State for StoryMapEditor {
                             || {
                                 let mut list = Vec::new();
                                 for (name, story) in abstutil::load_all_objects::<RecordedStoryMap>(
-                                    "player/stories".to_string(),
+                                    abstutil::path("player/stories"),
                                 ) {
                                     if story.name == current {
                                         continue;
@@ -432,7 +432,10 @@ impl StoryMap {
                 })
                 .collect(),
         };
-        abstutil::write_json(format!("player/stories/{}.json", story.name), &story);
+        abstutil::write_json(
+            abstutil::path(format!("player/stories/{}.json", story.name)),
+            &story,
+        );
     }
 }
 

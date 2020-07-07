@@ -75,83 +75,99 @@ lazy_static::lazy_static! {
             panic!("Can't find the data/ directory");
         }
     };
+
+    static ref ROOT_PLAYER_DIR: String = {
+        // If you're packaging for a release and want the player's local data directory to be in
+        // some fixed location: ABST_PLAYER_DATA_DIR=/some/path cargo build ...
+        if let Some(dir) = option_env!("ABST_PLAYER_DATA_DIR") {
+            dir.trim_end_matches('/').to_string()
+        } else if file_exists("data/".to_string()) {
+            "data".to_string()
+        } else if file_exists("../data/".to_string()) {
+            "../data".to_string()
+        } else {
+            panic!("Can't find the data/ directory");
+        }
+    };
 }
 
 pub fn path<I: Into<String>>(p: I) -> String {
-    format!("{}/{}", *ROOT_DIR, p.into())
+    let p = p.into();
+    if p.starts_with("player/") {
+        format!("{}/{}", *ROOT_PLAYER_DIR, p)
+    } else {
+        format!("{}/{}", *ROOT_DIR, p)
+    }
 }
 
 // System data (Players can't edit, needed at runtime)
 
 pub fn path_map(map_name: &str) -> String {
-    format!("{}/system/maps/{}.bin", *ROOT_DIR, map_name)
+    path(format!("system/maps/{}.bin", map_name))
 }
 pub fn path_all_maps() -> String {
-    format!("{}/system/maps", *ROOT_DIR)
+    path("system/maps")
 }
 
 pub fn path_prebaked_results(map_name: &str, scenario_name: &str) -> String {
-    format!(
-        "{}/system/prebaked_results/{}/{}.bin",
-        *ROOT_DIR, map_name, scenario_name
-    )
+    path(format!(
+        "system/prebaked_results/{}/{}.bin",
+        map_name, scenario_name
+    ))
 }
 
 pub fn path_scenario(map_name: &str, scenario_name: &str) -> String {
-    format!(
-        "{}/system/scenarios/{}/{}.bin",
-        *ROOT_DIR, map_name, scenario_name
-    )
+    path(format!(
+        "system/scenarios/{}/{}.bin",
+        map_name, scenario_name
+    ))
 }
 pub fn path_all_scenarios(map_name: &str) -> String {
-    format!("{}/system/scenarios/{}", *ROOT_DIR, map_name)
+    path(format!("system/scenarios/{}", map_name))
 }
 
 pub fn path_synthetic_map(map_name: &str) -> String {
-    format!("{}/system/synthetic_maps/{}.json", *ROOT_DIR, map_name)
+    path(format!("system/synthetic_maps/{}.json", map_name))
 }
 pub fn path_all_synthetic_maps() -> String {
-    format!("{}/system/synthetic_maps", *ROOT_DIR)
+    path("system/synthetic_maps")
 }
 
 // Player data (Players edit this)
 
 pub fn path_camera_state(map_name: &str) -> String {
-    format!("{}/player/camera_state/{}.json", *ROOT_DIR, map_name)
+    path(format!("player/camera_state/{}.json", map_name))
 }
 
 pub fn path_edits(map_name: &str, edits_name: &str) -> String {
-    format!(
-        "{}/player/edits/{}/{}.json",
-        *ROOT_DIR, map_name, edits_name
-    )
+    path(format!("player/edits/{}/{}.json", map_name, edits_name))
 }
 pub fn path_all_edits(map_name: &str) -> String {
-    format!("{}/player/edits/{}", *ROOT_DIR, map_name)
+    path(format!("player/edits/{}", map_name))
 }
 
 pub fn path_save(map_name: &str, edits_name: &str, run_name: &str, time: String) -> String {
-    format!(
-        "{}/player/saves/{}/{}_{}/{}.bin",
-        *ROOT_DIR, map_name, edits_name, run_name, time
-    )
+    path(format!(
+        "player/saves/{}/{}_{}/{}.bin",
+        map_name, edits_name, run_name, time
+    ))
 }
 pub fn path_all_saves(map_name: &str, edits_name: &str, run_name: &str) -> String {
-    format!(
-        "{}/player/saves/{}/{}_{}",
-        *ROOT_DIR, map_name, edits_name, run_name
-    )
+    path(format!(
+        "player/saves/{}/{}_{}",
+        map_name, edits_name, run_name
+    ))
 }
 
 // Input data (For developers to build maps, not needed at runtime)
 
 pub fn path_popdat() -> String {
-    format!("{}/input/seattle/popdat.bin", *ROOT_DIR)
+    path("input/seattle/popdat.bin")
 }
 
 pub fn path_raw_map(map_name: &str) -> String {
-    format!("{}/input/raw_maps/{}.bin", *ROOT_DIR, map_name)
+    path(format!("input/raw_maps/{}.bin", map_name))
 }
 pub fn path_all_raw_maps() -> String {
-    format!("{}/input/raw_maps", *ROOT_DIR)
+    path("input/raw_maps")
 }

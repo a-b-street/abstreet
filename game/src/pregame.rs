@@ -331,7 +331,7 @@ impl Proposals {
         let mut buttons = Vec::new();
         let mut current_tab = Vec::new();
         for (name, edits) in
-            abstutil::load_all_objects::<PermanentMapEdits>("system/proposals".to_string())
+            abstutil::load_all_objects::<PermanentMapEdits>(abstutil::path("system/proposals"))
         {
             if current == Some(name.clone()) {
                 let mut txt = Text::new();

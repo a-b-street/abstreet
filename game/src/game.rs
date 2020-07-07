@@ -24,8 +24,8 @@ impl Game {
         ctx: &mut EventCtx,
     ) -> Game {
         let title = !opts.dev
-            && !flags.sim_flags.load.contains("data/player/save")
-            && !flags.sim_flags.load.contains("data/system/scenarios")
+            && !flags.sim_flags.load.contains("player/save")
+            && !flags.sim_flags.load.contains("system/scenarios")
             && maybe_mode.is_none();
         let mut app = App::new(flags, opts, ctx, title);
 
@@ -35,7 +35,7 @@ impl Game {
             .current_flags
             .sim_flags
             .load
-            .starts_with("player/saves/")
+            .contains("player/saves/")
         {
             assert!(maybe_mode.is_none());
             Some(app.primary.clear_sim())

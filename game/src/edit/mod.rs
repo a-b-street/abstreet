@@ -395,7 +395,7 @@ fn make_load_edits(app: &App, mode: GameplayMode) -> Box<dyn State> {
                 abstutil::load_all_objects(abstutil::path_all_edits(app.primary.map.get_name()))
                     .into_iter()
                     .chain(abstutil::load_all_objects::<PermanentMapEdits>(
-                        "system/proposals".to_string(),
+                        abstutil::path("system/proposals"),
                     ))
                     .filter_map(|(path, perma)| {
                         PermanentMapEdits::from_permanent(perma, &app.primary.map)
