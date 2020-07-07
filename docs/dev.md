@@ -4,7 +4,9 @@
 
 You will first need:
 
-- Stable Rust, at least 1.43. https://www.rust-lang.org/tools/install
+- Stable Rust, at least 1.43. https://www.rust-lang.org/tools/install.
+  - On Windows, you may need
+    [Visual Studio 2019](https://visualstudio.microsoft.com/de/downloads/).
 - On Linux, `sudo apt-get install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev`
   or the equivalent for your distro
 
@@ -15,7 +17,9 @@ One-time setup:
 
 2.  Grab the minimal amount of data to get started: `cargo run --bin updater`.
 
-3.  Run the game: `RUST_BACKTRACE=1 cargo run --bin game --release`
+3.  Run the game: `RUST_BACKTRACE=1 cargo run --bin game --release`. On Windows,
+    set environment variables like this:
+    `set RUST_BACKTRACE=1 && cargo run --bin game --release`
 
 ## Development tips
 

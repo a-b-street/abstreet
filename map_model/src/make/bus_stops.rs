@@ -167,14 +167,14 @@ pub fn fix_bus_route(map: &Map, r: &mut BusRoute) -> bool {
         if stops.is_empty() {
             stops.push(stop);
         } else {
-            if check_stops(*stops.last().unwrap(), stop, map) {
+            if check_stops(&r.name, *stops.last().unwrap(), stop, map) {
                 stops.push(stop);
             }
         }
     }
     // Don't forget the last and first
     while stops.len() >= 2 {
-        if check_stops(*stops.last().unwrap(), stops[0], map) {
+        if check_stops(&r.name, *stops.last().unwrap(), stops[0], map) {
             break;
         }
         // TODO Or the front one
@@ -184,10 +184,21 @@ pub fn fix_bus_route(map: &Map, r: &mut BusRoute) -> bool {
     r.stops.len() >= 2
 }
 
-fn check_stops(stop1: BusStopID, stop2: BusStopID, map: &Map) -> bool {
+fn check_stops(route: &str, stop1: BusStopID, stop2: BusStopID, map: &Map) -> bool {
+    let start = map.get_bs(stop1).driving_pos;
+    let end = map.get_bs(stop2).driving_pos;
+    if start.lane() == end.lane() && start.dist_along() > end.dist_along() {
+        println!(
+            "Route {} has two bus stops seemingly out of order somewhere on {:?}",
+            route,
+            map.get_parent(start.lane()).orig_id
+        );
+        return false;
+    }
+
     map.pathfind(PathRequest {
-        start: map.get_bs(stop1).driving_pos,
-        end: map.get_bs(stop2).driving_pos,
+        start,
+        end,
         constraints: PathConstraints::Bus,
     })
     .is_some()
