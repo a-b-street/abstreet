@@ -118,8 +118,7 @@ impl GameplayMode {
             let mut scenario = match abstutil::maybe_read_binary(path.clone(), timer) {
                 Ok(s) => s,
                 Err(err) => {
-                    println!("\n\n{} is missing or corrupt. Check https://github.com/dabreegster/abstreet/blob/master/docs/dev.md and file an issue if you have trouble.", path);
-                    println!("\n{}", err);
+                    Map::corrupt_err(path, err);
                     std::process::exit(1);
                 }
             };

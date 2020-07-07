@@ -15,7 +15,7 @@ One-time setup:
 1.  Download the repository:
     `git clone https://github.com/dabreegster/abstreet.git`
 
-2.  Grab the minimal amount of data to get started: `cargo run --bin updater`.
+2.  Grab the minimal amount of data to get started: `cargo run --bin updater`
 
 3.  Run the game: `RUST_BACKTRACE=1 cargo run --bin game --release`. On Windows,
     set environment variables like this:

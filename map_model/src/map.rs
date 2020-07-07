@@ -59,8 +59,7 @@ impl Map {
                     return map;
                 }
                 Err(err) => {
-                    println!("\n\n{} is missing or corrupt. Check https://github.com/dabreegster/abstreet/blob/master/docs/dev.md and file an issue if you have trouble.", path);
-                    println!("\n{}", err);
+                    Map::corrupt_err(path, err);
                     std::process::exit(1);
                 }
             }
@@ -73,6 +72,26 @@ impl Map {
             abstutil::read_json(path, timer)
         };
         Map::create_from_raw(raw, true, timer)
+    }
+
+    pub fn corrupt_err(path: String, err: std::io::Error) {
+        println!("\nError loading {}: {}\n", path, err);
+        if err.to_string().contains("No such file") {
+            println!(
+                "{} is missing. You may need to do: cargo run --bin updater",
+                path
+            );
+        } else {
+            println!(
+                "{} is out-of-date. You may need to update your build (git pull) or download new \
+                 data (cargo run --bin updater).",
+                path
+            );
+        }
+        println!(
+            "Check https://github.com/dabreegster/abstreet/blob/master/docs/dev.md and file an \
+             issue if you have trouble."
+        );
     }
 
     // Just for temporary std::mem::replace tricks.
