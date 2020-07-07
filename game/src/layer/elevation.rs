@@ -59,7 +59,7 @@ impl Elevation {
         // TODO Draw V's, not arrows.
         // TODO Or try gradient colors.
         for r in app.primary.map.all_roads() {
-            let (mut pl, _) = r.get_thick_polyline(&app.primary.map).unwrap();
+            let mut pl = r.center_pts.clone();
             let e1 = app.primary.map.get_i(r.src_i).elevation;
             let e2 = app.primary.map.get_i(r.dst_i).elevation;
             if (e1 - e2).abs() / pl.length() < 0.01 {

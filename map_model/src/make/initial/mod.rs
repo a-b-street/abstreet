@@ -2,7 +2,7 @@ mod geometry;
 pub mod lane_specs;
 
 pub use self::geometry::intersection_polygon;
-use crate::raw::{OriginalIntersection, OriginalRoad, RawMap, RawRoad};
+use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad, RawMap, RawRoad};
 use crate::{IntersectionType, LaneType, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 use abstutil::Timer;
 use geom::{Bounds, Distance, PolyLine, Pt2D};
@@ -20,38 +20,47 @@ pub struct Road {
     pub id: OriginalRoad,
     pub src_i: OriginalIntersection,
     pub dst_i: OriginalIntersection,
+    // The true center of the road, including sidewalks
     pub trimmed_center_pts: PolyLine,
-    pub fwd_width: Distance,
-    pub back_width: Distance,
+    pub half_width: Distance,
     pub lane_specs: Vec<LaneSpec>,
 }
 
 impl Road {
-    pub fn new(id: OriginalRoad, r: &RawRoad) -> Road {
+    pub fn new(id: OriginalRoad, r: &RawRoad, driving_side: DrivingSide) -> Road {
         let lane_specs = get_lane_specs(&r.osm_tags);
-        let mut fwd_width = Distance::ZERO;
-        let mut back_width = Distance::ZERO;
+        let mut total_width = Distance::ZERO;
+        let mut sidewalk_right = false;
+        let mut sidewalk_left = false;
         for l in &lane_specs {
-            let w = if l.lane_type == LaneType::Sidewalk {
-                SIDEWALK_THICKNESS
-            } else {
-                NORMAL_LANE_THICKNESS
-            };
-            if l.reverse_pts {
-                back_width += w;
-            } else {
-                fwd_width += w;
+            total_width += l.width();
+            if l.lane_type == LaneType::Sidewalk {
+                if l.reverse_pts {
+                    sidewalk_left = true;
+                } else {
+                    sidewalk_right = true;
+                }
             }
         }
 
-        let center_pts = PolyLine::new(r.center_points.clone());
+        // If there's a sidewalk on only one side, adjust the true center of the road.
+        let mut trimmed_center_pts = PolyLine::new(r.center_points.clone());
+        if sidewalk_right && !sidewalk_left {
+            trimmed_center_pts = driving_side
+                .right_shift(trimmed_center_pts, SIDEWALK_THICKNESS / 2.0)
+                .unwrap();
+        } else if sidewalk_left && !sidewalk_right {
+            trimmed_center_pts = driving_side
+                .left_shift(trimmed_center_pts, SIDEWALK_THICKNESS / 2.0)
+                .unwrap();
+        }
+
         Road {
             id,
             src_i: id.i1,
             dst_i: id.i2,
-            trimmed_center_pts: center_pts,
-            fwd_width,
-            back_width,
+            trimmed_center_pts,
+            half_width: total_width / 2.0,
             lane_specs,
         }
     }
@@ -95,7 +104,7 @@ impl InitialMap {
             m.intersections.get_mut(&id.i1).unwrap().roads.insert(*id);
             m.intersections.get_mut(&id.i2).unwrap().roads.insert(*id);
 
-            m.roads.insert(*id, Road::new(*id, r));
+            m.roads.insert(*id, Road::new(*id, r, raw.driving_side));
         }
 
         timer.start_iter("find each intersection polygon", m.intersections.len());
@@ -112,6 +121,16 @@ impl InitialMap {
 pub struct LaneSpec {
     pub lane_type: LaneType,
     pub reverse_pts: bool,
+}
+
+impl LaneSpec {
+    pub fn width(&self) -> Distance {
+        if self.lane_type == LaneType::Sidewalk {
+            SIDEWALK_THICKNESS
+        } else {
+            NORMAL_LANE_THICKNESS
+        }
+    }
 }
 
 pub fn get_lane_specs(osm_tags: &BTreeMap<String, String>) -> Vec<LaneSpec> {

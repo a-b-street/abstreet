@@ -32,10 +32,8 @@ impl<'a> ColorDiscrete<'a> {
 
     pub fn add_l(&mut self, l: LaneID, category: &'static str) {
         let color = self.colors[category];
-        self.unzoomed.push(
-            color,
-            self.map.get_parent(l).get_thick_polygon(self.map).unwrap(),
-        );
+        self.unzoomed
+            .push(color, self.map.get_parent(l).get_thick_polygon(self.map));
         let lane = self.map.get_l(l);
         self.zoomed.push(
             color.alpha(0.4),
@@ -45,13 +43,11 @@ impl<'a> ColorDiscrete<'a> {
 
     pub fn add_r(&mut self, r: RoadID, category: &'static str) {
         let color = self.colors[category];
-        self.unzoomed.push(
-            color,
-            self.map.get_r(r).get_thick_polygon(self.map).unwrap(),
-        );
+        self.unzoomed
+            .push(color, self.map.get_r(r).get_thick_polygon(self.map));
         self.zoomed.push(
             color.alpha(0.4),
-            self.map.get_r(r).get_thick_polygon(self.map).unwrap(),
+            self.map.get_r(r).get_thick_polygon(self.map),
         );
     }
 
@@ -244,13 +240,11 @@ impl<'a> ColorNetwork<'a> {
     }
 
     pub fn add_r(&mut self, r: RoadID, color: Color) {
-        self.unzoomed.push(
-            color,
-            self.map.get_r(r).get_thick_polygon(self.map).unwrap(),
-        );
+        self.unzoomed
+            .push(color, self.map.get_r(r).get_thick_polygon(self.map));
         self.zoomed.push(
             color.alpha(0.4),
-            self.map.get_r(r).get_thick_polygon(self.map).unwrap(),
+            self.map.get_r(r).get_thick_polygon(self.map),
         );
     }
 

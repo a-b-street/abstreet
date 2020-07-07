@@ -188,7 +188,10 @@ impl RawMap {
         };
         let mut roads = BTreeMap::new();
         for r in &i.roads {
-            roads.insert(*r, initial::Road::new(*r, &self.roads[r]));
+            roads.insert(
+                *r,
+                initial::Road::new(*r, &self.roads[r], self.driving_side),
+            );
         }
 
         let (i_pts, debug) =
@@ -197,25 +200,7 @@ impl RawMap {
             Polygon::new(&i_pts),
             roads
                 .values()
-                .map(|r| {
-                    // A little of get_thick_polyline
-                    let pl = if r.fwd_width >= r.back_width {
-                        self.driving_side
-                            .right_shift(
-                                r.trimmed_center_pts.clone(),
-                                (r.fwd_width - r.back_width) / 2.0,
-                            )
-                            .unwrap()
-                    } else {
-                        self.driving_side
-                            .left_shift(
-                                r.trimmed_center_pts.clone(),
-                                (r.back_width - r.fwd_width) / 2.0,
-                            )
-                            .unwrap()
-                    };
-                    pl.make_polygons(r.fwd_width + r.back_width)
-                })
+                .map(|r| r.trimmed_center_pts.make_polygons(2.0 * r.half_width))
                 .collect(),
             debug,
         )
@@ -309,7 +294,8 @@ impl RawMap {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RawRoad {
     // This is effectively a PolyLine, except there's a case where we need to plumb forward
-    // cul-de-sac roads for roundabout handling.
+    // cul-de-sac roads for roundabout handling. No transformation of these points whatsoever has
+    // happened.
     pub center_points: Vec<Pt2D>,
     pub osm_tags: BTreeMap<String, String>,
     pub turn_restrictions: Vec<(RestrictionType, OriginalRoad)>,

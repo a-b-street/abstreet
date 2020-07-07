@@ -10,12 +10,12 @@ use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, Area, AreaID, BusRouteID, ControlStopSign, ControlTrafficSignal,
-    Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Map, MapEdits,
-    PathConstraints, Position, Road, RoadID, Zone, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints,
+    Position, Road, RoadID, Zone,
 };
 use abstutil::Timer;
 use enumset::EnumSet;
-use geom::{Bounds, Distance, FindClosest, HashablePt2D, PolyLine, Polygon, Speed, EPSILON_DIST};
+use geom::{Bounds, Distance, FindClosest, HashablePt2D, Polygon, Speed, EPSILON_DIST};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 impl Map {
@@ -141,6 +141,20 @@ impl Map {
             road.speed_limit = road.speed_limit_from_osm();
             road.allow_through_traffic = road.access_restrictions_from_osm();
 
+            let mut total_back_width = Distance::ZERO;
+            for lane in &r.lane_specs {
+                if lane.reverse_pts {
+                    total_back_width += lane.width();
+                }
+            }
+            // TODO Maybe easier to use the road's "yellow center line" and shift left/right from
+            // there.
+            let road_left_pts = map
+                .left_shift(road.center_pts.clone(), r.half_width)
+                .with_context(timer, format!("shift for {}", road.id));
+
+            let mut fwd_width_so_far = Distance::ZERO;
+            let mut back_width_so_far = Distance::ZERO;
             for lane in &r.lane_specs {
                 let id = LaneID(map.lanes.len());
 
@@ -148,32 +162,32 @@ impl Map {
                 map.intersections[src_i.0].outgoing_lanes.push(id);
                 map.intersections[dst_i.0].incoming_lanes.push(id);
 
-                let (unshifted_pts, other_lanes_width): (PolyLine, Distance) = {
-                    let dir = lane.reverse_pts;
-                    let w = road.width(&map, !dir);
-                    road.children_mut(!dir).push((id, lane.lane_type));
-                    if dir {
-                        (road.center_pts.reversed(), w)
-                    } else {
-                        (road.center_pts.clone(), w)
-                    }
-                };
-                // TODO probably different behavior for oneways
-                // TODO need to factor in yellow center lines (but what's the right thing to even
-                // do?
-                let width = if lane.lane_type == LaneType::Sidewalk {
-                    SIDEWALK_THICKNESS
+                road.children_mut(!lane.reverse_pts)
+                    .push((id, lane.lane_type));
+
+                // Careful about order here. lane_specs are all of the forwards from center to
+                // sidewalk, then all the backwards from center to sidewalk.
+                let lane_center_pts = if !lane.reverse_pts {
+                    let pl = map.right_shift(
+                        road_left_pts.clone(),
+                        total_back_width + fwd_width_so_far + (lane.width() / 2.0),
+                    );
+                    fwd_width_so_far += lane.width();
+                    pl.with_context(timer, format!("shift for {}", id))
                 } else {
-                    NORMAL_LANE_THICKNESS
+                    let pl = map.right_shift(
+                        road_left_pts.clone(),
+                        total_back_width - back_width_so_far - (lane.width() / 2.0),
+                    );
+                    back_width_so_far += lane.width();
+                    pl.with_context(timer, format!("shift for {}", id))
+                        .reversed()
                 };
-                let lane_center_pts = map
-                    .right_shift(unshifted_pts, other_lanes_width + width / 2.0)
-                    .with_context(timer, format!("shift for {}", id));
 
                 map.lanes.push(Lane {
                     id,
                     lane_center_pts,
-                    width,
+                    width: lane.width(),
                     src_i,
                     dst_i,
                     lane_type: lane.lane_type,

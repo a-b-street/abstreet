@@ -1,6 +1,6 @@
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints, Zone};
-use abstutil::{Error, Warn};
+use abstutil::Error;
 use enumset::EnumSet;
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde::{Deserialize, Serialize};
@@ -103,8 +103,8 @@ pub struct Road {
     pub children_forwards: Vec<(LaneID, LaneType)>,
     pub children_backwards: Vec<(LaneID, LaneType)>,
 
-    // Unshifted original center points. Order implies road orientation. Reversing lanes doesn't
-    // change this.
+    // The physical center of the road, including sidewalks, after trimming. The order implies road
+    // orientation. No edits ever change this.
     pub center_pts: PolyLine,
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
@@ -271,8 +271,8 @@ impl Road {
         self.children(dir).iter().map(|(id, _)| *id)
     }
 
+    // This is the yellow line where the direction of the road changes.
     pub fn get_current_center(&self, map: &Map) -> PolyLine {
-        // The original center_pts don't account for contraflow lane edits.
         let lane = map.get_l(if !self.children_forwards.is_empty() {
             self.children_forwards[0].0
         } else {
@@ -287,35 +287,17 @@ impl Road {
         search.iter().find(|(_, t)| lt == *t).map(|(id, _)| *id)
     }
 
-    pub fn width(&self, map: &Map, fwds: bool) -> Distance {
-        self.children(fwds)
-            .iter()
-            .map(|(l, _)| map.get_l(*l).width)
-            .sum()
-    }
-    pub fn width_fwd(&self, map: &Map) -> Distance {
-        self.width(map, true)
-    }
-    pub fn width_back(&self, map: &Map) -> Distance {
-        self.width(map, false)
+    pub fn get_half_width(&self, map: &Map) -> Distance {
+        self.all_lanes()
+            .into_iter()
+            .map(|l| map.get_l(l).width)
+            .sum::<Distance>()
+            / 2.0
     }
 
-    pub fn get_thick_polyline(&self, map: &Map) -> Warn<(PolyLine, Distance)> {
-        let fwd = self.width_fwd(map);
-        let back = self.width_back(map);
-
-        if fwd >= back {
-            map.right_shift(self.center_pts.clone(), (fwd - back) / 2.0)
-                .map(|pl| (pl, fwd + back))
-        } else {
-            map.left_shift(self.center_pts.clone(), (back - fwd) / 2.0)
-                .map(|pl| (pl, fwd + back))
-        }
-    }
-
-    pub fn get_thick_polygon(&self, map: &Map) -> Warn<Polygon> {
-        self.get_thick_polyline(map)
-            .map(|(pl, width)| pl.make_polygons(width))
+    pub fn get_thick_polygon(&self, map: &Map) -> Polygon {
+        self.center_pts
+            .make_polygons(self.get_half_width(map) * 2.0)
     }
 
     pub fn get_name(&self) -> String {

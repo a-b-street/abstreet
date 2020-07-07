@@ -31,21 +31,20 @@ pub fn intersection_polygon(
         .map(|id| {
             let r = &roads[id];
 
-            let (pl, width_normal, width_reverse) = if r.src_i == i.id {
-                road_endpts.push(r.trimmed_center_pts.first_pt());
-                (r.trimmed_center_pts.reversed(), r.back_width, r.fwd_width)
+            let pl = if r.src_i == i.id {
+                r.trimmed_center_pts.reversed()
             } else if r.dst_i == i.id {
-                road_endpts.push(r.trimmed_center_pts.last_pt());
-                (r.trimmed_center_pts.clone(), r.fwd_width, r.back_width)
+                r.trimmed_center_pts.clone()
             } else {
                 panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
             };
+            road_endpts.push(pl.last_pt());
 
             let pl_normal = driving_side
-                .right_shift(pl.clone(), width_normal)
+                .right_shift(pl.clone(), r.half_width)
                 .with_context(timer, format!("pl_normal {}", r.id));
             let pl_reverse = driving_side
-                .left_shift(pl.clone(), width_reverse)
+                .left_shift(pl.clone(), r.half_width)
                 .with_context(timer, format!("pl_reverse {}", r.id));
             (*id, pl.last_line(), pl_normal, pl_reverse)
         })
@@ -251,26 +250,26 @@ fn generalized_trim_back(
         if r.dst_i == i {
             endpoints.push(
                 driving_side
-                    .right_shift(r.trimmed_center_pts.clone(), r.fwd_width)
+                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .last_pt(),
             );
             endpoints.push(
                 driving_side
-                    .left_shift(r.trimmed_center_pts.clone(), r.back_width)
+                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .last_pt(),
             );
         } else {
             endpoints.push(
                 driving_side
-                    .left_shift(r.trimmed_center_pts.clone(), r.back_width)
+                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .first_pt(),
             );
             endpoints.push(
                 driving_side
-                    .right_shift(r.trimmed_center_pts.clone(), r.fwd_width)
+                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .first_pt(),
             );

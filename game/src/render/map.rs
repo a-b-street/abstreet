@@ -67,7 +67,7 @@ impl DrawMap {
                 } else {
                     osm_rank_to_color(cs, r.get_rank())
                 },
-                r.get_thick_polygon(map).get(timer),
+                r.get_thick_polygon(map),
             );
             /*if false {
                 all_roads.push(

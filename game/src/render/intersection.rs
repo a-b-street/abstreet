@@ -231,20 +231,28 @@ fn calculate_border_arrows(
 ) -> Vec<Polygon> {
     let mut result = Vec::new();
 
+    let mut width_fwd = Distance::ZERO;
+    let mut width_back = Distance::ZERO;
+    for (l, _) in r.children(true) {
+        width_fwd += map.get_l(*l).width;
+    }
+    for (l, _) in r.children(false) {
+        width_back += map.get_l(*l).width;
+    }
+    let center = r.get_current_center(map);
+
     // These arrows should point from the void to the road
     if !i.outgoing_lanes.is_empty() {
         let (line, width) = if r.dst_i == i.id {
-            let width = r.width_back(map);
             (
-                map.left_shift_line(r.center_pts.last_line(), width / 2.0)
+                map.left_shift_line(center.last_line(), width_back / 2.0)
                     .reverse(),
-                width,
+                width_back,
             )
         } else {
-            let width = r.width_fwd(map);
             (
-                map.right_shift_line(r.center_pts.first_line(), width / 2.0),
-                width,
+                map.right_shift_line(center.first_line(), width_fwd / 2.0),
+                width_fwd,
             )
         };
         result.push(
@@ -261,17 +269,15 @@ fn calculate_border_arrows(
     // These arrows should point from the road to the void
     if !i.incoming_lanes.is_empty() {
         let (line, width) = if r.dst_i == i.id {
-            let width = r.width_fwd(map);
             (
-                map.right_shift_line(r.center_pts.last_line(), width / 2.0)
+                map.right_shift_line(center.last_line(), width_fwd / 2.0)
                     .reverse(),
-                width,
+                width_fwd,
             )
         } else {
-            let width = r.width_back(map);
             (
-                map.left_shift_line(r.center_pts.first_line(), width / 2.0),
-                width,
+                map.left_shift_line(center.first_line(), width_back / 2.0),
+                width_back,
             )
         };
         result.push(
@@ -283,6 +289,7 @@ fn calculate_border_arrows(
             .with_context(timer, format!("incoming border arrows for {}", r.id)),
         );
     }
+
     result
 }
 

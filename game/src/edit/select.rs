@@ -50,8 +50,7 @@ impl BulkSelect {
                 app.primary
                     .map
                     .get_r(*r)
-                    .get_thick_polygon(&app.primary.map)
-                    .unwrap(),
+                    .get_thick_polygon(&app.primary.map),
             );
         }
         for i in intersections_from_roads(&self.roads, &app.primary.map) {
@@ -216,7 +215,7 @@ impl State for BulkSelect {
                                 let r = app.primary.map.get_r(*r);
                                 batch.push(
                                     Color::RED.alpha(0.5),
-                                    r.get_thick_polygon(&app.primary.map).unwrap(),
+                                    r.get_thick_polygon(&app.primary.map),
                                 );
                                 intersections.insert(r.src_i);
                                 intersections.insert(r.dst_i);

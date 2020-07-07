@@ -99,14 +99,11 @@ impl Renderable for DrawRoad {
 
     fn get_outline(&self, map: &Map) -> Polygon {
         // Highlight the entire thing, not just an outline
-        map.get_r(self.id).get_thick_polygon(map).unwrap()
+        map.get_r(self.id).get_thick_polygon(map)
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
-        map.get_r(self.id)
-            .get_thick_polygon(map)
-            .unwrap()
-            .contains_pt(pt)
+        map.get_r(self.id).get_thick_polygon(map).contains_pt(pt)
     }
 
     fn get_zorder(&self) -> isize {
