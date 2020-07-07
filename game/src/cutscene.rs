@@ -82,7 +82,10 @@ impl State for CutscenePlayer {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "quit" => {
-                    return Transition::Pop;
+                    // TODO Should SandboxMode use on_destroy for this?
+                    app.primary.clear_sim();
+                    app.set_prebaked(None);
+                    return Transition::PopTwice;
                 }
                 "back" => {
                     self.idx -= 1;
