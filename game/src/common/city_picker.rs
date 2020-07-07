@@ -29,7 +29,10 @@ impl CityPicker {
         let mut regions = Vec::new();
 
         if let Ok(city) = abstutil::maybe_read_binary::<City>(
-            format!("system/cities/{}.bin", app.primary.map.get_city_name()),
+            abstutil::path(format!(
+                "system/cities/{}.bin",
+                app.primary.map.get_city_name()
+            )),
             &mut abstutil::Timer::throwaway(),
         ) {
             let bounds = city.boundary.get_bounds();
