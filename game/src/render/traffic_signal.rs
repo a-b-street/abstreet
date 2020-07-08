@@ -284,7 +284,7 @@ pub fn draw_signal_phase(
 fn crosswalk_icon(geom: &PolyLine) -> (Pt2D, Angle) {
     let l = Line::new(geom.points()[1], geom.points()[2]);
     (
-        l.dist_along(Distance::meters(1.0)),
+        l.safe_dist_along(Distance::meters(1.0)).unwrap_or(l.pt1()),
         l.angle().shortest_rotation_towards(Angle::new_degs(90.0)),
     )
 }

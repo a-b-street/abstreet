@@ -165,6 +165,14 @@ impl Line {
         self.percent_along(dist / len)
     }
 
+    pub fn safe_dist_along(&self, dist: Distance) -> Option<Pt2D> {
+        if dist > self.length() {
+            None
+        } else {
+            Some(self.dist_along(dist))
+        }
+    }
+
     pub fn middle(&self) -> Pt2D {
         self.dist_along(self.length() / 2.0)
     }
