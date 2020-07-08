@@ -41,7 +41,6 @@ data/system/maps/downtown.bin,e5f0533502468834a82b85546458c023,https://www.dropb
 data/system/maps/downtown_atx.bin,270eb1508a071fffdd7c6edb78b4beb6,https://www.dropbox.com/s/4q1idnl4oqv3sjr/downtown_atx.bin.zip?dl=0
 data/system/maps/huge_austin.bin,aa2e4610a7b9abfeb242f94219dcf1b4,https://www.dropbox.com/s/jun8xldjrv3y6fo/huge_austin.bin.zip?dl=0
 data/system/maps/huge_seattle.bin,845546b313745dba5d344ba044b1efd5,https://www.dropbox.com/s/9mwq0ytxjoyos4k/huge_seattle.bin.zip?dl=0
-data/system/maps/krakow.bin,769319c1e39b344dde6bd60cc4fd8f0a,https://www.dropbox.com/s/2tkcv7tcu4brj7v/krakow.bin.zip?dl=0
 data/system/maps/lakeslice.bin,5d6d2a9f761a50727b895e656edf696c,https://www.dropbox.com/s/r8zzfky3e26gdm4/lakeslice.bin.zip?dl=0
 data/system/maps/montlake.bin,b6893420323290dc57c377129ea9ee09,https://www.dropbox.com/s/1s6j9leeykkm3r8/montlake.bin.zip?dl=0
 data/system/maps/south_seattle.bin,3a2f4e128474fb3984079d0c28af6967,https://www.dropbox.com/s/pb9mngr5ck75vvg/south_seattle.bin.zip?dl=0

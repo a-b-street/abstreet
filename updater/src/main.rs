@@ -282,10 +282,11 @@ impl Manifest {
             let parts = path.split("/").collect::<Vec<_>>();
             if parts[1] == "input" {
                 if parts[2] == "screenshots" {
+                    let map = parts[3].trim_end_matches(".zip");
                     if cities
                         .input
                         .iter()
-                        .any(|city| map_belongs_to_city(&parts[3], city))
+                        .any(|city| map_belongs_to_city(map, city))
                     {
                         continue;
                     }
