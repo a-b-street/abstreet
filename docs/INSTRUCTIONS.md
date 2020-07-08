@@ -24,6 +24,8 @@ Grab a pre-built binary release -- updated every Sunday, announced at
 - Linux:
   https://github.com/dabreegster/abstreet/releases/download/v0.2.2/abstreet_linux_v0_2_2.zip
   - Unzip the directory, then run `play_abstreet.sh`.
+- FreeBSD: https://www.freshports.org/games/abstreet/ (thanks to
+  [Yuri](https://github.com/yurivict))
 
 Or you can [compile from source](/docs/dev.md).
 

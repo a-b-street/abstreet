@@ -9,7 +9,8 @@ pedestrians.
   [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.2/abstreet_windows_v0_2_2.zip),
   [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.2/abstreet_mac_v0_2_2.zip),
   [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.2/abstreet_linux_v0_2_2.zip),
-  or [read all instructions](docs/INSTRUCTIONS.md) (new releases every Sunday)
+  [FreeBSD](https://www.freshports.org/games/abstreet/), or
+  [read all instructions](docs/INSTRUCTIONS.md) (new releases every Sunday)
 - [build from source](docs/dev.md) (new changes daily)
 
 ## Show, don't tell
