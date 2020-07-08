@@ -5,7 +5,7 @@ use crate::{
     ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, Position, Road, RoadID, Turn,
     TurnGroupID, TurnID, TurnType,
 };
-use abstutil::{Error, Timer, Warn};
+use abstutil::{Timer, Warn};
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
@@ -427,7 +427,11 @@ impl Map {
         abstutil::write_binary(abstutil::path_map(&self.name), self);
     }
 
-    pub fn find_closest_lane(&self, from: LaneID, types: Vec<LaneType>) -> Result<LaneID, Error> {
+    pub fn find_closest_lane(
+        &self,
+        from: LaneID,
+        types: Vec<LaneType>,
+    ) -> Result<LaneID, Box<dyn std::error::Error>> {
         self.get_parent(from).find_closest_lane(from, types)
     }
 

@@ -80,20 +80,17 @@ impl Duration {
     }
 
     // TODO This is NOT the inverse of Display!
-    pub fn parse(string: &str) -> Result<Duration, abstutil::Error> {
+    pub fn parse(string: &str) -> Result<Duration, Box<dyn std::error::Error>> {
         let parts: Vec<&str> = string.split(':').collect();
         if parts.is_empty() {
-            return Err(abstutil::Error::new(format!("Duration {}: no :'s", string)));
+            return Err(format!("Duration {}: no :'s", string).into());
         }
 
         let mut seconds: f64 = 0.0;
         if parts.last().unwrap().contains('.') {
             let last_parts: Vec<&str> = parts.last().unwrap().split('.').collect();
             if last_parts.len() != 2 {
-                return Err(abstutil::Error::new(format!(
-                    "Duration {}: no . in last part",
-                    string
-                )));
+                return Err(format!("Duration {}: no . in last part", string).into());
             }
             seconds += last_parts[1].parse::<f64>()? / 10.0;
             seconds += last_parts[0].parse::<f64>()?;
@@ -112,10 +109,7 @@ impl Duration {
                 seconds += 3600.0 * parts[0].parse::<f64>()?;
                 Ok(Duration::seconds(seconds))
             }
-            _ => Err(abstutil::Error::new(format!(
-                "Duration {}: weird number of parts",
-                string
-            ))),
+            _ => Err(format!("Duration {}: weird number of parts", string).into()),
         }
     }
 

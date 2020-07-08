@@ -1,7 +1,6 @@
 mod cli;
 mod clone;
 mod collections;
-mod error;
 mod io;
 mod logs;
 mod random;
@@ -13,7 +12,6 @@ pub use crate::collections::{
     contains_duplicates, retain_btreemap, retain_btreeset, wraparound_get, Counter, MultiMap,
     VecMap,
 };
-pub use crate::error::Error;
 pub use crate::io::{
     basename, deserialize_btreemap, deserialize_multimap, file_exists, find_next_file,
     find_prev_file, list_all_objects, list_dir, load_all_objects, maybe_read_binary,

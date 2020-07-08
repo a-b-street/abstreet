@@ -1,6 +1,5 @@
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints, Zone};
-use abstutil::Error;
 use enumset::EnumSet;
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde::{Deserialize, Serialize};
@@ -234,7 +233,7 @@ impl Road {
         &self,
         from: LaneID,
         types: Vec<LaneType>,
-    ) -> Result<LaneID, Error> {
+    ) -> Result<LaneID, Box<dyn std::error::Error>> {
         let lane_types: HashSet<LaneType> = types.into_iter().collect();
         let (dir, from_idx) = self.dir_and_offset(from);
         let mut list = self.children(dir);
@@ -252,10 +251,7 @@ impl Road {
         {
             Ok(lane)
         } else {
-            Err(Error::new(format!(
-                "{} isn't near a {:?} lane",
-                from, lane_types
-            )))
+            Err(format!("{} isn't near a {:?} lane", from, lane_types).into())
         }
     }
 

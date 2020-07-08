@@ -111,20 +111,17 @@ impl Time {
         )
     }
 
-    pub fn parse(string: &str) -> Result<Time, abstutil::Error> {
+    pub fn parse(string: &str) -> Result<Time, Box<dyn std::error::Error>> {
         let parts: Vec<&str> = string.split(':').collect();
         if parts.is_empty() {
-            return Err(abstutil::Error::new(format!("Time {}: no :'s", string)));
+            return Err(format!("Time {}: no :'s", string).into());
         }
 
         let mut seconds: f64 = 0.0;
         if parts.last().unwrap().contains('.') {
             let last_parts: Vec<&str> = parts.last().unwrap().split('.').collect();
             if last_parts.len() != 2 {
-                return Err(abstutil::Error::new(format!(
-                    "Time {}: no . in last part",
-                    string
-                )));
+                return Err(format!("Time {}: no . in last part", string).into());
             }
             seconds += last_parts[1].parse::<f64>()? / 10.0;
             seconds += last_parts[0].parse::<f64>()?;
@@ -143,10 +140,7 @@ impl Time {
                 seconds += 3600.0 * parts[0].parse::<f64>()?;
                 Ok(Time::seconds_since_midnight(seconds))
             }
-            _ => Err(abstutil::Error::new(format!(
-                "Time {}: weird number of parts",
-                string
-            ))),
+            _ => Err(format!("Time {}: weird number of parts", string).into()),
         }
     }
 
