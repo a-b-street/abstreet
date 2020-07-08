@@ -1,17 +1,18 @@
 use crate::app::App;
 use crate::common::CityPicker;
 use crate::edit::EditMode;
-use crate::game::{State, Transition, WizardState};
-use crate::helpers::nice_map_name;
+use crate::game::{msg, State, Transition, WizardState};
+use crate::helpers::{checkbox_per_mode, nice_map_name};
 use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{SandboxControls, SandboxMode};
 use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, lctrl, AreaSlider, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::Polygon;
 use sim::{ScenarioModifier, TripMode};
+use std::collections::BTreeSet;
 
 pub struct PlayScenario {
     top_center: Composite,
@@ -179,7 +180,10 @@ impl EditScenarioModifiers {
                 .outline(2.0, Color::WHITE),
             );
         }
-        rows.push(Btn::text_bg2("New modification").build_def(ctx, None));
+        rows.push(Widget::row(vec![
+            Btn::text_bg2("New modification").build_def(ctx, None),
+            Btn::text_bg2("Change trip mode").build_def(ctx, None),
+        ]));
         rows.push(
             Widget::row(vec![
                 Btn::text_bg2("Apply").build_def(ctx, hotkey(Key::Enter)),
@@ -222,6 +226,14 @@ impl State for EditScenarioModifiers {
                         self.modifiers.clone(),
                     ));
                 }
+                "Change trip mode" => {
+                    return Transition::Push(ChangeMode::new(
+                        ctx,
+                        app,
+                        self.scenario_name.clone(),
+                        self.modifiers.clone(),
+                    ));
+                }
                 x if x.starts_with("delete modifier ") => {
                     let idx = x["delete modifier ".len()..].parse::<usize>().unwrap() - 1;
                     self.modifiers.remove(idx);
@@ -251,11 +263,7 @@ fn new_modifier(scenario_name: String, modifiers: Vec<ScenarioModifier>) -> Box<
         let mut wizard = wiz.wrap(ctx);
         let new_mod = match wizard
             .choose_string("", || {
-                vec![
-                    "repeat days",
-                    "cancel all trips for some people",
-                    "change mode for some people",
-                ]
+                vec!["repeat days", "cancel all trips for some people"]
             })?
             .as_str()
         {
@@ -264,17 +272,6 @@ fn new_modifier(scenario_name: String, modifiers: Vec<ScenarioModifier>) -> Box<
             ),
             x if x == "cancel all trips for some people" => ScenarioModifier::CancelPeople(
                 wizard.input_percent("What percent of people should cancel trips? (0 to 100)")?,
-            ),
-            x if x == "change mode for some people" => ScenarioModifier::ChangeMode(
-                wizard.input_percent("What percent of people should change mode? (0 to 100)")?,
-                wizard
-                    .choose("Force them to use what mode?", || {
-                        TripMode::all()
-                            .into_iter()
-                            .map(|m| Choice::new(m.ongoing_verb(), m))
-                            .collect()
-                    })?
-                    .1,
             ),
             _ => unreachable!(),
         };
@@ -286,4 +283,122 @@ fn new_modifier(scenario_name: String, modifiers: Vec<ScenarioModifier>) -> Box<
             mods,
         )))
     }))
+}
+
+struct ChangeMode {
+    composite: Composite,
+    scenario_name: String,
+    modifiers: Vec<ScenarioModifier>,
+}
+
+impl ChangeMode {
+    fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        scenario_name: String,
+        modifiers: Vec<ScenarioModifier>,
+    ) -> Box<dyn State> {
+        Box::new(ChangeMode {
+            scenario_name,
+            modifiers,
+            composite: Composite::new(Widget::col(vec![
+                Line("Change trip mode").small_heading().draw(ctx),
+                Widget::row(vec![
+                    "Change to trip type:".draw_text(ctx),
+                    Widget::dropdown(
+                        ctx,
+                        "to_mode",
+                        TripMode::Drive,
+                        TripMode::all()
+                            .into_iter()
+                            .map(|m| Choice::new(m.ongoing_verb(), m))
+                            .collect(),
+                    ),
+                ]),
+                Widget::row(vec![
+                    "Percent of people to modify:"
+                        .draw_text(ctx)
+                        .centered_vert(),
+                    Spinner::new(ctx, (1, 100), 50).named("pct_ppl"),
+                ]),
+                "Types of trips to convert:".draw_text(ctx),
+                checkbox_per_mode(ctx, app, &BTreeSet::new()),
+                Widget::row(vec![
+                    "Departing from:".draw_text(ctx),
+                    AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.3).named("depart from"),
+                ]),
+                Widget::row(vec![
+                    "Departing until:".draw_text(ctx),
+                    AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.3).named("depart to"),
+                ]),
+                Widget::row(vec![
+                    Btn::text_bg2("Apply").build_def(ctx, hotkey(Key::Enter)),
+                    Btn::text_bg2("Discard changes").build_def(ctx, hotkey(Key::Escape)),
+                ])
+                .centered(),
+            ]))
+            .exact_size_percent(80, 80)
+            .build(ctx),
+        })
+    }
+}
+
+impl State for ChangeMode {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "Discard changes" => Transition::Pop,
+                "Apply" => {
+                    let to_mode = self.composite.dropdown_value::<TripMode>("to_mode");
+                    let pct_ppl = self.composite.spinner("pct_ppl") as usize;
+                    let (p1, p2) = (
+                        self.composite.area_slider("depart from").get_percent(),
+                        self.composite.area_slider("depart to").get_percent(),
+                    );
+                    let departure_filter = (
+                        app.primary.sim.get_end_of_day().percent_of(p1),
+                        app.primary.sim.get_end_of_day().percent_of(p2),
+                    );
+                    let mut from_modes = TripMode::all()
+                        .into_iter()
+                        .filter(|m| self.composite.is_checked(m.ongoing_verb()))
+                        .collect::<BTreeSet<_>>();
+                    from_modes.remove(&to_mode);
+
+                    if from_modes.is_empty() {
+                        return Transition::Push(msg(
+                            "Error",
+                            vec!["You have to select at least one mode to convert from"],
+                        ));
+                    }
+                    if p1 >= p2 {
+                        return Transition::Push(msg(
+                            "Error",
+                            vec!["Your time range is backwards"],
+                        ));
+                    }
+
+                    let mut mods = self.modifiers.clone();
+                    mods.push(ScenarioModifier::ChangeMode {
+                        to_mode,
+                        pct_ppl,
+                        departure_filter,
+                        from_modes,
+                    });
+                    Transition::PopThenReplace(EditScenarioModifiers::new(
+                        ctx,
+                        self.scenario_name.clone(),
+                        mods,
+                    ))
+                }
+                _ => unreachable!(),
+            },
+            None => Transition::Keep,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
+        self.composite.draw(g);
+    }
 }

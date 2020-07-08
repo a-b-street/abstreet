@@ -421,6 +421,32 @@ impl SpawnTrip {
         }
     }
 
+    // TODO Why do I feel like this code is sitting somewhere else already
+    pub fn mode(&self) -> TripMode {
+        match self {
+            SpawnTrip::VehicleAppearing { is_bike, .. } => {
+                if *is_bike {
+                    TripMode::Bike
+                } else {
+                    TripMode::Drive
+                }
+            }
+            SpawnTrip::FromBorder { is_bike, .. } => {
+                if *is_bike {
+                    TripMode::Bike
+                } else {
+                    TripMode::Drive
+                }
+            }
+            SpawnTrip::UsingParkedCar(_, _) => TripMode::Drive,
+            SpawnTrip::UsingBike(_, _) => TripMode::Bike,
+            SpawnTrip::JustWalking(_, _) => TripMode::Walk,
+            SpawnTrip::UsingTransit(_, _, _, _, _) => TripMode::Transit,
+            // TODO Uh...
+            SpawnTrip::Remote { .. } => TripMode::Drive,
+        }
+    }
+
     pub fn start(&self, map: &Map) -> TripEndpoint {
         match self {
             SpawnTrip::VehicleAppearing { ref start, .. } => {
