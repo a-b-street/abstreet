@@ -48,6 +48,7 @@ pub const MIN_CAR_LENGTH: Distance = Distance::const_meters(4.5);
 pub const MAX_CAR_LENGTH: Distance = Distance::const_meters(6.5);
 // Note this is more than MAX_CAR_LENGTH
 pub const BUS_LENGTH: Distance = Distance::const_meters(12.5);
+pub const LIGHT_RAIL_LENGTH: Distance = Distance::const_meters(60.0);
 
 // At all speeds (including at rest), cars must be at least this far apart, measured from front of
 // one car to the back of the other.

@@ -4,7 +4,7 @@ use crate::{
     PandemicModel, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID,
     PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripEndpoint,
     TripID, TripManager, TripMode, TripPhaseType, TripResult, TripSpawner, UnzoomedAgent, Vehicle,
-    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, MIN_CAR_LENGTH,
+    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -236,14 +236,14 @@ impl Sim {
         {
             // For now, no desire for randomness. Caller can pass in list of specs if that ever
             // changes.
-            let vehicle_type = match route.route_type {
-                PathConstraints::Bus => VehicleType::Bus,
-                PathConstraints::Train => VehicleType::Train,
+            let (vehicle_type, length) = match route.route_type {
+                PathConstraints::Bus => (VehicleType::Bus, BUS_LENGTH),
+                PathConstraints::Train => (VehicleType::Train, LIGHT_RAIL_LENGTH),
                 _ => unreachable!(),
             };
             let vehicle = VehicleSpec {
                 vehicle_type,
-                length: BUS_LENGTH,
+                length,
                 max_speed: None,
             }
             .make(CarID(self.trips.new_car_id(), vehicle_type), None);
