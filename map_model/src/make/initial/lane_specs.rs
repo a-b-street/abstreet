@@ -19,18 +19,14 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     if tags.is("railway", "light_rail") {
         return (vec![LaneType::LightRail], Vec::new());
     }
-    if tags.is("junction", "roundabout") {
-        if tags.is(osm::SIDEWALK, "no") || tags.is(osm::SIDEWALK, "none") || tags.is("foot", "no") {
-            return (vec![LaneType::Driving], Vec::new());
-        }
-        return (vec![LaneType::Driving, LaneType::Sidewalk], Vec::new());
-    }
     if tags.is(osm::HIGHWAY, "footway") {
         return (vec![LaneType::Sidewalk], Vec::new());
     }
 
     // TODO Reversible roads should be handled differently?
-    let oneway = tags.is("oneway", "yes") || tags.is("oneway", "reversible");
+    let oneway = tags.is("oneway", "yes")
+        || tags.is("oneway", "reversible")
+        || tags.is("junction", "roundabout");
 
     // How many driving lanes in each direction?
     let num_driving_fwd = if let Some(n) = osm_tags
