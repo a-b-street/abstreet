@@ -165,7 +165,7 @@ impl State for PickLayer {
                     app.layer = Some(Box::new(map::BikeNetwork::new(ctx, app)));
                 }
                 "bus network" => {
-                    app.layer = Some(Box::new(map::Static::bus_network(ctx, app)));
+                    app.layer = Some(Box::new(bus::BusNetwork::new(ctx, app, false)));
                 }
                 "elevation" => {
                     app.layer = Some(Box::new(elevation::Elevation::new(ctx, app)));

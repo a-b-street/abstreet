@@ -207,33 +207,6 @@ impl Static {
         }
     }
 
-    pub fn bus_network(ctx: &mut EventCtx, app: &App) -> Static {
-        // TODO Same color for both?
-        let mut colorer = ColorDiscrete::new(
-            app,
-            vec![
-                ("bus lanes", app.cs.bus_layer),
-                ("bus stops", app.cs.bus_layer),
-            ],
-        );
-        for l in app.primary.map.all_lanes() {
-            if l.is_bus() {
-                colorer.add_l(l.id, "bus lanes");
-            }
-        }
-        for bs in app.primary.map.all_bus_stops().keys() {
-            colorer.add_bs(*bs, "bus stops");
-        }
-
-        Static::new(
-            ctx,
-            colorer,
-            "bus network",
-            "Bus network".to_string(),
-            Widget::nothing(),
-        )
-    }
-
     pub fn edits(ctx: &mut EventCtx, app: &App) -> Static {
         let mut colorer = ColorDiscrete::new(
             app,
