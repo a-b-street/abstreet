@@ -15,7 +15,7 @@ pub struct Dropdown<T: Clone> {
     choices: Vec<Choice<T>>,
 }
 
-impl<T: 'static + PartialEq + Clone> Dropdown<T> {
+impl<T: 'static + PartialEq + Clone + std::fmt::Debug> Dropdown<T> {
     pub fn new(
         ctx: &EventCtx,
         label: &str,
@@ -24,10 +24,14 @@ impl<T: 'static + PartialEq + Clone> Dropdown<T> {
         // TODO Ideally builder style
         blank_btn_label: bool,
     ) -> Dropdown<T> {
-        let current_idx = choices
-            .iter()
-            .position(|c| c.data == default_value)
-            .unwrap();
+        let current_idx = if let Some(idx) = choices.iter().position(|c| c.data == default_value) {
+            idx
+        } else {
+            panic!(
+                "Dropdown {} has default_value {:?}, but none of the choices match that",
+                label, default_value
+            );
+        };
 
         Dropdown {
             current_idx,
@@ -38,7 +42,9 @@ impl<T: 'static + PartialEq + Clone> Dropdown<T> {
             choices,
         }
     }
+}
 
+impl<T: 'static + PartialEq + Clone> Dropdown<T> {
     pub fn current_value(&self) -> T {
         self.choices[self.current_idx].data.clone()
     }

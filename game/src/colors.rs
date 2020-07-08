@@ -12,7 +12,7 @@ use ezgui::{Choice, Color, Style};
 //
 // TODO There are plenty of colors left that aren't captured here. :(
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ColorSchemeChoice {
     Standard,
     NightMode,

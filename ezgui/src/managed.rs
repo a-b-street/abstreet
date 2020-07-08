@@ -248,7 +248,7 @@ impl Widget {
     }
 
     // TODO Likewise
-    pub fn dropdown<T: 'static + PartialEq + Clone>(
+    pub fn dropdown<T: 'static + PartialEq + Clone + std::fmt::Debug>(
         ctx: &EventCtx,
         label: &str,
         default_value: T,

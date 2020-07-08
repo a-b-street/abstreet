@@ -133,7 +133,7 @@ pub fn make_bus_stops(
                         idx: map.get_l(sidewalk_pos.lane()).bus_stops.len(),
                     };
                     pt_to_stop.insert((sidewalk_pos, driving_pos), id);
-                    map.lanes[sidewalk_pos.lane().0].bus_stops.insert(id);
+                    map.lanes[sidewalk_pos.lane().idx()].bus_stops.insert(id);
                     bus_stops.insert(
                         id,
                         BusStop {

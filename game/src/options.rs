@@ -43,7 +43,7 @@ impl Options {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum TrafficSignalStyle {
     BAP,
     GroupArrows,
@@ -151,17 +151,19 @@ impl OptionsPanel {
                             ctx.monitor_scale_factor()
                         )
                         .draw_text(ctx),
-                        Widget::dropdown(
-                            ctx,
-                            "Scale factor",
-                            ctx.get_scale_factor(),
-                            vec![
+                        Widget::dropdown(ctx, "Scale factor", ctx.get_scale_factor(), {
+                            let mut choices = vec![
                                 Choice::new("0.5", 0.5),
                                 Choice::new("1.0", 1.0),
                                 Choice::new("1.5", 1.5),
                                 Choice::new("2.0", 2.0),
-                            ],
-                        ),
+                            ];
+                            let native = ctx.monitor_scale_factor();
+                            if !choices.iter().any(|c| c.data == native) {
+                                choices.push(Choice::new(native.to_string(), native));
+                            }
+                            choices
+                        }),
                     ]),
                     Widget::row(vec![
                         "Camera zoom to switch to unzoomed view".draw_text(ctx),

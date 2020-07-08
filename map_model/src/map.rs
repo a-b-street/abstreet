@@ -84,7 +84,8 @@ impl Map {
         } else {
             println!(
                 "{} is out-of-date. You may need to update your build (git pull) or download new \
-                 data (cargo run --bin updater).",
+                 data (cargo run --bin updater). If this is a custom map, you need to import it \
+                 again.",
                 path
             );
         }
@@ -158,7 +159,7 @@ impl Map {
     }
 
     pub fn maybe_get_l(&self, id: LaneID) -> Option<&Lane> {
-        self.lanes.get(id.0)
+        self.lanes.get(id.idx())
     }
 
     pub fn maybe_get_i(&self, id: IntersectionID) -> Option<&Intersection> {
@@ -198,7 +199,7 @@ impl Map {
     }
 
     pub fn get_l(&self, id: LaneID) -> &Lane {
-        &self.lanes[id.0]
+        &self.lanes[id.idx()]
     }
 
     pub fn get_i(&self, id: IntersectionID) -> &Intersection {

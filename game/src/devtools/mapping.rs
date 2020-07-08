@@ -25,7 +25,7 @@ pub struct ParkingMapper {
     data: BTreeMap<i64, Value>,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 enum Show {
     TODO,
     Done,

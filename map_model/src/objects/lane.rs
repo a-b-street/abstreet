@@ -14,9 +14,14 @@ pub const PARKING_SPOT_LENGTH: Distance = Distance::const_meters(8.0);
 // audited cases in Seattle. This is 0.8 of above
 pub const PARKING_LOT_SPOT_LENGTH: Distance = Distance::const_meters(6.4);
 
-// TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct LaneID(pub usize);
+pub struct LaneID(pub u32);
+
+impl LaneID {
+    pub fn idx(self) -> usize {
+        self.0 as usize
+    }
+}
 
 impl fmt::Display for LaneID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

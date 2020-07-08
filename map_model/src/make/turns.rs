@@ -44,7 +44,7 @@ pub fn make_all_turns(
     // turn leading to it.
     let mut incoming_missing: HashSet<LaneID> = HashSet::new();
     for l in &i.incoming_lanes {
-        if lanes[l.0].lane_type.supports_any_movement() {
+        if lanes[l.idx()].lane_type.supports_any_movement() {
             incoming_missing.insert(*l);
         }
     }
@@ -65,7 +65,7 @@ pub fn make_all_turns(
 
     let mut outgoing_missing: HashSet<LaneID> = HashSet::new();
     for l in &i.outgoing_lanes {
-        if lanes[l.0].lane_type.supports_any_movement() {
+        if lanes[l.idx()].lane_type.supports_any_movement() {
             outgoing_missing.insert(*l);
         }
     }
@@ -155,15 +155,15 @@ fn make_vehicle_turns(
 
                 // If we fell back to driving lanes for both incoming and outgoing and it's not
                 // time, then skip. This should prevent duplicates.
-                if lanes[incoming[0].0].lane_type != lane_type
-                    && lanes[outgoing[0].0].lane_type != lane_type
+                if lanes[incoming[0].idx()].lane_type != lane_type
+                    && lanes[outgoing[0].idx()].lane_type != lane_type
                 {
                     continue;
                 }
 
                 // Use an arbitrary lane from each road to get the angle between r1 and r2.
-                let angle1 = lanes[incoming[0].0].last_line().angle();
-                let angle2 = lanes[outgoing[0].0].first_line().angle();
+                let angle1 = lanes[incoming[0].idx()].last_line().angle();
+                let angle2 = lanes[outgoing[0].idx()].first_line().angle();
 
                 let type_from_angle = TurnType::from_angles(angle1, angle2);
                 let tt = if type_from_angle == TurnType::Right {
@@ -284,8 +284,8 @@ fn make_vehicle_turns_for_dead_end(
                 l1,
                 *l2,
                 TurnType::from_angles(
-                    lanes[l1.0].last_line().angle(),
-                    lanes[l2.0].first_line().angle(),
+                    lanes[l1.idx()].last_line().angle(),
+                    lanes[l2.idx()].first_line().angle(),
                 ),
             ));
         }
@@ -630,7 +630,7 @@ fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
 fn get_sidewalk<'a>(lanes: &'a Vec<Lane>, children: &Vec<(LaneID, LaneType)>) -> Option<&'a Lane> {
     for (id, lt) in children {
         if *lt == LaneType::Sidewalk {
-            return Some(&lanes[id.0]);
+            return Some(&lanes[id.idx()]);
         }
     }
     None
@@ -658,8 +658,8 @@ fn make_vehicle_turn(
     l2: LaneID,
     turn_type: TurnType,
 ) -> Option<Turn> {
-    let src = &lanes[l1.0];
-    let dst = &lanes[l2.0];
+    let src = &lanes[l1.idx()];
+    let dst = &lanes[l2.idx()];
 
     if src.last_pt() == dst.first_pt() {
         return None;
@@ -711,7 +711,7 @@ fn from_pt(pt: Point2d<f64>) -> Pt2D {
 }
 
 fn is_turn_allowed(turn: &Turn, roads: &Vec<Road>, lanes: &Vec<Lane>) -> bool {
-    let l = &lanes[turn.id.src.0];
+    let l = &lanes[turn.id.src.idx()];
     let r = &roads[l.parent.0];
     if let Some(mut types) = l.get_turn_restrictions(r) {
         types.any(|turn_type| turn_type == turn.turn_type)
@@ -730,8 +730,8 @@ fn does_turn_pass_restrictions(
         return true;
     }
 
-    let src = lanes[turn.id.src.0].parent;
-    let dst = lanes[turn.id.dst.0].parent;
+    let src = lanes[turn.id.src.idx()].parent;
+    let dst = lanes[turn.id.dst.idx()].parent;
 
     for (restriction, to) in &roads[src.0].turn_restrictions {
         // The restriction only applies to one direction of the road.

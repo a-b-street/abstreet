@@ -153,7 +153,7 @@ impl Pandemic {
 }
 
 // TODO This should live in sim
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum SEIR {
     Sane,
     Exposed,

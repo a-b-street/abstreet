@@ -507,7 +507,7 @@ impl EditCmd {
                 let id = *id;
                 let lt = *lt;
 
-                let lane = &mut map.lanes[id.0];
+                let lane = &mut map.lanes[id.idx()];
                 if lane.lane_type == lt {
                     return false;
                 }
@@ -527,7 +527,7 @@ impl EditCmd {
             }
             EditCmd::ReverseLane { l, dst_i } => {
                 let l = *l;
-                let lane = &mut map.lanes[l.0];
+                let lane = &mut map.lanes[l.idx()];
 
                 if lane.dst_i == *dst_i {
                     return false;
@@ -873,7 +873,7 @@ impl Map {
             l.parking_blackhole = None;
         }
         for (l, redirect) in connectivity::redirect_parking_blackholes(self, timer) {
-            self.lanes[l.0].parking_blackhole = Some(redirect);
+            self.lanes[l.idx()].parking_blackhole = Some(redirect);
         }
         timer.stop("recompute parking blackholes");
 

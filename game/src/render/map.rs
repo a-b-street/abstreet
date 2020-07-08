@@ -245,7 +245,7 @@ impl DrawMap {
     }
 
     pub fn get_l(&self, id: LaneID) -> &DrawLane {
-        &self.lanes[id.0]
+        &self.lanes[id.idx()]
     }
 
     pub fn get_i(&self, id: IntersectionID) -> &DrawIntersection {

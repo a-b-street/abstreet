@@ -12,7 +12,7 @@ pub struct PersistentSplit<T: Clone + PartialEq> {
     dropdown: Dropdown<T>,
 }
 
-impl<T: 'static + PartialEq + Clone> PersistentSplit<T> {
+impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
     pub fn new(
         ctx: &EventCtx,
         label: &str,
@@ -40,7 +40,9 @@ impl<T: 'static + PartialEq + Clone> PersistentSplit<T> {
         }))
         .named(label)
     }
+}
 
+impl<T: 'static + PartialEq + Clone> PersistentSplit<T> {
     pub fn current_value(&self) -> T {
         self.current_value.clone()
     }
