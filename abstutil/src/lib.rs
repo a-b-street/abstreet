@@ -75,10 +75,13 @@ lazy_static::lazy_static! {
     };
 
     static ref ROOT_PLAYER_DIR: String = {
-        // If you're packaging for a release and want the player's local data directory to be in
-        // some fixed location: ABST_PLAYER_DATA_DIR=/some/path cargo build ...
-        if let Some(dir) = option_env!("ABST_PLAYER_DATA_DIR") {
-            dir.trim_end_matches('/').to_string()
+        // If you're packaging for a release and want the player's local data directory to be
+        // $HOME/.abstreet, set ABST_PLAYER_HOME_DIR=1
+        if option_env!("ABST_PLAYER_HOME_DIR").is_some() {
+            match std::env::var("HOME") {
+                Ok(dir) => format!("{}/.abstreet", dir.trim_end_matches('/')),
+                Err(err) => panic!("This build of A/B Street stores player data in $HOME/.abstreet, but $HOME isn't set: {}", err),
+            }
         } else if file_exists("data/".to_string()) {
             "data".to_string()
         } else if file_exists("../data/".to_string()) {
