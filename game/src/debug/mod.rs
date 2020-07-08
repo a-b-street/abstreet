@@ -15,9 +15,9 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget, Wizard,
 };
 use geom::Pt2D;
-use map_model::{ControlTrafficSignal, NORMAL_LANE_THICKNESS};
+use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 
 pub struct DebugMode {
     composite: Composite,
@@ -60,6 +60,7 @@ impl DebugMode {
                         (hotkey(Key::U), "load next sim state"),
                         (None, "pick a savestate to load"),
                         (None, "find bad traffic signals"),
+                        (None, "find degenerate roads"),
                     ]
                     .into_iter()
                     .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
@@ -209,6 +210,9 @@ impl State for DebugMode {
                 }
                 "find bad traffic signals" => {
                     find_bad_signals(app);
+                }
+                "find degenerate roads" => {
+                    find_degenerate_roads(app);
                 }
                 _ => unreachable!(),
             },
@@ -599,6 +603,73 @@ fn find_bad_signals(app: &App) {
                 println!("- {}", i.id);
                 ControlTrafficSignal::brute_force(&app.primary.map, i.id);
             }
+        }
+    }
+}
+
+fn find_degenerate_roads(app: &App) {
+    let map = &app.primary.map;
+    for i in map.all_intersections() {
+        if i.roads.len() != 2 {
+            continue;
+        }
+        if i.turns.iter().any(|t| map.get_t(*t).between_sidewalks()) {
+            continue;
+        }
+        let (r1, r2) = {
+            let mut iter = i.roads.iter();
+            (*iter.next().unwrap(), *iter.next().unwrap())
+        };
+        let r1 = map.get_r(r1);
+        let r2 = map.get_r(r2);
+        if r1.zorder != r2.zorder {
+            continue;
+        }
+        if r1
+            .children_forwards
+            .iter()
+            .map(|(_, lt)| *lt)
+            .collect::<Vec<_>>()
+            != r2
+                .children_forwards
+                .iter()
+                .map(|(_, lt)| *lt)
+                .collect::<Vec<_>>()
+        {
+            continue;
+        }
+        if r1
+            .children_backwards
+            .iter()
+            .map(|(_, lt)| *lt)
+            .collect::<Vec<_>>()
+            != r2
+                .children_backwards
+                .iter()
+                .map(|(_, lt)| *lt)
+                .collect::<Vec<_>>()
+        {
+            continue;
+        }
+
+        println!("Maybe merge {}", i.id);
+        diff_tags(&r1.osm_tags, &r2.osm_tags);
+    }
+}
+
+fn diff_tags(t1: &BTreeMap<String, String>, t2: &BTreeMap<String, String>) {
+    for (k, v1) in t1 {
+        if k == osm::OSM_WAY_ID {
+            continue;
+        }
+        let v2 = t2.get(k).cloned().unwrap_or_else(String::new);
+        if v1 != &v2 {
+            println!("- {} = \"{}\" vs \"{}\"", k, v1, v2);
+        }
+    }
+    for (k, v2) in t2 {
+        if !t1.contains_key(k) {
+            println!("- {} = \"\" vs \"{}\"", k, v2);
         }
     }
 }

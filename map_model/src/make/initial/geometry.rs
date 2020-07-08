@@ -76,13 +76,24 @@ fn generalized_trim_back(
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
     timer: &mut Timer,
 ) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
-    let debug = Vec::new();
+    let mut debug = Vec::new();
 
     let mut road_lines: Vec<(OriginalRoad, PolyLine, PolyLine)> = Vec::new();
     for (r, _, pl1, pl2) in lines {
         // TODO Argh, just use original lines.
         road_lines.push((*r, pl1.clone(), pl2.clone()));
         road_lines.push((*r, pl2.clone(), pl1.clone()));
+
+        if false {
+            debug.push((
+                format!("{} fwd", r.osm_way_id),
+                pl1.make_polygons(Distance::meters(1.0)),
+            ));
+            debug.push((
+                format!("{} back", r.osm_way_id),
+                pl2.make_polygons(Distance::meters(1.0)),
+            ));
+        }
     }
 
     let mut new_road_centers: BTreeMap<OriginalRoad, PolyLine> = BTreeMap::new();
