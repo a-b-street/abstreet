@@ -153,6 +153,11 @@ pub fn make_bus_stops(
             id: BusRouteID(routes.len()),
             name: r.name.clone(),
             stops,
+            route_type: if r.is_bus {
+                PathConstraints::Bus
+            } else {
+                PathConstraints::Train
+            },
         });
     }
 
@@ -167,24 +172,34 @@ pub fn fix_bus_route(map: &Map, r: &mut BusRoute) -> bool {
         if stops.is_empty() {
             stops.push(stop);
         } else {
-            if check_stops(&r.name, *stops.last().unwrap(), stop, map) {
+            if check_stops(&r.name, r.route_type, *stops.last().unwrap(), stop, map) {
                 stops.push(stop);
             }
         }
     }
-    // Don't forget the last and first
-    while stops.len() >= 2 {
-        if check_stops(&r.name, *stops.last().unwrap(), stops[0], map) {
-            break;
+
+    // Don't forget the last and first -- except temporarily for light rail!
+    if r.route_type == PathConstraints::Bus {
+        while stops.len() >= 2 {
+            if check_stops(&r.name, r.route_type, *stops.last().unwrap(), stops[0], map) {
+                break;
+            }
+            // TODO Or the front one
+            stops.pop();
         }
-        // TODO Or the front one
-        stops.pop();
     }
+
     r.stops = stops;
     r.stops.len() >= 2
 }
 
-fn check_stops(route: &str, stop1: BusStopID, stop2: BusStopID, map: &Map) -> bool {
+fn check_stops(
+    route: &str,
+    constraints: PathConstraints,
+    stop1: BusStopID,
+    stop2: BusStopID,
+    map: &Map,
+) -> bool {
     let start = map.get_bs(stop1).driving_pos;
     let end = map.get_bs(stop2).driving_pos;
     if start.lane() == end.lane() && start.dist_along() > end.dist_along() {
@@ -199,7 +214,7 @@ fn check_stops(route: &str, stop1: BusStopID, stop2: BusStopID, map: &Map) -> bo
     map.pathfind(PathRequest {
         start,
         end,
-        constraints: PathConstraints::Bus,
+        constraints,
     })
     .is_some()
 }

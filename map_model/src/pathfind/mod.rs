@@ -173,6 +173,10 @@ impl Path {
         self.crossed_so_far / self.total_length
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.steps.is_empty()
+    }
+
     pub fn is_last_step(&self) -> bool {
         self.steps.len() == 1
     }
@@ -347,6 +351,7 @@ pub enum PathConstraints {
     Car,
     Bike,
     Bus,
+    Train,
 }
 
 impl PathConstraints {
@@ -357,6 +362,7 @@ impl PathConstraints {
             LaneType::Driving => PathConstraints::Car,
             LaneType::Biking => PathConstraints::Bike,
             LaneType::Bus => PathConstraints::Bus,
+            LaneType::LightRail => PathConstraints::Train,
             _ => panic!("PathConstraints::from_lt({:?}) doesn't make sense", lt),
         }
     }
@@ -380,6 +386,7 @@ impl PathConstraints {
                 }
             }
             PathConstraints::Bus => l.is_driving() || l.is_bus(),
+            PathConstraints::Train => l.is_light_rail(),
         }
     }
 
@@ -490,6 +497,7 @@ pub struct Pathfinder {
     car_graph: VehiclePathfinder,
     bike_graph: VehiclePathfinder,
     bus_graph: VehiclePathfinder,
+    train_graph: VehiclePathfinder,
     walking_graph: SidewalkPathfinder,
     // TODO Option just during initialization! Ewww.
     walking_with_transit_graph: Option<SidewalkPathfinder>,
@@ -511,6 +519,10 @@ impl Pathfinder {
         let bus_graph = VehiclePathfinder::new(map, PathConstraints::Bus, Some(&car_graph));
         timer.stop("prepare pathfinding for buses");
 
+        timer.start("prepare pathfinding for trains");
+        let train_graph = VehiclePathfinder::new(map, PathConstraints::Train, None);
+        timer.stop("prepare pathfinding for trains");
+
         timer.start("prepare pathfinding for pedestrians");
         let walking_graph = SidewalkPathfinder::new(map, false, &bus_graph);
         timer.stop("prepare pathfinding for pedestrians");
@@ -519,6 +531,7 @@ impl Pathfinder {
             car_graph,
             bike_graph,
             bus_graph,
+            train_graph,
             walking_graph,
             walking_with_transit_graph: None,
         }
@@ -596,6 +609,7 @@ impl Pathfinder {
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
+            PathConstraints::Train => self.train_graph.pathfind(&req, map).map(|(p, _)| p),
         }
     }
 
@@ -677,6 +691,7 @@ impl Pathfinder {
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
+            PathConstraints::Train => self.train_graph.pathfind(&req, map).map(|(p, _)| p),
         }?;
         interior_path.append(main_path, map);
         Some(interior_path)
@@ -761,6 +776,7 @@ impl Pathfinder {
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
+            PathConstraints::Train => self.train_graph.pathfind(&req, map).map(|(p, _)| p),
         }?;
         main_path.append(interior_path, map);
         main_path.end_dist = orig_end_dist;
@@ -791,6 +807,8 @@ impl Pathfinder {
         timer.start("apply edits to bus pathfinding");
         self.bus_graph.apply_edits(map);
         timer.stop("apply edits to bus pathfinding");
+
+        // Can't edit anything related to trains
 
         timer.start("apply edits to pedestrian pathfinding");
         self.walking_graph.apply_edits(map, &self.bus_graph);

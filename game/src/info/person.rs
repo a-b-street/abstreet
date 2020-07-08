@@ -496,7 +496,7 @@ fn header(
                     AgentID::Car(c) => match c.1 {
                         VehicleType::Car => ("driving", Some("system/assets/meters/car.svg")),
                         VehicleType::Bike => ("biking", Some("system/assets/meters/bike.svg")),
-                        VehicleType::Bus => unreachable!(),
+                        VehicleType::Bus | VehicleType::Train => unreachable!(),
                     },
                     AgentID::BusPassenger(_, _) => {
                         ("riding a bus", Some("system/assets/meters/bus.svg"))

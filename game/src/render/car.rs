@@ -194,6 +194,8 @@ fn thick_line_from_angle(
 fn zoomed_color_car(input: &DrawCarInput, cs: &ColorScheme) -> Color {
     if input.id.1 == VehicleType::Bus {
         cs.bus_body
+    } else if input.id.1 == VehicleType::Train {
+        cs.train_body
     } else {
         match input.status {
             CarStatus::Moving => cs.rotating_color_agents(input.id.0),

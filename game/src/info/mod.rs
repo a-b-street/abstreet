@@ -94,7 +94,7 @@ impl Tab {
                         p,
                         OpenTrip::single(app.primary.sim.agent_to_trip(AgentID::Car(c)).unwrap()),
                     )
-                } else if c.1 == VehicleType::Bus {
+                } else if c.1 == VehicleType::Bus || c.1 == VehicleType::Train {
                     Tab::BusStatus(c)
                 } else {
                     Tab::ParkedCar(c)

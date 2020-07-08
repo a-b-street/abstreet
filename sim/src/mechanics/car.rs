@@ -182,7 +182,9 @@ impl Car {
                 CarState::Idling(_, _) => CarStatus::Parked,
             },
             on: self.router.head(),
-            label: if self.vehicle.vehicle_type == VehicleType::Bus {
+            label: if self.vehicle.vehicle_type == VehicleType::Bus
+                || self.vehicle.vehicle_type == VehicleType::Train
+            {
                 Some(
                     map.get_br(transit.bus_route(self.vehicle.id))
                         .name

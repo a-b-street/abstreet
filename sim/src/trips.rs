@@ -1358,6 +1358,7 @@ impl TripMode {
                 VehicleType::Bike => TripMode::Bike,
                 // TODO Little confusing; this means buses, not bus riders.
                 VehicleType::Bus => TripMode::Transit,
+                VehicleType::Train => TripMode::Transit,
             },
             // TODO Now we can detangle this, right?
             AgentID::BusPassenger(_, _) => TripMode::Transit,
@@ -1406,7 +1407,8 @@ impl TripMode {
         match c {
             PathConstraints::Pedestrian => TripMode::Walk,
             PathConstraints::Bike => TripMode::Bike,
-            PathConstraints::Bus => TripMode::Transit,
+            // TODO The bijection breaks down... transit rider vs train vs bus...
+            PathConstraints::Bus | PathConstraints::Train => TripMode::Transit,
             PathConstraints::Car => TripMode::Drive,
         }
     }

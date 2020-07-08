@@ -118,7 +118,6 @@ fn make_vehicle_turns(
             lane_types.insert(lt);
         }
     }
-    lane_types.remove(&LaneType::LightRail);
     lane_types.remove(&LaneType::Parking);
     lane_types.remove(&LaneType::SharedLeftTurn);
     lane_types.remove(&LaneType::Construction);
@@ -637,9 +636,9 @@ fn get_sidewalk<'a>(lanes: &'a Vec<Lane>, children: &Vec<(LaneID, LaneType)>) ->
 }
 
 fn filter_vehicle_lanes(lanes: &Vec<(LaneID, LaneType)>, preferred: LaneType) -> Vec<LaneID> {
-    let preferred = filter_lanes(lanes, preferred);
-    if !preferred.is_empty() {
-        return preferred;
+    let list = filter_lanes(lanes, preferred);
+    if !list.is_empty() || preferred == LaneType::LightRail {
+        return list;
     }
     filter_lanes(lanes, LaneType::Driving)
 }

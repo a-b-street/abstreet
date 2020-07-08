@@ -419,7 +419,7 @@ impl ContextualActions for Actions {
                     }
                 }
                 ID::Car(c) => {
-                    if c.1 == VehicleType::Bus {
+                    if c.1 == VehicleType::Bus || c.1 == VehicleType::Train {
                         // TODO Hide the button if the layer is open
                         actions.push((Key::R, "show route".to_string()));
                     }

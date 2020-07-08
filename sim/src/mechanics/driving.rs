@@ -3,8 +3,8 @@ use crate::mechanics::Queue;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
     DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, PersonID, Scheduler,
-    TimeInterval, TransitSimState, TripManager, UnzoomedAgent, Vehicle, WalkingSimState,
-    FOLLOWING_DISTANCE,
+    TimeInterval, TransitSimState, TripManager, UnzoomedAgent, Vehicle, VehicleType,
+    WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Time};
@@ -503,10 +503,15 @@ impl DrivingSimState {
                             map,
                         );
                         car.total_blocked_time += now - blocked_since;
-                        car.state = CarState::Idling(
-                            our_dist,
-                            TimeInterval::new(now, now + TIME_TO_WAIT_AT_STOP),
-                        );
+                        // TODO Light rail routes are all disconnected. For now, just sit forever
+                        // after making one stop.
+                        let wait_at_stop = if car.vehicle.vehicle_type == VehicleType::Train {
+                            Duration::hours(24 * 30)
+                        } else {
+                            TIME_TO_WAIT_AT_STOP
+                        };
+                        car.state =
+                            CarState::Idling(our_dist, TimeInterval::new(now, now + wait_at_stop));
                         scheduler
                             .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
                         true

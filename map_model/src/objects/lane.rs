@@ -208,6 +208,10 @@ impl Lane {
         self.lane_type == LaneType::Parking
     }
 
+    pub fn is_light_rail(&self) -> bool {
+        self.lane_type == LaneType::LightRail
+    }
+
     // TODO Store this natively if this winds up being useful.
     pub fn get_directed_parent(&self, map: &Map) -> DirectedRoadID {
         let r = map.get_r(self.parent);

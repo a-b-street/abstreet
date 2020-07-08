@@ -64,6 +64,7 @@ impl fmt::Display for CarID {
         match self.1 {
             VehicleType::Car => write!(f, "Car #{}", self.0),
             VehicleType::Bus => write!(f, "Bus #{}", self.0),
+            VehicleType::Train => write!(f, "Train #{}", self.0),
             VehicleType::Bike => write!(f, "Bike #{}", self.0),
         }
     }
@@ -129,6 +130,7 @@ pub struct OrigPersonID(pub usize, pub usize);
 pub enum VehicleType {
     Car,
     Bus,
+    Train,
     Bike,
 }
 
@@ -137,6 +139,7 @@ impl fmt::Display for VehicleType {
         match self {
             VehicleType::Car => write!(f, "car"),
             VehicleType::Bus => write!(f, "bus"),
+            VehicleType::Train => write!(f, "train"),
             VehicleType::Bike => write!(f, "bike"),
         }
     }
@@ -147,6 +150,7 @@ impl VehicleType {
         match self {
             VehicleType::Car => PathConstraints::Car,
             VehicleType::Bus => PathConstraints::Bus,
+            VehicleType::Train => PathConstraints::Train,
             VehicleType::Bike => PathConstraints::Bike,
         }
     }
@@ -228,7 +232,9 @@ impl DrivingGoal {
                     let l = map.find_biking_lane_near_building(*b);
                     Position::new(l, map.get_l(l).length() / 2.0)
                 }
-                PathConstraints::Bus | PathConstraints::Pedestrian => unreachable!(),
+                PathConstraints::Bus | PathConstraints::Train | PathConstraints::Pedestrian => {
+                    unreachable!()
+                }
             },
             DrivingGoal::Border(_, l, _) => Position::end(*l, map),
         }

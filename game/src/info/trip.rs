@@ -61,7 +61,7 @@ pub fn ongoing(
         AgentID::Car(c) => match c.1 {
             VehicleType::Car => "driving",
             VehicleType::Bike => "biking",
-            VehicleType::Bus => unreachable!(),
+            VehicleType::Bus | VehicleType::Train => unreachable!(),
         },
         AgentID::BusPassenger(_, _) => "riding the bus",
     };

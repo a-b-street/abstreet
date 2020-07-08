@@ -77,13 +77,17 @@ impl BusRoutes {
         // TODO Sort first by length, then lexicographically
         routes.sort();
 
-        let mut col = vec![
+        let col = vec![
             DashTab::BusRoutes.picker(ctx, app),
             Line("Bus routes").small_heading().draw(ctx),
+            Widget::row(
+                routes
+                    .into_iter()
+                    .map(|r| Btn::text_fg(r).build_def(ctx, None).margin_below(10))
+                    .collect(),
+            )
+            .flex_wrap(ctx, 80),
         ];
-        for r in routes {
-            col.push(Btn::text_fg(r).build_def(ctx, None));
-        }
 
         Box::new(BusRoutes {
             composite: Composite::new(Widget::col(col))

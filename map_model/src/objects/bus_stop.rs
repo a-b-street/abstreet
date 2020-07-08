@@ -1,4 +1,4 @@
-use crate::{LaneID, Position};
+use crate::{LaneID, PathConstraints, Position};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -41,4 +41,5 @@ pub struct BusRoute {
     pub id: BusRouteID,
     pub name: String,
     pub stops: Vec<BusStopID>,
+    pub route_type: PathConstraints,
 }

@@ -465,6 +465,7 @@ impl AgentColorScheme {
             rows: vec![
                 ("Car".to_string(), cs.unzoomed_car.alpha(0.8), true),
                 ("Bike".to_string(), cs.unzoomed_bike.alpha(0.8), true),
+                // TODO Bus/Train? Separate category? Space in the minimap is at a premium
                 ("Bus".to_string(), cs.unzoomed_bus.alpha(0.8), true),
                 (
                     "Pedestrian".to_string(),
@@ -489,7 +490,7 @@ impl AgentColorScheme {
         let category = match agent.vehicle_type {
             Some(VehicleType::Car) => "Car".to_string(),
             Some(VehicleType::Bike) => "Bike".to_string(),
-            Some(VehicleType::Bus) => "Bus".to_string(),
+            Some(VehicleType::Bus) | Some(VehicleType::Train) => "Bus".to_string(),
             None => "Pedestrian".to_string(),
         };
         for (name, color, enabled) in &self.rows {

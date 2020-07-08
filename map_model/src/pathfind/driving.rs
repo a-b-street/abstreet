@@ -214,7 +214,7 @@ pub fn cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -
     // TODO Could cost turns differently.
 
     match constraints {
-        PathConstraints::Car => {
+        PathConstraints::Car | PathConstraints::Train => {
             // Prefer slightly longer route on faster roads
             let t1 = lane.length() / map.get_r(lane.parent).speed_limit;
             let t2 = turn.geom.length() / map.get_parent(turn.id.dst).speed_limit;

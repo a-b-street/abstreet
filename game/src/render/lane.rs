@@ -36,7 +36,7 @@ impl DrawLane {
 
         let mut draw = GeomBatch::new();
         let mut timer = Timer::throwaway();
-        if lane.lane_type != LaneType::LightRail {
+        if !lane.is_light_rail() {
             draw.push(
                 match lane.lane_type {
                     LaneType::Driving => app.cs.driving_lane,

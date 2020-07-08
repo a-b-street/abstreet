@@ -236,16 +236,21 @@ impl Sim {
         {
             // For now, no desire for randomness. Caller can pass in list of specs if that ever
             // changes.
+            let vehicle_type = match route.route_type {
+                PathConstraints::Bus => VehicleType::Bus,
+                PathConstraints::Train => VehicleType::Train,
+                _ => unreachable!(),
+            };
             let vehicle = VehicleSpec {
-                vehicle_type: VehicleType::Bus,
+                vehicle_type,
                 length: BUS_LENGTH,
                 max_speed: None,
             }
-            .make(CarID(self.trips.new_car_id(), VehicleType::Bus), None);
+            .make(CarID(self.trips.new_car_id(), vehicle_type), None);
             let id = vehicle.id;
 
             loop {
-                if path.is_last_step() {
+                if path.is_empty() {
                     timer.warn(format!(
                         "Giving up on seeding a bus headed towards stop {} of {} ({})",
                         next_stop_idx, route.name, route.id
@@ -939,7 +944,7 @@ impl Sim {
     }
 
     pub fn bus_route_id(&self, maybe_bus: CarID) -> Option<BusRouteID> {
-        if maybe_bus.1 == VehicleType::Bus {
+        if maybe_bus.1 == VehicleType::Bus || maybe_bus.1 == VehicleType::Train {
             Some(self.transit.bus_route(maybe_bus))
         } else {
             None
@@ -1003,7 +1008,12 @@ impl Sim {
     }
 
     pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {
-        for vt in &[VehicleType::Car, VehicleType::Bike, VehicleType::Bus] {
+        for vt in &[
+            VehicleType::Car,
+            VehicleType::Bike,
+            VehicleType::Bus,
+            VehicleType::Train,
+        ] {
             let id = CarID(idx, *vt);
             if self.driving.does_car_exist(id) {
                 return Some(id);

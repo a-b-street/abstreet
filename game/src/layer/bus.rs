@@ -6,7 +6,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D, Time};
-use map_model::{BusRouteID, PathConstraints, PathRequest, PathStep};
+use map_model::{BusRouteID, PathRequest, PathStep};
 
 pub struct BusNetwork {
     composite: Composite,
@@ -79,17 +79,15 @@ impl BusNetwork {
         if show_all_routes {
             for br in map.all_bus_routes() {
                 for (bs1, bs2) in loop_pairs(&br.stops) {
-                    for step in map
-                        .pathfind(PathRequest {
-                            start: map.get_bs(bs1).driving_pos,
-                            end: map.get_bs(bs2).driving_pos,
-                            constraints: PathConstraints::Bus,
-                        })
-                        .unwrap()
-                        .get_steps()
-                    {
-                        if let PathStep::Lane(l) = step {
-                            colorer.add_l(*l, "bus routes");
+                    if let Some(path) = map.pathfind(PathRequest {
+                        start: map.get_bs(bs1).driving_pos,
+                        end: map.get_bs(bs2).driving_pos,
+                        constraints: br.route_type,
+                    }) {
+                        for step in path.get_steps() {
+                            if let PathStep::Lane(l) = step {
+                                colorer.add_l(*l, "bus routes");
+                            }
                         }
                     }
                 }
@@ -210,7 +208,7 @@ impl ShowBusRoute {
                 .pathfind(PathRequest {
                     start: bs1.driving_pos,
                     end: bs2.driving_pos,
-                    constraints: PathConstraints::Bus,
+                    constraints: route.route_type,
                 })
                 .unwrap()
                 .get_steps()

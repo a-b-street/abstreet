@@ -85,53 +85,63 @@ impl TransitSimState {
     ) -> Vec<(StopIdx, PathRequest, Path, Distance)> {
         assert!(bus_route.stops.len() > 1);
 
-        let route = Route {
-            buses: Vec::new(),
-            stops: bus_route
-                .stops
-                .iter()
-                .enumerate()
-                .map(|(idx, stop1_id)| {
-                    let stop1 = map.get_bs(*stop1_id);
-                    let stop2_idx = if idx + 1 == bus_route.stops.len() {
-                        0
-                    } else {
-                        idx + 1
-                    };
-                    let req = PathRequest {
-                        start: stop1.driving_pos,
-                        end: map.get_bs(bus_route.stops[stop2_idx]).driving_pos,
-                        constraints: PathConstraints::Bus,
-                    };
-                    let path = map.pathfind(req.clone()).expect(&format!(
+        let mut stops = Vec::new();
+        for (idx, stop1_id) in bus_route.stops.iter().enumerate() {
+            let stop1 = map.get_bs(*stop1_id);
+            let stop2_idx = if idx + 1 == bus_route.stops.len() {
+                0
+            } else {
+                idx + 1
+            };
+            let req = PathRequest {
+                start: stop1.driving_pos,
+                end: map.get_bs(bus_route.stops[stop2_idx]).driving_pos,
+                constraints: bus_route.route_type,
+            };
+            if let Some(path) = map.pathfind(req.clone()) {
+                stops.push(StopForRoute {
+                    id: *stop1_id,
+                    driving_pos: stop1.driving_pos,
+                    req,
+                    path_to_next_stop: path,
+                    next_stop_idx: stop2_idx,
+                });
+            } else {
+                // TODO Temporarily tolerate this
+                if bus_route.route_type == PathConstraints::Train {
+                    println!(
                         "No route between bus stops {:?} and {:?}",
                         stop1_id, bus_route.stops[stop2_idx]
-                    ));
-                    StopForRoute {
-                        id: *stop1_id,
-                        driving_pos: stop1.driving_pos,
-                        req,
-                        path_to_next_stop: path,
-                        next_stop_idx: stop2_idx,
-                    }
-                })
-                .collect(),
-        };
-
-        let stops = route
-            .stops
+                    );
+                    return Vec::new();
+                } else {
+                    panic!(
+                        "No route between bus stops {:?} and {:?}",
+                        stop1_id, bus_route.stops[stop2_idx]
+                    );
+                }
+            }
+        }
+        let results = stops
             .iter()
             .map(|s| {
                 (
                     s.next_stop_idx,
                     s.req.clone(),
                     s.path_to_next_stop.clone(),
-                    route.stops[s.next_stop_idx].driving_pos.dist_along(),
+                    stops[s.next_stop_idx].driving_pos.dist_along(),
                 )
             })
             .collect();
-        self.routes.insert(bus_route.id, route);
-        stops
+
+        self.routes.insert(
+            bus_route.id,
+            Route {
+                buses: Vec::new(),
+                stops,
+            },
+        );
+        results
     }
 
     pub fn bus_created(&mut self, bus: CarID, route: BusRouteID, next_stop_idx: StopIdx) {
@@ -194,7 +204,7 @@ impl TransitSimState {
                             Some(PathRequest {
                                 start: map.get_bs(stop1).driving_pos,
                                 end: map.get_bs(stop2).driving_pos,
-                                constraints: PathConstraints::Bus,
+                                constraints: bus.car.1.to_constraints(),
                             }),
                             TripPhaseType::RidingBus(route, stop1, bus.car),
                         ));
@@ -256,7 +266,7 @@ impl TransitSimState {
                             Some(PathRequest {
                                 start: map.get_bs(stop1).driving_pos,
                                 end: map.get_bs(stop2).driving_pos,
-                                constraints: PathConstraints::Bus,
+                                constraints: bus.1.to_constraints(),
                             }),
                             TripPhaseType::RidingBus(route_id, stop1, *bus),
                         ));
