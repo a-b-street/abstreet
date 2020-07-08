@@ -5,6 +5,8 @@ use std::{fmt, iter};
 
 // (original direction, reversed direction)
 pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Vec<LaneType>) {
+    let tags = Tags(osm_tags);
+
     if let Some(s) = osm_tags.get(osm::SYNTHETIC_LANES) {
         if let Some(spec) = RoadSpec::parse(s.to_string()) {
             return (spec.fwd, spec.back);
@@ -14,19 +16,21 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     }
 
     // Easy special cases first.
-    if osm_tags.get("railway") == Some(&"light_rail".to_string()) {
+    if tags.is("railway", "light_rail") {
         return (vec![LaneType::LightRail], Vec::new());
     }
-    if osm_tags.get("junction") == Some(&"roundabout".to_string()) {
+    if tags.is("junction", "roundabout") {
+        if tags.is(osm::SIDEWALK, "no") || tags.is(osm::SIDEWALK, "none") || tags.is("foot", "no") {
+            return (vec![LaneType::Driving], Vec::new());
+        }
         return (vec![LaneType::Driving, LaneType::Sidewalk], Vec::new());
     }
-    if osm_tags.get(osm::HIGHWAY) == Some(&"footway".to_string()) {
+    if tags.is(osm::HIGHWAY, "footway") {
         return (vec![LaneType::Sidewalk], Vec::new());
     }
 
     // TODO Reversible roads should be handled differently?
-    let oneway = osm_tags.get("oneway") == Some(&"yes".to_string())
-        || osm_tags.get("oneway") == Some(&"reversible".to_string());
+    let oneway = tags.is("oneway", "yes") || tags.is("oneway", "reversible");
 
     // How many driving lanes in each direction?
     let num_driving_fwd = if let Some(n) = osm_tags
@@ -77,13 +81,9 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     };
 
     // Sup West Seattle
-    let driving_lane = if osm_tags.get("access") == Some(&"no".to_string())
-        && osm_tags.get("bus") == Some(&"yes".to_string())
-    {
+    let driving_lane = if tags.is("access", "no") && tags.is("bus", "yes") {
         LaneType::Bus
-    } else if osm_tags.get("access") == Some(&"no".to_string())
-        || osm_tags.get("highway") == Some(&"construction".to_string())
-    {
+    } else if tags.is("access", "no") || tags.is("highway", "construction") {
         LaneType::Construction
     } else {
         LaneType::Driving
@@ -92,9 +92,7 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     let mut fwd_side: Vec<LaneType> = iter::repeat(driving_lane).take(num_driving_fwd).collect();
     let mut back_side: Vec<LaneType> = iter::repeat(driving_lane).take(num_driving_back).collect();
     // TODO Fix upstream. https://wiki.openstreetmap.org/wiki/Key:centre_turn_lane
-    if osm_tags.get("lanes:both_ways") == Some(&"1".to_string())
-        || osm_tags.get("centre_turn_lane") == Some(&"yes".to_string())
-    {
+    if tags.is("lanes:both_ways", "1") || tags.is("centre_turn_lane", "yes") {
         fwd_side.insert(0, LaneType::SharedLeftTurn);
     }
 
@@ -113,24 +111,24 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         }
     }
 
-    if osm_tags.get("cycleway") == Some(&"lane".to_string()) {
+    if tags.is("cycleway", "lane") {
         fwd_side.push(LaneType::Biking);
         if !back_side.is_empty() {
             back_side.push(LaneType::Biking);
         }
     } else {
-        if osm_tags.get("cycleway:right") == Some(&"lane".to_string()) {
+        if tags.is("cycleway:right", "lane") {
             fwd_side.push(LaneType::Biking);
         }
-        if osm_tags.get("cycleway:left") == Some(&"lane".to_string())
-            || osm_tags.get("cycleway:left") == Some(&"opposite_lane".to_string())
-            || osm_tags.get("cycleway") == Some(&"opposite_lane".to_string())
+        if tags.is("cycleway:left", "lane")
+            || tags.is("cycleway:left", "opposite_lane")
+            || tags.is("cycleway", "opposite_lane")
         {
             back_side.push(LaneType::Biking);
         }
 
         // Cycleway isn't explicitly specified, but this is a reasonable assumption anyway.
-        if back_side.is_empty() && osm_tags.get("oneway:bicycle") == Some(&"no".to_string()) {
+        if back_side.is_empty() && tags.is("oneway:bicycle", "no") {
             back_side.push(LaneType::Biking);
         }
     }
@@ -154,18 +152,25 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     }
 
     // TODO Need to snap separate sidewalks to ways. Until then, just do this.
-    if osm_tags.get(osm::SIDEWALK) == Some(&"both".to_string())
-        || osm_tags.get(osm::SIDEWALK) == Some(&"separate".to_string())
-    {
+    if tags.is(osm::SIDEWALK, "both") || tags.is(osm::SIDEWALK, "separate") {
         fwd_side.push(LaneType::Sidewalk);
         back_side.push(LaneType::Sidewalk);
-    } else if osm_tags.get(osm::SIDEWALK) == Some(&"right".to_string()) {
+    } else if tags.is(osm::SIDEWALK, "right") {
         fwd_side.push(LaneType::Sidewalk);
-    } else if osm_tags.get(osm::SIDEWALK) == Some(&"left".to_string()) {
+    } else if tags.is(osm::SIDEWALK, "left") {
         back_side.push(LaneType::Sidewalk);
     }
 
     (fwd_side, back_side)
+}
+
+// TODO Figure out Rust strings; there's maybe a less verbose way than the old
+// osm_tags.get("cycleway:right") == Some(&"lane".to_string()) mess.
+struct Tags<'a>(&'a BTreeMap<String, String>);
+impl<'a> Tags<'a> {
+    fn is(&self, k: &str, v: &str) -> bool {
+        self.0.get(k) == Some(&v.to_string())
+    }
 }
 
 // This is a convenient way for map_editor to plumb instructions here.
