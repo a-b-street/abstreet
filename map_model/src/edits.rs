@@ -166,17 +166,17 @@ impl MapEdits {
 
     // Assumes update_derived has been called.
     fn compress(&mut self, map: &Map) {
+        for l in &self.reversed_lanes {
+            self.commands.push(EditCmd::ReverseLane {
+                l: *l,
+                dst_i: map.get_l(*l).dst_i,
+            });
+        }
         for (l, orig_lt) in &self.original_lts {
             self.commands.push(EditCmd::ChangeLaneType {
                 id: *l,
                 lt: map.get_l(*l).lane_type,
                 orig_lt: *orig_lt,
-            });
-        }
-        for l in &self.reversed_lanes {
-            self.commands.push(EditCmd::ReverseLane {
-                l: *l,
-                dst_i: map.get_l(*l).dst_i,
             });
         }
         for (i, old) in &self.original_intersections {
@@ -348,8 +348,14 @@ impl PermanentMapEdits {
                 .map(|cmd| match cmd {
                     PermanentEditCmd::ChangeLaneType { id, lt, orig_lt } => {
                         let l = id.clone().from_permanent(map)?;
-                        if map.get_l(l).lane_type != orig_lt {
-                            return Err(format!("basemap lanetype of {:?} has changed", id));
+                        // This validation doesn't need previous commands to be applied, because
+                        // compress() creates only one ChangeLaneType per lane.
+                        let now = map.get_l(l).lane_type;
+                        if now != orig_lt {
+                            return Err(format!(
+                                "basemap lanetype of {:?} has changed from {:?} to {:?}",
+                                id, orig_lt, now
+                            ));
                         }
                         Ok(EditCmd::ChangeLaneType { id: l, lt, orig_lt })
                     }
@@ -469,6 +475,11 @@ impl OriginalLane {
         }
     }
 
+    // TODO Will fail unless we apply ReverseLane's as we convert PermanentMapEdits.
+    // - Could make an indexing scheme that refers to lanes from one side or the other and ignores
+    //   fwd/back.
+    // - Some validation happens in the lane editor, not even here.
+    // - Is it inevitable? Maybe we need to apply edits as we convert.
     pub fn from_permanent(self, map: &Map) -> Result<LaneID, String> {
         let r = map.get_r(map.find_r_by_osm_id(
             self.parent.osm_way_id,

@@ -398,9 +398,13 @@ fn make_load_edits(app: &App, mode: GameplayMode) -> Box<dyn State> {
                         abstutil::path("system/proposals"),
                     ))
                     .filter_map(|(path, perma)| {
-                        PermanentMapEdits::from_permanent(perma, &app.primary.map)
-                            .map(|edits| (path, edits))
-                            .ok()
+                        match PermanentMapEdits::from_permanent(perma, &app.primary.map) {
+                            Ok(edits) => Some((path, edits)),
+                            Err(err) => {
+                                println!("{} is corrupted: {}", path, err);
+                                None
+                            }
+                        }
                     })
                     .filter(|(_, edits)| {
                         mode.allows(edits) && edits.edits_name != current_edits_name
