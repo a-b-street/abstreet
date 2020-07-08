@@ -5,7 +5,7 @@ use crate::{
     ParkingLotID, Position, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
 };
 use abstutil::Timer;
-use geom::{Angle, Distance, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
+use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
 use std::collections::{BTreeMap, HashSet};
 
 pub fn make_all_buildings(
@@ -211,13 +211,24 @@ pub fn make_all_parking_lots(
         input.len() - results.len()
     ));
 
-    // Brute force for now
+    let mut closest: FindClosest<ParkingLotID> = FindClosest::new(map.get_bounds());
+    for lot in &results {
+        closest.add(lot.id, lot.polygon.points());
+    }
     timer.start_iter("match parking aisles", aisles.len());
     for pts in aisles {
         timer.next();
+        // Use any point from the aisle to match it to a lot
+        let candidates: Vec<ParkingLotID> = closest
+            .all_close_pts(pts[0], Distance::meters(500.0))
+            .into_iter()
+            .map(|(id, _, _)| id)
+            .collect();
+
         let (polylines, rings) = Ring::split_points(pts);
         'PL: for pl in polylines {
-            for lot in results.iter_mut() {
+            for id in &candidates {
+                let lot = &mut results[id.0];
                 for segment in lot.polygon.clip_polyline(&pl) {
                     lot.aisles.push(segment);
                     continue 'PL;
@@ -225,7 +236,8 @@ pub fn make_all_parking_lots(
             }
         }
         'RING: for ring in rings {
-            for lot in results.iter_mut() {
+            for id in &candidates {
+                let lot = &mut results[id.0];
                 for segment in lot.polygon.clip_ring(&ring) {
                     lot.aisles.push(segment);
                     continue 'RING;
