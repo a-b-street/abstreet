@@ -63,7 +63,7 @@ pub fn intersection_polygon(
     });
 
     if lines.len() == 1 {
-        deadend(roads, i.id, &lines, timer)
+        deadend(driving_side, roads, i.id, &lines, timer)
     } else {
         generalized_trim_back(driving_side, roads, i.id, &lines, timer)
     }
@@ -358,6 +358,7 @@ fn generalized_trim_back(
 }
 
 fn deadend(
+    driving_side: DrivingSide,
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: OriginalIntersection,
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
@@ -366,9 +367,7 @@ fn deadend(
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
 
     let (id, _, pl_a, pl_b) = &lines[0];
-    let pt1 = pl_a.reversed().safe_dist_along(len).map(|(pt, _)| pt);
-    let pt2 = pl_b.reversed().safe_dist_along(len).map(|(pt, _)| pt);
-    if let (Some(pt1), Some(pt2)) = (pt1, pt2) {
+    if pl_a.length() > len && pl_b.length() > len {
         let r = roads.get_mut(&id).unwrap();
         if r.trimmed_center_pts.length() >= len + 3.0 * geom::EPSILON_DIST {
             if r.src_i == i {
@@ -381,10 +380,39 @@ fn deadend(
                     .exact_slice(Distance::ZERO, r.trimmed_center_pts.length() - len);
             }
 
-            return (
-                close_off_polygon(vec![pt1, pt2, pl_b.last_pt(), pl_a.last_pt()]),
-                Vec::new(),
-            );
+            // After trimming the center points, the two sides of the road may be at different
+            // points, so shift the center out again to find the endpoints.
+            // TODO Refactor with generalized_trim_back.
+            let mut endpts = vec![pl_b.last_pt(), pl_a.last_pt()];
+            if r.dst_i == i {
+                endpts.push(
+                    driving_side
+                        .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                        .with_context(timer, format!("main polygon endpoints from {}", r.id))
+                        .last_pt(),
+                );
+                endpts.push(
+                    driving_side
+                        .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                        .with_context(timer, format!("main polygon endpoints from {}", r.id))
+                        .last_pt(),
+                );
+            } else {
+                endpts.push(
+                    driving_side
+                        .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                        .with_context(timer, format!("main polygon endpoints from {}", r.id))
+                        .first_pt(),
+                );
+                endpts.push(
+                    driving_side
+                        .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                        .with_context(timer, format!("main polygon endpoints from {}", r.id))
+                        .first_pt(),
+                );
+            }
+
+            return (close_off_polygon(endpts), Vec::new());
         }
     }
 
