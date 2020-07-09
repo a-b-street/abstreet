@@ -112,6 +112,9 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         if !back_side.is_empty() {
             back_side.push(LaneType::Biking);
         }
+    } else if tags.is("cycleway:both", "lane") {
+        fwd_side.push(LaneType::Biking);
+        back_side.push(LaneType::Biking);
     } else {
         if tags.is("cycleway:right", "lane") {
             fwd_side.push(LaneType::Biking);
