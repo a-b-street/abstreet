@@ -19,37 +19,46 @@ impl Map {
                     if false {
                         use abstutil::{prettyprint_usize, serialized_size_bytes};
                         println!(
-                            "- roads: {} bytes",
+                            "- {} roads: {} bytes",
+                            prettyprint_usize(map.roads.len()),
                             prettyprint_usize(serialized_size_bytes(&map.roads))
                         );
                         println!(
-                            "- lanes: {} bytes",
+                            "- {} lanes: {} bytes",
+                            prettyprint_usize(map.lanes.len()),
                             prettyprint_usize(serialized_size_bytes(&map.lanes))
                         );
                         println!(
-                            "- intersections: {} bytes",
+                            "- {} intersections: {} bytes",
+                            prettyprint_usize(map.intersections.len()),
                             prettyprint_usize(serialized_size_bytes(&map.intersections))
                         );
                         println!(
-                            "- turns: {} bytes",
+                            "- {} turns: {} bytes",
+                            prettyprint_usize(map.turns.len()),
                             prettyprint_usize(serialized_size_bytes(&map.turns))
                         );
                         println!(
-                            "- buildings: {} bytes",
+                            "- {} buildings: {} bytes",
+                            prettyprint_usize(map.buildings.len()),
                             prettyprint_usize(serialized_size_bytes(&map.buildings))
                         );
                         println!(
-                            "- areas: {} bytes",
+                            "- {} areas: {} bytes",
+                            prettyprint_usize(map.areas.len()),
                             prettyprint_usize(serialized_size_bytes(&map.areas))
                         );
                         println!(
-                            "- parking lots: {} bytes",
+                            "- {} parking lots: {} bytes",
+                            prettyprint_usize(map.parking_lots.len()),
                             prettyprint_usize(serialized_size_bytes(&map.parking_lots))
                         );
                         println!(
-                            "- zones: {} bytes",
+                            "- {} zones: {} bytes",
+                            prettyprint_usize(map.zones.len()),
                             prettyprint_usize(serialized_size_bytes(&map.zones))
                         );
+                        // This is the partridge in the pear tree, I suppose
                         println!(
                             "- pathfinder: {} bytes",
                             prettyprint_usize(serialized_size_bytes(&map.pathfinder))

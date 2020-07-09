@@ -12,7 +12,7 @@ use ezgui::{
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use instant::Instant;
-use map_model::{Map, PermanentMapEdits};
+use map_model::PermanentMapEdits;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use sim::ScenarioGenerator;
@@ -24,11 +24,13 @@ pub struct TitleScreen {
     rng: XorShiftRng,
 }
 
-const MULTIPLIER: f64 = 3.0;
-
 impl TitleScreen {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> TitleScreen {
         let mut rng = app.primary.current_flags.sim_flags.make_rng();
+        let mut timer = Timer::new("screensaver traffic");
+        ScenarioGenerator::small_run(&app.primary.map)
+            .generate(&app.primary.map, &mut rng, &mut timer)
+            .instantiate(&mut app.primary.sim, &app.primary.map, &mut rng, &mut timer);
 
         TitleScreen {
             composite: Composite::new(
@@ -48,7 +50,7 @@ impl TitleScreen {
                 .centered(),
             )
             .build_custom(ctx),
-            screensaver: Screensaver::start_bounce(&mut rng, ctx, app),
+            screensaver: Screensaver::bounce(ctx, app, &mut rng),
             rng,
         }
     }
@@ -483,12 +485,7 @@ struct Screensaver {
 }
 
 impl Screensaver {
-    fn start_bounce(rng: &mut XorShiftRng, ctx: &mut EventCtx, app: &mut App) -> Screensaver {
-        let scenario_generator = ScenarioGenerator::small_run(&app.primary.map);
-        let mut timer = Timer::new("screensaver start timer");
-        let scenario = scenario_generator.generate(&app.primary.map, rng, &mut timer);
-        scenario.instantiate(&mut app.primary.sim, &app.primary.map, rng, &mut timer);
-
+    fn bounce(ctx: &mut EventCtx, app: &mut App, rng: &mut XorShiftRng) -> Screensaver {
         let at = ctx.canvas.center_to_map_pt();
         let bounds = app.primary.map.get_bounds();
         // TODO Ideally bounce off the edge of the map
@@ -496,7 +493,6 @@ impl Screensaver {
             rng.gen_range(0.0, bounds.max_x),
             rng.gen_range(0.0, bounds.max_y),
         );
-
         ctx.canvas.cam_zoom = 10.0;
         ctx.canvas.center_on_map_pt(at);
 
@@ -507,6 +503,8 @@ impl Screensaver {
     }
 
     fn update(&mut self, rng: &mut XorShiftRng, ctx: &mut EventCtx, app: &mut App) {
+        const SCREENSAVER_SPEED: f64 = 3.0;
+
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             ctx.input.use_update_event();
             let dist_along = Duration::realtime_elapsed(self.started) * SPEED;
@@ -514,11 +512,11 @@ impl Screensaver {
                 ctx.canvas
                     .center_on_map_pt(self.line.dist_along(dist_along));
             } else {
-                *self = Screensaver::start_bounce(rng, ctx, app);
+                *self = Screensaver::bounce(ctx, app, rng);
             }
             app.primary.sim.time_limited_step(
                 &app.primary.map,
-                MULTIPLIER * dt,
+                SCREENSAVER_SPEED * dt,
                 Duration::seconds(0.033),
                 &mut app.primary.sim_cb,
             );
