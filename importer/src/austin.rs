@@ -22,16 +22,16 @@ pub fn osm_to_raw(name: &str) {
             city_name: "austin".to_string(),
             name: name.to_string(),
 
-            parking_shapes: None,
-            public_offstreet_parking: None,
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
-            sidewalks: None,
-            elevation: None,
             clip: Some(abstutil::path(format!(
                 "input/austin/polygons/{}.poly",
                 name
             ))),
             drive_on_right: true,
+
+            onstreet_parking: convert_osm::OnstreetParking::JustOSM,
+            public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
+            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
+            elevation: None,
         },
         &mut abstutil::Timer::throwaway(),
     );

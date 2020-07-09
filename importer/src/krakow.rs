@@ -22,16 +22,16 @@ pub fn osm_to_raw(name: &str) {
             city_name: "krakow".to_string(),
             name: name.to_string(),
 
-            parking_shapes: None,
-            public_offstreet_parking: None,
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
-            sidewalks: None,
-            elevation: None,
             clip: Some(abstutil::path(format!(
                 "input/krakow/polygons/{}.poly",
                 name
             ))),
             drive_on_right: true,
+
+            onstreet_parking: convert_osm::OnstreetParking::SomeResidential { pct: 50 },
+            public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
+            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
+            elevation: None,
         },
         &mut abstutil::Timer::throwaway(),
     );

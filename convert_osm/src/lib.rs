@@ -17,13 +17,41 @@ pub struct Options {
     pub city_name: String,
     pub name: String,
 
-    pub parking_shapes: Option<String>,
-    pub public_offstreet_parking: Option<String>,
-    pub private_offstreet_parking: PrivateOffstreetParking,
-    pub sidewalks: Option<String>,
-    pub elevation: Option<String>,
+    // The path to an osmosis boundary polygon. Highly recommended.
     pub clip: Option<String>,
     pub drive_on_right: bool,
+
+    pub onstreet_parking: OnstreetParking,
+    pub public_offstreet_parking: PublicOffstreetParking,
+    pub private_offstreet_parking: PrivateOffstreetParking,
+    // If provided, pull elevation data from this SRTM file. The SRTM parser is incorrect, so the
+    // results will be nonsense.
+    pub elevation: Option<String>,
+}
+
+// What roads will have on-street parking lanes? Data from
+// https://wiki.openstreetmap.org/wiki/Key:parking:lane is always used if available.
+pub enum OnstreetParking {
+    // If not tagged, there won't be parking.
+    JustOSM,
+    // If OSM data is missing, then try to match data from
+    // http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface. This is Seattle specific.
+    Blockface(String),
+    // If OSM data is missing, then infer parking lanes on some percentage of
+    // "highway=residential" roads.
+    SomeResidential {
+        // [0, 100]
+        pct: usize,
+    },
+}
+
+// How many spots are available in public parking garages?
+pub enum PublicOffstreetParking {
+    None,
+    // Pull data from
+    // https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots, a
+    // Seattle-specific data source.
+    GIS(String),
 }
 
 // If a building doesn't have anything from public_offstreet_parking, how many private spots should
@@ -57,16 +85,37 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
 
     use_amenities(&mut map, amenities, timer);
 
-    if let Some(ref path) = opts.parking_shapes {
-        use_parking_hints(&mut map, path.clone(), timer);
+    match opts.onstreet_parking {
+        OnstreetParking::JustOSM => {}
+        OnstreetParking::Blockface(ref path) => {
+            use_parking_hints(&mut map, path.clone(), timer);
+        }
+        OnstreetParking::SomeResidential { pct } => {
+            let pct = pct as i64;
+            for (id, r) in map.roads.iter_mut() {
+                if r.osm_tags.contains_key(osm::INFERRED_PARKING)
+                    && r.osm_tags.get(osm::HIGHWAY) == Some(&"residential".to_string())
+                    && id.osm_way_id % 100 <= pct
+                {
+                    if r.osm_tags.get("oneway") == Some(&"yes".to_string()) {
+                        r.osm_tags.remove(osm::PARKING_BOTH);
+                        r.osm_tags
+                            .insert(osm::PARKING_RIGHT.to_string(), "parallel".to_string());
+                    } else {
+                        r.osm_tags
+                            .insert(osm::PARKING_BOTH.to_string(), "parallel".to_string());
+                    }
+                }
+            }
+        }
     }
-    if let Some(ref path) = opts.public_offstreet_parking {
-        use_offstreet_parking(&mut map, path.clone(), timer);
+    match opts.public_offstreet_parking {
+        PublicOffstreetParking::None => {}
+        PublicOffstreetParking::GIS(ref path) => {
+            use_offstreet_parking(&mut map, path.clone(), timer);
+        }
     }
     apply_private_offstreet_parking(&mut map, opts.private_offstreet_parking);
-    if let Some(ref path) = opts.sidewalks {
-        use_sidewalk_hints(&mut map, path.clone(), timer);
-    }
     if let Some(ref path) = opts.elevation {
         use_elevation(&mut map, path, timer);
     }
@@ -235,88 +284,6 @@ fn apply_private_offstreet_parking(map: &mut RawMap, policy: PrivateOffstreetPar
             }
         }
     }
-}
-
-fn use_sidewalk_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
-    timer.start("apply sidewalk hints");
-    let shapes: ExtraShapes = abstutil::read_binary(path, timer);
-
-    // Match shapes with the nearest road + direction (true for forwards)
-    let mut closest: FindClosest<(OriginalRoad, bool)> =
-        FindClosest::new(&map.gps_bounds.to_bounds());
-    for (id, r) in &map.roads {
-        if r.is_light_rail() {
-            continue;
-        }
-        let center = PolyLine::new(r.center_points.clone());
-        closest.add(
-            (*id, true),
-            map.driving_side
-                .right_shift(center.clone(), DIRECTED_ROAD_THICKNESS)
-                .get(timer)
-                .points(),
-        );
-        closest.add(
-            (*id, false),
-            map.driving_side
-                .left_shift(center, DIRECTED_ROAD_THICKNESS)
-                .get(timer)
-                .points(),
-        );
-    }
-
-    for s in shapes.shapes.into_iter() {
-        let pts = if let Some(pts) = map.gps_bounds.try_convert(&s.points) {
-            pts
-        } else {
-            continue;
-        };
-        if pts.len() <= 1 {
-            continue;
-        }
-        // The endpoints will be close to other roads, so match based on the middle of the
-        // blockface.
-        // TODO Long lines sometimes cover two roads. Should maybe find ALL matches within the
-        // threshold distance?
-        if let Some(middle) = PolyLine::maybe_new(pts).map(|pl| pl.middle()) {
-            if let Some(((r, fwds), _)) = closest.closest_pt(middle, DIRECTED_ROAD_THICKNESS * 5.0)
-            {
-                let osm_tags = &mut map.roads.get_mut(&r).unwrap().osm_tags;
-
-                // Skip if the road already has this mapped.
-                if !osm_tags.contains_key(osm::INFERRED_SIDEWALKS) {
-                    continue;
-                }
-
-                let definitely_no_sidewalks = match osm_tags.get(osm::HIGHWAY) {
-                    Some(hwy) => hwy == "motorway" || hwy == "motorway_link",
-                    None => false,
-                };
-                if definitely_no_sidewalks {
-                    timer.warn(format!(
-                        "Sidewalks shapefile says there's something along motorway {}, ignoring",
-                        r
-                    ));
-                    continue;
-                }
-
-                if fwds {
-                    if osm_tags.get(osm::SIDEWALK) == Some(&"left".to_string()) {
-                        osm_tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
-                    } else {
-                        osm_tags.insert(osm::SIDEWALK.to_string(), "right".to_string());
-                    }
-                } else {
-                    if osm_tags.get(osm::SIDEWALK) == Some(&"right".to_string()) {
-                        osm_tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
-                    } else {
-                        osm_tags.insert(osm::SIDEWALK.to_string(), "left".to_string());
-                    }
-                }
-            }
-        }
-    }
-    timer.stop("apply sidewalk hints");
 }
 
 fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, String, String)>, timer: &mut Timer) {

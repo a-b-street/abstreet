@@ -22,12 +22,7 @@ fn input() {
         "input/seattle/blockface.bin",
         "https://opendata.arcgis.com/datasets/a1458ad1abca41869b81f7c0db0cd777_0.kml",
     );
-    // From https://data-seattlecitygis.opendata.arcgis.com/datasets/sidewalks
-    download(
-        "input/seattle/sidewalks.bin",
-        "https://opendata.arcgis.com/datasets/ee6d0642d2a04e35892d0eab77d971d6_2.kml",
-    );
-    // From https://data.seattle.gov/Transportation/Public-Garages-or-Parking-Lots/xefx-khzm
+    // From https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots
     download("input/seattle/offstreet_parking.bin", "http://data-seattlecitygis.opendata.arcgis.com/datasets/8e52dfde6d5d45948f7a90654c8d50cd_0.kml");
 }
 
@@ -46,8 +41,18 @@ pub fn osm_to_raw(name: &str) {
             city_name: "seattle".to_string(),
             name: name.to_string(),
 
-            parking_shapes: Some(abstutil::path("input/seattle/blockface.bin")),
-            public_offstreet_parking: Some(abstutil::path("input/seattle/offstreet_parking.bin")),
+            clip: Some(abstutil::path(format!(
+                "input/seattle/polygons/{}.poly",
+                name
+            ))),
+            drive_on_right: true,
+
+            onstreet_parking: convert_osm::OnstreetParking::Blockface(abstutil::path(
+                "input/seattle/blockface.bin",
+            )),
+            public_offstreet_parking: convert_osm::PublicOffstreetParking::GIS(abstutil::path(
+                "input/seattle/offstreet_parking.bin",
+            )),
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(
                 // TODO Utter guesses
                 match name {
@@ -57,14 +62,7 @@ pub fn osm_to_raw(name: &str) {
                     _ => 1,
                 },
             ),
-            // TODO These're buggy.
-            sidewalks: None,
             elevation: Some(abstutil::path("input/seattle/N47W122.hgt")),
-            clip: Some(abstutil::path(format!(
-                "input/seattle/polygons/{}.poly",
-                name
-            ))),
-            drive_on_right: true,
         },
         &mut abstutil::Timer::throwaway(),
     );

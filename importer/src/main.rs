@@ -161,13 +161,13 @@ fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool) {
             city_name: "oneshot".to_string(),
             name: name.clone(),
 
-            parking_shapes: None,
-            public_offstreet_parking: None,
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
-            sidewalks: None,
-            elevation: None,
             clip,
             drive_on_right,
+
+            onstreet_parking: convert_osm::OnstreetParking::JustOSM,
+            public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
+            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
+            elevation: None,
         },
         &mut timer,
     );

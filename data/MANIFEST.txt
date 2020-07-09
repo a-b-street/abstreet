@@ -7,7 +7,7 @@ data/input/raw_maps/ballard.bin,eeb376efa9a87e3a7f8cea5a0a1795c2,https://www.dro
 data/input/raw_maps/downtown.bin,4560307f46e64e2b4495494a4406e458,https://www.dropbox.com/s/20zw8valbf35tci/downtown.bin.zip?dl=0
 data/input/raw_maps/downtown_atx.bin,cf2cd0fea92b70e5555ac693b2d4a653,https://www.dropbox.com/s/02moxvh1gn41x5s/downtown_atx.bin.zip?dl=0
 data/input/raw_maps/huge_austin.bin,d37364ac2da4e9d44de886457ba915ed,https://www.dropbox.com/s/updgay4ia9dsbot/huge_austin.bin.zip?dl=0
-data/input/raw_maps/huge_krakow.bin,1324c55f870307b5b8e77ff37a66ef7b,https://www.dropbox.com/s/8l6dyjca08rejhf/huge_krakow.bin.zip?dl=0
+data/input/raw_maps/huge_krakow.bin,ce8340583a51ac371084455717ab5926,https://www.dropbox.com/s/jpi5fewb4fex3ej/huge_krakow.bin.zip?dl=0
 data/input/raw_maps/huge_seattle.bin,5c06f78dd172f5717895283ac1ea0f65,https://www.dropbox.com/s/mst2n74jqjknyv5/huge_seattle.bin.zip?dl=0
 data/input/raw_maps/lakeslice.bin,f3b6e1820abf31f77d30a8cce3963f0d,https://www.dropbox.com/s/6jz3aisto2rhsjj/lakeslice.bin.zip?dl=0
 data/input/raw_maps/montlake.bin,749507726d6acc94fbde892bf78bd137,https://www.dropbox.com/s/q7w9lwitdrv3ln2/montlake.bin.zip?dl=0
@@ -35,15 +35,13 @@ data/input/seattle/osm/west_seattle.osm,ce708f4701cd9118c2e9de0573e69457,https:/
 data/input/seattle/parcels.bin,5fd9e42c47827328a067a43b83686a1a,https://www.dropbox.com/s/4lql4s0fo3n5smf/parcels.bin.zip?dl=0
 data/input/seattle/parcels_urbansim.txt,db63d7d606e8702d12f9399e87e6a00f,https://www.dropbox.com/s/6g8rbsf200dssj3/parcels_urbansim.txt.zip?dl=0
 data/input/seattle/popdat.bin,b607f9990528d0ca2fbeec9f02a5755e,https://www.dropbox.com/s/hcf80kvl66a4yai/popdat.bin.zip?dl=0
-data/input/seattle/sidewalks.bin,034dd47ab77902dbc81c0107f13d8965,https://www.dropbox.com/s/ma9bmisijc7v7xa/sidewalks.bin.zip?dl=0
-data/input/seattle/sidewalks.kml,94d385ba03ef1b57a5ba10965913ec6c,https://www.dropbox.com/s/vn8amar9xi6vbvh/sidewalks.kml.zip?dl=0
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
 data/system/cities/seattle.bin,d8e88217584d6ece7abaf1ec4222c7e6,https://www.dropbox.com/s/s1i208j6oy5pd5o/seattle.bin.zip?dl=0
 data/system/maps/ballard.bin,3ee77b40b60ce5f95e80251956ca823a,https://www.dropbox.com/s/6f3nlghhqhrf8e4/ballard.bin.zip?dl=0
 data/system/maps/downtown.bin,e2e739e380416cae1b733704be5b2dc2,https://www.dropbox.com/s/b8vso3pfevmdm5f/downtown.bin.zip?dl=0
 data/system/maps/downtown_atx.bin,a76df031940aa3f5d9f680fa82846f26,https://www.dropbox.com/s/umfhjtr0mw058l2/downtown_atx.bin.zip?dl=0
 data/system/maps/huge_austin.bin,87be99eeaa1b1c6d9d074a23df872240,https://www.dropbox.com/s/g25smuci2uta2h2/huge_austin.bin.zip?dl=0
-data/system/maps/huge_krakow.bin,0d97a27aa4afbaba3f9e71c6a3f1286d,https://www.dropbox.com/s/ya9cvv3ydm3d27s/huge_krakow.bin.zip?dl=0
+data/system/maps/huge_krakow.bin,1f7d1f91ec180499edcd629148975332,https://www.dropbox.com/s/h78wsd9071bkz73/huge_krakow.bin.zip?dl=0
 data/system/maps/huge_seattle.bin,767b051c74b6c3a07aba02e0d540afbe,https://www.dropbox.com/s/rod1ohltfkkfh9f/huge_seattle.bin.zip?dl=0
 data/system/maps/lakeslice.bin,c89ec7b553f609e6ededfd3a60571126,https://www.dropbox.com/s/bpjsehxrzh82at9/lakeslice.bin.zip?dl=0
 data/system/maps/montlake.bin,50c92ff0b5bca1f86432cdfbd220c035,https://www.dropbox.com/s/4xd14op12txfi8h/montlake.bin.zip?dl=0
