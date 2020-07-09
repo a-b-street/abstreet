@@ -427,7 +427,7 @@ impl ScenarioGenerator {
             // These are scraped from OSM "shop" and "amenity" tags.
             if b.amenities.is_empty() {
                 // TODO Guess number of residences based on OSM tags.
-                let num_ppl = rng.gen_range(1, 20);
+                let num_ppl = rng.gen_range(1, 5);
                 residences.push((b.id, num_ppl));
                 total_ppl += num_ppl;
             } else {
@@ -454,14 +454,14 @@ impl ScenarioGenerator {
                     // this person.
                     continue;
                 };
-                // Trips over 8 miles will drive 70% of the time, attempt transit (falling back to a
-                // very long walk) 30% of the time.
+                // Trips over 2 miles will drive 90% of the time, the other 10% will attempt
+                // transit (falling back to a very long walk).
                 // TODO Make this probabilistic
-                let mode = if dist < Distance::miles(2.0) {
+                let mode = if dist < Distance::miles(1.0) {
                     TripMode::Walk
-                } else if dist < Distance::miles(8.0) {
+                } else if dist < Distance::miles(2.0) {
                     TripMode::Bike
-                } else if rng.gen_bool(0.7) {
+                } else if rng.gen_bool(0.9) {
                     TripMode::Drive
                 } else {
                     TripMode::Transit
