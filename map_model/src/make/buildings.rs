@@ -218,9 +218,9 @@ pub fn make_all_parking_lots(
     timer.start_iter("match parking aisles", aisles.len());
     for pts in aisles {
         timer.next();
-        // Use any point from the aisle to match it to a lot
+        // Use the center of all the aisle points to match it to a lot
         let candidates: Vec<ParkingLotID> = closest
-            .all_close_pts(pts[0], Distance::meters(500.0))
+            .all_close_pts(Pt2D::center(&pts), Distance::meters(500.0))
             .into_iter()
             .map(|(id, _, _)| id)
             .collect();
