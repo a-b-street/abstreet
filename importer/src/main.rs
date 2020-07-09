@@ -1,4 +1,5 @@
 mod austin;
+mod krakow;
 mod seattle;
 #[cfg(feature = "scenarios")]
 mod soundcast;
@@ -102,6 +103,7 @@ fn main() {
         if job.osm_to_raw {
             match job.city.as_ref() {
                 "austin" => austin::osm_to_raw(&name),
+                "krakow" => krakow::osm_to_raw(&name),
                 "seattle" => seattle::osm_to_raw(&name),
                 x => panic!("Unknown city {}", x),
             }

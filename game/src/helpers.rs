@@ -97,6 +97,7 @@ pub fn nice_map_name(name: &str) -> &str {
         // Outside Seattle
         "downtown_atx" => "Downtown Austin",
         "huge_austin" => "Austin (entire area)",
+        "huge_krakow" => "Kraków (entire area)",
         _ => name,
     }
 }
