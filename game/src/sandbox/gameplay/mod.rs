@@ -112,7 +112,9 @@ impl GameplayMode {
             } else {
                 ScenarioGenerator::small_run(map)
             })
-            .generate(map, &mut rng, &mut Timer::new("generate scenario"))
+            .generate(map, &mut rng, timer)
+        } else if name == "home_to_work" {
+            ScenarioGenerator::proletariat_robot(map, &mut rng, timer)
         } else {
             let path = abstutil::path_scenario(map.get_name(), &name);
             let mut scenario = match abstutil::maybe_read_binary(path.clone(), timer) {

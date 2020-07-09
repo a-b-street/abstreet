@@ -140,6 +140,13 @@ pub fn make_change_traffic(btn: ScreenRectangle, current: String) -> Box<dyn Sta
                     }
                 }
                 list.push(
+                    Choice::new("trips between home and work", "home_to_work".to_string()).tooltip(
+                        "Randomized people will leave homes in the morning, go to work, then \
+                         return in the afternoon. It'll be very quiet before 7am and between 10am \
+                         to 5pm.",
+                    ),
+                );
+                list.push(
                     Choice::new("random unrealistic trips", "random".to_string()).tooltip(
                         "Lots of trips will start at midnight, but not constantly appear through \
                          the day.",

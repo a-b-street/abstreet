@@ -1,7 +1,10 @@
-use crate::{DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip};
+use crate::{
+    DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip,
+    TripEndpoint, TripMode,
+};
 use abstutil::Timer;
-use geom::{Duration, Time};
-use map_model::{BuildingID, DirectedRoadID, Map, PathConstraints};
+use geom::{Distance, Duration, Time};
+use map_model::{BuildingID, DirectedRoadID, Map, PathConstraints, PathRequest};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
@@ -410,4 +413,111 @@ impl OriginDestination {
 fn rand_time(rng: &mut XorShiftRng, low: Time, high: Time) -> Time {
     assert!(high > low);
     Time::START_OF_DAY + Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
+}
+
+impl ScenarioGenerator {
+    // Designed in https://github.com/dabreegster/abstreet/issues/154
+    pub fn proletariat_robot(map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) -> Scenario {
+        // First classify buildings into residences (with a number of people) or workplaces. No
+        // mixed-use yet; every building is one or the other.
+        let mut residences: Vec<(BuildingID, usize)> = Vec::new();
+        let mut workplaces: Vec<BuildingID> = Vec::new();
+        let mut total_ppl = 0;
+        for b in map.all_buildings() {
+            // These are scraped from OSM "shop" and "amenity" tags.
+            if b.amenities.is_empty() {
+                // TODO Guess number of residences based on OSM tags.
+                let num_ppl = rng.gen_range(1, 20);
+                residences.push((b.id, num_ppl));
+                total_ppl += num_ppl;
+            } else {
+                workplaces.push(b.id);
+            }
+        }
+
+        let mut s = Scenario::empty(map, "random people going to/from work");
+        timer.start_iter("create people", total_ppl);
+        for (home, num_ppl) in residences {
+            for _ in 0..num_ppl {
+                timer.next();
+                // Make a person going from their home to a random workplace, then back again later.
+                let work = *workplaces.choose(rng).unwrap();
+                // Decide mode based on walking distance.
+                let dist = if let Some(path) = map.pathfind(PathRequest {
+                    start: map.get_b(home).front_path.sidewalk,
+                    end: map.get_b(work).front_path.sidewalk,
+                    constraints: PathConstraints::Pedestrian,
+                }) {
+                    path.total_length()
+                } else {
+                    // Woops, the buildings aren't connected. Probably a bug in importing. Just skip
+                    // this person.
+                    continue;
+                };
+                // Trips over 8 miles will drive 70% of the time, attempt transit (falling back to a
+                // very long walk) 30% of the time.
+                // TODO Make this probabilistic
+                let mode = if dist < Distance::miles(2.0) {
+                    TripMode::Walk
+                } else if dist < Distance::miles(8.0) {
+                    TripMode::Bike
+                } else if rng.gen_bool(0.7) {
+                    TripMode::Drive
+                } else {
+                    TripMode::Transit
+                };
+
+                // TODO This will cause a single morning and afternoon rush. Outside of these times,
+                // it'll be really quiet. Probably want a normal distribution centered around these
+                // peak times, but with a long tail.
+                let depart_am = rand_time(
+                    rng,
+                    Time::START_OF_DAY + Duration::hours(7),
+                    Time::START_OF_DAY + Duration::hours(10),
+                );
+                let depart_pm = rand_time(
+                    rng,
+                    Time::START_OF_DAY + Duration::hours(17),
+                    Time::START_OF_DAY + Duration::hours(19),
+                );
+
+                let (goto_work, return_home) = match (
+                    SpawnTrip::new(
+                        TripEndpoint::Bldg(home),
+                        TripEndpoint::Bldg(work),
+                        mode,
+                        map,
+                    ),
+                    SpawnTrip::new(
+                        TripEndpoint::Bldg(work),
+                        TripEndpoint::Bldg(home),
+                        mode,
+                        map,
+                    ),
+                ) {
+                    (Some(t1), Some(t2)) => (t1, t2),
+                    // Skip the person if either trip can't be created.
+                    _ => continue,
+                };
+
+                s.people.push(PersonSpec {
+                    id: PersonID(s.people.len()),
+                    orig_id: None,
+                    trips: vec![
+                        IndividTrip {
+                            depart: depart_am,
+                            trip: goto_work,
+                            cancelled: false,
+                        },
+                        IndividTrip {
+                            depart: depart_pm,
+                            trip: return_home,
+                            cancelled: false,
+                        },
+                    ],
+                });
+            }
+        }
+        s
+    }
 }

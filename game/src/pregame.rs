@@ -192,7 +192,7 @@ impl State for MainMenu {
                     )) {
                         "weekday"
                     } else {
-                        "random"
+                        "home_to_work"
                     };
                     return Transition::Push(Box::new(SandboxMode::new(
                         ctx,
