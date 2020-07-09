@@ -20,6 +20,8 @@ pub struct ZoneEditor {
     allow_through_traffic: BTreeSet<TripMode>,
     unzoomed: Drawable,
     zoomed: Drawable,
+
+    orig_members: BTreeSet<RoadID>,
 }
 
 impl ZoneEditor {
@@ -55,6 +57,7 @@ impl ZoneEditor {
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
+            orig_members: members.clone(),
             members,
             allow_through_traffic,
             unzoomed,
@@ -90,32 +93,60 @@ impl State for ZoneEditor {
             }
         }
 
+        // TODO Need to figure out merging/splitting zones.
+        if let Some(ID::Road(r)) = app.primary.current_selection {
+            if self.members.contains(&r) {
+                if app.per_obj.left_click(ctx, "remove road from zone") {
+                    self.members.remove(&r);
+                    let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.members);
+                    self.unzoomed = unzoomed;
+                    self.zoomed = zoomed;
+                }
+            } else {
+                if app.per_obj.left_click(ctx, "add road to zone") {
+                    self.members.insert(r);
+                    let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.members);
+                    self.unzoomed = unzoomed;
+                    self.zoomed = zoomed;
+                }
+            }
+        }
+
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Apply" => {
-                    let old_allow_through_traffic = app
-                        .primary
-                        .map
-                        .get_r(*self.members.iter().next().unwrap())
-                        .allow_through_traffic;
+                    let mut edits = app.primary.map.get_edits().clone();
+                    for r in self.orig_members.difference(&self.members) {
+                        edits.commands.push(EditCmd::ChangeAccessRestrictions {
+                            id: *r,
+                            old_allow_through_traffic: app
+                                .primary
+                                .map
+                                .get_r(*r)
+                                .allow_through_traffic
+                                .clone(),
+                            new_allow_through_traffic: EnumSet::all(),
+                        });
+                    }
+
                     let new_allow_through_traffic = self
                         .allow_through_traffic
                         .iter()
                         .map(|m| m.to_constraints())
                         .collect::<EnumSet<_>>();
-
-                    if old_allow_through_traffic != new_allow_through_traffic {
-                        let mut edits = app.primary.map.get_edits().clone();
-                        for r in &self.members {
+                    for r in &self.members {
+                        let old_allow_through_traffic =
+                            app.primary.map.get_r(*r).allow_through_traffic.clone();
+                        if old_allow_through_traffic != new_allow_through_traffic {
                             edits.commands.push(EditCmd::ChangeAccessRestrictions {
                                 id: *r,
-                                old_allow_through_traffic: old_allow_through_traffic.clone(),
+                                old_allow_through_traffic,
                                 new_allow_through_traffic: new_allow_through_traffic.clone(),
                             });
                         }
-                        apply_map_edits(ctx, app, edits);
                     }
 
+                    apply_map_edits(ctx, app, edits);
                     return Transition::Pop;
                 }
                 "Cancel" => {

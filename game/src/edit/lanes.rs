@@ -80,7 +80,7 @@ impl LaneEditor {
                 .centered_horiz(),
             Widget::custom_row(row).centered(),
             change_speed_limit(ctx, parent.speed_limit),
-            Btn::text_fg("Change access restrictions").build_def(ctx, None),
+            Btn::text_fg("Change access restrictions").build_def(ctx, hotkey(Key::A)),
             Widget::custom_row(vec![
                 Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
                 // TODO Handle reverting speed limit too...
