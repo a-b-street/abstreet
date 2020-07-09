@@ -32,7 +32,7 @@ pub use crate::render::{
     CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents,
     PedCrowdLocation, UnzoomedAgent,
 };
-use abstutil::Cloneable;
+use abstutil::{deserialize_usize, serialize_usize, Cloneable};
 use geom::{Distance, Pt2D, Speed, Time};
 use map_model::{
     BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID, Path,
@@ -58,7 +58,14 @@ pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 // for convenient debugging.
 // TODO Implement Eq, Hash, Ord manually to guarantee this.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct CarID(pub usize, pub VehicleType);
+pub struct CarID(
+    #[serde(
+        serialize_with = "serialize_usize",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub usize,
+    pub VehicleType,
+);
 
 impl fmt::Display for CarID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -72,7 +79,13 @@ impl fmt::Display for CarID {
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct PedestrianID(pub usize);
+pub struct PedestrianID(
+    #[serde(
+        serialize_with = "serialize_usize",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub usize,
+);
 
 impl fmt::Display for PedestrianID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -107,7 +120,13 @@ impl fmt::Display for AgentID {
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct TripID(pub usize);
+pub struct TripID(
+    #[serde(
+        serialize_with = "serialize_usize",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub usize,
+);
 
 impl fmt::Display for TripID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -116,7 +135,13 @@ impl fmt::Display for TripID {
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct PersonID(pub usize);
+pub struct PersonID(
+    #[serde(
+        serialize_with = "serialize_usize",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub usize,
+);
 
 impl fmt::Display for PersonID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -125,7 +150,18 @@ impl fmt::Display for PersonID {
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct OrigPersonID(pub usize, pub usize);
+pub struct OrigPersonID(
+    #[serde(
+        serialize_with = "serialize_usize",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub usize,
+    #[serde(
+        serialize_with = "serialize_usize",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub usize,
+);
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Hash, PartialOrd, Ord)]
 pub enum VehicleType {

@@ -8,6 +8,7 @@ use serde_json;
 use std;
 use std::cmp::Ord;
 use std::collections::{BTreeMap, BTreeSet};
+use std::convert::TryFrom;
 use std::fs::File;
 use std::io::{stdout, BufReader, BufWriter, Error, ErrorKind, Read, Write};
 use std::path::Path;
@@ -205,6 +206,19 @@ pub fn deserialize_multimap<
         }
     }
     Ok(map)
+}
+
+pub fn serialize_usize<S: Serializer>(x: &usize, s: S) -> Result<S::Ok, S::Error> {
+    if let Ok(x) = u32::try_from(*x) {
+        x.serialize(s)
+    } else {
+        Err(serde::ser::Error::custom(format!("{} can't fit in u32", x)))
+    }
+}
+
+pub fn deserialize_usize<'de, D: Deserializer<'de>>(d: D) -> Result<usize, D::Error> {
+    let x = <u32>::deserialize(d)?;
+    Ok(x as usize)
 }
 
 // Just list all things from a directory, return sorted by name, with file extension removed.

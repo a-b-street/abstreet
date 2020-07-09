@@ -3,6 +3,7 @@ use crate::{
     osm, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Map, PathConstraints, Road, RoadID,
     TurnType,
 };
+use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -15,13 +16,13 @@ pub const PARKING_SPOT_LENGTH: Distance = Distance::const_meters(8.0);
 pub const PARKING_LOT_SPOT_LENGTH: Distance = Distance::const_meters(6.4);
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct LaneID(pub u32);
-
-impl LaneID {
-    pub fn idx(self) -> usize {
-        self.0 as usize
-    }
-}
+pub struct LaneID(
+    #[serde(
+        serialize_with = "serialize_usize",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub usize,
+);
 
 impl fmt::Display for LaneID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

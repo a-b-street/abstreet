@@ -1,4 +1,5 @@
 use crate::{LaneID, PathConstraints, Position};
+use abstutil::{deserialize_usize, serialize_usize};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -17,7 +18,13 @@ impl fmt::Display for BusStopID {
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct BusRouteID(pub usize);
+pub struct BusRouteID(
+    #[serde(
+        serialize_with = "serialize_usize",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub usize,
+);
 
 impl fmt::Display for BusRouteID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

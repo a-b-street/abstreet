@@ -156,7 +156,7 @@ impl Map {
             let mut fwd_width_so_far = Distance::ZERO;
             let mut back_width_so_far = Distance::ZERO;
             for lane in &r.lane_specs {
-                let id = LaneID(map.lanes.len() as u32);
+                let id = LaneID(map.lanes.len());
 
                 let (src_i, dst_i) = if lane.reverse_pts { (i2, i1) } else { (i1, i2) };
                 map.intersections[src_i.0].outgoing_lanes.push(id);
@@ -254,7 +254,7 @@ impl Map {
 
         timer.start("find parking blackholes");
         for (l, redirect) in connectivity::redirect_parking_blackholes(&map, timer) {
-            map.lanes[l.idx()].parking_blackhole = Some(redirect);
+            map.lanes[l.0].parking_blackhole = Some(redirect);
         }
         timer.stop("find parking blackholes");
 
@@ -263,10 +263,10 @@ impl Map {
             let lane = b.sidewalk();
 
             // TODO Could be more performant and cleanly written
-            let mut bldgs = map.lanes[lane.idx()].building_paths.clone();
+            let mut bldgs = map.lanes[lane.0].building_paths.clone();
             bldgs.push(b.id);
-            bldgs.sort_by_key(|b| map.buildings[b.0 as usize].front_path.sidewalk.dist_along());
-            map.lanes[lane.idx()].building_paths = bldgs;
+            bldgs.sort_by_key(|b| map.buildings[b.0].front_path.sidewalk.dist_along());
+            map.lanes[lane.0].building_paths = bldgs;
         }
 
         map.parking_lots =
@@ -345,7 +345,7 @@ impl Map {
                     .collect::<Vec<_>>()
                 {
                     map.bus_stops.remove(&id);
-                    map.lanes[id.sidewalk.idx()].bus_stops.remove(&id);
+                    map.lanes[id.sidewalk.0].bus_stops.remove(&id);
                 }
             }
 
@@ -388,11 +388,11 @@ fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
     let has_driving_in = intersection
         .incoming_lanes
         .iter()
-        .any(|l| lanes[l.idx()].is_driving());
+        .any(|l| lanes[l.0].is_driving());
     let has_driving_out = intersection
         .outgoing_lanes
         .iter()
-        .any(|l| lanes[l.idx()].is_driving());
+        .any(|l| lanes[l.0].is_driving());
     has_driving_in != has_driving_out
 }
 
@@ -432,15 +432,13 @@ fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
     for query_pt in pts {
         timer.next();
         if let Some((l, pt)) = closest.closest_pt(query_pt.to_pt2d(), max_dist_away) {
-            if let Some(dist_along) = lanes[l.idx()].dist_along_of_point(pt) {
+            if let Some(dist_along) = lanes[l.0].dist_along_of_point(pt) {
                 results.insert(query_pt, Position::new(l, dist_along));
             } else {
                 panic!(
                     "{} isn't on {} according to dist_along_of_point, even though closest_point \
                      thinks it is.\n{}",
-                    pt,
-                    l,
-                    lanes[l.idx()].lane_center_pts
+                    pt, l, lanes[l.0].lane_center_pts
                 );
             }
         }

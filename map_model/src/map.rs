@@ -168,7 +168,7 @@ impl Map {
     }
 
     pub fn maybe_get_l(&self, id: LaneID) -> Option<&Lane> {
-        self.lanes.get(id.idx())
+        self.lanes.get(id.0)
     }
 
     pub fn maybe_get_i(&self, id: IntersectionID) -> Option<&Intersection> {
@@ -180,7 +180,7 @@ impl Map {
     }
 
     pub fn maybe_get_b(&self, id: BuildingID) -> Option<&Building> {
-        self.buildings.get(id.0 as usize)
+        self.buildings.get(id.0)
     }
 
     pub fn maybe_get_pl(&self, id: ParkingLotID) -> Option<&ParkingLot> {
@@ -208,7 +208,7 @@ impl Map {
     }
 
     pub fn get_l(&self, id: LaneID) -> &Lane {
-        &self.lanes[id.idx()]
+        &self.lanes[id.0]
     }
 
     pub fn get_i(&self, id: IntersectionID) -> &Intersection {
@@ -225,7 +225,7 @@ impl Map {
     }
 
     pub fn get_b(&self, id: BuildingID) -> &Building {
-        &self.buildings[id.0 as usize]
+        &self.buildings[id.0]
     }
 
     pub fn get_a(&self, id: AreaID) -> &Area {
@@ -647,7 +647,7 @@ impl Map {
         }
     }
     pub fn hack_override_offstreet_spots_individ(&mut self, b: BuildingID, spots: usize) {
-        let b = &mut self.buildings[b.0 as usize];
+        let b = &mut self.buildings[b.0];
         if let Some(ref mut p) = b.parking {
             if p.public_garage_name.is_none() {
                 p.num_spots = spots;

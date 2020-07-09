@@ -202,7 +202,7 @@ fn make_input_graph(
         // pretend like it points to some arbitrary other node. Since no paths will start from
         // this unused node, this won't affect results.
         // TODO Upstream a method in InputGraph to do this more clearly.
-        if !any && l.id.idx() == num_lanes - 1 {
+        if !any && l.id.0 == num_lanes - 1 {
             input_graph.add_edge(from, nodes.get(Node::Lane(LaneID(0))), 1);
         }
     }

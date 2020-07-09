@@ -1,4 +1,5 @@
 use crate::Position;
+use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Angle, Line, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -13,7 +14,13 @@ use std::fmt;
 // - aisle clipping isnt perfect (23rd and rainier, pepsi)
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct ParkingLotID(pub usize);
+pub struct ParkingLotID(
+    #[serde(
+        serialize_with = "serialize_usize",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub usize,
+);
 
 impl fmt::Display for ParkingLotID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

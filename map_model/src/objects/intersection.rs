@@ -1,13 +1,19 @@
 use crate::raw::OriginalIntersection;
 use crate::{DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
+use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
 
-// TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct IntersectionID(pub usize);
+pub struct IntersectionID(
+    #[serde(
+        serialize_with = "serialize_usize",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub usize,
+);
 
 impl fmt::Display for IntersectionID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

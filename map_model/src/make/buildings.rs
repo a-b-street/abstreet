@@ -56,7 +56,7 @@ pub fn make_all_buildings(
             let sidewalk_line =
                 trim_path(&b.polygon, Line::new(bldg_center.to_pt2d(), sidewalk_pt));
 
-            let id = BuildingID(results.len() as u32);
+            let id = BuildingID(results.len());
             let mut bldg = Building {
                 id,
                 polygon: b.polygon.clone(),
