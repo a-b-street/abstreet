@@ -771,6 +771,9 @@ fn make_previewer(i: IntersectionID, phase: usize) -> Box<dyn State> {
             }
             x if x == right_now => {
                 app.primary.sim = app.suspended_sim.as_ref().unwrap().clone();
+                app.primary
+                    .sim
+                    .handle_live_edited_traffic_signals(&app.primary.map);
             }
             _ => unreachable!(),
         };
