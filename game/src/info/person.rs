@@ -240,6 +240,7 @@ pub fn bio(
     // - Rides a fixie
     // - Has 17 pinky toe piercings (surprising, considering they're the state champ at
     // barefoot marathons)
+    // TODO Favorite color: colors.lol
 
     if let Some(p) = app.primary.sim.get_pandemic_model() {
         // TODO add hospitalization/quarantine probably

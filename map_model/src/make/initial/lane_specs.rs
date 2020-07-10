@@ -150,10 +150,15 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         }
     }
 
-    // TODO Need to snap separate sidewalks to ways. Until then, just do this.
-    if tags.is(osm::SIDEWALK, "both") || tags.is(osm::SIDEWALK, "separate") {
+    if tags.is(osm::SIDEWALK, "both") {
         fwd_side.push(LaneType::Sidewalk);
         back_side.push(LaneType::Sidewalk);
+    } else if tags.is(osm::SIDEWALK, "separate") {
+        // TODO Need to snap separate sidewalks to ways. Until then, just do this.
+        fwd_side.push(LaneType::Sidewalk);
+        if !back_side.is_empty() {
+            back_side.push(LaneType::Sidewalk);
+        }
     } else if tags.is(osm::SIDEWALK, "right") {
         fwd_side.push(LaneType::Sidewalk);
     } else if tags.is(osm::SIDEWALK, "left") {
