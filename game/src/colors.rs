@@ -83,7 +83,8 @@ pub struct ColorScheme {
     pub void_background: Color,
     pub map_background: Color,
     pub unzoomed_interesting_intersection: Color,
-    pub building: Color,
+    pub residential_building: Color,
+    pub commerical_building: Color,
     pub building_outline: Color,
     pub parking_lot: Color,
     pub grass: Color,
@@ -183,7 +184,8 @@ impl ColorScheme {
             void_background: Color::BLACK,
             map_background: Color::grey(0.87),
             unzoomed_interesting_intersection: Color::BLACK,
-            building: Color::rgb(196, 193, 188),
+            residential_building: Color::hex("#C4C1BC"),
+            commerical_building: Color::hex("#9FABA7"),
             building_outline: Color::hex("#938E85"),
             parking_lot: Color::grey(0.7),
             grass: hex("#94C84A"),
@@ -260,7 +262,7 @@ fn hex(x: &str) -> Color {
 impl ColorScheme {
     fn night_mode() -> ColorScheme {
         let mut cs = ColorScheme::standard();
-        cs.building = hex("#42208B");
+        cs.residential_building = hex("#42208B");
         cs.sidewalk = hex("#7C55C8");
         cs.grass = hex("#063D88");
         cs.map_background = hex("#070747");
@@ -279,7 +281,7 @@ impl ColorScheme {
         cs.map_background = hex("#CFE2C4");
         cs.water = hex("#B4D3E5");
         cs.driving_lane = hex("#C6CDD5");
-        cs.building = hex("#CCD4BD");
+        cs.residential_building = hex("#CCD4BD");
         cs.sidewalk = hex("#98A1AA");
         cs
     }
@@ -289,7 +291,7 @@ impl ColorScheme {
         cs.map_background = hex("#FEE4D7");
         cs.grass = hex("#F6C6AF");
         cs.driving_lane = hex("#BECBD3");
-        cs.building = hex("#DEAA95");
+        cs.residential_building = hex("#DEAA95");
         cs.sidewalk = hex("#8B9EA8");
         cs
     }
@@ -307,7 +309,7 @@ impl ColorScheme {
             hex("#FA8D37"),
         ];
         cs.grass = hex("#84BA3B"); // #2F8C2C
-        cs.building = hex("#367335"); // #194C18
+        cs.residential_building = hex("#367335"); // #194C18
         cs.normal_intersection = hex("#4B5485");
         cs.driving_lane = hex("#384173");
         cs.parking_lane = hex("#4B5485");
@@ -331,7 +333,7 @@ impl ColorScheme {
     fn starcat() -> ColorScheme {
         let mut cs = ColorScheme::standard();
         cs.grass = hex("#3F8C0C");
-        cs.building = hex("#8099A8"); // #5E7486
+        cs.residential_building = hex("#8099A8"); // #5E7486
         cs.map_background = hex("#737373");
         cs.driving_lane = hex("#2A2A2A"); // TODO for arterial
         cs.road_center_line = hex("#DB952E");

@@ -33,7 +33,11 @@ impl DrawBuilding {
             );
         }
 
-        bldg_batch.push(cs.building, bldg.polygon.clone());
+        if bldg.amenities.is_empty() {
+            bldg_batch.push(cs.residential_building, bldg.polygon.clone());
+        } else {
+            bldg_batch.push(cs.commerical_building, bldg.polygon.clone());
+        }
         paths_batch.push(
             cs.sidewalk,
             front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
