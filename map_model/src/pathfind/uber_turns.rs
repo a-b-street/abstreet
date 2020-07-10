@@ -13,7 +13,7 @@ pub struct IntersectionCluster {
     pub uber_turns: Vec<UberTurn>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct UberTurn {
     pub path: Vec<TurnID>,
 }

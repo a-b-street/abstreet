@@ -315,6 +315,9 @@ impl Router {
         queues: &BTreeMap<Traversable, Queue>,
         map: &Map,
     ) {
+        if self.path.approaching_uber_turn() || self.path.currently_inside_ut().is_some() {
+            return;
+        }
         let (current_turn, next_lane) = {
             let steps = self.path.get_steps();
             if steps.len() < 5 {

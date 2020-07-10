@@ -10,7 +10,7 @@ use self::walking::{one_step_walking_path, walking_path_to_steps, SidewalkPathfi
 pub use self::walking::{walking_cost, WalkingNode};
 use crate::{
     osm, BusRouteID, BusStopID, Intersection, Lane, LaneID, LaneType, Map, Position, Traversable,
-    TurnID, Zone,
+    TurnID, UberTurn, Zone,
 };
 use abstutil::Timer;
 use enumset::EnumSetType;
@@ -102,10 +102,21 @@ pub struct Path {
     crossed_so_far: Distance,
 
     total_lanes: usize,
+
+    // A list of uber-turns encountered by this path, in order. The steps are flattened into the
+    // sequence of turn->lane->...->turn.
+    uber_turns: VecDeque<UberTurn>,
+    // Is the current_step in the middle of an UberTurn?
+    currently_inside_ut: Option<UberTurn>,
 }
 
 impl Path {
-    pub(crate) fn new(map: &Map, steps: Vec<PathStep>, end_dist: Distance) -> Path {
+    pub(crate) fn new(
+        map: &Map,
+        steps: Vec<PathStep>,
+        end_dist: Distance,
+        uber_turns: Vec<UberTurn>,
+    ) -> Path {
         // Haven't seen problems here in a very long time. Noticeably saves some time to skip.
         if false {
             validate_continuity(map, &steps);
@@ -129,6 +140,8 @@ impl Path {
             total_length,
             crossed_so_far: Distance::ZERO,
             total_lanes,
+            uber_turns: uber_turns.into_iter().collect(),
+            currently_inside_ut: None,
         }
     }
 
@@ -140,6 +153,8 @@ impl Path {
             total_length: Distance::ZERO,
             crossed_so_far: Distance::ZERO,
             total_lanes: 0,
+            uber_turns: VecDeque::new(),
+            currently_inside_ut: None,
         }
     }
 
@@ -185,12 +200,33 @@ impl Path {
         self.steps.len() > 1
     }
 
+    pub fn currently_inside_ut(&self) -> &Option<UberTurn> {
+        &self.currently_inside_ut
+    }
+
     pub fn shift(&mut self, map: &Map) -> PathStep {
         let step = self.steps.pop_front().unwrap();
         self.crossed_so_far += step.as_traversable().length(map);
+
+        if let Some(ref ut) = self.currently_inside_ut {
+            if step == PathStep::Turn(*ut.path.last().unwrap()) {
+                self.currently_inside_ut = None;
+            }
+        } else if !self.steps.is_empty() && !self.uber_turns.is_empty() {
+            if self.steps[0] == PathStep::Turn(self.uber_turns[0].path[0]) {
+                self.currently_inside_ut = Some(self.uber_turns.pop_front().unwrap());
+            }
+        }
+
+        if self.steps.len() == 1 {
+            assert!(self.uber_turns.is_empty());
+            assert!(self.currently_inside_ut.is_none());
+        }
+
         step
     }
 
+    // TODO Maybe need to amend uber_turns?
     pub fn add(&mut self, step: PathStep, map: &Map) {
         self.total_length += step.as_traversable().length(map);
         match step {
@@ -200,8 +236,27 @@ impl Path {
         self.steps.push_back(step);
     }
 
+    // TODO This is a brittle, tied to exactly what opportunistically_lanechange does.
+    pub fn approaching_uber_turn(&self) -> bool {
+        if self.steps.len() < 5 || self.uber_turns.is_empty() {
+            return false;
+        }
+        if let PathStep::Turn(t) = self.steps[1] {
+            if self.uber_turns[0].path[0] == t {
+                return true;
+            }
+        }
+        if let PathStep::Turn(t) = self.steps[3] {
+            if self.uber_turns[0].path[0] == t {
+                return true;
+            }
+        }
+        false
+    }
+
     // Trusting the caller to do this in valid ways.
     pub fn modify_step(&mut self, idx: usize, step: PathStep, map: &Map) {
+        assert!(self.currently_inside_ut.is_none());
         assert!(idx != 0);
         self.total_length -= self.steps[idx].as_traversable().length(map);
         self.steps[idx] = step;
@@ -327,6 +382,8 @@ impl Path {
 
     // Not for walking paths
     fn append(&mut self, other: Path, map: &Map) {
+        assert!(self.currently_inside_ut.is_none());
+        assert!(other.currently_inside_ut.is_none());
         let turn = match (*self.steps.back().unwrap(), other.steps[0]) {
             (PathStep::Lane(src), PathStep::Lane(dst)) => TurnID {
                 parent: map.get_l(src).dst_i,
@@ -340,6 +397,7 @@ impl Path {
         self.steps.extend(other.steps);
         self.total_length += other.total_length;
         self.total_lanes += other.total_lanes;
+        self.uber_turns.extend(other.uber_turns);
     }
 }
 
@@ -558,7 +616,7 @@ impl Pathfinder {
                         if req.constraints == PathConstraints::Pedestrian {
                             let steps =
                                 walking_path_to_steps(z1.pathfind_walking(req.clone(), map)?, map);
-                            return Some(Path::new(map, steps, req.end.dist_along()));
+                            return Some(Path::new(map, steps, req.end.dist_along(), Vec::new()));
                         }
                         return z1.pathfind(req, map);
                     }
@@ -604,7 +662,7 @@ impl Pathfinder {
         match req.constraints {
             PathConstraints::Pedestrian => {
                 let steps = walking_path_to_steps(self.walking_graph.pathfind(&req, map)?, map);
-                Some(Path::new(map, steps, req.end.dist_along()))
+                Some(Path::new(map, steps, req.end.dist_along(), Vec::new()))
             }
             PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
             PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
@@ -682,7 +740,7 @@ impl Pathfinder {
             };
             interior_path.extend(main_path);
             let steps = walking_path_to_steps(interior_path, map);
-            return Some(Path::new(map, steps, req.end.dist_along()));
+            return Some(Path::new(map, steps, req.end.dist_along(), Vec::new()));
         }
 
         let mut interior_path = zone.pathfind(interior_req, map)?;
@@ -767,7 +825,7 @@ impl Pathfinder {
 
             main_path.extend(interior_path);
             let steps = walking_path_to_steps(main_path, map);
-            return Some(Path::new(map, steps, orig_end_dist));
+            return Some(Path::new(map, steps, orig_end_dist, Vec::new()));
         }
 
         let interior_path = zone.pathfind(interior_req, map)?;

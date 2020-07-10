@@ -81,6 +81,7 @@ impl VehiclePathfinder {
             self.nodes.get(Node::Lane(req.end.lane())),
         )?;
         let mut steps = Vec::new();
+        let mut uber_turns = Vec::new();
         for pair in self.nodes.translate(&raw_path).windows(2) {
             match (pair[0], pair[1]) {
                 (Node::Lane(l1), Node::Lane(l2)) => {
@@ -94,11 +95,13 @@ impl VehiclePathfinder {
                 }
                 (Node::Lane(l), Node::UberTurn(ut)) => {
                     steps.push(PathStep::Lane(l));
-                    for t in &self.uber_turns[ut].path {
+                    let ut = self.uber_turns[ut].clone();
+                    for t in &ut.path {
                         steps.push(PathStep::Turn(*t));
                         steps.push(PathStep::Lane(t.dst));
                     }
                     steps.pop();
+                    uber_turns.push(ut);
                 }
                 (Node::UberTurn(_), Node::Lane(_)) => {
                     // Don't add anything; the lane will be added by some other case
@@ -108,7 +111,7 @@ impl VehiclePathfinder {
         }
         steps.push(PathStep::Lane(req.end.lane()));
         Some((
-            Path::new(map, steps, req.end.dist_along()),
+            Path::new(map, steps, req.end.dist_along(), uber_turns),
             raw_path.get_weight(),
         ))
     }

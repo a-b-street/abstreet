@@ -298,18 +298,21 @@ pub fn one_step_walking_path(req: &PathRequest, map: &Map) -> Path {
             map,
             vec![PathStep::Lane(req.start.lane())],
             req.start.dist_along(),
+            Vec::new(),
         )
     } else if req.start.dist_along() < req.end.dist_along() {
         Path::new(
             map,
             vec![PathStep::Lane(req.start.lane())],
             req.end.dist_along(),
+            Vec::new(),
         )
     } else {
         Path::new(
             map,
             vec![PathStep::ContraflowLane(req.start.lane())],
             req.end.dist_along(),
+            Vec::new(),
         )
     }
 }
