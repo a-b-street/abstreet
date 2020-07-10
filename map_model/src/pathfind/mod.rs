@@ -203,6 +203,17 @@ impl Path {
     pub fn currently_inside_ut(&self) -> &Option<UberTurn> {
         &self.currently_inside_ut
     }
+    pub fn about_to_start_ut(&self) -> Option<&UberTurn> {
+        if self.steps.len() < 2 || self.uber_turns.is_empty() {
+            return None;
+        }
+        if let PathStep::Turn(t) = self.steps[1] {
+            if self.uber_turns[0].path[0] == t {
+                return Some(&self.uber_turns[0]);
+            }
+        }
+        None
+    }
 
     pub fn shift(&mut self, map: &Map) -> PathStep {
         let step = self.steps.pop_front().unwrap();
