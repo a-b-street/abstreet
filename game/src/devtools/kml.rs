@@ -9,7 +9,7 @@ use ezgui::{
 use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::ExtraShapes;
 use map_model::BuildingID;
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 pub struct ViewKML {
     composite: Composite,
@@ -41,28 +41,44 @@ impl ViewKML {
                 abstutil::read_binary::<ExtraShapes>(path.clone(), &mut timer)
             };
             let bounds = app.primary.map.get_gps_bounds();
-
+            let boundary = app.primary.map.get_boundary_polygon();
             let dataset_name = abstutil::basename(&path);
+            let bldg_lookup: HashMap<String, BuildingID> = app
+                .primary
+                .map
+                .all_buildings()
+                .iter()
+                .map(|b| (b.osm_way_id.to_string(), b.id))
+                .collect();
+            let objects: Vec<Object> = timer
+                .parallelize("convert shapes", raw_shapes.shapes, |shape| {
+                    if boundary.contains_pt(Pt2D::forcibly_from_gps(shape.points[0], bounds)) {
+                        let pts: Vec<Pt2D> = shape
+                            .points
+                            .into_iter()
+                            .map(|gps| Pt2D::forcibly_from_gps(gps, bounds))
+                            .collect();
+                        Some(make_object(
+                            &bldg_lookup,
+                            shape.attributes,
+                            pts,
+                            &dataset_name,
+                        ))
+                    } else {
+                        None
+                    }
+                })
+                .into_iter()
+                .flatten()
+                .collect();
 
             let mut batch = GeomBatch::new();
-            let mut objects = Vec::new();
             let mut quadtree = QuadTree::default(app.primary.map.get_bounds().as_bbox());
-            timer.start_iter("convert shapes", raw_shapes.shapes.len());
-            for shape in raw_shapes.shapes {
+            timer.start_iter("render shapes", objects.len());
+            for (idx, obj) in objects.iter().enumerate() {
                 timer.next();
-                if !bounds.contains(shape.points[0]) {
-                    continue;
-                }
-                let pts: Vec<Pt2D> = shape
-                    .points
-                    .into_iter()
-                    .map(|gps| Pt2D::forcibly_from_gps(gps, bounds))
-                    .collect();
-                let obj = make_object(app, shape.attributes, pts, &dataset_name);
-
-                quadtree.insert_with_box(objects.len(), obj.polygon.get_bounds().as_bbox());
+                quadtree.insert_with_box(idx, obj.polygon.get_bounds().as_bbox());
                 batch.push(Color::RED.alpha(0.8), obj.polygon.clone());
-                objects.push(obj);
             }
 
             let mut choices = vec![Choice::string("None")];
@@ -178,7 +194,7 @@ impl State for ViewKML {
 }
 
 fn make_object(
-    app: &App,
+    bldg_lookup: &HashMap<String, BuildingID>,
     attribs: BTreeMap<String, String>,
     pts: Vec<Pt2D>,
     dataset_name: &str,
@@ -196,11 +212,8 @@ fn make_object(
     let mut osm_bldg = None;
     if dataset_name == "parcels" {
         if let Some(bldg) = attribs.get("osm_bldg") {
-            for b in app.primary.map.all_buildings() {
-                if b.osm_way_id.to_string() == bldg.to_string() {
-                    osm_bldg = Some(b.id);
-                    break;
-                }
+            if let Some(id) = bldg_lookup.get(bldg) {
+                osm_bldg = Some(*id);
             }
         }
     }
