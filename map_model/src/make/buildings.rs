@@ -1,12 +1,12 @@
 use crate::make::match_points_to_lanes;
 use crate::raw::{OriginalBuilding, RawBuilding, RawParkingLot};
 use crate::{
-    osm, Building, BuildingID, FrontPath, LaneID, LaneType, Map, OffstreetParking, ParkingLot,
-    ParkingLotID, Position, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
+    osm, Building, BuildingID, BuildingType, FrontPath, LaneID, LaneType, Map, OffstreetParking,
+    ParkingLot, ParkingLotID, Position, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 pub fn make_all_buildings(
     input: &BTreeMap<OriginalBuilding, RawBuilding>,
@@ -70,6 +70,7 @@ pub fn make_all_buildings(
                 amenities: b.amenities.clone(),
                 parking: None,
                 label_center: b.polygon.polylabel(),
+                bldg_type: classify_bldg(&b.osm_tags, &b.amenities, b.polygon.area()),
             };
 
             // Can this building have a driveway? If it's not next to a driving lane, then no.
@@ -353,4 +354,33 @@ fn line_valid(
     }
 
     true
+}
+
+fn classify_bldg(
+    tags: &BTreeMap<String, String>,
+    amenities: &BTreeSet<(String, String)>,
+    area_sq_meters: f64,
+) -> BuildingType {
+    let tags = Tags(tags);
+
+    // These are (name, amenity type) pairs, produced by get_bldg_amenities in
+    // convert_osm/src/osm_reader.rs.
+    if !amenities.is_empty() {
+        return BuildingType::Commercial;
+    }
+
+    if tags.is("key", "value") {
+        return BuildingType::Residential(42);
+    }
+
+    // 1 person per 10 square meters
+    BuildingType::Residential((area_sq_meters / 10.0) as usize)
+}
+
+// TODO Refactor with lane_specs
+struct Tags<'a>(&'a BTreeMap<String, String>);
+impl<'a> Tags<'a> {
+    fn is(&self, k: &str, v: &str) -> bool {
+        self.0.get(k) == Some(&v.to_string())
+    }
 }

@@ -4,7 +4,7 @@ use crate::{
 };
 use abstutil::Timer;
 use geom::{Distance, Duration, Time};
-use map_model::{BuildingID, DirectedRoadID, Map, PathConstraints, PathRequest};
+use map_model::{BuildingID, BuildingType, DirectedRoadID, Map, PathConstraints, PathRequest};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
@@ -424,14 +424,14 @@ impl ScenarioGenerator {
         let mut workplaces: Vec<BuildingID> = Vec::new();
         let mut total_ppl = 0;
         for b in map.all_buildings() {
-            // These are scraped from OSM "shop" and "amenity" tags.
-            if b.amenities.is_empty() {
-                // TODO Guess number of residences based on OSM tags.
-                let num_ppl = rng.gen_range(1, 5);
-                residences.push((b.id, num_ppl));
-                total_ppl += num_ppl;
-            } else {
-                workplaces.push(b.id);
+            match b.bldg_type {
+                BuildingType::Residential(num_ppl) => {
+                    residences.push((b.id, num_ppl));
+                    total_ppl += num_ppl;
+                }
+                BuildingType::Commercial => {
+                    workplaces.push(b.id);
+                }
             }
         }
 
