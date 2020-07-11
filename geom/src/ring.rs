@@ -77,7 +77,11 @@ impl Ring {
         let mut hits = Vec::new();
         let mut seen = HashSet::new();
         for l1 in other.lines() {
-            for l2 in self.pts.windows(2).map(|pair| Line::new(pair[0], pair[1])) {
+            for l2 in self
+                .pts
+                .windows(2)
+                .map(|pair| Line::must_new(pair[0], pair[1]))
+            {
                 if let Some(pt) = l1.intersection(&l2) {
                     if !seen.contains(&pt.to_hashable()) {
                         hits.push(pt);

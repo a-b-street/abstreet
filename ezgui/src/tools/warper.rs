@@ -13,7 +13,7 @@ impl Warper {
         let z = ctx.canvas.cam_zoom;
         Warper {
             started: Instant::now(),
-            line: Line::maybe_new(ctx.canvas.center_to_map_pt(), pt),
+            line: Line::new(ctx.canvas.center_to_map_pt(), pt),
             cam_zoom: (z, target_cam_zoom.unwrap_or(z)),
         }
     }

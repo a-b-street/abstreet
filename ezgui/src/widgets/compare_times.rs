@@ -51,18 +51,24 @@ impl CompareTimes {
             // Horizontal
             batch.push(
                 Color::grey(0.5),
-                geom::Line::new(Pt2D::new(0.0, y), Pt2D::new(width, y)).make_polygons(thickness),
+                geom::Line::new(Pt2D::new(0.0, y), Pt2D::new(width, y))
+                    .unwrap()
+                    .make_polygons(thickness),
             );
             // Vertical
             batch.push(
                 Color::grey(0.5),
-                geom::Line::new(Pt2D::new(x, 0.0), Pt2D::new(x, height)).make_polygons(thickness),
+                geom::Line::new(Pt2D::new(x, 0.0), Pt2D::new(x, height))
+                    .unwrap()
+                    .make_polygons(thickness),
             );
         }
         // Draw the diagonal, since we're comparing things on the same scale
         batch.push(
             Color::grey(0.5),
-            geom::Line::new(Pt2D::new(0.0, height), Pt2D::new(width, 0.0)).make_polygons(thickness),
+            geom::Line::new(Pt2D::new(0.0, height), Pt2D::new(width, 0.0))
+                .unwrap()
+                .make_polygons(thickness),
         );
 
         let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(4.0)).to_polygon();
@@ -145,13 +151,11 @@ impl WidgetImpl for CompareTimes {
                 let thickness = Distance::meters(2.0);
                 let mut batch = GeomBatch::new();
                 // Horizontal
-                if let Some(l) = geom::Line::maybe_new(Pt2D::new(rect.x1, cursor.y), cursor.to_pt())
-                {
+                if let Some(l) = geom::Line::new(Pt2D::new(rect.x1, cursor.y), cursor.to_pt()) {
                     batch.push(Color::WHITE, l.make_polygons(thickness));
                 }
                 // Vertical
-                if let Some(l) = geom::Line::maybe_new(Pt2D::new(cursor.x, rect.y2), cursor.to_pt())
-                {
+                if let Some(l) = geom::Line::new(Pt2D::new(cursor.x, rect.y2), cursor.to_pt()) {
                     batch.push(Color::WHITE, l.make_polygons(thickness));
                 }
 

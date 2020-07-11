@@ -114,7 +114,7 @@ impl State for PolygonEditor {
             g.draw_line(
                 POINT_COLOR,
                 POINT_RADIUS / 2.0,
-                &geom::Line::new(pts[0], pts[1]),
+                &geom::Line::must_new(pts[0], pts[1]),
             );
         }
         if pts.len() >= 3 {

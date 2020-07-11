@@ -282,7 +282,7 @@ pub fn draw_signal_phase(
 // TODO Kind of a hack to know that the second point is a better center.
 // Returns (center, angle)
 fn crosswalk_icon(geom: &PolyLine) -> (Pt2D, Angle) {
-    let l = Line::new(geom.points()[1], geom.points()[2]);
+    let l = Line::must_new(geom.points()[1], geom.points()[2]);
     (
         l.safe_dist_along(Distance::meters(1.0)).unwrap_or(l.pt1()),
         l.angle().shortest_rotation_towards(Angle::new_degs(90.0)),

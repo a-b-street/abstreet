@@ -119,7 +119,7 @@ impl DrawLane {
                     let pt2 = pt.project_away(Distance::meters(1.0), angle);
                     draw.push(
                         app.cs.light_rail_track,
-                        perp_line(Line::new(pt, pt2), lane.width).make_polygons(track_width),
+                        perp_line(Line::must_new(pt, pt2), lane.width).make_polygons(track_width),
                     );
                     dist_along += tile_every;
                 }
@@ -214,7 +214,7 @@ impl Renderable for DrawLane {
 fn perp_line(l: Line, length: Distance) -> Line {
     let pt1 = l.shift_right(length / 2.0).pt1();
     let pt2 = l.shift_left(length / 2.0).pt1();
-    Line::new(pt1, pt2)
+    Line::must_new(pt1, pt2)
 }
 
 fn calculate_sidewalk_lines(lane: &Lane) -> Vec<Polygon> {
@@ -229,8 +229,9 @@ fn calculate_sidewalk_lines(lane: &Lane) -> Vec<Polygon> {
         let (pt, angle) = lane.dist_along(dist_along);
         // Reuse perp_line. Project away an arbitrary amount
         let pt2 = pt.project_away(Distance::meters(1.0), angle);
-        result
-            .push(perp_line(Line::new(pt, pt2), lane.width).make_polygons(Distance::meters(0.25)));
+        result.push(
+            perp_line(Line::must_new(pt, pt2), lane.width).make_polygons(Distance::meters(0.25)),
+        );
         dist_along += tile_every;
     }
 
@@ -253,13 +254,13 @@ fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
             let t_pt = pt.project_away(lane.width * 0.4, perp_angle);
             // The perp leg
             let p1 = t_pt.project_away(leg_length, perp_angle.opposite());
-            result.push(Line::new(t_pt, p1).make_polygons(Distance::meters(0.25)));
+            result.push(Line::must_new(t_pt, p1).make_polygons(Distance::meters(0.25)));
             // Upper leg
             let p2 = t_pt.project_away(leg_length, lane_angle);
-            result.push(Line::new(t_pt, p2).make_polygons(Distance::meters(0.25)));
+            result.push(Line::must_new(t_pt, p2).make_polygons(Distance::meters(0.25)));
             // Lower leg
             let p3 = t_pt.project_away(leg_length, lane_angle.opposite());
-            result.push(Line::new(t_pt, p3).make_polygons(Distance::meters(0.25)));
+            result.push(Line::must_new(t_pt, p3).make_polygons(Distance::meters(0.25)));
         }
     }
 

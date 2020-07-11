@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
-use geom::{Distance, Line, Polygon, Pt2D};
+use geom::{Distance, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 use std::cell::RefCell;
 
@@ -23,15 +23,13 @@ impl DrawBuilding {
     ) -> DrawBuilding {
         // Trim the front path line away from the sidewalk's center line, so that it doesn't
         // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
-        let mut front_path_line = bldg.front_path.line.clone();
-        let len = front_path_line.length();
-        let trim_back = SIDEWALK_THICKNESS / 2.0;
-        if len > trim_back && len - trim_back > geom::EPSILON_DIST {
-            front_path_line = Line::new(
-                front_path_line.pt1(),
-                front_path_line.dist_along(len - trim_back),
-            );
-        }
+        let orig_line = &bldg.front_path.line;
+        let front_path_line = orig_line
+            .slice(
+                Distance::ZERO,
+                orig_line.length() - SIDEWALK_THICKNESS / 2.0,
+            )
+            .unwrap_or_else(|| orig_line.clone());
 
         if bldg.amenities.is_empty() {
             bldg_batch.push(cs.residential_building, bldg.polygon.clone());

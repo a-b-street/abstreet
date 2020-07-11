@@ -49,6 +49,7 @@ impl DrawBusStop {
                 center.project_away(RADIUS, Angle::new_degs(90.0)),
                 center.project_away(1.5 * RADIUS, Angle::new_degs(90.0)),
             )
+            .unwrap()
             .make_polygons(Distance::meters(0.3)),
         );
 

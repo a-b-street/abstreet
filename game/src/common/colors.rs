@@ -120,7 +120,7 @@ impl ColorLegend {
         let width_each = width / ((n - 1) as f64);
         batch.fancy_push(
             FancyColor::LinearGradient(LinearGradient {
-                line: Line::new(Pt2D::new(0.0, 0.0), Pt2D::new(width, 0.0)),
+                line: Line::must_new(Pt2D::new(0.0, 0.0), Pt2D::new(width, 0.0)),
                 stops: scale
                     .0
                     .iter()

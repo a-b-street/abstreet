@@ -488,16 +488,19 @@ impl Screensaver {
     fn bounce(ctx: &mut EventCtx, app: &mut App, rng: &mut XorShiftRng) -> Screensaver {
         let at = ctx.canvas.center_to_map_pt();
         let bounds = app.primary.map.get_bounds();
-        // TODO Ideally bounce off the edge of the map
-        let goto = Pt2D::new(
-            rng.gen_range(0.0, bounds.max_x),
-            rng.gen_range(0.0, bounds.max_y),
-        );
+        let line = loop {
+            let goto = Pt2D::new(
+                rng.gen_range(0.0, bounds.max_x),
+                rng.gen_range(0.0, bounds.max_y),
+            );
+            if let Some(l) = Line::new(at, goto) {
+                break l;
+            }
+        };
         ctx.canvas.cam_zoom = 10.0;
-        ctx.canvas.center_on_map_pt(at);
 
         Screensaver {
-            line: Line::new(at, goto),
+            line,
             started: Instant::now(),
         }
     }

@@ -81,7 +81,7 @@ impl WalkingSimState {
             ),
             SidewalkPOI::BikeRack(driving_pos) => PedState::FinishingBiking(
                 params.start.clone(),
-                Line::new(driving_pos.pt(map), params.start.sidewalk_pos.pt(map)),
+                Line::must_new(driving_pos.pt(map), params.start.sidewalk_pos.pt(map)),
                 TimeInterval::new(now, now + TIME_TO_FINISH_BIKING),
             ),
             _ => ped.crossing_state(params.start.sidewalk_pos.dist_along(), now, map),
@@ -198,7 +198,7 @@ impl WalkingSimState {
                             let pt2 = driving_pos.pt(map);
                             ped.state = PedState::StartingToBike(
                                 ped.goal.clone(),
-                                Line::new(pt1, pt2),
+                                Line::must_new(pt1, pt2),
                                 TimeInterval::new(now, now + TIME_TO_START_BIKING),
                             );
                             scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));

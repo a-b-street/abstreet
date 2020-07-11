@@ -196,7 +196,7 @@ impl PolyLine {
     pub fn lines(&self) -> Vec<Line> {
         self.pts
             .windows(2)
-            .map(|pair| Line::new(pair[0], pair[1]))
+            .map(|pair| Line::must_new(pair[0], pair[1]))
             .collect()
     }
 
@@ -348,10 +348,10 @@ impl PolyLine {
         *self.pts.last().unwrap()
     }
     pub fn first_line(&self) -> Line {
-        Line::new(self.pts[0], self.pts[1])
+        Line::must_new(self.pts[0], self.pts[1])
     }
     pub fn last_line(&self) -> Line {
-        Line::new(self.pts[self.pts.len() - 2], self.pts[self.pts.len() - 1])
+        Line::must_new(self.pts[self.pts.len() - 2], self.pts[self.pts.len() - 1])
     }
 
     pub fn shift_right(&self, width: Distance) -> Warn<PolyLine> {
@@ -379,7 +379,7 @@ impl PolyLine {
 
     fn shift_with_sharp_angles(&self, width: Distance, miter_threshold: f64) -> Vec<Pt2D> {
         if self.pts.len() == 2 {
-            let l = Line::new(self.pts[0], self.pts[1]).shift_either_direction(width);
+            let l = Line::must_new(self.pts[0], self.pts[1]).shift_either_direction(width);
             return vec![l.pt1(), l.pt2()];
         }
 
@@ -392,8 +392,8 @@ impl PolyLine {
         loop {
             let pt3_raw = self.pts[pt3_idx];
 
-            let l1 = Line::new(pt1_raw, pt2_raw).shift_either_direction(width);
-            let l2 = Line::new(pt2_raw, pt3_raw).shift_either_direction(width);
+            let l1 = Line::must_new(pt1_raw, pt2_raw).shift_either_direction(width);
+            let l2 = Line::must_new(pt2_raw, pt3_raw).shift_either_direction(width);
 
             if pt3_idx == 2 {
                 result.push(l1.pt1());
@@ -591,7 +591,7 @@ impl PolyLine {
         let arrow_line = if last_len <= dash_len {
             last_line
         } else {
-            Line::new(last_line.dist_along(last_len - dash_len), last_line.pt2())
+            Line::must_new(last_line.dist_along(last_len - dash_len), last_line.pt2())
         };
         polygons.push(arrow_line.to_polyline().make_arrow(width, cap).unwrap());
         polygons
@@ -710,7 +710,7 @@ impl fmt::Display for PolyLine {
         for (idx, pt) in self.pts.iter().enumerate() {
             write!(f, "  Pt2D::new({}, {}),", pt.x(), pt.y())?;
             if idx > 0 {
-                let line = Line::new(self.pts[idx - 1], *pt);
+                let line = Line::must_new(self.pts[idx - 1], *pt);
                 write!(
                     f,
                     "    // {}, {} (+ {} @ {})",

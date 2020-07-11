@@ -8,26 +8,21 @@ use std::fmt;
 pub struct Line(Pt2D, Pt2D);
 
 impl Line {
-    pub fn new(pt1: Pt2D, pt2: Pt2D) -> Line {
-        let len = pt1.dist_to(pt2);
-        if len < EPSILON_DIST {
-            panic!("Tiny line with length {}", len);
-        }
-        Line(pt1, pt2)
-    }
-
-    pub fn maybe_new(pt1: Pt2D, pt2: Pt2D) -> Option<Line> {
-        if pt1 == pt2 {
+    pub fn new(pt1: Pt2D, pt2: Pt2D) -> Option<Line> {
+        if pt1.dist_to(pt2) < EPSILON_DIST {
             return None;
         }
-        Some(Line::new(pt1, pt2))
+        Some(Line(pt1, pt2))
+    }
+    // Just to be more clear at the call-site
+    pub fn must_new(pt1: Pt2D, pt2: Pt2D) -> Line {
+        Line::new(pt1, pt2).unwrap()
     }
 
     pub fn infinite(&self) -> InfiniteLine {
         InfiniteLine(self.0, self.1)
     }
 
-    // TODO we call these frequently here; unnecessary copies?
     pub fn pt1(&self) -> Pt2D {
         self.0
     }
@@ -171,6 +166,13 @@ impl Line {
         } else {
             Some(self.dist_along(dist))
         }
+    }
+
+    pub fn slice(&self, from: Distance, to: Distance) -> Option<Line> {
+        if from < Distance::ZERO || to < Distance::ZERO || from >= to {
+            return None;
+        }
+        Line::new(self.safe_dist_along(from)?, self.safe_dist_along(to)?)
     }
 
     pub fn middle(&self) -> Pt2D {

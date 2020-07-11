@@ -50,6 +50,7 @@ impl DrawBike {
                     hand_pos.project_away(body_radius, hand_angle.rotate_degs(90.0)),
                     hand_pos.project_away(body_radius, hand_angle.rotate_degs(-90.0)),
                 )
+                .unwrap()
                 .make_polygons(Distance::meters(0.1)),
             );
 
@@ -60,6 +61,7 @@ impl DrawBike {
                     body_pos.project_away(0.9 * body_radius, facing.rotate_degs(-30.0)),
                     hand_pos.project_away(0.4 * body_radius, hand_angle.rotate_degs(-90.0)),
                 )
+                .unwrap()
                 .make_polygons(Distance::meters(0.08)),
             );
             draw_default.push(
@@ -68,6 +70,7 @@ impl DrawBike {
                     body_pos.project_away(0.9 * body_radius, facing.rotate_degs(30.0)),
                     hand_pos.project_away(0.4 * body_radius, hand_angle.rotate_degs(90.0)),
                 )
+                .unwrap()
                 .make_polygons(Distance::meters(0.08)),
             );
         }

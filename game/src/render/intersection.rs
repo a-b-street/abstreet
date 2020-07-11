@@ -109,7 +109,7 @@ impl DrawIntersection {
         );
 
         let octagon = make_octagon(last_line.pt2(), Distance::meters(1.0), last_line.angle());
-        let pole = Line::new(
+        let pole = Line::must_new(
             last_line
                 .pt2()
                 .project_away(Distance::meters(1.5), last_line.angle().opposite()),
@@ -322,7 +322,12 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
             );
             return;
         }
-        Line::new(pts[1], pts[2])
+        match Line::new(pts[1], pts[2]) {
+            Some(l) => l,
+            None => {
+                return;
+            }
+        }
     };
 
     let available_length = line.length() - (boundary * 2.0);
@@ -337,7 +342,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
             let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
             batch.push(
                 cs.general_road_marking,
-                perp_line(Line::new(pt1, pt2), width).make_polygons(CROSSWALK_LINE_THICKNESS),
+                perp_line(Line::must_new(pt1, pt2), width).make_polygons(CROSSWALK_LINE_THICKNESS),
             );
 
             // Actually every line is a double
@@ -345,7 +350,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
             let pt4 = pt3.project_away(Distance::meters(1.0), turn.angle());
             batch.push(
                 cs.general_road_marking,
-                perp_line(Line::new(pt3, pt4), width).make_polygons(CROSSWALK_LINE_THICKNESS),
+                perp_line(Line::must_new(pt3, pt4), width).make_polygons(CROSSWALK_LINE_THICKNESS),
             );
 
             dist_along += tile_every;
@@ -409,5 +414,5 @@ fn make_rainbow_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map) -> bool
 fn perp_line(l: Line, length: Distance) -> Line {
     let pt1 = l.shift_right(length / 2.0).pt1();
     let pt2 = l.shift_left(length / 2.0).pt1();
-    Line::new(pt1, pt2)
+    Line::must_new(pt1, pt2)
 }
