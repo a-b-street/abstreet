@@ -65,8 +65,9 @@ pub struct Building {
 pub enum BuildingType {
     // An estimated number of residents
     Residential(usize),
+    ResidentialCommercial(usize),
     Commercial,
-    // TODO Multi-use?
+    Empty,
 }
 
 impl Building {

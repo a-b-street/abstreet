@@ -429,9 +429,15 @@ impl ScenarioGenerator {
                     residences.push((b.id, num_ppl));
                     total_ppl += num_ppl;
                 }
+                BuildingType::ResidentialCommercial(num_ppl) => {
+                    residences.push((b.id, num_ppl));
+                    total_ppl += num_ppl;
+                    workplaces.push(b.id);
+                }
                 BuildingType::Commercial => {
                     workplaces.push(b.id);
                 }
+                BuildingType::Empty => {}
             }
         }
 

@@ -369,12 +369,28 @@ fn classify_bldg(
         return BuildingType::Commercial;
     }
 
-    if tags.is("key", "value") {
-        return BuildingType::Residential(42);
+    if tags.is("building", "office") {
+        return BuildingType::Commercial;
     }
 
-    // 1 person per 10 square meters
-    BuildingType::Residential((area_sq_meters / 10.0) as usize)
+    // TODO - use some "in list" to avoid duplicating
+    if tags.is("building", "garage") {
+        return BuildingType::Empty;
+    }
+    if tags.is("building", "garages") {
+        return BuildingType::Empty;
+    }
+
+    if tags.is("building", "house") {
+        return BuildingType::Residential(3); // I want to use rng.gen_range(1, 5)
+    }
+
+    if tags.is("building", "apartment") {
+        // 1 person per 10 square meters
+        return BuildingType::Residential((area_sq_meters / 10.0) as usize)
+    }
+
+    return BuildingType::Residential(1); // I want to use rng.gen_range(1, 5)
 }
 
 // TODO Refactor with lane_specs
