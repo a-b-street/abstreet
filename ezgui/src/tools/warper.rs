@@ -54,7 +54,7 @@ impl Warper {
             ctx.canvas.cam_zoom = self.cam_zoom.0 + percent * (self.cam_zoom.1 - self.cam_zoom.0);
             if let Some(ref line) = self.line {
                 ctx.canvas
-                    .center_on_map_pt(line.dist_along(line.length() * percent));
+                    .center_on_map_pt(line.percent_along(percent).unwrap());
             } else {
                 ctx.canvas.center_on_map_pt(orig_center);
             }

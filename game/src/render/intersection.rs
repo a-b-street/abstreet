@@ -336,8 +336,9 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
         let mut dist_along =
             boundary + (available_length - tile_every * (num_markings as f64)) / 2.0;
         // TODO Seems to be an off-by-one sometimes. Not enough of these.
+        let err = format!("make_crosswalk for {} broke", turn.id);
         for _ in 0..=num_markings {
-            let pt1 = line.dist_along(dist_along);
+            let pt1 = line.dist_along(dist_along).expect(&err);
             // Reuse perp_line. Project away an arbitrary amount
             let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
             batch.push(
@@ -346,7 +347,9 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
             );
 
             // Actually every line is a double
-            let pt3 = line.dist_along(dist_along + 2.0 * CROSSWALK_LINE_THICKNESS);
+            let pt3 = line
+                .dist_along(dist_along + 2.0 * CROSSWALK_LINE_THICKNESS)
+                .expect(&err);
             let pt4 = pt3.project_away(Distance::meters(1.0), turn.angle());
             batch.push(
                 cs.general_road_marking,

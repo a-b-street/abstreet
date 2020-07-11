@@ -590,10 +590,13 @@ impl Pedestrian {
                     facing,
                 )
             }
+            // If we're on some tiny line and percent_along fails, just fall back to to some point
+            // on the line instead of crashing.
             PedState::LeavingBuilding(b, ref time_int) => {
                 let line = &map.get_b(b).front_path.line;
                 (
-                    line.dist_along(time_int.percent(now) * line.length()),
+                    line.percent_along(time_int.percent(now))
+                        .unwrap_or(line.pt1()),
                     line.angle(),
                 )
             }
@@ -601,14 +604,16 @@ impl Pedestrian {
                 let line = &map.get_b(b).front_path.line;
                 (
                     line.reverse()
-                        .dist_along(time_int.percent(now) * line.length()),
+                        .percent_along(time_int.percent(now))
+                        .unwrap_or(line.pt1()),
                     line.angle().opposite(),
                 )
             }
             PedState::LeavingParkingLot(pl, ref time_int) => {
                 let line = &map.get_pl(pl).sidewalk_line;
                 (
-                    line.dist_along(time_int.percent(now) * line.length()),
+                    line.percent_along(time_int.percent(now))
+                        .unwrap_or(line.pt1()),
                     line.angle(),
                 )
             }
@@ -616,16 +621,21 @@ impl Pedestrian {
                 let line = &map.get_pl(pl).sidewalk_line;
                 (
                     line.reverse()
-                        .dist_along(time_int.percent(now) * line.length()),
+                        .percent_along(time_int.percent(now))
+                        .unwrap_or(line.pt1()),
                     line.angle().opposite(),
                 )
             }
-            PedState::StartingToBike(_, ref line, ref time_int) => {
-                (line.percent_along(time_int.percent(now)), line.angle())
-            }
-            PedState::FinishingBiking(_, ref line, ref time_int) => {
-                (line.percent_along(time_int.percent(now)), line.angle())
-            }
+            PedState::StartingToBike(_, ref line, ref time_int) => (
+                line.percent_along(time_int.percent(now))
+                    .unwrap_or(line.pt1()),
+                line.angle(),
+            ),
+            PedState::FinishingBiking(_, ref line, ref time_int) => (
+                line.percent_along(time_int.percent(now))
+                    .unwrap_or(line.pt1()),
+                line.angle(),
+            ),
             PedState::WaitingForBus(_, _) => {
                 let (pt, angle) = self.goal.sidewalk_pos.pt_and_angle(map);
                 // Stand on the far side of the sidewalk (by the bus stop), facing the road

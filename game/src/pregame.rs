@@ -477,8 +477,6 @@ impl State for Proposals {
     }
 }
 
-const SPEED: Speed = Speed::const_meters_per_second(20.0);
-
 struct Screensaver {
     line: Line,
     started: Instant,
@@ -506,20 +504,22 @@ impl Screensaver {
     }
 
     fn update(&mut self, rng: &mut XorShiftRng, ctx: &mut EventCtx, app: &mut App) {
-        const SCREENSAVER_SPEED: f64 = 3.0;
+        const SIM_SPEED: f64 = 3.0;
+        const PAN_SPEED: Speed = Speed::const_meters_per_second(20.0);
 
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             ctx.input.use_update_event();
-            let dist_along = Duration::realtime_elapsed(self.started) * SPEED;
-            if dist_along < self.line.length() {
-                ctx.canvas
-                    .center_on_map_pt(self.line.dist_along(dist_along));
+            if let Some(pt) = self
+                .line
+                .dist_along(Duration::realtime_elapsed(self.started) * PAN_SPEED)
+            {
+                ctx.canvas.center_on_map_pt(pt);
             } else {
                 *self = Screensaver::bounce(ctx, app, rng);
             }
             app.primary.sim.time_limited_step(
                 &app.primary.map,
-                SCREENSAVER_SPEED * dt,
+                SIM_SPEED * dt,
                 Duration::seconds(0.033),
                 &mut app.primary.sim_cb,
             );

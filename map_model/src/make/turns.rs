@@ -476,8 +476,8 @@ fn make_degenerate_crosswalks(
     let l2_in = get_sidewalk(lanes, r2.incoming_lanes(i))?;
     let l2_out = get_sidewalk(lanes, r2.outgoing_lanes(i))?;
 
-    let pt1 = Line::new(l1_in.last_pt(), l2_out.first_pt())?.percent_along(0.5);
-    let pt2 = Line::new(l1_out.first_pt(), l2_in.last_pt())?.percent_along(0.5);
+    let pt1 = Line::new(l1_in.last_pt(), l2_out.first_pt())?.percent_along(0.5)?;
+    let pt2 = Line::new(l1_out.first_pt(), l2_in.last_pt())?.percent_along(0.5)?;
 
     if pt1 == pt2 {
         return None;

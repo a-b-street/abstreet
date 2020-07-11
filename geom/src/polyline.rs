@@ -230,12 +230,12 @@ impl PolyLine {
 
             // Does this line contain the first point of the slice?
             if result.is_empty() && dist_so_far + length >= start {
-                result.push(line.dist_along(start - dist_so_far));
+                result.push(line.must_dist_along(start - dist_so_far));
             }
 
             // Does this line contain the last point of the slice?
             if dist_so_far + length >= end {
-                let last_pt = line.dist_along(end - dist_so_far);
+                let last_pt = line.must_dist_along(end - dist_so_far);
                 if *result.last().unwrap() == last_pt {
                     result.pop();
                 }
@@ -313,7 +313,7 @@ impl PolyLine {
                 Distance::ZERO
             };
             if dist_left <= length + epsilon {
-                return Some((l.dist_along(dist_left), l.angle()));
+                return Some((l.must_dist_along(dist_left), l.angle()));
             }
             dist_left -= length;
         }
@@ -591,7 +591,10 @@ impl PolyLine {
         let arrow_line = if last_len <= dash_len {
             last_line
         } else {
-            Line::must_new(last_line.dist_along(last_len - dash_len), last_line.pt2())
+            Line::must_new(
+                last_line.must_dist_along(last_len - dash_len),
+                last_line.pt2(),
+            )
         };
         polygons.push(arrow_line.to_polyline().make_arrow(width, cap).unwrap());
         polygons
