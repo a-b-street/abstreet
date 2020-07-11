@@ -285,11 +285,10 @@ impl IntersectionSimState {
         } else if !self.handle_accepted_conflicts(&req, map, readonly_pair) {
             // It's never OK to perform a conflicting turn
             false
-        } else if false
-            && maybe_cars_and_queues
-                .as_ref()
-                .map(|(car, _, _)| car.router.get_path().currently_inside_ut().is_some())
-                .unwrap_or(false)
+        } else if maybe_cars_and_queues
+            .as_ref()
+            .map(|(car, _, _)| car.router.get_path().currently_inside_ut().is_some())
+            .unwrap_or(false)
         {
             // If we started an uber-turn, then finish it! But alert if we're running a red light.
             if let Some(ref signal) = map.maybe_get_traffic_signal(turn.parent) {

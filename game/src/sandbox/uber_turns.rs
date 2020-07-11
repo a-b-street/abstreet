@@ -40,6 +40,7 @@ impl UberTurnPicker {
                 ]),
                 Btn::text_fg("View uber-turns").build_def(ctx, hotkey(Key::Enter)),
                 Btn::text_fg("Edit").build_def(ctx, hotkey(Key::E)),
+                Btn::text_fg("Detect all clusters").build_def(ctx, hotkey(Key::D)),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
@@ -95,6 +96,12 @@ impl State for UberTurnPicker {
                         app,
                         &IntersectionCluster::new(self.members.clone(), &app.primary.map).0,
                     ));
+                }
+                "Detect all clusters" => {
+                    self.members.clear();
+                    for ic in IntersectionCluster::find_all(&app.primary.map) {
+                        self.members.extend(ic.members);
+                    }
                 }
                 _ => unreachable!(),
             },
