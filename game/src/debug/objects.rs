@@ -28,14 +28,14 @@ impl ObjectDebugger {
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         if self.debug_tooltip_key_held {
             if let Some(pt) = g.canvas.get_cursor_in_map_space() {
-                if let Some(gps) = pt.to_gps(app.primary.map.get_gps_bounds()) {
-                    let mut txt = Text::new();
-                    txt.add(Line(pt.to_string()));
-                    txt.add(Line(gps.to_string()));
-                    txt.add(Line(format!("{:?}", g.canvas.get_cursor())));
-                    txt.add(Line(format!("zoom: {}", g.canvas.cam_zoom)));
-                    g.draw_mouse_tooltip(txt);
-                }
+                let mut txt = Text::new();
+                txt.add(Line(pt.to_string()));
+                txt.add(Line(
+                    pt.to_gps(app.primary.map.get_gps_bounds()).to_string(),
+                ));
+                txt.add(Line(format!("{:?}", g.canvas.get_cursor())));
+                txt.add(Line(format!("zoom: {}", g.canvas.cam_zoom)));
+                g.draw_mouse_tooltip(txt);
             }
         }
     }

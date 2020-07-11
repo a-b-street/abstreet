@@ -47,7 +47,7 @@ pub fn extract_osm(
         }
 
         let mut map = RawMap::blank(city_name, map_name);
-        map.boundary_polygon = Polygon::new(&gps_bounds.must_convert(&pts));
+        map.boundary_polygon = Polygon::new(&gps_bounds.convert(&pts));
         map.gps_bounds = gps_bounds;
         map
     } else {
@@ -68,7 +68,7 @@ pub fn extract_osm(
     timer.start_iter("processing OSM nodes", doc.nodes.len());
     for node in doc.nodes.values() {
         timer.next();
-        let pt = Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds);
+        let pt = Pt2D::from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds);
         osm_node_ids.insert(pt.to_hashable(), node.id);
 
         let tags = tags_to_map(&node.tags);
@@ -116,7 +116,7 @@ pub fn extract_osm(
         if !valid || gps_pts.is_empty() {
             continue;
         }
-        let pts = map.gps_bounds.forcibly_convert(&gps_pts);
+        let pts = map.gps_bounds.convert(&gps_pts);
         let mut tags = tags_to_map(&way.tags);
         tags.insert(osm::OSM_WAY_ID.to_string(), way.id.to_string());
 
@@ -631,7 +631,7 @@ fn extract_route(
                                 .get("name")
                                 .cloned()
                                 .unwrap_or_else(|| format!("stop #{}", stops.len() + 1)),
-                            vehicle_pos: Pt2D::forcibly_from_gps(
+                            vehicle_pos: Pt2D::from_gps(
                                 LonLat::new(node.lon, node.lat),
                                 gps_bounds,
                             ),
@@ -645,7 +645,7 @@ fn extract_route(
                                 .get("name")
                                 .cloned()
                                 .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
-                            Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), gps_bounds),
+                            Pt2D::from_gps(LonLat::new(node.lon, node.lat), gps_bounds),
                         ),
                         osm_xml::Reference::Way(way) => (
                             tags_to_map(&way.tags)

@@ -426,7 +426,7 @@ impl StoryMap {
                 .iter()
                 .map(|m| {
                     (
-                        app.primary.map.get_gps_bounds().must_convert_back(&m.pts),
+                        app.primary.map.get_gps_bounds().convert_back(&m.pts),
                         m.event.clone(),
                     )
                 })

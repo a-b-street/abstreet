@@ -50,7 +50,7 @@ fn road(id: RoadID, map: &Map) -> Feature {
                 .points()
                 .iter()
                 .map(|pt| {
-                    let gps = pt.forcibly_to_gps(gps_bounds);
+                    let gps = pt.to_gps(gps_bounds);
                     vec![gps.x(), gps.y()]
                 })
                 .collect(),

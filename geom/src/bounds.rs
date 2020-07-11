@@ -130,27 +130,25 @@ impl GPSBounds {
         b
     }
 
+    // Fails if points are out-of-bounds.
     pub fn try_convert(&self, pts: &Vec<LonLat>) -> Option<Vec<Pt2D>> {
         let mut result = Vec::new();
         for pt in pts {
-            result.push(Pt2D::from_gps(*pt, self)?);
+            if !self.contains(*pt) {
+                return None;
+            }
+            result.push(Pt2D::from_gps(*pt, self));
         }
         Some(result)
     }
 
     // Results can be out-of-bounds.
-    pub fn forcibly_convert(&self, pts: &Vec<LonLat>) -> Vec<Pt2D> {
-        pts.iter()
-            .map(|pt| Pt2D::forcibly_from_gps(*pt, self))
-            .collect()
+    pub fn convert(&self, pts: &Vec<LonLat>) -> Vec<Pt2D> {
+        pts.iter().map(|pt| Pt2D::from_gps(*pt, self)).collect()
     }
 
-    pub fn must_convert(&self, pts: &Vec<LonLat>) -> Vec<Pt2D> {
-        self.try_convert(pts).unwrap()
-    }
-
-    pub fn must_convert_back(&self, pts: &Vec<Pt2D>) -> Vec<LonLat> {
-        pts.iter().map(|pt| pt.to_gps(self).unwrap()).collect()
+    pub fn convert_back(&self, pts: &Vec<Pt2D>) -> Vec<LonLat> {
+        pts.iter().map(|pt| pt.to_gps(self)).collect()
     }
 
     // TODO don't hardcode

@@ -54,12 +54,8 @@ impl State for PolygonEditor {
         ctx.canvas_movement();
 
         if self.moving_pt {
-            if let Some(pt) = ctx
-                .canvas
-                .get_cursor_in_map_space()
-                .and_then(|c| c.to_gps(gps_bounds))
-            {
-                self.points[self.mouseover_pt.unwrap()] = pt;
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                self.points[self.mouseover_pt.unwrap()] = pt.to_gps(gps_bounds);
             }
             if ctx.input.key_released(Key::LeftControl) {
                 self.moving_pt = false;
@@ -86,7 +82,7 @@ impl State for PolygonEditor {
         if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
             self.mouseover_pt = self.points.iter().position(|pt| {
                 Circle::new(
-                    Pt2D::from_gps(*pt, gps_bounds).unwrap(),
+                    Pt2D::from_gps(*pt, gps_bounds),
                     POINT_RADIUS / ctx.canvas.cam_zoom,
                 )
                 .contains_pt(cursor)
@@ -102,13 +98,9 @@ impl State for PolygonEditor {
             {
                 self.moving_pt = true;
             }
-        } else if let Some(pt) = ctx
-            .canvas
-            .get_cursor_in_map_space()
-            .and_then(|c| c.to_gps(gps_bounds))
-        {
+        } else if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
             if app.per_obj.left_click(ctx, "add a new point") {
-                self.points.push(pt);
+                self.points.push(pt.to_gps(gps_bounds));
             }
         }
 
@@ -116,7 +108,7 @@ impl State for PolygonEditor {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        let pts: Vec<Pt2D> = app.primary.map.get_gps_bounds().must_convert(&self.points);
+        let pts: Vec<Pt2D> = app.primary.map.get_gps_bounds().convert(&self.points);
 
         if pts.len() == 2 {
             g.draw_line(

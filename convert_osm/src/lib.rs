@@ -150,11 +150,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
     }
 
     for s in shapes.shapes.into_iter() {
-        let pts = if let Some(pts) = map.gps_bounds.try_convert(&s.points) {
-            pts
-        } else {
-            continue;
-        };
+        let pts = map.gps_bounds.convert(&s.points);
         if pts.len() <= 1 {
             continue;
         }
@@ -235,7 +231,7 @@ fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
     // TODO Another function just to use ?. Try blocks would rock.
     let mut handle_shape: Box<dyn FnMut(kml::ExtraShape) -> Option<()>> = Box::new(|s| {
         assert_eq!(s.points.len(), 1);
-        let pt = Pt2D::from_gps(s.points[0], &map.gps_bounds)?;
+        let pt = Pt2D::from_gps(s.points[0], &map.gps_bounds);
         let (id, _) = closest.closest_pt(pt, Distance::meters(50.0))?;
         // TODO Handle parking lots.
         if !map.buildings[&id].polygon.contains_pt(pt) {
@@ -306,7 +302,7 @@ fn use_elevation(map: &mut RawMap, path: &str, timer: &mut Timer) {
     timer.start("apply elevation data to intersections");
     let elevation = srtm::Elevation::load(path).unwrap();
     for i in map.intersections.values_mut() {
-        i.elevation = elevation.get(i.point.forcibly_to_gps(&map.gps_bounds));
+        i.elevation = elevation.get(i.point.to_gps(&map.gps_bounds));
     }
     timer.stop("apply elevation data to intersections");
 }

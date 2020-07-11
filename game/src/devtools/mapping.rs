@@ -358,15 +358,14 @@ impl State for ParkingMapper {
         }
         if self.selected.is_some() && ctx.input.new_was_pressed(&hotkey(Key::S).unwrap()) {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if let Some(gps) = pt.to_gps(app.primary.map.get_gps_bounds()) {
-                    #[cfg(not(target_arch = "wasm32"))]
-                    {
-                        let _ = webbrowser::open(&format!(
-                            "https://www.bing.com/maps?cp={}~{}&style=x",
-                            gps.y(),
-                            gps.x()
-                        ));
-                    }
+                let gps = pt.to_gps(app.primary.map.get_gps_bounds());
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    let _ = webbrowser::open(&format!(
+                        "https://www.bing.com/maps?cp={}~{}&style=x",
+                        gps.y(),
+                        gps.x()
+                    ));
                 }
             }
         }

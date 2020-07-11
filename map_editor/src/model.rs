@@ -112,12 +112,12 @@ impl Model {
         self.map.boundary_polygon = bounds.get_rectangle();
         // Make gps_bounds sane
         self.map.gps_bounds = GPSBounds::new();
-        self.map.gps_bounds.update(
-            Pt2D::new(bounds.min_x, bounds.min_y).forcibly_to_gps(&GPSBounds::seattle_bounds()),
-        );
-        self.map.gps_bounds.update(
-            Pt2D::new(bounds.max_x, bounds.max_y).forcibly_to_gps(&GPSBounds::seattle_bounds()),
-        );
+        self.map
+            .gps_bounds
+            .update(Pt2D::new(bounds.min_x, bounds.min_y).to_gps(&GPSBounds::seattle_bounds()));
+        self.map
+            .gps_bounds
+            .update(Pt2D::new(bounds.max_x, bounds.max_y).to_gps(&GPSBounds::seattle_bounds()));
 
         abstutil::write_json(abstutil::path_synthetic_map(&self.map.name), &self.map);
     }
@@ -513,6 +513,7 @@ impl Model {
             obj.push(
                 Model::lt_to_color(*lt, unset, lanes_unknown),
                 self.map
+                    .config
                     .driving_side
                     .right_shift(center_pts.clone(), offset + width / 2.0)
                     .unwrap()
@@ -536,6 +537,7 @@ impl Model {
             obj.push(
                 Model::lt_to_color(*lt, unset, lanes_unknown),
                 self.map
+                    .config
                     .driving_side
                     .right_shift(center_pts.reversed(), offset + width / 2.0)
                     .unwrap()

@@ -52,11 +52,11 @@ impl ViewKML {
                 .collect();
             let objects: Vec<Object> = timer
                 .parallelize("convert shapes", raw_shapes.shapes, |shape| {
-                    if boundary.contains_pt(Pt2D::forcibly_from_gps(shape.points[0], bounds)) {
+                    if boundary.contains_pt(Pt2D::from_gps(shape.points[0], bounds)) {
                         let pts: Vec<Pt2D> = shape
                             .points
                             .into_iter()
-                            .map(|gps| Pt2D::forcibly_from_gps(gps, bounds))
+                            .map(|gps| Pt2D::from_gps(gps, bounds))
                             .collect();
                         Some(make_object(
                             &bldg_lookup,
