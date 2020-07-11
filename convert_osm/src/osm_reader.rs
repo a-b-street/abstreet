@@ -564,7 +564,7 @@ fn glue_multipolygon(
         polygons.push(Polygon::new(&result));
         return polygons;
     }
-    if let Some(poly) = glue_to_boundary(PolyLine::new(result.clone()), boundary) {
+    if let Some(poly) = glue_to_boundary(PolyLine::must_new(result.clone()), boundary) {
         polygons.push(poly);
     } else {
         // Give up and just connect the ends directly.

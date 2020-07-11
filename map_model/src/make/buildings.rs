@@ -85,7 +85,7 @@ pub fn make_all_buildings(
                 if driving_pos.dist_along() > driveway_buffer
                     && map.get_l(driving_lane).length() - driving_pos.dist_along() > driveway_buffer
                 {
-                    let driveway_line = PolyLine::new(vec![
+                    let driveway_line = PolyLine::must_new(vec![
                         sidewalk_line.pt1(),
                         sidewalk_line.pt2(),
                         driving_pos.pt(map),
@@ -175,7 +175,7 @@ pub fn make_all_parking_lots(
                     && map.get_l(driving_lane).length() - driving_pos.dist_along() > driveway_buffer
                 {
                     driveway = Some((
-                        PolyLine::new(vec![
+                        PolyLine::must_new(vec![
                             sidewalk_line.pt1(),
                             sidewalk_line.pt2(),
                             driving_pos.pt(map),
@@ -225,7 +225,7 @@ pub fn make_all_parking_lots(
             .map(|(id, _, _)| id)
             .collect();
 
-        let (polylines, rings) = Ring::split_points(pts);
+        let (polylines, rings) = Ring::split_points(pts).unwrap();
         'PL: for pl in polylines {
             for id in &candidates {
                 let lot = &mut results[id.0];

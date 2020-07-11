@@ -305,5 +305,5 @@ fn turn_group_geom(
             &polylines.iter().map(|pl| pl.points()[idx]).collect(),
         ));
     }
-    PolyLine::new(pts)
+    PolyLine::must_new(pts)
 }

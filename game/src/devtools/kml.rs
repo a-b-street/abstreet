@@ -206,7 +206,17 @@ fn make_object(
         //Polygon::new(&pts)
         Ring::new(pts).make_polygons(THICKNESS)
     } else {
-        PolyLine::new(pts).make_polygons(THICKNESS)
+        let backup = pts[0];
+        match PolyLine::new(pts) {
+            Ok(pl) => pl.make_polygons(THICKNESS),
+            Err(err) => {
+                println!(
+                    "Object with attribs {:?} has messed up geometry: {}",
+                    attribs, err
+                );
+                Circle::new(backup, RADIUS).to_polygon()
+            }
+        }
     };
 
     let mut osm_bldg = None;

@@ -317,7 +317,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane, timer: &mut Timer) -> Vec<Pol
             continue;
         }
         results.push(
-            PolyLine::new(vec![
+            PolyLine::must_new(vec![
                 common_base.last_pt(),
                 common_base
                     .last_pt()
@@ -355,7 +355,7 @@ fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
     while dist + arrow_len <= len {
         let (pt, angle) = lane.lane_center_pts.dist_along(dist);
         results.push(
-            PolyLine::new(vec![
+            PolyLine::must_new(vec![
                 pt.project_away(arrow_len / 2.0, angle.opposite()),
                 pt.project_away(arrow_len / 2.0, angle),
             ])

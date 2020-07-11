@@ -257,7 +257,7 @@ fn calculate_border_arrows(
         };
         result.push(
             // DEGENERATE_INTERSECTION_HALF_LENGTH is 5m...
-            PolyLine::new(vec![
+            PolyLine::must_new(vec![
                 line.unbounded_dist_along(Distance::meters(-9.5)),
                 line.unbounded_dist_along(Distance::meters(-0.5)),
             ])
@@ -281,7 +281,7 @@ fn calculate_border_arrows(
             )
         };
         result.push(
-            PolyLine::new(vec![
+            PolyLine::must_new(vec![
                 line.unbounded_dist_along(Distance::meters(-0.5)),
                 line.unbounded_dist_along(Distance::meters(-9.5)),
             ])

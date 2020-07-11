@@ -83,7 +83,7 @@ impl DrawUberTurnGroup {
 fn make_geom(offset: f64, pl: PolyLine, width: Distance, angle: Angle) -> (Polygon, Polygon) {
     let height = TURN_ICON_ARROW_LENGTH;
     // Always extend the pl first to handle short entry lanes
-    let extension = PolyLine::new(vec![
+    let extension = PolyLine::must_new(vec![
         pl.last_pt(),
         pl.last_pt()
             .project_away(Distance::meters(500.0), pl.last_line().angle()),
@@ -94,7 +94,7 @@ fn make_geom(offset: f64, pl: PolyLine, width: Distance, angle: Angle) -> (Polyg
 
     let arrow = {
         let center = slice.middle();
-        PolyLine::new(vec![
+        PolyLine::must_new(vec![
             center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite()),
             center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle),
         ])

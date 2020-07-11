@@ -581,7 +581,7 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
             .unwrap();
         for (r2, _, _) in closest.all_close_pts(middle, Distance::meters(250.0)) {
             if r1.id != r2
-                && PolyLine::new(vec![
+                && PolyLine::must_new(vec![
                     middle.project_away(Distance::meters(100.0), angle.rotate_degs(90.0)),
                     middle.project_away(Distance::meters(100.0), angle.rotate_degs(-90.0)),
                 ])

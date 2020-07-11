@@ -36,7 +36,7 @@ impl Line {
     }
 
     pub fn to_polyline(&self) -> PolyLine {
-        PolyLine::new(self.points())
+        PolyLine::must_new(self.points())
     }
 
     pub fn make_polygons(&self, thickness: Distance) -> Polygon {

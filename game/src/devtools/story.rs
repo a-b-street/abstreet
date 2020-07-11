@@ -540,7 +540,7 @@ struct Lasso {
 impl Lasso {
     fn new(pt: Pt2D) -> Lasso {
         Lasso {
-            pl: PolyLine::new(vec![pt, pt.offset(0.1, 0.0)]),
+            pl: PolyLine::must_new(vec![pt, pt.offset(0.1, 0.0)]),
         }
     }
 
@@ -550,12 +550,9 @@ impl Lasso {
         }
         if ctx.redo_mouseover() {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if pt != self.pl.last_pt() {
+                if let Ok(pl) = PolyLine::new(vec![self.pl.last_pt(), pt]) {
                     // Did we make a crossing?
-                    if let Some((hit, _)) = self
-                        .pl
-                        .intersection(&PolyLine::new(vec![self.pl.last_pt(), pt]))
-                    {
+                    if let Some((hit, _)) = self.pl.intersection(&pl) {
                         if let Some(slice) = self.pl.get_slice_starting_at(hit) {
                             return Some(simplify(slice.into_points()));
                         }
@@ -563,7 +560,9 @@ impl Lasso {
 
                     let mut pts = self.pl.points().clone();
                     pts.push(pt);
-                    self.pl = PolyLine::new(pts);
+                    if let Ok(new) = PolyLine::new(pts) {
+                        self.pl = new;
+                    }
                 }
             }
         }

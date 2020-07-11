@@ -4,6 +4,7 @@ use crate::{
 use abstutil::Warn;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+use std::error::Error;
 use std::fmt;
 
 // TODO How to tune this?
@@ -23,7 +24,7 @@ pub struct PolyLine {
 }
 
 impl PolyLine {
-    pub fn new(pts: Vec<Pt2D>) -> PolyLine {
+    fn old_new(pts: Vec<Pt2D>) -> PolyLine {
         assert!(pts.len() >= 2);
         let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
             so_far + pair[0].dist_to(pair[1])
@@ -57,26 +58,41 @@ impl PolyLine {
         result
     }
 
-    pub fn maybe_new(pts: Vec<Pt2D>) -> Option<PolyLine> {
+    pub fn new(pts: Vec<Pt2D>) -> Result<PolyLine, Box<dyn Error>> {
         if pts.len() < 2 {
-            return None;
+            return Err(format!("Need at least two points for a PolyLine").into());
         }
         let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
             so_far + pair[0].dist_to(pair[1])
         });
 
         if pts.windows(2).any(|pair| pair[0] == pair[1]) {
-            return None;
+            return Err(format!(
+                "PL with total length {} and {} pts has ~dupe adjacent pts",
+                length,
+                pts.len(),
+            )
+            .into());
         }
 
         let result = PolyLine { pts, length };
 
+        // Can't have duplicates! If the polyline ever crosses back on itself, all sorts of things
+        // are broken.
         let (_, dupes) = to_set(result.points());
         if !dupes.is_empty() {
-            return None;
+            return Err(format!(
+                "PL with total length {} and {} pts has dupe non-adjacent pts",
+                result.length,
+                result.pts.len(),
+            )
+            .into());
         }
 
-        Some(result)
+        Ok(result)
+    }
+    pub fn must_new(pts: Vec<Pt2D>) -> PolyLine {
+        PolyLine::new(pts).unwrap()
     }
 
     // Doesn't check for duplicates. Use at your own risk.
@@ -89,8 +105,8 @@ impl PolyLine {
         PolyLine { pts, length }
     }
 
-    // First dedupes adjacent points. If the result is only 1 point, will panic.
-    pub fn deduping_new(mut pts: Vec<Pt2D>) -> PolyLine {
+    // First dedupes adjacent points
+    pub fn deduping_new(mut pts: Vec<Pt2D>) -> Result<PolyLine, Box<dyn Error>> {
         pts.dedup();
         PolyLine::new(pts)
     }
@@ -119,14 +135,14 @@ impl PolyLine {
     pub fn reversed(&self) -> PolyLine {
         let mut pts = self.pts.clone();
         pts.reverse();
-        PolyLine::new(pts)
+        PolyLine::must_new(pts)
     }
 
     pub fn extend(self, other: PolyLine) -> PolyLine {
         self.maybe_extend(other).unwrap()
     }
 
-    pub fn maybe_extend(self, other: PolyLine) -> Option<PolyLine> {
+    pub fn maybe_extend(self, other: PolyLine) -> Result<PolyLine, Box<dyn Error>> {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
 
         let mut self_pts = self.pts;
@@ -167,7 +183,7 @@ impl PolyLine {
             }
         }
         self_pts.extend(other_pts.iter().skip(1));
-        PolyLine::maybe_new(self_pts)
+        PolyLine::new(self_pts)
     }
 
     // One or both args might be empty.
@@ -179,8 +195,8 @@ impl PolyLine {
             return second;
         }
 
-        PolyLine::new(first)
-            .extend(PolyLine::new(second))
+        PolyLine::old_new(first)
+            .extend(PolyLine::old_new(second))
             .points()
             .clone()
     }
@@ -244,7 +260,7 @@ impl PolyLine {
                     // TODO Understand what happened here.
                     return None;
                 }
-                return Some((PolyLine::new(result), Distance::ZERO));
+                return Some((PolyLine::old_new(result), Distance::ZERO));
             }
 
             // If we're in the middle, just collect the endpoint. But not if it's too close to the
@@ -268,7 +284,7 @@ impl PolyLine {
             return None;
         }
 
-        Some((PolyLine::new(result), end - dist_so_far))
+        Some((PolyLine::old_new(result), end - dist_so_far))
     }
 
     // No excess leftover distance allowed.
@@ -368,7 +384,7 @@ impl PolyLine {
     fn shift_with_corrections(&self, width: Distance) -> Warn<PolyLine> {
         let mut raw = self.shift_with_sharp_angles(width, MITER_THRESHOLD);
         raw.dedup();
-        let result = PolyLine::new(raw);
+        let result = PolyLine::old_new(raw);
         let fixed = if result.pts.len() == self.pts.len() {
             fix_angles(self, result)
         } else {
@@ -526,7 +542,7 @@ impl PolyLine {
                 ])))
             }
             ArrowCap::Lines => Warn::ok(self.make_polygons(thickness).union(
-                PolyLine::new(vec![corner1, self.last_pt(), corner2]).make_polygons(thickness),
+                PolyLine::old_new(vec![corner1, self.last_pt(), corner2]).make_polygons(thickness),
             )),
         }
     }
@@ -653,7 +669,7 @@ impl PolyLine {
             if pts.len() == 1 {
                 return None;
             }
-            Some(PolyLine::new(pts))
+            Some(PolyLine::old_new(pts))
         } else {
             panic!("Can't get_slice_ending_at: {} doesn't contain {}", self, pt);
         }
@@ -671,7 +687,7 @@ impl PolyLine {
             if pt != pts[0] {
                 pts.insert(0, pt);
             }
-            Some(PolyLine::new(pts))
+            Some(PolyLine::old_new(pts))
         } else {
             panic!(
                 "Can't get_slice_starting_at: {} doesn't contain {}",
@@ -751,7 +767,7 @@ fn fix_angles(orig: &PolyLine, result: PolyLine) -> PolyLine {
     }
 
     // When we swap points, length of the entire PolyLine may change! Recalculating is vital.
-    PolyLine::new(pts)
+    PolyLine::old_new(pts)
 }
 
 fn check_angles(orig: &PolyLine, fixed: PolyLine) -> Warn<PolyLine> {

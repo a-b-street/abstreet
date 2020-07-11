@@ -68,7 +68,7 @@ impl DrawParkingLot {
 
             batch.push(
                 cs.general_road_marking,
-                PolyLine::new(vec![
+                PolyLine::must_new(vec![
                     left.project_away(height, *angle),
                     left,
                     right,

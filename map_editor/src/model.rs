@@ -216,7 +216,7 @@ impl Model {
                 // (MAX_CAR_LENGTH + sim::FOLLOWING_DISTANCE) from sim, but without the dependency
                 txt.add(Line(format!(
                     "Can fit ~{} cars",
-                    (PolyLine::new(road.center_points.clone()).length()
+                    (PolyLine::must_new(road.center_points.clone()).length()
                         / (Distance::meters(6.5 + 1.0)))
                     .floor() as usize
                 )));
@@ -499,7 +499,7 @@ impl Model {
             r.synthetic() && r.osm_tags.get(osm::NAME) == Some(&"Streety McStreetFace".to_string());
         let lanes_unknown = r.osm_tags.contains_key(osm::INFERRED_SIDEWALKS);
         let spec = r.get_spec();
-        let center_pts = PolyLine::new(r.center_points.clone());
+        let center_pts = PolyLine::must_new(r.center_points.clone());
 
         let mut obj = Object::blank(ID::Road(id));
 
@@ -551,7 +551,7 @@ impl Model {
             let polygon = if id == *to {
                 // TODO Ideally a hollow circle with an arrow
                 Circle::new(
-                    PolyLine::new(self.map.roads[&id].center_points.clone()).middle(),
+                    PolyLine::must_new(self.map.roads[&id].center_points.clone()).middle(),
                     NORMAL_LANE_THICKNESS,
                 )
                 .to_polygon()
@@ -561,7 +561,7 @@ impl Model {
                     println!("Turn restriction to spot is missing!{}->{}", id, to);
                     continue;
                 }
-                PolyLine::new(vec![self.get_r_center(id), self.get_r_center(*to)])
+                PolyLine::must_new(vec![self.get_r_center(id), self.get_r_center(*to)])
                     .make_arrow(NORMAL_LANE_THICKNESS, ArrowCap::Triangle)
                     .unwrap()
             };
@@ -714,7 +714,7 @@ impl Model {
     }
 
     pub fn get_r_center(&self, id: OriginalRoad) -> Pt2D {
-        PolyLine::new(self.map.roads[&id].center_points.clone()).middle()
+        PolyLine::must_new(self.map.roads[&id].center_points.clone()).middle()
     }
 }
 

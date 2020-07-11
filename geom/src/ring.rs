@@ -1,6 +1,7 @@
 use crate::{Distance, Line, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+use std::error::Error;
 use std::fmt;
 
 // Maybe a misnomer, but like a PolyLine, but closed.
@@ -115,7 +116,7 @@ impl Ring {
     }
 
     // Extract all PolyLines and Rings. Doesn't handle crazy double loops and stuff.
-    pub fn split_points(pts: &Vec<Pt2D>) -> (Vec<PolyLine>, Vec<Ring>) {
+    pub fn split_points(pts: &Vec<Pt2D>) -> Result<(Vec<PolyLine>, Vec<Ring>), Box<dyn Error>> {
         let mut seen = HashSet::new();
         let mut intersections = HashSet::new();
         for pt in pts {
@@ -138,12 +139,12 @@ impl Ring {
                 if current[0] == pt {
                     rings.push(Ring::new(current.drain(..).collect()));
                 } else {
-                    polylines.push(PolyLine::new(current.drain(..).collect()));
+                    polylines.push(PolyLine::new(current.drain(..).collect())?);
                 }
                 current.push(pt);
             }
         }
-        (polylines, rings)
+        Ok((polylines, rings))
     }
 }
 

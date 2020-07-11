@@ -99,7 +99,10 @@ impl Car {
                     self.vehicle.id, now, front
                 );
             }
-            PolyLine::new(result)
+            match PolyLine::new(result) {
+                Ok(pl) => pl,
+                Err(err) => panic!("Weird body for {} at {}: {}", self.vehicle.id, now, err),
+            }
         };
 
         let body = match self.state {

@@ -87,7 +87,7 @@ impl DrawCar {
 
                         draw_default.push(
                             cs.turn_arrow,
-                            PolyLine::new(vec![
+                            PolyLine::must_new(vec![
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
                             ])
@@ -102,7 +102,7 @@ impl DrawCar {
 
                         draw_default.push(
                             cs.turn_arrow,
-                            PolyLine::new(vec![
+                            PolyLine::must_new(vec![
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
                             ])
@@ -188,7 +188,7 @@ fn thick_line_from_angle(
 ) -> Polygon {
     let pt2 = pt.project_away(line_length, angle);
     // Shouldn't ever fail for a single line
-    PolyLine::new(vec![pt, pt2]).make_polygons(thickness)
+    PolyLine::must_new(vec![pt, pt2]).make_polygons(thickness)
 }
 
 fn zoomed_color_car(input: &DrawCarInput, cs: &ColorScheme) -> Color {

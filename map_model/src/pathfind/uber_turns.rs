@@ -343,5 +343,5 @@ fn group_geom(mut polylines: Vec<PolyLine>) -> PolyLine {
             &polylines.iter().map(|pl| pl.points()[idx]).collect(),
         ));
     }
-    PolyLine::new(pts)
+    PolyLine::must_new(pts)
 }

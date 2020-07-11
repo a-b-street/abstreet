@@ -346,12 +346,15 @@ fn make_timeline(
             .insert(format!("jump to start of {}", trip), id);
         if let TripEndpoint::Border(_, ref loc) = trip_start {
             if let Some(loc) = loc {
-                let arrow =
+                if let Ok(pl) =
                     PolyLine::new(vec![Pt2D::from_gps(loc.gps, map.get_gps_bounds()), center])
+                {
+                    let arrow = pl
                         .make_arrow(Distance::meters(5.0), ArrowCap::Triangle)
                         .unwrap();
-                details.unzoomed.push(Color::GREEN, arrow.clone());
-                details.zoomed.push(Color::GREEN, arrow.clone());
+                    details.unzoomed.push(Color::GREEN, arrow.clone());
+                    details.zoomed.push(Color::GREEN, arrow.clone());
+                }
             }
         }
 
@@ -390,12 +393,15 @@ fn make_timeline(
             .insert(format!("jump to goal of {}", trip), id);
         if let TripEndpoint::Border(_, ref loc) = trip_end {
             if let Some(loc) = loc {
-                let arrow =
+                if let Ok(pl) =
                     PolyLine::new(vec![center, Pt2D::from_gps(loc.gps, map.get_gps_bounds())])
+                {
+                    let arrow = pl
                         .make_arrow(Distance::meters(5.0), ArrowCap::Triangle)
                         .unwrap();
-                details.unzoomed.push(Color::GREEN, arrow.clone());
-                details.zoomed.push(Color::GREEN, arrow.clone());
+                    details.unzoomed.push(Color::GREEN, arrow.clone());
+                    details.zoomed.push(Color::GREEN, arrow.clone());
+                }
             }
         }
 

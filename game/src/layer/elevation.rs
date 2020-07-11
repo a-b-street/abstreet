@@ -80,7 +80,7 @@ impl Elevation {
                 let (pt, angle) = pl.dist_along(dist);
                 batch.push(
                     Color::BLACK,
-                    PolyLine::new(vec![
+                    PolyLine::must_new(vec![
                         pt.project_away(arrow_len / 2.0, angle.opposite()),
                         pt.project_away(arrow_len / 2.0, angle),
                     ])
