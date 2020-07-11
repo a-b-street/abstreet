@@ -318,15 +318,13 @@ impl State for TrafficSignalEditor {
                             green.alpha(0.5),
                             signal.turn_groups[&g.id]
                                 .geom
-                                .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
-                                .unwrap(),
+                                .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                         );
                         batch.extend(
                             green,
                             signal.turn_groups[&g.id]
                                 .geom
-                                .make_arrow_outline(BIG_ARROW_THICKNESS, Distance::meters(0.1))
-                                .unwrap(),
+                                .make_arrow_outline(BIG_ARROW_THICKNESS, Distance::meters(0.1)),
                         );
                         green
                     }
@@ -366,15 +364,13 @@ impl State for TrafficSignalEditor {
                             red.alpha(0.5),
                             signal.turn_groups[&g.id]
                                 .geom
-                                .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
-                                .unwrap(),
+                                .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                         );
                         batch.extend(
                             red,
                             signal.turn_groups[&g.id]
                                 .geom
-                                .make_arrow_outline(BIG_ARROW_THICKNESS, Distance::meters(0.1))
-                                .unwrap(),
+                                .make_arrow_outline(BIG_ARROW_THICKNESS, Distance::meters(0.1)),
                         );
                         red
                     }

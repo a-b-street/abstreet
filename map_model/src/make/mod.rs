@@ -149,9 +149,7 @@ impl Map {
             }
             // TODO Maybe easier to use the road's "yellow center line" and shift left/right from
             // there.
-            let road_left_pts = map
-                .left_shift(road.center_pts.clone(), r.half_width)
-                .with_context(timer, format!("shift for {}", road.id));
+            let road_left_pts = map.left_shift(road.center_pts.clone(), r.half_width);
 
             let mut fwd_width_so_far = Distance::ZERO;
             let mut back_width_so_far = Distance::ZERO;
@@ -173,15 +171,14 @@ impl Map {
                         total_back_width + fwd_width_so_far + (lane.width() / 2.0),
                     );
                     fwd_width_so_far += lane.width();
-                    pl.with_context(timer, format!("shift for {}", id))
+                    pl
                 } else {
                     let pl = map.right_shift(
                         road_left_pts.clone(),
                         total_back_width - back_width_so_far - (lane.width() / 2.0),
                     );
                     back_width_so_far += lane.width();
-                    pl.with_context(timer, format!("shift for {}", id))
-                        .reversed()
+                    pl.reversed()
                 };
 
                 map.lanes.push(Lane {

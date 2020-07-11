@@ -160,8 +160,7 @@ impl UberTurnViewer {
                 Color::RED,
                 ic.uber_turns[idx]
                     .geom(&app.primary.map)
-                    .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
-                    .unwrap(),
+                    .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
             );
         }
 

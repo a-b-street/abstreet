@@ -134,7 +134,7 @@ impl Car {
                         } else {
                             -width
                         };
-                        raw_body.shift_right(shift).unwrap()
+                        raw_body.shift_right(shift)
                     }
                     _ => {
                         let driveway = match spot {

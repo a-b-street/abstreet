@@ -1,6 +1,6 @@
 use crate::make::initial::lane_specs::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, MapConfig, RoadSpec};
-use abstutil::{deserialize_btreemap, serialize_btreemap, Timer, Warn};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
 use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -388,14 +388,14 @@ pub enum DrivingSide {
 impl DrivingSide {
     // "right" and "left" here are in terms of DrivingSide::Right, what I'm used to reasoning about
     // in the USA. They invert appropriately for DrivingSide::Left.
-    pub fn right_shift(self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
+    pub fn right_shift(self, pl: PolyLine, width: Distance) -> PolyLine {
         match self {
             DrivingSide::Right => pl.shift_right(width),
             DrivingSide::Left => pl.shift_left(width),
         }
     }
 
-    pub fn left_shift(self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
+    pub fn left_shift(self, pl: PolyLine, width: Distance) -> PolyLine {
         match self {
             DrivingSide::Right => pl.shift_left(width),
             DrivingSide::Left => pl.shift_right(width),

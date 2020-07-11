@@ -90,8 +90,7 @@ impl DrawBike {
                     body_pos.project_away(body_radius / 2.0, angle.opposite()),
                     body_pos.project_away(body_radius / 2.0, angle),
                 ])
-                .make_arrow(Distance::meters(0.15), ArrowCap::Triangle)
-                .unwrap(),
+                .make_arrow(Distance::meters(0.15), ArrowCap::Triangle),
             );
         }
 

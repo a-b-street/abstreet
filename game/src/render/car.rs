@@ -24,8 +24,8 @@ impl DrawCar {
 
         // Wheels
         for side in vec![
-            input.body.shift_right(CAR_WIDTH / 2.0).unwrap(),
-            input.body.shift_left(CAR_WIDTH / 2.0).unwrap(),
+            input.body.shift_right(CAR_WIDTH / 2.0),
+            input.body.shift_left(CAR_WIDTH / 2.0),
         ] {
             let len = side.length();
             if len <= Distance::meters(2.0) {
@@ -93,8 +93,7 @@ impl DrawCar {
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
                             ])
-                            .make_arrow(arrow_thickness, ArrowCap::Triangle)
-                            .unwrap(),
+                            .make_arrow(arrow_thickness, ArrowCap::Triangle),
                         );
                     }
                     TurnType::Right => {
@@ -109,8 +108,7 @@ impl DrawCar {
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
                             ])
-                            .make_arrow(arrow_thickness, ArrowCap::Triangle)
-                            .unwrap(),
+                            .make_arrow(arrow_thickness, ArrowCap::Triangle),
                         );
                     }
                     TurnType::Straight | TurnType::LaneChangeLeft | TurnType::LaneChangeRight => {}

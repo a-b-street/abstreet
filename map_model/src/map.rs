@@ -5,7 +5,7 @@ use crate::{
     ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, Position, Road, RoadID, Turn,
     TurnGroupID, TurnID, TurnType,
 };
-use abstutil::{Timer, Warn};
+use abstutil::Timer;
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
@@ -628,10 +628,10 @@ impl Map {
         None
     }
 
-    pub fn right_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
+    pub fn right_shift(&self, pl: PolyLine, width: Distance) -> PolyLine {
         self.config.driving_side.right_shift(pl, width)
     }
-    pub fn left_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
+    pub fn left_shift(&self, pl: PolyLine, width: Distance) -> PolyLine {
         self.config.driving_side.left_shift(pl, width)
     }
     pub fn right_shift_line(&self, line: Line, width: Distance) -> Line {

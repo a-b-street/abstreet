@@ -153,8 +153,7 @@ pub fn current_demand(
         let percent = (demand as f64) / (total_demand as f64);
         batch.push(
             Color::hex("#A3A3A3"),
-            pl.make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle)
-                .unwrap(),
+            pl.make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle),
         );
         txt_batch.append(
             Text::from(Line(prettyprint_usize(demand)).fg(Color::RED))

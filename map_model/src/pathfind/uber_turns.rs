@@ -319,7 +319,7 @@ impl UberTurnGroup {
             left += map.get_l(l).width;
         }
 
-        let pl = map.right_shift(pl, (leftmost + rightmost) / 2.0).unwrap();
+        let pl = map.right_shift(pl, (leftmost + rightmost) / 2.0);
         // Flip direction, so we point away from the intersection
         (pl.reversed(), rightmost - leftmost)
     }

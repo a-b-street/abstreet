@@ -38,8 +38,7 @@ impl DrawPedestrian {
                     input.pos.project_away(radius / 2.0, angle.opposite()),
                     input.pos.project_away(radius / 2.0, angle),
                 ])
-                .make_arrow(Distance::meters(0.15), ArrowCap::Triangle)
-                .unwrap(),
+                .make_arrow(Distance::meters(0.15), ArrowCap::Triangle),
             );
         }
 
@@ -207,9 +206,9 @@ impl DrawPedCrowd {
             PedCrowdLocation::Sidewalk(on, contraflow) => {
                 let pl_slice = on.exact_slice(input.low, input.high, map);
                 if contraflow {
-                    map.left_shift(pl_slice, SIDEWALK_THICKNESS / 4.0).unwrap()
+                    map.left_shift(pl_slice, SIDEWALK_THICKNESS / 4.0)
                 } else {
-                    map.right_shift(pl_slice, SIDEWALK_THICKNESS / 4.0).unwrap()
+                    map.right_shift(pl_slice, SIDEWALK_THICKNESS / 4.0)
                 }
             }
             PedCrowdLocation::BldgFrontPath(b) => map

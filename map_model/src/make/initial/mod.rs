@@ -46,13 +46,11 @@ impl Road {
         // If there's a sidewalk on only one side, adjust the true center of the road.
         let mut trimmed_center_pts = PolyLine::must_new(r.center_points.clone());
         if sidewalk_right && !sidewalk_left {
-            trimmed_center_pts = driving_side
-                .right_shift(trimmed_center_pts, SIDEWALK_THICKNESS / 2.0)
-                .unwrap();
+            trimmed_center_pts =
+                driving_side.right_shift(trimmed_center_pts, SIDEWALK_THICKNESS / 2.0);
         } else if sidewalk_left && !sidewalk_right {
-            trimmed_center_pts = driving_side
-                .left_shift(trimmed_center_pts, SIDEWALK_THICKNESS / 2.0)
-                .unwrap();
+            trimmed_center_pts =
+                driving_side.left_shift(trimmed_center_pts, SIDEWALK_THICKNESS / 2.0);
         }
 
         Road {

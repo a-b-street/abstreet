@@ -136,7 +136,6 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             map.config
                 .driving_side
                 .right_shift(center.clone(), DIRECTED_ROAD_THICKNESS)
-                .get(timer)
                 .points(),
         );
         closest.add(
@@ -144,7 +143,6 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             map.config
                 .driving_side
                 .left_shift(center, DIRECTED_ROAD_THICKNESS)
-                .get(timer)
                 .points(),
         );
     }

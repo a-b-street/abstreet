@@ -2,7 +2,7 @@ use crate::raw::{DrivingSide, RestrictionType};
 use crate::{
     Intersection, IntersectionID, Lane, LaneID, LaneType, Road, RoadID, Turn, TurnID, TurnType,
 };
-use abstutil::{wraparound_get, Timer, Warn};
+use abstutil::{wraparound_get, Timer};
 use geom::{Distance, Line, PolyLine, Pt2D, Ring};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -19,7 +19,7 @@ pub fn make_all_turns(
     assert!(!i.is_border());
 
     let mut raw_turns: Vec<Turn> = Vec::new();
-    raw_turns.extend(make_vehicle_turns(i, roads, lanes, timer));
+    raw_turns.extend(make_vehicle_turns(i, roads, lanes));
     raw_turns.extend(make_walking_turns(driving_side, i, roads, lanes, timer));
     let unique_turns = ensure_unique(raw_turns);
 
@@ -104,7 +104,6 @@ fn make_vehicle_turns(
     i: &Intersection,
     all_roads: &Vec<Road>,
     lanes: &Vec<Lane>,
-    timer: &mut Timer,
 ) -> impl Iterator<Item = Turn> {
     let sorted_roads: Vec<&Road> = i
         .get_roads_sorted_by_incoming_angle(all_roads)
@@ -127,8 +126,9 @@ fn make_vehicle_turns(
 
     for lane_type in lane_types.into_iter() {
         if i.roads.len() == 1 {
-            result
-                .extend(make_vehicle_turns_for_dead_end(i, all_roads, lanes, lane_type).get(timer));
+            result.extend(make_vehicle_turns_for_dead_end(
+                i, all_roads, lanes, lane_type,
+            ));
             continue;
         }
 
@@ -266,12 +266,13 @@ fn make_vehicle_turns_for_dead_end(
     roads: &Vec<Road>,
     lanes: &Vec<Lane>,
     lane_type: LaneType,
-) -> Warn<Vec<Option<Turn>>> {
+) -> Vec<Option<Turn>> {
     let road = &roads[i.roads.iter().next().unwrap().0];
     let incoming = filter_vehicle_lanes(road.incoming_lanes(i.id), lane_type);
     let outgoing = filter_vehicle_lanes(road.outgoing_lanes(i.id), lane_type);
     if incoming.is_empty() || outgoing.is_empty() {
-        return Warn::warn(Vec::new(), format!("{} needs to be a border node!", i.id));
+        println!("{} needs to be a border node!", i.id);
+        return Vec::new();
     }
 
     let mut result = Vec::new();
@@ -290,7 +291,7 @@ fn make_vehicle_turns_for_dead_end(
         }
     }
 
-    Warn::ok(result)
+    result
 }
 
 fn make_walking_turns(
@@ -575,10 +576,6 @@ fn make_shared_sidewalk_corner(
             pts_between.extend(
                 driving_side
                     .right_shift(PolyLine::must_new(deduped), l1.width / 2.0)
-                    .with_context(
-                        timer,
-                        format!("SharedSidewalkCorner between {} and {}", l1.id, l2.id),
-                    )
                     .points(),
             );
         }

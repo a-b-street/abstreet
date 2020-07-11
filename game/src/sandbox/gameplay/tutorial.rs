@@ -370,8 +370,7 @@ impl GameplayState for Tutorial {
                 ]) {
                     g.draw_polygon(
                         Color::RED,
-                        &pl.make_arrow(Distance::meters(20.0), ArrowCap::Triangle)
-                            .unwrap(),
+                        &pl.make_arrow(Distance::meters(20.0), ArrowCap::Triangle),
                     );
                 }
                 g.unfork();

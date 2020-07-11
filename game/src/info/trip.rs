@@ -349,9 +349,7 @@ fn make_timeline(
                 if let Ok(pl) =
                     PolyLine::new(vec![Pt2D::from_gps(loc.gps, map.get_gps_bounds()), center])
                 {
-                    let arrow = pl
-                        .make_arrow(Distance::meters(5.0), ArrowCap::Triangle)
-                        .unwrap();
+                    let arrow = pl.make_arrow(Distance::meters(5.0), ArrowCap::Triangle);
                     details.unzoomed.push(Color::GREEN, arrow.clone());
                     details.zoomed.push(Color::GREEN, arrow.clone());
                 }
@@ -396,9 +394,7 @@ fn make_timeline(
                 if let Ok(pl) =
                     PolyLine::new(vec![center, Pt2D::from_gps(loc.gps, map.get_gps_bounds())])
                 {
-                    let arrow = pl
-                        .make_arrow(Distance::meters(5.0), ArrowCap::Triangle)
-                        .unwrap();
+                    let arrow = pl.make_arrow(Distance::meters(5.0), ArrowCap::Triangle);
                     details.unzoomed.push(Color::GREEN, arrow.clone());
                     details.zoomed.push(Color::GREEN, arrow.clone());
                 }

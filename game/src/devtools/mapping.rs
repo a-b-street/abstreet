@@ -239,13 +239,11 @@ impl ParkingMapper {
             batch.push(
                 Color::GREEN,
                 map.right_shift(r.center_pts.clone(), r.get_half_width(map))
-                    .unwrap()
                     .make_polygons(thickness),
             );
             batch.push(
                 Color::BLUE,
                 map.left_shift(r.center_pts.clone(), r.get_half_width(map))
-                    .unwrap()
                     .make_polygons(thickness),
             );
         }

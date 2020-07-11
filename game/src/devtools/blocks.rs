@@ -163,8 +163,7 @@ impl State for BlockMap {
                                         pl.make_arrow(
                                             Distance::meters(15.0) * pct,
                                             ArrowCap::Triangle,
-                                        )
-                                        .unwrap(),
+                                        ),
                                     );
                                 }
                             } else {

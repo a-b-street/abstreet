@@ -516,7 +516,6 @@ impl Model {
                     .config
                     .driving_side
                     .right_shift(center_pts.clone(), offset + width / 2.0)
-                    .unwrap()
                     .make_polygons(width),
             );
             offset += width;
@@ -540,7 +539,6 @@ impl Model {
                     .config
                     .driving_side
                     .right_shift(center_pts.reversed(), offset + width / 2.0)
-                    .unwrap()
                     .make_polygons(width),
             );
             offset += width;
@@ -563,7 +561,6 @@ impl Model {
                 }
                 PolyLine::must_new(vec![self.get_r_center(id), self.get_r_center(*to)])
                     .make_arrow(NORMAL_LANE_THICKNESS, ArrowCap::Triangle)
-                    .unwrap()
             };
 
             result.push(Object::new(

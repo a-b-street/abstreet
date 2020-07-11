@@ -1,7 +1,6 @@
 use crate::{
     Angle, Bounds, Distance, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, Ring, EPSILON_DIST,
 };
-use abstutil::Warn;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::error::Error;
@@ -24,40 +23,6 @@ pub struct PolyLine {
 }
 
 impl PolyLine {
-    fn old_new(pts: Vec<Pt2D>) -> PolyLine {
-        assert!(pts.len() >= 2);
-        let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
-            so_far + pair[0].dist_to(pair[1])
-        });
-
-        // This checks no lines are too small. Could take the other approach and automatically
-        // squish down points here and make sure the final result is at least EPSILON_DIST.
-        // But probably better for the callers to do this -- they have better understanding of what
-        // needs to be squished down, why, and how.
-        if pts.windows(2).any(|pair| pair[0] == pair[1]) {
-            panic!(
-                "PL with total length {} and {} pts has ~dupe adjacent pts: {:?}",
-                length,
-                pts.len(),
-                pts
-            );
-        }
-
-        let result = PolyLine { pts, length };
-
-        // Can't have duplicates! If the polyline ever crosses back on itself, all sorts of things
-        // are broken.
-        let (_, dupes) = to_set(result.points());
-        if !dupes.is_empty() {
-            panic!(
-                "PolyLine has non-adjacent repeat points: {}\nRepeated points: {:?}",
-                result, dupes
-            );
-        }
-
-        result
-    }
-
     pub fn new(pts: Vec<Pt2D>) -> Result<PolyLine, Box<dyn Error>> {
         if pts.len() < 2 {
             return Err(format!("Need at least two points for a PolyLine").into());
@@ -370,7 +335,6 @@ impl PolyLine {
 
     pub fn middle(&self) -> Pt2D {
         // If this fails, must be some super tiny line. Just return the first point in that case.
-        // TODO Use Warn<Pt2D>
         match self.dist_along(self.length() / 2.0) {
             Ok((pt, _)) => pt,
             Err(err) => {
@@ -397,29 +361,31 @@ impl PolyLine {
         Line::must_new(self.pts[self.pts.len() - 2], self.pts[self.pts.len() - 1])
     }
 
-    ///////////////////////// TODO Keep cleaning up below
-
-    pub fn shift_right(&self, width: Distance) -> Warn<PolyLine> {
+    pub fn shift_right(&self, width: Distance) -> PolyLine {
         self.shift_with_corrections(width)
     }
 
-    pub fn shift_left(&self, width: Distance) -> Warn<PolyLine> {
+    pub fn shift_left(&self, width: Distance) -> PolyLine {
         self.shift_with_corrections(-width)
     }
 
     // Things to remember about shifting polylines:
     // - the length before and after probably don't match up
-    // - the number of points will match
-    fn shift_with_corrections(&self, width: Distance) -> Warn<PolyLine> {
-        let mut raw = self.shift_with_sharp_angles(width, MITER_THRESHOLD);
-        raw.dedup();
-        let result = PolyLine::old_new(raw);
-        let fixed = if result.pts.len() == self.pts.len() {
-            fix_angles(self, result)
+    // - the number of points may not match
+    fn shift_with_corrections(&self, width: Distance) -> PolyLine {
+        let raw = self.shift_with_sharp_angles(width, MITER_THRESHOLD);
+        let result = match PolyLine::deduping_new(raw) {
+            Ok(pl) => pl,
+            Err(err) => panic!("shifting by {} broke {}: {}", width, self, err),
+        };
+        if result.pts.len() == self.pts.len() {
+            match fix_angles(self, result) {
+                Ok(pl) => pl,
+                Err(err) => panic!("shifting by {} broke {}: {}", width, self, err),
+            }
         } else {
             result
-        };
-        check_angles(self, fixed)
+        }
     }
 
     fn shift_with_sharp_angles(&self, width: Distance, miter_threshold: f64) -> Vec<Pt2D> {
@@ -543,15 +509,13 @@ impl PolyLine {
             .exact_dashed_polygons(width, dash_len, dash_separation)
     }
 
-    pub fn make_arrow(&self, thickness: Distance, cap: ArrowCap) -> Warn<Polygon> {
+    pub fn make_arrow(&self, thickness: Distance, cap: ArrowCap) -> Polygon {
         let head_size = thickness * 2.0;
         let triangle_height = head_size / 2.0_f64.sqrt();
 
         if self.length() < triangle_height + EPSILON_DIST {
-            return Warn::warn(
-                self.make_polygons(thickness),
-                format!("Can't make_arrow of thickness {} for {}", thickness, self),
-            );
+            // Just give up and make the thick line.
+            return self.make_polygons(thickness);
         }
         let slice = self.exact_slice(Distance::ZERO, self.length() - triangle_height);
         let angle = slice.last_pt().angle_to(self.last_pt());
@@ -563,16 +527,14 @@ impl PolyLine {
             .project_away(head_size, angle.rotate_degs(135.0));
 
         match cap {
-            ArrowCap::Triangle => {
-                Warn::ok(slice.make_polygons(thickness).union(Polygon::new(&vec![
-                    self.last_pt(),
-                    corner1,
-                    corner2,
-                ])))
-            }
-            ArrowCap::Lines => Warn::ok(self.make_polygons(thickness).union(
-                PolyLine::old_new(vec![corner1, self.last_pt(), corner2]).make_polygons(thickness),
-            )),
+            ArrowCap::Triangle => slice.make_polygons(thickness).union(Polygon::new(&vec![
+                self.last_pt(),
+                corner1,
+                corner2,
+            ])),
+            ArrowCap::Lines => self.make_polygons(thickness).union(
+                PolyLine::must_new(vec![corner1, self.last_pt(), corner2]).make_polygons(thickness),
+            ),
         }
     }
 
@@ -581,24 +543,18 @@ impl PolyLine {
         &self,
         arrow_thickness: Distance,
         outline_thickness: Distance,
-    ) -> Warn<Vec<Polygon>> {
+    ) -> Vec<Polygon> {
         let head_size = arrow_thickness * 2.0;
         let triangle_height = head_size / 2.0_f64.sqrt();
 
         if self.length() < triangle_height {
-            return Warn::warn(
-                vec![self.make_polygons(arrow_thickness)],
-                format!(
-                    "Can't make_arrow of thickness {} for {}",
-                    arrow_thickness, self
-                ),
-            );
+            return vec![self.make_polygons(arrow_thickness)];
         }
         let slice = self.exact_slice(Distance::ZERO, self.length() - triangle_height);
 
         if let Some(p) = slice.to_thick_boundary(arrow_thickness, outline_thickness) {
             let angle = slice.last_pt().angle_to(self.last_pt());
-            Warn::ok(vec![
+            vec![
                 p,
                 Ring::new(vec![
                     self.last_pt(),
@@ -609,15 +565,9 @@ impl PolyLine {
                     self.last_pt(),
                 ])
                 .make_polygons(outline_thickness),
-            ])
+            ]
         } else {
-            Warn::warn(
-                vec![self.make_polygons(arrow_thickness)],
-                format!(
-                    "Can't make_arrow_outline of outline_thickness {} for {}",
-                    outline_thickness, self
-                ),
-            )
+            vec![self.make_polygons(arrow_thickness)]
         }
     }
 
@@ -641,7 +591,7 @@ impl PolyLine {
                 last_line.pt2(),
             )
         };
-        polygons.push(arrow_line.to_polyline().make_arrow(width, cap).unwrap());
+        polygons.push(arrow_line.to_polyline().make_arrow(width, cap));
         polygons
     }
 
@@ -698,7 +648,7 @@ impl PolyLine {
             if pts.len() == 1 {
                 return None;
             }
-            Some(PolyLine::old_new(pts))
+            Some(PolyLine::must_new(pts))
         } else {
             panic!("Can't get_slice_ending_at: {} doesn't contain {}", self, pt);
         }
@@ -716,7 +666,7 @@ impl PolyLine {
             if pt != pts[0] {
                 pts.insert(0, pt);
             }
-            Some(PolyLine::old_new(pts))
+            Some(PolyLine::must_new(pts))
         } else {
             panic!(
                 "Can't get_slice_starting_at: {} doesn't contain {}",
@@ -754,7 +704,7 @@ impl PolyLine {
 
 impl fmt::Display for PolyLine {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "PolyLine::new(vec![")?;
+        writeln!(f, "PolyLine::new(vec![     // length {}", self.length)?;
         for (idx, pt) in self.pts.iter().enumerate() {
             write!(f, "  Pt2D::new({}, {}),", pt.x(), pt.y())?;
             if idx > 0 {
@@ -774,7 +724,7 @@ impl fmt::Display for PolyLine {
     }
 }
 
-fn fix_angles(orig: &PolyLine, result: PolyLine) -> PolyLine {
+fn fix_angles(orig: &PolyLine, result: PolyLine) -> Result<PolyLine, Box<dyn Error>> {
     let mut pts = result.pts.clone();
 
     // Check that the angles roughly match up between the original and shifted line
@@ -796,23 +746,7 @@ fn fix_angles(orig: &PolyLine, result: PolyLine) -> PolyLine {
     }
 
     // When we swap points, length of the entire PolyLine may change! Recalculating is vital.
-    PolyLine::old_new(pts)
-}
-
-fn check_angles(orig: &PolyLine, fixed: PolyLine) -> Warn<PolyLine> {
-    let mut warnings = Vec::new();
-    for (orig_l, shifted_l) in orig.lines().iter().zip(fixed.lines().iter()) {
-        let orig_angle = orig_l.angle();
-        let shifted_angle = shifted_l.angle();
-
-        if !orig_angle.approx_eq(shifted_angle, 1.0) {
-            warnings.push(format!(
-                "Points changed angles from {} to {} during polyline shifting",
-                orig_angle, shifted_angle
-            ));
-        }
-    }
-    Warn::warnings(fixed, warnings)
+    PolyLine::new(pts)
 }
 
 // Also returns the duplicates.

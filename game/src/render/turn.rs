@@ -99,7 +99,6 @@ fn make_geom(offset: f64, pl: PolyLine, width: Distance, angle: Angle) -> (Polyg
             center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle),
         ])
         .make_arrow(Distance::meters(0.5), ArrowCap::Triangle)
-        .unwrap()
     };
 
     (block, arrow)

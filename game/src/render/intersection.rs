@@ -5,7 +5,6 @@ use crate::options::TrafficSignalStyle;
 use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
-use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::{
@@ -28,7 +27,6 @@ impl DrawIntersection {
         map: &Map,
         cs: &ColorScheme,
         prerender: &Prerender,
-        timer: &mut Timer,
     ) -> DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
@@ -51,10 +49,7 @@ impl DrawIntersection {
         match i.intersection_type {
             IntersectionType::Border => {
                 let r = map.get_r(*i.roads.iter().next().unwrap());
-                default_geom.extend(
-                    cs.road_center_line,
-                    calculate_border_arrows(i, r, map, timer),
-                );
+                default_geom.extend(cs.road_center_line, calculate_border_arrows(i, r, map));
             }
             IntersectionType::StopSign => {
                 for ss in map.get_stop_sign(i.id).roads.values() {
@@ -201,15 +196,11 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
-            let mut pts = map
-                .left_shift(turn.geom.clone(), width / 2.0)
-                .unwrap()
-                .into_points();
+            let mut pts = map.left_shift(turn.geom.clone(), width / 2.0).into_points();
             pts.push(map.left_shift_line(l2.first_line(), width / 2.0).pt1());
             pts.push(map.right_shift_line(l2.first_line(), width / 2.0).pt1());
             pts.extend(
                 map.right_shift(turn.geom.clone(), width / 2.0)
-                    .unwrap()
                     .reversed()
                     .into_points(),
             );
@@ -223,12 +214,7 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
     corners
 }
 
-fn calculate_border_arrows(
-    i: &Intersection,
-    r: &Road,
-    map: &Map,
-    timer: &mut Timer,
-) -> Vec<Polygon> {
+fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon> {
     let mut result = Vec::new();
 
     let mut width_fwd = Distance::ZERO;
@@ -261,8 +247,7 @@ fn calculate_border_arrows(
                 line.unbounded_dist_along(Distance::meters(-9.5)),
                 line.unbounded_dist_along(Distance::meters(-0.5)),
             ])
-            .make_arrow(width / 3.0, ArrowCap::Triangle)
-            .with_context(timer, format!("outgoing border arrows for {}", r.id)),
+            .make_arrow(width / 3.0, ArrowCap::Triangle),
         );
     }
 
@@ -285,8 +270,7 @@ fn calculate_border_arrows(
                 line.unbounded_dist_along(Distance::meters(-0.5)),
                 line.unbounded_dist_along(Distance::meters(-9.5)),
             ])
-            .make_arrow(width / 3.0, ArrowCap::Triangle)
-            .with_context(timer, format!("incoming border arrows for {}", r.id)),
+            .make_arrow(width / 3.0, ArrowCap::Triangle),
         );
     }
 
@@ -399,14 +383,12 @@ fn make_rainbow_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map) -> bool
     let slice = turn
         .geom
         .exact_slice(total_width, turn.geom.length() - total_width)
-        .shift_left(total_width / 2.0 - band_width / 2.0)
-        .unwrap();
+        .shift_left(total_width / 2.0 - band_width / 2.0);
     for (idx, color) in colors.into_iter().enumerate() {
         batch.push(
             color,
             slice
                 .shift_right(band_width * (idx as f64))
-                .unwrap()
                 .make_polygons(band_width),
         );
     }

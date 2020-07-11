@@ -84,8 +84,7 @@ impl Elevation {
                         pt.project_away(arrow_len / 2.0, angle.opposite()),
                         pt.project_away(arrow_len / 2.0, angle),
                     ])
-                    .make_arrow(thickness, ArrowCap::Triangle)
-                    .unwrap(),
+                    .make_arrow(thickness, ArrowCap::Triangle),
                 );
                 dist += btwn;
             }
