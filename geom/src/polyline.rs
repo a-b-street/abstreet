@@ -116,8 +116,7 @@ impl PolyLine {
         self_width: Distance,
         boundary_width: Distance,
     ) -> Option<Polygon> {
-        assert!(self_width > boundary_width);
-        if self.length() <= boundary_width + EPSILON_DIST {
+        if self_width > boundary_width || self.length() <= boundary_width + EPSILON_DIST {
             return None;
         }
         let slice = self.exact_slice(boundary_width / 2.0, self.length() - boundary_width / 2.0);
@@ -138,12 +137,10 @@ impl PolyLine {
         PolyLine::must_new(pts)
     }
 
-    pub fn extend(self, other: PolyLine) -> PolyLine {
-        self.maybe_extend(other).unwrap()
-    }
-
-    pub fn maybe_extend(self, other: PolyLine) -> Result<PolyLine, Box<dyn Error>> {
-        assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
+    pub fn extend(self, other: PolyLine) -> Result<PolyLine, Box<dyn Error>> {
+        if *self.pts.last().unwrap() != other.pts[0] {
+            return Err(format!("can't extend PL; last and first points don't match").into());
+        }
 
         let mut self_pts = self.pts;
         let mut other_pts = other.pts;
@@ -166,7 +163,7 @@ impl PolyLine {
                         break;
                     }
                 }
-                // Repeat this for sanity
+                // Sanity check
                 assert_eq!(*self_pts.last().unwrap(), other_pts[0]);
             } else {
                 break;
@@ -185,20 +182,22 @@ impl PolyLine {
         self_pts.extend(other_pts.iter().skip(1));
         PolyLine::new(self_pts)
     }
+    pub fn must_extend(self, other: PolyLine) -> PolyLine {
+        self.extend(other).unwrap()
+    }
 
     // One or both args might be empty.
-    pub fn append(first: Vec<Pt2D>, second: Vec<Pt2D>) -> Vec<Pt2D> {
+    pub fn append(first: Vec<Pt2D>, second: Vec<Pt2D>) -> Result<Vec<Pt2D>, Box<dyn Error>> {
         if second.is_empty() {
-            return first;
+            return Ok(first);
         }
         if first.is_empty() {
-            return second;
+            return Ok(second);
         }
 
-        PolyLine::old_new(first)
-            .extend(PolyLine::old_new(second))
-            .points()
-            .clone()
+        Ok(PolyLine::new(first)?
+            .extend(PolyLine::new(second)?)?
+            .into_points())
     }
 
     pub fn points(&self) -> &Vec<Pt2D> {
@@ -220,22 +219,30 @@ impl PolyLine {
         self.length
     }
 
-    // Returns the excess distance left over from the end. None if the result would be too squished
-    // together.
-    pub fn slice(&self, start: Distance, end: Distance) -> Option<(PolyLine, Distance)> {
+    // Returns the excess distance left over from the end
+    pub fn slice(
+        &self,
+        start: Distance,
+        end: Distance,
+    ) -> Result<(PolyLine, Distance), Box<dyn Error>> {
         if start > end || start < Distance::ZERO || end < Distance::ZERO {
-            panic!("Can't get a polyline slice [{}, {}]", start, end);
+            return Err(format!("Can't get a polyline slice [{}, {}]", start, end).into());
         }
         if start > self.length() {
-            panic!(
+            return Err(format!(
                 "Can't get a polyline slice [{}, {}] on something of length {}",
                 start,
                 end,
                 self.length()
-            );
+            )
+            .into());
         }
         if end - start < EPSILON_DIST {
-            return None;
+            return Err(format!(
+                "Can't get a polyline slice [{}, {}] -- too small",
+                start, end
+            )
+            .into());
         }
 
         let mut result: Vec<Pt2D> = Vec::new();
@@ -258,9 +265,13 @@ impl PolyLine {
                 result.push(last_pt);
                 if result.len() == 1 {
                     // TODO Understand what happened here.
-                    return None;
+                    return Err(format!(
+                        "slice({}, {}) on {} did something weird",
+                        start, end, self
+                    )
+                    .into());
                 }
-                return Some((PolyLine::old_new(result), Distance::ZERO));
+                return Ok((PolyLine::new(result)?, Distance::ZERO));
             }
 
             // If we're in the middle, just collect the endpoint. But not if it's too close to the
@@ -273,25 +284,31 @@ impl PolyLine {
         }
 
         if result.is_empty() {
-            panic!(
+            return Err(format!(
                 "Slice [{}, {}] has a start too big for polyline of length {}",
                 start,
                 end,
                 self.length()
-            );
+            )
+            .into());
         }
         if result.len() == 1 {
-            return None;
+            return Err(format!(
+                "Slice [{}, {}] on {} wound up a single point",
+                start, end, self
+            )
+            .into());
         }
 
-        Some((PolyLine::old_new(result), end - dist_so_far))
+        Ok((PolyLine::new(result)?, end - dist_so_far))
     }
 
     // No excess leftover distance allowed.
+    // TODO Lot of callers of this. Make safer later.
     pub fn exact_slice(&self, start: Distance, end: Distance) -> PolyLine {
         let (pl, leftover) = self
             .slice(start, end)
-            .unwrap_or_else(|| panic!("exact_slice({}, {}) yielded empty slice", start, end));
+            .unwrap_or_else(|_| panic!("exact_slice({}, {}) yielded empty slice", start, end));
         if leftover > EPSILON_DIST {
             panic!(
                 "exact_slice({}, {}) on a PL of length {} yielded leftover distance of {}",
@@ -312,10 +329,14 @@ impl PolyLine {
         self.exact_slice(self.length() / 2.0, self.length())
     }
 
-    // TODO return result with an error message
-    pub fn safe_dist_along(&self, dist_along: Distance) -> Option<(Pt2D, Angle)> {
-        if dist_along < Distance::ZERO || dist_along > self.length() {
-            return None;
+    pub fn dist_along(&self, dist_along: Distance) -> Result<(Pt2D, Angle), Box<dyn Error>> {
+        if dist_along < Distance::ZERO {
+            return Err(format!("dist_along {} is negative", dist_along).into());
+        }
+        if dist_along > self.length() {
+            return Err(
+                format!("dist_along {} is longer than {}", dist_along, self.length()).into(),
+            );
         }
 
         let mut dist_left = dist_along;
@@ -329,10 +350,12 @@ impl PolyLine {
                 Distance::ZERO
             };
             if dist_left <= length + epsilon {
-                return Some((l.must_dist_along(dist_left), l.angle()));
+                return Ok((l.must_dist_along(dist_left), l.angle()));
             }
             dist_left -= length;
         }
+        // Leaving this panic, because I haven't seen this in ages, and something is seriously
+        // wrong if we get here
         panic!(
             "PolyLine dist_along of {} broke on length {} (recalculated length {}): {}",
             dist_along,
@@ -341,20 +364,24 @@ impl PolyLine {
             self
         );
     }
-
-    pub fn middle(&self) -> Pt2D {
-        self.safe_dist_along(self.length() / 2.0).unwrap().0
+    pub fn must_dist_along(&self, dist_along: Distance) -> (Pt2D, Angle) {
+        self.dist_along(dist_along).unwrap()
     }
 
-    // TODO rm this one
-    pub fn dist_along(&self, dist_along: Distance) -> (Pt2D, Angle) {
-        if let Some(pair) = self.safe_dist_along(dist_along) {
-            return pair;
+    pub fn middle(&self) -> Pt2D {
+        // If this fails, must be some super tiny line. Just return the first point in that case.
+        // TODO Use Warn<Pt2D>
+        match self.dist_along(self.length() / 2.0) {
+            Ok((pt, _)) => pt,
+            Err(err) => {
+                println!(
+                    "Guessing middle of PL with length {}: {}",
+                    self.length(),
+                    err
+                );
+                self.first_pt()
+            }
         }
-        if dist_along < Distance::ZERO {
-            panic!("dist_along {} is negative", dist_along);
-        }
-        panic!("dist_along {} is longer than {}", dist_along, self.length());
     }
 
     pub fn first_pt(&self) -> Pt2D {
@@ -369,6 +396,8 @@ impl PolyLine {
     pub fn last_line(&self) -> Line {
         Line::must_new(self.pts[self.pts.len() - 2], self.pts[self.pts.len() - 1])
     }
+
+    ///////////////////////// TODO Keep cleaning up below
 
     pub fn shift_right(&self, width: Distance) -> Warn<PolyLine> {
         self.shift_with_corrections(width)

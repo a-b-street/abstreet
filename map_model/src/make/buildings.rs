@@ -293,7 +293,7 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Ang
                 let mut lines = Vec::new();
                 let mut start = Distance::ZERO;
                 while start + NORMAL_LANE_THICKNESS < pl.length() {
-                    let (pt, angle) = pl.dist_along(start);
+                    let (pt, angle) = pl.must_dist_along(start);
                     start += NORMAL_LANE_THICKNESS;
                     let theta = angle.rotate_degs(rotate);
                     lines.push(Line::must_new(

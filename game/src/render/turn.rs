@@ -88,7 +88,7 @@ fn make_geom(offset: f64, pl: PolyLine, width: Distance, angle: Angle) -> (Polyg
         pl.last_pt()
             .project_away(Distance::meters(500.0), pl.last_line().angle()),
     ]);
-    let pl = pl.extend(extension);
+    let pl = pl.must_extend(extension);
     let slice = pl.exact_slice(offset * height, (offset + 1.0) * height);
     let block = slice.make_polygons(width);
 

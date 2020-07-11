@@ -114,7 +114,7 @@ impl DrawLane {
                 let tile_every = Distance::meters(3.0);
                 let mut dist_along = tile_every;
                 while dist_along < lane.lane_center_pts.length() - tile_every {
-                    let (pt, angle) = lane.dist_along(dist_along);
+                    let (pt, angle) = lane.lane_center_pts.must_dist_along(dist_along);
                     // Reuse perp_line. Project away an arbitrary amount
                     let pt2 = pt.project_away(Distance::meters(1.0), angle);
                     draw.push(
@@ -133,7 +133,7 @@ impl DrawLane {
 
             let mut dist = buffer;
             while dist + buffer <= len {
-                let (pt, angle) = lane.lane_center_pts.dist_along(dist);
+                let (pt, angle) = lane.lane_center_pts.must_dist_along(dist);
                 if lane.is_bus() {
                     draw.append(
                         GeomBatch::mapspace_svg(g.prerender, "system/assets/map/bus_only.svg")
@@ -226,7 +226,7 @@ fn calculate_sidewalk_lines(lane: &Lane) -> Vec<Polygon> {
     // Start away from the intersections
     let mut dist_along = tile_every;
     while dist_along < length - tile_every {
-        let (pt, angle) = lane.dist_along(dist_along);
+        let (pt, angle) = lane.lane_center_pts.must_dist_along(dist_along);
         // Reuse perp_line. Project away an arbitrary amount
         let pt2 = pt.project_away(Distance::meters(1.0), angle);
         result.push(
@@ -246,7 +246,9 @@ fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
     let num_spots = lane.number_parking_spots();
     if num_spots > 0 {
         for idx in 0..=num_spots {
-            let (pt, lane_angle) = lane.dist_along(PARKING_SPOT_LENGTH * (1.0 + idx as f64));
+            let (pt, lane_angle) = lane
+                .lane_center_pts
+                .must_dist_along(PARKING_SPOT_LENGTH * (1.0 + idx as f64));
             let perp_angle = map.driving_side_angle(lane_angle.rotate_degs(270.0));
             // Find the outside of the lane. Actually, shift inside a little bit, since the line
             // will have thickness, but shouldn't really intersect the adjacent line
@@ -353,7 +355,7 @@ fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
 
     let mut dist = arrow_len;
     while dist + arrow_len <= len {
-        let (pt, angle) = lane.lane_center_pts.dist_along(dist);
+        let (pt, angle) = lane.lane_center_pts.must_dist_along(dist);
         results.push(
             PolyLine::must_new(vec![
                 pt.project_away(arrow_len / 2.0, angle.opposite()),

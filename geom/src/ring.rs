@@ -107,7 +107,7 @@ impl Ring {
         let candidate1 = pl.exact_slice(dist1, dist2);
         let candidate2 = pl
             .exact_slice(dist2, pl.length())
-            .extend(pl.exact_slice(Distance::ZERO, dist1));
+            .must_extend(pl.exact_slice(Distance::ZERO, dist1));
         if candidate1.length() < candidate2.length() {
             candidate1
         } else {

@@ -72,6 +72,7 @@ impl Car {
                 .head()
                 .slice(Distance::ZERO, front, map)
                 .map(|(pl, _)| pl.into_points())
+                .ok()
                 .unwrap_or_else(Vec::new);
             let mut leftover = self.vehicle.length - front;
             let mut i = 0;
@@ -87,8 +88,15 @@ impl Car {
                 let piece = self.last_steps[i]
                     .slice(start, len, map)
                     .map(|(pl, _)| pl.into_points())
+                    .ok()
                     .unwrap_or_else(Vec::new);
-                result = PolyLine::append(piece, result);
+                result = match PolyLine::append(piece, result) {
+                    Ok(pl) => pl,
+                    Err(err) => panic!(
+                        "{} at {} has weird geom along {:?}: {}",
+                        self.vehicle.id, now, self.last_steps, err
+                    ),
+                };
                 leftover -= len;
                 i += 1;
             }
@@ -138,10 +146,23 @@ impl Car {
                         };
 
                         // Append the car's polyline on the street with the driveway
-                        let full_piece = if is_parking {
-                            raw_body.extend(driveway.reversed())
+                        let maybe_full_piece = if is_parking {
+                            raw_body.clone().extend(driveway.reversed())
                         } else {
-                            driveway.clone().extend(raw_body).reversed()
+                            driveway
+                                .clone()
+                                .extend(raw_body.clone())
+                                .map(|pl| pl.reversed())
+                        };
+                        let full_piece = match maybe_full_piece {
+                            Ok(pl) => pl,
+                            Err(err) => {
+                                println!(
+                                    "Body and driveway for {} at {} broken: {}",
+                                    self.vehicle.id, now, err
+                                );
+                                raw_body.clone()
+                            }
                         };
                         // Then make the car creep along the added length of the driveway (which
                         // could be really short)

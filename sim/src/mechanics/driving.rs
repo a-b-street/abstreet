@@ -825,7 +825,13 @@ impl DrivingSimState {
                 let car = &self.cars[&c];
                 result.push(UnzoomedAgent {
                     vehicle_type: Some(car.vehicle.vehicle_type),
-                    pos: queue.id.dist_along(dist, map).0,
+                    pos: match queue.id.dist_along(dist, map) {
+                        Ok((pt, _)) => pt,
+                        Err(err) => panic!(
+                            "At {}, invalid dist_along of {} for queue {}: {}",
+                            now, dist, queue.id, err
+                        ),
+                    },
                     person: car.trip_and_person.map(|(_, p)| p),
                 });
             }

@@ -4,7 +4,7 @@ use crate::{
     TurnType,
 };
 use abstutil::{deserialize_usize, serialize_usize};
-use geom::{Angle, Distance, Line, PolyLine, Pt2D};
+use geom::{Distance, Line, PolyLine, Pt2D};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
@@ -151,14 +151,6 @@ impl Lane {
         } else {
             panic!("{} isn't an endpoint of {}", i, self.id);
         }
-    }
-
-    pub fn dist_along(&self, dist_along: Distance) -> (Pt2D, Angle) {
-        self.lane_center_pts.dist_along(dist_along)
-    }
-
-    pub fn safe_dist_along(&self, dist_along: Distance) -> Option<(Pt2D, Angle)> {
-        self.lane_center_pts.safe_dist_along(dist_along)
     }
 
     pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<Distance> {

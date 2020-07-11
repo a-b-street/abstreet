@@ -46,6 +46,7 @@ impl DrawCar {
             );
         }
 
+        let err = format!("{} on {} has weird body", input.id, input.on);
         let body_polygon = {
             let len = input.body.length();
             let front_corner = len - Distance::meters(1.0);
@@ -54,8 +55,8 @@ impl DrawCar {
                 .exact_slice(Distance::ZERO, front_corner)
                 .make_polygons(CAR_WIDTH);
 
-            let (corner_pt, corner_angle) = input.body.dist_along(front_corner);
-            let (tip_pt, tip_angle) = input.body.dist_along(len);
+            let (corner_pt, corner_angle) = input.body.dist_along(front_corner).expect(&err);
+            let (tip_pt, tip_angle) = input.body.dist_along(len).expect(&err);
             let front = Polygon::new(&vec![
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(90.0)),
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(-90.0)),
@@ -83,7 +84,8 @@ impl DrawCar {
                     TurnType::Left => {
                         let (pos, angle) = input
                             .body
-                            .dist_along(input.body.length() - Distance::meters(2.5));
+                            .dist_along(input.body.length() - Distance::meters(2.5))
+                            .expect(&err);
 
                         draw_default.push(
                             cs.turn_arrow,
@@ -98,7 +100,8 @@ impl DrawCar {
                     TurnType::Right => {
                         let (pos, angle) = input
                             .body
-                            .dist_along(input.body.length() - Distance::meters(2.5));
+                            .dist_along(input.body.length() - Distance::meters(2.5))
+                            .expect(&err);
 
                         draw_default.push(
                             cs.turn_arrow,
@@ -115,7 +118,7 @@ impl DrawCar {
                 }
 
                 // Always draw the brake light
-                let (pos, angle) = input.body.dist_along(Distance::meters(0.5));
+                let (pos, angle) = input.body.dist_along(Distance::meters(0.5)).expect(&err);
                 // TODO rounded
                 let window_length_gap = Distance::meters(0.2);
                 let window_thickness = Distance::meters(0.3);
@@ -136,7 +139,7 @@ impl DrawCar {
 
         if let Some(line) = input.label {
             // Buses are a constant length, so hardcoding this is fine.
-            let (pt, angle) = input.body.dist_along(Distance::meters(9.0));
+            let (pt, angle) = input.body.dist_along(Distance::meters(9.0)).expect(&err);
             draw_default.append(
                 Text::from(Line(line).fg(cs.bus_label))
                     .render_to_batch(prerender)

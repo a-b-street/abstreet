@@ -33,7 +33,11 @@ impl DrawBike {
             input.body.make_polygons(Distance::meters(0.4)),
         );
 
-        let (body_pos, facing) = input.body.dist_along(0.4 * input.body.length());
+        let err = format!("{} on {} has weird body", input.id, input.on);
+        let (body_pos, facing) = input
+            .body
+            .dist_along(0.4 * input.body.length())
+            .expect(&err);
         let body_circle = Circle::new(body_pos, body_radius);
         draw_default.push(body_color, body_circle.to_polygon());
         draw_default.push(
@@ -43,7 +47,10 @@ impl DrawBike {
 
         {
             // Handlebars
-            let (hand_pos, hand_angle) = input.body.dist_along(0.9 * input.body.length());
+            let (hand_pos, hand_angle) = input
+                .body
+                .dist_along(0.9 * input.body.length())
+                .expect(&err);
             draw_default.push(
                 cs.bike_frame,
                 Line::new(

@@ -238,11 +238,11 @@ impl UberTurn {
         let mut first = true;
         for pair in self.path.windows(2) {
             if !first {
-                pl = pl.extend(map.get_t(pair[0]).geom.clone());
+                pl = pl.must_extend(map.get_t(pair[0]).geom.clone());
                 first = false;
             }
-            pl = pl.extend(map.get_l(pair[0].dst).lane_center_pts.clone());
-            pl = pl.extend(map.get_t(pair[1]).geom.clone());
+            pl = pl.must_extend(map.get_l(pair[0].dst).lane_center_pts.clone());
+            pl = pl.must_extend(map.get_t(pair[1]).geom.clone());
         }
         pl
     }

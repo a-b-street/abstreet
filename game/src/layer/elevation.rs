@@ -77,7 +77,7 @@ impl Elevation {
 
             let mut dist = arrow_len;
             while dist + arrow_len <= len {
-                let (pt, angle) = pl.dist_along(dist);
+                let (pt, angle) = pl.must_dist_along(dist);
                 batch.push(
                     Color::BLACK,
                     PolyLine::must_new(vec![

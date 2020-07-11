@@ -554,6 +554,7 @@ impl Pedestrian {
 
     fn get_draw_ped(&self, now: Time, map: &Map) -> DrawPedestrianInput {
         let on = self.path.current_step().as_traversable();
+        let err = format!("at {}, {}'s position is broken", now, self.id);
         let (pos, facing) = match self.state {
             PedState::Crossing(ref dist_int, ref time_int) => {
                 let percent = if now > time_int.end {
@@ -561,7 +562,7 @@ impl Pedestrian {
                 } else {
                     time_int.percent(now)
                 };
-                let (pos, orig_angle) = on.dist_along(dist_int.lerp(percent), map);
+                let (pos, orig_angle) = on.dist_along(dist_int.lerp(percent), map).expect(&err);
                 let facing = if dist_int.start < dist_int.end {
                     orig_angle
                 } else {
@@ -576,7 +577,7 @@ impl Pedestrian {
                 )
             }
             PedState::WaitingToTurn(dist, _) => {
-                let (pos, orig_angle) = on.dist_along(dist, map);
+                let (pos, orig_angle) = on.dist_along(dist, map).expect(&err);
                 let facing = if dist == Distance::ZERO {
                     orig_angle.opposite()
                 } else {

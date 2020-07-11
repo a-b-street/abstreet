@@ -17,6 +17,7 @@ use enumset::EnumSetType;
 use geom::{Distance, PolyLine, EPSILON_DIST};
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
+use std::error::Error;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -52,13 +53,13 @@ impl PathStep {
         map: &Map,
         start: Distance,
         dist_ahead: Option<Distance>,
-    ) -> Option<(PolyLine, Distance)> {
+    ) -> Result<(PolyLine, Distance), Box<dyn Error>> {
         if let Some(d) = dist_ahead {
             if d < Distance::ZERO {
                 panic!("Negative dist_ahead?! {}", d);
             }
             if d == Distance::ZERO {
-                return None;
+                return Err(format!("0 dist ahead for slice").into());
             }
         }
 
@@ -319,7 +320,7 @@ impl Path {
         }
 
         // Special case the first step.
-        if let Some((pts, dist)) = self.steps[0].slice(map, start_dist, dist_remaining) {
+        if let Ok((pts, dist)) = self.steps[0].slice(map, start_dist, dist_remaining) {
             pts_so_far = Some(pts);
             if dist_remaining.is_some() {
                 dist_remaining = Some(dist);
@@ -365,11 +366,11 @@ impl Path {
                 PathStep::ContraflowLane(l) => map.get_l(l).lane_center_pts.reversed().length(),
                 _ => Distance::ZERO,
             };
-            if let Some((new_pts, dist)) =
+            if let Ok((new_pts, dist)) =
                 self.steps[i].slice(map, start_dist_this_step, dist_remaining)
             {
                 if pts_so_far.is_some() {
-                    match pts_so_far.unwrap().maybe_extend(new_pts) {
+                    match pts_so_far.unwrap().extend(new_pts) {
                         Ok(new) => {
                             pts_so_far = Some(new);
                         }

@@ -575,10 +575,7 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
     let mut found = HashSet::new();
     for r1 in oneways {
         let r1 = map.get_r(r1);
-        let (middle, angle) = r1
-            .center_pts
-            .safe_dist_along(r1.center_pts.length() / 2.0)
-            .unwrap();
+        let (middle, angle) = r1.center_pts.must_dist_along(r1.center_pts.length() / 2.0);
         for (r2, _, _) in closest.all_close_pts(middle, Distance::meters(250.0)) {
             if r1.id != r2
                 && PolyLine::must_new(vec![

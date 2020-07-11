@@ -1,6 +1,7 @@
 use crate::{LaneID, Map, TurnID};
 use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
 use serde::{Deserialize, Serialize};
+use std::error::Error;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -44,11 +45,25 @@ impl Position {
     }
 
     pub fn pt(&self, map: &Map) -> Pt2D {
-        map.get_l(self.lane).dist_along(self.dist_along).0
+        match map
+            .get_l(self.lane)
+            .lane_center_pts
+            .dist_along(self.dist_along)
+        {
+            Ok((pt, _)) => pt,
+            Err(err) => panic!("{} invalid: {}", self, err),
+        }
     }
 
     pub fn pt_and_angle(&self, map: &Map) -> (Pt2D, Angle) {
-        map.get_l(self.lane).dist_along(self.dist_along)
+        match map
+            .get_l(self.lane)
+            .lane_center_pts
+            .dist_along(self.dist_along)
+        {
+            Ok(pair) => pair,
+            Err(err) => panic!("{} invalid: {}", self, err),
+        }
     }
 
     pub fn equiv_pos(&self, lane: LaneID, our_len: Distance, map: &Map) -> Position {
@@ -129,14 +144,19 @@ impl Traversable {
         }
     }
 
-    pub fn dist_along(&self, dist: Distance, map: &Map) -> (Pt2D, Angle) {
+    pub fn dist_along(&self, dist: Distance, map: &Map) -> Result<(Pt2D, Angle), Box<dyn Error>> {
         match *self {
-            Traversable::Lane(id) => map.get_l(id).dist_along(dist),
+            Traversable::Lane(id) => map.get_l(id).lane_center_pts.dist_along(dist),
             Traversable::Turn(id) => map.get_t(id).geom.dist_along(dist),
         }
     }
 
-    pub fn slice(&self, start: Distance, end: Distance, map: &Map) -> Option<(PolyLine, Distance)> {
+    pub fn slice(
+        &self,
+        start: Distance,
+        end: Distance,
+        map: &Map,
+    ) -> Result<(PolyLine, Distance), Box<dyn Error>> {
         match *self {
             Traversable::Lane(id) => map.get_l(id).lane_center_pts.slice(start, end),
             Traversable::Turn(id) => map.get_t(id).geom.slice(start, end),
