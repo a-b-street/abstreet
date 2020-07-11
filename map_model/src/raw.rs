@@ -1,5 +1,5 @@
 use crate::make::initial::lane_specs::get_lane_types;
-use crate::{osm, AreaType, IntersectionType, RoadSpec};
+use crate::{osm, AreaType, IntersectionType, MapConfig, RoadSpec};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Timer, Warn};
 use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
@@ -32,9 +32,7 @@ pub struct RawMap {
 
     pub boundary_polygon: Polygon,
     pub gps_bounds: GPSBounds,
-    // If true, driving happens on the right side of the road (USA). If false, on the left
-    // (Australia).
-    pub driving_side: DrivingSide,
+    pub config: MapConfig,
 }
 
 // A way to refer to roads across many maps and over time. Also trivial to relate with OSM to find
@@ -122,7 +120,10 @@ impl RawMap {
             // Some nonsense thing
             boundary_polygon: Polygon::rectangle(1.0, 1.0),
             gps_bounds: GPSBounds::new(),
-            driving_side: DrivingSide::Right,
+            config: MapConfig {
+                driving_side: DrivingSide::Right,
+                bikes_can_use_bus_lanes: true,
+            },
         }
     }
 
@@ -190,12 +191,12 @@ impl RawMap {
         for r in &i.roads {
             roads.insert(
                 *r,
-                initial::Road::new(*r, &self.roads[r], self.driving_side),
+                initial::Road::new(*r, &self.roads[r], self.config.driving_side),
             );
         }
 
         let (i_pts, debug) =
-            initial::intersection_polygon(self.driving_side, &i, &mut roads, timer);
+            initial::intersection_polygon(self.config.driving_side, &i, &mut roads, timer);
         (
             Polygon::new(&i_pts),
             roads

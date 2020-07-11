@@ -104,14 +104,15 @@ impl InitialMap {
             m.intersections.get_mut(&id.i1).unwrap().roads.insert(*id);
             m.intersections.get_mut(&id.i2).unwrap().roads.insert(*id);
 
-            m.roads.insert(*id, Road::new(*id, r, raw.driving_side));
+            m.roads
+                .insert(*id, Road::new(*id, r, raw.config.driving_side));
         }
 
         timer.start_iter("find each intersection polygon", m.intersections.len());
         for i in m.intersections.values_mut() {
             timer.next();
 
-            i.polygon = intersection_polygon(raw.driving_side, i, &mut m.roads, timer).0;
+            i.polygon = intersection_polygon(raw.config.driving_side, i, &mut m.roads, timer).0;
         }
 
         m

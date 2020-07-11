@@ -444,8 +444,7 @@ impl PathConstraints {
             PathConstraints::Bike => {
                 if l.is_biking() {
                     true
-                } else if l.is_driving() || l.is_bus() {
-                    // Note bikes can use bus lanes -- this is generally true in Seattle.
+                } else if l.is_driving() || (l.is_bus() && map.config.bikes_can_use_bus_lanes) {
                     let road = map.get_r(l.parent);
                     road.osm_tags.get("bicycle") != Some(&"no".to_string())
                         && road.osm_tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())

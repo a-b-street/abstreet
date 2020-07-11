@@ -45,7 +45,7 @@ impl Map {
             traffic_signals: BTreeMap::new(),
             gps_bounds,
             bounds,
-            driving_side: raw.driving_side,
+            config: raw.config.clone(),
             pathfinder: None,
             pathfinder_dirty: false,
             city_name: raw.city_name.clone(),
@@ -242,7 +242,9 @@ impl Map {
                 continue;
             }
 
-            for t in turns::make_all_turns(map.driving_side, i, &map.roads, &map.lanes, timer) {
+            for t in
+                turns::make_all_turns(map.config.driving_side, i, &map.roads, &map.lanes, timer)
+            {
                 assert!(!map.turns.contains_key(&t.id));
                 i.turns.insert(t.id);
                 if t.geom.length() < geom::EPSILON_DIST {
@@ -427,21 +429,27 @@ fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
 
     // For each point, find the closest point to any lane, using the quadtree to prune the
     // search.
-    let mut results: HashMap<HashablePt2D, Position> = HashMap::new();
-    timer.start_iter("find closest lane point", pts.len());
-    for query_pt in pts {
-        timer.next();
-        if let Some((l, pt)) = closest.closest_pt(query_pt.to_pt2d(), max_dist_away) {
-            if let Some(dist_along) = lanes[l.0].dist_along_of_point(pt) {
-                results.insert(query_pt, Position::new(l, dist_along));
-            } else {
-                panic!(
-                    "{} isn't on {} according to dist_along_of_point, even though closest_point \
-                     thinks it is.\n{}",
-                    pt, l, lanes[l.0].lane_center_pts
-                );
-            }
-        }
-    }
-    results
+    timer
+        .parallelize(
+            "find closest lane point",
+            pts.into_iter().collect(),
+            |query_pt| {
+                if let Some((l, pt)) = closest.closest_pt(query_pt.to_pt2d(), max_dist_away) {
+                    if let Some(dist_along) = lanes[l.0].dist_along_of_point(pt) {
+                        Some((query_pt, Position::new(l, dist_along)))
+                    } else {
+                        panic!(
+                            "{} isn't on {} according to dist_along_of_point, even though \
+                             closest_point thinks it is.\n{}",
+                            pt, l, lanes[l.0].lane_center_pts
+                        );
+                    }
+                } else {
+                    None
+                }
+            },
+        )
+        .into_iter()
+        .flatten()
+        .collect()
 }

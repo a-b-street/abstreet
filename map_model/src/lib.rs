@@ -14,6 +14,7 @@ pub use crate::edits::{
     EditCmd, EditEffects, EditIntersection, MapEdits, OriginalLane, PermanentMapEdits,
 };
 pub use crate::make::initial::lane_specs::RoadSpec;
+pub use crate::map::MapConfig;
 pub use crate::objects::area::{Area, AreaID, AreaType};
 pub use crate::objects::building::{Building, BuildingID, FrontPath, OffstreetParking};
 pub use crate::objects::bus_stop::{BusRoute, BusRouteID, BusStop, BusStopID};
@@ -75,7 +76,7 @@ pub struct Map {
 
     gps_bounds: GPSBounds,
     bounds: Bounds,
-    driving_side: raw::DrivingSide,
+    config: MapConfig,
 
     // TODO Argh, hack, initialization order is hard!
     pathfinder: Option<Pathfinder>,

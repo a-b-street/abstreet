@@ -6,8 +6,8 @@ mod srtm;
 use abstutil::Timer;
 use geom::{Distance, FindClosest, PolyLine, Pt2D};
 use kml::ExtraShapes;
-use map_model::osm;
-use map_model::raw::{DrivingSide, OriginalBuilding, OriginalRoad, RawMap};
+use map_model::raw::{OriginalBuilding, OriginalRoad, RawMap};
+use map_model::{osm, MapConfig};
 
 // Just used for matching hints to different sides of a road.
 const DIRECTED_ROAD_THICKNESS: Distance = Distance::const_meters(2.5);
@@ -19,7 +19,7 @@ pub struct Options {
 
     // The path to an osmosis boundary polygon. Highly recommended.
     pub clip: Option<String>,
-    pub drive_on_right: bool,
+    pub map_config: MapConfig,
 
     pub onstreet_parking: OnstreetParking,
     pub public_offstreet_parking: PublicOffstreetParking,
@@ -73,11 +73,7 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
         timer,
     );
     clip::clip_map(&mut map, timer);
-    map.driving_side = if opts.drive_on_right {
-        DrivingSide::Right
-    } else {
-        DrivingSide::Left
-    };
+    map.config = opts.map_config;
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.
@@ -137,14 +133,16 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         let center = PolyLine::new(r.center_points.clone());
         closest.add(
             (*id, true),
-            map.driving_side
+            map.config
+                .driving_side
                 .right_shift(center.clone(), DIRECTED_ROAD_THICKNESS)
                 .get(timer)
                 .points(),
         );
         closest.add(
             (*id, false),
-            map.driving_side
+            map.config
+                .driving_side
                 .left_shift(center, DIRECTED_ROAD_THICKNESS)
                 .get(timer)
                 .points(),
