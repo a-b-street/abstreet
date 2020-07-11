@@ -190,7 +190,7 @@ pub fn make_heatmap(
         for x in 0..grid.width {
             let count = grid.data[grid.idx(x, y)];
             if count > 0.0 {
-                let pct = (count as f64) / (distrib.select(Statistic::Max) as f64);
+                let pct = (count as f64) / (distrib.select(Statistic::Max).unwrap() as f64);
                 let c = gradient.eval_continuous(pct);
                 // Don't block the map underneath
                 let color = Color::rgb(c.r as usize, c.g as usize, c.b as usize).alpha(0.6);
@@ -206,7 +206,7 @@ pub fn make_heatmap(
     for i in 1..=num_colors {
         let pct = (i as f64) / (num_colors as f64);
         labels.push(
-            (pct * (distrib.select(Statistic::Max) as f64))
+            (pct * (distrib.select(Statistic::Max).unwrap() as f64))
                 .round()
                 .to_string(),
         );

@@ -80,6 +80,7 @@ impl HgramValue<usize> for usize {
     }
 }
 
+// TODO Maybe consider having a type-safe NonEmptyHistogram.
 #[derive(Clone)]
 pub struct Histogram<T: HgramValue<T>> {
     count: usize,
@@ -113,7 +114,10 @@ impl<T: HgramValue<T>> Histogram<T> {
             self.max = self.max.max(x);
         }
         self.count += 1;
-        self.histogram.increment(x.to_u64()).unwrap();
+        self.histogram
+            .increment(x.to_u64())
+            .map_err(|err| format!("Can't add {}: {}", x, err))
+            .unwrap();
     }
 
     pub fn describe(&self) -> String {
@@ -124,12 +128,12 @@ impl<T: HgramValue<T>> Histogram<T> {
         format!(
             "{} count, 50%ile {}, 90%ile {}, 99%ile {}, min {}, mean {}, max {}",
             abstutil::prettyprint_usize(self.count),
-            self.select(Statistic::P50),
-            self.select(Statistic::P90),
-            self.select(Statistic::P99),
-            self.select(Statistic::Min),
-            self.select(Statistic::Mean),
-            self.select(Statistic::Max),
+            self.select(Statistic::P50).unwrap(),
+            self.select(Statistic::P90).unwrap(),
+            self.select(Statistic::P99).unwrap(),
+            self.select(Statistic::Min).unwrap(),
+            self.select(Statistic::Mean).unwrap(),
+            self.select(Statistic::Max).unwrap(),
         )
     }
 
@@ -141,21 +145,23 @@ impl<T: HgramValue<T>> Histogram<T> {
         Some(T::from_u64(self.histogram.percentile(p).unwrap()))
     }
 
-    pub fn select(&self, stat: Statistic) -> T {
-        assert_ne!(self.count, 0);
+    pub fn select(&self, stat: Statistic) -> Option<T> {
+        if self.count == 0 {
+            return None;
+        }
         let raw = match stat {
             Statistic::P50 => self.histogram.percentile(50.0).unwrap(),
             Statistic::P90 => self.histogram.percentile(90.0).unwrap(),
             Statistic::P99 => self.histogram.percentile(99.0).unwrap(),
             Statistic::Min => {
-                return self.min;
+                return Some(self.min);
             }
             Statistic::Mean => self.histogram.mean().unwrap(),
             Statistic::Max => {
-                return self.max;
+                return Some(self.max);
             }
         };
-        T::from_u64(raw)
+        Some(T::from_u64(raw))
     }
 
     pub fn count(&self) -> usize {

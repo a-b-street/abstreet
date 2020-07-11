@@ -295,14 +295,15 @@ impl InfoPanel {
                         app.cs.current_object.alpha(0.5),
                         Circle::new(bounds.center(), radius).to_polygon(),
                     );
-                    details.unzoomed.push(
-                        app.cs.current_object,
-                        Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
-                    );
-                    details.zoomed.push(
-                        app.cs.current_object,
-                        Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
-                    );
+                    match Circle::outline(bounds.center(), radius, Distance::meters(0.3)) {
+                        Ok(poly) => {
+                            details.unzoomed.push(app.cs.current_object, poly.clone());
+                            details.zoomed.push(app.cs.current_object, poly.clone());
+                        }
+                        Err(err) => {
+                            println!("No outline for {:?}: {}", id, err);
+                        }
+                    }
 
                     // TODO And actually, don't cover up the agent. The Renderable API isn't quite
                     // conducive to doing this yet.

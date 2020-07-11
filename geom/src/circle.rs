@@ -1,5 +1,6 @@
 use crate::{Angle, Bounds, Distance, Polygon, Pt2D, Ring};
 use serde::{Deserialize, Serialize};
+use std::error::Error;
 use std::fmt;
 
 const TRIANGLES_PER_CIRCLE: usize = 60;
@@ -56,20 +57,30 @@ impl Circle {
         Polygon::precomputed(pts, indices)
     }
 
-    pub fn outline(center: Pt2D, radius: Distance, thickness: Distance) -> Polygon {
-        assert!(radius > thickness);
+    pub fn outline(
+        center: Pt2D,
+        radius: Distance,
+        thickness: Distance,
+    ) -> Result<Polygon, Box<dyn Error>> {
+        if radius <= thickness {
+            return Err(format!(
+                "Can't make Circle outline with radius {} and thickness {}",
+                radius, thickness
+            )
+            .into());
+        }
 
         // TODO This impl doesn't work because there's a weird edge
         if false {
             let mut pts = Circle::new(center, radius).to_polygon().points().clone();
             pts.push(pts[0]);
-            return Ring::new(pts).make_polygons(thickness);
+            return Ok(Ring::new(pts).make_polygons(thickness));
         }
 
         // TODO Argh this one also leaves a little piece missing, but it looks less bad. Fine.
         let bigger = Circle::new(center, radius).to_polygon();
         let smaller = Circle::new(center, radius - thickness).to_polygon();
-        Polygon::union_all(bigger.difference(&smaller))
+        Ok(Polygon::union_all(bigger.difference(&smaller)))
     }
 }
 
