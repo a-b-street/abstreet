@@ -204,7 +204,7 @@ fn make_object(
     } else if pts[0] == *pts.last().unwrap() {
         // TODO Toggle between these better
         //Polygon::new(&pts)
-        Ring::new(pts).make_polygons(THICKNESS)
+        Ring::must_new(pts).make_polygons(THICKNESS)
     } else {
         let backup = pts[0];
         match PolyLine::new(pts) {

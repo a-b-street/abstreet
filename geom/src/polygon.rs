@@ -3,6 +3,7 @@ use geo::algorithm::area::Area;
 use geo::algorithm::convexhull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
+use std::error::Error;
 use std::fmt;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -286,12 +287,8 @@ impl Polygon {
 
     // Only works for polygons that're formed from rings. Those made from PolyLines won't work, for
     // example.
-    pub fn to_outline(&self, thickness: Distance) -> Polygon {
-        Ring::new(self.points.clone()).make_polygons(thickness)
-    }
-
-    pub fn maybe_to_outline(&self, thickness: Distance) -> Option<Polygon> {
-        Ring::maybe_new(self.points.clone()).map(|r| r.make_polygons(thickness))
+    pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, Box<dyn Error>> {
+        Ring::new(self.points.clone()).map(|r| r.make_polygons(thickness))
     }
 
     // Usually m^2, unless the polygon is in screen-space
@@ -301,7 +298,7 @@ impl Polygon {
 
     // Doesn't handle multiple crossings in and out.
     pub fn clip_polyline(&self, input: &PolyLine) -> Option<Vec<Pt2D>> {
-        let ring = Ring::new(self.points.clone());
+        let ring = Ring::must_new(self.points.clone());
         let hits = ring.all_intersections(input);
 
         if hits.len() == 0 {

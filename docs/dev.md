@@ -46,9 +46,6 @@ One-time setup:
     experience, so they're hidden for now.
   - `cargo run --bin game -- --tutorial=12` starts somewhere in the tutorial
   - Adding `--edits='name of edits'` starts with edits applied to the map.
-- All code is automatically formatted using
-  https://github.com/rust-lang/rustfmt; please run `cargo +nightly fmt` before
-  sending a PR. (You have to install the nightly toolchain just for fmt)
 - More random notes [here](/docs/misc_dev_tricks.md)
 
 ## Downloading more cities
@@ -139,3 +136,24 @@ Common utilities:
 - `abstutil`: a grab-bag of IO helpers, timing and logging utilities, etc
 - `geom`: types for GPS and map-space points, lines, angles, polylines,
   polygons, circles, durations, speeds
+
+## Code conventions
+
+All code is automatically formatted using https://github.com/rust-lang/rustfmt;
+please run `cargo +nightly fmt` before sending a PR. (You have to install the
+nightly toolchain just for fmt)
+
+The error handling is unfortunately inconsistent. The goal is to gracefully
+degrade instead of crashing the game. If a crash does happen, make sure the logs
+will have enough context to reproduce and debug. For example, giving up when
+some geometry problem happens isn't ideal, but at least make sure to print the
+road / agent IDs or whatever will help find the problem. It's fine to crash
+during map importing, since the player won't deal with this, and loudly stopping
+problems is useful. It's also fine to crash when initially constructing all of
+the renderable map objects, because this crash will consistently happen at
+startup-time and be noticed by somebody developing before a player gets to it.
+
+I have lots of thoughts about testing that I haven't written anywhere yet.
+You'll surely note the lack of unit tests. If it bothers you, let's talk about
+what tests should exist. In the meantime, note lots of validation does happen
+via importing maps, running the prebaked scenarios, and screenshot diffing.

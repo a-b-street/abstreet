@@ -464,7 +464,7 @@ impl Marker {
         } else {
             let poly = Polygon::new(&pts);
             batch.push(Color::RED.alpha(0.8), poly.clone());
-            if let Some(o) = poly.maybe_to_outline(Distance::meters(1.0)) {
+            if let Ok(o) = poly.to_outline(Distance::meters(1.0)) {
                 batch.push(Color::RED, o);
             }
             // TODO Refactor
@@ -591,9 +591,9 @@ fn simplify(mut raw: Vec<Pt2D>) -> Ring {
             downsampled.push(Pt2D::new(pt.x, pt.y));
         }
         downsampled.push(downsampled[0]);
-        Ring::new(downsampled)
+        Ring::must_new(downsampled)
     } else {
         raw.push(raw[0]);
-        Ring::new(raw)
+        Ring::must_new(raw)
     }
 }

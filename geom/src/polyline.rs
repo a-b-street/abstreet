@@ -93,7 +93,7 @@ impl PolyLine {
         side1.extend(side2);
         side1.push(side1[0]);
         side1.dedup();
-        Some(Ring::new(side1).make_polygons(boundary_width))
+        Some(Ring::must_new(side1).make_polygons(boundary_width))
     }
 
     pub fn reversed(&self) -> PolyLine {
@@ -556,7 +556,7 @@ impl PolyLine {
             let angle = slice.last_pt().angle_to(self.last_pt());
             vec![
                 p,
-                Ring::new(vec![
+                Ring::must_new(vec![
                     self.last_pt(),
                     self.last_pt()
                         .project_away(head_size, angle.rotate_degs(-135.0)),

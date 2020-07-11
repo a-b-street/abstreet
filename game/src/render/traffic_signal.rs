@@ -368,7 +368,7 @@ pub fn make_signal_diagram(
 
             let mut hovered = GeomBatch::new();
             hovered.append(normal.clone());
-            hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)));
+            hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)).unwrap());
 
             Btn::custom(normal, hovered, bbox.clone()).build(
                 ctx,

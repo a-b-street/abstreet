@@ -74,7 +74,7 @@ impl Circle {
         if false {
             let mut pts = Circle::new(center, radius).to_polygon().points().clone();
             pts.push(pts[0]);
-            return Ok(Ring::new(pts).make_polygons(thickness));
+            return Ok(Ring::must_new(pts).make_polygons(thickness));
         }
 
         // TODO Argh this one also leaves a little piece missing, but it looks less bad. Fine.

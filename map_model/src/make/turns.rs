@@ -549,7 +549,7 @@ fn make_shared_sidewalk_corner(
 
     // TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.
     if false {
-        return Ring::new(i.polygon.points().clone()).get_shorter_slice_btwn(corner1, corner2);
+        return Ring::must_new(i.polygon.points().clone()).get_shorter_slice_btwn(corner1, corner2);
     }
 
     // The order of the points here seems backwards, but it's because we scan from corner2

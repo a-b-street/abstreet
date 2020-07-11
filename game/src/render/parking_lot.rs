@@ -100,7 +100,7 @@ impl Renderable for DrawParkingLot {
 
     fn get_outline(&self, map: &Map) -> Polygon {
         let pl = map.get_pl(self.id);
-        if let Some(p) = pl.polygon.maybe_to_outline(OUTLINE_THICKNESS) {
+        if let Ok(p) = pl.polygon.to_outline(OUTLINE_THICKNESS) {
             p
         } else {
             pl.polygon.clone()

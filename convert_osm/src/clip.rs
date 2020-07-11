@@ -9,7 +9,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
 
     // So we can use retain_btreemap without borrowing issues
     let boundary_polygon = map.boundary_polygon.clone();
-    let boundary_ring = Ring::new(boundary_polygon.points().clone());
+    let boundary_ring = Ring::must_new(boundary_polygon.points().clone());
 
     // This is kind of indirect and slow, but first pass -- just remove roads that start or end
     // outside the boundary polygon.

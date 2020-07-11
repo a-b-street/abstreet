@@ -180,7 +180,7 @@ pub fn extract_osm(
         }
     }
 
-    let boundary = Ring::new(map.boundary_polygon.points().clone());
+    let boundary = Ring::must_new(map.boundary_polygon.points().clone());
 
     let mut simple_turn_restrictions = Vec::new();
     let mut complicated_turn_restrictions = Vec::new();

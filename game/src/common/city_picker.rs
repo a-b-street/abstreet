@@ -54,7 +54,7 @@ impl CityPicker {
                 if &name == app.primary.map.get_name() {
                     batch.push(color.alpha(0.5), polygon.clone());
                 } else {
-                    batch.push(color, polygon.to_outline(Distance::meters(200.0)));
+                    batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
                 }
                 regions.push((name, color, polygon.scale(zoom_no_scale_factor)));
             }

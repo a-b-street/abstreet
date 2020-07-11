@@ -40,7 +40,7 @@ impl DrawBuilding {
             cs.sidewalk,
             front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
         );
-        if let Some(p) = bldg.polygon.maybe_to_outline(Distance::meters(0.1)) {
+        if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.1)) {
             outlines_batch.push(cs.building_outline, p);
         }
 
@@ -102,7 +102,7 @@ impl Renderable for DrawBuilding {
 
     fn get_outline(&self, map: &Map) -> Polygon {
         let b = map.get_b(self.id);
-        if let Some(p) = b.polygon.maybe_to_outline(OUTLINE_THICKNESS) {
+        if let Ok(p) = b.polygon.to_outline(OUTLINE_THICKNESS) {
             p
         } else {
             b.polygon.clone()

@@ -12,39 +12,16 @@ pub struct Ring {
 }
 
 impl Ring {
-    pub fn new(pts: Vec<Pt2D>) -> Ring {
-        assert!(pts.len() >= 3);
-        assert_eq!(pts[0], *pts.last().unwrap());
-
-        // This checks no lines are too small. Could take the other approach and automatically
-        // squish down points here and make sure the final result is at least EPSILON_DIST.
-        // But probably better for the callers to do this -- they have better understanding of what
-        // needs to be squished down, why, and how.
-        if pts.windows(2).any(|pair| pair[0] == pair[1]) {
-            panic!("Ring has ~dupe adjacent pts: {:?}", pts);
+    pub fn new(pts: Vec<Pt2D>) -> Result<Ring, Box<dyn Error>> {
+        if pts.len() < 3 {
+            return Err(format!("Can't make a ring with < 3 points").into());
         }
-
-        let result = Ring { pts };
-
-        let mut seen_pts = HashSet::new();
-        for pt in result.pts.iter().skip(1) {
-            seen_pts.insert(pt.to_hashable());
-        }
-        if seen_pts.len() != result.pts.len() - 1 {
-            panic!("Ring has repeat points: {}", result);
-        }
-
-        result
-    }
-
-    pub fn maybe_new(pts: Vec<Pt2D>) -> Option<Ring> {
-        assert!(pts.len() >= 3);
         if pts[0] != *pts.last().unwrap() {
-            return None;
+            return Err(format!("Can't make a ring with mismatching first/last points").into());
         }
 
         if pts.windows(2).any(|pair| pair[0] == pair[1]) {
-            return None;
+            return Err(format!("Ring has ~dupe adjacent pts").into());
         }
 
         let result = Ring { pts };
@@ -54,10 +31,13 @@ impl Ring {
             seen_pts.insert(pt.to_hashable());
         }
         if seen_pts.len() != result.pts.len() - 1 {
-            return None;
+            return Err(format!("Ring has repeat non-adjacent points").into());
         }
 
-        Some(result)
+        Ok(result)
+    }
+    pub fn must_new(pts: Vec<Pt2D>) -> Ring {
+        Ring::new(pts).unwrap()
     }
 
     pub fn make_polygons(&self, thickness: Distance) -> Polygon {
@@ -137,7 +117,7 @@ impl Ring {
             current.push(pt);
             if intersections.contains(&pt.to_hashable()) && current.len() > 1 {
                 if current[0] == pt {
-                    rings.push(Ring::new(current.drain(..).collect()));
+                    rings.push(Ring::must_new(current.drain(..).collect()));
                 } else {
                     polylines.push(PolyLine::new(current.drain(..).collect())?);
                 }

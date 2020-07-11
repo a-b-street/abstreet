@@ -163,7 +163,9 @@ impl Renderable for DrawIntersection {
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {
-        map.get_i(self.id).polygon.to_outline(OUTLINE_THICKNESS)
+        let poly = &map.get_i(self.id).polygon;
+        poly.to_outline(OUTLINE_THICKNESS)
+            .unwrap_or_else(|_| poly.clone())
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
