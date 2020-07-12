@@ -78,13 +78,13 @@ impl DrawLane {
                 draw.push(
                     app.cs.road_center_line,
                     lane.lane_center_pts
-                        .shift_right(lane.width / 2.0)
+                        .must_shift_right(lane.width / 2.0)
                         .make_polygons(Distance::meters(0.25)),
                 );
                 draw.push(
                     app.cs.road_center_line,
                     lane.lane_center_pts
-                        .shift_left(lane.width / 2.0)
+                        .must_shift_left(lane.width / 2.0)
                         .make_polygons(Distance::meters(0.25)),
                 );
             }
@@ -94,13 +94,13 @@ impl DrawLane {
                 draw.push(
                     app.cs.light_rail_track,
                     lane.lane_center_pts
-                        .shift_right((lane.width - track_width) / 2.5)
+                        .must_shift_right((lane.width - track_width) / 2.5)
                         .make_polygons(track_width),
                 );
                 draw.push(
                     app.cs.light_rail_track,
                     lane.lane_center_pts
-                        .shift_left((lane.width - track_width) / 2.5)
+                        .must_shift_left((lane.width - track_width) / 2.5)
                         .make_polygons(track_width),
                 );
 

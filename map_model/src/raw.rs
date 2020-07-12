@@ -389,10 +389,12 @@ impl DrivingSide {
     // "right" and "left" here are in terms of DrivingSide::Right, what I'm used to reasoning about
     // in the USA. They invert appropriately for DrivingSide::Left.
     pub fn right_shift(self, pl: PolyLine, width: Distance) -> PolyLine {
+        // TODO Plumb through the error further
         match self {
             DrivingSide::Right => pl.shift_right(width),
             DrivingSide::Left => pl.shift_left(width),
         }
+        .unwrap()
     }
 
     pub fn left_shift(self, pl: PolyLine, width: Distance) -> PolyLine {
@@ -400,6 +402,7 @@ impl DrivingSide {
             DrivingSide::Right => pl.shift_left(width),
             DrivingSide::Left => pl.shift_right(width),
         }
+        .unwrap()
     }
 
     pub fn right_shift_line(self, line: Line, width: Distance) -> Line {

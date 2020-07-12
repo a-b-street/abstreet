@@ -385,12 +385,12 @@ fn make_rainbow_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map) -> bool
     let slice = turn
         .geom
         .exact_slice(total_width, turn.geom.length() - total_width)
-        .shift_left(total_width / 2.0 - band_width / 2.0);
+        .must_shift_left(total_width / 2.0 - band_width / 2.0);
     for (idx, color) in colors.into_iter().enumerate() {
         batch.push(
             color,
             slice
-                .shift_right(band_width * (idx as f64))
+                .must_shift_right(band_width * (idx as f64))
                 .make_polygons(band_width),
         );
     }

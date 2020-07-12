@@ -26,7 +26,10 @@ impl DrawCar {
         for side in vec![
             input.body.shift_right(CAR_WIDTH / 2.0),
             input.body.shift_left(CAR_WIDTH / 2.0),
-        ] {
+        ]
+        .into_iter()
+        .flatten()
+        {
             let len = side.length();
             if len <= Distance::meters(2.0) {
                 // The original body may be fine, but sometimes shifting drastically shortens the

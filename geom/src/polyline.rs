@@ -361,30 +361,30 @@ impl PolyLine {
         Line::must_new(self.pts[self.pts.len() - 2], self.pts[self.pts.len() - 1])
     }
 
-    pub fn shift_right(&self, width: Distance) -> PolyLine {
+    pub fn shift_right(&self, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
         self.shift_with_corrections(width)
     }
+    pub fn must_shift_right(&self, width: Distance) -> PolyLine {
+        self.shift_right(width).unwrap()
+    }
 
-    pub fn shift_left(&self, width: Distance) -> PolyLine {
+    pub fn shift_left(&self, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
         self.shift_with_corrections(-width)
+    }
+    pub fn must_shift_left(&self, width: Distance) -> PolyLine {
+        self.shift_left(width).unwrap()
     }
 
     // Things to remember about shifting polylines:
     // - the length before and after probably don't match up
     // - the number of points may not match
-    fn shift_with_corrections(&self, width: Distance) -> PolyLine {
+    fn shift_with_corrections(&self, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
         let raw = self.shift_with_sharp_angles(width, MITER_THRESHOLD);
-        let result = match PolyLine::deduping_new(raw) {
-            Ok(pl) => pl,
-            Err(err) => panic!("shifting by {} broke {}: {}", width, self, err),
-        };
+        let result = PolyLine::deduping_new(raw)?;
         if result.pts.len() == self.pts.len() {
-            match fix_angles(self, result) {
-                Ok(pl) => pl,
-                Err(err) => panic!("shifting by {} broke {}: {}", width, self, err),
-            }
+            fix_angles(self, result)
         } else {
-            result
+            Ok(result)
         }
     }
 

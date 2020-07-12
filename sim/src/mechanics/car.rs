@@ -134,7 +134,16 @@ impl Car {
                         } else {
                             -width
                         };
-                        raw_body.shift_right(shift)
+                        match raw_body.shift_right(shift) {
+                            Ok(pl) => pl,
+                            Err(err) => {
+                                println!(
+                                    "Body for onstreet {} at {} broken: {}",
+                                    self.vehicle.id, now, err
+                                );
+                                raw_body.clone()
+                            }
+                        }
                     }
                     _ => {
                         let driveway = match spot {
