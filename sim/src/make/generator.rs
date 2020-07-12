@@ -442,6 +442,7 @@ impl ScenarioGenerator {
         }
 
         let mut s = Scenario::empty(map, "random people going to/from work");
+        s.only_seed_buses = None;
         timer.start_iter("create people", total_ppl);
         for (home, num_ppl) in residences {
             for _ in 0..num_ppl {
