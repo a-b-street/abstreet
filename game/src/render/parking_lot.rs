@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender};
-use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
+use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{
     Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
     SIDEWALK_THICKNESS,
@@ -37,15 +37,13 @@ impl DrawParkingLot {
 
         // Trim the front path line away from the sidewalk's center line, so that it doesn't
         // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
-        let mut front_path_line = lot.sidewalk_line.clone();
-        let len = front_path_line.length();
-        let trim_back = SIDEWALK_THICKNESS / 2.0;
-        if len > trim_back && len - trim_back > geom::EPSILON_DIST {
-            front_path_line = Line::new(
-                front_path_line.pt1(),
-                front_path_line.dist_along(len - trim_back),
-            );
-        }
+        let orig_line = &lot.sidewalk_line;
+        let front_path_line = orig_line
+            .slice(
+                Distance::ZERO,
+                orig_line.length() - SIDEWALK_THICKNESS / 2.0,
+            )
+            .unwrap_or_else(|| orig_line.clone());
 
         let mut batch = GeomBatch::new();
         // TODO This isn't getting clipped to the parking lot boundary properly, so just stick this
@@ -70,7 +68,7 @@ impl DrawParkingLot {
 
             batch.push(
                 cs.general_road_marking,
-                PolyLine::new(vec![
+                PolyLine::must_new(vec![
                     left.project_away(height, *angle),
                     left,
                     right,
@@ -102,7 +100,7 @@ impl Renderable for DrawParkingLot {
 
     fn get_outline(&self, map: &Map) -> Polygon {
         let pl = map.get_pl(self.id);
-        if let Some(p) = pl.polygon.maybe_to_outline(OUTLINE_THICKNESS) {
+        if let Ok(p) = pl.polygon.to_outline(OUTLINE_THICKNESS) {
             p
         } else {
             pl.polygon.clone()

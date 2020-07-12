@@ -239,13 +239,11 @@ impl ParkingMapper {
             batch.push(
                 Color::GREEN,
                 map.right_shift(r.center_pts.clone(), r.get_half_width(map))
-                    .unwrap()
                     .make_polygons(thickness),
             );
             batch.push(
                 Color::BLUE,
                 map.left_shift(r.center_pts.clone(), r.get_half_width(map))
-                    .unwrap()
                     .make_polygons(thickness),
             );
         }
@@ -358,15 +356,14 @@ impl State for ParkingMapper {
         }
         if self.selected.is_some() && ctx.input.new_was_pressed(&hotkey(Key::S).unwrap()) {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if let Some(gps) = pt.to_gps(app.primary.map.get_gps_bounds()) {
-                    #[cfg(not(target_arch = "wasm32"))]
-                    {
-                        let _ = webbrowser::open(&format!(
-                            "https://www.bing.com/maps?cp={}~{}&style=x",
-                            gps.y(),
-                            gps.x()
-                        ));
-                    }
+                let gps = pt.to_gps(app.primary.map.get_gps_bounds());
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    let _ = webbrowser::open(&format!(
+                        "https://www.bing.com/maps?cp={}~{}&style=x",
+                        gps.y(),
+                        gps.x()
+                    ));
                 }
             }
         }
@@ -576,13 +573,10 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
     let mut found = HashSet::new();
     for r1 in oneways {
         let r1 = map.get_r(r1);
-        let (middle, angle) = r1
-            .center_pts
-            .safe_dist_along(r1.center_pts.length() / 2.0)
-            .unwrap();
+        let (middle, angle) = r1.center_pts.must_dist_along(r1.center_pts.length() / 2.0);
         for (r2, _, _) in closest.all_close_pts(middle, Distance::meters(250.0)) {
             if r1.id != r2
-                && PolyLine::new(vec![
+                && PolyLine::must_new(vec![
                     middle.project_away(Distance::meters(100.0), angle.rotate_degs(90.0)),
                     middle.project_away(Distance::meters(100.0), angle.rotate_degs(-90.0)),
                 ])

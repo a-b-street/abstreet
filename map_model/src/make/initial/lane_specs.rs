@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::{fmt, iter};
 
+// TODO This is ripe for unit testing.
 // (original direction, reversed direction)
 pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Vec<LaneType>) {
     let tags = Tags(osm_tags);
@@ -96,14 +97,47 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         return (fwd_side, back_side);
     }
 
-    // TODO Handle bus lanes properly.
-    let has_bus_lane = osm_tags.contains_key("bus:lanes");
-    if has_bus_lane {
-        fwd_side.pop();
-        fwd_side.push(LaneType::Bus);
-        if !back_side.is_empty() {
-            back_side.pop();
-            back_side.push(LaneType::Bus);
+    let fwd_bus_spec = if let Some(s) = osm_tags.get("bus:lanes:forward") {
+        s
+    } else if let Some(s) = osm_tags.get("psv:lanes:forward") {
+        s
+    } else if oneway {
+        if let Some(s) = osm_tags.get("bus:lanes") {
+            s
+        } else if let Some(s) = osm_tags.get("psv:lanes") {
+            s
+        } else {
+            ""
+        }
+    } else {
+        ""
+    };
+    {
+        let parts: Vec<&str> = fwd_bus_spec.split("|").collect();
+        let offset = if fwd_side[0] == LaneType::SharedLeftTurn {
+            1
+        } else {
+            0
+        };
+        if parts.len() == fwd_side.len() - offset {
+            for (idx, part) in parts.into_iter().enumerate() {
+                if part == "designated" {
+                    fwd_side[idx + offset] = LaneType::Bus;
+                }
+            }
+        }
+    }
+    if let Some(spec) = osm_tags
+        .get("bus:lanes:backward")
+        .or_else(|| osm_tags.get("psv:lanes:backward"))
+    {
+        let parts: Vec<&str> = spec.split("|").collect();
+        if parts.len() == back_side.len() {
+            for (idx, part) in parts.into_iter().enumerate() {
+                if part == "designated" {
+                    back_side[idx] = LaneType::Bus;
+                }
+            }
         }
     }
 

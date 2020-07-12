@@ -71,7 +71,7 @@ impl ScatterPlot {
                 }
                 batch.push(
                     Color::hex("#7C7C7C"),
-                    PolyLine::new(vec![
+                    PolyLine::must_new(vec![
                         Pt2D::new(0.0, (1.0 - pct) * height),
                         Pt2D::new(width, (1.0 - pct) * height),
                     ])
@@ -90,7 +90,7 @@ impl ScatterPlot {
                 }
                 batch.push(
                     Color::hex("#7C7C7C"),
-                    PolyLine::new(vec![
+                    PolyLine::must_new(vec![
                         Pt2D::new(pct * width, 0.0),
                         Pt2D::new(pct * width, height),
                     ])
@@ -120,7 +120,7 @@ impl ScatterPlot {
             let avg = (sum / (cnt as f64)).to_percent(max_y);
             batch.extend(
                 Color::hex("#F2F2F2"),
-                PolyLine::new(vec![
+                PolyLine::must_new(vec![
                     Pt2D::new(0.0, (1.0 - avg) * height),
                     Pt2D::new(width, (1.0 - avg) * height),
                 ])

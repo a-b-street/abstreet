@@ -17,6 +17,7 @@ use enumset::EnumSetType;
 use geom::{Distance, PolyLine, EPSILON_DIST};
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
+use std::error::Error;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -52,13 +53,13 @@ impl PathStep {
         map: &Map,
         start: Distance,
         dist_ahead: Option<Distance>,
-    ) -> Option<(PolyLine, Distance)> {
+    ) -> Result<(PolyLine, Distance), Box<dyn Error>> {
         if let Some(d) = dist_ahead {
             if d < Distance::ZERO {
                 panic!("Negative dist_ahead?! {}", d);
             }
             if d == Distance::ZERO {
-                return None;
+                return Err(format!("0 dist ahead for slice").into());
             }
         }
 
@@ -203,6 +204,17 @@ impl Path {
     pub fn currently_inside_ut(&self) -> &Option<UberTurn> {
         &self.currently_inside_ut
     }
+    pub fn about_to_start_ut(&self) -> Option<&UberTurn> {
+        if self.steps.len() < 2 || self.uber_turns.is_empty() {
+            return None;
+        }
+        if let PathStep::Turn(t) = self.steps[1] {
+            if self.uber_turns[0].path[0] == t {
+                return Some(&self.uber_turns[0]);
+            }
+        }
+        None
+    }
 
     pub fn shift(&mut self, map: &Map) -> PathStep {
         let step = self.steps.pop_front().unwrap();
@@ -308,7 +320,7 @@ impl Path {
         }
 
         // Special case the first step.
-        if let Some((pts, dist)) = self.steps[0].slice(map, start_dist, dist_remaining) {
+        if let Ok((pts, dist)) = self.steps[0].slice(map, start_dist, dist_remaining) {
             pts_so_far = Some(pts);
             if dist_remaining.is_some() {
                 dist_remaining = Some(dist);
@@ -354,15 +366,18 @@ impl Path {
                 PathStep::ContraflowLane(l) => map.get_l(l).lane_center_pts.reversed().length(),
                 _ => Distance::ZERO,
             };
-            if let Some((new_pts, dist)) =
+            if let Ok((new_pts, dist)) =
                 self.steps[i].slice(map, start_dist_this_step, dist_remaining)
             {
                 if pts_so_far.is_some() {
-                    if let Some(new) = pts_so_far.unwrap().maybe_extend(new_pts) {
-                        pts_so_far = Some(new);
-                    } else {
-                        println!("WARNING: Couldn't trace some path because of duplicate points");
-                        return None;
+                    match pts_so_far.unwrap().extend(new_pts) {
+                        Ok(new) => {
+                            pts_so_far = Some(new);
+                        }
+                        Err(err) => {
+                            println!("WARNING: Couldn't trace some path: {}", err);
+                            return None;
+                        }
                     }
                 } else {
                     pts_so_far = Some(new_pts);
@@ -433,8 +448,7 @@ impl PathConstraints {
             PathConstraints::Bike => {
                 if l.is_biking() {
                     true
-                } else if l.is_driving() || l.is_bus() {
-                    // Note bikes can use bus lanes -- this is generally true in Seattle.
+                } else if l.is_driving() || (l.is_bus() && map.config.bikes_can_use_bus_lanes) {
                     let road = map.get_r(l.parent);
                     road.osm_tags.get("bicycle") != Some(&"no".to_string())
                         && road.osm_tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())

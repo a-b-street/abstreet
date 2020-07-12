@@ -33,7 +33,11 @@ impl DrawBike {
             input.body.make_polygons(Distance::meters(0.4)),
         );
 
-        let (body_pos, facing) = input.body.dist_along(0.4 * input.body.length());
+        let err = format!("{} on {} has weird body", input.id, input.on);
+        let (body_pos, facing) = input
+            .body
+            .dist_along(0.4 * input.body.length())
+            .expect(&err);
         let body_circle = Circle::new(body_pos, body_radius);
         draw_default.push(body_color, body_circle.to_polygon());
         draw_default.push(
@@ -43,13 +47,17 @@ impl DrawBike {
 
         {
             // Handlebars
-            let (hand_pos, hand_angle) = input.body.dist_along(0.9 * input.body.length());
+            let (hand_pos, hand_angle) = input
+                .body
+                .dist_along(0.9 * input.body.length())
+                .expect(&err);
             draw_default.push(
                 cs.bike_frame,
                 Line::new(
                     hand_pos.project_away(body_radius, hand_angle.rotate_degs(90.0)),
                     hand_pos.project_away(body_radius, hand_angle.rotate_degs(-90.0)),
                 )
+                .unwrap()
                 .make_polygons(Distance::meters(0.1)),
             );
 
@@ -60,6 +68,7 @@ impl DrawBike {
                     body_pos.project_away(0.9 * body_radius, facing.rotate_degs(-30.0)),
                     hand_pos.project_away(0.4 * body_radius, hand_angle.rotate_degs(-90.0)),
                 )
+                .unwrap()
                 .make_polygons(Distance::meters(0.08)),
             );
             draw_default.push(
@@ -68,6 +77,7 @@ impl DrawBike {
                     body_pos.project_away(0.9 * body_radius, facing.rotate_degs(30.0)),
                     hand_pos.project_away(0.4 * body_radius, hand_angle.rotate_degs(90.0)),
                 )
+                .unwrap()
                 .make_polygons(Distance::meters(0.08)),
             );
         }
@@ -76,12 +86,11 @@ impl DrawBike {
             let angle = map.get_t(t).angle();
             draw_default.push(
                 cs.turn_arrow,
-                PolyLine::new(vec![
+                PolyLine::must_new(vec![
                     body_pos.project_away(body_radius / 2.0, angle.opposite()),
                     body_pos.project_away(body_radius / 2.0, angle),
                 ])
-                .make_arrow(Distance::meters(0.15), ArrowCap::Triangle)
-                .unwrap(),
+                .make_arrow(Distance::meters(0.15), ArrowCap::Triangle),
             );
         }
 

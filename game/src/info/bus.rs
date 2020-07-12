@@ -181,7 +181,7 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
                 format!(
                     ": {} (avg {})",
                     hgram.count(),
-                    hgram.select(Statistic::Mean)
+                    hgram.select(Statistic::Mean).unwrap()
                 )
                 .draw_text(ctx)
             } else {

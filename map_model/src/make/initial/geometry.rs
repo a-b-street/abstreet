@@ -40,12 +40,8 @@ pub fn intersection_polygon(
             };
             road_endpts.push(pl.last_pt());
 
-            let pl_normal = driving_side
-                .right_shift(pl.clone(), r.half_width)
-                .with_context(timer, format!("pl_normal {}", r.id));
-            let pl_reverse = driving_side
-                .left_shift(pl.clone(), r.half_width)
-                .with_context(timer, format!("pl_reverse {}", r.id));
+            let pl_normal = driving_side.right_shift(pl.clone(), r.half_width);
+            let pl_reverse = driving_side.left_shift(pl.clone(), r.half_width);
             (*id, pl.last_line(), pl_normal, pl_reverse)
         })
         .collect();
@@ -150,7 +146,7 @@ fn generalized_trim_back(
 
             if let Some((hit, angle)) = use_pl1.intersection(&use_pl2) {
                 // Find where the perpendicular hits the original road line
-                let perp = Line::new(
+                let perp = Line::must_new(
                     hit,
                     hit.project_away(Distance::meters(1.0), angle.rotate_degs(90.0)),
                 )
@@ -181,9 +177,9 @@ fn generalized_trim_back(
             // road.
             // TODO Reduce DEGENERATE_INTERSECTION_HALF_LENGTH to play with this.
             if false {
-                let perp = Line::new(pl1.last_pt(), other_pl1.last_pt());
+                let perp = Line::must_new(pl1.last_pt(), other_pl1.last_pt());
                 if perp.intersection(&pl2.last_line()).is_some() {
-                    let new_perp = Line::new(
+                    let new_perp = Line::must_new(
                         pl2.last_pt(),
                         pl2.last_pt()
                             .project_away(Distance::meters(1.0), perp.angle()),
@@ -262,26 +258,22 @@ fn generalized_trim_back(
             endpoints.push(
                 driving_side
                     .right_shift(r.trimmed_center_pts.clone(), r.half_width)
-                    .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .last_pt(),
             );
             endpoints.push(
                 driving_side
                     .left_shift(r.trimmed_center_pts.clone(), r.half_width)
-                    .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .last_pt(),
             );
         } else {
             endpoints.push(
                 driving_side
                     .left_shift(r.trimmed_center_pts.clone(), r.half_width)
-                    .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .first_pt(),
             );
             endpoints.push(
                 driving_side
                     .right_shift(r.trimmed_center_pts.clone(), r.half_width)
-                    .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .first_pt(),
             );
         }
@@ -388,26 +380,22 @@ fn deadend(
                 endpts.push(
                     driving_side
                         .right_shift(r.trimmed_center_pts.clone(), r.half_width)
-                        .with_context(timer, format!("main polygon endpoints from {}", r.id))
                         .last_pt(),
                 );
                 endpts.push(
                     driving_side
                         .left_shift(r.trimmed_center_pts.clone(), r.half_width)
-                        .with_context(timer, format!("main polygon endpoints from {}", r.id))
                         .last_pt(),
                 );
             } else {
                 endpts.push(
                     driving_side
                         .left_shift(r.trimmed_center_pts.clone(), r.half_width)
-                        .with_context(timer, format!("main polygon endpoints from {}", r.id))
                         .first_pt(),
                 );
                 endpts.push(
                     driving_side
                         .right_shift(r.trimmed_center_pts.clone(), r.half_width)
-                        .with_context(timer, format!("main polygon endpoints from {}", r.id))
                         .first_pt(),
                 );
             }

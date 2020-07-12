@@ -35,16 +35,8 @@ impl Pt2D {
         self.dist_to(other) <= threshold
     }
 
-    pub fn from_gps(gps: LonLat, b: &GPSBounds) -> Option<Pt2D> {
-        if !b.contains(gps) {
-            return None;
-        }
-
-        Some(Pt2D::forcibly_from_gps(gps, b))
-    }
-
     // Can go out of bounds.
-    pub fn forcibly_from_gps(gps: LonLat, b: &GPSBounds) -> Pt2D {
+    pub fn from_gps(gps: LonLat, b: &GPSBounds) -> Pt2D {
         let (width, height) = {
             let pt = b.get_max_world_pt();
             (pt.x(), pt.y())
@@ -58,7 +50,7 @@ impl Pt2D {
     }
 
     // Can go out of bounds.
-    pub fn forcibly_to_gps(self, b: &GPSBounds) -> LonLat {
+    pub fn to_gps(self, b: &GPSBounds) -> LonLat {
         let (width, height) = {
             let pt = b.get_max_world_pt();
             (pt.x(), pt.y())
@@ -66,21 +58,6 @@ impl Pt2D {
         let lon = (self.x() / width * (b.max_lon - b.min_lon)) + b.min_lon;
         let lat = b.min_lat + ((b.max_lat - b.min_lat) * (height - self.y()) / height);
         LonLat::new(lon, lat)
-    }
-
-    pub fn to_gps(self, b: &GPSBounds) -> Option<LonLat> {
-        let (width, height) = {
-            let pt = b.get_max_world_pt();
-            (pt.x(), pt.y())
-        };
-        if self.x() < 0.0 || self.y() < 0.0 || self.x() > width || self.y() > height {
-            return None;
-        }
-
-        let lon = (self.x() / width * (b.max_lon - b.min_lon)) + b.min_lon;
-        let lat = b.min_lat + ((b.max_lat - b.min_lat) * (height - self.y()) / height);
-
-        Some(LonLat::new(lon, lat))
     }
 
     pub fn x(self) -> f64 {

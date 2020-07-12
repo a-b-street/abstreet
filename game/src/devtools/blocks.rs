@@ -153,16 +153,19 @@ impl State for BlockMap {
                         for (other, cnt) in others {
                             let pct = (cnt as f64) / max_cnt;
                             if arrows {
-                                batch.push(
-                                    Color::hex("#A32015").alpha(0.7),
-                                    PolyLine::new(if from {
-                                        vec![block.shape.center(), other.shape.center()]
-                                    } else {
-                                        vec![other.shape.center(), block.shape.center()]
-                                    })
-                                    .make_arrow(Distance::meters(15.0) * pct, ArrowCap::Triangle)
-                                    .unwrap(),
-                                );
+                                if let Ok(pl) = PolyLine::new(if from {
+                                    vec![block.shape.center(), other.shape.center()]
+                                } else {
+                                    vec![other.shape.center(), block.shape.center()]
+                                }) {
+                                    batch.push(
+                                        Color::hex("#A32015").alpha(0.7),
+                                        pl.make_arrow(
+                                            Distance::meters(15.0) * pct,
+                                            ArrowCap::Triangle,
+                                        ),
+                                    );
+                                }
                             } else {
                                 batch.push(Color::RED.alpha(pct as f32), other.shape.clone());
                             }

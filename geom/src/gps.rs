@@ -1,9 +1,10 @@
 use crate::Distance;
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
+use std::error::Error;
 use std::fmt;
 use std::fs::File;
-use std::io::{BufRead, BufReader, Error, ErrorKind};
+use std::io::{BufRead, BufReader};
 
 // longitude is x, latitude is y
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
@@ -55,7 +56,7 @@ impl LonLat {
         (self.x() - other.x()).abs() < epsilon && (self.y() - other.y()).abs() < epsilon
     }
 
-    pub fn read_osmosis_polygon(path: String) -> Result<Vec<LonLat>, Error> {
+    pub fn read_osmosis_polygon(path: String) -> Result<Vec<LonLat>, Box<dyn Error>> {
         let f = File::open(&path)?;
         let mut pts = Vec::new();
         for (idx, line) in BufReader::new(f).lines().enumerate() {
@@ -68,12 +69,8 @@ impl LonLat {
             }
             let parts = line.trim().split("    ").collect::<Vec<_>>();
             pts.push(LonLat::new(
-                parts[0]
-                    .parse::<f64>()
-                    .map_err(|err| Error::new(ErrorKind::Other, err))?,
-                parts[1]
-                    .parse::<f64>()
-                    .map_err(|err| Error::new(ErrorKind::Other, err))?,
+                parts[0].parse::<f64>()?,
+                parts[1].parse::<f64>()?,
             ));
         }
         Ok(pts)

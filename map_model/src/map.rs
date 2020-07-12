@@ -5,9 +5,18 @@ use crate::{
     ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, Position, Road, RoadID, Turn,
     TurnGroupID, TurnID, TurnType,
 };
-use abstutil::{Timer, Warn};
+use abstutil::Timer;
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct MapConfig {
+    // If true, driving happens on the right side of the road (USA). If false, on the left
+    // (Australia).
+    pub driving_side: DrivingSide,
+    pub bikes_can_use_bus_lanes: bool,
+}
 
 impl Map {
     pub fn new(path: String, timer: &mut Timer) -> Map {
@@ -126,7 +135,10 @@ impl Map {
             traffic_signals: BTreeMap::new(),
             gps_bounds: GPSBounds::new(),
             bounds: Bounds::new(),
-            driving_side: DrivingSide::Right,
+            config: MapConfig {
+                driving_side: DrivingSide::Right,
+                bikes_can_use_bus_lanes: true,
+            },
             pathfinder: None,
             pathfinder_dirty: false,
             city_name: "blank city".to_string(),
@@ -616,24 +628,24 @@ impl Map {
         None
     }
 
-    pub fn right_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
-        self.driving_side.right_shift(pl, width)
+    pub fn right_shift(&self, pl: PolyLine, width: Distance) -> PolyLine {
+        self.config.driving_side.right_shift(pl, width)
     }
-    pub fn left_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
-        self.driving_side.left_shift(pl, width)
+    pub fn left_shift(&self, pl: PolyLine, width: Distance) -> PolyLine {
+        self.config.driving_side.left_shift(pl, width)
     }
     pub fn right_shift_line(&self, line: Line, width: Distance) -> Line {
-        self.driving_side.right_shift_line(line, width)
+        self.config.driving_side.right_shift_line(line, width)
     }
     pub fn left_shift_line(&self, line: Line, width: Distance) -> Line {
-        self.driving_side.left_shift_line(line, width)
+        self.config.driving_side.left_shift_line(line, width)
     }
     pub fn driving_side_angle(&self, a: Angle) -> Angle {
-        self.driving_side.angle_offset(a)
+        self.config.driving_side.angle_offset(a)
     }
     // Last resort
     pub fn get_driving_side(&self) -> DrivingSide {
-        self.driving_side
+        self.config.driving_side
     }
 
     // TODO Sort of a temporary hack

@@ -360,19 +360,19 @@ impl GameplayState for Tutorial {
             if let Some((_, _, Some(fxn))) = tut.lines() {
                 let pt = (fxn)(g, app);
                 g.fork_screenspace();
-                g.draw_polygon(
-                    Color::RED,
-                    &PolyLine::new(vec![
-                        self.msg_panel
-                            .as_ref()
-                            .unwrap()
-                            .center_of("next message")
-                            .to_pt(),
-                        pt,
-                    ])
-                    .make_arrow(Distance::meters(20.0), ArrowCap::Triangle)
-                    .unwrap(),
-                );
+                if let Ok(pl) = PolyLine::new(vec![
+                    self.msg_panel
+                        .as_ref()
+                        .unwrap()
+                        .center_of("next message")
+                        .to_pt(),
+                    pt,
+                ]) {
+                    g.draw_polygon(
+                        Color::RED,
+                        &pl.make_arrow(Distance::meters(20.0), ArrowCap::Triangle),
+                    );
+                }
                 g.unfork();
             }
 

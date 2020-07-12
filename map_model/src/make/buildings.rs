@@ -46,17 +46,17 @@ pub fn make_all_buildings(
     for (orig_id, bldg_center) in center_per_bldg {
         timer.next();
         if let Some(sidewalk_pos) = sidewalk_pts.get(&bldg_center) {
-            let sidewalk_pt = sidewalk_pos.pt(map);
-            if sidewalk_pt == bldg_center.to_pt2d() {
-                timer.warn(format!(
-                    "Skipping building {} because front path has 0 length",
-                    orig_id
-                ));
-                continue;
-            }
             let b = &input[&orig_id];
-            let sidewalk_line =
-                trim_path(&b.polygon, Line::new(bldg_center.to_pt2d(), sidewalk_pt));
+            let sidewalk_line = match Line::new(bldg_center.to_pt2d(), sidewalk_pos.pt(map)) {
+                Some(l) => trim_path(&b.polygon, l),
+                None => {
+                    timer.warn(format!(
+                        "Skipping building {} because front path has 0 length",
+                        orig_id
+                    ));
+                    continue;
+                }
+            };
 
             let id = BuildingID(results.len());
             let mut rng = XorShiftRng::seed_from_u64(orig_id.osm_way_id as u64);
@@ -89,7 +89,7 @@ pub fn make_all_buildings(
                 if driving_pos.dist_along() > driveway_buffer
                     && map.get_l(driving_lane).length() - driving_pos.dist_along() > driveway_buffer
                 {
-                    let driveway_line = PolyLine::new(vec![
+                    let driveway_line = PolyLine::must_new(vec![
                         sidewalk_line.pt1(),
                         sidewalk_line.pt2(),
                         driving_pos.pt(map),
@@ -155,16 +155,16 @@ pub fn make_all_parking_lots(
         timer.next();
         // TODO Refactor this
         if let Some(sidewalk_pos) = sidewalk_pts.get(&lot_center) {
-            let sidewalk_pt = sidewalk_pos.pt(map);
-            if sidewalk_pt == lot_center.to_pt2d() {
-                timer.warn(format!(
-                    "Skipping parking lot {} because driveway has 0 length",
-                    orig.osm_id
-                ));
-                continue;
-            }
-            let sidewalk_line =
-                trim_path(&orig.polygon, Line::new(lot_center.to_pt2d(), sidewalk_pt));
+            let sidewalk_line = match Line::new(lot_center.to_pt2d(), sidewalk_pos.pt(map)) {
+                Some(l) => trim_path(&orig.polygon, l),
+                None => {
+                    timer.warn(format!(
+                        "Skipping parking lot {} because front path has 0 length",
+                        orig.osm_id
+                    ));
+                    continue;
+                }
+            };
 
             // Can this lot have a driveway? If it's not next to a driving lane, then no.
             let mut driveway: Option<(PolyLine, Position)> = None;
@@ -179,7 +179,7 @@ pub fn make_all_parking_lots(
                     && map.get_l(driving_lane).length() - driving_pos.dist_along() > driveway_buffer
                 {
                     driveway = Some((
-                        PolyLine::new(vec![
+                        PolyLine::must_new(vec![
                             sidewalk_line.pt1(),
                             sidewalk_line.pt2(),
                             driving_pos.pt(map),
@@ -229,7 +229,7 @@ pub fn make_all_parking_lots(
             .map(|(id, _, _)| id)
             .collect();
 
-        let (polylines, rings) = Ring::split_points(pts);
+        let (polylines, rings) = Ring::split_points(pts).unwrap();
         'PL: for pl in polylines {
             for id in &candidates {
                 let lot = &mut results[id.0];
@@ -264,9 +264,9 @@ pub fn make_all_parking_lots(
 // Adjust the path to start on the building's border, not center
 fn trim_path(poly: &Polygon, path: Line) -> Line {
     for bldg_line in poly.points().windows(2) {
-        let l = Line::new(bldg_line[0], bldg_line[1]);
+        let l = Line::must_new(bldg_line[0], bldg_line[1]);
         if let Some(hit) = l.intersection(&path) {
-            if let Some(l) = Line::maybe_new(hit, path.pt2()) {
+            if let Some(l) = Line::new(hit, path.pt2()) {
                 return l;
             }
         }
@@ -297,10 +297,10 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Ang
                 let mut lines = Vec::new();
                 let mut start = Distance::ZERO;
                 while start + NORMAL_LANE_THICKNESS < pl.length() {
-                    let (pt, angle) = pl.dist_along(start);
+                    let (pt, angle) = pl.must_dist_along(start);
                     start += NORMAL_LANE_THICKNESS;
                     let theta = angle.rotate_degs(rotate);
-                    lines.push(Line::new(
+                    lines.push(Line::must_new(
                         pt.project_away(aisle_thickness / 2.0, theta),
                         pt.project_away(aisle_thickness / 2.0 + PARKING_LOT_SPOT_LENGTH, theta),
                     ));
@@ -311,7 +311,7 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Ang
             for pair in lines.windows(2) {
                 let l1 = &pair[0];
                 let l2 = &pair[1];
-                let back = Line::new(l1.pt2(), l2.pt2());
+                let back = Line::must_new(l1.pt2(), l2.pt2());
                 if l1.intersection(&l2).is_none()
                     && l1.angle().approx_eq(l2.angle(), 5.0)
                     && line_valid(lot_polygon, aisles, l1, &finalized_lines)
@@ -319,7 +319,7 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Ang
                     && line_valid(lot_polygon, aisles, &back, &finalized_lines)
                 {
                     let avg_angle = (l1.angle() + l2.angle()) / 2.0;
-                    spots.push((back.middle(), avg_angle.opposite()));
+                    spots.push((back.middle().unwrap(), avg_angle.opposite()));
                     finalized_lines.push(l1.clone());
                     finalized_lines.push(l2.clone());
                     finalized_lines.push(back);

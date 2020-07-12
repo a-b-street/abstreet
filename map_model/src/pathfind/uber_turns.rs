@@ -1,5 +1,5 @@
 use crate::{DirectedRoadID, IntersectionID, LaneID, Map, TurnID};
-use abstutil::{retain_btreeset, MultiMap};
+use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
@@ -19,9 +19,21 @@ pub struct UberTurn {
 }
 
 impl IntersectionCluster {
-    // Based on turn restrictions
     pub fn find_all(map: &Map) -> Vec<IntersectionCluster> {
+        // First autodetect based on traffic signals close together.
         let mut clusters = Vec::new();
+        let mut seen_intersections = BTreeSet::new();
+        for i in map.all_intersections() {
+            if i.is_traffic_signal() && !seen_intersections.contains(&i.id) {
+                if let Some(members) = IntersectionCluster::autodetect(i.id, map) {
+                    seen_intersections.extend(members.clone());
+                    // Discard any illegal movements
+                    clusters.push(IntersectionCluster::new(members, map).0);
+                }
+            }
+        }
+
+        // Then look for intersections with complicated turn restrictions.
         let mut graph: UnGraphMap<IntersectionID, ()> = UnGraphMap::new();
         for from in map.all_roads() {
             for (via, _) in &from.complicated_turn_restrictions {
@@ -32,9 +44,34 @@ impl IntersectionCluster {
         }
         for intersections in petgraph::algo::kosaraju_scc(&graph) {
             let members: BTreeSet<IntersectionID> = intersections.iter().cloned().collect();
-            // Discard the illegal movements
-            let (ic, _) = IntersectionCluster::new(members, map);
-            clusters.push(ic);
+            // Is there already a cluster covering everything?
+            if clusters.iter().any(|ic| ic.members.is_subset(&members)) {
+                continue;
+            }
+
+            // Do any existing clusters partly cover this one?
+            let mut existing: Vec<&mut IntersectionCluster> = clusters
+                .iter_mut()
+                .filter(|ic| ic.members.intersection(&members).next().is_some())
+                .collect();
+            // None? Just add a new one.
+            if existing.is_empty() {
+                clusters.push(IntersectionCluster::new(members, map).0);
+                continue;
+            }
+
+            if existing.len() == 1 {
+                // Amend this existing one.
+                let mut all_members = members;
+                all_members.extend(existing[0].members.clone());
+                *existing[0] = IntersectionCluster::new(all_members, map).0;
+                continue;
+            }
+
+            panic!(
+                "Need a cluster containing {:?} for turn restrictions, but there's more than one \
+                 existing cluster that partly covers it. Union them?"
+            );
         }
 
         clusters
@@ -110,9 +147,11 @@ impl IntersectionCluster {
         )
     }
 
-    // Find all other traffic signals "close" to one
-    // TODO I haven't found a case with interior nodes yet
+    // Find all other traffic signals "close" to one. Ignore stop sign intersections in between.
     pub fn autodetect(from: IntersectionID, map: &Map) -> Option<BTreeSet<IntersectionID>> {
+        if !map.get_i(from).is_traffic_signal() {
+            return None;
+        }
         let threshold = Distance::meters(25.0);
 
         let mut found = BTreeSet::new();
@@ -130,10 +169,11 @@ impl IntersectionCluster {
                     continue;
                 }
                 let other = if r.src_i == i.id { r.dst_i } else { r.src_i };
-                queue.push(other);
+                if map.get_i(other).is_traffic_signal() {
+                    queue.push(other);
+                }
             }
         }
-        retain_btreeset(&mut found, |i| map.get_i(*i).is_traffic_signal());
         if found.len() > 1 {
             Some(found)
         } else {
@@ -198,11 +238,11 @@ impl UberTurn {
         let mut first = true;
         for pair in self.path.windows(2) {
             if !first {
-                pl = pl.extend(map.get_t(pair[0]).geom.clone());
+                pl = pl.must_extend(map.get_t(pair[0]).geom.clone());
                 first = false;
             }
-            pl = pl.extend(map.get_l(pair[0].dst).lane_center_pts.clone());
-            pl = pl.extend(map.get_t(pair[1]).geom.clone());
+            pl = pl.must_extend(map.get_l(pair[0].dst).lane_center_pts.clone());
+            pl = pl.must_extend(map.get_t(pair[1]).geom.clone());
         }
         pl
     }
@@ -279,7 +319,7 @@ impl UberTurnGroup {
             left += map.get_l(l).width;
         }
 
-        let pl = map.right_shift(pl, (leftmost + rightmost) / 2.0).unwrap();
+        let pl = map.right_shift(pl, (leftmost + rightmost) / 2.0);
         // Flip direction, so we point away from the intersection
         (pl.reversed(), rightmost - leftmost)
     }
@@ -303,5 +343,5 @@ fn group_geom(mut polylines: Vec<PolyLine>) -> PolyLine {
             &polylines.iter().map(|pl| pl.points()[idx]).collect(),
         ));
     }
-    PolyLine::new(pts)
+    PolyLine::must_new(pts)
 }

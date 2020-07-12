@@ -13,7 +13,7 @@ impl Warper {
         let z = ctx.canvas.cam_zoom;
         Warper {
             started: Instant::now(),
-            line: Line::maybe_new(ctx.canvas.center_to_map_pt(), pt),
+            line: Line::new(ctx.canvas.center_to_map_pt(), pt),
             cam_zoom: (z, target_cam_zoom.unwrap_or(z)),
         }
     }
@@ -54,7 +54,7 @@ impl Warper {
             ctx.canvas.cam_zoom = self.cam_zoom.0 + percent * (self.cam_zoom.1 - self.cam_zoom.0);
             if let Some(ref line) = self.line {
                 ctx.canvas
-                    .center_on_map_pt(line.dist_along(line.length() * percent));
+                    .center_on_map_pt(line.percent_along(percent).unwrap());
             } else {
                 ctx.canvas.center_on_map_pt(orig_center);
             }

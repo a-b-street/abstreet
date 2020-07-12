@@ -90,7 +90,7 @@ impl DrawMap {
         timer.start_iter("make DrawIntersections", map.all_intersections().len());
         for i in map.all_intersections() {
             timer.next();
-            intersections.push(DrawIntersection::new(i, map, cs, ctx.prerender, timer));
+            intersections.push(DrawIntersection::new(i, map, cs, ctx.prerender));
         }
 
         timer.start("generate unzoomed intersections");

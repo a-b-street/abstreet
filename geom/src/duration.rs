@@ -2,10 +2,10 @@ use crate::{trim_f64, Distance, Speed};
 use abstutil::elapsed_seconds;
 use instant::Instant;
 use serde::{Deserialize, Serialize};
+use std::error::Error;
 use std::{cmp, ops};
 
 // In seconds. Can be negative.
-// TODO Naming is awkward. Can represent a moment in time or a duration.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Duration(f64);
 
@@ -80,7 +80,7 @@ impl Duration {
     }
 
     // TODO This is NOT the inverse of Display!
-    pub fn parse(string: &str) -> Result<Duration, Box<dyn std::error::Error>> {
+    pub fn parse(string: &str) -> Result<Duration, Box<dyn Error>> {
         let parts: Vec<&str> = string.split(':').collect();
         if parts.is_empty() {
             return Err(format!("Duration {}: no :'s", string).into());

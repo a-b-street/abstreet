@@ -266,7 +266,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         if num_savings > 0 {
             let height = (total_savings / max_y) * max_bar_height;
             let rect = Polygon::rectangle(bar_width, height).translate(x1, max_bar_height - height);
-            if let Some(o) = rect.maybe_to_outline(Distance::meters(1.5)) {
+            if let Ok(o) = rect.to_outline(Distance::meters(1.5)) {
                 outlines.push(o);
             }
             batch.push(Color::GREEN, rect.clone());
@@ -287,7 +287,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             let height = (total_loss / max_y) * max_bar_height;
             let rect =
                 Polygon::rectangle(bar_width, height).translate(x1, total_height - max_bar_height);
-            if let Some(o) = rect.maybe_to_outline(Distance::meters(1.5)) {
+            if let Ok(o) = rect.to_outline(Distance::meters(1.5)) {
                 outlines.push(o);
             }
             batch.push(Color::RED, rect.clone());

@@ -66,8 +66,7 @@ pub fn draw_signal_phase(
                             app.cs.signal_protected_turn.alpha(percent)
                         },
                         pl.exact_slice(slice_start, pl.length() - slice_end)
-                            .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
-                            .unwrap(),
+                            .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                     );
                 } else {
                     let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
@@ -132,15 +131,13 @@ pub fn draw_signal_phase(
                     app.cs.signal_permitted_turn.alpha(0.3),
                     signal.turn_groups[g]
                         .geom
-                        .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
-                        .unwrap(),
+                        .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
                 );
                 batch.extend(
                     app.cs.signal_permitted_turn,
                     signal.turn_groups[g]
                         .geom
-                        .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
-                        .unwrap(),
+                        .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0),
                 );
             }
             let mut dont_walk = BTreeSet::new();
@@ -155,8 +152,7 @@ pub fn draw_signal_phase(
                         app.cs.signal_protected_turn,
                         signal.turn_groups[g]
                             .geom
-                            .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
-                            .unwrap(),
+                            .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
                     );
                 } else {
                     let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
@@ -186,15 +182,13 @@ pub fn draw_signal_phase(
                     app.cs.signal_permitted_turn.alpha(0.3),
                     signal.turn_groups[g]
                         .geom
-                        .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
-                        .unwrap(),
+                        .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
                 );
                 batch.extend(
                     app.cs.signal_permitted_turn,
                     signal.turn_groups[g]
                         .geom
-                        .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
-                        .unwrap(),
+                        .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0),
                 );
             }
             for g in &phase.protected_groups {
@@ -210,8 +204,7 @@ pub fn draw_signal_phase(
                         app.cs.signal_protected_turn,
                         signal.turn_groups[g]
                             .geom
-                            .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
-                            .unwrap(),
+                            .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
                     );
                 }
             }
@@ -237,19 +230,16 @@ pub fn draw_signal_phase(
                         batch.push(
                             app.cs.signal_protected_turn,
                             turn.geom
-                                .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
-                                .unwrap(),
+                                .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
                         );
                     }
                     TurnPriority::Yield => {
                         batch.extend(
                             app.cs.signal_permitted_turn,
-                            turn.geom
-                                .make_arrow_outline(
-                                    BIG_ARROW_THICKNESS * 2.0,
-                                    BIG_ARROW_THICKNESS / 2.0,
-                                )
-                                .unwrap(),
+                            turn.geom.make_arrow_outline(
+                                BIG_ARROW_THICKNESS * 2.0,
+                                BIG_ARROW_THICKNESS / 2.0,
+                            ),
                         );
                     }
                     TurnPriority::Banned => {}
@@ -282,9 +272,9 @@ pub fn draw_signal_phase(
 // TODO Kind of a hack to know that the second point is a better center.
 // Returns (center, angle)
 fn crosswalk_icon(geom: &PolyLine) -> (Pt2D, Angle) {
-    let l = Line::new(geom.points()[1], geom.points()[2]);
+    let l = Line::must_new(geom.points()[1], geom.points()[2]);
     (
-        l.safe_dist_along(Distance::meters(1.0)).unwrap_or(l.pt1()),
+        l.dist_along(Distance::meters(1.0)).unwrap_or(l.pt1()),
         l.angle().shortest_rotation_towards(Angle::new_degs(90.0)),
     )
 }
@@ -378,7 +368,7 @@ pub fn make_signal_diagram(
 
             let mut hovered = GeomBatch::new();
             hovered.append(normal.clone());
-            hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)));
+            hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)).unwrap());
 
             Btn::custom(normal, hovered, bbox.clone()).build(
                 ctx,

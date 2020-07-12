@@ -77,15 +77,14 @@ impl Elevation {
 
             let mut dist = arrow_len;
             while dist + arrow_len <= len {
-                let (pt, angle) = pl.dist_along(dist);
+                let (pt, angle) = pl.must_dist_along(dist);
                 batch.push(
                     Color::BLACK,
-                    PolyLine::new(vec![
+                    PolyLine::must_new(vec![
                         pt.project_away(arrow_len / 2.0, angle.opposite()),
                         pt.project_away(arrow_len / 2.0, angle),
                     ])
-                    .make_arrow(thickness, ArrowCap::Triangle)
-                    .unwrap(),
+                    .make_arrow(thickness, ArrowCap::Triangle),
                 );
                 dist += btwn;
             }

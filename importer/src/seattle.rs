@@ -45,7 +45,10 @@ pub fn osm_to_raw(name: &str) {
                 "input/seattle/polygons/{}.poly",
                 name
             ))),
-            drive_on_right: true,
+            map_config: map_model::MapConfig {
+                driving_side: map_model::raw::DrivingSide::Right,
+                bikes_can_use_bus_lanes: true,
+            },
 
             onstreet_parking: convert_osm::OnstreetParking::Blockface(abstutil::path(
                 "input/seattle/blockface.bin",

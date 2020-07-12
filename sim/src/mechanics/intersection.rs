@@ -279,18 +279,56 @@ impl IntersectionSimState {
             .or_insert(now);
 
         let readonly_pair = maybe_cars_and_queues.as_ref().map(|(_, c, q)| (*c, &**q));
-        let allowed = if self.use_freeform_policy_everywhere {
-            self.freeform_policy(&req, map, readonly_pair)
+        let allowed = if map.get_t(req.turn).turn_type == TurnType::SharedSidewalkCorner {
+            // SharedSidewalkCorner doesn't conflict with anything -- fastpath!
+            true
+        } else if !self.handle_accepted_conflicts(&req, map, readonly_pair) {
+            // It's never OK to perform a conflicting turn
+            false
+        } else if maybe_cars_and_queues
+            .as_ref()
+            .map(|(car, _, _)| car.router.get_path().currently_inside_ut().is_some())
+            .unwrap_or(false)
+        {
+            // If we started an uber-turn, then finish it! But alert if we're running a red light.
+            if let Some(ref signal) = map.maybe_get_traffic_signal(turn.parent) {
+                // Don't pass in the scheduler, aka, don't pause before yielding.
+                if !self.traffic_signal_policy(&req, map, signal, speed, now, None) {
+                    self.events.push(Event::Alert(
+                        AlertLocation::Intersection(req.turn.parent),
+                        format!("Running a red light inside an uber-turn: {:?}", req),
+                    ));
+                }
+            }
+
+            true
+        } else if self.use_freeform_policy_everywhere {
+            // If we made it this far, we don't conflict with an accepted turn
+            true
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(turn.parent) {
-            self.traffic_signal_policy(&req, map, signal, speed, now, scheduler, readonly_pair)
+            self.traffic_signal_policy(&req, map, signal, speed, now, Some(scheduler))
         } else if let Some(ref sign) = map.maybe_get_stop_sign(turn.parent) {
-            self.stop_sign_policy(&req, map, sign, now, scheduler, readonly_pair)
+            self.stop_sign_policy(&req, map, sign, now, scheduler)
         } else {
             unreachable!()
         };
         if !allowed {
             return false;
         }
+
+        /*
+        // Don't start a sequence of turns through a complex group of intersections unless the
+        // whole sequence will work.
+        // TODO stick an "accepted" ticket in all of the lights, even if they're red, to prevent
+        // conflicts from forming?
+        if let Some((car, _, _)) = maybe_cars_and_queues {
+            if let Some(ut) = car.router.get_path().about_to_start_ut() {
+                // TODO Make sure we won't block the box for the very last queue.
+                // TODO Inside the UT, disable box-block-checking entirely.
+                //let queue = queues.get_mut(&Traversable::Lane(turn.dst)).unwrap();
+            }
+        }
+        */
 
         // Don't block the box
         if let Some((car, _, queues)) = maybe_cars_and_queues {
@@ -468,16 +506,6 @@ impl IntersectionSimState {
 }
 
 impl IntersectionSimState {
-    fn freeform_policy(
-        &mut self,
-        req: &Request,
-        map: &Map,
-        maybe_cars_and_queues: Option<(&BTreeMap<CarID, Car>, &BTreeMap<Traversable, Queue>)>,
-    ) -> bool {
-        // Allow concurrent turns that don't conflict
-        self.handle_accepted_conflicts(req, map, maybe_cars_and_queues)
-    }
-
     fn stop_sign_policy(
         &mut self,
         req: &Request,
@@ -485,12 +513,7 @@ impl IntersectionSimState {
         sign: &ControlStopSign,
         now: Time,
         scheduler: &mut Scheduler,
-        maybe_cars_and_queues: Option<(&BTreeMap<CarID, Car>, &BTreeMap<Traversable, Queue>)>,
     ) -> bool {
-        if !self.handle_accepted_conflicts(req, map, maybe_cars_and_queues) {
-            return false;
-        }
-
         let our_priority = sign.get_priority(req.turn, map);
         assert!(our_priority != TurnPriority::Banned);
         let our_time = self.state[&req.turn.parent].waiting[req];
@@ -531,15 +554,9 @@ impl IntersectionSimState {
         signal: &ControlTrafficSignal,
         speed: Speed,
         now: Time,
-        scheduler: &mut Scheduler,
-        maybe_cars_and_queues: Option<(&BTreeMap<CarID, Car>, &BTreeMap<Traversable, Queue>)>,
+        scheduler: Option<&mut Scheduler>,
     ) -> bool {
         let turn = map.get_t(req.turn);
-
-        // SharedSidewalkCorner doesn't conflict with anything -- fastpath!
-        if turn.turn_type == TurnType::SharedSidewalkCorner {
-            return true;
-        }
 
         let state = &self.state[&req.turn.parent];
         let phase = &signal.phases[state.current_phase];
@@ -553,20 +570,17 @@ impl IntersectionSimState {
             return false;
         }
 
-        // Somebody might already be doing a Yield turn that conflicts with this one.
-        if !self.handle_accepted_conflicts(req, map, maybe_cars_and_queues) {
-            return false;
-        }
-
         if our_priority == TurnPriority::Yield
             && now < our_time + WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL
         {
             // Since we have "ownership" of scheduling for req.agent, don't need to use
             // scheduler.update.
-            scheduler.push(
-                our_time + WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL,
-                Command::update_agent(req.agent),
-            );
+            if let Some(s) = scheduler {
+                s.push(
+                    our_time + WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL,
+                    Command::update_agent(req.agent),
+                );
+            }
             return false;
         }
 

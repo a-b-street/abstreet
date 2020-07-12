@@ -49,6 +49,7 @@ impl DrawBusStop {
                 center.project_away(RADIUS, Angle::new_degs(90.0)),
                 center.project_away(1.5 * RADIUS, Angle::new_degs(90.0)),
             )
+            .unwrap()
             .make_polygons(Distance::meters(0.3)),
         );
 
@@ -71,7 +72,7 @@ impl Renderable for DrawBusStop {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
-        Circle::outline(self.center, RADIUS, OUTLINE_THICKNESS)
+        Circle::outline(self.center, RADIUS, OUTLINE_THICKNESS).expect("constants defined wrong")
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {

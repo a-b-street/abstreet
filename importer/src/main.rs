@@ -162,7 +162,14 @@ fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool) {
             name: name.clone(),
 
             clip,
-            drive_on_right,
+            map_config: map_model::MapConfig {
+                driving_side: if drive_on_right {
+                    map_model::raw::DrivingSide::Right
+                } else {
+                    map_model::raw::DrivingSide::Left
+                },
+                bikes_can_use_bus_lanes: true,
+            },
 
             onstreet_parking: convert_osm::OnstreetParking::JustOSM,
             public_offstreet_parking: convert_osm::PublicOffstreetParking::None,

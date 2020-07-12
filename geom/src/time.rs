@@ -1,5 +1,6 @@
 use crate::{trim_f64, Duration};
 use serde::{Deserialize, Serialize};
+use std::error::Error;
 use std::{cmp, ops};
 
 // In seconds since midnight. Can't be negative.
@@ -111,7 +112,7 @@ impl Time {
         )
     }
 
-    pub fn parse(string: &str) -> Result<Time, Box<dyn std::error::Error>> {
+    pub fn parse(string: &str) -> Result<Time, Box<dyn Error>> {
         let parts: Vec<&str> = string.split(':').collect();
         if parts.is_empty() {
             return Err(format!("Time {}: no :'s", string).into());
@@ -163,7 +164,9 @@ impl Time {
 
     // TODO These are a little weird, so don't operator overload yet
     pub fn percent_of(self, p: f64) -> Time {
-        assert!(p >= 0.0 && p <= 1.0);
+        if p < 0.0 || p > 1.0 {
+            panic!("Bad percent_of input: {}", p);
+        }
         Time::seconds_since_midnight(self.0 * p)
     }
 

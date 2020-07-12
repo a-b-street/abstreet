@@ -8,26 +8,21 @@ use std::fmt;
 pub struct Line(Pt2D, Pt2D);
 
 impl Line {
-    pub fn new(pt1: Pt2D, pt2: Pt2D) -> Line {
-        let len = pt1.dist_to(pt2);
-        if len < EPSILON_DIST {
-            panic!("Tiny line with length {}", len);
-        }
-        Line(pt1, pt2)
-    }
-
-    pub fn maybe_new(pt1: Pt2D, pt2: Pt2D) -> Option<Line> {
-        if pt1 == pt2 {
+    pub fn new(pt1: Pt2D, pt2: Pt2D) -> Option<Line> {
+        if pt1.dist_to(pt2) < EPSILON_DIST {
             return None;
         }
-        Some(Line::new(pt1, pt2))
+        Some(Line(pt1, pt2))
+    }
+    // Just to be more clear at the call-site
+    pub fn must_new(pt1: Pt2D, pt2: Pt2D) -> Line {
+        Line::new(pt1, pt2).unwrap()
     }
 
     pub fn infinite(&self) -> InfiniteLine {
         InfiniteLine(self.0, self.1)
     }
 
-    // TODO we call these frequently here; unnecessary copies?
     pub fn pt1(&self) -> Pt2D {
         self.0
     }
@@ -41,7 +36,7 @@ impl Line {
     }
 
     pub fn to_polyline(&self) -> PolyLine {
-        PolyLine::new(self.points())
+        PolyLine::must_new(self.points())
     }
 
     pub fn make_polygons(&self, thickness: Distance) -> Polygon {
@@ -68,30 +63,11 @@ impl Line {
             // TODO and other contains pt, then we dont need ccw check thing
             Some(hit)
         } else {
-            panic!(
+            // TODO Should be impossible, but I was hitting it somewhere
+            println!(
                 "{} and {} intersect, but first line doesn't contain_pt({})",
                 self, other, hit
             );
-        }
-    }
-
-    // TODO Duplicate code, but doesn't panic
-    fn safe_intersection(&self, other: &Line) -> Option<Pt2D> {
-        // From http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
-        if is_counter_clockwise(self.pt1(), other.pt1(), other.pt2())
-            == is_counter_clockwise(self.pt2(), other.pt1(), other.pt2())
-            || is_counter_clockwise(self.pt1(), self.pt2(), other.pt1())
-                == is_counter_clockwise(self.pt1(), self.pt2(), other.pt2())
-        {
-            return None;
-        }
-
-        let hit = self.infinite().intersection(&other.infinite())?;
-        if self.contains_pt(hit) {
-            // TODO and other contains pt, then we dont need ccw check thing
-            Some(hit)
-        } else {
-            // TODO Should be impossible?
             None
         }
     }
@@ -105,7 +81,7 @@ impl Line {
         {
             return false;
         }
-        self.safe_intersection(other).is_some()
+        self.intersection(other).is_some()
     }
 
     // TODO Also return the distance along self
@@ -121,7 +97,7 @@ impl Line {
     pub fn shift_right(&self, width: Distance) -> Line {
         assert!(width >= Distance::ZERO);
         let angle = self.angle().rotate_degs(90.0);
-        Line(
+        Line::must_new(
             self.pt1().project_away(width, angle),
             self.pt2().project_away(width, angle),
         )
@@ -130,7 +106,7 @@ impl Line {
     pub fn shift_left(&self, width: Distance) -> Line {
         assert!(width >= Distance::ZERO);
         let angle = self.angle().rotate_degs(-90.0);
-        Line(
+        Line::must_new(
             self.pt1().project_away(width, angle),
             self.pt2().project_away(width, angle),
         )
@@ -145,36 +121,26 @@ impl Line {
     }
 
     pub fn reverse(&self) -> Line {
-        Line(self.pt2(), self.pt1())
+        Line::must_new(self.pt2(), self.pt1())
     }
 
     pub fn angle(&self) -> Angle {
         self.pt1().angle_to(self.pt2())
     }
 
-    pub fn dist_along(&self, dist: Distance) -> Pt2D {
+    pub fn dist_along(&self, dist: Distance) -> Option<Pt2D> {
         let len = self.length();
-        if dist > len + EPSILON_DIST {
-            panic!("cant do {} along a line of length {}", dist, len);
+        if dist < Distance::ZERO || dist > len {
+            return None;
         }
-        if len < EPSILON_DIST {
-            // dist is also tiny because of the check above.
-            return self.pt1();
-        }
-
         self.percent_along(dist / len)
     }
-
-    pub fn safe_dist_along(&self, dist: Distance) -> Option<Pt2D> {
-        if dist > self.length() {
-            None
-        } else {
-            Some(self.dist_along(dist))
-        }
+    pub fn must_dist_along(&self, dist: Distance) -> Pt2D {
+        self.dist_along(dist).unwrap()
     }
 
-    pub fn middle(&self) -> Pt2D {
-        self.dist_along(self.length() / 2.0)
+    pub fn unbounded_dist_along(&self, dist: Distance) -> Pt2D {
+        self.unbounded_percent_along(dist / self.length())
     }
 
     pub fn unbounded_percent_along(&self, percent: f64) -> Pt2D {
@@ -183,18 +149,22 @@ impl Line {
             self.pt1().y() + percent * (self.pt2().y() - self.pt1().y()),
         )
     }
-    pub fn percent_along(&self, percent: f64) -> Pt2D {
-        assert!(percent >= 0.0 && percent <= 1.0);
-        self.unbounded_percent_along(percent)
+    pub fn percent_along(&self, percent: f64) -> Option<Pt2D> {
+        if percent < 0.0 || percent > 1.0 {
+            return None;
+        }
+        Some(self.unbounded_percent_along(percent))
     }
 
-    pub fn unbounded_dist_along(&self, dist: Distance) -> Pt2D {
-        let len = self.length();
-        let percent = dist / len;
-        Pt2D::new(
-            self.pt1().x() + percent * (self.pt2().x() - self.pt1().x()),
-            self.pt1().y() + percent * (self.pt2().y() - self.pt1().y()),
-        )
+    pub fn slice(&self, from: Distance, to: Distance) -> Option<Line> {
+        if from < Distance::ZERO || to < Distance::ZERO || from >= to {
+            return None;
+        }
+        Line::new(self.dist_along(from)?, self.dist_along(to)?)
+    }
+
+    pub fn middle(&self) -> Option<Pt2D> {
+        self.dist_along(self.length() / 2.0)
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {

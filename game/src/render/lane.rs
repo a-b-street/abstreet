@@ -1,7 +1,6 @@
 use crate::app::App;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use abstutil::Timer;
 use ezgui::{Drawable, GeomBatch, GfxCtx, RewriteColor};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH};
@@ -35,7 +34,6 @@ impl DrawLane {
         let road = map.get_r(lane.parent);
 
         let mut draw = GeomBatch::new();
-        let mut timer = Timer::throwaway();
         if !lane.is_light_rail() {
             draw.push(
                 match lane.lane_type {
@@ -64,11 +62,11 @@ impl DrawLane {
             LaneType::Driving | LaneType::Bus => {
                 draw.extend(
                     app.cs.general_road_marking,
-                    calculate_driving_lines(map, lane, road, &mut timer),
+                    calculate_driving_lines(map, lane, road),
                 );
                 draw.extend(
                     app.cs.general_road_marking,
-                    calculate_turn_markings(map, lane, &mut timer),
+                    calculate_turn_markings(map, lane),
                 );
                 draw.extend(
                     app.cs.general_road_marking,
@@ -80,15 +78,13 @@ impl DrawLane {
                 draw.push(
                     app.cs.road_center_line,
                     lane.lane_center_pts
-                        .shift_right(lane.width / 2.0)
-                        .get(&mut timer)
+                        .must_shift_right(lane.width / 2.0)
                         .make_polygons(Distance::meters(0.25)),
                 );
                 draw.push(
                     app.cs.road_center_line,
                     lane.lane_center_pts
-                        .shift_left(lane.width / 2.0)
-                        .get(&mut timer)
+                        .must_shift_left(lane.width / 2.0)
                         .make_polygons(Distance::meters(0.25)),
                 );
             }
@@ -98,15 +94,13 @@ impl DrawLane {
                 draw.push(
                     app.cs.light_rail_track,
                     lane.lane_center_pts
-                        .shift_right((lane.width - track_width) / 2.5)
-                        .get(&mut timer)
+                        .must_shift_right((lane.width - track_width) / 2.5)
                         .make_polygons(track_width),
                 );
                 draw.push(
                     app.cs.light_rail_track,
                     lane.lane_center_pts
-                        .shift_left((lane.width - track_width) / 2.5)
-                        .get(&mut timer)
+                        .must_shift_left((lane.width - track_width) / 2.5)
                         .make_polygons(track_width),
                 );
 
@@ -114,12 +108,12 @@ impl DrawLane {
                 let tile_every = Distance::meters(3.0);
                 let mut dist_along = tile_every;
                 while dist_along < lane.lane_center_pts.length() - tile_every {
-                    let (pt, angle) = lane.dist_along(dist_along);
+                    let (pt, angle) = lane.lane_center_pts.must_dist_along(dist_along);
                     // Reuse perp_line. Project away an arbitrary amount
                     let pt2 = pt.project_away(Distance::meters(1.0), angle);
                     draw.push(
                         app.cs.light_rail_track,
-                        perp_line(Line::new(pt, pt2), lane.width).make_polygons(track_width),
+                        perp_line(Line::must_new(pt, pt2), lane.width).make_polygons(track_width),
                     );
                     dist_along += tile_every;
                 }
@@ -133,7 +127,7 @@ impl DrawLane {
 
             let mut dist = buffer;
             while dist + buffer <= len {
-                let (pt, angle) = lane.lane_center_pts.dist_along(dist);
+                let (pt, angle) = lane.lane_center_pts.must_dist_along(dist);
                 if lane.is_bus() {
                     draw.append(
                         GeomBatch::mapspace_svg(g.prerender, "system/assets/map/bus_only.svg")
@@ -214,7 +208,7 @@ impl Renderable for DrawLane {
 fn perp_line(l: Line, length: Distance) -> Line {
     let pt1 = l.shift_right(length / 2.0).pt1();
     let pt2 = l.shift_left(length / 2.0).pt1();
-    Line::new(pt1, pt2)
+    Line::must_new(pt1, pt2)
 }
 
 fn calculate_sidewalk_lines(lane: &Lane) -> Vec<Polygon> {
@@ -226,11 +220,12 @@ fn calculate_sidewalk_lines(lane: &Lane) -> Vec<Polygon> {
     // Start away from the intersections
     let mut dist_along = tile_every;
     while dist_along < length - tile_every {
-        let (pt, angle) = lane.dist_along(dist_along);
+        let (pt, angle) = lane.lane_center_pts.must_dist_along(dist_along);
         // Reuse perp_line. Project away an arbitrary amount
         let pt2 = pt.project_away(Distance::meters(1.0), angle);
-        result
-            .push(perp_line(Line::new(pt, pt2), lane.width).make_polygons(Distance::meters(0.25)));
+        result.push(
+            perp_line(Line::must_new(pt, pt2), lane.width).make_polygons(Distance::meters(0.25)),
+        );
         dist_along += tile_every;
     }
 
@@ -245,7 +240,9 @@ fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
     let num_spots = lane.number_parking_spots();
     if num_spots > 0 {
         for idx in 0..=num_spots {
-            let (pt, lane_angle) = lane.dist_along(PARKING_SPOT_LENGTH * (1.0 + idx as f64));
+            let (pt, lane_angle) = lane
+                .lane_center_pts
+                .must_dist_along(PARKING_SPOT_LENGTH * (1.0 + idx as f64));
             let perp_angle = map.driving_side_angle(lane_angle.rotate_degs(270.0));
             // Find the outside of the lane. Actually, shift inside a little bit, since the line
             // will have thickness, but shouldn't really intersect the adjacent line
@@ -253,33 +250,26 @@ fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
             let t_pt = pt.project_away(lane.width * 0.4, perp_angle);
             // The perp leg
             let p1 = t_pt.project_away(leg_length, perp_angle.opposite());
-            result.push(Line::new(t_pt, p1).make_polygons(Distance::meters(0.25)));
+            result.push(Line::must_new(t_pt, p1).make_polygons(Distance::meters(0.25)));
             // Upper leg
             let p2 = t_pt.project_away(leg_length, lane_angle);
-            result.push(Line::new(t_pt, p2).make_polygons(Distance::meters(0.25)));
+            result.push(Line::must_new(t_pt, p2).make_polygons(Distance::meters(0.25)));
             // Lower leg
             let p3 = t_pt.project_away(leg_length, lane_angle.opposite());
-            result.push(Line::new(t_pt, p3).make_polygons(Distance::meters(0.25)));
+            result.push(Line::must_new(t_pt, p3).make_polygons(Distance::meters(0.25)));
         }
     }
 
     result
 }
 
-fn calculate_driving_lines(
-    map: &Map,
-    lane: &Lane,
-    parent: &Road,
-    timer: &mut Timer,
-) -> Vec<Polygon> {
+fn calculate_driving_lines(map: &Map, lane: &Lane, parent: &Road) -> Vec<Polygon> {
     // The leftmost lanes don't have dashed lines.
     let (dir, idx) = parent.dir_and_offset(lane.id);
     if idx == 0 || (dir && parent.children_forwards[idx - 1].1 == LaneType::SharedLeftTurn) {
         return Vec::new();
     }
-    let lane_edge_pts = map
-        .left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
-        .get(timer);
+    let lane_edge_pts = map.left_shift(lane.lane_center_pts.clone(), lane.width / 2.0);
     lane_edge_pts.dashed_lines(
         Distance::meters(0.25),
         Distance::meters(1.0),
@@ -287,7 +277,7 @@ fn calculate_driving_lines(
     )
 }
 
-fn calculate_turn_markings(map: &Map, lane: &Lane, timer: &mut Timer) -> Vec<Polygon> {
+fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
     let mut results = Vec::new();
 
     // Are there multiple driving lanes on this side of the road?
@@ -316,14 +306,13 @@ fn calculate_turn_markings(map: &Map, lane: &Lane, timer: &mut Timer) -> Vec<Pol
             continue;
         }
         results.push(
-            PolyLine::new(vec![
+            PolyLine::must_new(vec![
                 common_base.last_pt(),
                 common_base
                     .last_pt()
                     .project_away(lane.width / 2.0, turn.angle()),
             ])
-            .make_arrow(thickness, ArrowCap::Triangle)
-            .with_context(timer, format!("turn_markings for {}", turn.id)),
+            .make_arrow(thickness, ArrowCap::Triangle),
         );
     }
 
@@ -352,14 +341,13 @@ fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
 
     let mut dist = arrow_len;
     while dist + arrow_len <= len {
-        let (pt, angle) = lane.lane_center_pts.dist_along(dist);
+        let (pt, angle) = lane.lane_center_pts.must_dist_along(dist);
         results.push(
-            PolyLine::new(vec![
+            PolyLine::must_new(vec![
                 pt.project_away(arrow_len / 2.0, angle.opposite()),
                 pt.project_away(arrow_len / 2.0, angle),
             ])
-            .make_arrow(thickness, ArrowCap::Triangle)
-            .unwrap(),
+            .make_arrow(thickness, ArrowCap::Triangle),
         );
         dist += btwn;
     }

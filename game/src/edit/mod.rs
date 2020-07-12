@@ -488,7 +488,6 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
             &app.primary.map,
             &app.cs,
             ctx.prerender,
-            &mut timer,
         );
     }
 

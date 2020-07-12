@@ -52,11 +52,11 @@ impl ViewKML {
                 .collect();
             let objects: Vec<Object> = timer
                 .parallelize("convert shapes", raw_shapes.shapes, |shape| {
-                    if boundary.contains_pt(Pt2D::forcibly_from_gps(shape.points[0], bounds)) {
+                    if boundary.contains_pt(Pt2D::from_gps(shape.points[0], bounds)) {
                         let pts: Vec<Pt2D> = shape
                             .points
                             .into_iter()
-                            .map(|gps| Pt2D::forcibly_from_gps(gps, bounds))
+                            .map(|gps| Pt2D::from_gps(gps, bounds))
                             .collect();
                         Some(make_object(
                             &bldg_lookup,
@@ -204,9 +204,19 @@ fn make_object(
     } else if pts[0] == *pts.last().unwrap() {
         // TODO Toggle between these better
         //Polygon::new(&pts)
-        Ring::new(pts).make_polygons(THICKNESS)
+        Ring::must_new(pts).make_polygons(THICKNESS)
     } else {
-        PolyLine::new(pts).make_polygons(THICKNESS)
+        let backup = pts[0];
+        match PolyLine::new(pts) {
+            Ok(pl) => pl.make_polygons(THICKNESS),
+            Err(err) => {
+                println!(
+                    "Object with attribs {:?} has messed up geometry: {}",
+                    attribs, err
+                );
+                Circle::new(backup, RADIUS).to_polygon()
+            }
+        }
     };
 
     let mut osm_bldg = None;

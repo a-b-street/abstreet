@@ -300,7 +300,7 @@ impl Minimap {
         };
         g.draw_polygon(
             Color::BLACK,
-            &Ring::new(vec![
+            &Ring::must_new(vec![
                 Pt2D::new(x1, y1),
                 Pt2D::new(x2, y1),
                 Pt2D::new(x2, y2),

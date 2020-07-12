@@ -229,7 +229,7 @@ impl ParkingSimState {
                     on: Traversable::Lane(pl.driving_pos.lane()),
                     label: None,
 
-                    body: PolyLine::new(vec![
+                    body: PolyLine::must_new(vec![
                         pt.project_away(buffer, angle),
                         pt.project_away(map_model::PARKING_LOT_SPOT_LENGTH - buffer, angle),
                     ]),

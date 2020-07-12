@@ -564,9 +564,7 @@ impl GUI for UI {
         match self.state {
             State::CreatingRoad(i1) => {
                 if let Some(cursor) = g.get_cursor_in_map_space() {
-                    if let Some(l) =
-                        Line::maybe_new(self.model.map.intersections[&i1].point, cursor)
-                    {
+                    if let Some(l) = Line::new(self.model.map.intersections[&i1].point, cursor) {
                         g.draw_line(Color::GREEN, Distance::meters(5.0), &l);
                     }
                 }
@@ -595,14 +593,14 @@ impl GUI for UI {
             }
             State::CreatingTurnRestrictionPt1(from) => {
                 if let Some(cursor) = g.get_cursor_in_map_space() {
-                    if let Some(l) = Line::maybe_new(self.model.get_r_center(from), cursor) {
+                    if let Some(l) = Line::new(self.model.get_r_center(from), cursor) {
                         g.draw_arrow(Color::PURPLE, NORMAL_LANE_THICKNESS, &l);
                     }
                 }
             }
             State::CreatingTurnRestrictionPt2(from, to, ref wizard) => {
                 if let Some(l) =
-                    Line::maybe_new(self.model.get_r_center(from), self.model.get_r_center(to))
+                    Line::new(self.model.get_r_center(from), self.model.get_r_center(to))
                 {
                     g.draw_arrow(Color::PURPLE, NORMAL_LANE_THICKNESS, &l);
                 }

@@ -133,10 +133,7 @@ impl<'a> GfxCtx<'a> {
     pub fn draw_arrow(&mut self, color: Color, thickness: Distance, line: &Line) {
         self.draw_polygon(
             color,
-            &line
-                .to_polyline()
-                .make_arrow(thickness, ArrowCap::Triangle)
-                .unwrap(),
+            &line.to_polyline().make_arrow(thickness, ArrowCap::Triangle),
         );
     }
 

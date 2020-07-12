@@ -24,9 +24,12 @@ impl DrawCar {
 
         // Wheels
         for side in vec![
-            input.body.shift_right(CAR_WIDTH / 2.0).unwrap(),
-            input.body.shift_left(CAR_WIDTH / 2.0).unwrap(),
-        ] {
+            input.body.shift_right(CAR_WIDTH / 2.0),
+            input.body.shift_left(CAR_WIDTH / 2.0),
+        ]
+        .into_iter()
+        .flatten()
+        {
             let len = side.length();
             if len <= Distance::meters(2.0) {
                 // The original body may be fine, but sometimes shifting drastically shortens the
@@ -46,6 +49,7 @@ impl DrawCar {
             );
         }
 
+        let err = format!("{} on {} has weird body", input.id, input.on);
         let body_polygon = {
             let len = input.body.length();
             let front_corner = len - Distance::meters(1.0);
@@ -54,8 +58,8 @@ impl DrawCar {
                 .exact_slice(Distance::ZERO, front_corner)
                 .make_polygons(CAR_WIDTH);
 
-            let (corner_pt, corner_angle) = input.body.dist_along(front_corner);
-            let (tip_pt, tip_angle) = input.body.dist_along(len);
+            let (corner_pt, corner_angle) = input.body.dist_along(front_corner).expect(&err);
+            let (tip_pt, tip_angle) = input.body.dist_along(len).expect(&err);
             let front = Polygon::new(&vec![
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(90.0)),
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(-90.0)),
@@ -83,31 +87,31 @@ impl DrawCar {
                     TurnType::Left => {
                         let (pos, angle) = input
                             .body
-                            .dist_along(input.body.length() - Distance::meters(2.5));
+                            .dist_along(input.body.length() - Distance::meters(2.5))
+                            .expect(&err);
 
                         draw_default.push(
                             cs.turn_arrow,
-                            PolyLine::new(vec![
+                            PolyLine::must_new(vec![
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
                             ])
-                            .make_arrow(arrow_thickness, ArrowCap::Triangle)
-                            .unwrap(),
+                            .make_arrow(arrow_thickness, ArrowCap::Triangle),
                         );
                     }
                     TurnType::Right => {
                         let (pos, angle) = input
                             .body
-                            .dist_along(input.body.length() - Distance::meters(2.5));
+                            .dist_along(input.body.length() - Distance::meters(2.5))
+                            .expect(&err);
 
                         draw_default.push(
                             cs.turn_arrow,
-                            PolyLine::new(vec![
+                            PolyLine::must_new(vec![
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
                             ])
-                            .make_arrow(arrow_thickness, ArrowCap::Triangle)
-                            .unwrap(),
+                            .make_arrow(arrow_thickness, ArrowCap::Triangle),
                         );
                     }
                     TurnType::Straight | TurnType::LaneChangeLeft | TurnType::LaneChangeRight => {}
@@ -115,7 +119,7 @@ impl DrawCar {
                 }
 
                 // Always draw the brake light
-                let (pos, angle) = input.body.dist_along(Distance::meters(0.5));
+                let (pos, angle) = input.body.dist_along(Distance::meters(0.5)).expect(&err);
                 // TODO rounded
                 let window_length_gap = Distance::meters(0.2);
                 let window_thickness = Distance::meters(0.3);
@@ -136,7 +140,7 @@ impl DrawCar {
 
         if let Some(line) = input.label {
             // Buses are a constant length, so hardcoding this is fine.
-            let (pt, angle) = input.body.dist_along(Distance::meters(9.0));
+            let (pt, angle) = input.body.dist_along(Distance::meters(9.0)).expect(&err);
             draw_default.append(
                 Text::from(Line(line).fg(cs.bus_label))
                     .render_to_batch(prerender)
@@ -188,7 +192,7 @@ fn thick_line_from_angle(
 ) -> Polygon {
     let pt2 = pt.project_away(line_length, angle);
     // Shouldn't ever fail for a single line
-    PolyLine::new(vec![pt, pt2]).make_polygons(thickness)
+    PolyLine::must_new(vec![pt, pt2]).make_polygons(thickness)
 }
 
 fn zoomed_color_car(input: &DrawCarInput, cs: &ColorScheme) -> Color {

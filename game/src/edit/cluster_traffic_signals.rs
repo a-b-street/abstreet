@@ -81,8 +81,7 @@ impl State for ClusterTrafficSignalEditor {
                     app.cs.selected,
                     g.group
                         .geom
-                        .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
-                        .unwrap(),
+                        .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                 );
             } else {
                 batch.push(app.cs.signal_turn_block_bg, g.block.clone());

@@ -2,7 +2,7 @@ use crate::raw::{DrivingSide, RestrictionType};
 use crate::{
     Intersection, IntersectionID, Lane, LaneID, LaneType, Road, RoadID, Turn, TurnID, TurnType,
 };
-use abstutil::{wraparound_get, Timer, Warn};
+use abstutil::{wraparound_get, Timer};
 use geom::{Distance, Line, PolyLine, Pt2D, Ring};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -19,7 +19,7 @@ pub fn make_all_turns(
     assert!(!i.is_border());
 
     let mut raw_turns: Vec<Turn> = Vec::new();
-    raw_turns.extend(make_vehicle_turns(i, roads, lanes, timer));
+    raw_turns.extend(make_vehicle_turns(i, roads, lanes));
     raw_turns.extend(make_walking_turns(driving_side, i, roads, lanes, timer));
     let unique_turns = ensure_unique(raw_turns);
 
@@ -104,7 +104,6 @@ fn make_vehicle_turns(
     i: &Intersection,
     all_roads: &Vec<Road>,
     lanes: &Vec<Lane>,
-    timer: &mut Timer,
 ) -> impl Iterator<Item = Turn> {
     let sorted_roads: Vec<&Road> = i
         .get_roads_sorted_by_incoming_angle(all_roads)
@@ -127,8 +126,9 @@ fn make_vehicle_turns(
 
     for lane_type in lane_types.into_iter() {
         if i.roads.len() == 1 {
-            result
-                .extend(make_vehicle_turns_for_dead_end(i, all_roads, lanes, lane_type).get(timer));
+            result.extend(make_vehicle_turns_for_dead_end(
+                i, all_roads, lanes, lane_type,
+            ));
             continue;
         }
 
@@ -266,12 +266,13 @@ fn make_vehicle_turns_for_dead_end(
     roads: &Vec<Road>,
     lanes: &Vec<Lane>,
     lane_type: LaneType,
-) -> Warn<Vec<Option<Turn>>> {
+) -> Vec<Option<Turn>> {
     let road = &roads[i.roads.iter().next().unwrap().0];
     let incoming = filter_vehicle_lanes(road.incoming_lanes(i.id), lane_type);
     let outgoing = filter_vehicle_lanes(road.outgoing_lanes(i.id), lane_type);
     if incoming.is_empty() || outgoing.is_empty() {
-        return Warn::warn(Vec::new(), format!("{} needs to be a border node!", i.id));
+        println!("{} needs to be a border node!", i.id);
+        return Vec::new();
     }
 
     let mut result = Vec::new();
@@ -290,7 +291,7 @@ fn make_vehicle_turns_for_dead_end(
         }
     }
 
-    Warn::ok(result)
+    result
 }
 
 fn make_walking_turns(
@@ -372,7 +373,7 @@ fn make_walking_turns(
         if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
             // Make the crosswalk to the other side
             if let Some(l2) = get_sidewalk(lanes, roads[idx1].outgoing_lanes(i.id)) {
-                result.extend(make_crosswalks(i.id, l1, l2));
+                result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
             }
 
             // Find the shared corner
@@ -401,7 +402,7 @@ fn make_walking_turns(
             ) {
                 // Adjacent road is missing a sidewalk on the near side, but has one on the far
                 // side
-                result.extend(make_crosswalks(i.id, l1, l2));
+                result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
             } else {
                 // We may need to add a crosswalk over this intermediate road that has no
                 // sidewalks at all. There might be a few in the way -- think highway onramps.
@@ -411,20 +412,20 @@ fn make_walking_turns(
                     abstutil::wraparound_get(&roads, (idx1 as isize) + 2 * idx_offset)
                         .outgoing_lanes(i.id),
                 ) {
-                    result.extend(make_crosswalks(i.id, l1, l2));
+                    result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
                 } else if let Some(l2) = get_sidewalk(
                     lanes,
                     abstutil::wraparound_get(&roads, (idx1 as isize) + 2 * idx_offset)
                         .incoming_lanes(i.id),
                 ) {
-                    result.extend(make_crosswalks(i.id, l1, l2));
+                    result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
                 } else if roads.len() > 3 {
                     if let Some(l2) = get_sidewalk(
                         lanes,
                         abstutil::wraparound_get(&roads, (idx1 as isize) + 3 * idx_offset)
                             .outgoing_lanes(i.id),
                     ) {
-                        result.extend(make_crosswalks(i.id, l1, l2));
+                        result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
                     }
                 }
             }
@@ -434,12 +435,9 @@ fn make_walking_turns(
     result
 }
 
-fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
+fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Option<Vec<Turn>> {
     let l1_pt = l1.endpoint(i);
     let l2_pt = l2.endpoint(i);
-    if l1_pt == l2_pt {
-        return Vec::new();
-    }
     // TODO Not sure this is always right.
     let direction = if (l1.dst_i == i) == (l2.dst_i == i) {
         -1.0
@@ -448,10 +446,10 @@ fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
     };
     // Jut out a bit into the intersection, cross over, then jut back in. Assumes sidewalks are the
     // same width.
-    let line = Line::new(l1_pt, l2_pt).shift_either_direction(direction * l1.width / 2.0);
-    let geom_fwds = PolyLine::deduping_new(vec![l1_pt, line.pt1(), line.pt2(), l2_pt]);
+    let line = Line::new(l1_pt, l2_pt)?.shift_either_direction(direction * l1.width / 2.0);
+    let geom_fwds = PolyLine::deduping_new(vec![l1_pt, line.pt1(), line.pt2(), l2_pt]).ok()?;
 
-    vec![
+    Some(vec![
         Turn {
             id: turn_id(i, l1.id, l2.id),
             turn_type: TurnType::Crosswalk,
@@ -464,7 +462,7 @@ fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
             other_crosswalk_ids: vec![turn_id(i, l1.id, l2.id)].into_iter().collect(),
             geom: geom_fwds.reversed(),
         },
-    ]
+    ])
 }
 
 // Only one physical crosswalk for degenerate intersections, right in the middle.
@@ -479,8 +477,8 @@ fn make_degenerate_crosswalks(
     let l2_in = get_sidewalk(lanes, r2.incoming_lanes(i))?;
     let l2_out = get_sidewalk(lanes, r2.outgoing_lanes(i))?;
 
-    let pt1 = Line::maybe_new(l1_in.last_pt(), l2_out.first_pt())?.percent_along(0.5);
-    let pt2 = Line::maybe_new(l1_out.first_pt(), l2_in.last_pt())?.percent_along(0.5);
+    let pt1 = Line::new(l1_in.last_pt(), l2_out.first_pt())?.percent_along(0.5)?;
+    let pt2 = Line::new(l1_out.first_pt(), l2_in.last_pt())?.percent_along(0.5)?;
 
     if pt1 == pt2 {
         return None;
@@ -498,25 +496,29 @@ fn make_degenerate_crosswalks(
                 id: turn_id(i, l1_in.id, l1_out.id),
                 turn_type: TurnType::Crosswalk,
                 other_crosswalk_ids: all_ids.clone(),
-                geom: PolyLine::deduping_new(vec![l1_in.last_pt(), pt1, pt2, l1_out.first_pt()]),
+                geom: PolyLine::deduping_new(vec![l1_in.last_pt(), pt1, pt2, l1_out.first_pt()])
+                    .ok()?,
             },
             Turn {
                 id: turn_id(i, l1_out.id, l1_in.id),
                 turn_type: TurnType::Crosswalk,
                 other_crosswalk_ids: all_ids.clone(),
-                geom: PolyLine::deduping_new(vec![l1_out.first_pt(), pt2, pt1, l1_in.last_pt()]),
+                geom: PolyLine::deduping_new(vec![l1_out.first_pt(), pt2, pt1, l1_in.last_pt()])
+                    .ok()?,
             },
             Turn {
                 id: turn_id(i, l2_in.id, l2_out.id),
                 turn_type: TurnType::Crosswalk,
                 other_crosswalk_ids: all_ids.clone(),
-                geom: PolyLine::deduping_new(vec![l2_in.last_pt(), pt2, pt1, l2_out.first_pt()]),
+                geom: PolyLine::deduping_new(vec![l2_in.last_pt(), pt2, pt1, l2_out.first_pt()])
+                    .ok()?,
             },
             Turn {
                 id: turn_id(i, l2_out.id, l2_in.id),
                 turn_type: TurnType::Crosswalk,
                 other_crosswalk_ids: all_ids.clone(),
-                geom: PolyLine::deduping_new(vec![l2_out.first_pt(), pt1, pt2, l2_in.last_pt()]),
+                geom: PolyLine::deduping_new(vec![l2_out.first_pt(), pt1, pt2, l2_in.last_pt()])
+                    .ok()?,
             },
         ]
         .into_iter()
@@ -534,7 +536,7 @@ fn make_shared_sidewalk_corner(
     l2: &Lane,
     timer: &mut Timer,
 ) -> PolyLine {
-    let baseline = PolyLine::new(vec![l1.last_pt(), l2.first_pt()]);
+    let baseline = PolyLine::must_new(vec![l1.last_pt(), l2.first_pt()]);
 
     // Find all of the points on the intersection polygon between the two sidewalks. Assumes
     // sidewalks are the same length.
@@ -547,7 +549,7 @@ fn make_shared_sidewalk_corner(
 
     // TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.
     if false {
-        return Ring::new(i.polygon.points().clone()).get_shorter_slice_btwn(corner1, corner2);
+        return Ring::must_new(i.polygon.points().clone()).get_shorter_slice_btwn(corner1, corner2);
     }
 
     // The order of the points here seems backwards, but it's because we scan from corner2
@@ -573,11 +575,7 @@ fn make_shared_sidewalk_corner(
 
             pts_between.extend(
                 driving_side
-                    .right_shift(PolyLine::new(deduped), l1.width / 2.0)
-                    .with_context(
-                        timer,
-                        format!("SharedSidewalkCorner between {} and {}", l1.id, l2.id),
-                    )
+                    .right_shift(PolyLine::must_new(deduped), l1.width / 2.0)
                     .points(),
             );
         }
@@ -608,7 +606,7 @@ fn make_shared_sidewalk_corner(
         ));
         return baseline;
     }
-    let result = PolyLine::new(final_pts);
+    let result = PolyLine::must_new(final_pts);
     if result.length() > 10.0 * baseline.length() {
         timer.warn(format!(
             "SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight \
@@ -665,7 +663,7 @@ fn make_vehicle_turn(
     }
 
     let geom = if turn_type == TurnType::Straight {
-        PolyLine::new(vec![src.last_pt(), dst.first_pt()])
+        PolyLine::must_new(vec![src.last_pt(), dst.first_pt()])
     } else {
         // The control points are straight out/in from the source/destination lanes, so
         // that the car exits and enters at the same angle as the road.
@@ -690,7 +688,7 @@ fn make_vehicle_turn(
             })
             .collect();
         curve.dedup();
-        PolyLine::new(curve)
+        PolyLine::must_new(curve)
     };
 
     Some(Turn {

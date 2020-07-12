@@ -477,8 +477,6 @@ impl State for Proposals {
     }
 }
 
-const SPEED: Speed = Speed::const_meters_per_second(20.0);
-
 struct Screensaver {
     line: Line,
     started: Instant,
@@ -488,35 +486,40 @@ impl Screensaver {
     fn bounce(ctx: &mut EventCtx, app: &mut App, rng: &mut XorShiftRng) -> Screensaver {
         let at = ctx.canvas.center_to_map_pt();
         let bounds = app.primary.map.get_bounds();
-        // TODO Ideally bounce off the edge of the map
-        let goto = Pt2D::new(
-            rng.gen_range(0.0, bounds.max_x),
-            rng.gen_range(0.0, bounds.max_y),
-        );
+        let line = loop {
+            let goto = Pt2D::new(
+                rng.gen_range(0.0, bounds.max_x),
+                rng.gen_range(0.0, bounds.max_y),
+            );
+            if let Some(l) = Line::new(at, goto) {
+                break l;
+            }
+        };
         ctx.canvas.cam_zoom = 10.0;
-        ctx.canvas.center_on_map_pt(at);
 
         Screensaver {
-            line: Line::new(at, goto),
+            line,
             started: Instant::now(),
         }
     }
 
     fn update(&mut self, rng: &mut XorShiftRng, ctx: &mut EventCtx, app: &mut App) {
-        const SCREENSAVER_SPEED: f64 = 3.0;
+        const SIM_SPEED: f64 = 3.0;
+        const PAN_SPEED: Speed = Speed::const_meters_per_second(20.0);
 
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             ctx.input.use_update_event();
-            let dist_along = Duration::realtime_elapsed(self.started) * SPEED;
-            if dist_along < self.line.length() {
-                ctx.canvas
-                    .center_on_map_pt(self.line.dist_along(dist_along));
+            if let Some(pt) = self
+                .line
+                .dist_along(Duration::realtime_elapsed(self.started) * PAN_SPEED)
+            {
+                ctx.canvas.center_on_map_pt(pt);
             } else {
                 *self = Screensaver::bounce(ctx, app, rng);
             }
             app.primary.sim.time_limited_step(
                 &app.primary.map,
-                SCREENSAVER_SPEED * dt,
+                SIM_SPEED * dt,
                 Duration::seconds(0.033),
                 &mut app.primary.sim_cb,
             );

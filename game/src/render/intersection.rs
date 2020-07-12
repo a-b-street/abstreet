@@ -5,7 +5,6 @@ use crate::options::TrafficSignalStyle;
 use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
-use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::{
@@ -28,7 +27,6 @@ impl DrawIntersection {
         map: &Map,
         cs: &ColorScheme,
         prerender: &Prerender,
-        timer: &mut Timer,
     ) -> DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
@@ -51,10 +49,7 @@ impl DrawIntersection {
         match i.intersection_type {
             IntersectionType::Border => {
                 let r = map.get_r(*i.roads.iter().next().unwrap());
-                default_geom.extend(
-                    cs.road_center_line,
-                    calculate_border_arrows(i, r, map, timer),
-                );
+                default_geom.extend(cs.road_center_line, calculate_border_arrows(i, r, map));
             }
             IntersectionType::StopSign => {
                 for ss in map.get_stop_sign(i.id).roads.values() {
@@ -109,7 +104,7 @@ impl DrawIntersection {
         );
 
         let octagon = make_octagon(last_line.pt2(), Distance::meters(1.0), last_line.angle());
-        let pole = Line::new(
+        let pole = Line::must_new(
             last_line
                 .pt2()
                 .project_away(Distance::meters(1.5), last_line.angle().opposite()),
@@ -168,7 +163,9 @@ impl Renderable for DrawIntersection {
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {
-        map.get_i(self.id).polygon.to_outline(OUTLINE_THICKNESS)
+        let poly = &map.get_i(self.id).polygon;
+        poly.to_outline(OUTLINE_THICKNESS)
+            .unwrap_or_else(|_| poly.clone())
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
@@ -201,15 +198,11 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
-            let mut pts = map
-                .left_shift(turn.geom.clone(), width / 2.0)
-                .unwrap()
-                .into_points();
+            let mut pts = map.left_shift(turn.geom.clone(), width / 2.0).into_points();
             pts.push(map.left_shift_line(l2.first_line(), width / 2.0).pt1());
             pts.push(map.right_shift_line(l2.first_line(), width / 2.0).pt1());
             pts.extend(
                 map.right_shift(turn.geom.clone(), width / 2.0)
-                    .unwrap()
                     .reversed()
                     .into_points(),
             );
@@ -223,12 +216,7 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
     corners
 }
 
-fn calculate_border_arrows(
-    i: &Intersection,
-    r: &Road,
-    map: &Map,
-    timer: &mut Timer,
-) -> Vec<Polygon> {
+fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon> {
     let mut result = Vec::new();
 
     let mut width_fwd = Distance::ZERO;
@@ -257,12 +245,11 @@ fn calculate_border_arrows(
         };
         result.push(
             // DEGENERATE_INTERSECTION_HALF_LENGTH is 5m...
-            PolyLine::new(vec![
+            PolyLine::must_new(vec![
                 line.unbounded_dist_along(Distance::meters(-9.5)),
                 line.unbounded_dist_along(Distance::meters(-0.5)),
             ])
-            .make_arrow(width / 3.0, ArrowCap::Triangle)
-            .with_context(timer, format!("outgoing border arrows for {}", r.id)),
+            .make_arrow(width / 3.0, ArrowCap::Triangle),
         );
     }
 
@@ -281,12 +268,11 @@ fn calculate_border_arrows(
             )
         };
         result.push(
-            PolyLine::new(vec![
+            PolyLine::must_new(vec![
                 line.unbounded_dist_along(Distance::meters(-0.5)),
                 line.unbounded_dist_along(Distance::meters(-9.5)),
             ])
-            .make_arrow(width / 3.0, ArrowCap::Triangle)
-            .with_context(timer, format!("incoming border arrows for {}", r.id)),
+            .make_arrow(width / 3.0, ArrowCap::Triangle),
         );
     }
 
@@ -322,7 +308,12 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
             );
             return;
         }
-        Line::new(pts[1], pts[2])
+        match Line::new(pts[1], pts[2]) {
+            Some(l) => l,
+            None => {
+                return;
+            }
+        }
     };
 
     let available_length = line.length() - (boundary * 2.0);
@@ -331,21 +322,24 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
         let mut dist_along =
             boundary + (available_length - tile_every * (num_markings as f64)) / 2.0;
         // TODO Seems to be an off-by-one sometimes. Not enough of these.
+        let err = format!("make_crosswalk for {} broke", turn.id);
         for _ in 0..=num_markings {
-            let pt1 = line.dist_along(dist_along);
+            let pt1 = line.dist_along(dist_along).expect(&err);
             // Reuse perp_line. Project away an arbitrary amount
             let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
             batch.push(
                 cs.general_road_marking,
-                perp_line(Line::new(pt1, pt2), width).make_polygons(CROSSWALK_LINE_THICKNESS),
+                perp_line(Line::must_new(pt1, pt2), width).make_polygons(CROSSWALK_LINE_THICKNESS),
             );
 
             // Actually every line is a double
-            let pt3 = line.dist_along(dist_along + 2.0 * CROSSWALK_LINE_THICKNESS);
+            let pt3 = line
+                .dist_along(dist_along + 2.0 * CROSSWALK_LINE_THICKNESS)
+                .expect(&err);
             let pt4 = pt3.project_away(Distance::meters(1.0), turn.angle());
             batch.push(
                 cs.general_road_marking,
-                perp_line(Line::new(pt3, pt4), width).make_polygons(CROSSWALK_LINE_THICKNESS),
+                perp_line(Line::must_new(pt3, pt4), width).make_polygons(CROSSWALK_LINE_THICKNESS),
             );
 
             dist_along += tile_every;
@@ -391,14 +385,12 @@ fn make_rainbow_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map) -> bool
     let slice = turn
         .geom
         .exact_slice(total_width, turn.geom.length() - total_width)
-        .shift_left(total_width / 2.0 - band_width / 2.0)
-        .unwrap();
+        .must_shift_left(total_width / 2.0 - band_width / 2.0);
     for (idx, color) in colors.into_iter().enumerate() {
         batch.push(
             color,
             slice
-                .shift_right(band_width * (idx as f64))
-                .unwrap()
+                .must_shift_right(band_width * (idx as f64))
                 .make_polygons(band_width),
         );
     }
@@ -409,5 +401,5 @@ fn make_rainbow_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map) -> bool
 fn perp_line(l: Line, length: Distance) -> Line {
     let pt1 = l.shift_right(length / 2.0).pt1();
     let pt2 = l.shift_left(length / 2.0).pt1();
-    Line::new(pt1, pt2)
+    Line::must_new(pt1, pt2)
 }

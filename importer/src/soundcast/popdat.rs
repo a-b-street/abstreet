@@ -175,7 +175,7 @@ fn import_parcels(
     {
         timer.next();
         let gps = LonLat::new(x, y);
-        let pt = Pt2D::forcibly_from_gps(gps, bounds);
+        let pt = Pt2D::from_gps(gps, bounds);
         let osm_building = if bounds.contains(gps) {
             closest_bldg
                 .closest_pt(pt, Distance::meters(30.0))

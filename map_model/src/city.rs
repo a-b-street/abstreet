@@ -25,10 +25,7 @@ impl City {
                 name
             )))
             .unwrap();
-            (
-                name,
-                Polygon::new(&huge_map.get_gps_bounds().must_convert(&pts)),
-            )
+            (name, Polygon::new(&huge_map.get_gps_bounds().convert(&pts)))
         })
         .collect::<Vec<_>>();
         // Just a sort of z-ordering hack so that the largest encompassing region isn't first

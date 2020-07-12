@@ -112,12 +112,12 @@ impl Model {
         self.map.boundary_polygon = bounds.get_rectangle();
         // Make gps_bounds sane
         self.map.gps_bounds = GPSBounds::new();
-        self.map.gps_bounds.update(
-            Pt2D::new(bounds.min_x, bounds.min_y).forcibly_to_gps(&GPSBounds::seattle_bounds()),
-        );
-        self.map.gps_bounds.update(
-            Pt2D::new(bounds.max_x, bounds.max_y).forcibly_to_gps(&GPSBounds::seattle_bounds()),
-        );
+        self.map
+            .gps_bounds
+            .update(Pt2D::new(bounds.min_x, bounds.min_y).to_gps(&GPSBounds::seattle_bounds()));
+        self.map
+            .gps_bounds
+            .update(Pt2D::new(bounds.max_x, bounds.max_y).to_gps(&GPSBounds::seattle_bounds()));
 
         abstutil::write_json(abstutil::path_synthetic_map(&self.map.name), &self.map);
     }
@@ -216,7 +216,7 @@ impl Model {
                 // (MAX_CAR_LENGTH + sim::FOLLOWING_DISTANCE) from sim, but without the dependency
                 txt.add(Line(format!(
                     "Can fit ~{} cars",
-                    (PolyLine::new(road.center_points.clone()).length()
+                    (PolyLine::must_new(road.center_points.clone()).length()
                         / (Distance::meters(6.5 + 1.0)))
                     .floor() as usize
                 )));
@@ -499,7 +499,7 @@ impl Model {
             r.synthetic() && r.osm_tags.get(osm::NAME) == Some(&"Streety McStreetFace".to_string());
         let lanes_unknown = r.osm_tags.contains_key(osm::INFERRED_SIDEWALKS);
         let spec = r.get_spec();
-        let center_pts = PolyLine::new(r.center_points.clone());
+        let center_pts = PolyLine::must_new(r.center_points.clone());
 
         let mut obj = Object::blank(ID::Road(id));
 
@@ -513,9 +513,9 @@ impl Model {
             obj.push(
                 Model::lt_to_color(*lt, unset, lanes_unknown),
                 self.map
+                    .config
                     .driving_side
                     .right_shift(center_pts.clone(), offset + width / 2.0)
-                    .unwrap()
                     .make_polygons(width),
             );
             offset += width;
@@ -536,9 +536,9 @@ impl Model {
             obj.push(
                 Model::lt_to_color(*lt, unset, lanes_unknown),
                 self.map
+                    .config
                     .driving_side
                     .right_shift(center_pts.reversed(), offset + width / 2.0)
-                    .unwrap()
                     .make_polygons(width),
             );
             offset += width;
@@ -549,7 +549,7 @@ impl Model {
             let polygon = if id == *to {
                 // TODO Ideally a hollow circle with an arrow
                 Circle::new(
-                    PolyLine::new(self.map.roads[&id].center_points.clone()).middle(),
+                    PolyLine::must_new(self.map.roads[&id].center_points.clone()).middle(),
                     NORMAL_LANE_THICKNESS,
                 )
                 .to_polygon()
@@ -559,9 +559,8 @@ impl Model {
                     println!("Turn restriction to spot is missing!{}->{}", id, to);
                     continue;
                 }
-                PolyLine::new(vec![self.get_r_center(id), self.get_r_center(*to)])
+                PolyLine::must_new(vec![self.get_r_center(id), self.get_r_center(*to)])
                     .make_arrow(NORMAL_LANE_THICKNESS, ArrowCap::Triangle)
-                    .unwrap()
             };
 
             result.push(Object::new(
@@ -712,7 +711,7 @@ impl Model {
     }
 
     pub fn get_r_center(&self, id: OriginalRoad) -> Pt2D {
-        PolyLine::new(self.map.roads[&id].center_points.clone()).middle()
+        PolyLine::must_new(self.map.roads[&id].center_points.clone()).middle()
     }
 }
 

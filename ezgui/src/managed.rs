@@ -421,7 +421,8 @@ impl Widget {
                 batch.push(
                     color,
                     Polygon::rounded_rectangle(width, height, self.layout.rounded_radius)
-                        .to_outline(Distance::meters(thickness)),
+                        .to_outline(Distance::meters(thickness))
+                        .unwrap(),
                 );
             }
             self.bg = Some(ctx.upload(batch));

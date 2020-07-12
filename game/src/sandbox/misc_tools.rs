@@ -203,8 +203,7 @@ impl State for TurnExplorer {
                     color_turn_type(turn.turn_type).alpha(0.5),
                     &turn
                         .geom
-                        .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
-                        .unwrap(),
+                        .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                 );
             }
         } else {
@@ -228,8 +227,7 @@ impl State for TurnExplorer {
                 CURRENT_TURN,
                 current
                     .geom
-                    .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
-                    .unwrap(),
+                    .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
             );
             batch.draw(g);
         }
