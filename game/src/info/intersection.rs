@@ -229,6 +229,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
                 max_x: Some(limit),
                 max_y: None,
                 disabled: opts.disabled_series(),
+                downsample_pts: None,
             },
         ),
     ])

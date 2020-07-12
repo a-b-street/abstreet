@@ -69,6 +69,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
                 max_x: None,
                 max_y: Some(capacity),
                 disabled: HashSet::new(),
+                downsample_pts: None,
             },
         ));
     }

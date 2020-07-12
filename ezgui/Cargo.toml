@@ -22,6 +22,7 @@ htmlescape = "0.3.1"
 image = { version = "0.23.4", default-features = false, features=["png"] }
 instant = "0.1.2"
 lru = "0.4.3"
+lttb = "0.2.0"
 lyon = "0.15.8"
 serde = "1.0.110"
 simsearch = "0.2.0"

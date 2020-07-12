@@ -24,6 +24,7 @@ pub struct PlotOptions<T: Yvalue<T>> {
     pub max_x: Option<Time>,
     pub max_y: Option<T>,
     pub disabled: HashSet<String>,
+    pub downsample_pts: Option<usize>,
 }
 
 impl<T: Yvalue<T>> PlotOptions<T> {
@@ -33,6 +34,7 @@ impl<T: Yvalue<T>> PlotOptions<T> {
             max_x: None,
             max_y: None,
             disabled: HashSet::new(),
+            downsample_pts: None,
         }
     }
 
@@ -42,6 +44,7 @@ impl<T: Yvalue<T>> PlotOptions<T> {
             max_x: None,
             max_y: None,
             disabled: HashSet::new(),
+            downsample_pts: None,
         }
     }
 }
@@ -136,20 +139,28 @@ impl<T: Yvalue<T>> LinePlot<T> {
                 continue;
             }
 
-            let mut pts = Vec::new();
+            let mut raw_pts = Vec::new();
             for (t, y) in s.pts {
                 let percent_x = t.to_percent(max_x);
                 let percent_y = y.to_percent(max_y);
-                pts.push(Pt2D::new(
+                raw_pts.push(lttb::DataPoint::new(
                     percent_x * width,
                     // Y inversion! :D
                     (1.0 - percent_y) * height,
                 ));
             }
-            pts.dedup();
-            if pts.len() >= 2 {
-                closest.add(s.label.clone(), &pts);
-                batch.push(s.color, thick_lineseries(pts, Distance::meters(5.0)));
+            let mut downsampled = Vec::new();
+            // 0 threshold is a no-op
+            for pt in lttb::lttb(raw_pts, opts.downsample_pts.unwrap_or(0)) {
+                downsampled.push(Pt2D::new(pt.x, pt.y));
+            }
+            downsampled.dedup();
+            if downsampled.len() >= 2 {
+                closest.add(s.label.clone(), &downsampled);
+                batch.push(
+                    s.color,
+                    thick_lineseries(downsampled, Distance::meters(5.0)),
+                );
             }
         }
 

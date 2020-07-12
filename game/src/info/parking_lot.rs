@@ -48,6 +48,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
             max_x: None,
             max_y: Some(capacity),
             disabled: HashSet::new(),
+            downsample_pts: None,
         },
     ));
 

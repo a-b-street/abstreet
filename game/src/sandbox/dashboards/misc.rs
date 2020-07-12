@@ -32,10 +32,12 @@ impl ActiveTraffic {
             });
         }
 
+        let mut opts = PlotOptions::fixed();
+        opts.downsample_pts = Some(100);
         Box::new(ActiveTraffic {
             composite: Composite::new(Widget::col(vec![
                 DashTab::ActiveTraffic.picker(ctx, app),
-                LinePlot::new(ctx, active_agents, PlotOptions::fixed()),
+                LinePlot::new(ctx, active_agents, opts),
             ]))
             .exact_size_percent(90, 90)
             .build(ctx),
