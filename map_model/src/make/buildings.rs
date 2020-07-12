@@ -368,38 +368,34 @@ fn classify_bldg(
     // used: top values from https://taginfo.openstreetmap.org/keys/building#values (>100k uses)
     let tags = Tags(tags);
 
+    let mut commercial = false;
+    let mut workers = 0;
+ 
     // These are (name, amenity type) pairs, produced by get_bldg_amenities in
     // convert_osm/src/osm_reader.rs.
     if !amenities.is_empty() {
-        return BuildingType::Commercial;
+        commercial = true;
     }
 
     if tags.is("ruins", "yes") {
+        if commercial {
+            return BuildingType::Commercial;
+        }
         return BuildingType::Empty;
     }
 
     if tags.is_any("building", vec!["office", "industrial", "commercial", "retail", "warehouse", "civic", "public"]) {
         return BuildingType::Commercial;
-    }
-
-    if tags.is_any("building", vec!["school", "university", "construction", "church"]) {
+    } else if tags.is_any("building", vec!["school", "university", "construction", "church"]) {
         // TODO: special handling in future
         return BuildingType::Empty;
-    }
-
-    if tags.is_any("building", vec!["garage", "garages", "shed", "roof", "greenhouse", "farm_auxiliary", "barn", "service"]) {
+    } else if tags.is_any("building", vec!["garage", "garages", "shed", "roof", "greenhouse", "farm_auxiliary", "barn", "service"]) {
         return BuildingType::Empty;
-    }
-
-    if tags.is_any("building", vec!["house", "detached", "semidetached_house", "farm"]) {
-        return BuildingType::Residential(rng.gen_range(1, 7));
-    }
-
-    if tags.is_any("building", vec!["hut", "static_caravan", "cabin"]) {
-        return BuildingType::Residential(rng.gen_range(1, 2));
-    }
-
-    if tags.is_any("building", vec!["apartments", "terrace", "residential"]) {
+    } else if tags.is_any("building", vec!["house", "detached", "semidetached_house", "farm"]) {
+        workers = rng.gen_range(0, 3);
+    } else if tags.is_any("building", vec!["hut", "static_caravan", "cabin"]) {
+        workers = rng.gen_range(0, 2);
+    } else if tags.is_any("building", vec!["apartments", "terrace", "residential"]) {
         let mut levels = 1;
         // TODO: replace by a proper getter
         if tags.is("building:levels", "2") {
@@ -430,9 +426,18 @@ fn classify_bldg(
             levels = 10;
         }
             // 1 person per 10 square meters
-        return BuildingType::Residential((levels as f64 * area_sq_meters / 10.0) as usize)
+        let residents = (levels as f64 * area_sq_meters / 10.0) as usize;
+        workers = (residents / 3) as usize;
+    } else {
+        workers = rng.gen_range(0, 2);
     }
-    return BuildingType::Residential(1);
+    if commercial {
+        if workers > 0 {
+            return BuildingType::ResidentialCommercial(workers);
+        }
+        return BuildingType::Commercial;
+    }
+    return BuildingType::Residential(workers);
 }
 
 // TODO Refactor with lane_specs

@@ -418,8 +418,6 @@ fn rand_time(rng: &mut XorShiftRng, low: Time, high: Time) -> Time {
 impl ScenarioGenerator {
     // Designed in https://github.com/dabreegster/abstreet/issues/154
     pub fn proletariat_robot(map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) -> Scenario {
-        // First classify buildings into residences (with a number of people) or workplaces. No
-        // mixed-use yet; every building is one or the other.
         let mut residences: Vec<(BuildingID, usize)> = Vec::new();
         let mut workplaces: Vec<BuildingID> = Vec::new();
         let mut total_ppl = 0;
