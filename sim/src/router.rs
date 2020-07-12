@@ -5,7 +5,7 @@ use crate::{
 use geom::Distance;
 use map_model::{
     BuildingID, IntersectionID, Map, Path, PathConstraints, PathRequest, PathStep, Position,
-    Traversable, TurnID,
+    Traversable, TurnID, TurnType,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -349,6 +349,13 @@ impl Router {
                     dst: *l,
                 };
                 if orig_lt == *lt && map.maybe_get_t(turn1).is_some() {
+                    // All other things being equal, prefer to not change lanes at all.
+                    let penalize_unnecessary_lc =
+                        if map.get_t(turn1).turn_type == TurnType::Straight {
+                            0
+                        } else {
+                            1
+                        };
                     // Now make sure we can go from this lane to next_lane.
                     let turn2 = TurnID {
                         parent: next_parent,
@@ -356,7 +363,9 @@ impl Router {
                         dst: next_lane,
                     };
                     if map.maybe_get_t(turn2).is_some() {
-                        Some((queues[&Traversable::Lane(*l)].cars.len(), turn1, *l, turn2))
+                        let cost =
+                            penalize_unnecessary_lc + queues[&Traversable::Lane(*l)].cars.len();
+                        Some((cost, turn1, *l, turn2))
                     } else {
                         None
                     }
