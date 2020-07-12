@@ -497,3 +497,16 @@ changes here.
 - pulling bus stop/route info from OSM, not GTFS. steps towards light rail.
 - experimenting with controls for hiding bridges to see roads underneath; try them in dev mode (ctrl+S)
 - many bug fixes
+
+0.2.3
+
+- lane geometry is dramatically fixed, especially for one-ways
+- importing lanes from OSM improved
+- UI: bulk select includes select-along-a-route, show all bus routes in the layer, unzoomed zordering for roads/intersections
+- traffic scenario modifier can now convert trip modes
+- slight progress on light rail, although the train only makes one stop
+- vehicles moving through complex intersections with multiple traffic signals will now make it through multiple lights, even if they're unsynchronized
+- new random traffic scenario generator that makes people go between houses and workplaces
+- access-restricted zones: granular editing of individual roads now mostly works
+- removing the hardcoded relative directories, which many people have been having problems with
+- many many bug fixes, and some optimizations to reduce release file size

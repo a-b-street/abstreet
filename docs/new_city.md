@@ -7,7 +7,7 @@ hit problems. I'd really appreciate help and PRs to improve this.
 ## Quick start
 
 If you're using the binary release and have a `.osm` file, just do:
-`./importer/importer --oneshot=map.osm`.
+`./importer --oneshot=map.osm`.
 
 If you're building from source, do: `./import.sh --oneshot=map.osm`. If you
 can't run `import.sh`, make sure you have all

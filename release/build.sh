@@ -14,10 +14,12 @@ mkdir $output
 
 cp docs/INSTRUCTIONS.md $output
 cp release/$runner $output
+# Put the importer in the root directory, but hide game to encourage people to
+# use the runner script. It will capture output logs. But if somebody runs the
+# game binary directly, it'll still work.
 mkdir $output/game
 cp $game_binary $output/game
-mkdir $output/importer
-cp $importer_binary $output/importer
+cp $importer_binary $output
 mkdir $output/data
 cp -Rv data/system $output/data/system
 
