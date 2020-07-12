@@ -392,18 +392,46 @@ fn classify_bldg(
     }
 
     if tags.is_any("building", vec!["house", "detached", "semidetached_house", "farm"]) {
-        return BuildingType::Residential(rng.gen_range(10, 21));
+        return BuildingType::Residential(rng.gen_range(1, 7));
     }
 
     if tags.is_any("building", vec!["hut", "static_caravan", "cabin"]) {
         return BuildingType::Residential(rng.gen_range(1, 2));
     }
 
-    if tags.is_any("building", vec!["apartment", "terrace", "residential"]) {
-        // 1 person per 10 square meters
-        return BuildingType::Residential((area_sq_meters / 10.0) as usize)
+    if tags.is_any("building", vec!["apartments", "terrace", "residential"]) {
+        let mut levels = 1;
+        // TODO: replace by a proper getter
+        if tags.is("building:levels", "2") {
+            levels = 2;
+        }
+        if tags.is("building:levels", "3") {
+            levels = 3;
+        }
+        if tags.is("building:levels", "4") {
+            levels = 4;
+        }
+        if tags.is("building:levels", "5") {
+            levels = 5;
+        }
+        if tags.is("building:levels", "6") {
+            levels = 6;
+        }
+        if tags.is("building:levels", "7") {
+            levels = 7;
+        }
+        if tags.is("building:levels", "8") {
+            levels = 8;
+        }
+        if tags.is("building:levels", "9") {
+            levels = 9;
+        }
+        if tags.is("building:levels", "10") {
+            levels = 10;
+        }
+            // 1 person per 10 square meters
+        return BuildingType::Residential((levels as f64 * area_sq_meters / 10.0) as usize)
     }
-
     return BuildingType::Residential(1);
 }
 
@@ -421,4 +449,13 @@ impl<'a> Tags<'a> {
             false
         }
     }
+/*
+    fn is_unsigned_integer(&self, k: &str) -> bool {
+        self.0.get(k).to_string().parse::<u32>().is_err() == false
+    }
+
+    fn get_as_unsigned_integer(&self, k: &str) -> bool {
+        self.0.get(k).to_string().parse::<u32>()
+    }
+*/
 }
