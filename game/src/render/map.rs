@@ -11,10 +11,10 @@ use crate::render::{draw_vehicle, DrawArea, DrawPedCrowd, DrawPedestrian, Render
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance, Pt2D, Time};
+use geom::{Bounds, Circle, Distance, Polygon, Pt2D, Time};
 use map_model::{
-    AreaID, BuildingID, BusStopID, Intersection, IntersectionID, LaneID, Map, ParkingLotID, Road,
-    RoadID, Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, Traversable,
+    NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
@@ -34,8 +34,7 @@ pub struct DrawMap {
     pub agents: RefCell<AgentCache>,
 
     pub boundary_polygon: Drawable,
-    pub draw_all_thick_roads: Drawable,
-    pub draw_all_unzoomed_intersections: Drawable,
+    pub draw_all_unzoomed_roads_and_intersections: Drawable,
     pub draw_all_buildings: Drawable,
     pub draw_all_building_paths: Drawable,
     pub draw_all_building_outlines: Drawable,
@@ -54,31 +53,6 @@ impl DrawMap {
             roads.push(DrawRoad::new(r, map, cs, ctx.prerender));
         }
 
-        timer.start("generate thick roads");
-        let mut road_refs: Vec<&Road> = map.all_roads().iter().collect();
-        road_refs.sort_by_key(|r| r.zorder);
-        let mut all_roads = GeomBatch::new();
-        for r in road_refs {
-            all_roads.push(
-                if r.is_light_rail() {
-                    cs.light_rail_track
-                } else if r.is_private() {
-                    cs.private_road
-                } else {
-                    osm_rank_to_color(cs, r.get_rank())
-                },
-                r.get_thick_polygon(map),
-            );
-            /*if false {
-                all_roads.push(
-                    color,
-                    roads[r.id.0].get_outline(map),
-                );
-            }*/
-        }
-        let draw_all_thick_roads = all_roads.upload(ctx);
-        timer.stop("generate thick roads");
-
         let mut lanes: Vec<DrawLane> = Vec::new();
         timer.start_iter("make DrawLanes", map.all_lanes().len());
         for l in map.all_lanes() {
@@ -93,36 +67,8 @@ impl DrawMap {
             intersections.push(DrawIntersection::new(i, map, cs, ctx.prerender));
         }
 
-        timer.start("generate unzoomed intersections");
-        let mut intersection_refs: Vec<&Intersection> = map.all_intersections().iter().collect();
-        intersection_refs.sort_by_key(|i| i.get_zorder(map));
-        let mut all_intersections = GeomBatch::new();
-        for i in intersection_refs {
-            // TODO Would be neat to show closed intersections here, but then edits need to
-            // regenerate this
-            if i.is_stop_sign() {
-                all_intersections.push(
-                    if i.is_light_rail(map) {
-                        cs.light_rail_track
-                    } else if i.is_private(map) {
-                        cs.private_road
-                    } else {
-                        osm_rank_to_color(cs, i.get_rank(map))
-                    },
-                    i.polygon.clone(),
-                );
-            /*if false {
-                all_intersections.push(
-                    color,
-                    intersections[i.id.0].get_outline(map),
-                );
-            }*/
-            } else {
-                all_intersections.push(cs.unzoomed_interesting_intersection, i.polygon.clone());
-            }
-        }
-        let draw_all_unzoomed_intersections = all_intersections.upload(ctx);
-        timer.stop("generate unzoomed intersections");
+        let draw_all_unzoomed_roads_and_intersections =
+            DrawMap::regenerate_unzoomed_layer(map, cs, ctx, timer);
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
         let mut all_buildings = GeomBatch::new();
@@ -221,8 +167,7 @@ impl DrawMap {
             bus_stops,
             areas,
             boundary_polygon,
-            draw_all_thick_roads,
-            draw_all_unzoomed_intersections,
+            draw_all_unzoomed_roads_and_intersections,
             draw_all_buildings,
             draw_all_building_paths,
             draw_all_building_outlines,
@@ -237,6 +182,54 @@ impl DrawMap {
 
             quadtree,
         }
+    }
+
+    pub fn regenerate_unzoomed_layer(
+        map: &Map,
+        cs: &ColorScheme,
+        ctx: &EventCtx,
+        timer: &mut Timer,
+    ) -> Drawable {
+        timer.start("generate unzoomed roads and intersections");
+        let mut unzoomed_pieces: Vec<(isize, Polygon, Color)> = Vec::new();
+        for r in map.all_roads() {
+            unzoomed_pieces.push((
+                r.zorder,
+                r.get_thick_polygon(map),
+                if r.is_light_rail() {
+                    cs.light_rail_track
+                } else if r.is_private() {
+                    cs.private_road
+                } else {
+                    osm_rank_to_color(cs, r.get_rank())
+                },
+            ));
+        }
+        for i in map.all_intersections() {
+            unzoomed_pieces.push((
+                i.get_zorder(map),
+                i.polygon.clone(),
+                if i.is_stop_sign() {
+                    if i.is_light_rail(map) {
+                        cs.light_rail_track
+                    } else if i.is_private(map) {
+                        cs.private_road
+                    } else {
+                        osm_rank_to_color(cs, i.get_rank(map))
+                    }
+                } else {
+                    cs.unzoomed_interesting_intersection
+                },
+            ));
+        }
+        unzoomed_pieces.sort_by_key(|(z, _, _)| *z);
+        let mut unzoomed_batch = GeomBatch::new();
+        for (_, poly, color) in unzoomed_pieces {
+            unzoomed_batch.push(color, poly);
+        }
+        let draw_all_unzoomed_roads_and_intersections = unzoomed_batch.upload(ctx);
+        timer.stop("generate unzoomed roads and intersections");
+        draw_all_unzoomed_roads_and_intersections
     }
 
     // The alt to these is implementing std::ops::Index, but that's way more verbose!

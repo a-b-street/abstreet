@@ -468,8 +468,11 @@ pub fn preview_trip(g: &mut GfxCtx, app: &App, composite: &Composite) {
 
     g.redraw(&app.primary.draw_map.boundary_polygon);
     g.redraw(&app.primary.draw_map.draw_all_areas);
-    g.redraw(&app.primary.draw_map.draw_all_unzoomed_intersections);
-    g.redraw(&app.primary.draw_map.draw_all_thick_roads);
+    g.redraw(
+        &app.primary
+            .draw_map
+            .draw_all_unzoomed_roads_and_intersections,
+    );
 
     if let Some(x) = composite.currently_hovering() {
         if let Ok(idx) = x.parse::<usize>() {

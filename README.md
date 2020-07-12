@@ -109,6 +109,8 @@ Others:
   [Anokhee Jandhyala](https://github.com/anokhee/visual-synthesizer)
 - Pandemic modeling by Orestis Malaspinas (<orestis.malaspinas@hesge.ch>)
 - Game design advice from Christopher Klein
+- OSM expertise courtesy [matkoniecz](https://github.com/matkoniecz)
+- Lots of helpful PRs from [RestitutorOrbis](https://github.com/RestitutorOrbis)
 - Lots of help with rendering SVG and fonts from
   [RazrFalcon](https://github.com/RazrFalcon) and
   [nical](https://github.com/nical)

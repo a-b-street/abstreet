@@ -20,7 +20,7 @@ use crate::debug::DebugMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::render::{DrawIntersection, DrawRoad};
+use crate::render::{DrawIntersection, DrawMap, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
 use ezgui::{
@@ -459,6 +459,13 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
 
     let (roads_changed, turns_deleted, turns_added, mut modified_intersections) =
         app.primary.map.must_apply_edits(edits, &mut timer);
+
+    if !roads_changed.is_empty() || !modified_intersections.is_empty() {
+        app.primary
+            .draw_map
+            .draw_all_unzoomed_roads_and_intersections =
+            DrawMap::regenerate_unzoomed_layer(&app.primary.map, &app.cs, ctx, &mut timer);
+    }
 
     for r in roads_changed {
         let road = app.primary.map.get_r(r);

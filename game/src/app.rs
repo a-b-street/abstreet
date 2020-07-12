@@ -174,12 +174,13 @@ impl App {
             if layers.show_parking_lots {
                 g.redraw(&self.primary.draw_map.draw_all_unzoomed_parking_lots);
             }
-            // Render bridges over intersections in the correct order
-            if layers.show_intersections {
-                g.redraw(&self.primary.draw_map.draw_all_unzoomed_intersections);
-            }
-            if layers.show_lanes {
-                g.redraw(&self.primary.draw_map.draw_all_thick_roads);
+            if layers.show_intersections || layers.show_lanes {
+                g.redraw(
+                    &self
+                        .primary
+                        .draw_map
+                        .draw_all_unzoomed_roads_and_intersections,
+                );
             }
             if layers.show_buildings {
                 g.redraw(&self.primary.draw_map.draw_all_buildings);
