@@ -396,36 +396,9 @@ fn classify_bldg(
     } else if tags.is_any("building", vec!["hut", "static_caravan", "cabin"]) {
         workers = rng.gen_range(0, 2);
     } else if tags.is_any("building", vec!["apartments", "terrace", "residential"]) {
-        let mut levels = 1;
-        // TODO: replace by a proper getter
-        if tags.is("building:levels", "2") {
-            levels = 2;
-        }
-        if tags.is("building:levels", "3") {
-            levels = 3;
-        }
-        if tags.is("building:levels", "4") {
-            levels = 4;
-        }
-        if tags.is("building:levels", "5") {
-            levels = 5;
-        }
-        if tags.is("building:levels", "6") {
-            levels = 6;
-        }
-        if tags.is("building:levels", "7") {
-            levels = 7;
-        }
-        if tags.is("building:levels", "8") {
-            levels = 8;
-        }
-        if tags.is("building:levels", "9") {
-            levels = 9;
-        }
-        if tags.is("building:levels", "10") {
-            levels = 10;
-        }
-            // 1 person per 10 square meters
+        let levels = tags.0.get("building:levels").and_then(|x| x.parse::<usize>().ok()).unwrap_or(1);
+        // TODO is it worth using height or building:height as an alternative if not tagged?
+        // 1 person per 10 square meters
         let residents = (levels as f64 * area_sq_meters / 10.0) as usize;
         workers = (residents / 3) as usize;
     } else {
@@ -454,13 +427,4 @@ impl<'a> Tags<'a> {
             false
         }
     }
-/*
-    fn is_unsigned_integer(&self, k: &str) -> bool {
-        self.0.get(k).to_string().parse::<u32>().is_err() == false
-    }
-
-    fn get_as_unsigned_integer(&self, k: &str) -> bool {
-        self.0.get(k).to_string().parse::<u32>()
-    }
-*/
 }
