@@ -31,7 +31,7 @@ pub fn osm_to_raw(name: &str) {
                 bikes_can_use_bus_lanes: false,
             },
 
-            onstreet_parking: convert_osm::OnstreetParking::SomeResidential { pct: 50 },
+            onstreet_parking: convert_osm::OnstreetParking::SomeAdditionalWhereNoData { pct: 90 },
             public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
             elevation: None,
