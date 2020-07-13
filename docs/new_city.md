@@ -49,22 +49,22 @@ The `data/geojson_to_osmosis.py` script can help with the formatting.
     [polygon filter file](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
     in that directory using the coordinates from geojson.io. It's easiest to
     start with an existing file from another directory; I recommend
-    `data/input/austin/polygons/downtown_atx.poly` as a guide. You can use
+    `data/input/krakow/polygons/huge_krakow.poly` as a guide. You can use
     `data/geojson_to_osmosis.py` to help format the coordinates.
 
 5.  Create a new module in `importer/src/` for your city, copying
-    `importer/src/austin.rs` as a guide. Edit that file in the obvious way. The
+    `importer/src/krakow.rs` as a guide. Edit that file in the obvious way. The
     main thing you'll need is a .osm or .osm.pbf file to download that contains
     your city. The clipping polygon will be applied to that.
 
 6.  Update `importer/src/main.rs` to reference your new module, following
-    `austin` as an example.
+    `krakow` as an example.
 
 7.  Update `map_belongs_to_city` in `updater/src/main.rs`
 
 8.  Run it: `./import.sh --city=your_city --raw --map`
 
-9.  Update `.gitignore`, following `austin` as an example.
+9.  Update `.gitignore`, following `krakow` as an example.
 
 Send a PR with your changes! I'll generate everything and make it work with
 `updater`, so most people don't have to build everything from scratch.

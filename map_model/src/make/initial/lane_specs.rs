@@ -77,8 +77,16 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         }
     };
 
-    // Sup West Seattle
     let driving_lane = if tags.is("access", "no") && tags.is("bus", "yes") {
+        // Sup West Seattle
+        LaneType::Bus
+    } else if osm_tags
+        .get("motor_vehicle:conditional")
+        .map(|x| x.starts_with("no"))
+        .unwrap_or(false)
+        && tags.is("bus", "yes")
+    {
+        // Example: 3rd Ave in downtown Seattle
         LaneType::Bus
     } else if tags.is("access", "no") || tags.is("highway", "construction") {
         LaneType::Construction
