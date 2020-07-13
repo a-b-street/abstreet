@@ -61,6 +61,7 @@ pub fn osm_to_raw(name: &str) {
                 match name {
                     "downtown" => 5,
                     "lakeslice" => 3,
+                    "south_seattle" => 5,
                     "udistrict" => 5,
                     _ => 1,
                 },

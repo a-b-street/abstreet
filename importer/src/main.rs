@@ -128,7 +128,7 @@ fn main() {
             timer.stop(format!("scenario for {}", name));
 
             // This is a strange ordering.
-            if name == "downtown" {
+            if name == "downtown" || name == "south_seattle" {
                 timer.start(format!("adjust parking for {}", name));
                 seattle::adjust_private_parking(maybe_map.as_mut().unwrap(), &scenario);
                 timer.stop(format!("adjust parking for {}", name));
