@@ -239,8 +239,13 @@ pub fn extract_osm(
                             complicated_turn_restrictions.push((rel.id, from, via, to));
                         } else {
                             timer.warn(format!(
-                                "Weird complicated turn restriction \"{}\" from way {} to way {} via way {}: https://www.openstreetmap.org/relation/{}",
-                                restriction, from, to, via, rel.id
+                                "Weird complicated turn restriction \"{}\" from way {} to way {} \
+                                 via way {}: {}",
+                                restriction,
+                                from,
+                                to,
+                                via,
+                                rel_url(rel.id)
                             ));
                         }
                     }
@@ -610,7 +615,12 @@ fn extract_route(
         "bus" => true,
         "light_rail" => false,
         x => {
-            println!("Skipping route {} of unknown type {}", route_name, x);
+            println!(
+                "Skipping route {} of unknown type {}: {}",
+                route_name,
+                x,
+                rel_url(master_rel.id)
+            );
             return None;
         }
     };
@@ -685,9 +695,10 @@ fn extract_route(
         })
     } else {
         println!(
-            "Skipping route {} with {} sub-routes",
+            "Skipping route {} with {} sub-routes (only handling 2): {}",
             route_name,
-            directions.len()
+            directions.len(),
+            rel_url(master_rel.id),
         );
         None
     }
@@ -710,4 +721,8 @@ fn get_members<'a>(
             (role, doc.resolve_reference(id_ref))
         })
         .collect()
+}
+
+fn rel_url(id: i64) -> String {
+    format!("https://www.openstreetmap.org/relation/{}", id)
 }
