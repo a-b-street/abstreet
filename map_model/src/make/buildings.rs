@@ -6,9 +6,9 @@ use crate::{
 };
 use abstutil::Timer;
 use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
-use std::collections::{BTreeMap, BTreeSet, HashSet};
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 pub fn make_all_buildings(
     input: &BTreeMap<OriginalBuilding, RawBuilding>,
@@ -369,8 +369,8 @@ fn classify_bldg(
     let tags = Tags(tags);
 
     let mut commercial = false;
-    let mut workers = 0;
- 
+    let workers;
+
     // These are (name, amenity type) pairs, produced by get_bldg_amenities in
     // convert_osm/src/osm_reader.rs.
     if !amenities.is_empty() {
@@ -384,19 +384,52 @@ fn classify_bldg(
         return BuildingType::Empty;
     }
 
-    if tags.is_any("building", vec!["office", "industrial", "commercial", "retail", "warehouse", "civic", "public"]) {
+    if tags.is_any(
+        "building",
+        vec![
+            "office",
+            "industrial",
+            "commercial",
+            "retail",
+            "warehouse",
+            "civic",
+            "public",
+        ],
+    ) {
         return BuildingType::Commercial;
-    } else if tags.is_any("building", vec!["school", "university", "construction", "church"]) {
+    } else if tags.is_any(
+        "building",
+        vec!["school", "university", "construction", "church"],
+    ) {
         // TODO: special handling in future
         return BuildingType::Empty;
-    } else if tags.is_any("building", vec!["garage", "garages", "shed", "roof", "greenhouse", "farm_auxiliary", "barn", "service"]) {
+    } else if tags.is_any(
+        "building",
+        vec![
+            "garage",
+            "garages",
+            "shed",
+            "roof",
+            "greenhouse",
+            "farm_auxiliary",
+            "barn",
+            "service",
+        ],
+    ) {
         return BuildingType::Empty;
-    } else if tags.is_any("building", vec!["house", "detached", "semidetached_house", "farm"]) {
+    } else if tags.is_any(
+        "building",
+        vec!["house", "detached", "semidetached_house", "farm"],
+    ) {
         workers = rng.gen_range(0, 3);
     } else if tags.is_any("building", vec!["hut", "static_caravan", "cabin"]) {
         workers = rng.gen_range(0, 2);
     } else if tags.is_any("building", vec!["apartments", "terrace", "residential"]) {
-        let levels = tags.0.get("building:levels").and_then(|x| x.parse::<usize>().ok()).unwrap_or(1);
+        let levels = tags
+            .0
+            .get("building:levels")
+            .and_then(|x| x.parse::<usize>().ok())
+            .unwrap_or(1);
         // TODO is it worth using height or building:height as an alternative if not tagged?
         // 1 person per 10 square meters
         let residents = (levels as f64 * area_sq_meters / 10.0) as usize;

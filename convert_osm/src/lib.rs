@@ -90,11 +90,9 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
             let pct = pct as i64;
             for (id, r) in map.roads.iter_mut() {
                 if r.osm_tags.contains_key(osm::INFERRED_PARKING)
-                    && (
-                        r.osm_tags.get(osm::HIGHWAY) == Some(&"residential".to_string())
+                    && (r.osm_tags.get(osm::HIGHWAY) == Some(&"residential".to_string())
                         || r.osm_tags.get(osm::HIGHWAY) == Some(&"tertiary".to_string())
-                        || r.osm_tags.get(osm::HIGHWAY) == Some(&"living_street".to_string())
-                       ) 
+                        || r.osm_tags.get(osm::HIGHWAY) == Some(&"living_street".to_string()))
                     && id.osm_way_id % 100 <= pct
                 {
                     if r.osm_tags.get("oneway") == Some(&"yes".to_string()) {

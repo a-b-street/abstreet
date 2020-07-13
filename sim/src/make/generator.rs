@@ -446,7 +446,7 @@ impl ScenarioGenerator {
             for _ in 0..num_ppl {
                 timer.next();
                 // Make a person going from their home to a random workplace, then back again later.
-                
+
                 // TODO refactor
                 // function or associated item not found in `rand_xorshift::XorShiftRng`
                 // so why it works in buildings.rs?
@@ -466,16 +466,17 @@ impl ScenarioGenerator {
                     // this person.
                     continue;
                 };
-                if home.0 == work.0 {
+                if home == work {
                     // working and living in the same building
                     continue;
                 }
                 // Longer trips will mostly drive of the time, remaining will attempt
-                // transit (falling back to a very long walk), with some small number of people cycling.
-                // TODO Make this probabilistic
-                // TODO - do not select based on distance but select one that is fastest/best in the given situation
-                // excellent bus connection / plenty of parking / cycleways / suitable rail connection
-                // all strongly influence selected mode of transport, distance is not the sole influence
+                // transit (falling back to a very long walk), with some small number of people
+                // cycling. TODO Make this probabilistic
+                // TODO - do not select based on distance but select one that is fastest/best in the
+                // given situation excellent bus connection / plenty of parking /
+                // cycleways / suitable rail connection all strongly influence
+                // selected mode of transport, distance is not the sole influence
                 let mode = if dist < Distance::miles(0.5) {
                     TripMode::Walk
                 } else if dist < Distance::miles(2.0) {

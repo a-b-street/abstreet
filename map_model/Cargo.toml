@@ -12,8 +12,8 @@ fast_paths = { git = "https://github.com/easbar/fast_paths" }
 geom = { path = "../geom" }
 nbez = "0.1.0"
 petgraph = "0.5.0"
+rand = "0.7.0"
+rand_xorshift = "0.2.0"
 serde = "1.0.110"
 thread_local = "1.0.1"
 seattle_traffic_signals = { git = "https://github.com/dabreegster/seattle_traffic_signals" }
-rand = "0.7.0"
-rand_xorshift = "0.2.0"

@@ -33,7 +33,7 @@ pub fn osm_to_raw(name: &str) {
 
             onstreet_parking: convert_osm::OnstreetParking::SomeAdditionalWhereNoData { pct: 90 },
             public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(3), // TODO: support amenity=parking_entrance
+            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(3), /* TODO: support amenity=parking_entrance */
             // TODO: investigate why some many buildings drop their private parkings
             elevation: None,
         },
