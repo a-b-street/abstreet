@@ -494,16 +494,31 @@ impl ScenarioGenerator {
                 // TODO This will cause a single morning and afternoon rush. Outside of these times,
                 // it'll be really quiet. Probably want a normal distribution centered around these
                 // peak times, but with a long tail.
-                let depart_am = rand_time(
+                let mut depart_am = rand_time(
                     rng,
                     Time::START_OF_DAY + Duration::hours(7),
                     Time::START_OF_DAY + Duration::hours(10),
                 );
-                let depart_pm = rand_time(
+                let mut depart_pm = rand_time(
                     rng,
                     Time::START_OF_DAY + Duration::hours(17),
                     Time::START_OF_DAY + Duration::hours(19),
                 );
+
+                if rng.gen_bool(0.1) {
+                    // hacky hack to get some background traffic
+                    // TODO - avoid mutable variable
+                    depart_am = rand_time(
+                        rng,
+                        Time::START_OF_DAY + Duration::hours(0),
+                        Time::START_OF_DAY + Duration::hours(12),
+                    );
+                    depart_pm = rand_time(
+                        rng,
+                        Time::START_OF_DAY + Duration::hours(12),
+                        Time::START_OF_DAY + Duration::hours(24),
+                    );
+                }
 
                 let (goto_work, return_home) = match (
                     SpawnTrip::new(
