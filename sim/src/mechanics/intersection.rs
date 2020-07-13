@@ -352,12 +352,7 @@ impl IntersectionSimState {
             let inside_ut = car.router.get_path().currently_inside_ut().is_some()
                 || car.router.get_path().about_to_start_ut().is_some();
             let queue = queues.get_mut(&Traversable::Lane(turn.dst)).unwrap();
-            if !queue.try_to_reserve_entry(
-                car,
-                !self.dont_block_the_box
-                    || allow_block_the_box(map.get_i(turn.parent).orig_id.osm_node_id)
-                    || inside_ut,
-            ) {
+            if !queue.try_to_reserve_entry(car, !self.dont_block_the_box || inside_ut) {
                 if self.break_turn_conflict_cycles {
                     // TODO Should we run the detector here?
                     if let Some(c) = queue.laggy_head {
@@ -734,11 +729,4 @@ impl IntersectionSimState {
         }
         None
     }
-}
-
-// TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity. Workaround
-// for now.
-fn allow_block_the_box(osm_node_id: i64) -> bool {
-    // 23rd and Madison
-    osm_node_id == 53211694 || osm_node_id == 53211693
 }

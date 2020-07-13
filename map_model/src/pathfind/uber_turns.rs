@@ -20,11 +20,11 @@ pub struct UberTurn {
 
 impl IntersectionCluster {
     pub fn find_all(map: &Map) -> Vec<IntersectionCluster> {
-        // First autodetect based on traffic signals close together.
+        // First autodetect based on intersections close together.
         let mut clusters = Vec::new();
         let mut seen_intersections = BTreeSet::new();
         for i in map.all_intersections() {
-            if i.is_traffic_signal() && !seen_intersections.contains(&i.id) {
+            if !seen_intersections.contains(&i.id) {
                 if let Some(members) = IntersectionCluster::autodetect(i.id, map) {
                     seen_intersections.extend(members.clone());
                     // Discard any illegal movements
@@ -147,12 +147,12 @@ impl IntersectionCluster {
         )
     }
 
-    // Find all other traffic signals "close" to one. Ignore stop sign intersections in between.
+    // Find all other intersections "close" to one.
     pub fn autodetect(from: IntersectionID, map: &Map) -> Option<BTreeSet<IntersectionID>> {
-        if !map.get_i(from).is_traffic_signal() {
+        if map.get_i(from).is_border() {
             return None;
         }
-        let threshold = Distance::meters(25.0);
+        let threshold = Distance::meters(15.0);
 
         let mut found = BTreeSet::new();
         let mut queue = vec![from];
@@ -169,7 +169,7 @@ impl IntersectionCluster {
                     continue;
                 }
                 let other = if r.src_i == i.id { r.dst_i } else { r.src_i };
-                if map.get_i(other).is_traffic_signal() {
+                if !map.get_i(other).is_border() {
                     queue.push(other);
                 }
             }

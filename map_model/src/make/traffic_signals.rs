@@ -515,8 +515,14 @@ pub fn synchronize(map: &mut Map) {
         if let Some(list) = IntersectionCluster::autodetect(i.id, map) {
             let list = list.into_iter().collect::<Vec<_>>();
             if list.len() == 2
-                && map.get_traffic_signal(list[0]).phases.len() == 2
-                && map.get_traffic_signal(list[1]).phases.len() == 2
+                && map
+                    .maybe_get_traffic_signal(list[0])
+                    .map(|ts| ts.phases.len() == 2)
+                    .unwrap_or(false)
+                && map
+                    .maybe_get_traffic_signal(list[1])
+                    .map(|ts| ts.phases.len() == 2)
+                    .unwrap_or(false)
             {
                 pairs.push((list[0], list[1]));
                 seen.insert(list[0]);
