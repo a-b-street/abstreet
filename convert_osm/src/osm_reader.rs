@@ -492,14 +492,15 @@ fn get_multipolygon_members(
                         pts_per_way.push((*id, pts.to_vec()));
                     } else {
                         println!(
-                            "Relation {} has unhandled member role {}, ignoring it",
-                            rel.id, role
+                            "{} has unhandled member role {}, ignoring it",
+                            rel_url(rel.id),
+                            role
                         );
                     }
                 }
             }
             _ => {
-                println!("Relation {} refers to {:?}", rel.id, member);
+                println!("{} refers to {:?}", rel_url(rel.id), member);
                 ok = false;
             }
         }

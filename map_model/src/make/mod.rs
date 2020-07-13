@@ -195,10 +195,19 @@ impl Map {
                 });
             }
             if road.get_name() == "???" {
-                timer.warn(format!(
-                    "{} has no name. Tags: {:?}",
-                    road.id, road.osm_tags
-                ));
+                // Suppress the warning in some cases.
+                if !(road.osm_tags.get("noname") == Some(&"yes".to_string())
+                    || road
+                        .osm_tags
+                        .get(osm::HIGHWAY)
+                        .map(|x| x.ends_with("_link"))
+                        .unwrap_or(false))
+                {
+                    timer.warn(format!(
+                        "{} has no name. Tags: {:?}",
+                        road.orig_id, road.osm_tags
+                    ));
+                }
             }
             map.roads.push(road);
         }
@@ -331,7 +340,10 @@ impl Map {
                         r.id = BusRouteID(map.bus_routes.len());
                         map.bus_routes.push(r);
                     } else {
-                        timer.warn(format!("Skipping route {}", r.name));
+                        timer.warn(format!(
+                            "Skipping route {} due to connectivity problems",
+                            r.name
+                        ));
                     }
                 }
 
