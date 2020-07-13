@@ -670,9 +670,7 @@ impl IntersectionSimState {
                     }
                 }
 
-                if !cycle_detected
-                    && !allow_conflicting_turns(map.get_i(req.turn.parent).orig_id.osm_node_id)
-                {
+                if !cycle_detected {
                     ok = false;
                 }
 
@@ -742,49 +740,5 @@ impl IntersectionSimState {
 // for now.
 fn allow_block_the_box(osm_node_id: i64) -> bool {
     // 23rd and Madison
-    osm_node_id == 53211694 || osm_node_id == 53211693 ||
-    // 31st and S Jackson
-    osm_node_id == 53045512 ||
-    // 23rd and Rainier
-    osm_node_id == 53212741 || osm_node_id == 3496255252 ||
-    // Rainier and Dearborn
-    osm_node_id == 4607162574 ||
-    // WA 509 and WA 99
-    osm_node_id == 31327525 ||
-    // 45th and Union Bay
-    osm_node_id == 31192107 || osm_node_id == 4272330879 || osm_node_id == 53120147 ||
-    // 45th and Montlake
-    osm_node_id ==  31430639 || osm_node_id == 29977895 || osm_node_id == 3391705317 ||
-    osm_node_id == 29977897 ||
-    // Rainier and Brandon
-    osm_node_id == 53089293 ||
-    // Rainier and Letitia
-    osm_node_id == 1729797719 || osm_node_id == 4272388873 || osm_node_id == 53194882 ||
-    // Rainier and MLK
-    osm_node_id == 53131428 ||
-    // Montlake and 520
-    osm_node_id == 53128053 ||
-    // 12th and Boren
-    osm_node_id == 53165712 ||
-    // Denny and Stewart
-    osm_node_id == 2481938316 ||
-    // 12th and Madison
-    osm_node_id == 53189942
-}
-
-// TODO Various problems (bad geometry, multi-intersection turn restrictions) cause
-// vehicles to unrealistically block each other.
-#[rustfmt::skip]
-fn allow_conflicting_turns(osm_node_id: i64) -> bool {
-    vec![
-        // Montlake and 520
-        29449863, 29464223, 3391701882, 3391701883,
-        // Boyer and Lynn
-        3978753095,
-        // WA 509 and WA 99
-        31253092,
-        // 52nd and Holly
-        4263867891, 4263867898, 4263867908, 4263867899
-    ]
-    .contains(&osm_node_id)
+    osm_node_id == 53211694 || osm_node_id == 53211693
 }
