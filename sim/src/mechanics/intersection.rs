@@ -35,6 +35,10 @@ struct State {
         deserialize_with = "deserialize_btreemap"
     )]
     waiting: BTreeMap<Request, Time>,
+    // When a vehicle begins an uber-turn, reserve the future turns to ensure they're able to
+    // complete the entire sequence. This is especially necessary since groups of traffic signals
+    // are not yet configured as one.
+    reserved: BTreeSet<Request>,
 
     // Only relevant for traffic signals
     current_phase: usize,
@@ -70,6 +74,7 @@ impl IntersectionSimState {
                     id: i.id,
                     accepted: BTreeSet::new(),
                     waiting: BTreeMap::new(),
+                    reserved: BTreeSet::new(),
                     current_phase: 0,
                     phase_ends_at: Time::START_OF_DAY,
                 },
@@ -82,9 +87,11 @@ impl IntersectionSimState {
     }
 
     pub fn nobody_headed_towards(&self, lane: LaneID, i: IntersectionID) -> bool {
-        !self.state[&i]
+        let state = &self.state[&i];
+        !state
             .accepted
             .iter()
+            .chain(state.reserved.iter())
             .any(|req| req.turn.dst == lane)
     }
 
@@ -98,6 +105,7 @@ impl IntersectionSimState {
     ) {
         let state = self.state.get_mut(&turn.parent).unwrap();
         assert!(state.accepted.remove(&Request { agent, turn }));
+        state.reserved.remove(&Request { agent, turn });
         if map.get_t(turn).turn_type != TurnType::SharedSidewalkCorner {
             self.wakeup_waiting(now, turn.parent, scheduler, map);
         }
@@ -316,28 +324,39 @@ impl IntersectionSimState {
             return false;
         }
 
-        /*
-        // Don't start a sequence of turns through a complex group of intersections unless the
-        // whole sequence will work.
-        // TODO stick an "accepted" ticket in all of the lights, even if they're red, to prevent
-        // conflicts from forming?
-        if let Some((car, _, _)) = maybe_cars_and_queues {
-            if let Some(ut) = car.router.get_path().about_to_start_ut() {
-                // TODO Make sure we won't block the box for the very last queue.
-                // TODO Inside the UT, disable box-block-checking entirely.
-                //let queue = queues.get_mut(&Traversable::Lane(turn.dst)).unwrap();
+        // Lock the entire uber-turn.
+        if let Some(ut) = maybe_cars_and_queues
+            .as_ref()
+            .and_then(|(car, _, _)| car.router.get_path().about_to_start_ut())
+        {
+            // If there's a problem up ahead, don't start.
+            for t in &ut.path {
+                let req = Request { agent, turn: *t };
+                if !self.handle_accepted_conflicts(&req, map, readonly_pair) {
+                    return false;
+                }
+            }
+            // If the way is clear, make sure it stays that way.
+            for t in &ut.path {
+                self.state
+                    .get_mut(&t.parent)
+                    .unwrap()
+                    .reserved
+                    .insert(Request { agent, turn: *t });
             }
         }
-        */
 
-        // Don't block the box
+        // Don't block the box.
         if let Some((car, _, queues)) = maybe_cars_and_queues {
             assert_eq!(agent, AgentID::Car(car.vehicle.id));
+            let inside_ut = car.router.get_path().currently_inside_ut().is_some()
+                || car.router.get_path().about_to_start_ut().is_some();
             let queue = queues.get_mut(&Traversable::Lane(turn.dst)).unwrap();
             if !queue.try_to_reserve_entry(
                 car,
                 !self.dont_block_the_box
-                    || allow_block_the_box(map.get_i(turn.parent).orig_id.osm_node_id),
+                    || allow_block_the_box(map.get_i(turn.parent).orig_id.osm_node_id)
+                    || inside_ut,
             ) {
                 if self.break_turn_conflict_cycles {
                     // TODO Should we run the detector here?
@@ -348,6 +367,9 @@ impl IntersectionSimState {
                     } else {
                         // Nobody's in the target lane, but there's somebody already in the
                         // intersection headed there, taking up all of the space.
+                        // I guess we shouldn't count reservations for uber-turns here, because
+                        // we're not going to do block-the-box resolution in the interior at
+                        // all?
                         self.blocked_by.insert((
                             car.vehicle.id,
                             self.state[&turn.parent]
@@ -660,7 +682,15 @@ impl IntersectionSimState {
                 }
             }
         }
-        ok
+        if !ok {
+            return false;
+        }
+        for other in &self.state[&req.turn.parent].reserved {
+            if map.get_t(other.turn).conflicts_with(turn) {
+                return false;
+            }
+        }
+        true
     }
 
     fn detect_conflict_cycle(

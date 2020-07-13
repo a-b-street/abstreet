@@ -252,19 +252,19 @@ impl State for DebugMode {
                         _ => unreachable!(),
                     };
                     for a in agents {
-                        batch.push(
-                            Color::PURPLE,
-                            app.primary
-                                .draw_map
-                                .get_obj(
-                                    ID::from_agent(a),
-                                    app,
-                                    &mut app.primary.draw_map.agents.borrow_mut(),
-                                    ctx.prerender,
-                                )
-                                .unwrap()
-                                .get_outline(&app.primary.map),
-                        );
+                        if let Some(obj) = app.primary.draw_map.get_obj(
+                            ID::from_agent(a),
+                            app,
+                            &mut app.primary.draw_map.agents.borrow_mut(),
+                            ctx.prerender,
+                        ) {
+                            batch.push(Color::PURPLE, obj.get_outline(&app.primary.map));
+                        } else {
+                            panic!(
+                                "{} is accepted at or blocked by by {:?}, but no longer exists",
+                                a, id
+                            );
+                        }
                     }
                     self.highlighted_agents = Some((id, ctx.upload(batch)));
                 }
