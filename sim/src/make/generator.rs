@@ -459,14 +459,33 @@ impl ScenarioGenerator {
                     // this person.
                     continue;
                 };
-                // Trips over 2 miles will drive 90% of the time, the other 10% will attempt
-                // transit (falling back to a very long walk).
+                if home.0 == work.0 {
+                    // working and living in the same building
+                    continue;
+                }
+                // Longer trips will mostly drive of the time, remaining will attempt
+                // transit (falling back to a very long walk), with some small number of people cycling.
                 // TODO Make this probabilistic
-                let mode = if dist < Distance::miles(1.0) {
+                // TODO - do not select based on distance but select one that is fastest/best in the given situation
+                // excellent bus connection / plenty of parking / cycleways / suitable rail connection
+                // all strongly influence selected mode of transport, distance is not the sole influence
+                let mode = if dist < Distance::miles(0.5) {
                     TripMode::Walk
                 } else if dist < Distance::miles(2.0) {
+                    if rng.gen_bool(0.3) {
+                        // 30%
+                        TripMode::Transit
+                    } else if rng.gen_bool(0.8) {
+                        // 0.7 * 0.8 = 56%
+                        TripMode::Drive
+                    } else {
+                        // 14%
+                        TripMode::Bike
+                    }
+                } else if rng.gen_bool(0.005) {
+                    // low chance for really, really dedicated cyclists
                     TripMode::Bike
-                } else if rng.gen_bool(0.9) {
+                } else if rng.gen_bool(0.7) {
                     TripMode::Drive
                 } else {
                     TripMode::Transit
