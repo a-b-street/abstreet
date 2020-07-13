@@ -50,6 +50,7 @@ pub struct Building {
     // Where a text label should be centered to have the best chances of being contained within the
     // polygon.
     pub label_center: Pt2D,
+    // TODO Might fold these into BuildingType::Commercial
     // (Name, amenity)
     pub amenities: BTreeSet<(String, String)>,
 
@@ -57,6 +58,16 @@ pub struct Building {
     // Every building can't have OffstreetParking, because the nearest usable driving lane (not in
     // a parking blackhole) might be far away
     pub parking: Option<OffstreetParking>,
+    pub bldg_type: BuildingType,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum BuildingType {
+    // An estimated number of residents
+    Residential(usize),
+    ResidentialCommercial(usize),
+    Commercial,
+    Empty,
 }
 
 impl Building {

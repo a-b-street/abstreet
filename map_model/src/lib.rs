@@ -16,7 +16,9 @@ pub use crate::edits::{
 pub use crate::make::initial::lane_specs::RoadSpec;
 pub use crate::map::MapConfig;
 pub use crate::objects::area::{Area, AreaID, AreaType};
-pub use crate::objects::building::{Building, BuildingID, FrontPath, OffstreetParking};
+pub use crate::objects::building::{
+    Building, BuildingID, BuildingType, FrontPath, OffstreetParking,
+};
 pub use crate::objects::bus_stop::{BusRoute, BusRouteID, BusStop, BusStopID};
 pub use crate::objects::intersection::{Intersection, IntersectionID, IntersectionType};
 pub use crate::objects::lane::{

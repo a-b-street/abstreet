@@ -1,12 +1,14 @@
 use crate::make::match_points_to_lanes;
 use crate::raw::{OriginalBuilding, RawBuilding, RawParkingLot};
 use crate::{
-    osm, Building, BuildingID, FrontPath, LaneID, LaneType, Map, OffstreetParking, ParkingLot,
-    ParkingLotID, Position, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
+    osm, Building, BuildingID, BuildingType, FrontPath, LaneID, LaneType, Map, OffstreetParking,
+    ParkingLot, ParkingLotID, Position, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
+use rand::{Rng, SeedableRng};
+use rand_xorshift::XorShiftRng;
 
 pub fn make_all_buildings(
     input: &BTreeMap<OriginalBuilding, RawBuilding>,
@@ -57,6 +59,7 @@ pub fn make_all_buildings(
             };
 
             let id = BuildingID(results.len());
+            let mut rng = XorShiftRng::seed_from_u64(orig_id.osm_way_id as u64);
             let mut bldg = Building {
                 id,
                 polygon: b.polygon.clone(),
@@ -70,6 +73,7 @@ pub fn make_all_buildings(
                 amenities: b.amenities.clone(),
                 parking: None,
                 label_center: b.polygon.polylabel(),
+                bldg_type: classify_bldg(&b.osm_tags, &b.amenities, b.polygon.area(), &mut rng),
             };
 
             // Can this building have a driveway? If it's not next to a driving lane, then no.
@@ -353,4 +357,74 @@ fn line_valid(
     }
 
     true
+}
+
+fn classify_bldg(
+    tags: &BTreeMap<String, String>,
+    amenities: &BTreeSet<(String, String)>,
+    area_sq_meters: f64,
+    rng: &mut rand_xorshift::XorShiftRng,
+) -> BuildingType {
+    // used: top values from https://taginfo.openstreetmap.org/keys/building#values (>100k uses)
+    let tags = Tags(tags);
+
+    let mut commercial = false;
+    let mut workers = 0;
+ 
+    // These are (name, amenity type) pairs, produced by get_bldg_amenities in
+    // convert_osm/src/osm_reader.rs.
+    if !amenities.is_empty() {
+        commercial = true;
+    }
+
+    if tags.is("ruins", "yes") {
+        if commercial {
+            return BuildingType::Commercial;
+        }
+        return BuildingType::Empty;
+    }
+
+    if tags.is_any("building", vec!["office", "industrial", "commercial", "retail", "warehouse", "civic", "public"]) {
+        return BuildingType::Commercial;
+    } else if tags.is_any("building", vec!["school", "university", "construction", "church"]) {
+        // TODO: special handling in future
+        return BuildingType::Empty;
+    } else if tags.is_any("building", vec!["garage", "garages", "shed", "roof", "greenhouse", "farm_auxiliary", "barn", "service"]) {
+        return BuildingType::Empty;
+    } else if tags.is_any("building", vec!["house", "detached", "semidetached_house", "farm"]) {
+        workers = rng.gen_range(0, 3);
+    } else if tags.is_any("building", vec!["hut", "static_caravan", "cabin"]) {
+        workers = rng.gen_range(0, 2);
+    } else if tags.is_any("building", vec!["apartments", "terrace", "residential"]) {
+        let levels = tags.0.get("building:levels").and_then(|x| x.parse::<usize>().ok()).unwrap_or(1);
+        // TODO is it worth using height or building:height as an alternative if not tagged?
+        // 1 person per 10 square meters
+        let residents = (levels as f64 * area_sq_meters / 10.0) as usize;
+        workers = (residents / 3) as usize;
+    } else {
+        workers = rng.gen_range(0, 2);
+    }
+    if commercial {
+        if workers > 0 {
+            return BuildingType::ResidentialCommercial(workers);
+        }
+        return BuildingType::Commercial;
+    }
+    return BuildingType::Residential(workers);
+}
+
+// TODO Refactor with lane_specs
+struct Tags<'a>(&'a BTreeMap<String, String>);
+impl<'a> Tags<'a> {
+    fn is(&self, k: &str, v: &str) -> bool {
+        self.0.get(k) == Some(&v.to_string())
+    }
+
+    fn is_any(&self, k: &str, values: Vec<&str>) -> bool {
+        if let Some(v) = self.0.get(k) {
+            values.contains(&v.as_ref())
+        } else {
+            false
+        }
+    }
 }

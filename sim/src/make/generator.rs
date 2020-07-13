@@ -4,7 +4,7 @@ use crate::{
 };
 use abstutil::Timer;
 use geom::{Distance, Duration, Time};
-use map_model::{BuildingID, DirectedRoadID, Map, PathConstraints, PathRequest};
+use map_model::{BuildingID, BuildingType, DirectedRoadID, Map, PathConstraints, PathRequest};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
@@ -418,29 +418,41 @@ fn rand_time(rng: &mut XorShiftRng, low: Time, high: Time) -> Time {
 impl ScenarioGenerator {
     // Designed in https://github.com/dabreegster/abstreet/issues/154
     pub fn proletariat_robot(map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) -> Scenario {
-        // First classify buildings into residences (with a number of people) or workplaces. No
-        // mixed-use yet; every building is one or the other.
         let mut residences: Vec<(BuildingID, usize)> = Vec::new();
         let mut workplaces: Vec<BuildingID> = Vec::new();
         let mut total_ppl = 0;
         for b in map.all_buildings() {
-            // These are scraped from OSM "shop" and "amenity" tags.
-            if b.amenities.is_empty() {
-                // TODO Guess number of residences based on OSM tags.
-                let num_ppl = rng.gen_range(1, 5);
-                residences.push((b.id, num_ppl));
-                total_ppl += num_ppl;
-            } else {
-                workplaces.push(b.id);
+            match b.bldg_type {
+                BuildingType::Residential(num_ppl) => {
+                    residences.push((b.id, num_ppl));
+                    total_ppl += num_ppl;
+                }
+                BuildingType::ResidentialCommercial(num_ppl) => {
+                    residences.push((b.id, num_ppl));
+                    total_ppl += num_ppl;
+                    workplaces.push(b.id);
+                }
+                BuildingType::Commercial => {
+                    workplaces.push(b.id);
+                }
+                BuildingType::Empty => {}
             }
         }
 
         let mut s = Scenario::empty(map, "random people going to/from work");
+        s.only_seed_buses = None;
         timer.start_iter("create people", total_ppl);
         for (home, num_ppl) in residences {
             for _ in 0..num_ppl {
                 timer.next();
                 // Make a person going from their home to a random workplace, then back again later.
+                
+                // TODO refactor
+                // function or associated item not found in `rand_xorshift::XorShiftRng`
+                // so why it works in buildings.rs?
+                //let mut deterministicRng = XorShiftRng::seed_from_u64(home.0 as u64);
+                //let work = *workplaces.choose(deterministicRng).unwrap();
+
                 let work = *workplaces.choose(rng).unwrap();
                 // Decide mode based on walking distance.
                 let dist = if let Some(path) = map.pathfind(PathRequest {
@@ -454,14 +466,33 @@ impl ScenarioGenerator {
                     // this person.
                     continue;
                 };
-                // Trips over 2 miles will drive 90% of the time, the other 10% will attempt
-                // transit (falling back to a very long walk).
+                if home.0 == work.0 {
+                    // working and living in the same building
+                    continue;
+                }
+                // Longer trips will mostly drive of the time, remaining will attempt
+                // transit (falling back to a very long walk), with some small number of people cycling.
                 // TODO Make this probabilistic
-                let mode = if dist < Distance::miles(1.0) {
+                // TODO - do not select based on distance but select one that is fastest/best in the given situation
+                // excellent bus connection / plenty of parking / cycleways / suitable rail connection
+                // all strongly influence selected mode of transport, distance is not the sole influence
+                let mode = if dist < Distance::miles(0.5) {
                     TripMode::Walk
                 } else if dist < Distance::miles(2.0) {
+                    if rng.gen_bool(0.3) {
+                        // 30%
+                        TripMode::Transit
+                    } else if rng.gen_bool(0.8) {
+                        // 0.7 * 0.8 = 56%
+                        TripMode::Drive
+                    } else {
+                        // 14%
+                        TripMode::Bike
+                    }
+                } else if rng.gen_bool(0.005) {
+                    // low chance for really, really dedicated cyclists
                     TripMode::Bike
-                } else if rng.gen_bool(0.9) {
+                } else if rng.gen_bool(0.7) {
                     TripMode::Drive
                 } else {
                     TripMode::Transit
@@ -470,16 +501,31 @@ impl ScenarioGenerator {
                 // TODO This will cause a single morning and afternoon rush. Outside of these times,
                 // it'll be really quiet. Probably want a normal distribution centered around these
                 // peak times, but with a long tail.
-                let depart_am = rand_time(
+                let mut depart_am = rand_time(
                     rng,
                     Time::START_OF_DAY + Duration::hours(7),
                     Time::START_OF_DAY + Duration::hours(10),
                 );
-                let depart_pm = rand_time(
+                let mut depart_pm = rand_time(
                     rng,
                     Time::START_OF_DAY + Duration::hours(17),
                     Time::START_OF_DAY + Duration::hours(19),
                 );
+
+                if rng.gen_bool(0.1) {
+                    // hacky hack to get some background traffic
+                    // TODO - avoid mutable variable
+                    depart_am = rand_time(
+                        rng,
+                        Time::START_OF_DAY + Duration::hours(0),
+                        Time::START_OF_DAY + Duration::hours(12),
+                    );
+                    depart_pm = rand_time(
+                        rng,
+                        Time::START_OF_DAY + Duration::hours(12),
+                        Time::START_OF_DAY + Duration::hours(24),
+                    );
+                }
 
                 let (goto_work, return_home) = match (
                     SpawnTrip::new(
