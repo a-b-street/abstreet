@@ -2,8 +2,8 @@ use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
-    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, PersonID, Scheduler,
-    TimeInterval, TransitSimState, TripManager, UnzoomedAgent, Vehicle, VehicleType,
+    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PersonID,
+    Scheduler, TimeInterval, TransitSimState, TripManager, UnzoomedAgent, Vehicle, VehicleType,
     WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
@@ -12,8 +12,10 @@ use map_model::{LaneID, Map, Path, PathStep, Traversable};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet, VecDeque};
 
-const TIME_TO_UNPARK: Duration = Duration::const_seconds(10.0);
-const TIME_TO_PARK: Duration = Duration::const_seconds(15.0);
+const TIME_TO_UNPARK_ONSTRET: Duration = Duration::const_seconds(10.0);
+const TIME_TO_PARK_ONSTREET: Duration = Duration::const_seconds(15.0);
+const TIME_TO_UNPARK_OFFSTREET: Duration = Duration::const_seconds(5.0);
+const TIME_TO_PARK_OFFSTREET: Duration = Duration::const_seconds(5.0);
 const TIME_TO_WAIT_AT_STOP: Duration = Duration::const_seconds(10.0);
 
 // TODO Do something else.
@@ -95,10 +97,16 @@ impl DrivingSimState {
                 trip_and_person: params.trip_and_person,
             };
             if let Some(p) = params.maybe_parked_car {
+                let delay = match p.spot {
+                    ParkingSpot::Onstreet(_, _) => TIME_TO_UNPARK_ONSTRET,
+                    ParkingSpot::Offstreet(_, _) | ParkingSpot::Lot(_, _) => {
+                        TIME_TO_UNPARK_OFFSTREET
+                    }
+                };
                 car.state = CarState::Unparking(
                     params.start_dist,
                     p.spot,
-                    TimeInterval::new(now, now + TIME_TO_UNPARK),
+                    TimeInterval::new(now, now + delay),
                 );
             } else {
                 // Have to do this early
@@ -461,11 +469,14 @@ impl DrivingSimState {
                     }
                     Some(ActionAtEnd::StartParking(spot)) => {
                         car.total_blocked_time += now - blocked_since;
-                        car.state = CarState::Parking(
-                            our_dist,
-                            spot,
-                            TimeInterval::new(now, now + TIME_TO_PARK),
-                        );
+                        let delay = match spot {
+                            ParkingSpot::Onstreet(_, _) => TIME_TO_PARK_ONSTREET,
+                            ParkingSpot::Offstreet(_, _) | ParkingSpot::Lot(_, _) => {
+                                TIME_TO_PARK_OFFSTREET
+                            }
+                        };
+                        car.state =
+                            CarState::Parking(our_dist, spot, TimeInterval::new(now, now + delay));
                         // If we don't do this, then we might have another car creep up
                         // behind, see the spot free, and start parking too. This can
                         // happen with multiple lanes and certain vehicle lengths.

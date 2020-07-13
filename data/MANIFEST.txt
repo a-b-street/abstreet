@@ -28,7 +28,7 @@ data/input/seattle/osm/south_seattle.osm,856ba9af0751432d40f51c0bec8a1664,https:
 data/input/seattle/osm/udistrict.osm,184c269bd39ac6d475c1d31b01af824f,https://www.dropbox.com/s/35pu17pckr55p74/udistrict.osm.zip?dl=0
 data/input/seattle/osm/washington-latest.osm.pbf,0db475bae90a383273865215f5b61f15,https://www.dropbox.com/s/lowvuydkyypnjwi/washington-latest.osm.pbf.zip?dl=0
 data/input/seattle/osm/west_seattle.osm,924178166c37e2cc6c284783d27be459,https://www.dropbox.com/s/nkq6xr8jhqk5k9z/west_seattle.osm.zip?dl=0
-data/input/seattle/parcels.bin,05bf59748e15bd4e0c01cc483202a66e,https://www.dropbox.com/s/f1oen08kjcisd72/parcels.bin.zip?dl=0
+data/input/seattle/parcels.bin,58c55a6e18ff3c5e08fa719006b6edf6,https://www.dropbox.com/s/hxc1dbtfpsu6203/parcels.bin.zip?dl=0
 data/input/seattle/parcels_urbansim.txt,db63d7d606e8702d12f9399e87e6a00f,https://www.dropbox.com/s/6g8rbsf200dssj3/parcels_urbansim.txt.zip?dl=0
 data/input/seattle/popdat.bin,ad38e1f20ce71f488112fe81e32798d2,https://www.dropbox.com/s/ajqii1qpfke8063/popdat.bin.zip?dl=0
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
@@ -42,9 +42,9 @@ data/system/maps/montlake.bin,04faf98ee6e6e40998b46d6dffd71288,https://www.dropb
 data/system/maps/south_seattle.bin,d838a10b4f6c3214d9c5764c65b523e3,https://www.dropbox.com/s/2xc7jtauefi08tk/south_seattle.bin.zip?dl=0
 data/system/maps/udistrict.bin,864459a858f573f95937a82080278804,https://www.dropbox.com/s/m8quryc6n0ffo3j/udistrict.bin.zip?dl=0
 data/system/maps/west_seattle.bin,75f3395beeb04bd477faf2c2efdc017e,https://www.dropbox.com/s/wlg18qsw9sewkji/west_seattle.bin.zip?dl=0
-data/system/prebaked_results/lakeslice/weekday.bin,534210d60f264979db9c62e83579bd0e,https://www.dropbox.com/s/5rtozd7zq15a0js/weekday.bin.zip?dl=0
-data/system/prebaked_results/montlake/car vs bike contention.bin,bd7bbdee559245ed5dd85ddd67165cf9,https://www.dropbox.com/s/jefg0ikjy9dsrdd/car%20vs%20bike%20contention.bin.zip?dl=0
-data/system/prebaked_results/montlake/weekday.bin,0cd2262ffebad7f90a001b094a6f5013,https://www.dropbox.com/s/fuqlnv4x6apoeyz/weekday.bin.zip?dl=0
+data/system/prebaked_results/lakeslice/weekday.bin,98964dbbbbb2aaeed77282e6992de60d,https://www.dropbox.com/s/hv1ivrprca3mqeo/weekday.bin.zip?dl=0
+data/system/prebaked_results/montlake/car vs bike contention.bin,1fac82d6dcd567874fd6e0b106956dd9,https://www.dropbox.com/s/jefg0ikjy9dsrdd/car%20vs%20bike%20contention.bin.zip?dl=0
+data/system/prebaked_results/montlake/weekday.bin,1d8387378fd321631e07351252414768,https://www.dropbox.com/s/z2vuz7tmzvzjkbi/weekday.bin.zip?dl=0
 data/system/scenarios/ballard/weekday.bin,5cdb49cad879654f2e070892b6410b6d,https://www.dropbox.com/s/m73hrfjq0vf1n16/weekday.bin.zip?dl=0
 data/system/scenarios/downtown/weekday.bin,fa7c46540dbc31f1c5393e7c8b0a7a78,https://www.dropbox.com/s/1gm7tq7uhllkclo/weekday.bin.zip?dl=0
 data/system/scenarios/huge_seattle/weekday.bin,f0887cf1c2e5fbfbc0453cd33440b7fa,https://www.dropbox.com/s/4xm3d7s167cyw75/weekday.bin.zip?dl=0
