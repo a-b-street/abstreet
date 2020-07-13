@@ -446,6 +446,13 @@ impl ScenarioGenerator {
             for _ in 0..num_ppl {
                 timer.next();
                 // Make a person going from their home to a random workplace, then back again later.
+                
+                // TODO refactor
+                // function or associated item not found in `rand_xorshift::XorShiftRng`
+                // so why it works in buildings.rs?
+                //let mut deterministicRng = XorShiftRng::seed_from_u64(home.0 as u64);
+                //let work = *workplaces.choose(deterministicRng).unwrap();
+
                 let work = *workplaces.choose(rng).unwrap();
                 // Decide mode based on walking distance.
                 let dist = if let Some(path) = map.pathfind(PathRequest {
