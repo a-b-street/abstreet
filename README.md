@@ -99,6 +99,7 @@ Others:
 - Graphic design advice from [Starcat Games](http://starcatgames.com/),
   [Daniel Huffman](https://somethingaboutmaps.wordpress.com/),
   [Brian Prince](http://thebaprince.com/)
+- Character art by [Holly Hansel](http://www.hollyhansel.com/)
 - Lightning-fast pathfinding thanks to
   [fast_paths](https://github.com/easbar/fast_paths) by Andreas Barth
   (<easbar.mail@posteo.net>)

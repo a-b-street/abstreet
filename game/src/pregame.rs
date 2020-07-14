@@ -256,6 +256,7 @@ impl About {
                 Text::from_multiline(vec![
                     Line("A/B STREET").display_title(),
                     Line("Created by Dustin Carlino, UX by Yuwen Li"),
+                    Line("Character art by Holly Hansel"),
                     Line(""),
                     Line(
                         "Data from OpenStreetMap, King County GIS, and Puget Sound Regional \

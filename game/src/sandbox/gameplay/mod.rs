@@ -313,10 +313,18 @@ impl FinalScore {
         Box::new(FinalScore {
             composite: Composite::new(
                 Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "system/assets/characters/boss.svg")
-                        .container()
-                        .outline(10.0, Color::BLACK)
-                        .padding(10),
+                    Widget::draw_batch(
+                        ctx,
+                        GeomBatch::screenspace_svg(
+                            ctx.prerender,
+                            "system/assets/characters/boss.svg",
+                        )
+                        .scale(0.75)
+                        .autocrop(),
+                    )
+                    .container()
+                    .outline(10.0, Color::BLACK)
+                    .padding(10),
                     Widget::col(vec![
                         msg.draw_text(ctx),
                         // TODO Adjust wording

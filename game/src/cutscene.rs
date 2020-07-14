@@ -1,8 +1,8 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
 use ezgui::{
-    hotkey, hotkeys, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, RewriteColor,
-    Text, Widget,
+    hotkey, hotkeys, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    RewriteColor, Text, Widget,
 };
 
 pub struct CutsceneBuilder {
@@ -196,7 +196,15 @@ fn make_panel(
         Widget::custom_col(vec![
             match scenes[idx].layout {
                 Layout::PlayerSpeaking => Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "system/assets/characters/boss.svg"),
+                    Widget::draw_batch(
+                        ctx,
+                        GeomBatch::screenspace_svg(
+                            ctx.prerender,
+                            "system/assets/characters/boss.svg",
+                        )
+                        .scale(0.75)
+                        .autocrop(),
+                    ),
                     Widget::custom_row(vec![
                         scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                         Widget::draw_svg(ctx, "system/assets/characters/player.svg"),
@@ -204,12 +212,28 @@ fn make_panel(
                     .align_right(),
                 ]),
                 Layout::BossSpeaking => Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "system/assets/characters/boss.svg"),
+                    Widget::draw_batch(
+                        ctx,
+                        GeomBatch::screenspace_svg(
+                            ctx.prerender,
+                            "system/assets/characters/boss.svg",
+                        )
+                        .scale(0.75)
+                        .autocrop(),
+                    ),
                     scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                     Widget::draw_svg(ctx, "system/assets/characters/player.svg").align_right(),
                 ]),
                 Layout::Extra(name) => Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "system/assets/characters/boss.svg").align_left(),
+                    Widget::draw_batch(
+                        ctx,
+                        GeomBatch::screenspace_svg(
+                            ctx.prerender,
+                            "system/assets/characters/boss.svg",
+                        )
+                        .scale(0.75)
+                        .autocrop(),
+                    ),
                     Widget::col(vec![
                         Widget::draw_svg(ctx, format!("system/assets/characters/{}.svg", name)),
                         scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
