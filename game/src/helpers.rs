@@ -95,7 +95,7 @@ pub fn nice_map_name(name: &str) -> &str {
         "udistrict" => "University District",
         "west_seattle" => "West Seattle",
         // Outside Seattle
-        "huge_krakow" => "Kraków (entire area)",
+        "huge_krakow" => "Kraków (city center)",
         _ => name,
     }
 }
