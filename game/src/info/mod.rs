@@ -721,20 +721,17 @@ impl DataOptions {
     }
 
     pub fn from_controls(c: &Composite) -> DataOptions {
-        let show_before =
-            c.has_widget("Show before changes") && c.is_checked("Show before changes");
+        let show_before = c.maybe_is_checked("Show before changes").unwrap_or(false);
         let mut disabled_modes = BTreeSet::new();
         for m in TripMode::all() {
             let label = m.noun();
-            if c.has_widget(label) && !c.is_checked(label) {
+            if !c.maybe_is_checked(label).unwrap_or(true) {
                 disabled_modes.insert(m);
             }
         }
         DataOptions {
             show_before,
-            show_end_of_day: show_before
-                && c.has_widget("Show full day")
-                && c.is_checked("Show full day"),
+            show_end_of_day: show_before && c.maybe_is_checked("Show full day").unwrap_or(false),
             disabled_modes,
         }
     }

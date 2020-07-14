@@ -165,7 +165,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
     // Gather raw data
     let mut data = Vec::new();
     for (id, phases) in app.primary.sim.get_analytics().get_all_trip_phases() {
-        let (_, start, end, _) = app.primary.sim.trip_info(id);
+        let (_, start, end, _, _) = app.primary.sim.trip_info(id);
         if !opts.off_map_starts {
             if let TripEndpoint::Border(_, _) = start {
                 continue;

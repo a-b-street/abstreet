@@ -91,6 +91,7 @@ impl TripManager {
         departure: Time,
         start: TripEndpoint,
         mode: TripMode,
+        modified: bool,
         legs: Vec<TripLeg>,
         map: &Map,
     ) -> TripID {
@@ -125,6 +126,7 @@ impl TripManager {
             legs: VecDeque::from(legs),
             start,
             end,
+            modified,
         };
         self.unfinished_trips += 1;
         let person = &mut self.people[trip.person.0];
@@ -855,9 +857,15 @@ impl TripManager {
         std::mem::replace(&mut self.events, Vec::new())
     }
 
-    pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode) {
+    pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode, bool) {
         let t = &self.trips[id.0];
-        (t.departure, t.start.clone(), t.end.clone(), t.mode)
+        (
+            t.departure,
+            t.start.clone(),
+            t.end.clone(),
+            t.mode,
+            t.modified,
+        )
     }
     pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
         let t = &self.trips[id.0];
@@ -1272,6 +1280,7 @@ struct Trip {
     start: TripEndpoint,
     end: TripEndpoint,
     person: PersonID,
+    modified: bool,
 }
 
 impl Trip {

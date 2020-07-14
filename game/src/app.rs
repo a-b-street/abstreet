@@ -522,6 +522,8 @@ pub struct PerMap {
     pub zorder_range: (isize, isize),
     // If we ever left edit mode and resumed without restarting from midnight, this is true.
     pub dirty_from_edits: bool,
+    // Any ScenarioModifiers in effect?
+    pub has_modified_trips: bool,
 }
 
 impl PerMap {
@@ -553,6 +555,7 @@ impl PerMap {
             zorder_range: (low_z, high_z),
             show_zorder: high_z,
             dirty_from_edits: false,
+            has_modified_trips: false,
         }
     }
 

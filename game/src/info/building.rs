@@ -103,7 +103,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
         for t in &person.trips {
             match app.primary.sim.trip_to_agent(*t) {
                 TripResult::TripNotStarted => {
-                    let (start_time, _, _, mode) = app.primary.sim.trip_info(*t);
+                    let (start_time, _, _, mode, _) = app.primary.sim.trip_info(*t);
                     next_trip = Some((start_time, mode));
                     break;
                 }

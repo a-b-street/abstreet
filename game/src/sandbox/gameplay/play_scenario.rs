@@ -11,6 +11,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::Polygon;
+use maplit::btreeset;
 use sim::{ScenarioModifier, TripMode};
 use std::collections::BTreeSet;
 
@@ -23,7 +24,7 @@ pub struct PlayScenario {
 impl PlayScenario {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &mut App,
         name: &String,
         modifiers: Vec<ScenarioModifier>,
     ) -> Box<dyn GameplayState> {
@@ -42,6 +43,10 @@ impl GameplayState for PlayScenario {
         app: &mut App,
         _: &mut SandboxControls,
     ) -> Option<Transition> {
+        // This should really happen in the constructor once, but the old PlayScenario's
+        // on_destroy can wipe this out.
+        app.primary.has_modified_trips = !self.modifiers.is_empty();
+
         match self.top_center.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "change map" => {
@@ -91,6 +96,10 @@ impl GameplayState for PlayScenario {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
+    }
+
+    fn on_destroy(&self, app: &mut App) {
+        app.primary.has_modified_trips = false;
     }
 }
 
@@ -308,7 +317,7 @@ impl ChangeMode {
                     Widget::dropdown(
                         ctx,
                         "to_mode",
-                        TripMode::Drive,
+                        TripMode::Bike,
                         TripMode::all()
                             .into_iter()
                             .map(|m| Choice::new(m.ongoing_verb(), m))
@@ -322,10 +331,10 @@ impl ChangeMode {
                     Spinner::new(ctx, (1, 100), 50).named("pct_ppl"),
                 ]),
                 "Types of trips to convert:".draw_text(ctx),
-                checkbox_per_mode(ctx, app, &BTreeSet::new()),
+                checkbox_per_mode(ctx, app, &btreeset! { TripMode::Drive }),
                 Widget::row(vec![
                     "Departing from:".draw_text(ctx),
-                    AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.3).named("depart from"),
+                    AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.0).named("depart from"),
                 ]),
                 Widget::row(vec![
                     "Departing until:".draw_text(ctx),

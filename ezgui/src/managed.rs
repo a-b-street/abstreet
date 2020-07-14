@@ -794,6 +794,13 @@ impl Composite {
     pub fn is_checked(&self, name: &str) -> bool {
         self.find::<Checkbox>(name).enabled
     }
+    pub fn maybe_is_checked(&self, name: &str) -> Option<bool> {
+        if self.has_widget(name) {
+            Some(self.find::<Checkbox>(name).enabled)
+        } else {
+            None
+        }
+    }
 
     pub fn text_box(&self, name: &str) -> String {
         self.find::<TextBox>(name).get_line()

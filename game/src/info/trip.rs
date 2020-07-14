@@ -50,7 +50,7 @@ pub fn ongoing(
         .sim
         .get_analytics()
         .get_trip_phases(trip, &app.primary.map);
-    let (start_time, _, _, _) = app.primary.sim.trip_info(trip);
+    let (start_time, _, _, _, _) = app.primary.sim.trip_info(trip);
 
     let col_width = 7;
     let props = app.primary.sim.agent_properties(agent);
@@ -143,7 +143,7 @@ pub fn future(
     open_trip: &mut OpenTrip,
     details: &mut Details,
 ) -> Widget {
-    let (start_time, trip_start, trip_end, _) = app.primary.sim.trip_info(trip);
+    let (start_time, trip_start, trip_end, _, _) = app.primary.sim.trip_info(trip);
 
     let mut col = Vec::new();
 
@@ -206,7 +206,7 @@ pub fn finished(
     trip: TripID,
     details: &mut Details,
 ) -> Widget {
-    let (start_time, _, _, _) = app.primary.sim.trip_info(trip);
+    let (start_time, _, _, _, _) = app.primary.sim.trip_info(trip);
     let phases = if open_trips[&trip].show_after {
         app.primary
             .sim
@@ -300,7 +300,7 @@ pub fn finished(
 }
 
 pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
-    let (start_time, trip_start, trip_end, _) = app.primary.sim.trip_info(trip);
+    let (start_time, trip_start, trip_end, _, _) = app.primary.sim.trip_info(trip);
 
     let mut col = vec![Text::from_multiline(vec![
         Line("A glitch in the simulation happened."),
@@ -336,7 +336,7 @@ fn make_timeline(
     let map = &app.primary.map;
     let sim = &app.primary.sim;
     // TODO Repeating stuff
-    let (start_time, trip_start, trip_end, _) = sim.trip_info(trip);
+    let (start_time, trip_start, trip_end, _, _) = sim.trip_info(trip);
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
 
     let start_btn = {

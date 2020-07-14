@@ -138,7 +138,15 @@ impl Scenario {
                     &mut tmp_rng,
                     map,
                 );
-                spawner.schedule_trip(person, t.depart, spec, t.trip.start(map), t.cancelled, map);
+                spawner.schedule_trip(
+                    person,
+                    t.depart,
+                    spec,
+                    t.trip.start(map),
+                    t.cancelled,
+                    t.modified,
+                    map,
+                );
             }
         }
 

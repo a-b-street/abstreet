@@ -964,8 +964,9 @@ impl Sim {
         self.trips.trip_to_agent(id)
     }
 
-    // (start time, start position, end position, trip type)
-    pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode) {
+    // (start time, start position, end position, trip type, modified)
+    // TODO Time for a struct
+    pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode, bool) {
         self.trips.trip_info(id)
     }
     // If trip is finished, returns (total time, total waiting time)

@@ -533,6 +533,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                     },
                     TripEndpoint::Border(lane.src_i, None),
                     false,
+                    false,
                     map,
                 );
             }
@@ -553,6 +554,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         ),
                     },
                     TripEndpoint::Border(lane.src_i, None),
+                    false,
                     false,
                     map,
                 );

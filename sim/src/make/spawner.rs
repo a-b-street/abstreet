@@ -62,7 +62,7 @@ pub enum TripSpec {
 
 // This structure is created temporarily by a Scenario or to interactively spawn agents.
 pub struct TripSpawner {
-    trips: Vec<(PersonID, Time, TripSpec, TripEndpoint, bool)>,
+    trips: Vec<(PersonID, Time, TripSpec, TripEndpoint, bool, bool)>,
 }
 
 impl TripSpawner {
@@ -77,6 +77,7 @@ impl TripSpawner {
         mut spec: TripSpec,
         trip_start: TripEndpoint,
         cancelled: bool,
+        modified: bool,
         map: &Map,
     ) {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
@@ -187,7 +188,7 @@ impl TripSpawner {
         };
 
         self.trips
-            .push((person.id, start_time, spec, trip_start, cancelled));
+            .push((person.id, start_time, spec, trip_start, cancelled, modified));
     }
 
     pub fn finalize(
@@ -223,7 +224,8 @@ impl TripSpawner {
         }
 
         timer.start_iter("spawn trips", paths.len());
-        for ((p, start_time, spec, trip_start, cancelled), maybe_req, maybe_path) in paths {
+        for ((p, start_time, spec, trip_start, cancelled, modified), maybe_req, maybe_path) in paths
+        {
             timer.next();
 
             // TODO clone() is super weird to do here, but we just need to make the borrow checker
@@ -248,6 +250,7 @@ impl TripSpawner {
                         } else {
                             TripMode::Drive
                         },
+                        modified,
                         legs,
                         map,
                     )
@@ -268,6 +271,7 @@ impl TripSpawner {
                         } else {
                             TripMode::Drive
                         },
+                        modified,
                         legs,
                         map,
                     )
@@ -288,6 +292,7 @@ impl TripSpawner {
                         start_time,
                         trip_start,
                         TripMode::Drive,
+                        modified,
                         legs,
                         map,
                     )
@@ -297,6 +302,7 @@ impl TripSpawner {
                     start_time,
                     trip_start,
                     TripMode::Walk,
+                    modified,
                     vec![TripLeg::Walk(goal.clone())],
                     map,
                 ),
@@ -313,7 +319,15 @@ impl TripSpawner {
                         }
                         DrivingGoal::Border(_, _, _) => {}
                     };
-                    trips.new_trip(person.id, start_time, trip_start, TripMode::Bike, legs, map)
+                    trips.new_trip(
+                        person.id,
+                        start_time,
+                        trip_start,
+                        TripMode::Bike,
+                        modified,
+                        legs,
+                        map,
+                    )
                 }
                 TripSpec::UsingTransit {
                     route,
@@ -328,6 +342,7 @@ impl TripSpawner {
                         start_time,
                         trip_start,
                         TripMode::Transit,
+                        modified,
                         vec![
                             TripLeg::Walk(walk_to.clone()),
                             TripLeg::RideBus(route, stop2),
@@ -341,6 +356,7 @@ impl TripSpawner {
                     start_time,
                     trip_start,
                     mode,
+                    modified,
                     vec![TripLeg::Remote(to)],
                     map,
                 ),

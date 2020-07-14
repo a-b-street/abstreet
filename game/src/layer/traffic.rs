@@ -133,8 +133,10 @@ impl Layer for Throughput {
                 _ => unreachable!(),
             },
             None => {
-                let new_compare = self.composite.has_widget("Compare before edits")
-                    && self.composite.is_checked("Compare before edits");
+                let new_compare = self
+                    .composite
+                    .maybe_is_checked("Compare before edits")
+                    .unwrap_or(false);
                 if new_compare != self.compare {
                     *self = Throughput::new(ctx, app, new_compare);
                     self.composite.align_above(ctx, minimap);
@@ -312,8 +314,10 @@ impl Layer for Delay {
                 _ => unreachable!(),
             },
             None => {
-                let new_compare = self.composite.has_widget("Compare before edits")
-                    && self.composite.is_checked("Compare before edits");
+                let new_compare = self
+                    .composite
+                    .maybe_is_checked("Compare before edits")
+                    .unwrap_or(false);
                 if new_compare != self.compare {
                     *self = Delay::new(ctx, app, new_compare);
                     self.composite.align_above(ctx, minimap);

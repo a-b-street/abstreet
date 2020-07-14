@@ -28,6 +28,8 @@ struct Options {
     modes: BTreeSet<TripMode>,
     off_map_starts: bool,
     off_map_ends: bool,
+    unmodified_trips: bool,
+    modified_trips: bool,
     skip: usize,
 }
 
@@ -62,6 +64,8 @@ impl TripTable {
             modes: TripMode::all().into_iter().collect(),
             off_map_starts: true,
             off_map_ends: true,
+            unmodified_trips: true,
+            modified_trips: true,
             skip: 0,
         };
         Box::new(TripTable {
@@ -145,11 +149,23 @@ impl State for TripTable {
                 }
                 let off_map_starts = self.composite.is_checked("starting off-map");
                 let off_map_ends = self.composite.is_checked("ending off-map");
+                let unmodified_trips = self
+                    .composite
+                    .maybe_is_checked("trips unmodified by experiment")
+                    .unwrap_or(true);
+                let modified_trips = self
+                    .composite
+                    .maybe_is_checked("trips modified by experiment")
+                    .unwrap_or(true);
                 if self.opts.off_map_starts != off_map_starts
                     || self.opts.off_map_ends != off_map_ends
+                    || self.opts.unmodified_trips != unmodified_trips
+                    || self.opts.modified_trips != modified_trips
                 {
                     self.opts.off_map_starts = off_map_starts;
                     self.opts.off_map_ends = off_map_ends;
+                    self.opts.unmodified_trips = unmodified_trips;
+                    self.opts.modified_trips = modified_trips;
                     self.opts.skip = 0;
                     self.recalc(ctx, app);
                 }
@@ -173,6 +189,7 @@ impl State for TripTable {
 struct Entry {
     trip: TripID,
     mode: TripMode,
+    modified: bool,
     departure: Time,
     duration_after: Duration,
     duration_before: Duration,
@@ -208,7 +225,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             aborted += 1;
             continue;
         };
-        let (departure, start, end, _) = sim.trip_info(*id);
+        let (departure, start, end, _, modified) = sim.trip_info(*id);
         if !opts.off_map_starts {
             if let TripEndpoint::Border(_, _) = start {
                 continue;
@@ -218,6 +235,12 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             if let TripEndpoint::Border(_, _) = end {
                 continue;
             }
+        }
+        if !opts.unmodified_trips && !modified {
+            continue;
+        }
+        if !opts.modified_trips && modified {
+            continue;
         }
 
         let (_, waiting) = sim.finished_trip_time(*id).unwrap();
@@ -237,6 +260,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             trip: *id,
             mode,
             departure,
+            modified,
             duration_after: *duration_after,
             duration_before,
             waiting,
@@ -263,12 +287,15 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
     // Render data
     let mut rows = Vec::new();
     for x in data.into_iter().skip(opts.skip).take(ROWS) {
-        let mut row = vec![
-            Text::from(Line(x.trip.0.to_string())).render_ctx(ctx),
+        let mut row = vec![Text::from(Line(x.trip.0.to_string())).render_ctx(ctx)];
+        if app.primary.has_modified_trips {
+            row.push(Text::from(Line(if x.modified { "Yes" } else { "No" })).render_ctx(ctx));
+        }
+        row.extend(vec![
             Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render_ctx(ctx),
             Text::from(Line(x.departure.ampm_tostring())).render_ctx(ctx),
             Text::from(Line(x.duration_after.to_string())).render_ctx(ctx),
-        ];
+        ]);
         if app.has_prebaked().is_some() {
             row.push(
                 Text::from_all(cmp_duration_shorter(x.duration_after, x.duration_before))
@@ -312,12 +339,15 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             Btn::text_bg2(name).build_def(ctx, None)
         }
     };
-    let mut headers = vec![
-        Line("Trip ID").draw(ctx),
+    let mut headers = vec![Line("Trip ID").draw(ctx)];
+    if app.primary.has_modified_trips {
+        headers.push(Line("Modified").draw(ctx));
+    }
+    headers.extend(vec![
         Line("Type").draw(ctx),
         btn(SortBy::Departure, "Departure"),
         btn(SortBy::Duration, "Duration"),
-    ];
+    ]);
     if app.has_prebaked().is_some() {
         headers.push(btn(SortBy::RelativeDuration, "Comparison"));
         headers.push(btn(SortBy::PercentChangeDuration, "Normalized"));
@@ -330,6 +360,26 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
     col.push(Widget::row(vec![
         Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts),
         Checkbox::text(ctx, "ending off-map", None, opts.off_map_ends),
+        if app.primary.has_modified_trips {
+            Checkbox::text(
+                ctx,
+                "trips unmodified by experiment",
+                None,
+                opts.unmodified_trips,
+            )
+        } else {
+            Widget::nothing()
+        },
+        if app.primary.has_modified_trips {
+            Checkbox::text(
+                ctx,
+                "trips modified by experiment",
+                None,
+                opts.modified_trips,
+            )
+        } else {
+            Widget::nothing()
+        },
     ]));
     let (_, unfinished, _) = app.primary.sim.num_trips();
     col.push(
@@ -503,7 +553,7 @@ fn preview_route(g: &mut GfxCtx, app: &App, trip: TripID) -> GeomBatch {
         }
     }
 
-    let (_, start, end, _) = app.primary.sim.trip_info(trip);
+    let (_, start, end, _, _) = app.primary.sim.trip_info(trip);
     batch.append(
         GeomBatch::mapspace_svg(g.prerender, "system/assets/timeline/start_pos.svg")
             .scale(10.0)

@@ -117,12 +117,15 @@ pub fn trips(
             }
             TripResult::TripDoesntExist => unreachable!(),
         };
-        let (_, _, _, trip_mode) = sim.trip_info(*t);
+        let (_, _, _, trip_mode, modified) = sim.trip_info(*t);
 
         // TODO Style wrong. Button should be the entire row.
         rows.push(
             Widget::custom_row(vec![
-                format!("Trip {} ", idx + 1).draw_text(ctx).margin_right(21),
+                format!("Trip {} ", idx + 1)
+                    .draw_text(ctx)
+                    .centered_vert()
+                    .margin_right(21),
                 Widget::row(vec![
                     Widget::draw_svg_transform(
                         ctx,
@@ -134,20 +137,31 @@ pub fn trips(
                         },
                         RewriteColor::ChangeAll(color),
                     ),
-                    Line(trip_status).small().fg(color).draw(ctx),
+                    Line(trip_status)
+                        .small()
+                        .fg(color)
+                        .draw(ctx)
+                        .centered_vert(),
                 ])
                 .fully_rounded()
                 .outline(1.0, color)
                 .bg(color.alpha(0.2))
-                .padding(5)
+                .padding(10)
                 .margin_right(21),
+                if modified {
+                    Line("modified").draw(ctx).centered_vert().margin_right(15)
+                } else {
+                    Widget::nothing()
+                },
                 if trip_status == "finished" {
                     if let Some(before) = app
                         .has_prebaked()
                         .and_then(|_| app.prebaked().finished_trip_time(*t))
                     {
                         let (after, _) = app.primary.sim.finished_trip_time(*t).unwrap();
-                        Text::from(cmp_duration_shorter(after, before)).draw(ctx)
+                        Text::from(cmp_duration_shorter(after, before))
+                            .draw(ctx)
+                            .centered_vert()
                     } else {
                         Widget::nothing()
                     }
@@ -172,6 +186,7 @@ pub fn trips(
                     ),
                     None,
                 )
+                .centered_vert()
                 .align_right(),
             ])
             .outline(2.0, Color::WHITE)
@@ -314,7 +329,7 @@ pub fn schedule(
     // TODO Proportional 24-hour timeline would be easier to understand
     let mut last_t = Time::START_OF_DAY;
     for t in &person.trips {
-        let (start_time, from, _, _) = app.primary.sim.trip_info(*t);
+        let (start_time, from, _, _, _) = app.primary.sim.trip_info(*t);
         let at = match from {
             TripEndpoint::Bldg(b) => {
                 let b = app.primary.map.get_b(b);
@@ -334,7 +349,7 @@ pub fn schedule(
         last_t = start_time;
     }
     // Where do they spend the night?
-    let (start_time, _, to, _) = app.primary.sim.trip_info(*person.trips.last().unwrap());
+    let (start_time, _, to, _, _) = app.primary.sim.trip_info(*person.trips.last().unwrap());
     let at = match to {
         TripEndpoint::Bldg(b) => {
             let b = app.primary.map.get_b(b);
