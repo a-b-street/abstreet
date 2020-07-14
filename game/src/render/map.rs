@@ -332,7 +332,7 @@ pub struct AgentCache {
     time: Option<Time>,
     agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
     // agent radius also matters
-    unzoomed: Option<(Time, Option<Distance>, AgentColorScheme, Drawable)>,
+    unzoomed: Option<(Time, Option<Distance>, UnzoomedAgents, Drawable)>,
 }
 
 impl AgentCache {
@@ -385,15 +385,15 @@ impl AgentCache {
         &mut self,
         source: &dyn GetDrawAgents,
         map: &Map,
-        acs: &AgentColorScheme,
+        color_agents: &UnzoomedAgents,
         g: &mut GfxCtx,
         maybe_radius: Option<Distance>,
         debug_all_agents: bool,
         cs: &ColorScheme,
     ) {
         let now = source.time();
-        if let Some((time, r, ref orig_acs, ref draw)) = self.unzoomed {
-            if now == time && maybe_radius == r && acs == orig_acs {
+        if let Some((time, r, ref orig_agents, ref draw)) = self.unzoomed {
+            if now == time && maybe_radius == r && color_agents == orig_agents {
                 g.redraw(draw);
                 return;
             }
@@ -404,7 +404,7 @@ impl AgentCache {
         if let Some(r) = maybe_radius {
             let circle = Circle::new(Pt2D::new(0.0, 0.0), r).to_polygon();
             for agent in source.get_unzoomed_agents(map) {
-                if let Some(color) = acs.color(&agent) {
+                if let Some(color) = color_agents.color(&agent) {
                     batch.push(color, circle.translate(agent.pos.x(), agent.pos.y()));
                 }
             }
@@ -416,7 +416,7 @@ impl AgentCache {
             let ped_circle =
                 Circle::new(Pt2D::new(0.0, 0.0), 4.0 * SIDEWALK_THICKNESS).to_polygon();
             for agent in source.get_unzoomed_agents(map) {
-                if let Some(color) = acs.color(&agent) {
+                if let Some(color) = color_agents.color(&agent) {
                     if agent.vehicle_type.is_some() {
                         batch.push(color, car_circle.translate(agent.pos.x(), agent.pos.y()));
                     } else {
@@ -428,7 +428,7 @@ impl AgentCache {
 
         let draw = g.upload(batch);
         g.redraw(&draw);
-        self.unzoomed = Some((now, maybe_radius, acs.clone(), draw));
+        self.unzoomed = Some((now, maybe_radius, color_agents.clone(), draw));
 
         if debug_all_agents {
             let mut cnt = 0;
@@ -447,61 +447,75 @@ impl AgentCache {
 }
 
 #[derive(PartialEq, Clone)]
-pub struct AgentColorScheme {
-    // TODO Could consider specializing this more?
-    pub rows: Vec<(String, Color, bool)>,
-    // TODO Haaack
-    parking_color: Color,
+pub struct UnzoomedAgents {
+    // TODO Maybe by TripMode
+    pub cars: bool,
+    pub bikes: bool,
+    pub buses_and_trains: bool,
+    pub peds: bool,
+
+    pub car_color: Color,
+    pub parking_color: Color,
+    pub bike_color: Color,
+    pub bus_color: Color,
+    pub ped_color: Color,
 }
 
-impl AgentColorScheme {
-    pub fn new(cs: &ColorScheme) -> AgentColorScheme {
-        AgentColorScheme {
-            rows: vec![
-                ("Car".to_string(), cs.unzoomed_car.alpha(0.8), true),
-                ("Bike".to_string(), cs.unzoomed_bike.alpha(0.8), true),
-                // TODO Bus/Train? Separate category? Space in the minimap is at a premium
-                ("Bus".to_string(), cs.unzoomed_bus.alpha(0.8), true),
-                (
-                    "Pedestrian".to_string(),
-                    cs.unzoomed_pedestrian.alpha(0.8),
-                    true,
-                ),
-            ],
+impl UnzoomedAgents {
+    pub fn new(cs: &ColorScheme) -> UnzoomedAgents {
+        UnzoomedAgents {
+            cars: true,
+            bikes: true,
+            buses_and_trains: true,
+            peds: true,
+
+            car_color: cs.unzoomed_car.alpha(0.8),
             parking_color: cs.parking_trip.alpha(0.8),
+            bike_color: cs.unzoomed_bike.alpha(0.8),
+            bus_color: cs.unzoomed_bus.alpha(0.8),
+            ped_color: cs.unzoomed_pedestrian.alpha(0.8),
         }
     }
 
-    pub fn toggle(&mut self, name: String) {
-        for (n, _, enabled) in &mut self.rows {
-            if &name == n {
-                *enabled = !*enabled;
-                return;
-            }
-        }
-        panic!("Can't toggle category {}", name);
+    pub fn summarize(&self) -> (bool, bool, bool, bool) {
+        (self.cars, self.bikes, self.buses_and_trains, self.peds)
     }
 
     fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
-        let category = match agent.vehicle_type {
-            Some(VehicleType::Car) => "Car".to_string(),
-            Some(VehicleType::Bike) => "Bike".to_string(),
-            Some(VehicleType::Bus) | Some(VehicleType::Train) => "Bus".to_string(),
-            None => "Pedestrian".to_string(),
-        };
-        for (name, color, enabled) in &self.rows {
-            if name == &category {
-                if *enabled {
-                    // TODO Clean up AgentColorScheme
+        match agent.vehicle_type {
+            Some(VehicleType::Car) => {
+                if self.cars {
                     if agent.parking {
-                        return Some(self.parking_color);
+                        Some(self.parking_color)
+                    } else {
+                        Some(self.car_color)
                     }
-                    return Some(*color);
+                } else {
+                    None
                 }
-                return None;
+            }
+            Some(VehicleType::Bike) => {
+                if self.bikes {
+                    Some(self.bike_color)
+                } else {
+                    None
+                }
+            }
+            Some(VehicleType::Bus) | Some(VehicleType::Train) => {
+                if self.buses_and_trains {
+                    Some(self.bus_color)
+                } else {
+                    None
+                }
+            }
+            None => {
+                if self.peds {
+                    Some(self.ped_color)
+                } else {
+                    None
+                }
             }
         }
-        panic!("Unknown AgentColorScheme category {}", category);
     }
 }
 

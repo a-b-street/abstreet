@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::layer::Layer;
 use crate::options::Options;
-use crate::render::{AgentCache, AgentColorScheme, DrawMap, DrawOptions, Renderable};
+use crate::render::{AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents};
 use crate::sandbox::{GameplayMode, TutorialState};
 use abstutil::{MeasureMemory, Timer};
 use ezgui::{EventCtx, GfxCtx, Prerender};
@@ -23,7 +23,7 @@ pub struct App {
     pub cs: ColorScheme,
     // TODO This is a bit weird to keep here; it's controlled almost entirely by the minimap panel.
     // It has no meaning in edit mode.
-    pub agent_cs: AgentColorScheme,
+    pub unzoomed_agents: UnzoomedAgents,
     pub opts: Options,
 
     pub per_obj: PerObjectActions,
@@ -74,7 +74,7 @@ impl App {
         App {
             primary,
             prebaked: None,
-            agent_cs: AgentColorScheme::new(&cs),
+            unzoomed_agents: UnzoomedAgents::new(&cs),
             cs,
             opts,
             per_obj: PerObjectActions::new(),
@@ -218,7 +218,7 @@ impl App {
             cache.draw_unzoomed_agents(
                 source,
                 &self.primary.map,
-                &self.agent_cs,
+                &self.unzoomed_agents,
                 g,
                 if self.opts.large_unzoomed_agents {
                     Some(Distance::meters(10.0) / g.canvas.cam_zoom)

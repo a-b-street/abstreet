@@ -195,15 +195,12 @@ impl Minimap {
             app.primary.show_zorder = self.composite.spinner("zorder");
         }
         // TODO an outcome for a checkbox flipping state could be useful
-        let mut toggle = None;
-        for (label, _, enabled) in &app.agent_cs.rows {
-            if *enabled != self.composite.is_checked(label) {
-                toggle = Some(label.clone());
-                break;
-            }
-        }
-        if let Some(label) = toggle {
-            app.agent_cs.toggle(label);
+        let before = app.unzoomed_agents.summarize();
+        app.unzoomed_agents.cars = self.composite.is_checked("Car");
+        app.unzoomed_agents.bikes = self.composite.is_checked("Bike");
+        app.unzoomed_agents.buses_and_trains = self.composite.is_checked("Bus");
+        app.unzoomed_agents.peds = self.composite.is_checked("Pedestrian");
+        if before != app.unzoomed_agents.summarize() {
             self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
         }
 
@@ -279,7 +276,7 @@ impl Minimap {
         cache.draw_unzoomed_agents(
             &app.primary.sim,
             &app.primary.map,
-            &app.agent_cs,
+            &app.unzoomed_agents,
             g,
             if app.opts.large_unzoomed_agents {
                 Some(Distance::meters(2.0 + (self.zoom_lvl as f64)) / self.zoom)
@@ -431,25 +428,39 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
 }
 
 fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
-    let mut row = Vec::new();
-    for (label, color, enabled) in &app.agent_cs.rows {
-        row.push(Checkbox::colored(ctx, label, *color, *enabled).margin_right(8));
-        row.push(Line(label).draw(ctx).margin_right(24));
-    }
-    let last = row.pop().unwrap();
-    row.push(last.margin_right(0));
-    Widget::custom_row(row)
+    let a = &app.unzoomed_agents;
+    Widget::custom_row(vec![
+        Checkbox::colored(ctx, "Car", a.car_color, a.cars).margin_right(8),
+        Line("Car").draw(ctx).margin_right(8),
+        Widget::draw_svg(ctx, "system/assets/timeline/parking.svg").margin_right(24),
+        Checkbox::colored(ctx, "Bike", a.bike_color, a.bikes).margin_right(8),
+        Line("Bike").draw(ctx).margin_right(24),
+        Checkbox::colored(ctx, "Bus", a.bus_color, a.buses_and_trains).margin_right(8),
+        Line("Bus").draw(ctx).margin_right(24),
+        Checkbox::colored(ctx, "Pedestrian", a.ped_color, a.peds).margin_right(8),
+        Line("Pedestrian").draw(ctx),
+    ])
 }
 
 fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
-    let mut col = Vec::new();
-
-    for (label, color, enabled) in &app.agent_cs.rows {
-        let mut row = Vec::new();
-        row.push(Checkbox::colored(ctx, label, *color, *enabled).margin_right(8));
-        row.push(Line(label).draw(ctx));
-        col.push(Widget::custom_row(row));
-    }
-
-    Widget::col(col)
+    let a = &app.unzoomed_agents;
+    Widget::col(vec![
+        Widget::custom_row(vec![
+            Checkbox::colored(ctx, "Car", a.car_color, a.cars).margin_right(8),
+            Line("Car").draw(ctx).margin_right(8),
+            Widget::draw_svg(ctx, "system/assets/timeline/parking.svg").margin_right(24),
+        ]),
+        Widget::custom_row(vec![
+            Checkbox::colored(ctx, "Bike", a.bike_color, a.bikes).margin_right(8),
+            Line("Bike").draw(ctx),
+        ]),
+        Widget::custom_row(vec![
+            Checkbox::colored(ctx, "Bus", a.bus_color, a.buses_and_trains).margin_right(8),
+            Line("Bus").draw(ctx),
+        ]),
+        Widget::custom_row(vec![
+            Checkbox::colored(ctx, "Pedestrian", a.ped_color, a.peds).margin_right(8),
+            Line("Pedestrian").draw(ctx),
+        ]),
+    ])
 }

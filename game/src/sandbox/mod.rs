@@ -17,7 +17,7 @@ use crate::helpers::ID;
 use crate::layer::PickLayer;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::MainMenu;
-use crate::render::AgentColorScheme;
+use crate::render::UnzoomedAgents;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
     Key, Line, Outcome, Text, TextExt, UpdateType, VerticalAlignment, Widget, Wizard,
@@ -231,7 +231,7 @@ impl State for SandboxMode {
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
         app.layer = None;
-        app.agent_cs = AgentColorScheme::new(&app.cs);
+        app.unzoomed_agents = UnzoomedAgents::new(&app.cs);
         self.gameplay.on_destroy(app);
     }
 }
