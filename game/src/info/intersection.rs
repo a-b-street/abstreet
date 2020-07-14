@@ -79,6 +79,7 @@ pub fn traffic(
     rows.push(throughput(
         ctx,
         app,
+        "Number of crossing trips per hour",
         move |a| {
             if a.intersection_thruput.raw.is_empty() {
                 a.intersection_thruput.count_per_hour(id, time)
@@ -187,6 +188,32 @@ pub fn current_demand(
     rows
 }
 
+pub fn arrivals(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: IntersectionID,
+    opts: &DataOptions,
+) -> Vec<Widget> {
+    let mut rows = header(
+        ctx,
+        app,
+        details,
+        id,
+        Tab::IntersectionArrivals(id, opts.clone()),
+    );
+
+    rows.push(throughput(
+        ctx,
+        app,
+        "Number of in-bound trips from this border",
+        move |_| app.primary.sim.all_arrivals_at_border(id),
+        opts,
+    ));
+
+    rows
+}
+
 // TODO a fan chart might be nicer
 fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) -> Widget {
     let data = if opts.show_before {
@@ -267,6 +294,12 @@ fn header(
         if i.is_traffic_signal() {
             tabs.push(("Delay", Tab::IntersectionDelay(id, DataOptions::new())));
             tabs.push(("Current demand", Tab::IntersectionDemand(id)));
+        }
+        if i.is_border() && !i.outgoing_lanes.is_empty() {
+            tabs.push((
+                "Arrivals",
+                Tab::IntersectionArrivals(id, DataOptions::new()),
+            ));
         }
         tabs
     }));

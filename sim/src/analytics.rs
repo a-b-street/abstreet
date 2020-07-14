@@ -649,13 +649,13 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
     }
 }
 
-struct Window {
+pub struct Window {
     times: VecDeque<Time>,
     window_size: Duration,
 }
 
 impl Window {
-    fn new(window_size: Duration) -> Window {
+    pub fn new(window_size: Duration) -> Window {
         Window {
             times: VecDeque::new(),
             window_size,
@@ -663,13 +663,13 @@ impl Window {
     }
 
     // Returns the count at time
-    fn add(&mut self, time: Time) -> usize {
+    pub fn add(&mut self, time: Time) -> usize {
         self.times.push_back(time);
         self.count(time)
     }
 
     // Grab the count at this time, but don't add a new time
-    fn count(&mut self, end: Time) -> usize {
+    pub fn count(&mut self, end: Time) -> usize {
         while !self.times.is_empty() && end - *self.times.front().unwrap() > self.window_size {
             self.times.pop_front();
         }

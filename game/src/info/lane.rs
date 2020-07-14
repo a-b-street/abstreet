@@ -175,6 +175,7 @@ pub fn traffic(
     rows.push(throughput(
         ctx,
         app,
+        "Number of crossing trips per hour",
         move |a| {
             if a.road_thruput.raw.is_empty() {
                 a.road_thruput.count_per_hour(r, time)

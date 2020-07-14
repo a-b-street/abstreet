@@ -1,3 +1,4 @@
+use crate::analytics::Window;
 use crate::{
     AgentID, AlertLocation, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents, IntersectionSimState, OrigPersonID,
@@ -1156,6 +1157,39 @@ impl Sim {
     pub fn current_phase_and_remaining_time(&self, i: IntersectionID) -> (usize, Duration) {
         self.intersections
             .current_phase_and_remaining_time(self.time, i)
+    }
+
+    // TODO This is an awkward copy of raw_throughput
+    pub fn all_arrivals_at_border(&self, i: IntersectionID) -> Vec<(TripMode, Vec<(Time, usize)>)> {
+        let window_size = Duration::hours(1);
+        let mut pts_per_mode: BTreeMap<TripMode, Vec<(Time, usize)>> = BTreeMap::new();
+        let mut windows_per_mode: BTreeMap<TripMode, Window> = BTreeMap::new();
+        for mode in TripMode::all() {
+            pts_per_mode.insert(mode, vec![(Time::START_OF_DAY, 0)]);
+            windows_per_mode.insert(mode, Window::new(window_size));
+        }
+
+        for (t, m) in self.trips.all_arrivals_at_border(i) {
+            let count = windows_per_mode.get_mut(&m).unwrap().add(t);
+            pts_per_mode.get_mut(&m).unwrap().push((t, count));
+        }
+
+        for (m, pts) in pts_per_mode.iter_mut() {
+            let mut window = windows_per_mode.remove(m).unwrap();
+
+            // Add a drop-off after window_size (+ a little epsilon!)
+            let end = self.get_end_of_day();
+            let t = (pts.last().unwrap().0 + window_size + Duration::seconds(0.1)).min(end);
+            if pts.last().unwrap().0 != t {
+                pts.push((t, window.count(t)));
+            }
+
+            if pts.last().unwrap().0 != end {
+                pts.push((end, window.count(end)));
+            }
+        }
+
+        pts_per_mode.into_iter().collect()
     }
 }
 

@@ -74,6 +74,7 @@ pub enum Tab {
     IntersectionTraffic(IntersectionID, DataOptions),
     IntersectionDelay(IntersectionID, DataOptions),
     IntersectionDemand(IntersectionID),
+    IntersectionArrivals(IntersectionID, DataOptions),
 
     LaneInfo(LaneID),
     LaneDebug(LaneID),
@@ -149,7 +150,8 @@ impl Tab {
             Tab::IntersectionInfo(i)
             | Tab::IntersectionTraffic(i, _)
             | Tab::IntersectionDelay(i, _)
-            | Tab::IntersectionDemand(i) => Some(ID::Intersection(*i)),
+            | Tab::IntersectionDemand(i)
+            | Tab::IntersectionArrivals(i, _) => Some(ID::Intersection(*i)),
             Tab::LaneInfo(l) | Tab::LaneDebug(l) | Tab::LaneTraffic(l, _) => Some(ID::Lane(*l)),
         }
     }
@@ -159,6 +161,7 @@ impl Tab {
         match self {
             Tab::IntersectionTraffic(_, _)
             | Tab::IntersectionDelay(_, _)
+            | Tab::IntersectionArrivals(_, _)
             | Tab::LaneTraffic(_, _) => {}
             _ => {
                 return None;
@@ -169,6 +172,7 @@ impl Tab {
         match new_tab {
             Tab::IntersectionTraffic(_, ref mut opts)
             | Tab::IntersectionDelay(_, ref mut opts)
+            | Tab::IntersectionArrivals(_, ref mut opts)
             | Tab::LaneTraffic(_, ref mut opts) => {
                 *opts = DataOptions::from_controls(c);
             }
@@ -241,6 +245,10 @@ impl InfoPanel {
             }
             Tab::IntersectionDemand(i) => (
                 intersection::current_demand(ctx, app, &mut details, i),
+                false,
+            ),
+            Tab::IntersectionArrivals(i, ref opts) => (
+                intersection::arrivals(ctx, app, &mut details, i, opts),
                 false,
             ),
             Tab::LaneInfo(l) => (lane::info(ctx, app, &mut details, l), true),
@@ -511,6 +519,7 @@ fn make_table<I: Into<String>>(
 fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
     ctx: &EventCtx,
     app: &App,
+    title: &str,
     get_data: F,
     opts: &DataOptions,
 ) -> Widget {
@@ -536,9 +545,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
     let mut plot_opts = PlotOptions::filterable();
     plot_opts.disabled = opts.disabled_series();
     Widget::col(vec![
-        Line("Number of crossing agents per hour")
-            .small_heading()
-            .draw(ctx),
+        Line(title).small_heading().draw(ctx),
         LinePlot::new(ctx, series, plot_opts),
     ])
     .padding(10)
