@@ -38,6 +38,19 @@ pub struct IndividTrip {
     pub depart: Time,
     pub trip: SpawnTrip,
     pub cancelled: bool,
+    // Did a ScenarioModifier affect this?
+    pub modified: bool,
+}
+
+impl IndividTrip {
+    pub fn new(depart: Time, trip: SpawnTrip) -> IndividTrip {
+        IndividTrip {
+            depart,
+            trip,
+            cancelled: false,
+            modified: false,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

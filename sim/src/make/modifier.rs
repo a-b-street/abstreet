@@ -45,6 +45,7 @@ impl ScenarioModifier {
                         if let Some(new) =
                             SpawnTrip::new(trip.trip.start(map), trip.trip.end(map), *to_mode, map)
                         {
+                            trip.modified = true;
                             trip.trip = new;
                         }
                     }
@@ -92,11 +93,9 @@ fn repeat_days(mut s: Scenario, days: usize) -> Scenario {
         let mut offset = Duration::ZERO;
         for _ in 0..days {
             for trip in &person.trips {
-                trips.push(IndividTrip {
-                    depart: trip.depart + offset,
-                    trip: trip.trip.clone(),
-                    cancelled: false,
-                });
+                let mut new = IndividTrip::new(trip.depart + offset, trip.trip.clone());
+                new.modified = true;
+                trips.push(new);
             }
             offset += Duration::hours(24);
         }
@@ -112,6 +111,7 @@ fn cancel_people(mut s: Scenario, pct: usize, rng: &mut XorShiftRng) -> Scenario
             // TODO It's not obvious how to cancel individual trips. How are later trips affected?
             // What if a car doesn't get moved to another place?
             for trip in &mut person.trips {
+                trip.modified = true;
                 trip.cancelled = true;
             }
         }

@@ -262,11 +262,7 @@ impl State for AgentSpawner {
                             scenario.people.push(PersonSpec {
                                 id: PersonID(app.primary.sim.get_all_people().len() + i),
                                 orig_id: None,
-                                trips: vec![IndividTrip {
-                                    depart: app.primary.sim.time(),
-                                    trip,
-                                    cancelled: false,
-                                }],
+                                trips: vec![IndividTrip::new(app.primary.sim.time(), trip)],
                             });
                         }
                     }

@@ -267,11 +267,7 @@ pub fn make_weekday_scenario(
     {
         if let Some(trip) = trip {
             let idx = individ_trips.len();
-            individ_trips.push(Some(IndividTrip {
-                depart,
-                trip,
-                cancelled: false,
-            }));
+            individ_trips.push(Some(IndividTrip::new(depart, trip)));
             trips_per_person.insert(person, (seq, idx));
         }
     }
@@ -339,11 +335,7 @@ pub fn make_weekday_scenario_with_everyone(
             mode: orig_trip.mode,
         };
         let idx = individ_trips.len();
-        individ_trips.push(Some(IndividTrip {
-            depart: orig_trip.depart_at,
-            trip,
-            cancelled: false,
-        }));
+        individ_trips.push(Some(IndividTrip::new(orig_trip.depart_at, trip)));
         trips_per_person.insert(orig_trip.person, (orig_trip.seq, idx));
     }
 

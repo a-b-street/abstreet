@@ -185,11 +185,10 @@ impl SpawnOverTime {
                 scenario.people.push(PersonSpec {
                     id,
                     orig_id: None,
-                    trips: vec![IndividTrip {
+                    trips: vec![IndividTrip::new(
                         depart,
-                        trip: SpawnTrip::UsingParkedCar(from_bldg, goal),
-                        cancelled: false,
-                    }],
+                        SpawnTrip::UsingParkedCar(from_bldg, goal),
+                    )],
                 });
                 return;
             }
@@ -205,11 +204,10 @@ impl SpawnOverTime {
                 scenario.people.push(PersonSpec {
                     id,
                     orig_id: None,
-                    trips: vec![IndividTrip {
+                    trips: vec![IndividTrip::new(
                         depart,
-                        trip: SpawnTrip::UsingBike(start_spot, goal),
-                        cancelled: false,
-                    }],
+                        SpawnTrip::UsingBike(start_spot, goal),
+                    )],
                 });
                 return;
             }
@@ -230,11 +228,10 @@ impl SpawnOverTime {
                     scenario.people.push(PersonSpec {
                         id,
                         orig_id: None,
-                        trips: vec![IndividTrip {
+                        trips: vec![IndividTrip::new(
                             depart,
-                            trip: SpawnTrip::UsingTransit(start_spot, goal, route, stop1, stop2),
-                            cancelled: false,
-                        }],
+                            SpawnTrip::UsingTransit(start_spot, goal, route, stop1, stop2),
+                        )],
                     });
                     return;
                 }
@@ -243,11 +240,10 @@ impl SpawnOverTime {
             scenario.people.push(PersonSpec {
                 id,
                 orig_id: None,
-                trips: vec![IndividTrip {
+                trips: vec![IndividTrip::new(
                     depart,
-                    trip: SpawnTrip::JustWalking(start_spot, goal),
-                    cancelled: false,
-                }],
+                    SpawnTrip::JustWalking(start_spot, goal),
+                )],
             });
             return;
         }
@@ -293,17 +289,10 @@ impl BorderSpawnOverTime {
                         scenario.people.push(PersonSpec {
                             id,
                             orig_id: None,
-                            trips: vec![IndividTrip {
+                            trips: vec![IndividTrip::new(
                                 depart,
-                                trip: SpawnTrip::UsingTransit(
-                                    start.clone(),
-                                    goal,
-                                    route,
-                                    stop1,
-                                    stop2,
-                                ),
-                                cancelled: false,
-                            }],
+                                SpawnTrip::UsingTransit(start.clone(), goal, route, stop1, stop2),
+                            )],
                         });
                         continue;
                     }
@@ -312,11 +301,10 @@ impl BorderSpawnOverTime {
                 scenario.people.push(PersonSpec {
                     id,
                     orig_id: None,
-                    trips: vec![IndividTrip {
+                    trips: vec![IndividTrip::new(
                         depart,
-                        trip: SpawnTrip::JustWalking(start.clone(), goal),
-                        cancelled: false,
-                    }],
+                        SpawnTrip::JustWalking(start.clone(), goal),
+                    )],
                 });
             }
         }
@@ -338,16 +326,15 @@ impl BorderSpawnOverTime {
                 scenario.people.push(PersonSpec {
                     id,
                     orig_id: None,
-                    trips: vec![IndividTrip {
+                    trips: vec![IndividTrip::new(
                         depart,
-                        trip: SpawnTrip::FromBorder {
+                        SpawnTrip::FromBorder {
                             dr: self.start_from_border,
                             goal,
                             is_bike: constraints == PathConstraints::Bike,
                             origin: None,
                         },
-                        cancelled: false,
-                    }],
+                    )],
                 });
             }
         }
@@ -550,16 +537,8 @@ impl ScenarioGenerator {
                     id: PersonID(s.people.len()),
                     orig_id: None,
                     trips: vec![
-                        IndividTrip {
-                            depart: depart_am,
-                            trip: goto_work,
-                            cancelled: false,
-                        },
-                        IndividTrip {
-                            depart: depart_pm,
-                            trip: return_home,
-                            cancelled: false,
-                        },
+                        IndividTrip::new(depart_am, goto_work),
+                        IndividTrip::new(depart_pm, return_home),
                     ],
                 });
             }

@@ -1074,9 +1074,9 @@ impl TutorialState {
                     scenario.people.push(PersonSpec {
                         id: PersonID(0),
                         orig_id: None,
-                        trips: vec![IndividTrip {
-                            depart: Time::START_OF_DAY,
-                            trip: SpawnTrip::VehicleAppearing {
+                        trips: vec![IndividTrip::new(
+                            Time::START_OF_DAY,
+                            SpawnTrip::VehicleAppearing {
                                 start: Position::new(
                                     start_lane,
                                     map.get_l(start_lane).length() * 0.8,
@@ -1084,17 +1084,16 @@ impl TutorialState {
                                 goal: DrivingGoal::ParkNear(goal_bldg),
                                 is_bike: false,
                             },
-                            cancelled: false,
-                        }],
+                        )],
                     });
                     // Will definitely get there first
                     for i in 0..map.get_b(goal_bldg).parking.as_ref().unwrap().num_spots {
                         scenario.people.push(PersonSpec {
                             id: PersonID(i + 1),
                             orig_id: None,
-                            trips: vec![IndividTrip {
-                                depart: Time::START_OF_DAY,
-                                trip: SpawnTrip::VehicleAppearing {
+                            trips: vec![IndividTrip::new(
+                                Time::START_OF_DAY,
+                                SpawnTrip::VehicleAppearing {
                                     start: Position::new(
                                         lane_near_bldg,
                                         map.get_l(lane_near_bldg).length() / 2.0,
@@ -1102,8 +1101,7 @@ impl TutorialState {
                                     goal: DrivingGoal::ParkNear(goal_bldg),
                                     is_bike: false,
                                 },
-                                cancelled: false,
-                            }],
+                            )],
                         });
                     }
                     let mut rng = app.primary.current_flags.sim_flags.make_rng();
