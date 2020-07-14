@@ -1,4 +1,5 @@
 use crate::app::App;
+use crate::edit::select::RoadSelector;
 use crate::edit::{apply_map_edits, change_speed_limit, try_change_lt};
 use crate::game::{msg, State, Transition};
 use ezgui::{
@@ -7,15 +8,105 @@ use ezgui::{
 };
 use geom::Speed;
 use map_model::{EditCmd, LaneType, RoadID};
+use std::collections::BTreeSet;
 
-pub struct BulkEdit {
+pub struct BulkSelect {
+    composite: Composite,
+    selector: RoadSelector,
+}
+
+impl BulkSelect {
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+        let selector = RoadSelector::new(app, BTreeSet::new());
+        let composite = make_select_composite(ctx, app, &selector);
+        Box::new(BulkSelect {
+            composite,
+            selector,
+        })
+    }
+}
+
+fn make_select_composite(ctx: &mut EventCtx, app: &App, selector: &RoadSelector) -> Composite {
+    Composite::new(Widget::col(vec![
+        Line("Edit many roads").small_heading().draw(ctx),
+        selector.make_controls(ctx),
+        Widget::row(vec![
+            if selector.roads.is_empty() {
+                Btn::text_fg("Edit 0 roads").inactive(ctx)
+            } else {
+                Btn::text_fg(format!("Edit {} roads", selector.roads.len())).build(
+                    ctx,
+                    "edit roads",
+                    hotkey(Key::E),
+                )
+            },
+            if app.opts.dev {
+                Btn::text_fg(format!(
+                    "Export {} roads to shared-row",
+                    selector.roads.len()
+                ))
+                .build(ctx, "export roads to shared-row", None)
+            } else {
+                Widget::nothing()
+            },
+            Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
+        ])
+        .evenly_spaced(),
+    ]))
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx)
+}
+
+impl State for BulkSelect {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "Cancel" => {
+                    return Transition::Pop;
+                }
+                "edit roads" => {
+                    return Transition::Replace(crate::edit::bulk::BulkEdit::new(
+                        ctx,
+                        self.selector.roads.iter().cloned().collect(),
+                        self.selector.preview.take().unwrap(),
+                    ));
+                }
+                "export roads to shared-row" => {
+                    crate::debug::shared_row::export(
+                        self.selector.roads.iter().cloned().collect(),
+                        &app.primary.map,
+                    );
+                }
+                x => {
+                    if self.selector.event(ctx, app, Some(x)) {
+                        self.composite = make_select_composite(ctx, app, &self.selector);
+                    }
+                }
+            },
+            None => {
+                if self.selector.event(ctx, app, None) {
+                    self.composite = make_select_composite(ctx, app, &self.selector);
+                }
+            }
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.composite.draw(g);
+        self.selector.draw(g, app, true);
+    }
+}
+
+struct BulkEdit {
     composite: Composite,
     roads: Vec<RoadID>,
     preview: Drawable,
 }
 
 impl BulkEdit {
-    pub fn new(ctx: &mut EventCtx, roads: Vec<RoadID>, preview: Drawable) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, roads: Vec<RoadID>, preview: Drawable) -> Box<dyn State> {
         Box::new(BulkEdit {
             composite: Composite::new(Widget::col(vec![
                 Line(format!("Editing {} roads", roads.len()))

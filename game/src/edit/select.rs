@@ -1,21 +1,16 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::game::{State, Transition};
 use crate::helpers::{intersections_from_roads, ID};
-use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, RewriteColor, VerticalAlignment, Widget,
-};
+use ezgui::{hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
 use geom::Distance;
 use map_model::{IntersectionID, Map, RoadID};
 use petgraph::graphmap::UnGraphMap;
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 
-pub struct BulkSelect {
-    composite: Composite,
-    roads: BTreeSet<RoadID>,
-    preview: Option<Drawable>,
+pub struct RoadSelector {
+    pub roads: BTreeSet<RoadID>,
+    pub preview: Option<Drawable>,
     mode: Mode,
     dragging: bool,
 }
@@ -30,16 +25,65 @@ pub enum Mode {
     Erase,
 }
 
-impl BulkSelect {
-    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+impl RoadSelector {
+    pub fn new(app: &mut App, roads: BTreeSet<RoadID>) -> RoadSelector {
         app.primary.current_selection = None;
-        Box::new(BulkSelect {
-            composite: make_composite(ctx, app, &Mode::Paint, &BTreeSet::new()),
-            roads: BTreeSet::new(),
+        RoadSelector {
+            roads,
             preview: None,
             mode: Mode::Paint,
             dragging: false,
-        })
+        }
+    }
+
+    pub fn make_controls(&self, ctx: &mut EventCtx) -> Widget {
+        Widget::custom_row(vec![
+            if let Mode::Paint = self.mode {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "system/assets/tools/pencil.svg",
+                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                )
+            } else {
+                Btn::svg_def("system/assets/tools/pencil.svg").build(ctx, "paint", hotkey(Key::P))
+            },
+            if let Mode::Erase = self.mode {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "system/assets/tools/eraser.svg",
+                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                )
+            } else {
+                Btn::svg_def("system/assets/tools/eraser.svg").build(
+                    ctx,
+                    "erase",
+                    hotkey(Key::Backspace),
+                )
+            },
+            if let Mode::Route { .. } = self.mode {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "system/assets/timeline/start_pos.svg",
+                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                )
+            } else {
+                Btn::svg_def("system/assets/timeline/start_pos.svg").build(
+                    ctx,
+                    "select along route",
+                    hotkey(Key::R),
+                )
+            },
+            if let Mode::Pan = self.mode {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "system/assets/tools/pan.svg",
+                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                )
+            } else {
+                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", hotkey(Key::Escape))
+            },
+        ])
+        .evenly_spaced()
     }
 
     fn roads_changed(&mut self, ctx: &mut EventCtx, app: &App) {
@@ -60,12 +104,10 @@ impl BulkSelect {
             );
         }
         self.preview = Some(ctx.upload(batch));
-        self.composite = make_composite(ctx, app, &self.mode, &self.roads);
     }
-}
 
-impl State for BulkSelect {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+    // Pass it Outcome::Clicked. Returns true if anything changed.
+    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App, clicked: Option<&str>) -> bool {
         if ctx.redo_mouseover() {
             app.primary.current_selection = app.calculate_current_selection(
                 ctx,
@@ -138,27 +180,28 @@ impl State for BulkSelect {
                 };
                 if change {
                     self.roads_changed(ctx, app);
+                    return true;
                 }
             }
         }
 
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+        match clicked {
+            Some(x) => match x {
                 "paint" => {
                     self.dragging = false;
                     self.mode = Mode::Paint;
-                    self.composite = make_composite(ctx, app, &self.mode, &self.roads);
+                    return true;
                 }
                 "erase" => {
                     self.dragging = false;
                     self.mode = Mode::Erase;
-                    self.composite = make_composite(ctx, app, &self.mode, &self.roads);
+                    return true;
                 }
                 "pan" => {
                     app.primary.current_selection = None;
                     self.dragging = false;
                     self.mode = Mode::Pan;
-                    self.composite = make_composite(ctx, app, &self.mode, &self.roads);
+                    return true;
                 }
                 "select along route" => {
                     app.primary.current_selection = None;
@@ -167,23 +210,7 @@ impl State for BulkSelect {
                         i1: None,
                         preview_path: None,
                     };
-                    self.composite = make_composite(ctx, app, &self.mode, &self.roads);
-                }
-                "Cancel" => {
-                    return Transition::Pop;
-                }
-                "edit roads" => {
-                    return Transition::Replace(crate::edit::bulk::BulkEdit::new(
-                        ctx,
-                        self.roads.iter().cloned().collect(),
-                        self.preview.take().unwrap(),
-                    ));
-                }
-                "export roads to shared-row" => {
-                    crate::debug::shared_row::export(
-                        self.roads.iter().cloned().collect(),
-                        &app.primary.map,
-                    );
+                    return true;
                 }
                 _ => unreachable!(),
             },
@@ -243,6 +270,7 @@ impl State for BulkSelect {
                         self.roads.extend(roads);
                         self.mode = Mode::Pan;
                         self.roads_changed(ctx, app);
+                        return true;
                     }
                 } else {
                     *preview_path = None;
@@ -250,13 +278,14 @@ impl State for BulkSelect {
             }
         }
 
-        Transition::Keep
+        false
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
-        if let Some(ref p) = self.preview {
-            g.redraw(p);
+    pub fn draw(&self, g: &mut GfxCtx, app: &App, show_preview: bool) {
+        if show_preview {
+            if let Some(ref p) = self.preview {
+                g.redraw(p);
+            }
         }
         if g.canvas.get_cursor_in_map_space().is_some() {
             if let Some(cursor) = match self.mode {
@@ -292,88 +321,6 @@ impl State for BulkSelect {
 
         CommonState::draw_osd(g, app);
     }
-}
-
-fn make_composite(
-    ctx: &mut EventCtx,
-    app: &App,
-    mode: &Mode,
-    roads: &BTreeSet<RoadID>,
-) -> Composite {
-    Composite::new(Widget::col(vec![
-        Line("Edit many roads").small_heading().draw(ctx),
-        Widget::custom_row(vec![
-            if let Mode::Paint = mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/pencil.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                Btn::svg_def("system/assets/tools/pencil.svg").build(ctx, "paint", hotkey(Key::P))
-            },
-            if let Mode::Erase = mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/eraser.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                Btn::svg_def("system/assets/tools/eraser.svg").build(
-                    ctx,
-                    "erase",
-                    hotkey(Key::Backspace),
-                )
-            },
-            if let Mode::Route { .. } = mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/timeline/start_pos.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                Btn::svg_def("system/assets/timeline/start_pos.svg").build(
-                    ctx,
-                    "select along route",
-                    hotkey(Key::R),
-                )
-            },
-            if let Mode::Pan = mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/pan.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", hotkey(Key::Escape))
-            },
-        ])
-        .evenly_spaced(),
-        Widget::row(vec![
-            if roads.is_empty() {
-                Btn::text_fg("Edit 0 roads").inactive(ctx)
-            } else {
-                Btn::text_fg(format!("Edit {} roads", roads.len())).build(
-                    ctx,
-                    "edit roads",
-                    hotkey(Key::E),
-                )
-            },
-            if app.opts.dev {
-                Btn::text_fg(format!("Export {} roads to shared-row", roads.len())).build(
-                    ctx,
-                    "export roads to shared-row",
-                    None,
-                )
-            } else {
-                Widget::nothing()
-            },
-            Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
-        ])
-        .evenly_spaced(),
-    ]))
-    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-    .build(ctx)
 }
 
 // Simple search along undirected roads

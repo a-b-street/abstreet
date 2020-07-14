@@ -160,7 +160,7 @@ impl State for EditMode {
         match self.top_center.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "bulk edit" => {
-                    return Transition::Push(select::BulkSelect::new(ctx, app));
+                    return Transition::Push(bulk::BulkSelect::new(ctx, app));
                 }
                 "finish editing" => {
                     return self.quit(ctx, app);
