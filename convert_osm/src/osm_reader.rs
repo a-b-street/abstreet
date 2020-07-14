@@ -1,4 +1,4 @@
-use abstutil::{FileWithProgress, Timer};
+use abstutil::{FileWithProgress, Tags, Timer};
 use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use map_model::raw::{
     OriginalBuilding, RawArea, RawBuilding, RawBusRoute, RawBusStop, RawMap, RawParkingLot,
@@ -72,7 +72,7 @@ pub fn extract_osm(
         osm_node_ids.insert(pt.to_hashable(), node.id);
 
         let tags = tags_to_map(&node.tags);
-        if tags.get(osm::HIGHWAY) == Some(&"traffic_signals".to_string()) {
+        if tags.is(osm::HIGHWAY, "traffic_signals") {
             traffic_signals.insert(pt.to_hashable());
         }
         if let Some(amenity) = tags.get("amenity") {
@@ -118,21 +118,21 @@ pub fn extract_osm(
         }
         let pts = map.gps_bounds.convert(&gps_pts);
         let mut tags = tags_to_map(&way.tags);
-        tags.insert(osm::OSM_WAY_ID.to_string(), way.id.to_string());
+        tags.insert(osm::OSM_WAY_ID, way.id.to_string());
 
         if is_road(&mut tags) {
             // TODO Hardcoding these overrides. OSM is correct, these don't have
             // sidewalks; there's a crosswalk mapped. But until we can snap sidewalks properly, do
             // this to prevent the sidewalks from being disconnected.
             if way.id == 332060260 || way.id == 332060236 {
-                tags.insert(osm::SIDEWALK.to_string(), "right".to_string());
+                tags.insert(osm::SIDEWALK, "right");
             }
 
             roads.push((
                 way.id,
                 RawRoad {
                     center_points: pts,
-                    osm_tags: tags,
+                    osm_tags: tags.take(),
                     turn_restrictions: Vec::new(),
                     complicated_turn_restrictions: Vec::new(),
                 },
@@ -151,7 +151,7 @@ pub fn extract_osm(
                     public_garage_name: None,
                     num_parking_spots: 0,
                     amenities: get_bldg_amenities(&tags),
-                    osm_tags: tags,
+                    osm_tags: tags.take(),
                 },
             );
         } else if let Some(at) = get_area_type(&tags) {
@@ -162,17 +162,17 @@ pub fn extract_osm(
                 area_type: at,
                 osm_id: way.id,
                 polygon: Polygon::new(&pts),
-                osm_tags: tags,
+                osm_tags: tags.take(),
             });
-        } else if tags.get("natural") == Some(&"coastline".to_string()) {
+        } else if tags.is("natural", "coastline") {
             coastline_groups.push((way.id, pts));
-        } else if tags.get("amenity") == Some(&"parking".to_string()) {
+        } else if tags.is("amenity", "parking") {
             // TODO Verify parking = surface or handle other cases?
             map.parking_lots.push(RawParkingLot {
                 polygon: Polygon::new(&pts),
                 osm_id: way.id,
             });
-        } else if tags.get("highway") == Some(&"service".to_string()) {
+        } else if tags.is("highway", "service") {
             map.parking_aisles.push(pts);
         } else {
             // The way might be part of a relation later.
@@ -188,22 +188,22 @@ pub fn extract_osm(
     for rel in doc.relations.values() {
         timer.next();
         let mut tags = tags_to_map(&rel.tags);
-        tags.insert(osm::OSM_REL_ID.to_string(), rel.id.to_string());
+        tags.insert(osm::OSM_REL_ID, rel.id.to_string());
 
         if let Some(area_type) = get_area_type(&tags) {
-            if tags.get("type") == Some(&"multipolygon".to_string()) {
+            if tags.is("type", "multipolygon") {
                 if let Some(pts_per_way) = get_multipolygon_members(rel, &id_to_way) {
                     for polygon in glue_multipolygon(rel.id, pts_per_way, &boundary) {
                         map.areas.push(RawArea {
                             area_type,
                             osm_id: rel.id,
                             polygon,
-                            osm_tags: tags.clone(),
+                            osm_tags: tags.clone().take(),
                         });
                     }
                 }
             }
-        } else if tags.get("type") == Some(&"restriction".to_string()) {
+        } else if tags.is("type", "restriction") {
             let mut from_way_id: Option<i64> = None;
             let mut via_node_id: Option<i64> = None;
             let mut via_way_id: Option<i64> = None;
@@ -280,11 +280,11 @@ pub fn extract_osm(
                         public_garage_name: None,
                         num_parking_spots: 0,
                         amenities: get_bldg_amenities(&tags),
-                        osm_tags: tags,
+                        osm_tags: tags.take(),
                     },
                 );
             }
-        } else if tags.get("type") == Some(&"route_master".to_string()) {
+        } else if tags.is("type", "route_master") {
             map.bus_routes
                 .extend(extract_route(&tags, rel, &doc, &id_to_way, &map.gps_bounds));
         }
@@ -326,22 +326,24 @@ pub fn extract_osm(
     )
 }
 
-fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> BTreeMap<String, String> {
-    raw_tags
-        .iter()
-        .filter_map(|tag| {
-            // Toss out really useless metadata.
-            if tag.key.starts_with("tiger:") || tag.key.starts_with("old_name:") {
-                None
-            } else {
-                Some((tag.key.clone(), tag.val.clone()))
-            }
-        })
-        .collect()
+fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> Tags {
+    Tags::new(
+        raw_tags
+            .iter()
+            .filter_map(|tag| {
+                // Toss out really useless metadata.
+                if tag.key.starts_with("tiger:") || tag.key.starts_with("old_name:") {
+                    None
+                } else {
+                    Some((tag.key.clone(), tag.val.clone()))
+                }
+            })
+            .collect(),
+    )
 }
 
-fn is_road(tags: &mut BTreeMap<String, String>) -> bool {
-    if tags.get("railway") == Some(&"light_rail".to_string()) {
+fn is_road(tags: &mut Tags) -> bool {
+    if tags.is("railway", "light_rail") {
         return true;
     }
 
@@ -351,34 +353,35 @@ fn is_road(tags: &mut BTreeMap<String, String>) -> bool {
 
     // https://github.com/Project-OSRM/osrm-backend/blob/master/profiles/car.lua is another
     // potential reference
-    for value in &[
-        // List of non-car types from https://wiki.openstreetmap.org/wiki/Key:highway
-        // TODO Footways are very useful, but they need more work to associate with main roads
-        "footway",
-        "living_street",
-        "pedestrian",
-        "track",
-        "bus_guideway",
-        "escape",
-        "raceway",
-        "bridleway",
-        "steps",
-        "path",
-        "cycleway",
-        "proposed",
-        // This one's debatable. Includes alleys.
-        "service",
-        // more discovered manually
-        "abandoned",
-        "elevator",
-        "planned",
-        "razed",
-        "corridor",
-        "junction",
-    ] {
-        if tags.get(osm::HIGHWAY) == Some(&value.to_string()) {
-            return false;
-        }
+    if tags.is_any(
+        osm::HIGHWAY,
+        vec![
+            // List of non-car types from https://wiki.openstreetmap.org/wiki/Key:highway
+            // TODO Footways are very useful, but they need more work to associate with main roads
+            "footway",
+            "living_street",
+            "pedestrian",
+            "track",
+            "bus_guideway",
+            "escape",
+            "raceway",
+            "bridleway",
+            "steps",
+            "path",
+            "cycleway",
+            "proposed",
+            // This one's debatable. Includes alleys.
+            "service",
+            // more discovered manually
+            "abandoned",
+            "elevator",
+            "planned",
+            "razed",
+            "corridor",
+            "junction",
+        ],
+    ) {
+        return false;
     }
 
     // If there's no parking data in OSM already, then assume no parking and mark that it's
@@ -386,42 +389,41 @@ fn is_road(tags: &mut BTreeMap<String, String>) -> bool {
     if !tags.contains_key(osm::PARKING_LEFT)
         && !tags.contains_key(osm::PARKING_RIGHT)
         && !tags.contains_key(osm::PARKING_BOTH)
-        && tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())
-        && tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string())
-        && tags.get("junction") != Some(&"roundabout".to_string())
+        && !tags.is(osm::HIGHWAY, "motorway")
+        && !tags.is(osm::HIGHWAY, "motorway_link")
+        && !tags.is("junction", "roundabout")
     {
-        tags.insert(osm::PARKING_BOTH.to_string(), "no_parking".to_string());
-        tags.insert(osm::INFERRED_PARKING.to_string(), "true".to_string());
+        tags.insert(osm::PARKING_BOTH, "no_parking");
+        tags.insert(osm::INFERRED_PARKING, "true");
     }
 
     // If there's no sidewalk data in OSM already, then make an assumption and mark that
     // it's inferred.
     if !tags.contains_key(osm::SIDEWALK) {
-        tags.insert(osm::INFERRED_SIDEWALKS.to_string(), "true".to_string());
-        if tags.get(osm::HIGHWAY) == Some(&"motorway".to_string())
-            || tags.get(osm::HIGHWAY) == Some(&"motorway_link".to_string())
-            || tags.get("junction") == Some(&"roundabout".to_string())
+        tags.insert(osm::INFERRED_SIDEWALKS, "true");
+        if tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"])
+            || tags.is("junction", "roundabout")
         {
-            tags.insert(osm::SIDEWALK.to_string(), "none".to_string());
-        } else if tags.get("oneway") == Some(&"yes".to_string()) {
-            tags.insert(osm::SIDEWALK.to_string(), "right".to_string());
-            if tags.get(osm::HIGHWAY) == Some(&"residential".to_string()) {
-                tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
+            tags.insert(osm::SIDEWALK, "none");
+        } else if tags.is("oneway", "yes") {
+            tags.insert(osm::SIDEWALK, "right");
+            if tags.is(osm::HIGHWAY, "residential") {
+                tags.insert(osm::SIDEWALK, "both");
             }
         } else {
-            tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
+            tags.insert(osm::SIDEWALK, "both");
         }
     }
 
     true
 }
 
-fn is_bldg(tags: &BTreeMap<String, String>) -> bool {
+fn is_bldg(tags: &Tags) -> bool {
     // Sorry, the towers at Gasworks don't count. :)
     tags.contains_key("building") && !tags.contains_key("abandoned:man_made")
 }
 
-fn get_bldg_amenities(tags: &BTreeMap<String, String>) -> BTreeSet<(String, String)> {
+fn get_bldg_amenities(tags: &Tags) -> BTreeSet<(String, String)> {
     let mut amenities = BTreeSet::new();
     if let Some(amenity) = tags.get("amenity") {
         amenities.insert((
@@ -442,38 +444,35 @@ fn get_bldg_amenities(tags: &BTreeMap<String, String>) -> BTreeSet<(String, Stri
     amenities
 }
 
-fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
-    if tags.get("leisure") == Some(&"park".to_string()) {
+fn get_area_type(tags: &Tags) -> Option<AreaType> {
+    if tags.is_any("leisure", vec!["park", "golf_course"]) {
         return Some(AreaType::Park);
     }
-    if tags.get("leisure") == Some(&"golf_course".to_string()) {
+    if tags.is("natural", "wood") {
         return Some(AreaType::Park);
     }
-    if tags.get("natural") == Some(&"wood".to_string()) {
+    if tags.is("landuse", "cemetery") {
         return Some(AreaType::Park);
     }
-    if tags.get("landuse") == Some(&"cemetery".to_string()) {
-        return Some(AreaType::Park);
-    }
-    if tags.get("natural") == Some(&"water".to_string())
-        || tags.get("waterway") == Some(&"riverbank".to_string())
-    {
+
+    if tags.is("natural", "water") || tags.is("waterway", "riverbank") {
         return Some(AreaType::Water);
     }
-    if tags.get("place") == Some(&"island".to_string()) {
+
+    if tags.is("place", "island") {
         return Some(AreaType::Island);
     }
+
     // TODO These just cover up poorly inferred road geometry now. Figure out how to use these.
     if false {
-        if tags.get("traffic_calming") == Some(&"island".to_string()) {
+        if tags.is("traffic_calming", "island") {
             return Some(AreaType::PedestrianIsland);
         }
-        if tags.get("highway") == Some(&"pedestrian".to_string())
-            && tags.get("area") == Some(&"yes".to_string())
-        {
+        if tags.is("highway", "pedestrian") && tags.is("area", "yes") {
             return Some(AreaType::PedestrianIsland);
         }
     }
+
     None
 }
 
@@ -605,7 +604,7 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
 }
 
 fn extract_route(
-    master_tags: &BTreeMap<String, String>,
+    master_tags: &Tags,
     master_rel: &osm_xml::Relation,
     doc: &osm_xml::OSM,
     id_to_way: &HashMap<i64, Vec<Pt2D>>,

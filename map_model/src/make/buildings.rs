@@ -4,7 +4,7 @@ use crate::{
     osm, Building, BuildingID, BuildingType, FrontPath, LaneID, LaneType, Map, OffstreetParking,
     ParkingLot, ParkingLotID, Position, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
 };
-use abstutil::Timer;
+use abstutil::{Tags, Timer};
 use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
@@ -73,7 +73,12 @@ pub fn make_all_buildings(
                 amenities: b.amenities.clone(),
                 parking: None,
                 label_center: b.polygon.polylabel(),
-                bldg_type: classify_bldg(&b.osm_tags, &b.amenities, b.polygon.area(), &mut rng),
+                bldg_type: classify_bldg(
+                    Tags::new(b.osm_tags.clone()),
+                    &b.amenities,
+                    b.polygon.area(),
+                    &mut rng,
+                ),
             };
 
             // Can this building have a driveway? If it's not next to a driving lane, then no.
@@ -360,13 +365,12 @@ fn line_valid(
 }
 
 fn classify_bldg(
-    tags: &BTreeMap<String, String>,
+    tags: Tags,
     amenities: &BTreeSet<(String, String)>,
     area_sq_meters: f64,
     rng: &mut rand_xorshift::XorShiftRng,
 ) -> BuildingType {
     // used: top values from https://taginfo.openstreetmap.org/keys/building#values (>100k uses)
-    let tags = Tags(tags);
 
     let mut commercial = false;
     let workers;
@@ -426,7 +430,6 @@ fn classify_bldg(
         workers = rng.gen_range(0, 2);
     } else if tags.is_any("building", vec!["apartments", "terrace", "residential"]) {
         let levels = tags
-            .0
             .get("building:levels")
             .and_then(|x| x.parse::<usize>().ok())
             .unwrap_or(1);
@@ -444,20 +447,4 @@ fn classify_bldg(
         return BuildingType::Commercial;
     }
     return BuildingType::Residential(workers);
-}
-
-// TODO Refactor with lane_specs
-struct Tags<'a>(&'a BTreeMap<String, String>);
-impl<'a> Tags<'a> {
-    fn is(&self, k: &str, v: &str) -> bool {
-        self.0.get(k) == Some(&v.to_string())
-    }
-
-    fn is_any(&self, k: &str, values: Vec<&str>) -> bool {
-        if let Some(v) = self.0.get(k) {
-            values.contains(&v.as_ref())
-        } else {
-            false
-        }
-    }
 }

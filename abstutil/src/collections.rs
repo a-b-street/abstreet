@@ -200,3 +200,42 @@ impl<K: Clone + PartialEq, V> VecMap<K, V> {
         &mut self.inner.last_mut().unwrap().1
     }
 }
+
+// Convenience functions around a string->string map
+#[derive(Clone)]
+pub struct Tags(BTreeMap<String, String>);
+
+impl Tags {
+    pub fn new(map: BTreeMap<String, String>) -> Tags {
+        Tags(map)
+    }
+
+    pub fn get(&self, k: &str) -> Option<&String> {
+        self.0.get(k)
+    }
+
+    pub fn contains_key(&self, k: &str) -> bool {
+        self.0.contains_key(k)
+    }
+
+    pub fn is(&self, k: &str, v: &str) -> bool {
+        self.0.get(k) == Some(&v.to_string())
+    }
+
+    pub fn is_any(&self, k: &str, values: Vec<&str>) -> bool {
+        if let Some(v) = self.0.get(k) {
+            values.contains(&v.as_ref())
+        } else {
+            false
+        }
+    }
+
+    pub fn insert<K: Into<String>, V: Into<String>>(&mut self, k: K, v: V) {
+        self.0.insert(k.into(), v.into());
+    }
+
+    // TODO Maybe store this directly instead.
+    pub fn take(self) -> BTreeMap<String, String> {
+        self.0
+    }
+}

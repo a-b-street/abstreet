@@ -1,4 +1,5 @@
 use crate::{osm, LaneType};
+use abstutil::Tags;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::{fmt, iter};
@@ -6,9 +7,9 @@ use std::{fmt, iter};
 // TODO This is ripe for unit testing.
 // (original direction, reversed direction)
 pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Vec<LaneType>) {
-    let tags = Tags(osm_tags);
+    let tags = Tags::new(osm_tags.clone());
 
-    if let Some(s) = osm_tags.get(osm::SYNTHETIC_LANES) {
+    if let Some(s) = tags.get(osm::SYNTHETIC_LANES) {
         if let Some(spec) = RoadSpec::parse(s.to_string()) {
             return (spec.fwd, spec.back);
         } else {
@@ -25,20 +26,16 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     }
 
     // TODO Reversible roads should be handled differently?
-    let oneway = tags.is("oneway", "yes")
-        || tags.is("oneway", "reversible")
-        || tags.is("junction", "roundabout");
+    let oneway =
+        tags.is_any("oneway", vec!["yes", "reversible"]) || tags.is("junction", "roundabout");
 
     // How many driving lanes in each direction?
-    let num_driving_fwd = if let Some(n) = osm_tags
+    let num_driving_fwd = if let Some(n) = tags
         .get("lanes:forward")
         .and_then(|num| num.parse::<usize>().ok())
     {
         n
-    } else if let Some(n) = osm_tags
-        .get("lanes")
-        .and_then(|num| num.parse::<usize>().ok())
-    {
+    } else if let Some(n) = tags.get("lanes").and_then(|num| num.parse::<usize>().ok()) {
         if oneway {
             n
         } else if n % 2 == 0 {
@@ -51,15 +48,12 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         // TODO Grrr.
         1
     };
-    let num_driving_back = if let Some(n) = osm_tags
+    let num_driving_back = if let Some(n) = tags
         .get("lanes:backward")
         .and_then(|num| num.parse::<usize>().ok())
     {
         n
-    } else if let Some(n) = osm_tags
-        .get("lanes")
-        .and_then(|num| num.parse::<usize>().ok())
-    {
+    } else if let Some(n) = tags.get("lanes").and_then(|num| num.parse::<usize>().ok()) {
         if oneway {
             0
         } else if n % 2 == 0 {
@@ -80,7 +74,7 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     let driving_lane = if tags.is("access", "no") && tags.is("bus", "yes") {
         // Sup West Seattle
         LaneType::Bus
-    } else if osm_tags
+    } else if tags
         .get("motor_vehicle:conditional")
         .map(|x| x.starts_with("no"))
         .unwrap_or(false)
@@ -105,14 +99,14 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         return (fwd_side, back_side);
     }
 
-    let fwd_bus_spec = if let Some(s) = osm_tags.get("bus:lanes:forward") {
+    let fwd_bus_spec = if let Some(s) = tags.get("bus:lanes:forward") {
         s
-    } else if let Some(s) = osm_tags.get("psv:lanes:forward") {
+    } else if let Some(s) = tags.get("psv:lanes:forward") {
         s
     } else if oneway {
-        if let Some(s) = osm_tags.get("bus:lanes") {
+        if let Some(s) = tags.get("bus:lanes") {
             s
-        } else if let Some(s) = osm_tags.get("psv:lanes") {
+        } else if let Some(s) = tags.get("psv:lanes") {
             s
         } else {
             ""
@@ -135,9 +129,9 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
             }
         }
     }
-    if let Some(spec) = osm_tags
+    if let Some(spec) = tags
         .get("bus:lanes:backward")
-        .or_else(|| osm_tags.get("psv:lanes:backward"))
+        .or_else(|| tags.get("psv:lanes:backward"))
     {
         let parts: Vec<&str> = spec.split("|").collect();
         if parts.len() == back_side.len() {
@@ -161,8 +155,7 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         if tags.is("cycleway:right", "lane") {
             fwd_side.push(LaneType::Biking);
         }
-        if tags.is("cycleway:left", "lane")
-            || tags.is("cycleway:left", "opposite_lane")
+        if tags.is_any("cycleway:left", vec!["lane", "opposite_lane"])
             || tags.is("cycleway", "opposite_lane")
         {
             back_side.push(LaneType::Biking);
@@ -175,15 +168,11 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     }
 
     if driving_lane == LaneType::Driving {
-        fn has_parking(value: Option<&String>) -> bool {
-            value == Some(&"parallel".to_string())
-                || value == Some(&"diagonal".to_string())
-                || value == Some(&"perpendicular".to_string())
-        }
-        let parking_lane_fwd = has_parking(osm_tags.get(osm::PARKING_RIGHT))
-            || has_parking(osm_tags.get(osm::PARKING_BOTH));
-        let parking_lane_back = has_parking(osm_tags.get(osm::PARKING_LEFT))
-            || has_parking(osm_tags.get(osm::PARKING_BOTH));
+        let has_parking = vec!["parallel", "diagonal", "perpendicular"];
+        let parking_lane_fwd = tags.is_any(osm::PARKING_RIGHT, has_parking.clone())
+            || tags.is_any(osm::PARKING_BOTH, has_parking.clone());
+        let parking_lane_back = tags.is_any(osm::PARKING_LEFT, has_parking.clone())
+            || tags.is_any(osm::PARKING_BOTH, has_parking);
         if parking_lane_fwd {
             fwd_side.push(LaneType::Parking);
         }
@@ -208,15 +197,6 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     }
 
     (fwd_side, back_side)
-}
-
-// TODO Figure out Rust strings; there's maybe a less verbose way than the old
-// osm_tags.get("cycleway:right") == Some(&"lane".to_string()) mess.
-struct Tags<'a>(&'a BTreeMap<String, String>);
-impl<'a> Tags<'a> {
-    fn is(&self, k: &str, v: &str) -> bool {
-        self.0.get(k) == Some(&v.to_string())
-    }
 }
 
 // This is a convenient way for map_editor to plumb instructions here.

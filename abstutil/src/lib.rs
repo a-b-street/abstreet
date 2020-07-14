@@ -8,7 +8,7 @@ mod time;
 pub use crate::cli::CmdArgs;
 pub use crate::clone::Cloneable;
 pub use crate::collections::{
-    contains_duplicates, retain_btreemap, retain_btreeset, wraparound_get, Counter, MultiMap,
+    contains_duplicates, retain_btreemap, retain_btreeset, wraparound_get, Counter, MultiMap, Tags,
     VecMap,
 };
 pub use crate::io::{
