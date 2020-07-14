@@ -515,7 +515,6 @@ impl ScenarioGenerator {
 
                 if rng.gen_bool(0.1) {
                     // hacky hack to get some background traffic
-                    // TODO - avoid mutable variable
                     depart_am = rand_time(
                         rng,
                         Time::START_OF_DAY + Duration::hours(0),
