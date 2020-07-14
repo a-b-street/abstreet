@@ -9,6 +9,7 @@ use abstutil::{MeasureMemory, Timer};
 use ezgui::{EventCtx, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable};
+use maplit::btreemap;
 use rand::seq::SliceRandom;
 use sim::{Analytics, GetDrawAgents, Sim, SimCallback, SimFlags};
 use std::collections::BTreeMap;
@@ -573,6 +574,7 @@ impl PerMap {
 pub struct SessionState {
     pub tutorial: Option<TutorialState>,
     pub high_scores: BTreeMap<GameplayMode, Vec<HighScore>>,
+    pub info_panel_tab: BTreeMap<&'static str, &'static str>,
 }
 
 impl SessionState {
@@ -580,6 +582,13 @@ impl SessionState {
         SessionState {
             tutorial: None,
             high_scores: BTreeMap::new(),
+            info_panel_tab: btreemap! {
+                "lane" => "info",
+                "intersection" => "info",
+                "bldg" => "info",
+                "person" => "trips",
+                "bus" => "status",
+            },
         }
     }
 }

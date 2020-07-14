@@ -295,7 +295,7 @@ fn header(
             tabs.push(("Delay", Tab::IntersectionDelay(id, DataOptions::new())));
             tabs.push(("Current demand", Tab::IntersectionDemand(id)));
         }
-        if i.is_border() && !i.outgoing_lanes.is_empty() {
+        if i.is_incoming_border() {
             tabs.push((
                 "Arrivals",
                 Tab::IntersectionArrivals(id, DataOptions::new()),

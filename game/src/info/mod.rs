@@ -45,9 +45,7 @@ pub struct InfoPanel {
     cached_actions: Vec<Key>,
 }
 
-// TODO We need a separate, weaker form of PartialEq for this to detect when we're on the "current"
-// tab.
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub enum Tab {
     // What trips are open? For finished trips, show the timeline in the current simulation if
     // true, prebaked if false.
@@ -85,41 +83,94 @@ impl Tab {
     pub fn from_id(app: &App, id: ID) -> Tab {
         match id {
             ID::Road(_) => unreachable!(),
-            ID::Lane(l) => Tab::LaneInfo(l),
-            ID::Intersection(i) => Tab::IntersectionInfo(i),
-            ID::Building(b) => Tab::BldgInfo(b),
+            ID::Lane(l) => match app.session.info_panel_tab["lane"] {
+                "info" => Tab::LaneInfo(l),
+                "debug" => Tab::LaneDebug(l),
+                "traffic" => Tab::LaneTraffic(l, DataOptions::new()),
+                _ => unreachable!(),
+            },
+            ID::Intersection(i) => match app.session.info_panel_tab["intersection"] {
+                "info" => Tab::IntersectionInfo(i),
+                "traffic" => Tab::IntersectionTraffic(i, DataOptions::new()),
+                "delay" => {
+                    if app.primary.map.get_i(i).is_traffic_signal() {
+                        Tab::IntersectionDelay(i, DataOptions::new())
+                    } else {
+                        Tab::IntersectionInfo(i)
+                    }
+                }
+                "demand" => {
+                    if app.primary.map.get_i(i).is_traffic_signal() {
+                        Tab::IntersectionDemand(i)
+                    } else {
+                        Tab::IntersectionInfo(i)
+                    }
+                }
+                "arrivals" => {
+                    if app.primary.map.get_i(i).is_incoming_border() {
+                        Tab::IntersectionArrivals(i, DataOptions::new())
+                    } else {
+                        Tab::IntersectionInfo(i)
+                    }
+                }
+                _ => unreachable!(),
+            },
+            ID::Building(b) => match app.session.info_panel_tab["bldg"] {
+                "info" => Tab::BldgInfo(b),
+                "people" => Tab::BldgPeople(b),
+                _ => unreachable!(),
+            },
             ID::ParkingLot(b) => Tab::ParkingLot(b),
             ID::Car(c) => {
                 if let Some(p) = app.primary.sim.agent_to_person(AgentID::Car(c)) {
-                    Tab::PersonTrips(
-                        p,
-                        OpenTrip::single(app.primary.sim.agent_to_trip(AgentID::Car(c)).unwrap()),
-                    )
+                    match app.session.info_panel_tab["person"] {
+                        "trips" => Tab::PersonTrips(
+                            p,
+                            OpenTrip::single(
+                                app.primary.sim.agent_to_trip(AgentID::Car(c)).unwrap(),
+                            ),
+                        ),
+                        "bio" => Tab::PersonBio(p),
+                        "schedule" => Tab::PersonSchedule(p),
+                        _ => unreachable!(),
+                    }
                 } else if c.1 == VehicleType::Bus || c.1 == VehicleType::Train {
-                    Tab::BusStatus(c)
+                    match app.session.info_panel_tab["bus"] {
+                        "status" => Tab::BusStatus(c),
+                        "delays" => Tab::BusDelays(c),
+                        _ => unreachable!(),
+                    }
                 } else {
                     Tab::ParkedCar(c)
                 }
             }
-            ID::Pedestrian(p) => Tab::PersonTrips(
-                app.primary
+            ID::Pedestrian(p) => {
+                let person = app
+                    .primary
                     .sim
                     .agent_to_person(AgentID::Pedestrian(p))
-                    .unwrap(),
-                OpenTrip::single(
-                    app.primary
-                        .sim
-                        .agent_to_trip(AgentID::Pedestrian(p))
-                        .unwrap(),
-                ),
-            ),
+                    .unwrap();
+                match app.session.info_panel_tab["person"] {
+                    "trips" => Tab::PersonTrips(
+                        person,
+                        OpenTrip::single(
+                            app.primary
+                                .sim
+                                .agent_to_trip(AgentID::Pedestrian(p))
+                                .unwrap(),
+                        ),
+                    ),
+                    "bio" => Tab::PersonBio(person),
+                    "schedule" => Tab::PersonSchedule(person),
+                    _ => unreachable!(),
+                }
+            }
             ID::PedCrowd(members) => Tab::Crowd(members),
             ID::BusStop(bs) => Tab::BusStop(bs),
             ID::Area(a) => Tab::Area(a),
         }
     }
 
-    // TODO Temporary hack until object actions go away.
     fn to_id(&self, app: &App) -> Option<ID> {
         match self {
             Tab::PersonTrips(p, _) | Tab::PersonBio(p) | Tab::PersonSchedule(p) => {
@@ -136,8 +187,8 @@ impl Tab {
             }
             Tab::BusStatus(c) | Tab::BusDelays(c) => Some(ID::Car(*c)),
             Tab::BusStop(bs) => Some(ID::BusStop(*bs)),
-            // TODO If a parked car becomes in use while the panel is open, should update the panel
-            // better.
+            // TODO If a parked car becomes in use while the panel is open, should update the
+            // panel better.
             Tab::ParkedCar(c) => match app.primary.sim.lookup_parked_car(*c)?.spot {
                 ParkingSpot::Onstreet(_, _) => Some(ID::Car(*c)),
                 ParkingSpot::Offstreet(b, _) => Some(ID::Building(b)),
@@ -174,14 +225,39 @@ impl Tab {
             | Tab::IntersectionDelay(_, ref mut opts)
             | Tab::IntersectionArrivals(_, ref mut opts)
             | Tab::LaneTraffic(_, ref mut opts) => {
-                *opts = DataOptions::from_controls(c);
+                let new_opts = DataOptions::from_controls(c);
+                if *opts == new_opts {
+                    return None;
+                }
+                *opts = new_opts;
             }
             _ => unreachable!(),
         }
-        if &new_tab == self {
-            None
-        } else {
-            Some(new_tab)
+        Some(new_tab)
+    }
+
+    fn variant(&self) -> (&'static str, &'static str) {
+        match self {
+            Tab::PersonTrips(_, _) => ("person", "trips"),
+            Tab::PersonBio(_) => ("person", "bio"),
+            Tab::PersonSchedule(_) => ("person", "schedule"),
+            Tab::BusStatus(_) => ("bus", "status"),
+            Tab::BusDelays(_) => ("bus", "delays"),
+            Tab::BusStop(_) => ("bus stop", "info"),
+            Tab::ParkedCar(_) => ("parked car", "info"),
+            Tab::BldgInfo(_) => ("bldg", "info"),
+            Tab::BldgPeople(_) => ("bldg", "people"),
+            Tab::ParkingLot(_) => ("parking lot", "info"),
+            Tab::Crowd(_) => ("crowd", "info"),
+            Tab::Area(_) => ("area", "info"),
+            Tab::IntersectionInfo(_) => ("intersection", "info"),
+            Tab::IntersectionTraffic(_, _) => ("intersection", "traffic"),
+            Tab::IntersectionDelay(_, _) => ("intersection", "delay"),
+            Tab::IntersectionDemand(_) => ("intersection", "demand"),
+            Tab::IntersectionArrivals(_, _) => ("intersection", "arrivals"),
+            Tab::LaneInfo(_) => ("lane", "info"),
+            Tab::LaneDebug(_) => ("lane", "debug"),
+            Tab::LaneTraffic(_, _) => ("lane", "traffic"),
         }
     }
 }
@@ -198,10 +274,13 @@ pub struct Details {
 impl InfoPanel {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &mut App,
         mut tab: Tab,
         ctx_actions: &mut dyn ContextualActions,
     ) -> InfoPanel {
+        let (k, v) = tab.variant();
+        app.session.info_panel_tab.insert(k, v);
+
         let mut details = Details {
             unzoomed: GeomBatch::new(),
             zoomed: GeomBatch::new(),
@@ -561,7 +640,7 @@ fn make_tabs(
 ) -> Widget {
     let mut row = Vec::new();
     for (name, link) in tabs {
-        if current_tab == link {
+        if current_tab.variant() == link.variant() {
             row.push(Btn::text_bg2(name).inactive(ctx).centered_vert());
         } else {
             hyperlinks.insert(name.to_string(), link);

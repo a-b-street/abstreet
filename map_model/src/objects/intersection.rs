@@ -53,6 +53,9 @@ impl Intersection {
     pub fn is_border(&self) -> bool {
         self.intersection_type == IntersectionType::Border
     }
+    pub fn is_incoming_border(&self) -> bool {
+        self.intersection_type == IntersectionType::Border && !self.outgoing_lanes.is_empty()
+    }
 
     pub fn is_closed(&self) -> bool {
         self.intersection_type == IntersectionType::Construction
