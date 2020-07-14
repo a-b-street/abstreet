@@ -53,6 +53,9 @@ pub struct UnzoomedAgent {
     pub pos: Pt2D,
     // None means a bus.
     pub person: Option<PersonID>,
+    // True only for cars currently looking for parking. I don't want this struct to grow, but this
+    // is important enough to call out here.
+    pub parking: bool,
 }
 
 // TODO Can we return borrows instead? Nice for time travel, not for main sim?

@@ -229,6 +229,13 @@ impl Car {
             body,
         }
     }
+
+    pub fn is_parking(&self) -> bool {
+        if let CarState::Parking(_, _, _) = self.state {
+            return true;
+        }
+        self.router.is_parking()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

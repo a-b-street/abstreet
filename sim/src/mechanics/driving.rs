@@ -844,6 +844,7 @@ impl DrivingSimState {
                         ),
                     },
                     person: car.trip_and_person.map(|(_, p)| p),
+                    parking: car.is_parking(),
                 });
             }
         }

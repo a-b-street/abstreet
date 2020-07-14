@@ -379,6 +379,7 @@ impl WalkingSimState {
                 vehicle_type: None,
                 pos: ped.get_draw_ped(now, map).pos,
                 person: Some(ped.person),
+                parking: false,
             });
         }
 

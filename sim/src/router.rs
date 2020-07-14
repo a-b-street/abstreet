@@ -36,6 +36,7 @@ enum Goal {
         spot: Option<(ParkingSpot, Distance)>,
         // No parking available at all!
         stuck_end_dist: Option<Distance>,
+        started_looking: bool,
     },
     EndAtBorder {
         end_dist: Distance,
@@ -64,6 +65,7 @@ impl Router {
                 target: bldg,
                 spot: None,
                 stuck_end_dist: None,
+                started_looking: false,
             },
         }
     }
@@ -191,6 +193,7 @@ impl Router {
                 ref mut spot,
                 ref mut stuck_end_dist,
                 target,
+                ref mut started_looking,
             } => {
                 if let Some(d) = stuck_end_dist {
                     if *d == front {
@@ -205,6 +208,7 @@ impl Router {
                     None => true,
                 };
                 if need_new_spot {
+                    *started_looking = true;
                     let current_lane = self.path.current_step().as_lane();
                     let candidates = parking.get_all_free_spots(
                         Position::new(current_lane, front),
@@ -389,5 +393,14 @@ impl Router {
 
     pub fn replace_path_for_serialization(&mut self, path: Path) -> Path {
         std::mem::replace(&mut self.path, path)
+    }
+
+    pub fn is_parking(&self) -> bool {
+        match self.goal {
+            Goal::ParkNearBuilding {
+                started_looking, ..
+            } => started_looking,
+            _ => false,
+        }
     }
 }

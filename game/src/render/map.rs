@@ -450,6 +450,8 @@ impl AgentCache {
 pub struct AgentColorScheme {
     // TODO Could consider specializing this more?
     pub rows: Vec<(String, Color, bool)>,
+    // TODO Haaack
+    parking_color: Color,
 }
 
 impl AgentColorScheme {
@@ -466,6 +468,7 @@ impl AgentColorScheme {
                     true,
                 ),
             ],
+            parking_color: cs.parking_trip.alpha(0.8),
         }
     }
 
@@ -489,6 +492,10 @@ impl AgentColorScheme {
         for (name, color, enabled) in &self.rows {
             if name == &category {
                 if *enabled {
+                    // TODO Clean up AgentColorScheme
+                    if agent.parking {
+                        return Some(self.parking_color);
+                    }
                     return Some(*color);
                 }
                 return None;
