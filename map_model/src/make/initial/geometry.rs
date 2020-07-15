@@ -18,12 +18,10 @@ pub fn intersection_polygon(
     if i.roads.is_empty() {
         panic!("{} has no roads", i.id);
     }
-    let mut road_endpts: Vec<Pt2D> = Vec::new();
 
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of
     // the road, if the roads were oriented to both be incoming to the intersection), both ending
-    // at the intersection (which may be different points for merged intersections!), and the last
-    // segment of the center line.
+    // at the intersection, and the last segment of the center line.
     // TODO Maybe express the two incoming PolyLines as the "right" and "left"
     let mut lines: Vec<(OriginalRoad, Line, PolyLine, PolyLine)> = i
         .roads
@@ -38,22 +36,14 @@ pub fn intersection_polygon(
             } else {
                 panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
             };
-            road_endpts.push(pl.last_pt());
-
             let pl_normal = driving_side.right_shift(pl.clone(), r.half_width);
             let pl_reverse = driving_side.left_shift(pl.clone(), r.half_width);
             (*id, pl.last_line(), pl_normal, pl_reverse)
         })
         .collect();
 
-    // Find the average of all road endpoints at the intersection. This is usually just a single
-    // point, except for merged intersections.
-    road_endpts.sort_by_key(|pt| pt.to_hashable());
-    road_endpts.dedup();
-    let intersection_center = Pt2D::center(&road_endpts);
-
-    // Sort the polylines by the angle their last segment makes to the "center". This is normally
-    // equivalent to the angle of the last line, except when the intersection has been merged.
+    // Sort the polylines by the angle their last segment makes to the common point.
+    let intersection_center = lines[0].1.pt2();
     lines.sort_by_key(|(_, l, _, _)| {
         l.pt1().angle_to(intersection_center).normalized_degrees() as i64
     });
@@ -74,11 +64,10 @@ fn generalized_trim_back(
 ) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
     let mut debug = Vec::new();
 
-    let mut road_lines: Vec<(OriginalRoad, PolyLine, PolyLine)> = Vec::new();
+    let mut road_lines: Vec<(OriginalRoad, PolyLine)> = Vec::new();
     for (r, _, pl1, pl2) in lines {
-        // TODO Argh, just use original lines.
-        road_lines.push((*r, pl1.clone(), pl2.clone()));
-        road_lines.push((*r, pl2.clone(), pl1.clone()));
+        road_lines.push((*r, pl1.clone()));
+        road_lines.push((*r, pl2.clone()));
 
         if false {
             debug.push((
@@ -92,11 +81,10 @@ fn generalized_trim_back(
         }
     }
 
-    let mut new_road_centers: BTreeMap<OriginalRoad, PolyLine> = BTreeMap::new();
-
     // Intersect every road's boundary lines with all the other lines. Only side effect here is to
     // populate new_road_centers.
-    for (r1, pl1, other_pl1) in &road_lines {
+    let mut new_road_centers: BTreeMap<OriginalRoad, PolyLine> = BTreeMap::new();
+    for (r1, pl1) in &road_lines {
         // road_center ends at the intersection.
         let road_center = if roads[r1].dst_i == i {
             roads[r1].trimmed_center_pts.clone()
@@ -116,7 +104,7 @@ fn generalized_trim_back(
             road_center.clone()
         };
 
-        for (r2, pl2, _) in &road_lines {
+        for (r2, pl2) in &road_lines {
             if r1 == r2 {
                 continue;
             }
@@ -138,10 +126,8 @@ fn generalized_trim_back(
                 (pl1.clone(), pl2.clone())
             };
 
-            // TODO This only happens in Austin so far, haven't dove into why.
             if use_pl1 == use_pl2 {
-                timer.warn(format!("{} and {} wind up with the same polyline", r1, r2));
-                continue;
+                panic!("{} and {} wind up with the same polyline", r1, r2);
             }
 
             if let Some((hit, angle)) = use_pl1.intersection(&use_pl2) {
@@ -171,29 +157,6 @@ fn generalized_trim_back(
                 }
 
                 // We could also do the update for r2, but we'll just get to it later.
-            }
-
-            // Another check... sometimes a boundary line crosss the perpendicular end of another
-            // road.
-            // TODO Reduce DEGENERATE_INTERSECTION_HALF_LENGTH to play with this.
-            if false {
-                let perp = Line::must_new(pl1.last_pt(), other_pl1.last_pt());
-                if perp.intersection(&pl2.last_line()).is_some() {
-                    let new_perp = Line::must_new(
-                        pl2.last_pt(),
-                        pl2.last_pt()
-                            .project_away(Distance::meters(1.0), perp.angle()),
-                    )
-                    .infinite();
-                    // Find the hit closest to the intersection -- this matters for very curvy
-                    // roads, like highway ramps.
-                    if let Some(trim_to) = road_center.reversed().intersection_infinite(&new_perp) {
-                        let trimmed = road_center.get_slice_ending_at(trim_to).unwrap();
-                        if trimmed.length() < shortest_center.length() {
-                            shortest_center = trimmed;
-                        }
-                    }
-                }
             }
         }
 
@@ -231,19 +194,6 @@ fn generalized_trim_back(
         {
             if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
                 endpoints.push(hit);
-            } else {
-                // Style 1
-                /*endpoints.push(fwd_pl.last_pt());
-                endpoints.push(adj_fwd_pl.last_pt());*/
-
-                // Style 2
-                /*if let Some(hit) = fwd_pl
-                    .last_line()
-                    .infinite()
-                    .intersection(&adj_fwd_pl.last_line().infinite())
-                {
-                    endpoints.push(hit);
-                }*/
             }
         } else {
             timer.warn(format!(
@@ -286,19 +236,6 @@ fn generalized_trim_back(
                 .intersection(&adj_back_pl.second_half())
             {
                 endpoints.push(hit);
-            } else {
-                // Style 1
-                /*endpoints.push(back_pl.last_pt());
-                endpoints.push(adj_back_pl.last_pt());*/
-
-                // Style 2
-                /*if let Some(hit) = back_pl
-                    .last_line()
-                    .infinite()
-                    .intersection(&adj_back_pl.last_line().infinite())
-                {
-                    endpoints.push(hit);
-                }*/
             }
         } else {
             timer.warn(format!(
@@ -307,22 +244,12 @@ fn generalized_trim_back(
                 id
             ));
         }
-
-        /*if *id == OriginalRoad(384) {
-            let thin = Distance::meters(1.0);
-            debug.push((format!("back of {}", id), back_pl.make_polygons(thin)));
-            debug.push((
-                format!("adj back of {}", adj_back_id),
-                adj_back_pl.make_polygons(thin),
-            ));
-        }*/
     }
-
-    let main_result = close_off_polygon(Pt2D::approx_dedupe(endpoints, Distance::meters(0.1)));
 
     // There are bad polygons caused by weird short roads. As a temporary workaround, detect cases
     // where polygons dramatically double back on themselves and force the polygon to proceed
     // around its center.
+    let main_result = close_off_polygon(Pt2D::approx_dedupe(endpoints, Distance::meters(0.1)));
     let mut deduped = main_result.clone();
     deduped.pop();
     deduped.sort_by_key(|pt| pt.to_hashable());
@@ -341,7 +268,7 @@ fn generalized_trim_back(
         (deduped, debug)
     }
 
-    // TODO Or always sort points?
+    // TODO Or always sort points? Helps some cases, hurts other for downtown Seattle.
     /*endpoints.sort_by_key(|pt| pt.to_hashable());
     endpoints = Pt2D::approx_dedupe(endpoints, Distance::meters(0.1));
     let center = Pt2D::center(&endpoints);

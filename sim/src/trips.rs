@@ -1256,6 +1256,9 @@ impl TripManager {
     pub fn all_arrivals_at_border(&self, at: IntersectionID) -> Vec<(Time, TripMode)> {
         let mut times = Vec::new();
         for t in &self.trips {
+            if t.aborted {
+                continue;
+            }
             if let TripEndpoint::Border(i, _) = t.start {
                 if i == at {
                     times.push((t.departure, t.mode));
