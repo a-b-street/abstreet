@@ -610,6 +610,7 @@ impl Map {
         ))
     }
 
+    // TODO Take OriginalIntersection
     pub fn find_i_by_osm_id(&self, osm_node_id: i64) -> Result<IntersectionID, String> {
         for i in self.all_intersections() {
             if i.orig_id.osm_node_id == osm_node_id {

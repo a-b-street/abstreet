@@ -61,12 +61,51 @@ pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer
             continue;
         }
 
-        // Make sure the stops are connected
         let route_type = if r.is_bus {
             PathConstraints::Bus
         } else {
             PathConstraints::Train
         };
+
+        // Start or end at a border?
+        let mut start_border = None;
+        let mut end_border = None;
+        if let Some(i) = r.border_start {
+            let i = map.get_i(map.find_i_by_osm_id(i.osm_node_id).unwrap());
+            if !i.is_border() {
+                panic!("Route starts at {}, but isn't a border?", i.orig_id);
+            }
+            if let Some(l) = i.get_outgoing_lanes(map, route_type).get(0) {
+                start_border = Some(*l);
+            } else {
+                // TODO Should panic
+                println!(
+                    "Route {} starts at {}, but no starting lane for a {:?}?",
+                    rel_url(r.osm_rel_id),
+                    i.orig_id,
+                    route_type
+                );
+            }
+        }
+        if let Some(i) = r.border_end {
+            let i = map.get_i(map.find_i_by_osm_id(i.osm_node_id).unwrap());
+            if !i.is_border() {
+                panic!("Route ends at {}, but isn't a border?", i.orig_id);
+            }
+            if let Some(l) = i.get_incoming_lanes(map, route_type).next() {
+                end_border = Some(l);
+            } else {
+                // TODO Should panic
+                println!(
+                    "Route {} ends at {}, but no ending lane for a {:?}?",
+                    rel_url(r.osm_rel_id),
+                    i.orig_id,
+                    route_type
+                );
+            }
+        }
+
+        // Make sure the route is connected
         let mut ok = true;
         for pair in stops.windows(2) {
             if let Err(err) = check_stops(route_type, pair[0], pair[1], map) {
@@ -87,6 +126,8 @@ pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer
                 short_name: r.short_name.clone(),
                 stops,
                 route_type,
+                start_border,
+                end_border,
             });
         }
     }

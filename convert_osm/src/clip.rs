@@ -161,5 +161,45 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         panic!("There are no roads inside the clipping polygon");
     }
 
+    let mut keep_routes = Vec::new();
+    for mut r in map.bus_routes.drain(..) {
+        let mut borders = Vec::new();
+        let num_pts = r.all_pts.len();
+        for (idx, pt) in r.all_pts.drain(..).enumerate() {
+            if map
+                .intersections
+                .get(&pt)
+                .map(|i| i.intersection_type == IntersectionType::Border)
+                .unwrap_or(false)
+            {
+                borders.push((pt, idx));
+            }
+        }
+        if borders.len() > 2 {
+            timer.warn(format!(
+                "Route {} matches too many borders: {:?}",
+                r.osm_rel_id, borders
+            ));
+        } else {
+            // https://wiki.openstreetmap.org/w/index.php?title=Relation:route&uselang=en#Order_matters
+            // Of course the ways aren't in order. :( Use distance to the first/last stop. If
+            // there's just one stop, we're just gambling at this point.
+            if borders.len() == 2 {
+                // Presumably the borders are in order.
+                r.border_start = Some(borders[0].0);
+                r.border_end = Some(borders[1].0);
+            } else if borders.len() == 1 {
+                // Alright, which end is which? Use the original index of the point to guess.
+                if borders[0].1 < num_pts / 2 {
+                    r.border_start = Some(borders[0].0);
+                } else {
+                    r.border_end = Some(borders[0].0);
+                }
+            }
+            keep_routes.push(r);
+        }
+    }
+    map.bus_routes = keep_routes;
+
     timer.stop("clipping map to boundary");
 }

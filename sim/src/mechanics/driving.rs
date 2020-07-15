@@ -442,15 +442,18 @@ impl DrivingSimState {
                 ) {
                     Some(ActionAtEnd::VanishAtBorder(i)) => {
                         car.total_blocked_time += now - blocked_since;
-                        trips.car_or_bike_reached_border(
-                            now,
-                            car.vehicle.id,
-                            i,
-                            car.total_blocked_time,
-                            map,
-                            parking,
-                            scheduler,
-                        );
+                        // Don't do this for buses
+                        if car.trip_and_person.is_some() {
+                            trips.car_or_bike_reached_border(
+                                now,
+                                car.vehicle.id,
+                                i,
+                                car.total_blocked_time,
+                                map,
+                                parking,
+                                scheduler,
+                            );
+                        }
                         false
                     }
                     Some(ActionAtEnd::GiveUpOnParking) => {

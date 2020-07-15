@@ -1,8 +1,8 @@
 use abstutil::{retain_btreemap, FileWithProgress, Tags, Timer};
 use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use map_model::raw::{
-    OriginalBuilding, RawArea, RawBuilding, RawBusRoute, RawBusStop, RawMap, RawParkingLot,
-    RawRoad, RestrictionType,
+    OriginalBuilding, OriginalIntersection, RawArea, RawBuilding, RawBusRoute, RawBusStop, RawMap,
+    RawParkingLot, RawRoad, RestrictionType,
 };
 use map_model::{osm, AreaType};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
@@ -677,6 +677,7 @@ fn extract_route(
     // Gather stops in order. Platforms may exist or not; match them up by name.
     let mut stops = Vec::new();
     let mut platforms = HashMap::new();
+    let mut all_pts = Vec::new();
     for (role, member) in get_members(rel, doc) {
         if role == "stop" {
             if let osm_xml::Reference::Node(node) = member {
@@ -712,6 +713,15 @@ fn extract_route(
                 _ => continue,
             };
             platforms.insert(platform_name, pt);
+        } else if role == "" {
+            if let osm_xml::Reference::Way(way) = member {
+                // The order of nodes might be wrong, doesn't matter
+                for node in &way.nodes {
+                    if let osm_xml::UnresolvedReference::Node(id) = node {
+                        all_pts.push(OriginalIntersection { osm_node_id: *id });
+                    }
+                }
+            }
         }
     }
     for stop in &mut stops {
@@ -729,6 +739,9 @@ fn extract_route(
         is_bus,
         osm_rel_id: rel.id,
         stops,
+        border_start: None,
+        border_end: None,
+        all_pts,
     })
 }
 

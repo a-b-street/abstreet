@@ -435,6 +435,10 @@ pub struct RawBusRoute {
     // If not, light rail
     pub is_bus: bool,
     pub stops: Vec<RawBusStop>,
+    pub border_start: Option<OriginalIntersection>,
+    pub border_end: Option<OriginalIntersection>,
+    // Temporarily plumbed along
+    pub all_pts: Vec<OriginalIntersection>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

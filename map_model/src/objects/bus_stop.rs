@@ -49,5 +49,7 @@ pub struct BusRoute {
     pub full_name: String,
     pub short_name: String,
     pub stops: Vec<BusStopID>,
+    pub start_border: Option<LaneID>,
+    pub end_border: Option<LaneID>,
     pub route_type: PathConstraints,
 }
