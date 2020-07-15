@@ -189,6 +189,7 @@ pub fn extract_osm(
 
     let mut simple_turn_restrictions = Vec::new();
     let mut complicated_turn_restrictions = Vec::new();
+    let mut amenity_areas: Vec<(String, String, Polygon)> = Vec::new();
     timer.start_iter("processing OSM relations", doc.relations.len());
     for rel in doc.relations.values() {
         timer.next();
@@ -292,6 +293,26 @@ pub fn extract_osm(
         } else if tags.is("type", "route_master") {
             map.bus_routes
                 .extend(extract_route(&tags, rel, &doc, &id_to_way, &map.gps_bounds));
+        } else if tags.is("type", "multipolygon") && tags.contains_key("amenity") {
+            let name = tags
+                .get("name")
+                .cloned()
+                .unwrap_or_else(|| "unnamed".to_string());
+            let amenity = tags.get("amenity").clone().unwrap();
+            for member in &rel.members {
+                if let osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) =
+                    member
+                {
+                    if role != "outer" {
+                        continue;
+                    }
+                    if let Some(pts) = id_to_way.get(&id) {
+                        if pts[0] == *pts.last().unwrap() {
+                            amenity_areas.push((name.clone(), amenity.clone(), Polygon::new(pts)));
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -313,10 +334,21 @@ pub fn extract_osm(
     }
 
     // Berlin has lots of "buildings" mapped in the Holocaust-Mahnmal. Filter them out.
+    timer.start_iter("match buildings to memorial areas", memorial_areas.len());
     for area in memorial_areas {
+        timer.next();
         retain_btreemap(&mut map.buildings, |_, b| {
             !area.contains_pt(b.polygon.center())
         });
+    }
+
+    timer.start_iter("match buildings to amenity areas", amenity_areas.len());
+    for (name, amenity, poly) in amenity_areas {
+        for b in map.buildings.values_mut() {
+            if poly.contains_pt(b.polygon.center()) {
+                b.amenities.insert((name.clone(), amenity.clone()));
+            }
+        }
     }
 
     // Hack to fix z-ordering for Green Lake (and probably other places). Put water and islands
