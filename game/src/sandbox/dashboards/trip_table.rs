@@ -248,7 +248,6 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             if let Some(dt) = times.get(id) {
                 *dt
             } else {
-                // Aborted
                 aborted += 1;
                 continue;
             }
@@ -385,7 +384,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
     col.push(
         Text::from_multiline(vec![
             Line(format!(
-                "{} trips aborted due to simulation glitch",
+                "{} trips cancelled or aborted due to simulation glitch",
                 prettyprint_usize(aborted)
             )),
             Line(format!(

@@ -324,6 +324,27 @@ pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
     Widget::col(col)
 }
 
+pub fn cancelled(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
+    let (start_time, trip_start, trip_end, _, _) = app.primary.sim.trip_info(trip);
+
+    let mut col = vec!["Trip cancelled due to traffic pattern modifications".draw_text(ctx)];
+
+    // TODO Warp buttons. make_table is showing its age.
+    let (_, _, name1) = endpoint(&trip_start, &app.primary.map);
+    let (_, _, name2) = endpoint(&trip_end, &app.primary.map);
+    col.extend(make_table(
+        ctx,
+        vec![
+            ("Departure", start_time.ampm_tostring()),
+            ("From", name1),
+            ("To", name2),
+        ]
+        .into_iter(),
+    ));
+
+    Widget::col(col)
+}
+
 fn make_timeline(
     ctx: &mut EventCtx,
     app: &App,

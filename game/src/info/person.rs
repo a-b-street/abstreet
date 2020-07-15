@@ -115,6 +115,14 @@ pub fn trips(
                     open_trips.get(t).map(|_| trip::aborted(ctx, app, *t)),
                 )
             }
+            TripResult::TripCancelled => {
+                // Cancelled trips can happen anywhere in the schedule right now
+                (
+                    "cancelled",
+                    Color::hex("#EB3223"),
+                    open_trips.get(t).map(|_| trip::cancelled(ctx, app, *t)),
+                )
+            }
             TripResult::TripDoesntExist => unreachable!(),
         };
         let (_, _, _, trip_mode, modified) = sim.trip_info(*t);

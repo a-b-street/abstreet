@@ -122,6 +122,7 @@ impl TripManager {
             finished_at: None,
             total_blocked_time: Duration::ZERO,
             aborted: false,
+            cancelled: false,
             mode,
             legs: VecDeque::from(legs),
             start,
@@ -674,7 +675,8 @@ impl TripManager {
     pub fn cancel_trip(&mut self, id: TripID) {
         let trip = &mut self.trips[id.0];
         self.unfinished_trips -= 1;
-        trip.aborted = true;
+        trip.cancelled = true;
+        // TODO Still representing the same way in analytics
         self.events.push(Event::TripAborted(trip.id));
     }
 
@@ -780,6 +782,9 @@ impl TripManager {
         }
         if trip.aborted {
             return TripResult::TripAborted;
+        }
+        if trip.cancelled {
+            return TripResult::TripCancelled;
         }
         if !trip.started {
             return TripResult::TripNotStarted;
@@ -929,6 +934,7 @@ impl TripManager {
         scheduler: &mut Scheduler,
         map: &Map,
     ) {
+        assert!(!self.trips[trip.0].cancelled);
         assert!(!self.trips[trip.0].aborted);
         if !self.pathfinding_upfront && maybe_path.is_none() && maybe_req.is_some() {
             maybe_path = map.pathfind(maybe_req.clone().unwrap());
@@ -1256,7 +1262,7 @@ impl TripManager {
     pub fn all_arrivals_at_border(&self, at: IntersectionID) -> Vec<(Time, TripMode)> {
         let mut times = Vec::new();
         for t in &self.trips {
-            if t.aborted {
+            if t.aborted || t.cancelled {
                 continue;
             }
             if let TripEndpoint::Border(i, _) = t.start {
@@ -1278,6 +1284,7 @@ struct Trip {
     finished_at: Option<Time>,
     total_blocked_time: Duration,
     aborted: bool,
+    cancelled: bool,
     legs: VecDeque<TripLeg>,
     mode: TripMode,
     start: TripEndpoint,
@@ -1452,6 +1459,7 @@ pub enum TripResult<T> {
     TripDoesntExist,
     TripNotStarted,
     TripAborted,
+    TripCancelled,
     RemoteTrip,
 }
 
@@ -1471,6 +1479,7 @@ impl<T> TripResult<T> {
             TripResult::TripDoesntExist => TripResult::TripDoesntExist,
             TripResult::TripNotStarted => TripResult::TripNotStarted,
             TripResult::TripAborted => TripResult::TripAborted,
+            TripResult::TripCancelled => TripResult::TripCancelled,
             TripResult::RemoteTrip => TripResult::RemoteTrip,
         }
     }
