@@ -1,10 +1,10 @@
-pub mod bus;
 mod elevation;
 pub mod map;
 mod pandemic;
 mod parking;
 mod population;
 pub mod traffic;
+pub mod transit;
 
 use crate::app::App;
 use crate::common::HeatmapOptions;
@@ -111,7 +111,7 @@ impl PickLayer {
                     btn("map edits", Key::E),
                     btn("parking occupancy", Key::P),
                     btn("bike network", Key::B),
-                    btn("bus network", Key::U),
+                    btn("transit network", Key::U),
                     btn("population map", Key::X),
                 ]),
             ])
@@ -164,8 +164,10 @@ impl State for PickLayer {
                 "bike network" => {
                     app.layer = Some(Box::new(map::BikeNetwork::new(ctx, app)));
                 }
-                "bus network" => {
-                    app.layer = Some(Box::new(bus::BusNetwork::new(ctx, app, false)));
+                "transit network" => {
+                    app.layer = Some(Box::new(transit::TransitNetwork::new(
+                        ctx, app, false, true, true,
+                    )));
                 }
                 "elevation" => {
                     app.layer = Some(Box::new(elevation::Elevation::new(ctx, app)));

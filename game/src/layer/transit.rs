@@ -6,18 +6,20 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D, Time};
-use map_model::{BusRouteID, PathRequest, PathStep};
+use map_model::{BusRouteID, PathConstraints, PathRequest, PathStep};
 
-pub struct BusNetwork {
+pub struct TransitNetwork {
     composite: Composite,
     unzoomed: Drawable,
     zoomed: Drawable,
     show_all_routes: bool,
+    show_buses: bool,
+    show_trains: bool,
 }
 
-impl Layer for BusNetwork {
+impl Layer for TransitNetwork {
     fn name(&self) -> Option<&'static str> {
-        Some("bus network")
+        Some("transit network")
     }
     fn event(
         &mut self,
@@ -35,8 +37,18 @@ impl Layer for BusNetwork {
             },
             None => {
                 let new_show_all_routes = self.composite.is_checked("show all routes");
-                if new_show_all_routes != self.show_all_routes {
-                    *self = BusNetwork::new(ctx, app, new_show_all_routes);
+                let new_show_buses = self.composite.is_checked("show buses");
+                let new_show_trains = self.composite.is_checked("show trains");
+                if (new_show_all_routes, new_show_buses, new_show_trains)
+                    != (self.show_all_routes, self.show_buses, self.show_trains)
+                {
+                    *self = TransitNetwork::new(
+                        ctx,
+                        app,
+                        new_show_all_routes,
+                        new_show_buses,
+                        new_show_trains,
+                    );
                     self.composite.align_above(ctx, minimap);
                 }
             }
@@ -56,28 +68,48 @@ impl Layer for BusNetwork {
     }
 }
 
-impl BusNetwork {
-    pub fn new(ctx: &mut EventCtx, app: &App, show_all_routes: bool) -> BusNetwork {
+impl TransitNetwork {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        show_all_routes: bool,
+        show_buses: bool,
+        show_trains: bool,
+    ) -> TransitNetwork {
         let map = &app.primary.map;
         // TODO Same color for both?
         let mut categories = vec![
-            ("bus lanes", app.cs.bus_layer),
-            ("bus stops", app.cs.bus_layer),
+            ("bus lanes / rails", app.cs.bus_layer),
+            ("transit stops", app.cs.bus_layer),
         ];
         if show_all_routes {
-            categories.push(("bus routes", app.cs.bus_layer));
+            categories.push(("routes", app.cs.bus_layer));
         }
         let mut colorer = ColorDiscrete::new(app, categories);
         for l in map.all_lanes() {
-            if l.is_bus() {
-                colorer.add_l(l.id, "bus lanes");
+            if l.is_bus() && show_buses {
+                colorer.add_l(l.id, "bus lanes / rails");
+            }
+            if l.is_light_rail() && show_trains {
+                colorer.add_l(l.id, "bus lanes / rails");
             }
         }
-        for bs in map.all_bus_stops().keys() {
-            colorer.add_bs(*bs, "bus stops");
+        for bs in map.all_bus_stops().values() {
+            if !bs.is_train_stop && show_buses {
+                colorer.add_bs(bs.id, "transit stops");
+            }
+            if bs.is_train_stop && show_trains {
+                colorer.add_bs(bs.id, "transit stops");
+            }
         }
         if show_all_routes {
             for br in map.all_bus_routes() {
+                if !show_buses && br.route_type == PathConstraints::Bus {
+                    continue;
+                }
+                if !show_trains && br.route_type == PathConstraints::Train {
+                    continue;
+                }
                 for (bs1, bs2) in loop_pairs(&br.stops) {
                     if let Some(path) = map.pathfind(PathRequest {
                         start: map.get_bs(bs1).driving_pos,
@@ -86,7 +118,7 @@ impl BusNetwork {
                     }) {
                         for step in path.get_steps() {
                             if let PathStep::Lane(l) = step {
-                                colorer.add_l(*l, "bus routes");
+                                colorer.add_l(*l, "routes");
                             }
                         }
                     }
@@ -104,16 +136,20 @@ impl BusNetwork {
                     .align_right(),
             ]),
             Checkbox::text(ctx, "show all routes", None, show_all_routes),
+            Checkbox::text(ctx, "show buses", None, show_buses),
+            Checkbox::text(ctx, "show trains", None, show_trains),
             legend,
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
 
-        BusNetwork {
+        TransitNetwork {
             composite,
             unzoomed,
             zoomed,
             show_all_routes,
+            show_buses,
+            show_trains,
         }
     }
 }
