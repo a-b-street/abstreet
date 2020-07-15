@@ -427,6 +427,23 @@ fn make_phases(
         phases.push(phase);
     }
 
+    if phases.len() > 1 {
+        // At intersections of one-ways like Terry and Denny, we could get away with a single phase.
+        // Really weak form of this now, just collapsing the one smallest phase.
+        let smallest = phases
+            .iter()
+            .min_by_key(|p| p.protected_groups.len() + p.yield_groups.len())
+            .cloned()
+            .unwrap();
+        if phases.iter().any(|p| {
+            p != &smallest
+                && smallest.protected_groups.is_subset(&p.protected_groups)
+                && smallest.yield_groups.is_subset(&p.yield_groups)
+        }) {
+            phases.retain(|p| p != &smallest);
+        }
+    }
+
     phases
 }
 
