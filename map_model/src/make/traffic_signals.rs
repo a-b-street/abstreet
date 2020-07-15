@@ -22,9 +22,11 @@ pub fn get_possible_policies(
         if let Ok(ts) = ControlTrafficSignal::import(raw, id, map) {
             results.push(("hand-mapped current real settings".to_string(), ts));
         } else {
+            let i = map.get_i(id);
             timer.error(format!(
-                "seattle_traffic_signals data for {} out of date, go update it",
-                map.get_i(id).orig_id.osm_node_id
+                "seattle_traffic_signals data for {} ({}) out of date, go update it",
+                i.orig_id,
+                i.name(map)
             ));
         }
     }
