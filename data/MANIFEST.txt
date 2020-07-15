@@ -1,6 +1,9 @@
+data/input/berlin/osm/berlin-latest.osm.pbf,52bbd0527d89827ddeb84eaff742ac5b,https://www.dropbox.com/s/8masykl5oi34wmj/berlin-latest.osm.pbf.zip?dl=0
+data/input/berlin/osm/berlin_centre.osm,5b777f293e8639af583eb5a6b4ce9e8f,https://www.dropbox.com/s/fez31d657hf0n63/berlin_centre.osm.zip?dl=0
 data/input/krakow/osm/huge_krakow.osm,03bae13bcf9461236b81dd1f0a74696d,https://www.dropbox.com/s/ooqaw4z5yfwucql/huge_krakow.osm.zip?dl=0
 data/input/krakow/osm/malopolskie-latest.osm.pbf,36071de68f68c516fe81300c2d1940a9,https://www.dropbox.com/s/4718vobelcz32id/malopolskie-latest.osm.pbf.zip?dl=0
 data/input/raw_maps/ballard.bin,c69ccb1549963e2afd6e79f171fca891,https://www.dropbox.com/s/cmcgvc3pu4kfbxg/ballard.bin.zip?dl=0
+data/input/raw_maps/berlin_centre.bin,bdc45e82b0745d90ab5fff91e1fe782b,https://www.dropbox.com/s/ku67q27m0bwl46c/berlin_centre.bin.zip?dl=0
 data/input/raw_maps/downtown.bin,293cd40e341692d463f2f9dfaa268ad2,https://www.dropbox.com/s/hnewav4v1o46zzr/downtown.bin.zip?dl=0
 data/input/raw_maps/huge_krakow.bin,dee71f3a27fb5d412b0b8d5f820dbc8f,https://www.dropbox.com/s/8r9sc6sdhh3sr2a/huge_krakow.bin.zip?dl=0
 data/input/raw_maps/huge_seattle.bin,6ae7d4d644643c892f32a6bfa7d22c80,https://www.dropbox.com/s/fpgdrk7wk2fyupj/huge_seattle.bin.zip?dl=0
@@ -9,6 +12,7 @@ data/input/raw_maps/montlake.bin,02aeaafd38499339d8574a91d49eb78a,https://www.dr
 data/input/raw_maps/south_seattle.bin,2506fd7c5e4c5e1caa5039f92349470d,https://www.dropbox.com/s/nvr1nlwqbd0ekjt/south_seattle.bin.zip?dl=0
 data/input/raw_maps/udistrict.bin,ee9a8e476096c378f41ce6600ca2dea4,https://www.dropbox.com/s/58a90wvzmlptnxo/udistrict.bin.zip?dl=0
 data/input/raw_maps/west_seattle.bin,68554b36c37d2ddfcf1f9fdcb3448103,https://www.dropbox.com/s/blvgv5rwta8kgye/west_seattle.bin.zip?dl=0
+data/input/screenshots/berlin_centre.zip,0c2c5bffce0c9ebdc7ba02969cc12b43,https://www.dropbox.com/s/6gnezo91vpf3skr/berlin_centre.zip.zip?dl=0
 data/input/screenshots/downtown.zip,bf42a14c904f816c129c275852ccd788,https://www.dropbox.com/s/qawd35wz62m2acl/downtown.zip.zip?dl=0
 data/input/screenshots/huge_krakow.zip,674e0228c0c8fe4590a03550c0b70f8d,https://www.dropbox.com/s/dbzon7k5ukndtza/huge_krakow.zip.zip?dl=0
 data/input/screenshots/lakeslice.zip,d207f5e4c40dacf2e09e60779bc9ad3d,https://www.dropbox.com/s/z0z96lsn7bunqfy/lakeslice.zip.zip?dl=0
@@ -34,6 +38,7 @@ data/input/seattle/popdat.bin,1aa2569c7e5a5a4773d7ca706d60432d,https://www.dropb
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
 data/system/cities/seattle.bin,7019f93dac8ba704566049f6d253e533,https://www.dropbox.com/s/1k23g2q1nrmbh1m/seattle.bin.zip?dl=0
 data/system/maps/ballard.bin,a7b719add97a69333d0ce30f4d80bf9a,https://www.dropbox.com/s/yp28kp7ii8h81cc/ballard.bin.zip?dl=0
+data/system/maps/berlin_centre.bin,2d288e1abef1de5855ad4fa57914d955,https://www.dropbox.com/s/4o0tclf88d4hmnv/berlin_centre.bin.zip?dl=0
 data/system/maps/downtown.bin,97c2c8d329f6ece105e59cb1bc8d46bb,https://www.dropbox.com/s/95c8ui3dcg47rz9/downtown.bin.zip?dl=0
 data/system/maps/huge_krakow.bin,a759be9826f14f8ed11dc2cfa8d560a2,https://www.dropbox.com/s/urb6j6dmy2hh4zq/huge_krakow.bin.zip?dl=0
 data/system/maps/huge_seattle.bin,063148dc7664e4bdce3505272e692c6e,https://www.dropbox.com/s/rrli9java5p7nql/huge_seattle.bin.zip?dl=0

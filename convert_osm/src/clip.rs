@@ -16,7 +16,15 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
     retain_btreemap(&mut map.roads, |_, r| {
         let first_in = boundary_polygon.contains_pt(r.center_points[0]);
         let last_in = boundary_polygon.contains_pt(*r.center_points.last().unwrap());
-        first_in || last_in || r.is_light_rail()
+        let light_rail_ok = if r.is_light_rail() {
+            // Make sure it's in the boundary somewhere
+            r.center_points
+                .iter()
+                .any(|pt| boundary_polygon.contains_pt(*pt))
+        } else {
+            false
+        };
+        first_in || last_in || light_rail_ok
     });
 
     // First pass: Clip roads beginning out of bounds
@@ -46,7 +54,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
                 osm_node_id: map.new_osm_node_id(-1),
             };
             map.intersections.insert(move_i, copy);
-            println!("Disconnecting {} from some other stuff", id);
+            println!("Disconnecting {} from some other stuff (starting OOB)", id);
         }
 
         let i = map.intersections.get_mut(&move_i).unwrap();
@@ -103,7 +111,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
                 osm_node_id: map.new_osm_node_id(-1),
             };
             map.intersections.insert(move_i, copy);
-            println!("Disconnecting {} from some other stuff", id);
+            println!("Disconnecting {} from some other stuff (ending OOB)", id);
         }
 
         let i = map.intersections.get_mut(&move_i).unwrap();

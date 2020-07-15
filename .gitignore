@@ -3,6 +3,7 @@
 
 data/config
 
+data/input/berlin/osm
 data/input/krakow/osm
 
 data/input/seattle/blockface.bin

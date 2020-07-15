@@ -59,8 +59,8 @@ You can also opt into downloading updates for more cities by editing
 `data/config`. Opting into everything looks like this:
 
 ```
-runtime: seattle,huge_seattle,krakow
-input: seattle,huge_seattle,krakow
+runtime: seattle,huge_seattle,krakow,berlin
+input: seattle,huge_seattle,krakow,berlin
 ```
 
 `runtime` downloads new maps and scenarios in `data/system/`. `input` is used
