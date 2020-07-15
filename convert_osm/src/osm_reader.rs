@@ -1,4 +1,4 @@
-use abstutil::{FileWithProgress, Tags, Timer};
+use abstutil::{retain_btreemap, FileWithProgress, Tags, Timer};
 use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use map_model::raw::{
     OriginalBuilding, RawArea, RawBuilding, RawBusRoute, RawBusStop, RawMap, RawParkingLot,
@@ -96,6 +96,7 @@ pub fn extract_osm(
     }
 
     let mut coastline_groups: Vec<(i64, Vec<Pt2D>)> = Vec::new();
+    let mut memorial_areas: Vec<Polygon> = Vec::new();
     timer.start_iter("processing OSM ways", doc.ways.len());
     for way in doc.ways.values() {
         timer.next();
@@ -174,6 +175,10 @@ pub fn extract_osm(
             });
         } else if tags.is("highway", "service") {
             map.parking_aisles.push(pts);
+        } else if tags.is("historic", "memorial") {
+            if pts[0] == *pts.last().unwrap() {
+                memorial_areas.push(Polygon::new(&pts));
+            }
         } else {
             // The way might be part of a relation later.
             id_to_way.insert(way.id, pts);
@@ -305,6 +310,13 @@ pub fn extract_osm(
                 osm_tags,
             },
         );
+    }
+
+    // Berlin has lots of "buildings" mapped in the Holocaust-Mahnmal. Filter them out.
+    for area in memorial_areas {
+        retain_btreemap(&mut map.buildings, |_, b| {
+            !area.contains_pt(b.polygon.center())
+        });
     }
 
     // Hack to fix z-ordering for Green Lake (and probably other places). Put water and islands
