@@ -6,6 +6,7 @@ use crate::sandbox::SandboxMode;
 use ezgui::{
     Btn, Composite, EventCtx, GfxCtx, Line, LinePlot, Outcome, PlotOptions, Series, Widget,
 };
+use map_model::BusRouteID;
 
 pub struct ActiveTraffic {
     composite: Composite,
@@ -67,12 +68,12 @@ pub struct BusRoutes {
 
 impl BusRoutes {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let mut routes: Vec<String> = app
+        let mut routes: Vec<(String, BusRouteID)> = app
             .primary
             .map
             .all_bus_routes()
             .iter()
-            .map(|r| r.full_name.clone())
+            .map(|r| (r.full_name.clone(), r.id))
             .collect();
         // TODO Sort first by length, then lexicographically
         routes.sort();
@@ -83,7 +84,11 @@ impl BusRoutes {
             Widget::row(
                 routes
                     .into_iter()
-                    .map(|r| Btn::text_fg(r).build_def(ctx, None).margin_below(10))
+                    .map(|(r, id)| {
+                        Btn::text_fg(r)
+                            .build(ctx, id.to_string(), None)
+                            .margin_below(10)
+                    })
                     .collect(),
             )
             .flex_wrap(ctx, 80),
@@ -101,7 +106,10 @@ impl State for BusRoutes {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => {
-                if let Some(r) = app.primary.map.get_bus_route(&x) {
+                if x.starts_with("BusRoute #") {
+                    let r = app.primary.map.get_br(BusRouteID(
+                        x["BusRoute #".len()..].parse::<usize>().unwrap(),
+                    ));
                     let buses = app.primary.sim.status_of_buses(r.id);
                     if buses.is_empty() {
                         Transition::Push(msg(
