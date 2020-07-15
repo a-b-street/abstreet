@@ -21,7 +21,7 @@ struct Stop {
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
 struct Route {
     stops: Vec<Stop>,
-    buses: BTreeSet<CarID>,
+    active_buses: BTreeSet<CarID>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
@@ -37,6 +37,7 @@ struct Bus {
 enum BusState {
     DrivingToStop(StopIdx),
     AtStop(StopIdx),
+    Done,
 }
 
 // This kind of acts like TripManager, managing transitions... but a bit more statefully.
@@ -111,7 +112,7 @@ impl TransitSimState {
         self.routes.insert(
             bus_route.id,
             Route {
-                buses: BTreeSet::new(),
+                active_buses: BTreeSet::new(),
                 stops,
             },
         );
@@ -119,7 +120,11 @@ impl TransitSimState {
     }
 
     pub fn bus_created(&mut self, bus: CarID, route: BusRouteID) {
-        self.routes.get_mut(&route).unwrap().buses.insert(bus);
+        self.routes
+            .get_mut(&route)
+            .unwrap()
+            .active_buses
+            .insert(bus);
         self.buses.insert(
             bus,
             Bus {
@@ -189,14 +194,14 @@ impl TransitSimState {
                 }
                 self.peds_waiting.insert(stop1, still_waiting);
             }
-            BusState::AtStop(_) => unreachable!(),
+            BusState::AtStop(_) | BusState::Done => unreachable!(),
         }
     }
 
     pub fn bus_departed_from_stop(&mut self, id: CarID, map: &Map) -> Router {
         let mut bus = self.buses.get_mut(&id).unwrap();
         match bus.state {
-            BusState::DrivingToStop(_) => unreachable!(),
+            BusState::DrivingToStop(_) | BusState::Done => unreachable!(),
             BusState::AtStop(stop_idx) => {
                 let stop = &self.routes[&bus.route].stops[stop_idx];
                 self.events
@@ -206,8 +211,12 @@ impl TransitSimState {
                     Router::follow_bus_route(path.clone(), req.end.dist_along())
                 } else {
                     let on = stop.driving_pos.lane();
-                    self.routes.get_mut(&bus.route).unwrap().buses.remove(&id);
-                    self.buses.remove(&id);
+                    self.routes
+                        .get_mut(&bus.route)
+                        .unwrap()
+                        .active_buses
+                        .remove(&id);
+                    bus.state = BusState::Done;
                     Router::vanish_bus(on, map)
                 }
             }
@@ -228,7 +237,7 @@ impl TransitSimState {
     ) -> Option<CarID> {
         assert!(stop1 != stop2);
         if let Some(route) = self.routes.get(&route_id) {
-            for bus in &route.buses {
+            for bus in &route.active_buses {
                 if let BusState::AtStop(idx) = self.buses[bus].state {
                     if route.stops[idx].id == stop1 {
                         self.buses
@@ -279,12 +288,13 @@ impl TransitSimState {
     // also stop idx that the bus is coming from
     pub fn buses_for_route(&self, route: BusRouteID) -> Vec<(CarID, usize)> {
         if let Some(ref r) = self.routes.get(&route) {
-            r.buses
+            r.active_buses
                 .iter()
                 .map(|bus| {
                     let stop = match self.buses[bus].state {
                         BusState::DrivingToStop(idx) => idx - 1,
                         BusState::AtStop(idx) => idx,
+                        BusState::Done => unreachable!(),
                     };
                     (*bus, stop)
                 })
