@@ -713,13 +713,11 @@ fn extract_route(
                 _ => continue,
             };
             platforms.insert(platform_name, pt);
-        } else if role == "" {
-            if let osm_xml::Reference::Way(way) = member {
-                // The order of nodes might be wrong, doesn't matter
-                for node in &way.nodes {
-                    if let osm_xml::UnresolvedReference::Node(id) = node {
-                        all_pts.push(OriginalIntersection { osm_node_id: *id });
-                    }
+        } else if let osm_xml::Reference::Way(way) = member {
+            // The order of nodes might be wrong, doesn't matter
+            for node in &way.nodes {
+                if let osm_xml::UnresolvedReference::Node(id) = node {
+                    all_pts.push(OriginalIntersection { osm_node_id: *id });
                 }
             }
         }

@@ -15,120 +15,13 @@ pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer
     // TODO I'm assuming the vehicle_pos <-> driving_pos relation is one-to-one...
     let mut pt_to_stop: BTreeMap<(Position, Position), BusStopID> = BTreeMap::new();
     for r in raw_routes {
-        let mut stops = Vec::new();
-        let mut ok = true;
-        for stop in &r.stops {
-            match matcher.lookup(r.is_bus, stop, map) {
-                Ok((sidewalk_pos, driving_pos)) => {
-                    // Create a new bus stop if needed.
-                    let stop_id = if let Some(id) = pt_to_stop.get(&(sidewalk_pos, driving_pos)) {
-                        *id
-                    } else {
-                        let id = BusStopID {
-                            sidewalk: sidewalk_pos.lane(),
-                            idx: map.get_l(sidewalk_pos.lane()).bus_stops.len(),
-                        };
-                        pt_to_stop.insert((sidewalk_pos, driving_pos), id);
-                        map.lanes[sidewalk_pos.lane().0].bus_stops.insert(id);
-                        map.bus_stops.insert(
-                            id,
-                            BusStop {
-                                id,
-                                name: stop.name.clone(),
-                                driving_pos,
-                                sidewalk_pos,
-                                is_train_stop: !r.is_bus,
-                            },
-                        );
-                        id
-                    };
-                    stops.push(stop_id);
-                }
-                Err(err) => {
-                    timer.warn(format!(
-                        "Couldn't match stop {} for route {} ({}): {}",
-                        stop.name,
-                        r.full_name,
-                        rel_url(r.osm_rel_id),
-                        err,
-                    ));
-                    ok = false;
-                    break;
-                }
-            }
-        }
-        if !ok {
-            continue;
-        }
-
-        let route_type = if r.is_bus {
-            PathConstraints::Bus
-        } else {
-            PathConstraints::Train
-        };
-
-        // Start or end at a border?
-        let mut start_border = None;
-        let mut end_border = None;
-        if let Some(i) = r.border_start {
-            let i = map.get_i(map.find_i_by_osm_id(i.osm_node_id).unwrap());
-            if !i.is_border() {
-                panic!("Route starts at {}, but isn't a border?", i.orig_id);
-            }
-            if let Some(l) = i.get_outgoing_lanes(map, route_type).get(0) {
-                start_border = Some(*l);
-            } else {
-                // TODO Should panic
-                println!(
-                    "Route {} starts at {}, but no starting lane for a {:?}?",
-                    rel_url(r.osm_rel_id),
-                    i.orig_id,
-                    route_type
-                );
-            }
-        }
-        if let Some(i) = r.border_end {
-            let i = map.get_i(map.find_i_by_osm_id(i.osm_node_id).unwrap());
-            if !i.is_border() {
-                panic!("Route ends at {}, but isn't a border?", i.orig_id);
-            }
-            if let Some(l) = i.get_incoming_lanes(map, route_type).next() {
-                end_border = Some(l);
-            } else {
-                // TODO Should panic
-                println!(
-                    "Route {} ends at {}, but no ending lane for a {:?}?",
-                    rel_url(r.osm_rel_id),
-                    i.orig_id,
-                    route_type
-                );
-            }
-        }
-
-        // Make sure the route is connected
-        let mut ok = true;
-        for pair in stops.windows(2) {
-            if let Err(err) = check_stops(route_type, pair[0], pair[1], map) {
-                timer.warn(format!(
-                    "Route {} ({}) disconnected: {}",
-                    r.full_name,
-                    rel_url(r.osm_rel_id),
-                    err
-                ));
-                ok = false;
-                break;
-            }
-        }
-        if ok {
-            map.bus_routes.push(BusRoute {
-                id: BusRouteID(map.bus_routes.len()),
-                full_name: r.full_name.clone(),
-                short_name: r.short_name.clone(),
-                stops,
-                route_type,
-                start_border,
-                end_border,
-            });
+        if let Err(err) = make_route(map, r, &mut pt_to_stop, &matcher) {
+            timer.warn(format!(
+                "Skipping route {} ({}): {}",
+                r.full_name,
+                rel_url(r.osm_rel_id),
+                err
+            ));
         }
     }
 
@@ -145,6 +38,106 @@ pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer
     }
 
     timer.stop("make transit stops and routes");
+}
+
+fn make_route(
+    map: &mut Map,
+    r: &RawBusRoute,
+    pt_to_stop: &mut BTreeMap<(Position, Position), BusStopID>,
+    matcher: &Matcher,
+) -> Result<(), Box<dyn Error>> {
+    let mut stops = Vec::new();
+    for stop in &r.stops {
+        match matcher.lookup(r.is_bus, stop, map) {
+            Ok((sidewalk_pos, driving_pos)) => {
+                // Create a new bus stop if needed.
+                let stop_id = if let Some(id) = pt_to_stop.get(&(sidewalk_pos, driving_pos)) {
+                    *id
+                } else {
+                    let id = BusStopID {
+                        sidewalk: sidewalk_pos.lane(),
+                        idx: map.get_l(sidewalk_pos.lane()).bus_stops.len(),
+                    };
+                    pt_to_stop.insert((sidewalk_pos, driving_pos), id);
+                    map.lanes[sidewalk_pos.lane().0].bus_stops.insert(id);
+                    map.bus_stops.insert(
+                        id,
+                        BusStop {
+                            id,
+                            name: stop.name.clone(),
+                            driving_pos,
+                            sidewalk_pos,
+                            is_train_stop: !r.is_bus,
+                        },
+                    );
+                    id
+                };
+                stops.push(stop_id);
+            }
+            Err(err) => {
+                return Err(format!("couldn't match stop {}: {}", stop.name, err).into());
+            }
+        }
+    }
+
+    let route_type = if r.is_bus {
+        PathConstraints::Bus
+    } else {
+        PathConstraints::Train
+    };
+
+    // Start or end at a border?
+    let mut start_border = None;
+    let mut end_border = None;
+    if let Some(i) = r.border_start {
+        let i = map.get_i(map.find_i_by_osm_id(i.osm_node_id).unwrap());
+        if !i.is_border() {
+            panic!("Route starts at {}, but isn't a border?", i.orig_id);
+        }
+        if let Some(l) = i.get_outgoing_lanes(map, route_type).get(0) {
+            start_border = Some(*l);
+        } else {
+            // TODO Should panic
+            println!(
+                "Route {} starts at {}, but no starting lane for a {:?}?",
+                rel_url(r.osm_rel_id),
+                i.orig_id,
+                route_type
+            );
+        }
+    }
+    if let Some(i) = r.border_end {
+        let i = map.get_i(map.find_i_by_osm_id(i.osm_node_id).unwrap());
+        if !i.is_border() {
+            panic!("Route ends at {}, but isn't a border?", i.orig_id);
+        }
+        if let Some(l) = i.get_incoming_lanes(map, route_type).next() {
+            end_border = Some(l);
+        } else {
+            // TODO Should panic
+            println!(
+                "Route {} ends at {}, but no ending lane for a {:?}?",
+                rel_url(r.osm_rel_id),
+                i.orig_id,
+                route_type
+            );
+        }
+    }
+
+    // Make sure the route is connected
+    for pair in stops.windows(2) {
+        check_stops(route_type, pair[0], pair[1], map)?;
+    }
+    map.bus_routes.push(BusRoute {
+        id: BusRouteID(map.bus_routes.len()),
+        full_name: r.full_name.clone(),
+        short_name: r.short_name.clone(),
+        stops,
+        route_type,
+        start_border,
+        end_border,
+    });
+    Ok(())
 }
 
 struct Matcher {
