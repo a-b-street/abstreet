@@ -433,10 +433,13 @@ impl ContextualActions for Actions {
                 actions.push((Key::X, "debug lane geometry".to_string()));
                 actions.push((Key::F2, "debug lane triangles geometry".to_string()));
             }
-            ID::Intersection(_) => {
+            ID::Intersection(i) => {
                 actions.push((Key::H, "hide this".to_string()));
                 actions.push((Key::X, "debug intersection geometry".to_string()));
                 actions.push((Key::F2, "debug sidewalk corners".to_string()));
+                if app.primary.map.get_i(i).roads.len() == 2 {
+                    actions.push((Key::C, "collapse degenerate road?".to_string()));
+                }
             }
             ID::Car(_) => {
                 actions.push((Key::Backspace, "forcibly kill this car".to_string()));
@@ -518,6 +521,18 @@ impl ContextualActions for Actions {
                         .collect(),
                     None,
                 ))
+            }
+            (ID::Intersection(i), "collapse degenerate road?") => {
+                let i = app.primary.map.get_i(i);
+                let (r1, r2) = {
+                    let mut iter = i.roads.iter();
+                    (*iter.next().unwrap(), *iter.next().unwrap())
+                };
+                diff_tags(
+                    &app.primary.map.get_r(r1).osm_tags,
+                    &app.primary.map.get_r(r2).osm_tags,
+                );
+                Transition::Keep
             }
             (ID::Lane(l), "debug lane geometry") => {
                 Transition::Push(polygons::PolygonDebugger::new(
