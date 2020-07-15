@@ -254,7 +254,6 @@ impl Sim {
             max_speed: None,
         }
         .make(CarID(self.trips.new_car_id(), vehicle_type), None);
-        let id = vehicle.id;
 
         let start = req.start.lane();
         if map.get_l(start).length() < vehicle.length {
@@ -262,30 +261,21 @@ impl Sim {
             return;
         }
 
-        // Bypass some layers of abstraction that don't make sense for buses.
-        if self.driving.start_car_on_lane(
+        self.scheduler.push(
             self.time,
-            CreateCar {
-                start_dist: vehicle.length,
-                vehicle,
-                router: Router::follow_bus_route(path.clone(), req.end.dist_along()),
-                req,
-                maybe_parked_car: None,
-                trip_and_person: None,
-            },
-            map,
-            &self.intersections,
-            &self.parking,
-            &mut self.scheduler,
-        ) {
-            self.transit.bus_created(id, route.id);
-            self.analytics.record_demand(&path, map);
-        } else {
-            timer.error(format!(
-                "Can't start a bus on {}, something's in the way",
-                start
-            ));
-        }
+            Command::SpawnCar(
+                CreateCar {
+                    start_dist: vehicle.length,
+                    vehicle,
+                    router: Router::follow_bus_route(path.clone(), req.end.dist_along()),
+                    req,
+                    maybe_parked_car: None,
+                    trip_and_person: None,
+                    maybe_route: Some(route.id),
+                },
+                true,
+            ),
+        );
     }
 
     pub fn set_name(&mut self, name: String) {
@@ -430,9 +420,19 @@ impl Sim {
                     &self.parking,
                     &mut self.scheduler,
                 ) {
-                    if let Some((trip, _)) = create_car.trip_and_person {
+                    if let Some((trip, person)) = create_car.trip_and_person {
                         self.trips
                             .agent_starting_trip_leg(AgentID::Car(create_car.vehicle.id), trip);
+                        events.push(Event::TripPhaseStarting(
+                            trip,
+                            person,
+                            Some(create_car.req.clone()),
+                            if create_car.vehicle.id.1 == VehicleType::Car {
+                                TripPhaseType::Driving
+                            } else {
+                                TripPhaseType::Biking
+                            },
+                        ));
                     }
                     if let Some(parked_car) = create_car.maybe_parked_car {
                         if let ParkingSpot::Offstreet(b, _) = parked_car.spot {
@@ -444,17 +444,8 @@ impl Sim {
                         }
                         self.parking.remove_parked_car(parked_car);
                     }
-                    if let Some((trip, person)) = create_car.trip_and_person {
-                        events.push(Event::TripPhaseStarting(
-                            trip,
-                            person,
-                            Some(create_car.req.clone()),
-                            if create_car.vehicle.id.1 == VehicleType::Car {
-                                TripPhaseType::Driving
-                            } else {
-                                TripPhaseType::Biking
-                            },
-                        ));
+                    if let Some(route) = create_car.maybe_route {
+                        self.transit.bus_created(create_car.vehicle.id, route);
                     }
                     self.analytics
                         .record_demand(create_car.router.get_path(), map);

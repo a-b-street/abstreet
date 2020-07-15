@@ -35,8 +35,8 @@ pub use crate::render::{
 use abstutil::{deserialize_usize, serialize_usize, Cloneable};
 use geom::{Distance, Pt2D, Speed, Time};
 use map_model::{
-    BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID, Path,
-    PathConstraints, PathRequest, Position,
+    BuildingID, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID,
+    Path, PathConstraints, PathRequest, Position,
 };
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -535,6 +535,7 @@ pub struct CreateCar {
     pub maybe_parked_car: Option<ParkedCar>,
     // None for buses
     pub trip_and_person: Option<(TripID, PersonID)>,
+    pub maybe_route: Option<BusRouteID>,
 }
 
 impl CreateCar {
@@ -553,6 +554,7 @@ impl CreateCar {
             start_dist: start_pos.dist_along(),
             maybe_parked_car: None,
             trip_and_person: Some((trip, person)),
+            maybe_route: None,
         }
     }
 
@@ -572,6 +574,7 @@ impl CreateCar {
             start_dist,
             maybe_parked_car: Some(parked_car),
             trip_and_person: Some((trip, person)),
+            maybe_route: None,
         }
     }
 }
