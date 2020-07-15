@@ -1,17 +1,17 @@
 mod bridges;
 mod buildings;
-mod bus_stops;
 pub mod initial;
 mod remove_disconnected;
 pub mod traffic_signals;
+mod transit;
 pub mod turns;
 
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
-    connectivity, osm, Area, AreaID, BusRouteID, ControlStopSign, ControlTrafficSignal,
-    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints,
-    Position, Road, RoadID, Zone,
+    connectivity, osm, Area, AreaID, ControlStopSign, ControlTrafficSignal, Intersection,
+    IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints, Position, Road,
+    RoadID, Zone,
 };
 use abstutil::Timer;
 use enumset::EnumSet;
@@ -320,44 +320,9 @@ impl Map {
             map.pathfinder = Some(Pathfinder::new_without_transit(&map, timer));
             timer.stop("setup (most of) Pathfinder");
 
-            {
-                // Turn the two directions of each route into one loop. Need to do something better
-                // with borders later.
-                for r in &mut raw.bus_routes {
-                    r.fwd_stops.extend(r.back_stops.drain(..));
-                }
-
-                let (stops, routes) = bus_stops::make_bus_stops(&mut map, &raw.bus_routes, timer);
-                map.bus_stops = stops;
-
-                timer.start_iter("verify bus routes are connected", routes.len());
-                for mut r in routes {
-                    timer.next();
-                    if r.stops.is_empty() {
-                        continue;
-                    }
-                    if bus_stops::fix_bus_route(&map, &mut r) {
-                        r.id = BusRouteID(map.bus_routes.len());
-                        map.bus_routes.push(r);
-                    } else {
-                        timer.warn(format!(
-                            "Skipping route {} due to connectivity problems",
-                            r.name
-                        ));
-                    }
-                }
-
-                // Remove orphaned bus stops. This messes up the BusStopID indexing.
-                for id in map
-                    .bus_stops
-                    .keys()
-                    .filter(|id| map.get_routes_serving_stop(**id).is_empty())
-                    .cloned()
-                    .collect::<Vec<_>>()
-                {
-                    map.bus_stops.remove(&id);
-                    map.lanes[id.sidewalk.0].bus_stops.remove(&id);
-                }
+            transit::make_stops_and_routes(&mut map, &raw.bus_routes, timer);
+            for id in map.bus_stops.keys() {
+                assert!(!map.get_routes_serving_stop(*id).is_empty());
             }
 
             timer.start("setup rest of Pathfinder (walking with transit)");

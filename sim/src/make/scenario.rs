@@ -96,7 +96,7 @@ impl Scenario {
 
         if let Some(ref routes) = self.only_seed_buses {
             for route in map.all_bus_routes() {
-                if routes.contains(&route.name) {
+                if routes.contains(&route.full_name) {
                     sim.seed_bus_route(route, map, timer);
                 }
             }

@@ -3,8 +3,8 @@ use crate::mechanics::Queue;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
     DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PersonID,
-    Scheduler, TimeInterval, TransitSimState, TripManager, UnzoomedAgent, Vehicle, VehicleType,
-    WalkingSimState, FOLLOWING_DISTANCE,
+    Scheduler, TimeInterval, TransitSimState, TripManager, UnzoomedAgent, Vehicle, WalkingSimState,
+    FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Time};
@@ -171,7 +171,7 @@ impl DrivingSimState {
         //
         // Crossing -> Queued or WaitingToAdvance
         // Unparking -> Crossing
-        // Idling -> Crossing
+        // IdlingAtStop -> Crossing
         // Queued -> last step handling (Parking or done)
         // WaitingToAdvance -> try to advance to the next step of the path
         // Parking -> done
@@ -284,8 +284,8 @@ impl DrivingSimState {
                 car.state = car.crossing_state(front, now, map);
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
             }
-            CarState::Idling(dist, _) => {
-                car.router = transit.bus_departed_from_stop(car.vehicle.id);
+            CarState::IdlingAtStop(dist, _) => {
+                car.router = transit.bus_departed_from_stop(car.vehicle.id, map);
                 self.events
                     .push(Event::PathAmended(car.router.get_path().clone()));
                 car.state = car.crossing_state(dist, now, map);
@@ -325,7 +325,7 @@ impl DrivingSimState {
                         CarState::Crossing(_, _)
                         | CarState::Unparking(_, _, _)
                         | CarState::Parking(_, _, _)
-                        | CarState::Idling(_, _) => {}
+                        | CarState::IdlingAtStop(_, _) => {}
                     }
                 }
             }
@@ -429,7 +429,7 @@ impl DrivingSimState {
         match car.state {
             CarState::Crossing(_, _)
             | CarState::Unparking(_, _, _)
-            | CarState::Idling(_, _)
+            | CarState::IdlingAtStop(_, _)
             | CarState::WaitingToAdvance { .. } => unreachable!(),
             CarState::Queued { blocked_since } => {
                 match car.router.maybe_handle_end(
@@ -514,15 +514,10 @@ impl DrivingSimState {
                             map,
                         );
                         car.total_blocked_time += now - blocked_since;
-                        // TODO Light rail routes are all disconnected. For now, just sit forever
-                        // after making one stop.
-                        let wait_at_stop = if car.vehicle.vehicle_type == VehicleType::Train {
-                            Duration::hours(24 * 30)
-                        } else {
-                            TIME_TO_WAIT_AT_STOP
-                        };
-                        car.state =
-                            CarState::Idling(our_dist, TimeInterval::new(now, now + wait_at_stop));
+                        car.state = CarState::IdlingAtStop(
+                            our_dist,
+                            TimeInterval::new(now, now + TIME_TO_WAIT_AT_STOP),
+                        );
                         scheduler
                             .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
                         true
@@ -673,7 +668,7 @@ impl DrivingSimState {
                 // They weren't blocked
                 CarState::Unparking(_, _, _)
                 | CarState::Parking(_, _, _)
-                | CarState::Idling(_, _) => {}
+                | CarState::IdlingAtStop(_, _) => {}
                 CarState::WaitingToAdvance { .. } => unreachable!(),
             }
         }
@@ -813,7 +808,7 @@ impl DrivingSimState {
                         CarState::Crossing(_, _)
                         | CarState::Unparking(_, _, _)
                         | CarState::Parking(_, _, _)
-                        | CarState::Idling(_, _) => {}
+                        | CarState::IdlingAtStop(_, _) => {}
                     }
                 }
             } else {

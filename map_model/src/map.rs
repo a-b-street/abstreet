@@ -400,7 +400,7 @@ impl Map {
     }
 
     pub fn get_bus_route(&self, name: &str) -> Option<&BusRoute> {
-        self.bus_routes.iter().find(|r| r.name == name)
+        self.bus_routes.iter().find(|r| r.full_name == name)
     }
 
     pub fn get_routes_serving_stop(&self, stop: BusStopID) -> Vec<&BusRoute> {

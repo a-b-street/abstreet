@@ -150,7 +150,7 @@ impl Queue {
                 }
                 CarState::Unparking(front, _, _) => front,
                 CarState::Parking(front, _, _) => front,
-                CarState::Idling(front, _) => front,
+                CarState::IdlingAtStop(front, _) => front,
             };
 
             result.push((*id, front));
@@ -274,7 +274,7 @@ fn dump_cars(
             CarState::Parking(_, _, ref time_int) => {
                 println!("  Parking during {} .. {}", time_int.start, time_int.end);
             }
-            CarState::Idling(_, ref time_int) => {
+            CarState::IdlingAtStop(_, ref time_int) => {
                 println!("  Idling during {} .. {}", time_int.start, time_int.end);
             }
         }

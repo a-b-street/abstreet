@@ -6,6 +6,101 @@ use crate::{
 use abstutil::Timer;
 use geom::{Distance, HashablePt2D};
 use std::collections::{BTreeMap, HashMap, HashSet};
+use std::error::Error;
+
+pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer: &mut Timer) {
+    timer.start("make transit stops and routes");
+    let matcher = Matcher::new(raw_routes, map, timer);
+
+    // TODO I'm assuming the vehicle_pos <-> driving_pos relation is one-to-one...
+    let mut pt_to_stop: BTreeMap<(Position, Position), BusStopID> = BTreeMap::new();
+    for r in raw_routes {
+        let mut stops = Vec::new();
+        let mut ok = true;
+        for stop in &r.stops {
+            if let Some((sidewalk_pos, driving_pos)) = matcher.lookup(r.is_bus, stop, map) {
+                // Create a new bus stop if needed.
+                let stop_id = if let Some(id) = pt_to_stop.get(&(sidewalk_pos, driving_pos)) {
+                    *id
+                } else {
+                    let id = BusStopID {
+                        sidewalk: sidewalk_pos.lane(),
+                        idx: map.get_l(sidewalk_pos.lane()).bus_stops.len(),
+                    };
+                    pt_to_stop.insert((sidewalk_pos, driving_pos), id);
+                    map.lanes[sidewalk_pos.lane().0].bus_stops.insert(id);
+                    map.bus_stops.insert(
+                        id,
+                        BusStop {
+                            id,
+                            name: stop.name.clone(),
+                            driving_pos,
+                            sidewalk_pos,
+                            is_train_stop: !r.is_bus,
+                        },
+                    );
+                    id
+                };
+                stops.push(stop_id);
+            } else {
+                timer.warn(format!(
+                    "Couldn't match stop {} for route {} ({})",
+                    stop.name,
+                    r.full_name,
+                    rel_url(r.osm_rel_id)
+                ));
+                ok = false;
+                break;
+            }
+        }
+        if !ok {
+            continue;
+        }
+
+        // Make sure the stops are connected
+        let route_type = if r.is_bus {
+            PathConstraints::Bus
+        } else {
+            PathConstraints::Train
+        };
+        let mut ok = true;
+        for pair in stops.windows(2) {
+            if let Err(err) = check_stops(route_type, pair[0], pair[1], map) {
+                timer.warn(format!(
+                    "Route {} ({}) disconnected: {}",
+                    r.full_name,
+                    rel_url(r.osm_rel_id),
+                    err
+                ));
+                ok = false;
+                break;
+            }
+        }
+        if ok {
+            map.bus_routes.push(BusRoute {
+                id: BusRouteID(map.bus_routes.len()),
+                full_name: r.full_name.clone(),
+                short_name: r.short_name.clone(),
+                stops,
+                route_type,
+            });
+        }
+    }
+
+    // Remove orphaned bus stops. This messes up the BusStopID indexing.
+    for id in map
+        .bus_stops
+        .keys()
+        .filter(|id| map.get_routes_serving_stop(**id).is_empty())
+        .cloned()
+        .collect::<Vec<_>>()
+    {
+        map.bus_stops.remove(&id);
+        map.lanes[id.sidewalk.0].bus_stops.remove(&id);
+    }
+
+    timer.stop("make transit stops and routes");
+}
 
 struct Matcher {
     sidewalk_pts: HashMap<HashablePt2D, Position>,
@@ -14,13 +109,13 @@ struct Matcher {
 }
 
 impl Matcher {
-    fn new(bus_routes: &Vec<RawBusRoute>, map: &Map, timer: &mut Timer) -> Matcher {
+    fn new(routes: &Vec<RawBusRoute>, map: &Map, timer: &mut Timer) -> Matcher {
         // Match all of the points to an exact position along a lane.
         let mut lookup_sidewalk_pts = HashSet::new();
         let mut lookup_bus_pts = HashSet::new();
         let mut lookup_light_rail_pts = HashSet::new();
-        for r in bus_routes {
-            for stop in &r.fwd_stops {
+        for r in routes {
+            for stop in &r.stops {
                 if r.is_bus {
                     lookup_bus_pts.insert(stop.vehicle_pos.to_hashable());
                 } else {
@@ -107,114 +202,40 @@ impl Matcher {
     }
 }
 
-pub fn make_bus_stops(
-    map: &mut Map,
-    bus_routes: &Vec<RawBusRoute>,
-    timer: &mut Timer,
-) -> (BTreeMap<BusStopID, BusStop>, Vec<BusRoute>) {
-    timer.start("make bus stops");
-    let matcher = Matcher::new(bus_routes, map, timer);
-
-    // TODO I'm assuming the vehicle_pos <-> driving_pos relation is one-to-one...
-    let mut pt_to_stop: BTreeMap<(Position, Position), BusStopID> = BTreeMap::new();
-    let mut bus_stops: BTreeMap<BusStopID, BusStop> = BTreeMap::new();
-    let mut routes: Vec<BusRoute> = Vec::new();
-
-    for r in bus_routes {
-        let mut stops = Vec::new();
-        for stop in &r.fwd_stops {
-            if let Some((sidewalk_pos, driving_pos)) = matcher.lookup(r.is_bus, stop, map) {
-                // Create a new bus stop if needed.
-                let stop_id = if let Some(id) = pt_to_stop.get(&(sidewalk_pos, driving_pos)) {
-                    *id
-                } else {
-                    let id = BusStopID {
-                        sidewalk: sidewalk_pos.lane(),
-                        idx: map.get_l(sidewalk_pos.lane()).bus_stops.len(),
-                    };
-                    pt_to_stop.insert((sidewalk_pos, driving_pos), id);
-                    map.lanes[sidewalk_pos.lane().0].bus_stops.insert(id);
-                    bus_stops.insert(
-                        id,
-                        BusStop {
-                            id,
-                            name: stop.name.clone(),
-                            driving_pos,
-                            sidewalk_pos,
-                            is_train_stop: !r.is_bus,
-                        },
-                    );
-                    id
-                };
-                stops.push(stop_id);
-            }
-        }
-        routes.push(BusRoute {
-            id: BusRouteID(routes.len()),
-            name: r.name.clone(),
-            stops,
-            route_type: if r.is_bus {
-                PathConstraints::Bus
-            } else {
-                PathConstraints::Train
-            },
-        });
-    }
-
-    timer.stop("make bus stops");
-    (bus_stops, routes)
-}
-
-// Trim out stops if needed; map borders sometimes mean some paths don't work.
-pub fn fix_bus_route(map: &Map, r: &mut BusRoute) -> bool {
-    let mut stops = Vec::new();
-    for stop in r.stops.drain(..) {
-        if stops.is_empty() {
-            stops.push(stop);
-        } else {
-            if check_stops(&r.name, r.route_type, *stops.last().unwrap(), stop, map) {
-                stops.push(stop);
-            }
-        }
-    }
-
-    // Don't forget the last and first -- except temporarily for light rail!
-    if r.route_type == PathConstraints::Bus {
-        while stops.len() >= 2 {
-            if check_stops(&r.name, r.route_type, *stops.last().unwrap(), stops[0], map) {
-                break;
-            }
-            // TODO Or the front one
-            stops.pop();
-        }
-    }
-
-    r.stops = stops;
-    r.stops.len() >= 2
-}
-
 fn check_stops(
-    route: &str,
     constraints: PathConstraints,
     stop1: BusStopID,
     stop2: BusStopID,
     map: &Map,
-) -> bool {
+) -> Result<(), Box<dyn Error>> {
     let start = map.get_bs(stop1).driving_pos;
     let end = map.get_bs(stop2).driving_pos;
     if start.lane() == end.lane() && start.dist_along() > end.dist_along() {
-        println!(
-            "Route {} has two bus stops seemingly out of order somewhere on {}",
-            route,
+        return Err(format!(
+            "Two stops seemingly out of order somewhere on {}",
             map.get_parent(start.lane()).orig_id
-        );
-        return false;
+        )
+        .into());
     }
 
-    map.pathfind(PathRequest {
-        start,
-        end,
-        constraints,
-    })
-    .is_some()
+    if map
+        .pathfind(PathRequest {
+            start,
+            end,
+            constraints,
+        })
+        .is_some()
+    {
+        return Ok(());
+    }
+    Err(format!(
+        "No path between stop on {} and {}",
+        map.get_parent(start.lane()).orig_id,
+        map.get_parent(end.lane()).orig_id
+    )
+    .into())
+}
+
+fn rel_url(id: i64) -> String {
+    format!("https://www.openstreetmap.org/relation/{}", id)
 }

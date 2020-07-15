@@ -4,8 +4,8 @@ use crate::{
 };
 use geom::Distance;
 use map_model::{
-    BuildingID, IntersectionID, Map, Path, PathConstraints, PathRequest, PathStep, Position,
-    Traversable, TurnID, TurnType,
+    BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
+    Position, Traversable, TurnID, TurnType,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -55,6 +55,16 @@ impl Router {
         Router {
             path,
             goal: Goal::EndAtBorder { end_dist, i },
+        }
+    }
+    pub fn vanish_bus(l: LaneID, map: &Map) -> Router {
+        let lane = map.get_l(l);
+        Router {
+            path: Path::one_step(l, map),
+            goal: Goal::EndAtBorder {
+                end_dist: lane.length(),
+                i: lane.dst_i,
+            },
         }
     }
 

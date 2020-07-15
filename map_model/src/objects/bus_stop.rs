@@ -46,7 +46,8 @@ pub struct BusStop {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BusRoute {
     pub id: BusRouteID,
-    pub name: String,
+    pub full_name: String,
+    pub short_name: String,
     pub stops: Vec<BusStopID>,
     pub route_type: PathConstraints,
 }

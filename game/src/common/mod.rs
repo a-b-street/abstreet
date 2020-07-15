@@ -175,7 +175,7 @@ impl CommonState {
                 if let Some(r) = app.primary.sim.bus_route_id(c) {
                     osd.append_all(vec![
                         Line(" serving "),
-                        Line(&map.get_br(r).name).fg(name_color),
+                        Line(&map.get_br(r).full_name).fg(name_color),
                     ]);
                 }
             }
@@ -200,7 +200,7 @@ impl CommonState {
                 let routes: BTreeSet<String> = map
                     .get_routes_serving_stop(bs)
                     .into_iter()
-                    .map(|r| r.name.clone())
+                    .map(|r| r.full_name.clone())
                     .collect();
                 list_names(&mut osd, |l| l.fg(name_color), routes);
             }

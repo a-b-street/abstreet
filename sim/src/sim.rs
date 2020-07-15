@@ -13,7 +13,7 @@ use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};
 use instant::Instant;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, ParkingLotID, Path,
-    PathConstraints, PathRequest, PathStep, Position, RoadID, Traversable,
+    PathConstraints, PathRequest, Position, RoadID, Traversable,
 };
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
@@ -227,80 +227,65 @@ impl Sim {
         self.parking.add_parked_car(ParkedCar { vehicle, spot });
     }
 
-    pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map, timer: &mut Timer) -> Vec<CarID> {
-        let mut results: Vec<CarID> = Vec::new();
-
-        // Try to spawn just ONE bus anywhere.
-        // TODO Be more realistic. One bus per stop is too much, one is too little.
-        for (next_stop_idx, req, mut path, end_dist) in
-            self.transit.create_empty_route(route, map).into_iter()
-        {
-            // For now, no desire for randomness. Caller can pass in list of specs if that ever
-            // changes.
-            let (vehicle_type, length) = match route.route_type {
-                PathConstraints::Bus => (VehicleType::Bus, BUS_LENGTH),
-                PathConstraints::Train => (VehicleType::Train, LIGHT_RAIL_LENGTH),
-                _ => unreachable!(),
-            };
-            let vehicle = VehicleSpec {
-                vehicle_type,
-                length,
-                max_speed: None,
-            }
-            .make(CarID(self.trips.new_car_id(), vehicle_type), None);
-            let id = vehicle.id;
-
-            loop {
-                if path.is_empty() {
-                    timer.warn(format!(
-                        "Giving up on seeding a bus headed towards stop {} of {} ({})",
-                        next_stop_idx, route.name, route.id
-                    ));
-                    break;
-                }
-                let start_lane = if let PathStep::Lane(l) = path.current_step() {
-                    l
-                } else {
-                    path.shift(map);
-                    // TODO Technically should update request, but it shouldn't matter
-                    continue;
-                };
-                if map.get_l(start_lane).length() < vehicle.length {
-                    path.shift(map);
-                    // TODO Technically should update request, but it shouldn't matter
-                    continue;
-                }
-
-                // Bypass some layers of abstraction that don't make sense for buses.
-                if self.driving.start_car_on_lane(
-                    self.time,
-                    CreateCar {
-                        start_dist: vehicle.length,
-                        vehicle: vehicle.clone(),
-                        req: req.clone(),
-                        router: Router::follow_bus_route(path.clone(), end_dist),
-                        maybe_parked_car: None,
-                        trip_and_person: None,
-                    },
-                    map,
-                    &self.intersections,
-                    &self.parking,
-                    &mut self.scheduler,
-                ) {
-                    self.transit.bus_created(id, route.id, next_stop_idx);
-                    self.analytics.record_demand(&path, map);
-                    results.push(id);
-                    return results;
-                } else {
-                    path.shift(map);
-                }
-            }
+    // TODO Change this to be a periodic "start a bus at stop1 based on a schedule"
+    pub(crate) fn seed_bus_route(&mut self, route: &BusRoute, map: &Map, timer: &mut Timer) {
+        if route.stops.is_empty() {
+            panic!("{} has no stops", route.full_name);
         }
-        if results.is_empty() {
-            // TODO Bigger failure
-            timer.warn(format!("Failed to make ANY buses for {}!", route.name));
+        // TODO This'll be valid when we have borders too
+        if route.stops.len() == 1 {
+            timer.error(format!("{} only has one stop", route.full_name));
+            return;
         }
-        results
+
+        // Spawn one bus from stop1->stop2.
+        let (req, path) = self.transit.create_empty_route(route, map);
+
+        // For now, no desire for randomness. Caller can pass in list of specs if that ever
+        // changes.
+        let (vehicle_type, length) = match route.route_type {
+            PathConstraints::Bus => (VehicleType::Bus, BUS_LENGTH),
+            PathConstraints::Train => (VehicleType::Train, LIGHT_RAIL_LENGTH),
+            _ => unreachable!(),
+        };
+        let vehicle = VehicleSpec {
+            vehicle_type,
+            length,
+            max_speed: None,
+        }
+        .make(CarID(self.trips.new_car_id(), vehicle_type), None);
+        let id = vehicle.id;
+
+        let start = req.start.lane();
+        if map.get_l(start).length() < vehicle.length {
+            timer.error(format!("Can't start a bus on {}, too short", start));
+            return;
+        }
+
+        // Bypass some layers of abstraction that don't make sense for buses.
+        if self.driving.start_car_on_lane(
+            self.time,
+            CreateCar {
+                start_dist: vehicle.length,
+                vehicle,
+                router: Router::follow_bus_route(path.clone(), req.end.dist_along()),
+                req,
+                maybe_parked_car: None,
+                trip_and_person: None,
+            },
+            map,
+            &self.intersections,
+            &self.parking,
+            &mut self.scheduler,
+        ) {
+            self.transit.bus_created(id, route.id);
+            self.analytics.record_demand(&path, map);
+        } else {
+            timer.error(format!(
+                "Can't start a bus on {}, something's in the way",
+                start
+            ));
+        }
     }
 
     pub fn set_name(&mut self, name: String) {
@@ -938,7 +923,7 @@ impl Sim {
         vec![
             (
                 "Route".to_string(),
-                map.get_br(self.transit.bus_route(car)).name.clone(),
+                map.get_br(self.transit.bus_route(car)).full_name.clone(),
             ),
             ("Passengers".to_string(), passengers.len().to_string()),
         ]

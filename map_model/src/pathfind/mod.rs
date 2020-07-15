@@ -146,6 +146,15 @@ impl Path {
         }
     }
 
+    pub fn one_step(l: LaneID, map: &Map) -> Path {
+        Path::new(
+            map,
+            vec![PathStep::Lane(l)],
+            map.get_l(l).length(),
+            Vec::new(),
+        )
+    }
+
     // Only used for weird serialization magic.
     pub fn dummy() -> Path {
         Path {
@@ -596,7 +605,7 @@ impl Pathfinder {
         timer.stop("prepare pathfinding for trains");
 
         timer.start("prepare pathfinding for pedestrians");
-        let walking_graph = SidewalkPathfinder::new(map, false, &bus_graph);
+        let walking_graph = SidewalkPathfinder::new(map, false, &bus_graph, &train_graph);
         timer.stop("prepare pathfinding for pedestrians");
 
         Pathfinder {
@@ -610,7 +619,12 @@ impl Pathfinder {
     }
 
     pub fn setup_walking_with_transit(&mut self, map: &Map) {
-        self.walking_with_transit_graph = Some(SidewalkPathfinder::new(map, true, &self.bus_graph));
+        self.walking_with_transit_graph = Some(SidewalkPathfinder::new(
+            map,
+            true,
+            &self.bus_graph,
+            &self.train_graph,
+        ));
     }
 
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
@@ -883,14 +897,15 @@ impl Pathfinder {
         // Can't edit anything related to trains
 
         timer.start("apply edits to pedestrian pathfinding");
-        self.walking_graph.apply_edits(map, &self.bus_graph);
+        self.walking_graph
+            .apply_edits(map, &self.bus_graph, &self.train_graph);
         timer.stop("apply edits to pedestrian pathfinding");
 
         timer.start("apply edits to pedestrian using transit pathfinding");
         self.walking_with_transit_graph
             .as_mut()
             .unwrap()
-            .apply_edits(map, &self.bus_graph);
+            .apply_edits(map, &self.bus_graph, &self.train_graph);
         timer.stop("apply edits to pedestrian using transit pathfinding");
     }
 }

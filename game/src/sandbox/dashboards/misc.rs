@@ -72,7 +72,7 @@ impl BusRoutes {
             .map
             .all_bus_routes()
             .iter()
-            .map(|r| r.name.clone())
+            .map(|r| r.full_name.clone())
             .collect();
         // TODO Sort first by length, then lexicographically
         routes.sort();
@@ -106,7 +106,7 @@ impl State for BusRoutes {
                     if buses.is_empty() {
                         Transition::Push(msg(
                             "No buses running",
-                            vec![format!("Sorry, no buses for route {} running", r.name)],
+                            vec![format!("Sorry, no buses for route {} running", r.full_name)],
                         ))
                     } else {
                         Transition::PopWithData(Box::new(move |state, ctx, app| {

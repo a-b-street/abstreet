@@ -429,12 +429,12 @@ impl DrivingSide {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawBusRoute {
-    pub name: String,
+    pub full_name: String,
+    pub short_name: String,
     pub osm_rel_id: i64,
     // If not, light rail
     pub is_bus: bool,
-    pub fwd_stops: Vec<RawBusStop>,
-    pub back_stops: Vec<RawBusStop>,
+    pub stops: Vec<RawBusStop>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

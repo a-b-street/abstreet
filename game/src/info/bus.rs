@@ -26,12 +26,12 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
     for r in app.primary.map.get_routes_serving_stop(id) {
         let buses = app.primary.sim.status_of_buses(r.id);
         if buses.is_empty() {
-            rows.push(format!("Route {}: no buses running", r.name).draw_text(ctx));
+            rows.push(format!("Route {}: no buses running", r.full_name).draw_text(ctx));
         } else {
-            rows.push(Btn::text_fg(format!("Route {}", r.name)).build_def(ctx, None));
+            rows.push(Btn::text_fg(format!("Route {}", r.full_name)).build_def(ctx, None));
             details
                 .hyperlinks
-                .insert(format!("Route {}", r.name), Tab::BusStatus(buses[0].0));
+                .insert(format!("Route {}", r.full_name), Tab::BusStatus(buses[0].0));
         }
 
         let arrivals: Vec<(Time, CarID)> = all_arrivals
@@ -110,7 +110,7 @@ fn bus_header(
         Line(format!(
             "{} (route {})",
             id,
-            app.primary.map.get_br(route).name
+            app.primary.map.get_br(route).full_name
         ))
         .small_heading()
         .draw(ctx),
@@ -138,12 +138,8 @@ fn delays_over_time(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> Widget {
         .bus_arrivals_over_time(app.primary.sim.time(), id);
 
     let mut series = Vec::new();
-    for idx1 in 0..route.stops.len() {
-        let idx2 = if idx1 == route.stops.len() - 1 {
-            0
-        } else {
-            idx1 + 1
-        };
+    for idx1 in 0..route.stops.len() - 1 {
+        let idx2 = idx1 + 1;
         series.push(Series {
             label: format!("Stop {}->{}", idx1 + 1, idx2 + 1),
             color: app.cs.rotating_color_plot(idx1),
@@ -169,6 +165,7 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
         .get_analytics()
         .bus_passenger_delays(app.primary.sim.time(), id)
         .collect::<BTreeMap<_, _>>();
+    // TODO I smell an off by one
     for idx in 0..route.stops.len() {
         col.push(Widget::row(vec![
             format!("Stop {}", idx + 1).draw_text(ctx),
@@ -202,11 +199,7 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
     for (_, stop_idx, percent_next_stop) in app.primary.sim.status_of_buses(route.id) {
         // TODO Line it up right in the middle of the line of text. This is probably a bit
         // wrong.
-        let base_percent_y = if stop_idx == route.stops.len() - 1 {
-            0.0
-        } else {
-            (stop_idx as f64) / ((route.stops.len() - 1) as f64)
-        };
+        let base_percent_y = (stop_idx as f64) / ((route.stops.len() - 1) as f64);
         batch.push(
             Color::BLUE,
             Circle::new(

@@ -192,22 +192,11 @@ impl ShowBusRoute {
         }
 
         let mut colorer = ColorDiscrete::new(app, vec![("route", app.cs.unzoomed_bus)]);
-        for (stop1, stop2) in
-            route
-                .stops
-                .iter()
-                .zip(route.stops.iter().skip(1))
-                .chain(std::iter::once((
-                    route.stops.last().unwrap(),
-                    &route.stops[0],
-                )))
-        {
-            let bs1 = map.get_bs(*stop1);
-            let bs2 = map.get_bs(*stop2);
+        for pair in route.stops.windows(2) {
             for step in map
                 .pathfind(PathRequest {
-                    start: bs1.driving_pos,
-                    end: bs2.driving_pos,
+                    start: map.get_bs(pair[0]).driving_pos,
+                    end: map.get_bs(pair[1]).driving_pos,
                     constraints: route.route_type,
                 })
                 .unwrap()
@@ -237,7 +226,7 @@ impl ShowBusRoute {
             composite: Composite::new(Widget::col(vec![
                 Widget::row(vec![
                     Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                    Line(&route.name).draw(ctx),
+                    Line(&route.full_name).draw(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),

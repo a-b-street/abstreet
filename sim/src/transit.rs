@@ -3,29 +3,25 @@ use crate::{
     WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Distance, Time};
-use map_model::{
-    BusRoute, BusRouteID, BusStopID, Map, Path, PathConstraints, PathRequest, Position,
-};
+use geom::Time;
+use map_model::{BusRoute, BusRouteID, BusStopID, Map, Path, PathRequest, Position};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 // These index stops along a route, not stops along a single sidewalk.
 type StopIdx = usize;
 
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
-struct StopForRoute {
+struct Stop {
     id: BusStopID,
     driving_pos: Position,
-    req: PathRequest,
-    path_to_next_stop: Path,
-    next_stop_idx: StopIdx,
+    next_stop: Option<(PathRequest, Path)>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
 struct Route {
-    stops: Vec<StopForRoute>,
-    buses: Vec<CarID>,
+    stops: Vec<Stop>,
+    buses: BTreeSet<CarID>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
@@ -76,83 +72,61 @@ impl TransitSimState {
         }
     }
 
-    // Returns (next stop, first path, end distance for next stop) for all of the stops in the
-    // route.
-    pub fn create_empty_route(
-        &mut self,
-        bus_route: &BusRoute,
-        map: &Map,
-    ) -> Vec<(StopIdx, PathRequest, Path, Distance)> {
+    // Returns the path and end distance for stop1->stop2.
+    pub fn create_empty_route(&mut self, bus_route: &BusRoute, map: &Map) -> (PathRequest, Path) {
         assert!(bus_route.stops.len() > 1);
 
         let mut stops = Vec::new();
         for (idx, stop1_id) in bus_route.stops.iter().enumerate() {
             let stop1 = map.get_bs(*stop1_id);
-            let stop2_idx = if idx + 1 == bus_route.stops.len() {
-                0
-            } else {
-                idx + 1
-            };
+            if idx == bus_route.stops.len() - 1 {
+                stops.push(Stop {
+                    id: stop1.id,
+                    driving_pos: stop1.driving_pos,
+                    next_stop: None,
+                });
+                continue;
+            }
+
             let req = PathRequest {
                 start: stop1.driving_pos,
-                end: map.get_bs(bus_route.stops[stop2_idx]).driving_pos,
+                end: map.get_bs(bus_route.stops[idx + 1]).driving_pos,
                 constraints: bus_route.route_type,
             };
             if let Some(path) = map.pathfind(req.clone()) {
-                stops.push(StopForRoute {
-                    id: *stop1_id,
+                if path.is_empty() {
+                    panic!("Empty path between stops?! {}", req);
+                }
+                stops.push(Stop {
+                    id: stop1.id,
                     driving_pos: stop1.driving_pos,
-                    req,
-                    path_to_next_stop: path,
-                    next_stop_idx: stop2_idx,
+                    next_stop: Some((req, path)),
                 });
             } else {
-                // TODO Temporarily tolerate this
-                if bus_route.route_type == PathConstraints::Train {
-                    println!(
-                        "No route between bus stops {:?} and {:?}",
-                        stop1_id, bus_route.stops[stop2_idx]
-                    );
-                    return Vec::new();
-                } else {
-                    panic!(
-                        "No route between bus stops {:?} and {:?}",
-                        stop1_id, bus_route.stops[stop2_idx]
-                    );
-                }
+                panic!("No route between stops: {}", req);
             }
         }
-        let results = stops
-            .iter()
-            .map(|s| {
-                (
-                    s.next_stop_idx,
-                    s.req.clone(),
-                    s.path_to_next_stop.clone(),
-                    stops[s.next_stop_idx].driving_pos.dist_along(),
-                )
-            })
-            .collect();
 
+        let first_step = stops[0].next_stop.clone().unwrap();
         self.routes.insert(
             bus_route.id,
             Route {
-                buses: Vec::new(),
+                buses: BTreeSet::new(),
                 stops,
             },
         );
-        results
+        first_step
     }
 
-    pub fn bus_created(&mut self, bus: CarID, route: BusRouteID, next_stop_idx: StopIdx) {
-        self.routes.get_mut(&route).unwrap().buses.push(bus);
+    pub fn bus_created(&mut self, bus: CarID, route: BusRouteID) {
+        self.routes.get_mut(&route).unwrap().buses.insert(bus);
         self.buses.insert(
             bus,
             Bus {
                 car: bus,
                 route,
                 passengers: Vec::new(),
-                state: BusState::DrivingToStop(next_stop_idx),
+                state: BusState::DrivingToStop(1),
             },
         );
     }
@@ -216,24 +190,26 @@ impl TransitSimState {
                 self.peds_waiting.insert(stop1, still_waiting);
             }
             BusState::AtStop(_) => unreachable!(),
-        };
+        }
     }
 
-    pub fn bus_departed_from_stop(&mut self, id: CarID) -> Router {
+    pub fn bus_departed_from_stop(&mut self, id: CarID, map: &Map) -> Router {
         let mut bus = self.buses.get_mut(&id).unwrap();
         match bus.state {
             BusState::DrivingToStop(_) => unreachable!(),
             BusState::AtStop(stop_idx) => {
-                let route = &self.routes[&bus.route];
-                let stop = &route.stops[stop_idx];
-
-                bus.state = BusState::DrivingToStop(stop.next_stop_idx);
+                let stop = &self.routes[&bus.route].stops[stop_idx];
                 self.events
                     .push(Event::BusDepartedFromStop(id, bus.route, stop.id));
-                Router::follow_bus_route(
-                    stop.path_to_next_stop.clone(),
-                    route.stops[stop.next_stop_idx].driving_pos.dist_along(),
-                )
+                if let Some((req, path)) = stop.next_stop.clone() {
+                    bus.state = BusState::DrivingToStop(stop_idx + 1);
+                    Router::follow_bus_route(path.clone(), req.end.dist_along())
+                } else {
+                    let on = stop.driving_pos.lane();
+                    self.routes.get_mut(&bus.route).unwrap().buses.remove(&id);
+                    self.buses.remove(&id);
+                    Router::vanish_bus(on, map)
+                }
             }
         }
     }
@@ -300,20 +276,14 @@ impl TransitSimState {
         self.buses[&bus].route
     }
 
-    // also stop idx
+    // also stop idx that the bus is coming from
     pub fn buses_for_route(&self, route: BusRouteID) -> Vec<(CarID, usize)> {
         if let Some(ref r) = self.routes.get(&route) {
             r.buses
                 .iter()
                 .map(|bus| {
                     let stop = match self.buses[bus].state {
-                        BusState::DrivingToStop(idx) => {
-                            if idx == 0 {
-                                r.stops.len() - 1
-                            } else {
-                                idx - 1
-                            }
-                        }
+                        BusState::DrivingToStop(idx) => idx - 1,
                         BusState::AtStop(idx) => idx,
                     };
                     (*bus, stop)

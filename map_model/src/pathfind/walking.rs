@@ -36,7 +36,12 @@ impl WalkingNode {
 }
 
 impl SidewalkPathfinder {
-    pub fn new(map: &Map, use_transit: bool, bus_graph: &VehiclePathfinder) -> SidewalkPathfinder {
+    pub fn new(
+        map: &Map,
+        use_transit: bool,
+        bus_graph: &VehiclePathfinder,
+        train_graph: &VehiclePathfinder,
+    ) -> SidewalkPathfinder {
         let mut nodes = NodeMap::new();
         // We're assuming that to start with, no sidewalks are closed for construction!
         for l in map.all_lanes() {
@@ -52,7 +57,13 @@ impl SidewalkPathfinder {
             }
         }
 
-        let graph = fast_paths::prepare(&make_input_graph(map, &nodes, use_transit, bus_graph));
+        let graph = fast_paths::prepare(&make_input_graph(
+            map,
+            &nodes,
+            use_transit,
+            bus_graph,
+            train_graph,
+        ));
         SidewalkPathfinder {
             graph,
             nodes,
@@ -61,10 +72,16 @@ impl SidewalkPathfinder {
         }
     }
 
-    pub fn apply_edits(&mut self, map: &Map, bus_graph: &VehiclePathfinder) {
+    pub fn apply_edits(
+        &mut self,
+        map: &Map,
+        bus_graph: &VehiclePathfinder,
+        train_graph: &VehiclePathfinder,
+    ) {
         // The NodeMap is all sidewalks and bus stops -- it won't change. So we can also reuse the
         // node ordering.
-        let input_graph = make_input_graph(map, &self.nodes, self.use_transit, bus_graph);
+        let input_graph =
+            make_input_graph(map, &self.nodes, self.use_transit, bus_graph, train_graph);
         let node_ordering = self.graph.get_node_ordering();
         self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
     }
@@ -126,6 +143,7 @@ fn make_input_graph(
     nodes: &NodeMap<WalkingNode>,
     use_transit: bool,
     bus_graph: &VehiclePathfinder,
+    train_graph: &VehiclePathfinder,
 ) -> InputGraph {
     let mut input_graph = InputGraph::new();
 
@@ -181,38 +199,30 @@ fn make_input_graph(
         // Connect each adjacent stop along a route, with the cost based on how long it'll take a
         // bus to drive between the stops. Optimistically assume no waiting time at a stop.
         for route in map.all_bus_routes() {
-            // TODO Gotta connect the stops properly first
-            if route.route_type == PathConstraints::Train {
-                continue;
-            }
-            for (stop1, stop2) in
-                route
-                    .stops
-                    .iter()
-                    .zip(route.stops.iter().skip(1))
-                    .chain(std::iter::once((
-                        route.stops.last().unwrap(),
-                        &route.stops[0],
-                    )))
-            {
-                if let Some((_, driving_cost)) = bus_graph.pathfind(
+            for pair in route.stops.windows(2) {
+                let (stop1, stop2) = (map.get_bs(pair[0]), map.get_bs(pair[1]));
+                let graph = match route.route_type {
+                    PathConstraints::Bus => bus_graph,
+                    PathConstraints::Train => train_graph,
+                    _ => unreachable!(),
+                };
+                if let Some((_, driving_cost)) = graph.pathfind(
                     &PathRequest {
-                        start: map.get_bs(*stop1).driving_pos,
-                        end: map.get_bs(*stop2).driving_pos,
-                        constraints: PathConstraints::Bus,
+                        start: stop1.driving_pos,
+                        end: stop2.driving_pos,
+                        constraints: route.route_type,
                     },
                     map,
                 ) {
                     input_graph.add_edge(
-                        nodes.get(WalkingNode::RideBus(*stop1)),
-                        nodes.get(WalkingNode::RideBus(*stop2)),
+                        nodes.get(WalkingNode::RideBus(stop1.id)),
+                        nodes.get(WalkingNode::RideBus(stop2.id)),
                         driving_cost,
                     );
                 } else {
                     panic!(
-                        "No bus route from {} to {} now! Prevent this edit",
-                        map.get_bs(*stop1).driving_pos,
-                        map.get_bs(*stop2).driving_pos
+                        "No bus route from {} to {} now for {}! Prevent this edit",
+                        stop1.driving_pos, stop2.driving_pos, route.full_name,
                     );
                 }
             }

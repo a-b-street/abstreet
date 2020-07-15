@@ -290,7 +290,7 @@ pub fn extract_osm(
                     },
                 );
             }
-        } else if tags.is("type", "route_master") {
+        } else if tags.is("type", "route") {
             map.bus_routes
                 .extend(extract_route(&tags, rel, &doc, &id_to_way, &map.gps_bounds));
         } else if tags.is("type", "multipolygon") && tags.contains_key("amenity") {
@@ -648,104 +648,87 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
 }
 
 fn extract_route(
-    master_tags: &Tags,
-    master_rel: &osm_xml::Relation,
+    tags: &Tags,
+    rel: &osm_xml::Relation,
     doc: &osm_xml::OSM,
     id_to_way: &HashMap<i64, Vec<Pt2D>>,
     gps_bounds: &GPSBounds,
 ) -> Option<RawBusRoute> {
-    let route_name = master_tags.get("name")?.clone();
-    let is_bus = match master_tags.get("route_master")?.as_ref() {
+    let full_name = tags.get("name")?.clone();
+    let short_name = tags
+        .get("ref")
+        .cloned()
+        .unwrap_or_else(|| full_name.clone());
+    let is_bus = match tags.get("route")?.as_ref() {
         "bus" => true,
         "light_rail" => false,
         x => {
             println!(
                 "Skipping route {} of unknown type {}: {}",
-                route_name,
+                full_name,
                 x,
-                rel_url(master_rel.id)
+                rel_url(rel.id)
             );
             return None;
         }
     };
 
-    let mut directions = Vec::new();
-    for (_, route_member) in get_members(master_rel, doc) {
-        if let osm_xml::Reference::Relation(route_rel) = route_member {
-            let route_tags = tags_to_map(&route_rel.tags);
-            assert_eq!(route_tags.get("type"), Some(&"route".to_string()));
-            // Gather stops in order. Platforms may exist or not; match them up by name.
-            let mut stops = Vec::new();
-            let mut platforms = HashMap::new();
-            for (role, member) in get_members(&route_rel, doc) {
-                if role == "stop" {
-                    if let osm_xml::Reference::Node(node) = member {
-                        stops.push(RawBusStop {
-                            name: tags_to_map(&node.tags)
-                                .get("name")
-                                .cloned()
-                                .unwrap_or_else(|| format!("stop #{}", stops.len() + 1)),
-                            vehicle_pos: Pt2D::from_gps(
-                                LonLat::new(node.lon, node.lat),
-                                gps_bounds,
-                            ),
-                            ped_pos: None,
-                        });
-                    }
-                } else if role == "platform" {
-                    let (platform_name, pt) = match member {
-                        osm_xml::Reference::Node(node) => (
-                            tags_to_map(&node.tags)
-                                .get("name")
-                                .cloned()
-                                .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
-                            Pt2D::from_gps(LonLat::new(node.lon, node.lat), gps_bounds),
-                        ),
-                        osm_xml::Reference::Way(way) => (
-                            tags_to_map(&way.tags)
-                                .get("name")
-                                .cloned()
-                                .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
-                            if let Some(ref pts) = id_to_way.get(&way.id) {
-                                Pt2D::center(pts)
-                            } else {
-                                continue;
-                            },
-                        ),
-                        _ => continue,
-                    };
-                    platforms.insert(platform_name, pt);
-                }
+    // Gather stops in order. Platforms may exist or not; match them up by name.
+    let mut stops = Vec::new();
+    let mut platforms = HashMap::new();
+    for (role, member) in get_members(rel, doc) {
+        if role == "stop" {
+            if let osm_xml::Reference::Node(node) = member {
+                stops.push(RawBusStop {
+                    name: tags_to_map(&node.tags)
+                        .get("name")
+                        .cloned()
+                        .unwrap_or_else(|| format!("stop #{}", stops.len() + 1)),
+                    vehicle_pos: Pt2D::from_gps(LonLat::new(node.lon, node.lat), gps_bounds),
+                    ped_pos: None,
+                });
             }
-            for stop in &mut stops {
-                if let Some(pt) = platforms.remove(&stop.name) {
-                    stop.ped_pos = Some(pt);
-                }
-            }
-            if stops.len() >= 2 {
-                directions.push(stops);
-            }
+        } else if role == "platform" {
+            let (platform_name, pt) = match member {
+                osm_xml::Reference::Node(node) => (
+                    tags_to_map(&node.tags)
+                        .get("name")
+                        .cloned()
+                        .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
+                    Pt2D::from_gps(LonLat::new(node.lon, node.lat), gps_bounds),
+                ),
+                osm_xml::Reference::Way(way) => (
+                    tags_to_map(&way.tags)
+                        .get("name")
+                        .cloned()
+                        .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
+                    if let Some(ref pts) = id_to_way.get(&way.id) {
+                        Pt2D::center(pts)
+                    } else {
+                        continue;
+                    },
+                ),
+                _ => continue,
+            };
+            platforms.insert(platform_name, pt);
         }
     }
-
-    if directions.len() == 2 {
-        Some(RawBusRoute {
-            name: route_name,
-            is_bus,
-            osm_rel_id: master_rel.id,
-            // The direction is arbitrary right now
-            fwd_stops: directions.pop().unwrap(),
-            back_stops: directions.pop().unwrap(),
-        })
-    } else {
-        println!(
-            "Skipping route {} with {} sub-routes (only handling 2): {}",
-            route_name,
-            directions.len(),
-            rel_url(master_rel.id),
-        );
-        None
+    for stop in &mut stops {
+        if let Some(pt) = platforms.remove(&stop.name) {
+            stop.ped_pos = Some(pt);
+        }
     }
+    if stops.is_empty() {
+        return None;
+    }
+
+    Some(RawBusRoute {
+        full_name,
+        short_name,
+        is_bus,
+        osm_rel_id: rel.id,
+        stops,
+    })
 }
 
 // Work around osm_xml's API, which shows the node/way/relation distinction twice. This returns

@@ -214,7 +214,7 @@ impl Car {
                 CarState::Unparking(_, _, _) => CarStatus::Parked,
                 CarState::Parking(_, _, _) => CarStatus::Parked,
                 // Changing color for idling buses is helpful
-                CarState::Idling(_, _) => CarStatus::Parked,
+                CarState::IdlingAtStop(_, _) => CarStatus::Parked,
             },
             on: self.router.head(),
             partly_on,
@@ -223,8 +223,8 @@ impl Car {
             {
                 Some(
                     map.get_br(transit.bus_route(self.vehicle.id))
-                        .name
-                        .to_string(),
+                        .short_name
+                        .clone(),
                 )
             } else {
                 None
@@ -249,7 +249,7 @@ pub enum CarState {
     // Where's the front of the car while this is happening?
     Unparking(Distance, ParkingSpot, TimeInterval),
     Parking(Distance, ParkingSpot, TimeInterval),
-    Idling(Distance, TimeInterval),
+    IdlingAtStop(Distance, TimeInterval),
 }
 
 impl CarState {
@@ -260,7 +260,7 @@ impl CarState {
             CarState::WaitingToAdvance { .. } => unreachable!(),
             CarState::Unparking(_, _, ref time_int) => time_int.end,
             CarState::Parking(_, _, ref time_int) => time_int.end,
-            CarState::Idling(_, ref time_int) => time_int.end,
+            CarState::IdlingAtStop(_, ref time_int) => time_int.end,
         }
     }
 }
