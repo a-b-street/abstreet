@@ -94,10 +94,17 @@ impl DrawBike {
             );
         }
 
+        let zorder = input
+            .partly_on
+            .into_iter()
+            .chain(vec![input.on])
+            .map(|on| on.get_zorder(map))
+            .max()
+            .unwrap();
         DrawBike {
             id: input.id,
             body_circle,
-            zorder: input.on.get_zorder(map),
+            zorder,
             draw_default: prerender.upload(draw_default),
         }
     }

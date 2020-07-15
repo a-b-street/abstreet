@@ -150,11 +150,20 @@ impl DrawCar {
             );
         }
 
+        // TODO Technically some of the body may need to be at different zorders during
+        // transitions, but that's way too much effort
+        let zorder = input
+            .partly_on
+            .into_iter()
+            .chain(vec![input.on])
+            .map(|on| on.get_zorder(map))
+            .max()
+            .unwrap();
         DrawCar {
             id: input.id,
             body: input.body,
             body_polygon,
-            zorder: input.on.get_zorder(map),
+            zorder,
             draw_default: prerender.upload(draw_default),
         }
     }

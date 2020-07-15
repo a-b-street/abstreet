@@ -34,7 +34,10 @@ pub struct DrawCarInput {
     pub id: CarID,
     pub waiting_for_turn: Option<TurnID>,
     pub status: CarStatus,
+    // Front of the car
     pub on: Traversable,
+    // Possibly the rest
+    pub partly_on: Vec<Traversable>,
     pub label: Option<String>,
 
     // Starts at the BACK of the car.

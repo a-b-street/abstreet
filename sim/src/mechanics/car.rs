@@ -61,6 +61,7 @@ impl Car {
     ) -> DrawCarInput {
         assert!(front >= Distance::ZERO);
         // This goes from back to front
+        let mut partly_on = Vec::new();
         let raw_body = if front >= self.vehicle.length {
             self.router
                 .head()
@@ -83,6 +84,7 @@ impl Car {
                         self.vehicle.id, leftover
                     );
                 }
+                partly_on.push(self.last_steps[i]);
                 let len = self.last_steps[i].length(map);
                 let start = (len - leftover).max(Distance::ZERO);
                 let piece = self.last_steps[i]
@@ -215,6 +217,7 @@ impl Car {
                 CarState::Idling(_, _) => CarStatus::Parked,
             },
             on: self.router.head(),
+            partly_on,
             label: if self.vehicle.vehicle_type == VehicleType::Bus
                 || self.vehicle.vehicle_type == VehicleType::Train
             {

@@ -208,6 +208,7 @@ impl ParkingSimState {
                     waiting_for_turn: None,
                     status: CarStatus::Parked,
                     on: Traversable::Lane(lane),
+                    partly_on: Vec::new(),
                     label: None,
 
                     body: map
@@ -227,6 +228,7 @@ impl ParkingSimState {
                     status: CarStatus::Parked,
                     // Just used for z-order
                     on: Traversable::Lane(pl.driving_pos.lane()),
+                    partly_on: Vec::new(),
                     label: None,
 
                     body: PolyLine::must_new(vec![
