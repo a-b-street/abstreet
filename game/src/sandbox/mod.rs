@@ -465,7 +465,7 @@ impl ContextualActions for Actions {
             ),
             (ID::Car(c), "show route") => {
                 *close_panel = false;
-                app.layer = Some(Box::new(crate::layer::transit::ShowBusRoute::new(
+                app.layer = Some(Box::new(crate::layer::transit::ShowTransitRoute::new(
                     ctx,
                     app,
                     app.primary.sim.bus_route_id(c).unwrap(),

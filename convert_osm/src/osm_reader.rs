@@ -190,6 +190,8 @@ pub fn extract_osm(
     let mut simple_turn_restrictions = Vec::new();
     let mut complicated_turn_restrictions = Vec::new();
     let mut amenity_areas: Vec<(String, String, Polygon)> = Vec::new();
+    // Vehicle position (stop) -> pedestrian position (platform)
+    let mut stop_areas: Vec<(Pt2D, Pt2D)> = Vec::new();
     timer.start_iter("processing OSM relations", doc.relations.len());
     for rel in doc.relations.values() {
         timer.next();
@@ -319,6 +321,30 @@ pub fn extract_osm(
                     }
                 }
             }
+        } else if tags.is("public_transport", "stop_area") {
+            let mut stops = Vec::new();
+            let mut platform: Option<Pt2D> = None;
+            for (role, member) in get_members(rel, &doc) {
+                if let osm_xml::Reference::Node(node) = member {
+                    let pt = Pt2D::from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds);
+                    if role == "stop" {
+                        stops.push(pt);
+                    } else if role == "platform" {
+                        platform = Some(pt);
+                    }
+                } else if let osm_xml::Reference::Way(way) = member {
+                    if role == "platform" {
+                        if let Some(pts) = id_to_way.get(&way.id) {
+                            platform = Some(Pt2D::center(pts));
+                        }
+                    }
+                }
+            }
+            if let Some(ped_pos) = platform {
+                for vehicle_pos in stops {
+                    stop_areas.push((vehicle_pos, ped_pos));
+                }
+            }
         }
     }
 
@@ -353,6 +379,18 @@ pub fn extract_osm(
         for b in map.buildings.values_mut() {
             if poly.contains_pt(b.polygon.center()) {
                 b.amenities.insert((name.clone(), amenity.clone()));
+            }
+        }
+    }
+
+    // Match platforms from stop_areas. Not sure what order routes and stop_areas will appear in
+    // relations, so do this after reading all of them.
+    for (vehicle_pos, ped_pos) in stop_areas {
+        for route in &mut map.bus_routes {
+            for stop in &mut route.stops {
+                if stop.vehicle_pos == vehicle_pos {
+                    stop.ped_pos = Some(ped_pos);
+                }
             }
         }
     }

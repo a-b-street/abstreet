@@ -155,7 +155,7 @@ impl TransitNetwork {
 }
 
 // TODO This maybe shouldn't be a layer
-pub struct ShowBusRoute {
+pub struct ShowTransitRoute {
     time: Time,
     route: BusRouteID,
     labels: Vec<(Text, Pt2D)>,
@@ -166,7 +166,7 @@ pub struct ShowBusRoute {
     zoomed: Drawable,
 }
 
-impl Layer for ShowBusRoute {
+impl Layer for ShowTransitRoute {
     fn name(&self) -> Option<&'static str> {
         None
     }
@@ -177,7 +177,7 @@ impl Layer for ShowBusRoute {
         minimap: &Composite,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
-            *self = ShowBusRoute::new(ctx, app, self.route);
+            *self = ShowTransitRoute::new(ctx, app, self.route);
         }
 
         Layer::simple_event(ctx, minimap, &mut self.composite)
@@ -217,8 +217,8 @@ impl Layer for ShowBusRoute {
     }
 }
 
-impl ShowBusRoute {
-    pub fn new(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> ShowBusRoute {
+impl ShowTransitRoute {
+    pub fn new(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> ShowTransitRoute {
         let map = &app.primary.map;
         let route = app.primary.map.get_br(id);
 
@@ -258,15 +258,16 @@ impl ShowBusRoute {
         }
 
         let mut labels = Vec::new();
-        for (idx, bs) in route.stops.iter().enumerate() {
+        for bs in &route.stops {
+            let bs = map.get_bs(*bs);
             labels.push((
-                Text::from(Line(format!("{}", idx + 1))).with_bg(),
-                map.get_bs(*bs).sidewalk_pos.pt(map),
+                Text::from(Line(&bs.name)).with_bg(),
+                bs.sidewalk_pos.pt(map),
             ));
         }
 
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
-        ShowBusRoute {
+        ShowTransitRoute {
             time: app.primary.sim.time(),
             route: id,
             labels,

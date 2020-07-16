@@ -143,6 +143,7 @@ fn make_route(
 }
 
 struct Matcher {
+    // TODO Eventually, maybe also map to a station building too
     sidewalk_pts: HashMap<HashablePt2D, Position>,
     bus_pts: HashMap<HashablePt2D, Position>,
     light_rail_pts: HashMap<HashablePt2D, Position>,
@@ -172,7 +173,8 @@ impl Matcher {
             map.all_lanes(),
             |l| l.is_sidewalk(),
             Distance::ZERO,
-            Distance::meters(30.0),
+            // TODO Generous for cap hill light rail platform
+            Distance::meters(50.0),
             timer,
         );
         let bus_pts = match_points_to_lanes(
@@ -192,7 +194,7 @@ impl Matcher {
             |l| l.lane_type == LaneType::LightRail,
             // TODO Buffer?
             Distance::ZERO,
-            Distance::meters(10.0),
+            Distance::meters(20.0),
             timer,
         );
 
@@ -212,19 +214,17 @@ impl Matcher {
     ) -> Result<(Position, Position), Box<dyn Error>> {
         if !is_bus {
             // Light rail needs explicit platforms.
+            let sidewalk_pt = stop.ped_pos.ok_or("light rail missing platform")?;
             let sidewalk_pos = *self
                 .sidewalk_pts
-                .get(
-                    &stop
-                        .ped_pos
-                        .ok_or("light rail missing platform")?
-                        .to_hashable(),
-                )
-                .ok_or("sidewalk for light rail didnt match")?;
+                .get(&sidewalk_pt.to_hashable())
+                .ok_or_else(|| format!("sidewalk for light rail didnt match: {}", sidewalk_pt))?;
             let driving_pos = *self
                 .light_rail_pts
                 .get(&stop.vehicle_pos.to_hashable())
-                .ok_or("driving for light rail didnt match")?;
+                .ok_or_else(|| {
+                    format!("vehicle for light rail didnt match: {}", stop.vehicle_pos)
+                })?;
             return Ok((sidewalk_pos, driving_pos));
         }
 
@@ -243,12 +243,12 @@ impl Matcher {
             return Ok((sidewalk_pos, driving_pos));
         }
 
-        // We only have the driving position. First find the sidewalk, then snap it to the
+        // We only have the vehicle position. First find the sidewalk, then snap it to the
         // rightmost driving/bus lane.
         let orig_driving_pos = *self
             .bus_pts
             .get(&stop.vehicle_pos.to_hashable())
-            .ok_or("driving for bus didnt match")?;
+            .ok_or("vehicle for bus didnt match")?;
         let sidewalk = map
             .get_parent(orig_driving_pos.lane())
             .find_closest_lane(orig_driving_pos.lane(), vec![LaneType::Sidewalk])?;
