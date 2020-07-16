@@ -394,7 +394,9 @@ impl App {
                     lanes.push(draw_map.get_l(id));
                     agents_on.push(Traversable::Lane(id));
                     for bs in &map.get_l(id).bus_stops {
-                        bus_stops.push(draw_map.get_bs(*bs));
+                        if show_objs.show(&ID::BusStop(*bs)) {
+                            bus_stops.push(draw_map.get_bs(*bs));
+                        }
                     }
                 }
                 ID::Road(id) => {

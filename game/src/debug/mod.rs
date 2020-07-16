@@ -452,6 +452,9 @@ impl ContextualActions for Actions {
             ID::ParkingLot(_) => {
                 actions.push((Key::H, "hide this".to_string()));
             }
+            ID::BusStop(_) => {
+                actions.push((Key::H, "hide this".to_string()));
+            }
             _ => {}
         }
         actions

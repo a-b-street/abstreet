@@ -130,7 +130,7 @@ impl TransitNetwork {
         let composite = Composite::new(Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Bus network".draw_text(ctx),
+                "Transit network".draw_text(ctx),
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),

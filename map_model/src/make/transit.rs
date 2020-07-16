@@ -146,9 +146,10 @@ fn make_route(
 
         if map.pathfind(req.clone()).is_none() {
             return Err(format!(
-                "No path between stop on {} and {}",
+                "No path between stop on {} and {}. {}",
                 map.get_parent(req.start.lane()).orig_id,
-                map.get_parent(req.end.lane()).orig_id
+                map.get_parent(req.end.lane()).orig_id,
+                req
             )
             .into());
         }
@@ -210,7 +211,7 @@ impl Matcher {
             |l| l.lane_type == LaneType::LightRail,
             // TODO Buffer?
             Distance::ZERO,
-            Distance::meters(20.0),
+            Distance::meters(10.0),
             timer,
         );
 
