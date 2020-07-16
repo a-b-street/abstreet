@@ -227,14 +227,20 @@ impl ShowBusRoute {
             bus_locations.push(pt);
         }
 
-        let mut colorer = ColorDiscrete::new(
-            app,
-            vec![
-                ("route", app.cs.unzoomed_bus),
-                ("start", Color::RED),
-                ("end", Color::GREEN),
-            ],
-        );
+        let mut categories = vec![("route", app.cs.unzoomed_bus)];
+        if route.start_border.is_some() {
+            categories.push(("start", Color::RED));
+        }
+        if route.end_border.is_some() {
+            categories.push(("end", Color::GREEN));
+        }
+        let mut colorer = ColorDiscrete::new(app, categories);
+        if let Some(l) = route.start_border {
+            colorer.add_i(map.get_l(l).src_i, "start");
+        }
+        if let Some(l) = route.end_border {
+            colorer.add_i(map.get_l(l).dst_i, "end");
+        }
         for pair in route.stops.windows(2) {
             for step in map
                 .pathfind(PathRequest {
@@ -249,12 +255,6 @@ impl ShowBusRoute {
                     colorer.add_l(*l, "route");
                 }
             }
-        }
-        if let Some(l) = route.start_border {
-            colorer.add_i(map.get_l(l).src_i, "start");
-        }
-        if let Some(l) = route.end_border {
-            colorer.add_i(map.get_l(l).dst_i, "end");
         }
 
         let mut labels = Vec::new();

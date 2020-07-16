@@ -146,7 +146,7 @@ impl State for PolygonEditor {
 
 // https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
 fn save_as_osmosis(name: &str, pts: &Vec<LonLat>) -> Result<(), Error> {
-    let path = "bounding_boy.poly";
+    let path = format!("{}.poly", name);
     let mut f = File::create(&path)?;
 
     writeln!(f, "{}", name)?;

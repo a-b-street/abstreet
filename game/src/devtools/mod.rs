@@ -126,7 +126,10 @@ fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, _: &mut App) -> Option<T
     let name = wiz.wrap(ctx).choose_string("Edit which polygon?", || {
         abstutil::list_all_objects(abstutil::path("input/seattle/polygons/"))
     })?;
-    match LonLat::read_osmosis_polygon(format!("input/seattle/polygons/{}.poly", name)) {
+    match LonLat::read_osmosis_polygon(abstutil::path(format!(
+        "input/seattle/polygons/{}.poly",
+        name
+    ))) {
         Ok(pts) => Some(Transition::Replace(polygon::PolygonEditor::new(
             ctx, name, pts,
         ))),

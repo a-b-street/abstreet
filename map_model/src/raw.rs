@@ -155,6 +155,7 @@ impl RawMap {
         }
     }
 
+    // TODO Almost gone...
     pub fn new_osm_way_id(&self, start: i64) -> i64 {
         assert!(start < 0);
         // Slow, but deterministic.

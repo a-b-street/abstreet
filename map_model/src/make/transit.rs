@@ -99,8 +99,9 @@ fn make_route(
         } else {
             // TODO Should panic
             println!(
-                "Route {} starts at {}, but no starting lane for a {:?}?",
+                "Route {} starts at {} ({}), but no starting lane for a {:?}?",
                 rel_url(r.osm_rel_id),
+                i.id,
                 i.orig_id,
                 route_type
             );
@@ -116,8 +117,9 @@ fn make_route(
         } else {
             // TODO Should panic
             println!(
-                "Route {} ends at {}, but no ending lane for a {:?}?",
+                "Route {} ends at {} ({}), but no ending lane for a {:?}?",
                 rel_url(r.osm_rel_id),
+                i.id,
                 i.orig_id,
                 route_type
             );
