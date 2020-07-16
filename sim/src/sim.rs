@@ -229,16 +229,7 @@ impl Sim {
 
     // TODO Change this to be a periodic "start a bus at stop1 based on a schedule"
     pub(crate) fn seed_bus_route(&mut self, route: &BusRoute, map: &Map, timer: &mut Timer) {
-        if route.stops.is_empty() {
-            panic!("{} has no stops", route.full_name);
-        }
-        // TODO This'll be valid when we have borders too
-        if route.stops.len() == 1 {
-            timer.error(format!("{} only has one stop", route.full_name));
-            return;
-        }
-
-        // Spawn one bus from stop1->stop2.
+        // Spawn one bus for the first leg.
         let (req, path) = self.transit.create_empty_route(route, map);
 
         // For now, no desire for randomness. Caller can pass in list of specs if that ever
@@ -1082,7 +1073,7 @@ impl Sim {
     }
 
     // (bus, stop index it's coming from, percent to next stop)
-    pub fn status_of_buses(&self, route: BusRouteID) -> Vec<(CarID, usize, f64)> {
+    pub fn status_of_buses(&self, route: BusRouteID) -> Vec<(CarID, Option<usize>, f64)> {
         let mut results = Vec::new();
         for (bus, stop_idx) in self.transit.buses_for_route(route) {
             results.push((bus, stop_idx, self.driving.percent_along_route(bus)));

@@ -197,9 +197,15 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
         Polygon::rounded_rectangle(15.0, y_len, Some(4.0)),
     );
     for (_, stop_idx, percent_next_stop) in app.primary.sim.status_of_buses(route.id) {
+        // TODO This whole function is wrong
+        let idx = if let Some(i) = stop_idx {
+            i as f64
+        } else {
+            continue;
+        };
         // TODO Line it up right in the middle of the line of text. This is probably a bit
         // wrong.
-        let base_percent_y = (stop_idx as f64) / ((route.stops.len() - 1) as f64);
+        let base_percent_y = idx / ((route.stops.len() - 1) as f64);
         batch.push(
             Color::BLUE,
             Circle::new(

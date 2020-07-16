@@ -241,16 +241,8 @@ impl ShowTransitRoute {
         if let Some(l) = route.end_border {
             colorer.add_i(map.get_l(l).dst_i, "end");
         }
-        for pair in route.stops.windows(2) {
-            for step in map
-                .pathfind(PathRequest {
-                    start: map.get_bs(pair[0]).driving_pos,
-                    end: map.get_bs(pair[1]).driving_pos,
-                    constraints: route.route_type,
-                })
-                .unwrap()
-                .get_steps()
-            {
+        for req in route.all_steps(map) {
+            for step in map.pathfind(req).unwrap().get_steps() {
                 if let PathStep::Lane(l) = step {
                     colorer.add_l(*l, "route");
                 }

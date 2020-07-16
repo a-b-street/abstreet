@@ -508,22 +508,26 @@ impl DrivingSimState {
                         false
                     }
                     Some(ActionAtEnd::BusAtStop) => {
-                        transit.bus_arrived_at_stop(
+                        car.total_blocked_time += now - blocked_since;
+                        if transit.bus_arrived_at_stop(
                             now,
                             car.vehicle.id,
                             trips,
                             walking,
                             scheduler,
                             map,
-                        );
-                        car.total_blocked_time += now - blocked_since;
-                        car.state = CarState::IdlingAtStop(
-                            our_dist,
-                            TimeInterval::new(now, now + TIME_TO_WAIT_AT_STOP),
-                        );
-                        scheduler
-                            .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
-                        true
+                        ) {
+                            car.state = CarState::IdlingAtStop(
+                                our_dist,
+                                TimeInterval::new(now, now + TIME_TO_WAIT_AT_STOP),
+                            );
+                            scheduler
+                                .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
+                            true
+                        } else {
+                            // Vanishing at a border
+                            false
+                        }
                     }
                     None => {
                         scheduler.push(

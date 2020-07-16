@@ -198,6 +198,7 @@ fn make_input_graph(
 
         // Connect each adjacent stop along a route, with the cost based on how long it'll take a
         // bus to drive between the stops. Optimistically assume no waiting time at a stop.
+        // TODO Also plug in border starts/ends
         for route in map.all_bus_routes() {
             for pair in route.stops.windows(2) {
                 let (stop1, stop2) = (map.get_bs(pair[0]), map.get_bs(pair[1]));

@@ -1,8 +1,6 @@
 use crate::make::match_points_to_lanes;
 use crate::raw::{RawBusRoute, RawBusStop};
-use crate::{
-    BusRoute, BusRouteID, BusStop, BusStopID, LaneType, Map, PathConstraints, PathRequest, Position,
-};
+use crate::{BusRoute, BusRouteID, BusStop, BusStopID, LaneType, Map, PathConstraints, Position};
 use abstutil::Timer;
 use geom::{Distance, HashablePt2D};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -126,11 +124,7 @@ fn make_route(
         }
     }
 
-    // Make sure the route is connected
-    for pair in stops.windows(2) {
-        check_stops(route_type, pair[0], pair[1], map)?;
-    }
-    map.bus_routes.push(BusRoute {
+    let route = BusRoute {
         id: BusRouteID(map.bus_routes.len()),
         full_name: r.full_name.clone(),
         short_name: r.short_name.clone(),
@@ -138,7 +132,29 @@ fn make_route(
         route_type,
         start_border,
         end_border,
-    });
+    };
+
+    // Make sure the route is connected
+    for req in route.all_steps(map) {
+        if req.start.lane() == req.end.lane() && req.start.dist_along() > req.end.dist_along() {
+            return Err(format!(
+                "Two stops seemingly out of order somewhere on {}",
+                map.get_parent(req.start.lane()).orig_id
+            )
+            .into());
+        }
+
+        if map.pathfind(req.clone()).is_none() {
+            return Err(format!(
+                "No path between stop on {} and {}",
+                map.get_parent(req.start.lane()).orig_id,
+                map.get_parent(req.end.lane()).orig_id
+            )
+            .into());
+        }
+    }
+
+    map.bus_routes.push(route);
     Ok(())
 }
 
@@ -259,40 +275,6 @@ impl Matcher {
         let driving_pos = sidewalk_pos.equiv_pos(lane, Distance::ZERO, map);
         Ok((sidewalk_pos, driving_pos))
     }
-}
-
-fn check_stops(
-    constraints: PathConstraints,
-    stop1: BusStopID,
-    stop2: BusStopID,
-    map: &Map,
-) -> Result<(), Box<dyn Error>> {
-    let start = map.get_bs(stop1).driving_pos;
-    let end = map.get_bs(stop2).driving_pos;
-    if start.lane() == end.lane() && start.dist_along() > end.dist_along() {
-        return Err(format!(
-            "Two stops seemingly out of order somewhere on {}",
-            map.get_parent(start.lane()).orig_id
-        )
-        .into());
-    }
-
-    if map
-        .pathfind(PathRequest {
-            start,
-            end,
-            constraints,
-        })
-        .is_some()
-    {
-        return Ok(());
-    }
-    Err(format!(
-        "No path between stop on {} and {}",
-        map.get_parent(start.lane()).orig_id,
-        map.get_parent(end.lane()).orig_id
-    )
-    .into())
 }
 
 fn rel_url(id: i64) -> String {
