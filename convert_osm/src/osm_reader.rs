@@ -727,7 +727,9 @@ fn extract_route(
             stop.ped_pos = Some(pt);
         }
     }
-    if stops.is_empty() {
+    if stops.len() < 2 {
+        // Routes with only 1 stop are pretty much useless, and it makes border matching quite
+        // confusing.
         return None;
     }
 

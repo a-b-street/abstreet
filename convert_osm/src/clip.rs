@@ -1,5 +1,5 @@
 use abstutil::{retain_btreemap, Timer};
-use geom::{PolyLine, Pt2D, Ring};
+use geom::{Distance, PolyLine, Ring};
 use map_model::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use map_model::IntersectionType;
 use std::collections::BTreeMap;
@@ -30,8 +30,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
 
     // When we split an intersection out of bounds into two, one of them gets a new ID. Remember
     // that here.
-    let mut extra_borders: BTreeMap<OriginalIntersection, (OriginalIntersection, Pt2D)> =
-        BTreeMap::new();
+    let mut extra_borders: BTreeMap<OriginalIntersection, OriginalIntersection> = BTreeMap::new();
 
     // First pass: Clip roads beginning out of bounds
     let road_ids: Vec<OriginalRoad> = map.roads.keys().cloned().collect();
@@ -60,7 +59,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
             move_i = OriginalIntersection {
                 osm_node_id: map.new_osm_node_id(-1),
             };
-            extra_borders.insert(orig_id, (move_i, copy.point));
+            extra_borders.insert(orig_id, move_i);
             map.intersections.insert(move_i, copy);
             println!("Disconnecting {} from some other stuff (starting OOB)", id);
         }
@@ -119,7 +118,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
             move_i = OriginalIntersection {
                 osm_node_id: map.new_osm_node_id(-1),
             };
-            extra_borders.insert(orig_id, (move_i, copy.point));
+            extra_borders.insert(orig_id, move_i);
             map.intersections.insert(move_i, copy);
             println!("Disconnecting {} from some other stuff (ending OOB)", id);
         }
@@ -171,52 +170,73 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         panic!("There are no roads inside the clipping polygon");
     }
 
-    let mut keep_routes = Vec::new();
-    for mut r in map.bus_routes.drain(..) {
-        let mut borders: Vec<(OriginalIntersection, Pt2D)> = Vec::new();
+    let all_routes = map.bus_routes.drain(..).collect::<Vec<_>>();
+    for mut r in all_routes {
+        if r.stops[0].vehicle_pos == r.stops.last().unwrap().vehicle_pos {
+            // A loop?
+            map.bus_routes.push(r);
+            continue;
+        }
+
+        let mut borders: Vec<OriginalIntersection> = Vec::new();
         for pt in r.all_pts.drain(..) {
             if let Some(i) = map.intersections.get(&pt) {
                 if i.intersection_type == IntersectionType::Border {
-                    borders.push((pt, i.point));
+                    borders.push(pt);
                 }
             }
-            if let Some(pair) = extra_borders.get(&pt) {
-                borders.push(*pair);
+            if let Some(i) = extra_borders.get(&pt) {
+                borders.push(*i);
             }
         }
 
-        if !borders.is_empty() {
-            // Guess which border is for the beginning and end of the route. This can fail if:
-            // - there's just one stop
-            // - the border isn't actually connected to the stop by any path (roads causing copied
-            //   intersections trigger this)
-            let start_pt = r.stops[0].vehicle_pos;
-            let closest_to_start = borders
-                .iter()
-                .min_by_key(|(_, pt)| start_pt.dist_to(*pt))
-                .unwrap();
-            let end_pt = r.stops.last().unwrap().vehicle_pos;
-            let closest_to_end = borders
-                .iter()
-                .min_by_key(|(_, pt)| end_pt.dist_to(*pt))
-                .unwrap();
+        // Guess which border is for the beginning and end of the route.
+        let start_i = map.closest_intersection(r.stops[0].vehicle_pos);
+        let end_i = map.closest_intersection(r.stops.last().unwrap().vehicle_pos);
+        let mut best_start: Option<(OriginalIntersection, Distance)> = None;
+        let mut best_end: Option<(OriginalIntersection, Distance)> = None;
+        for i in borders {
+            // closest_intersection might snap to the wrong end, so try both directions
+            if let Some(d1) = map
+                .path_dist_to(i, start_i)
+                .or_else(|| map.path_dist_to(start_i, i))
+            {
+                if best_start.map(|(_, d2)| d1 < d2).unwrap_or(true) {
+                    best_start = Some((i, d1));
+                }
+            }
+            if let Some(d1) = map.path_dist_to(end_i, i) {
+                if best_end.map(|(_, d2)| d1 < d2).unwrap_or(true) {
+                    best_end = Some((i, d1));
+                }
+            }
+        }
 
-            if closest_to_start.0 != closest_to_end.0 {
-                r.border_start = Some(closest_to_start.0);
-                r.border_end = Some(closest_to_end.0);
-            } else {
-                // Break the tie...
-                if closest_to_start.1.dist_to(start_pt) < closest_to_end.1.dist_to(end_pt) {
-                    r.border_start = Some(closest_to_start.0);
+        // If both matched to the same border, probably the route properly starts or ends inside
+        // the map. (If it was both, then we shouldn't have even had any borders at all.)
+        match (best_start, best_end) {
+            (Some((i1, d1)), Some((i2, d2))) => {
+                if i1 == i2 {
+                    if d1 < d2 {
+                        r.border_start = Some(i1);
+                    } else {
+                        r.border_end = Some(i2);
+                    }
                 } else {
-                    r.border_end = Some(closest_to_end.0);
+                    r.border_start = Some(i1);
+                    r.border_end = Some(i2);
                 }
             }
+            (Some((i1, _)), None) => {
+                r.border_start = Some(i1);
+            }
+            (None, Some((i2, _))) => {
+                r.border_end = Some(i2);
+            }
+            (None, None) => {}
         }
-        // TODO Warn for some of these weird things and maybe skip
-        keep_routes.push(r);
+        map.bus_routes.push(r);
     }
-    map.bus_routes = keep_routes;
 
     timer.stop("clipping map to boundary");
 }

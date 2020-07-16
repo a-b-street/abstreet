@@ -2,6 +2,7 @@ use crate::make::initial::lane_specs::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, MapConfig, RoadSpec};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
 use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
+use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
@@ -290,6 +291,34 @@ impl RawMap {
         }
 
         Some(fixed)
+    }
+
+    pub fn closest_intersection(&self, pt: Pt2D) -> OriginalIntersection {
+        self.intersections
+            .iter()
+            .min_by_key(|(_, i)| i.point.dist_to(pt))
+            .map(|(id, _)| *id)
+            .unwrap()
+    }
+
+    pub fn path_dist_to(
+        &self,
+        from: OriginalIntersection,
+        to: OriginalIntersection,
+    ) -> Option<Distance> {
+        let mut graph = DiGraphMap::new();
+        for (id, r) in &self.roads {
+            graph.add_edge(id.i1, id.i2, id);
+            if !r.osm_tags.contains_key("oneway") {
+                graph.add_edge(id.i2, id.i1, id);
+            }
+        }
+        petgraph::algo::dijkstra(&graph, from, Some(to), |(_, _, r)| {
+            // TODO Expensive!
+            PolyLine::unchecked_new(self.roads[r].center_points.clone()).length()
+        })
+        .get(&to)
+        .cloned()
     }
 }
 
