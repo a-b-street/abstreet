@@ -3,7 +3,7 @@ use crate::{
 };
 use derivative::Derivative;
 use geom::{Duration, Histogram, Time};
-use map_model::{IntersectionID, Path, PathRequest};
+use map_model::{BusRouteID, IntersectionID, Path, PathRequest};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::btree_map::Entry;
@@ -23,6 +23,7 @@ pub enum Command {
     Callback(Duration),
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),
+    SeedBus(BusRouteID),
 }
 
 impl Command {
@@ -46,6 +47,7 @@ impl Command {
             Command::Callback(_) => CommandType::Callback,
             Command::Pandemic(ref p) => CommandType::Pandemic(p.clone()),
             Command::FinishRemoteTrip(t) => CommandType::FinishRemoteTrip(*t),
+            Command::SeedBus(r) => CommandType::SeedBus(*r),
         }
     }
 }
@@ -62,6 +64,7 @@ pub enum CommandType {
     Callback,
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),
+    SeedBus(BusRouteID),
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]

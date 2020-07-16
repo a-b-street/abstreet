@@ -227,7 +227,6 @@ impl Sim {
         self.parking.add_parked_car(ParkedCar { vehicle, spot });
     }
 
-    // TODO Change this to be a periodic "start a bus at stop1 based on a schedule"
     pub(crate) fn seed_bus_route(&mut self, route: &BusRoute, map: &Map, timer: &mut Timer) {
         // Spawn one bus for the first leg.
         let (req, path) = self.transit.create_empty_route(route, map);
@@ -248,6 +247,7 @@ impl Sim {
 
         let start = req.start.lane();
         if map.get_l(start).length() < vehicle.length {
+            // TODO What do we actually do about this? :\
             timer.error(format!("Can't start a bus on {}, too short", start));
             return;
         }
@@ -267,6 +267,10 @@ impl Sim {
                 true,
             ),
         );
+
+        // TODO Change the rate of spawning based on a schedule from GTFS or player's choice
+        self.scheduler
+            .push(self.time + Duration::hours(1), Command::SeedBus(route.id));
     }
 
     pub fn set_name(&mut self, name: String) {
@@ -561,6 +565,9 @@ impl Sim {
                     &mut self.parking,
                     &mut self.scheduler,
                 );
+            }
+            Command::SeedBus(r) => {
+                self.seed_bus_route(map.get_br(r), map, &mut Timer::throwaway());
             }
         }
 

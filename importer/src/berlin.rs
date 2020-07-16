@@ -99,10 +99,10 @@ fn correlate_population(kml_path: &str, csv_path: &str) {
 
 #[derive(Debug, Deserialize)]
 struct Record {
-    #[serde(rename = "RAUMID")]
     // Corresponds with spatial_name from planning_areas
+    #[serde(rename = "RAUMID")]
     raumid: String,
-    #[serde(rename = "E_E")]
     // The total residents in that area
+    #[serde(rename = "E_E")]
     e_e: String,
 }
