@@ -291,8 +291,14 @@ pub fn extract_osm(
                 );
             }
         } else if tags.is("type", "route") {
-            map.bus_routes
-                .extend(extract_route(&tags, rel, &doc, &id_to_way, &map.gps_bounds));
+            map.bus_routes.extend(extract_route(
+                &tags,
+                rel,
+                &doc,
+                &id_to_way,
+                &map.gps_bounds,
+                &map.boundary_polygon,
+            ));
         } else if tags.is("type", "multipolygon") && tags.contains_key("amenity") {
             let name = tags
                 .get("name")
@@ -654,6 +660,7 @@ fn extract_route(
     doc: &osm_xml::OSM,
     id_to_way: &HashMap<i64, Vec<Pt2D>>,
     gps_bounds: &GPSBounds,
+    boundary: &Polygon,
 ) -> Option<RawBusRoute> {
     let full_name = tags.get("name")?.clone();
     let short_name = tags
@@ -664,12 +671,15 @@ fn extract_route(
         "bus" => true,
         "light_rail" => false,
         x => {
-            println!(
-                "Skipping route {} of unknown type {}: {}",
-                full_name,
-                x,
-                rel_url(rel.id)
-            );
+            if x != "road" && x != "bicycle" {
+                // TODO Handle these at some point
+                println!(
+                    "Skipping route {} of unknown type {}: {}",
+                    full_name,
+                    x,
+                    rel_url(rel.id)
+                );
+            }
             return None;
         }
     };
@@ -727,7 +737,30 @@ fn extract_route(
             stop.ped_pos = Some(pt);
         }
     }
-    if stops.len() < 2 {
+
+    // Remove stops that're out of bounds. Once we find the first in-bound point, keep all in-bound
+    // stops and halt as soon as we go out of bounds again. If a route happens to dip in and out of
+    // the boundary, we don't want to leave gaps.
+    let mut keep_stops = Vec::new();
+    let orig_num = stops.len();
+    for stop in stops {
+        if boundary.contains_pt(stop.vehicle_pos) {
+            keep_stops.push(stop);
+        } else {
+            if !keep_stops.is_empty() {
+                // That's the end of them
+                break;
+            }
+        }
+    }
+    println!(
+        "Kept {} / {} contiguous stops from route {}",
+        keep_stops.len(),
+        orig_num,
+        rel_url(rel.id)
+    );
+
+    if keep_stops.len() < 2 {
         // Routes with only 1 stop are pretty much useless, and it makes border matching quite
         // confusing.
         return None;
@@ -738,7 +771,7 @@ fn extract_route(
         short_name,
         is_bus,
         osm_rel_id: rel.id,
-        stops,
+        stops: keep_stops,
         border_start: None,
         border_end: None,
         all_pts,

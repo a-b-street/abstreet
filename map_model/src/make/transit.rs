@@ -220,11 +220,11 @@ impl Matcher {
                         .ok_or("light rail missing platform")?
                         .to_hashable(),
                 )
-                .ok_or("sidewalk didnt match")?;
+                .ok_or("sidewalk for light rail didnt match")?;
             let driving_pos = *self
                 .light_rail_pts
                 .get(&stop.vehicle_pos.to_hashable())
-                .ok_or("driving didnt match")?;
+                .ok_or("driving for light rail didnt match")?;
             return Ok((sidewalk_pos, driving_pos));
         }
 
@@ -248,7 +248,7 @@ impl Matcher {
         let orig_driving_pos = *self
             .bus_pts
             .get(&stop.vehicle_pos.to_hashable())
-            .ok_or("driving didnt match")?;
+            .ok_or("driving for bus didnt match")?;
         let sidewalk = map
             .get_parent(orig_driving_pos.lane())
             .find_closest_lane(orig_driving_pos.lane(), vec![LaneType::Sidewalk])?;
