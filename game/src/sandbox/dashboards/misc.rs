@@ -106,11 +106,10 @@ impl State for BusRoutes {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => {
-                if let Some(x) = x.strip_prefix("BusRoute #") {
-                    let r = app
-                        .primary
-                        .map
-                        .get_br(BusRouteID(x.parse::<usize>().unwrap()));
+                if x.starts_with("BusRoute #") {
+                    let r = app.primary.map.get_br(BusRouteID(
+                        x["BusRoute #".len()..].parse::<usize>().unwrap(),
+                    ));
                     let buses = app.primary.sim.status_of_buses(r.id);
                     if buses.is_empty() {
                         Transition::Push(msg(

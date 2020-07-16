@@ -270,7 +270,7 @@ impl Scheduler {
                         .replace_path_for_serialization(restore.pop().unwrap());
                 }
                 Command::SpawnPed(ref mut create_ped) => {
-                    create_ped.path = restore.pop().unwrap();
+                    std::mem::replace(&mut create_ped.path, restore.pop().unwrap());
                 }
                 _ => {}
             }

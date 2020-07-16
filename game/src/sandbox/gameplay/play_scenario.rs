@@ -243,18 +243,16 @@ impl State for EditScenarioModifiers {
                         self.modifiers.clone(),
                     ));
                 }
-                x => {
-                    if let Some(x) = x.strip_prefix("delete modifier ") {
-                        self.modifiers.remove(x.parse::<usize>().unwrap() - 1);
-                        return Transition::Replace(EditScenarioModifiers::new(
-                            ctx,
-                            self.scenario_name.clone(),
-                            self.modifiers.clone(),
-                        ));
-                    } else {
-                        unreachable!()
-                    }
+                x if x.starts_with("delete modifier ") => {
+                    let idx = x["delete modifier ".len()..].parse::<usize>().unwrap() - 1;
+                    self.modifiers.remove(idx);
+                    return Transition::Replace(EditScenarioModifiers::new(
+                        ctx,
+                        self.scenario_name.clone(),
+                        self.modifiers.clone(),
+                    ));
                 }
+                _ => unreachable!(),
             },
             None => {}
         }

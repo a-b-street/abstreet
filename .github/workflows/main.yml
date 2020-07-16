@@ -8,7 +8,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.45.0
+          rust-version: 1.43.0
       - name: Build game
         run: cargo build --release --bin game
       - name: Build importer
@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.45.0
+          rust-version: 1.43.0
       - name: Build game
         run: cargo build --release --bin game
       - name: Build importer
@@ -47,7 +47,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.45.0
+          rust-version: 1.43.0
       - name: Install dependencies
         run: sudo apt-get install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Build game

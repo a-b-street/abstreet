@@ -89,8 +89,8 @@ impl State for TrafficSignalEditor {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "Edit entire signal" => {
+            Some(Outcome::Clicked(x)) => match x {
+                x if x == "Edit entire signal" => {
                     return Transition::Push(edit_entire_signal(
                         app,
                         self.i,
@@ -98,7 +98,54 @@ impl State for TrafficSignalEditor {
                         self.command_stack.get(0).cloned(),
                     ));
                 }
-                "Add new phase" => {
+                x if x.starts_with("change duration of phase ") => {
+                    let idx = x["change duration of phase ".len()..]
+                        .parse::<usize>()
+                        .unwrap()
+                        - 1;
+                    return Transition::Push(change_duration(app, self.i, idx));
+                }
+                x if x.starts_with("delete phase ") => {
+                    let idx = x["delete phase ".len()..].parse::<usize>().unwrap() - 1;
+
+                    let mut new_signal = orig_signal.clone();
+                    new_signal.phases.remove(idx);
+                    let num_phases = new_signal.phases.len();
+                    self.command_stack.push(orig_signal.clone());
+                    self.redo_stack.clear();
+                    self.top_panel = make_top_panel(ctx, app, true, false);
+                    app.primary.map.incremental_edit_traffic_signal(new_signal);
+                    // Don't use change_phase; it tries to preserve scroll
+                    self.current_phase = if idx == num_phases { idx - 1 } else { idx };
+                    self.composite =
+                        make_signal_diagram(ctx, app, self.i, self.current_phase, true);
+                    return Transition::Keep;
+                }
+                x if x.starts_with("move up phase ") => {
+                    let idx = x["move up phase ".len()..].parse::<usize>().unwrap() - 1;
+
+                    let mut new_signal = orig_signal.clone();
+                    new_signal.phases.swap(idx, idx - 1);
+                    self.command_stack.push(orig_signal.clone());
+                    self.redo_stack.clear();
+                    self.top_panel = make_top_panel(ctx, app, true, false);
+                    app.primary.map.incremental_edit_traffic_signal(new_signal);
+                    self.change_phase(idx - 1, ctx, app);
+                    return Transition::Keep;
+                }
+                x if x.starts_with("move down phase ") => {
+                    let idx = x["move down phase ".len()..].parse::<usize>().unwrap() - 1;
+
+                    let mut new_signal = orig_signal.clone();
+                    new_signal.phases.swap(idx, idx + 1);
+                    self.command_stack.push(orig_signal.clone());
+                    self.redo_stack.clear();
+                    self.top_panel = make_top_panel(ctx, app, true, false);
+                    app.primary.map.incremental_edit_traffic_signal(new_signal);
+                    self.change_phase(idx + 1, ctx, app);
+                    return Transition::Keep;
+                }
+                x if x == "Add new phase" => {
                     let mut new_signal = orig_signal.clone();
                     new_signal.phases.push(Phase::new());
                     let len = new_signal.phases.len();
@@ -109,58 +156,11 @@ impl State for TrafficSignalEditor {
                     self.change_phase(len - 1, ctx, app);
                     return Transition::Keep;
                 }
-                x => {
-                    if let Some(x) = x.strip_prefix("change duration of phase ") {
-                        let idx = x.parse::<usize>().unwrap() - 1;
-                        return Transition::Push(change_duration(app, self.i, idx));
-                    }
-                    if let Some(x) = x.strip_prefix("delete phase ") {
-                        let idx = x.parse::<usize>().unwrap() - 1;
-
-                        let mut new_signal = orig_signal.clone();
-                        new_signal.phases.remove(idx);
-                        let num_phases = new_signal.phases.len();
-                        self.command_stack.push(orig_signal.clone());
-                        self.redo_stack.clear();
-                        self.top_panel = make_top_panel(ctx, app, true, false);
-                        app.primary.map.incremental_edit_traffic_signal(new_signal);
-                        // Don't use change_phase; it tries to preserve scroll
-                        self.current_phase = if idx == num_phases { idx - 1 } else { idx };
-                        self.composite =
-                            make_signal_diagram(ctx, app, self.i, self.current_phase, true);
-                        return Transition::Keep;
-                    }
-                    if let Some(x) = x.strip_prefix("move up phase ") {
-                        let idx = x.parse::<usize>().unwrap() - 1;
-
-                        let mut new_signal = orig_signal.clone();
-                        new_signal.phases.swap(idx, idx - 1);
-                        self.command_stack.push(orig_signal.clone());
-                        self.redo_stack.clear();
-                        self.top_panel = make_top_panel(ctx, app, true, false);
-                        app.primary.map.incremental_edit_traffic_signal(new_signal);
-                        self.change_phase(idx - 1, ctx, app);
-                        return Transition::Keep;
-                    }
-                    if let Some(x) = x.strip_prefix("move down phase ") {
-                        let idx = x.parse::<usize>().unwrap() - 1;
-
-                        let mut new_signal = orig_signal.clone();
-                        new_signal.phases.swap(idx, idx + 1);
-                        self.command_stack.push(orig_signal.clone());
-                        self.redo_stack.clear();
-                        self.top_panel = make_top_panel(ctx, app, true, false);
-                        app.primary.map.incremental_edit_traffic_signal(new_signal);
-                        self.change_phase(idx + 1, ctx, app);
-                        return Transition::Keep;
-                    }
-                    if let Some(x) = x.strip_prefix("phase ") {
-                        let idx = x.parse::<usize>().unwrap() - 1;
-                        self.change_phase(idx, ctx, app);
-                        return Transition::Keep;
-                    }
-                    unreachable!()
+                x if x.starts_with("phase ") => {
+                    let idx = x["phase ".len()..].parse::<usize>().unwrap() - 1;
+                    self.change_phase(idx, ctx, app);
                 }
+                _ => unreachable!(),
             },
             None => {}
         }
