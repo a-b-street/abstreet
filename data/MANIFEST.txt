@@ -1,6 +1,7 @@
+data/input/berlin/EWR201812E_Matrix.csv,7966d3e37c45e7ffa4ee26bb6c8cec28,https://www.dropbox.com/s/38fl51jxp5iwuz3/EWR201812E_Matrix.csv.zip?dl=0
 data/input/berlin/osm/berlin-latest.osm.pbf,52bbd0527d89827ddeb84eaff742ac5b,https://www.dropbox.com/s/8masykl5oi34wmj/berlin-latest.osm.pbf.zip?dl=0
 data/input/berlin/osm/berlin_center.osm,5b777f293e8639af583eb5a6b4ce9e8f,https://www.dropbox.com/s/uo6qwure2ntll9h/berlin_center.osm.zip?dl=0
-data/input/berlin/planning_areas.bin,e8ae2581bedc086f7ad02e49d2c9eb5b,https://www.dropbox.com/s/pbovhfr6zw0s0ob/planning_areas.bin.zip?dl=0
+data/input/berlin/planning_areas.bin,f1a3bd5118a0e4982b64c2307e01d82a,https://www.dropbox.com/s/pbovhfr6zw0s0ob/planning_areas.bin.zip?dl=0
 data/input/berlin/planning_areas.kml,1bfc2044f1f5f40acdcdded1a644ad22,https://www.dropbox.com/s/9bvbshrtjw14tm7/planning_areas.kml.zip?dl=0
 data/input/krakow/osm/huge_krakow.osm,03bae13bcf9461236b81dd1f0a74696d,https://www.dropbox.com/s/ooqaw4z5yfwucql/huge_krakow.osm.zip?dl=0
 data/input/krakow/osm/malopolskie-latest.osm.pbf,36071de68f68c516fe81300c2d1940a9,https://www.dropbox.com/s/4718vobelcz32id/malopolskie-latest.osm.pbf.zip?dl=0

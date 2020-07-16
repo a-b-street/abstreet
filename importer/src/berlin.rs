@@ -1,4 +1,8 @@
 use crate::utils::{download, download_kml, osmconvert};
+use abstutil::Timer;
+use kml::ExtraShapes;
+use serde::Deserialize;
+use std::fs::File;
 
 fn input() {
     download(
@@ -19,6 +23,19 @@ fn input() {
         &bounds,
         // Keep partly out-of-bounds polygons
         false,
+    );
+
+    // From
+    // https://daten.berlin.de/datensaetze/einwohnerinnen-und-einwohner-berlin-lor-planungsr%C3%A4umen-am-31122018
+    download(
+        "input/berlin/EWR201812E_Matrix.csv",
+        "https://www.statistik-berlin-brandenburg.de/opendata/EWR201812E_Matrix.csv",
+    );
+
+    // Always do this, it's idempotent and fast
+    correlate_population(
+        "data/input/berlin/planning_areas.bin",
+        "data/input/berlin/EWR201812E_Matrix.csv",
     );
 }
 
@@ -56,4 +73,36 @@ pub fn osm_to_raw(name: &str) {
     let output = abstutil::path(format!("input/raw_maps/{}.bin", name));
     println!("- Saving {}", output);
     abstutil::write_binary(output, &map);
+}
+
+// Modify the filtered KML of planning areas with the number of residents from a different dataset.
+fn correlate_population(kml_path: &str, csv_path: &str) {
+    let mut shapes =
+        abstutil::read_binary::<ExtraShapes>(kml_path.to_string(), &mut Timer::throwaway());
+    for rec in csv::ReaderBuilder::new()
+        .delimiter(b';')
+        .from_reader(File::open(csv_path).unwrap())
+        .deserialize()
+    {
+        let rec: Record = rec.unwrap();
+        for shape in &mut shapes.shapes {
+            if shape.attributes.get("spatial_name") == Some(&rec.raumid) {
+                shape
+                    .attributes
+                    .insert("num_residents".to_string(), rec.e_e);
+                break;
+            }
+        }
+    }
+    abstutil::write_binary(kml_path.to_string(), &shapes);
+}
+
+#[derive(Debug, Deserialize)]
+struct Record {
+    #[serde(rename = "RAUMID")]
+    // Corresponds with spatial_name from planning_areas
+    raumid: String,
+    #[serde(rename = "E_E")]
+    // The total residents in that area
+    e_e: String,
 }

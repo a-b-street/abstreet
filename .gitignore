@@ -6,6 +6,7 @@ data/config
 data/input/berlin/osm
 data/input/berlin/planning_areas.bin
 data/input/berlin/planning_areas.kml
+data/input/berlin/EWR201812E_Matrix.csv
 
 data/input/krakow/osm
 

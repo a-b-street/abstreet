@@ -48,6 +48,8 @@ jobs:
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: 1.43.0
+      - name: Update apt
+        run: sudo apt-get update
       - name: Install dependencies
         run: sudo apt-get install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Build game
