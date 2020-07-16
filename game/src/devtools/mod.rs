@@ -141,12 +141,14 @@ fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, _: &mut App) -> Option<T
 }
 
 fn choose_kml(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    // TODO Sorry, Seattle only right now
     let path = wiz.wrap(ctx).choose_string("View what KML dataset?", || {
-        abstutil::list_dir(std::path::Path::new(&abstutil::path("input/seattle/")))
-            .into_iter()
-            .filter(|x| x.ends_with(".bin") && !x.ends_with("popdat.bin"))
-            .collect()
+        abstutil::list_dir(std::path::Path::new(&abstutil::path(format!(
+            "input/{}/",
+            app.primary.map.get_city_name()
+        ))))
+        .into_iter()
+        .filter(|x| x.ends_with(".bin") && !x.ends_with("popdat.bin"))
+        .collect()
     })?;
     Some(Transition::Replace(kml::ViewKML::new(ctx, app, path)))
 }

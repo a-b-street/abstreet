@@ -3,8 +3,7 @@ use std::path::Path;
 use std::process::Command;
 
 // If the output file doesn't already exist, downloads the URL into that location. Automatically
-// uncompresses .zip and .gz files. .kml files are automatically clipped to a hardcoded boundary of
-// Seattle.
+// uncompresses .zip and .gz files.
 pub fn download(output: &str, url: &str) {
     let output = abstutil::path(output);
     if Path::new(&output).exists() {
@@ -16,19 +15,13 @@ pub fn download(output: &str, url: &str) {
         .expect("Creating parent dir failed");
 
     let tmp = "tmp_output";
-    if url.ends_with(".kml") && Path::new(&output.replace(".bin", ".kml")).exists() {
-        run(Command::new("cp")
-            .arg(output.replace(".bin", ".kml"))
-            .arg(tmp));
-    } else {
-        println!("- Missing {}, so downloading {}", output, url);
-        run(Command::new("curl")
-            .arg("--fail")
-            .arg("-L")
-            .arg("-o")
-            .arg(tmp)
-            .arg(url));
-    }
+    println!("- Missing {}, so downloading {}", output, url);
+    run(Command::new("curl")
+        .arg("--fail")
+        .arg("-L")
+        .arg("-o")
+        .arg(tmp)
+        .arg(url));
 
     // Argh the Dropbox URL is .zip?dl=0
     if url.contains(".zip") {
@@ -44,24 +37,59 @@ pub fn download(output: &str, url: &str) {
         println!("- Gunzipping");
         run(Command::new("mv").arg(tmp).arg(format!("{}.gz", output)));
         run(Command::new("gunzip").arg(format!("{}.gz", output)));
-    } else if url.ends_with(".kml") {
-        println!("- Extracting KML data");
-
-        let shapes = kml::load(
-            tmp,
-            &geom::GPSBounds::seattle_bounds(),
-            &mut abstutil::Timer::new("extracting shapes from KML"),
-        )
-        .unwrap();
-        abstutil::write_binary(output.clone(), &shapes);
-        // Keep the intermediate file; otherwise we inadvertently grab new upstream data when
-        // changing some binary formats
-        run(Command::new("mv")
-            .arg(tmp)
-            .arg(output.replace(".bin", ".kml")));
     } else {
         run(Command::new("mv").arg(tmp).arg(output));
     }
+}
+
+// If the output file doesn't already exist, downloads the URL into that location. Clips .kml
+// files and converts to a .bin.
+pub fn download_kml(
+    output: &str,
+    url: &str,
+    bounds: &geom::GPSBounds,
+    require_all_pts_in_bounds: bool,
+) {
+    assert!(url.ends_with(".kml"));
+    let output = abstutil::path(output);
+    if Path::new(&output).exists() {
+        println!("- {} already exists", output);
+        return;
+    }
+    // Create the directory
+    std::fs::create_dir_all(Path::new(&output).parent().unwrap())
+        .expect("Creating parent dir failed");
+
+    let tmp = "tmp_output";
+    if Path::new(&output.replace(".bin", ".kml")).exists() {
+        run(Command::new("cp")
+            .arg(output.replace(".bin", ".kml"))
+            .arg(tmp));
+    } else {
+        println!("- Missing {}, so downloading {}", output, url);
+        run(Command::new("curl")
+            .arg("--fail")
+            .arg("-L")
+            .arg("-o")
+            .arg(tmp)
+            .arg(url));
+    }
+
+    println!("- Extracting KML data");
+
+    let shapes = kml::load(
+        tmp,
+        bounds,
+        require_all_pts_in_bounds,
+        &mut abstutil::Timer::new("extracting shapes from KML"),
+    )
+    .unwrap();
+    abstutil::write_binary(output.clone(), &shapes);
+    // Keep the intermediate file; otherwise we inadvertently grab new upstream data when
+    // changing some binary formats
+    run(Command::new("mv")
+        .arg(tmp)
+        .arg(output.replace(".bin", ".kml")));
 }
 
 // Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.

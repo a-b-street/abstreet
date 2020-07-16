@@ -1,4 +1,5 @@
 use crate::app::App;
+use crate::colors::ColorScheme;
 use crate::game::{State, Transition};
 use aabb_quadtree::QuadTree;
 use abstutil::prettyprint_usize;
@@ -24,6 +25,7 @@ pub struct ViewKML {
 
 struct Object {
     polygon: Polygon,
+    color: Color,
     attribs: BTreeMap<String, String>,
 
     osm_bldg: Option<BuildingID>,
@@ -36,7 +38,7 @@ impl ViewKML {
     pub fn new(ctx: &mut EventCtx, app: &App, path: String) -> Box<dyn State> {
         ctx.loading_screen("load kml", |ctx, mut timer| {
             let raw_shapes = if path.ends_with(".kml") {
-                kml::load(&path, &app.primary.map.get_gps_bounds(), &mut timer).unwrap()
+                kml::load(&path, &app.primary.map.get_gps_bounds(), true, &mut timer).unwrap()
             } else {
                 abstutil::read_binary::<ExtraShapes>(path.clone(), &mut timer)
             };
@@ -50,24 +52,31 @@ impl ViewKML {
                 .iter()
                 .map(|b| (b.osm_way_id.to_string(), b.id))
                 .collect();
+            let cs = &app.cs;
             let objects: Vec<Object> = timer
-                .parallelize("convert shapes", raw_shapes.shapes, |shape| {
-                    if boundary.contains_pt(Pt2D::from_gps(shape.points[0], bounds)) {
-                        let pts: Vec<Pt2D> = shape
-                            .points
-                            .into_iter()
-                            .map(|gps| Pt2D::from_gps(gps, bounds))
-                            .collect();
-                        Some(make_object(
-                            &bldg_lookup,
-                            shape.attributes,
-                            pts,
-                            &dataset_name,
-                        ))
-                    } else {
-                        None
-                    }
-                })
+                .parallelize(
+                    "convert shapes",
+                    raw_shapes.shapes.into_iter().enumerate().collect(),
+                    |(idx, shape)| {
+                        if boundary.contains_pt(Pt2D::from_gps(shape.points[0], bounds)) {
+                            let pts: Vec<Pt2D> = shape
+                                .points
+                                .into_iter()
+                                .map(|gps| Pt2D::from_gps(gps, bounds))
+                                .collect();
+                            Some(make_object(
+                                cs,
+                                &bldg_lookup,
+                                shape.attributes,
+                                pts,
+                                &dataset_name,
+                                idx,
+                            ))
+                        } else {
+                            None
+                        }
+                    },
+                )
                 .into_iter()
                 .flatten()
                 .collect();
@@ -78,7 +87,7 @@ impl ViewKML {
             for (idx, obj) in objects.iter().enumerate() {
                 timer.next();
                 quadtree.insert_with_box(idx, obj.polygon.get_bounds().as_bbox());
-                batch.push(Color::RED.alpha(0.8), obj.polygon.clone());
+                batch.push(obj.color, obj.polygon.clone());
             }
 
             let mut choices = vec![Choice::string("None")];
@@ -194,17 +203,23 @@ impl State for ViewKML {
 }
 
 fn make_object(
+    cs: &ColorScheme,
     bldg_lookup: &HashMap<String, BuildingID>,
     attribs: BTreeMap<String, String>,
     pts: Vec<Pt2D>,
     dataset_name: &str,
+    obj_idx: usize,
 ) -> Object {
+    let mut color = Color::RED.alpha(0.8);
     let polygon = if pts.len() == 1 {
         Circle::new(pts[0], RADIUS).to_polygon()
     } else if pts[0] == *pts.last().unwrap() {
-        // TODO Toggle between these better
-        //Polygon::new(&pts)
-        Ring::must_new(pts).make_polygons(THICKNESS)
+        if attribs.get("spatial_type") == Some(&"Polygon".to_string()) {
+            color = cs.rotating_color_plot(obj_idx).alpha(0.8);
+            Polygon::new(&pts)
+        } else {
+            Ring::must_new(pts).make_polygons(THICKNESS)
+        }
     } else {
         let backup = pts[0];
         match PolyLine::new(pts) {
@@ -230,6 +245,7 @@ fn make_object(
 
     Object {
         polygon,
+        color,
         attribs,
         osm_bldg,
     }

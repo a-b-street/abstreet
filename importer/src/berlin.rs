@@ -1,9 +1,24 @@
-use crate::utils::{download, osmconvert};
+use crate::utils::{download, download_kml, osmconvert};
 
 fn input() {
     download(
         "input/berlin/osm/berlin-latest.osm.pbf",
         "http://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf",
+    );
+
+    let bounds = geom::GPSBounds::from(
+        geom::LonLat::read_osmosis_polygon(abstutil::path(
+            "input/berlin/polygons/berlin_center.poly",
+        ))
+        .unwrap(),
+    );
+    // From https://data.technologiestiftung-berlin.de/dataset/lor_planungsgraeume/en
+    download_kml(
+        "input/berlin/planning_areas.bin",
+        "https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume/lor_planungsraeume.kml",
+        &bounds,
+        // Keep partly out-of-bounds polygons
+        false,
     );
 }
 

@@ -4,6 +4,9 @@
 data/config
 
 data/input/berlin/osm
+data/input/berlin/planning_areas.bin
+data/input/berlin/planning_areas.kml
+
 data/input/krakow/osm
 
 data/input/seattle/blockface.bin

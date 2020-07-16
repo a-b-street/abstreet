@@ -100,6 +100,14 @@ impl GPSBounds {
         }
     }
 
+    pub fn from(pts: Vec<LonLat>) -> GPSBounds {
+        let mut b = GPSBounds::new();
+        for pt in pts {
+            b.update(pt);
+        }
+        b
+    }
+
     pub fn update(&mut self, pt: LonLat) {
         self.min_lon = self.min_lon.min(pt.x());
         self.max_lon = self.max_lon.max(pt.x());
@@ -149,14 +157,6 @@ impl GPSBounds {
 
     pub fn convert_back(&self, pts: &Vec<Pt2D>) -> Vec<LonLat> {
         pts.iter().map(|pt| pt.to_gps(self)).collect()
-    }
-
-    // TODO don't hardcode
-    pub fn seattle_bounds() -> GPSBounds {
-        let mut b = GPSBounds::new();
-        b.update(LonLat::new(-122.453224, 47.723277));
-        b.update(LonLat::new(-122.240505, 47.495342));
-        b
     }
 
     pub fn approx_eq(&self, other: &GPSBounds) -> bool {

@@ -1,4 +1,4 @@
-use crate::utils::{download, osmconvert};
+use crate::utils::{download, download_kml, osmconvert};
 use map_model::Map;
 use sim::Scenario;
 
@@ -17,13 +17,26 @@ fn input() {
         "https://www.dropbox.com/s/t9oug9lwhdwfc04/psrc_2014.zip?dl=0",
     );
 
+    let bounds = geom::GPSBounds::from(
+        geom::LonLat::read_osmosis_polygon(abstutil::path(
+            "input/seattle/polygons/huge_seattle.poly",
+        ))
+        .unwrap(),
+    );
     // From http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface
-    download(
+    download_kml(
         "input/seattle/blockface.bin",
         "https://opendata.arcgis.com/datasets/a1458ad1abca41869b81f7c0db0cd777_0.kml",
+        &bounds,
+        true,
     );
     // From https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots
-    download("input/seattle/offstreet_parking.bin", "http://data-seattlecitygis.opendata.arcgis.com/datasets/8e52dfde6d5d45948f7a90654c8d50cd_0.kml");
+    download_kml(
+        "input/seattle/offstreet_parking.bin",
+        "http://data-seattlecitygis.opendata.arcgis.com/datasets/8e52dfde6d5d45948f7a90654c8d50cd_0.kml",
+        &bounds,
+        true,
+    );
 }
 
 pub fn osm_to_raw(name: &str) {

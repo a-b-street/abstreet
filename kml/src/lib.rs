@@ -4,6 +4,7 @@ use quick_xml::events::Event;
 use quick_xml::Reader;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use std::error::Error;
 
 #[derive(Serialize, Deserialize)]
 pub struct ExtraShapes {
@@ -19,8 +20,9 @@ pub struct ExtraShape {
 pub fn load(
     path: &str,
     gps_bounds: &GPSBounds,
+    require_all_pts_in_bounds: bool,
     timer: &mut Timer,
-) -> Result<ExtraShapes, std::io::Error> {
+) -> Result<ExtraShapes, Box<dyn Error>> {
     println!("Opening {}", path);
     let (f, done) = FileWithProgress::new(path)?;
     // TODO FileWithProgress should implement BufRead, so we don't have to double wrap like this
@@ -56,17 +58,22 @@ pub fn load(
                     if let Some(ref key) = attrib_key {
                         let text = e.unescape_and_decode(&reader).unwrap();
                         if key == "coordinates" {
-                            let mut ok = true;
+                            let mut any_oob = false;
+                            let mut any_ok = false;
                             let mut pts: Vec<LonLat> = Vec::new();
                             for pair in text.split(' ') {
-                                if let Some(pt) = parse_pt(pair, gps_bounds) {
+                                if let Some(pt) = parse_pt(pair) {
                                     pts.push(pt);
+                                    if gps_bounds.contains(pt) {
+                                        any_ok = true;
+                                    } else {
+                                        any_oob = true;
+                                    }
                                 } else {
-                                    ok = false;
-                                    break;
+                                    return Err(format!("Malformed coordinates: {}", pair).into());
                                 }
                             }
-                            if ok {
+                            if any_ok && (!any_oob || !require_all_pts_in_bounds) {
                                 shapes.push(ExtraShape {
                                     points: pts,
                                     attributes: attributes.clone(),
@@ -103,18 +110,13 @@ pub fn load(
     Ok(ExtraShapes { shapes })
 }
 
-fn parse_pt(input: &str, gps_bounds: &GPSBounds) -> Option<LonLat> {
+fn parse_pt(input: &str) -> Option<LonLat> {
     let coords: Vec<&str> = input.split(',').collect();
     if coords.len() != 2 {
         return None;
     }
-    let pt = match (coords[0].parse::<f64>(), coords[1].parse::<f64>()) {
+    match (coords[0].parse::<f64>(), coords[1].parse::<f64>()) {
         (Ok(lon), Ok(lat)) => Some(LonLat::new(lon, lat)),
         _ => None,
-    }?;
-    if gps_bounds.contains(pt) {
-        Some(pt)
-    } else {
-        None
     }
 }
