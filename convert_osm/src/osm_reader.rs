@@ -6,6 +6,7 @@ use map_model::raw::{
 };
 use map_model::{osm, AreaType};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::error::Error;
 
 pub fn extract_osm(
     osm_path: &str,
@@ -260,37 +261,20 @@ pub fn extract_osm(
                 }
             }
         } else if is_bldg(&tags) {
-            if let Some(pts) = rel
-                .members
-                .iter()
-                .filter_map(|x| match x {
-                    osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) => {
-                        if role == "outer" {
-                            Some(*id)
-                        } else {
-                            None
-                        }
-                    }
-                    _ => None,
-                })
-                .next()
-                .and_then(|id| id_to_way.get(&id))
-            {
-                let mut deduped = pts.clone();
-                deduped.dedup();
-                if deduped.len() < 3 {
-                    continue;
+            match multipoly_geometry(rel, &doc, &id_to_way) {
+                Ok(polygon) => {
+                    map.buildings.insert(
+                        OriginalBuilding { osm_way_id: rel.id },
+                        RawBuilding {
+                            polygon,
+                            public_garage_name: None,
+                            num_parking_spots: 0,
+                            amenities: get_bldg_amenities(&tags),
+                            osm_tags: tags.take(),
+                        },
+                    );
                 }
-                map.buildings.insert(
-                    OriginalBuilding { osm_way_id: rel.id },
-                    RawBuilding {
-                        polygon: Polygon::new(&deduped),
-                        public_garage_name: None,
-                        num_parking_spots: 0,
-                        amenities: get_bldg_amenities(&tags),
-                        osm_tags: tags.take(),
-                    },
-                );
+                Err(err) => println!("Skipping building: {}", err),
             }
         } else if tags.is("type", "route") {
             map.bus_routes.extend(extract_route(
@@ -833,6 +817,58 @@ fn get_members<'a>(
             (role, doc.resolve_reference(id_ref))
         })
         .collect()
+}
+
+fn multipoly_geometry<'a>(
+    rel: &'a osm_xml::Relation,
+    doc: &'a osm_xml::OSM,
+    id_to_way: &HashMap<i64, Vec<Pt2D>>,
+) -> Result<Polygon, Box<dyn Error>> {
+    let mut outer: Vec<Vec<Pt2D>> = Vec::new();
+    let mut inner: Vec<Vec<Pt2D>> = Vec::new();
+    for (role, member) in get_members(rel, &doc) {
+        if let osm_xml::Reference::Way(node) = member {
+            if let Some(pts) = id_to_way.get(&node.id) {
+                let mut deduped = pts.clone();
+                deduped.dedup();
+                if deduped.len() < 3 {
+                    continue;
+                }
+
+                if role == "outer" {
+                    outer.push(deduped);
+                } else if role == "inner" {
+                    inner.push(deduped);
+                } else {
+                    return Err(format!(
+                        "What's role {} for multipolygon {}?",
+                        role,
+                        rel_url(rel.id)
+                    )
+                    .into());
+                }
+            }
+        }
+    }
+    // TODO Handle multiple outers with holes
+    if outer.len() == 0 || outer.len() > 1 && !inner.is_empty() {
+        return Err(format!(
+            "Multipolygon {} has {} outer, {} inner. Huh?",
+            rel_url(rel.id),
+            outer.len(),
+            inner.len()
+        )
+        .into());
+    }
+    if inner.is_empty() {
+        if outer.len() > 1 {
+            Ok(Polygon::union_all(outer.iter().map(Polygon::new).collect()))
+        } else {
+            Ok(Polygon::new(&outer[0]))
+        }
+    } else {
+        Ok(Polygon::with_holes(outer.pop().unwrap(), inner))
+    }
 }
 
 fn rel_url(id: i64) -> String {

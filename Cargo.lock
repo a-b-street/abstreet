@@ -658,6 +658,11 @@ version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "earcutr"
+version = "0.1.0"
+source = "git+https://github.com/dabreegster/earcutr?branch=patch-1#8364b6883e336b86df5e26df5d474e7a02411eef"
+
+[[package]]
 name = "either"
 version = "1.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1137,6 +1142,7 @@ version = "0.1.0"
 dependencies = [
  "aabb-quadtree 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "abstutil 0.1.0",
+ "earcutr 0.1.0 (git+https://github.com/dabreegster/earcutr?branch=patch-1)",
  "geo 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "geo-booleanop 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "histogram 0.6.9 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3985,6 +3991,7 @@ dependencies = [
 "checksum docopt 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "7f525a586d310c87df72ebcd98009e57f1cc030c8c268305287a476beb653969"
 "checksum downcast-rs 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "52ba6eb47c2131e784a38b726eb54c1e1484904f013e576a25354d0124161af6"
 "checksum dtoa 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)" = "4358a9e11b9a09cf52383b451b49a169e8d797b68aa02301ff586d70d9661ea3"
+"checksum earcutr 0.1.0 (git+https://github.com/dabreegster/earcutr?branch=patch-1)" = "<none>"
 "checksum either 1.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "bb1f6b1ce1c140482ea30ddd3335fc0024ac7ee112895426e0a629a6c20adfe3"
 "checksum ena 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f56c93cc076508c549d9bb747f79aa9b4eb098be7b8cad8830c3137ef52d1e00"
 "checksum encoding 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)" = "6b0d943856b990d12d3b55b359144ff341533e516d94098b1d3fc1ac666d36ec"

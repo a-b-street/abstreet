@@ -10,87 +10,69 @@ use std::fmt;
 pub struct Polygon {
     points: Vec<Pt2D>,
     // Groups of three indices make up the triangles
-    // TODO u32 better for later, but then we can't index stuff!
     indices: Vec<usize>,
-}
 
-// TODO The triangulation is a bit of a mess. Everything except for Polygon::new comes from
-// https://github.com/lionfish0/earclip/blob/master/earclip/__init__.py.
+    // If the polygon has holes, explicitly store all the rings so they can later be used to
+    // generate outlines and such.
+    rings: Option<Vec<Ring>>,
+}
 
 impl Polygon {
     // TODO Should the first and last points match or not?
-    // Adapted from https://crates.io/crates/polygon2; couldn't use the crate directly because it
-    // depends on nightly.
     pub fn new(orig_pts: &Vec<Pt2D>) -> Polygon {
         assert!(orig_pts.len() >= 3);
 
-        let pts = if is_clockwise_polygon(orig_pts) {
-            let mut new_pts = orig_pts.clone();
-            new_pts.reverse();
-            new_pts
-        } else {
-            orig_pts.clone()
-        };
-
-        let mut indices: Vec<usize> = Vec::new();
-        let mut avl = Vec::with_capacity(pts.len());
-        for i in 0..pts.len() {
-            avl.push(i);
+        let mut vertices = Vec::new();
+        for pt in orig_pts {
+            vertices.push(pt.x());
+            vertices.push(pt.y());
         }
-
-        let mut i = 0;
-        let mut al = pts.len();
-        while al > 3 {
-            let i0 = avl[i % al];
-            let i1 = avl[(i + 1) % al];
-            let i2 = avl[(i + 2) % al];
-
-            let tri = Triangle::new(pts[i0], pts[i1], pts[i2]);
-            let mut ear_found = false;
-            if tri.is_convex() {
-                ear_found = true;
-
-                for vi in avl.iter().take(al) {
-                    if *vi != i0 && *vi != i1 && *vi != i2 && tri.contains_pt(pts[*vi]) {
-                        ear_found = false;
-                        break;
-                    }
-                }
-            }
-
-            if ear_found {
-                indices.push(i0);
-                indices.push(i1);
-                indices.push(i2);
-                avl.remove((i + 1) % al);
-                al -= 1;
-                i = 0;
-            } else if i > 3 * al {
-                break;
-            } else {
-                i += 1;
-            }
-        }
-
-        indices.push(avl[0]);
-        indices.push(avl[1]);
-        indices.push(avl[2]);
+        let indices = earcutr::earcut(&vertices, &Vec::new(), 2);
 
         Polygon {
-            points: pts,
+            points: orig_pts.clone(),
             indices,
+            rings: None,
+        }
+    }
+
+    pub fn with_holes(outer: Vec<Pt2D>, mut inner: Vec<Vec<Pt2D>>) -> Polygon {
+        inner.insert(0, outer);
+        let rings = inner
+            .iter()
+            .map(|pts| Ring::must_new(pts.clone()))
+            .collect();
+        let geojson_style: Vec<Vec<Vec<f64>>> = inner
+            .into_iter()
+            .map(|ring| ring.into_iter().map(|pt| vec![pt.x(), pt.y()]).collect())
+            .collect();
+        let (vertices, holes, dims) = earcutr::flatten(&geojson_style);
+        let indices = earcutr::earcut(&vertices, &holes, dims);
+
+        Polygon {
+            points: vertices
+                .chunks(2)
+                .map(|pair| Pt2D::new(pair[0], pair[1]))
+                .collect(),
+            indices,
+            rings: Some(rings),
         }
     }
 
     pub fn precomputed(points: Vec<Pt2D>, indices: Vec<usize>) -> Polygon {
         assert!(indices.len() % 3 == 0);
-        Polygon { points, indices }
+        Polygon {
+            points,
+            indices,
+            rings: None,
+        }
     }
 
     pub fn from_triangle(tri: &Triangle) -> Polygon {
         Polygon {
             points: vec![tri.pt1, tri.pt2, tri.pt3],
             indices: vec![0, 1, 2],
+            rings: None,
         }
     }
 
@@ -118,22 +100,25 @@ impl Polygon {
         Bounds::from(&self.points)
     }
 
-    pub fn translate(&self, dx: f64, dy: f64) -> Polygon {
+    fn transform<F: Fn(&Pt2D) -> Pt2D>(&self, f: F) -> Polygon {
         Polygon {
-            points: self.points.iter().map(|pt| pt.offset(dx, dy)).collect(),
+            points: self.points.iter().map(&f).collect(),
             indices: self.indices.clone(),
+            rings: self.rings.as_ref().map(|rings| {
+                rings
+                    .iter()
+                    .map(|ring| Ring::must_new(ring.points().iter().map(&f).collect()))
+                    .collect()
+            }),
         }
     }
 
+    pub fn translate(&self, dx: f64, dy: f64) -> Polygon {
+        self.transform(|pt| pt.offset(dx, dy))
+    }
+
     pub fn scale(&self, factor: f64) -> Polygon {
-        Polygon {
-            points: self
-                .points
-                .iter()
-                .map(|pt| Pt2D::new(pt.x() * factor, pt.y() * factor))
-                .collect(),
-            indices: self.indices.clone(),
-        }
+        self.transform(|pt| Pt2D::new(pt.x() * factor, pt.y() * factor))
     }
 
     pub fn rotate(&self, angle: Angle) -> Polygon {
@@ -141,27 +126,25 @@ impl Polygon {
     }
 
     pub fn rotate_around(&self, angle: Angle, pivot: Pt2D) -> Polygon {
-        Polygon {
-            points: self
-                .points
-                .iter()
-                .map(|pt| {
-                    let origin_pt = Pt2D::new(pt.x() - pivot.x(), pt.y() - pivot.y());
-                    let (sin, cos) = angle.normalized_radians().sin_cos();
-                    Pt2D::new(
-                        pivot.x() + origin_pt.x() * cos - origin_pt.y() * sin,
-                        pivot.y() + origin_pt.y() * cos + origin_pt.x() * sin,
-                    )
-                })
-                .collect(),
-            indices: self.indices.clone(),
-        }
+        self.transform(|pt| {
+            let origin_pt = Pt2D::new(pt.x() - pivot.x(), pt.y() - pivot.y());
+            let (sin, cos) = angle.normalized_radians().sin_cos();
+            Pt2D::new(
+                pivot.x() + origin_pt.x() * cos - origin_pt.y() * sin,
+                pivot.y() + origin_pt.y() * cos + origin_pt.x() * sin,
+            )
+        })
     }
 
     // The order of these points depends on the constructor! The first and last point may or may
     // not match. Polygons constructed from PolyLines will have a very weird order.
+    // TODO rename outer_points to be clear
     pub fn points(&self) -> &Vec<Pt2D> {
-        &self.points
+        if let Some(ref rings) = self.rings {
+            rings[0].points()
+        } else {
+            &self.points
+        }
     }
 
     pub fn center(&self) -> Pt2D {
@@ -183,6 +166,7 @@ impl Polygon {
                 Pt2D::new(0.0, 0.0),
             ],
             indices: vec![0, 1, 2, 0, 2, 3],
+            rings: None,
         }
     }
 
@@ -288,7 +272,13 @@ impl Polygon {
     // Only works for polygons that're formed from rings. Those made from PolyLines won't work, for
     // example.
     pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, Box<dyn Error>> {
-        Ring::new(self.points.clone()).map(|r| r.make_polygons(thickness))
+        if let Some(ref rings) = self.rings {
+            Ok(Polygon::union_all(
+                rings.iter().map(|r| r.make_polygons(thickness)).collect(),
+            ))
+        } else {
+            Ring::new(self.points.clone()).map(|r| r.make_polygons(thickness))
+        }
     }
 
     // Usually m^2, unless the polygon is in screen-space
@@ -369,18 +359,6 @@ impl Triangle {
         Triangle { pt1, pt2, pt3 }
     }
 
-    fn is_convex(&self) -> bool {
-        let x1 = self.pt1.x();
-        let y1 = self.pt1.y();
-        let x2 = self.pt2.x();
-        let y2 = self.pt2.y();
-        let x3 = self.pt3.x();
-        let y3 = self.pt3.y();
-
-        let cross_product = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
-        cross_product >= 0.0
-    }
-
     fn contains_pt(&self, pt: Pt2D) -> bool {
         let x1 = self.pt1.x();
         let y1 = self.pt1.y();
@@ -407,15 +385,6 @@ impl Triangle {
         }
         true
     }
-}
-
-fn is_clockwise_polygon(pts: &Vec<Pt2D>) -> bool {
-    // Initialize with the last element
-    let mut sum = (pts[0].x() - pts.last().unwrap().x()) * (pts[0].y() + pts.last().unwrap().y());
-    for i in 0..pts.len() - 1 {
-        sum += (pts[i + 1].x() - pts[i].x()) * (pts[i + 1].y() + pts[i].y());
-    }
-    sum > 0.0
 }
 
 fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f64> {

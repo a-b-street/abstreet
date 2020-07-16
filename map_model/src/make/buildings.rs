@@ -269,10 +269,11 @@ pub fn make_all_parking_lots(
 // Adjust the path to start on the building's border, not center
 fn trim_path(poly: &Polygon, path: Line) -> Line {
     for bldg_line in poly.points().windows(2) {
-        let l = Line::must_new(bldg_line[0], bldg_line[1]);
-        if let Some(hit) = l.intersection(&path) {
-            if let Some(l) = Line::new(hit, path.pt2()) {
-                return l;
+        if let Some(l1) = Line::new(bldg_line[0], bldg_line[1]) {
+            if let Some(hit) = l1.intersection(&path) {
+                if let Some(l2) = Line::new(hit, path.pt2()) {
+                    return l2;
+                }
             }
         }
     }
