@@ -1,8 +1,8 @@
 use crate::{
-    AgentID, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event,
-    OffMapLocation, OrigPersonID, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, PersonID,
-    Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripID, TripPhaseType, TripSpec,
-    Vehicle, VehicleSpec, VehicleType, WalkingSimState,
+    AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
+    Event, OffMapLocation, OrigPersonID, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID,
+    PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripID, TripPhaseType,
+    TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Duration, Speed, Time};
@@ -821,21 +821,24 @@ impl TripManager {
         }
     }
 
-    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>) {
-        let mut cnt = Counter::new();
-        for a in self.active_trip_mode.keys() {
-            // TODO This conflates bus riders and buses...
-            cnt.inc(TripMode::from_agent(*a));
-        }
-        let per_mode = TripMode::all()
-            .into_iter()
-            .map(|k| (k, cnt.get(k)))
-            .collect();
+    pub fn num_trips(&self) -> (usize, usize) {
         (
             self.trips.len() - self.unfinished_trips,
             self.unfinished_trips,
-            per_mode,
         )
+    }
+    pub fn num_agents(&self, transit: &TransitSimState) -> BTreeMap<AgentType, usize> {
+        let mut cnt = Counter::new();
+        for a in self.active_trip_mode.keys() {
+            cnt.inc(a.to_type());
+        }
+        let (buses, trains) = transit.active_vehicles();
+        cnt.add(AgentType::Bus, buses);
+        cnt.add(AgentType::Train, trains);
+        AgentType::all()
+            .into_iter()
+            .map(|k| (k, cnt.get(k)))
+            .collect()
     }
     pub fn num_ppl(&self) -> (usize, usize, usize) {
         let mut ppl_in_bldg = 0;
@@ -1425,11 +1428,11 @@ impl TripMode {
         }
     }
 
-    // TODO Collapse these two enums?
     pub fn to_constraints(self) -> PathConstraints {
         match self {
             TripMode::Walk => PathConstraints::Pedestrian,
             TripMode::Bike => PathConstraints::Bike,
+            // TODO WRONG
             TripMode::Transit => PathConstraints::Bus,
             TripMode::Drive => PathConstraints::Car,
         }

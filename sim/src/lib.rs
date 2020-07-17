@@ -97,6 +97,7 @@ impl fmt::Display for PedestrianID {
 pub enum AgentID {
     Car(CarID),
     Pedestrian(PedestrianID),
+    // TODO Rename...
     BusPassenger(PersonID, CarID),
 }
 
@@ -105,6 +106,19 @@ impl AgentID {
         match self {
             AgentID::Car(id) => id,
             _ => panic!("Not a CarID: {:?}", self),
+        }
+    }
+
+    pub(crate) fn to_type(self) -> AgentType {
+        match self {
+            AgentID::Car(c) => match c.1 {
+                VehicleType::Car => AgentType::Car,
+                VehicleType::Bike => AgentType::Bike,
+                VehicleType::Bus => AgentType::Bus,
+                VehicleType::Train => AgentType::Train,
+            },
+            AgentID::Pedestrian(_) => AgentType::Pedestrian,
+            AgentID::BusPassenger(_, _) => AgentType::TransitRider,
         }
     }
 }
@@ -116,6 +130,29 @@ impl fmt::Display for AgentID {
             AgentID::Pedestrian(id) => write!(f, "AgentID({})", id),
             AgentID::BusPassenger(person, bus) => write!(f, "AgentID({} on {})", person, bus),
         }
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash)]
+pub enum AgentType {
+    Car,
+    Bike,
+    Bus,
+    Train,
+    Pedestrian,
+    TransitRider,
+}
+
+impl AgentType {
+    pub fn all() -> Vec<AgentType> {
+        vec![
+            AgentType::Car,
+            AgentType::Bike,
+            AgentType::Bus,
+            AgentType::Train,
+            AgentType::Pedestrian,
+            AgentType::TransitRider,
+        ]
     }
 }
 

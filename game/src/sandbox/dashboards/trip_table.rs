@@ -380,7 +380,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             Widget::nothing()
         },
     ]));
-    let (_, unfinished, _) = app.primary.sim.num_trips();
+    let (_, unfinished) = app.primary.sim.num_trips();
     col.push(
         Text::from_multiline(vec![
             Line(format!(

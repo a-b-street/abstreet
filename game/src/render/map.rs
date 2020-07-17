@@ -448,7 +448,6 @@ impl AgentCache {
 
 #[derive(PartialEq, Clone)]
 pub struct UnzoomedAgents {
-    // TODO Maybe by TripMode
     pub cars: bool,
     pub bikes: bool,
     pub buses_and_trains: bool,

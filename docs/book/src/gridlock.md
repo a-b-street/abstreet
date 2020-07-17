@@ -15,6 +15,11 @@ tools to detect and fix OSM problems.
 
 ## Problems
 
+The choices in the movement model matter. Some gridlock is inherent to any
+system with queueing and conflicting turns. But in reality, people wiggle around
+partly blocked turns. And some of this comes from the treatment of the
+front/back of vehicles.
+
 - Short roads in OSM causing very weird geometry
 - Intersection geometry being too large, requiring too much time to cross
 - Unrealistic traffic patterns caused by everyone trying to park in one big
@@ -26,6 +31,8 @@ tools to detect and fix OSM problems.
 - Vehicles performing illegal sequences of turns
 
 ## Solutions
+
+Divide into implemented or not.
 
 - Synchronizing pairs of signals
 - Uber-turns
@@ -50,3 +57,4 @@ tools to detect and fix OSM problems.
 - upstreaming lane count fixes into OSM to improve geometry
 - manually timing signals
 - Last resort: if someone's waiting on a turn >5m, just go.
+- Dynamic rerouting

@@ -558,7 +558,7 @@ impl State for TimeWarpScreen {
             }
 
             let now = app.primary.sim.time();
-            let (finished_after, _, _) = app.primary.sim.num_trips();
+            let (finished_after, _) = app.primary.sim.num_trips();
             let finished_before = if app.has_prebaked().is_some() {
                 let mut cnt = 0;
                 for (t, _, _, _) in &app.prebaked().finished_trips {

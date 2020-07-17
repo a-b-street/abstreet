@@ -1,11 +1,12 @@
 use crate::analytics::Window;
 use crate::{
-    AgentID, AlertLocation, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
-    DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents, IntersectionSimState, OrigPersonID,
-    PandemicModel, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID,
-    PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripEndpoint,
-    TripID, TripManager, TripMode, TripPhaseType, TripResult, TripSpawner, UnzoomedAgent, Vehicle,
-    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
+    AgentID, AgentType, AlertLocation, Analytics, CarID, Command, CreateCar, DrawCarInput,
+    DrawPedCrowdInput, DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents,
+    IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSimState, ParkingSpot,
+    PedestrianID, Person, PersonID, PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot,
+    TransitSimState, TripEndpoint, TripID, TripManager, TripMode, TripPhaseType, TripResult,
+    TripSpawner, UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -725,7 +726,7 @@ impl Sim {
 
             let dt_real = Duration::realtime_elapsed(last_print);
             if dt_real >= Duration::seconds(1.0) {
-                let (finished, unfinished, _) = self.num_trips();
+                let (finished, unfinished) = self.num_trips();
                 println!(
                     "{}: {} trips finished, {} unfinished, speed = {:.2}x, {}",
                     self.time(),
@@ -861,9 +862,12 @@ impl Sim {
         self.time == Time::START_OF_DAY && self.is_done()
     }
 
-    // (number of finished trips, number of unfinished trips, number of active by mode)
-    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>) {
+    // (number of finished trips, number of unfinished trips)
+    pub fn num_trips(&self) -> (usize, usize) {
         self.trips.num_trips()
+    }
+    pub fn num_agents(&self) -> BTreeMap<AgentType, usize> {
+        self.trips.num_agents(&self.transit)
     }
     // (total number of people, just in buildings, just off map)
     pub fn num_ppl(&self) -> (usize, usize, usize) {

@@ -25,7 +25,7 @@ use ezgui::{
 pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use geom::{Polygon, Time};
 use map_model::MapEdits;
-use sim::{TripMode, VehicleType};
+use sim::{AgentType, VehicleType};
 pub use speed::TimeWarpScreen;
 pub use speed::{SpeedControls, TimePanel};
 
@@ -298,26 +298,32 @@ impl AgentMeter {
     pub fn new(ctx: &mut EventCtx, app: &App) -> AgentMeter {
         use abstutil::prettyprint_usize;
 
-        let (finished, unfinished, by_mode) = app.primary.sim.num_trips();
+        let (finished, unfinished) = app.primary.sim.num_trips();
+        let by_type = app.primary.sim.num_agents();
 
         let rows = vec![
             "Active trips".draw_text(ctx),
             Widget::custom_row(vec![
                 Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "system/assets/meters/pedestrian.svg").margin_right(5),
-                    prettyprint_usize(by_mode[&TripMode::Walk]).draw_text(ctx),
+                    prettyprint_usize(by_type[&AgentType::Pedestrian]).draw_text(ctx),
                 ]),
                 Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "system/assets/meters/bike.svg").margin_right(5),
-                    prettyprint_usize(by_mode[&TripMode::Bike]).draw_text(ctx),
+                    prettyprint_usize(by_type[&AgentType::Bike]).draw_text(ctx),
                 ]),
                 Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "system/assets/meters/car.svg").margin_right(5),
-                    prettyprint_usize(by_mode[&TripMode::Drive]).draw_text(ctx),
+                    prettyprint_usize(by_type[&AgentType::Car]).draw_text(ctx),
                 ]),
                 Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "system/assets/meters/bus.svg").margin_right(5),
-                    prettyprint_usize(by_mode[&TripMode::Transit]).draw_text(ctx),
+                    prettyprint_usize(by_type[&AgentType::Bus] + by_type[&AgentType::Train])
+                        .draw_text(ctx),
+                ]),
+                Widget::custom_row(vec![
+                    Widget::draw_svg(ctx, "system/assets/meters/passenger.svg").margin_right(5),
+                    prettyprint_usize(by_type[&AgentType::TransitRider]).draw_text(ctx),
                 ]),
             ])
             .centered(),
