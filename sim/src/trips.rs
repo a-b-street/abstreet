@@ -1136,37 +1136,11 @@ impl TripManager {
                 }
             }
             TripSpec::UsingBike { start, .. } => {
-                assert_eq!(
-                    person.state,
-                    match start.connection {
-                        SidewalkPOI::Building(b) => PersonState::Inside(b),
-                        SidewalkPOI::Border(i, ref loc) => {
-                            self.events.push(Event::PersonEntersMap(
-                                person.id,
-                                TripMode::Walk,
-                                i,
-                                loc.clone(),
-                            ));
-                            PersonState::OffMap
-                        }
-                        SidewalkPOI::SuddenlyAppear => {
-                            // Unclear which end of the sidewalk this person should be associated
-                            // with. For interactively spawned people, doesn't really matter.
-                            self.events.push(Event::PersonEntersMap(
-                                person.id,
-                                TripMode::Walk,
-                                map.get_l(start.sidewalk_pos.lane()).src_i,
-                                None,
-                            ));
-                            PersonState::OffMap
-                        }
-                        _ => unreachable!(),
-                    }
-                );
+                assert_eq!(person.state, PersonState::Inside(start));
                 person.state = PersonState::Trip(trip);
 
                 let walk_to =
-                    SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).unwrap();
+                    SidewalkSpot::bike_from_bike_rack(map.get_b(start).sidewalk(), map).unwrap();
                 let req = maybe_req.unwrap();
                 if let Some(path) = maybe_path {
                     scheduler.push(
@@ -1174,7 +1148,7 @@ impl TripManager {
                         Command::SpawnPed(CreatePedestrian {
                             id: person.ped,
                             speed: person.ped_speed,
-                            start,
+                            start: SidewalkSpot::building(start, map),
                             goal: walk_to,
                             path,
                             req,

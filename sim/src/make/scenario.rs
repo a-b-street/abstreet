@@ -69,7 +69,7 @@ pub enum SpawnTrip {
         origin: Option<OffMapLocation>,
     },
     UsingParkedCar(BuildingID, DrivingGoal),
-    UsingBike(SidewalkSpot, DrivingGoal),
+    UsingBike(BuildingID, DrivingGoal),
     JustWalking(SidewalkSpot, SidewalkSpot),
     UsingTransit(SidewalkSpot, SidewalkSpot, BusRouteID, BusStopID, BusStopID),
     // Completely off-map trip. Don't really simulate much of it.
@@ -477,16 +477,17 @@ impl SpawnTrip {
                 TripEndpoint::Border(dr.src_i(map), origin.clone())
             }
             SpawnTrip::UsingParkedCar(b, _) => TripEndpoint::Bldg(*b),
-            SpawnTrip::UsingBike(ref spot, _)
-            | SpawnTrip::JustWalking(ref spot, _)
-            | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => match spot.connection {
-                SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                SidewalkPOI::Border(i, ref loc) => TripEndpoint::Border(i, loc.clone()),
-                SidewalkPOI::SuddenlyAppear => {
-                    TripEndpoint::Border(map.get_l(spot.sidewalk_pos.lane()).src_i, None)
+            SpawnTrip::UsingBike(b, _) => TripEndpoint::Bldg(*b),
+            SpawnTrip::JustWalking(ref spot, _) | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => {
+                match spot.connection {
+                    SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
+                    SidewalkPOI::Border(i, ref loc) => TripEndpoint::Border(i, loc.clone()),
+                    SidewalkPOI::SuddenlyAppear => {
+                        TripEndpoint::Border(map.get_l(spot.sidewalk_pos.lane()).src_i, None)
+                    }
+                    _ => unreachable!(),
                 }
-                _ => unreachable!(),
-            },
+            }
             // Pick an arbitrary border
             SpawnTrip::Remote { ref from, .. } => {
                 TripEndpoint::Border(map.all_outgoing_borders()[0].id, Some(from.clone()))
@@ -536,10 +537,9 @@ impl SpawnTrip {
                 },
             },
             TripMode::Bike => match from {
-                TripEndpoint::Bldg(b) => SpawnTrip::UsingBike(
-                    SidewalkSpot::building(b, map),
-                    to.driving_goal(PathConstraints::Bike, map)?,
-                ),
+                TripEndpoint::Bldg(b) => {
+                    SpawnTrip::UsingBike(b, to.driving_goal(PathConstraints::Bike, map)?)
+                }
                 TripEndpoint::Border(i, ref origin) => SpawnTrip::FromBorder {
                     dr: map.get_i(i).some_outgoing_road(map)?,
                     goal: to.driving_goal(PathConstraints::Bike, map)?,

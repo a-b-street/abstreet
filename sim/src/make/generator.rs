@@ -194,8 +194,6 @@ impl SpawnOverTime {
             }
         }
 
-        let start_spot = SidewalkSpot::building(from_bldg, map);
-
         if rng.gen_bool(self.percent_biking) {
             if let Some(goal) = self
                 .goal
@@ -206,13 +204,14 @@ impl SpawnOverTime {
                     orig_id: None,
                     trips: vec![IndividTrip::new(
                         depart,
-                        SpawnTrip::UsingBike(start_spot, goal),
+                        SpawnTrip::UsingBike(from_bldg, goal),
                     )],
                 });
                 return;
             }
         }
 
+        let start_spot = SidewalkSpot::building(from_bldg, map);
         if let Some(goal) = self.goal.pick_walking_goal(map, rng, timer) {
             if start_spot == goal {
                 timer.warn("Skipping walking trip between same two buildings".to_string());
