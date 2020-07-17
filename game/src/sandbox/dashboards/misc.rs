@@ -130,16 +130,10 @@ impl State for TransitRoutes {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         let bus = match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => {
-                if x.starts_with("Bus #") {
-                    CarID(
-                        x["Bus #".len()..].parse::<usize>().unwrap(),
-                        VehicleType::Bus,
-                    )
-                } else if x.starts_with("Train #") {
-                    CarID(
-                        x["Train #".len()..].parse::<usize>().unwrap(),
-                        VehicleType::Train,
-                    )
+                if let Some(x) = x.strip_prefix("Bus #") {
+                    CarID(x.parse::<usize>().unwrap(), VehicleType::Bus)
+                } else if let Some(x) = x.strip_prefix("Train #") {
+                    CarID(x.parse::<usize>().unwrap(), VehicleType::Train)
                 } else {
                     return DashTab::TransitRoutes.transition(ctx, app, &x);
                 }
