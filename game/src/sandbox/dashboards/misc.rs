@@ -1,12 +1,13 @@
 use crate::app::App;
 use crate::common::Tab;
-use crate::game::{msg, DrawBaselayer, State, Transition};
+use crate::game::{DrawBaselayer, State, Transition};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use ezgui::{
-    Btn, Composite, EventCtx, GfxCtx, Line, LinePlot, Outcome, PlotOptions, Series, Widget,
+    Autocomplete, Btn, Composite, EventCtx, GfxCtx, Line, LinePlot, Outcome, PlotOptions, Series,
+    Text, Widget,
 };
-use map_model::BusRouteID;
+use sim::{CarID, VehicleType};
 
 pub struct ActiveTraffic {
     composite: Composite,
@@ -62,27 +63,42 @@ impl State for ActiveTraffic {
     }
 }
 
-pub struct BusRoutes {
+pub struct TransitRoutes {
     composite: Composite,
 }
 
-impl BusRoutes {
+impl TransitRoutes {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let mut routes: Vec<(String, BusRouteID)> = app
-            .primary
-            .map
-            .all_bus_routes()
-            .iter()
-            .map(|r| (r.full_name.clone(), r.id))
-            .collect();
+        let mut inactive_routes = Vec::new();
+        let mut active_routes = Vec::new();
+        for r in app.primary.map.all_bus_routes() {
+            if let Some((bus, _, _)) = app.primary.sim.status_of_buses(r.id).get(0) {
+                active_routes.push((r.full_name.clone(), *bus));
+            } else {
+                inactive_routes.push(r.full_name.clone());
+            }
+        }
         // TODO Sort first by length, then lexicographically
-        routes.sort();
+        inactive_routes.sort();
+        active_routes.sort();
 
         let col = vec![
-            DashTab::BusRoutes.picker(ctx, app),
-            Line("Bus routes").small_heading().draw(ctx),
+            DashTab::TransitRoutes.picker(ctx, app),
+            Line("Transit routes").small_heading().draw(ctx),
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "system/assets/tools/search.svg"),
+                Autocomplete::new(
+                    ctx,
+                    active_routes
+                        .iter()
+                        .map(|(r, id)| (r.clone(), *id))
+                        .collect(),
+                )
+                .named("search"),
+            ])
+            .padding(8),
             Widget::row(
-                routes
+                active_routes
                     .into_iter()
                     .map(|(r, id)| {
                         Btn::text_fg(r)
@@ -92,9 +108,17 @@ impl BusRoutes {
                     .collect(),
             )
             .flex_wrap(ctx, 80),
+            Line("Currently inactive routes").draw(ctx),
+            Text::from_multiline(
+                inactive_routes
+                    .into_iter()
+                    .map(|r| Line(r).secondary())
+                    .collect(),
+            )
+            .draw(ctx),
         ];
 
-        Box::new(BusRoutes {
+        Box::new(TransitRoutes {
             composite: Composite::new(Widget::col(col))
                 .exact_size_percent(90, 90)
                 .build(ctx),
@@ -102,39 +126,47 @@ impl BusRoutes {
     }
 }
 
-impl State for BusRoutes {
+impl State for TransitRoutes {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        let bus = match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => {
-                if x.starts_with("BusRoute #") {
-                    let r = app.primary.map.get_br(BusRouteID(
-                        x["BusRoute #".len()..].parse::<usize>().unwrap(),
-                    ));
-                    let buses = app.primary.sim.status_of_buses(r.id);
-                    if buses.is_empty() {
-                        Transition::Push(msg(
-                            "No buses running",
-                            vec![format!("Sorry, no buses for route {} running", r.full_name)],
-                        ))
-                    } else {
-                        Transition::PopWithData(Box::new(move |state, ctx, app| {
-                            let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                            let mut actions = sandbox.contextual_actions();
-                            sandbox.controls.common.as_mut().unwrap().launch_info_panel(
-                                ctx,
-                                app,
-                                // Arbitrarily use the first one
-                                Tab::BusStatus(buses[0].0),
-                                &mut actions,
-                            );
-                        }))
-                    }
+                if x.starts_with("Bus #") {
+                    CarID(
+                        x["Bus #".len()..].parse::<usize>().unwrap(),
+                        VehicleType::Bus,
+                    )
+                } else if x.starts_with("Train #") {
+                    CarID(
+                        x["Train #".len()..].parse::<usize>().unwrap(),
+                        VehicleType::Train,
+                    )
                 } else {
-                    DashTab::BusRoutes.transition(ctx, app, &x)
+                    return DashTab::TransitRoutes.transition(ctx, app, &x);
                 }
             }
-            None => Transition::Keep,
-        }
+            None => {
+                if let Some(routes) = self.composite.autocomplete_done("search") {
+                    if !routes.is_empty() {
+                        routes[0]
+                    } else {
+                        return Transition::Keep;
+                    }
+                } else {
+                    return Transition::Keep;
+                }
+            }
+        };
+
+        Transition::PopWithData(Box::new(move |state, ctx, app| {
+            let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
+            let mut actions = sandbox.contextual_actions();
+            sandbox.controls.common.as_mut().unwrap().launch_info_panel(
+                ctx,
+                app,
+                Tab::BusStatus(bus),
+                &mut actions,
+            )
+        }))
     }
 
     fn draw_baselayer(&self) -> DrawBaselayer {
