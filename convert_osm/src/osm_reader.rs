@@ -666,11 +666,11 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
     let mut trimmed_pts = trimmed_result.points().clone();
     if trimmed_result.last_pt() == boundary_glue.first_pt() {
         trimmed_pts.pop();
-        trimmed_pts.extend(boundary_glue.points().clone());
+        trimmed_pts.extend(boundary_glue.into_points());
     } else {
         assert_eq!(trimmed_result.last_pt(), boundary_glue.last_pt());
         trimmed_pts.pop();
-        trimmed_pts.extend(boundary_glue.reversed().points().clone());
+        trimmed_pts.extend(boundary_glue.reversed().into_points());
     }
     assert_eq!(trimmed_pts[0], *trimmed_pts.last().unwrap());
     Some(Polygon::new(&trimmed_pts))

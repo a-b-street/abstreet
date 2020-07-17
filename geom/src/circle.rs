@@ -72,7 +72,7 @@ impl Circle {
 
         // TODO This impl doesn't work because there's a weird edge
         if false {
-            let mut pts = Circle::new(center, radius).to_polygon().points().clone();
+            let mut pts = Circle::new(center, radius).to_polygon().into_points();
             pts.push(pts[0]);
             return Ok(Ring::must_new(pts).make_polygons(thickness));
         }

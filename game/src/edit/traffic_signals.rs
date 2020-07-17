@@ -8,10 +8,11 @@ use crate::render::{
 use crate::sandbox::{spawn_agents_around, GameplayMode, SpeedControls, TimePanel};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, RewriteColor, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, UpdateType,
+    VerticalAlignment, Widget,
 };
-use geom::{ArrowCap, Distance, Duration};
+use geom::{ArrowCap, Distance, Duration, Polygon};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase,
     PhaseType, TurnGroupID, TurnPriority,
@@ -33,6 +34,8 @@ pub struct TrafficSignalEditor {
     // The first ControlTrafficSignal is the original
     pub command_stack: Vec<ControlTrafficSignal>,
     pub redo_stack: Vec<ControlTrafficSignal>,
+
+    fade_irrelevant: Drawable,
 }
 
 impl TrafficSignalEditor {
@@ -43,16 +46,29 @@ impl TrafficSignalEditor {
         mode: GameplayMode,
     ) -> TrafficSignalEditor {
         app.primary.current_selection = None;
+
+        let map = &app.primary.map;
+        let mut holes = vec![map.get_i(id).polygon.clone()];
+        for r in &map.get_i(id).roads {
+            holes.push(map.get_r(*r).get_thick_polygon(map));
+        }
+        // The convex hull illuminates a bit more of the surrounding area, looks better
+        let fade_area = Polygon::with_holes(
+            map.get_boundary_polygon().points().clone(),
+            vec![Polygon::convex_hull(holes).into_points()],
+        );
+
         TrafficSignalEditor {
             i: id,
             current_phase: 0,
             composite: make_signal_diagram(ctx, app, id, 0, true),
             top_panel: make_top_panel(ctx, app, false, false),
             mode,
-            groups: DrawTurnGroup::for_i(id, &app.primary.map),
+            groups: DrawTurnGroup::for_i(id, map),
             group_selected: None,
             command_stack: Vec::new(),
             redo_stack: Vec::new(),
+            fade_irrelevant: GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx),
         }
     }
 
@@ -281,6 +297,7 @@ impl State for TrafficSignalEditor {
             opts.suppress_traffic_signal_details.push(self.i);
             app.draw(g, opts, &app.primary.sim, &ShowEverything::new());
         }
+        g.redraw(&self.fade_irrelevant);
 
         let signal = app.primary.map.get_traffic_signal(self.i);
         let phase = match self.group_selected {

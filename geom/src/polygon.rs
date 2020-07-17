@@ -146,6 +146,13 @@ impl Polygon {
             &self.points
         }
     }
+    pub fn into_points(mut self) -> Vec<Pt2D> {
+        if let Some(mut rings) = self.rings.take() {
+            rings.remove(0).into_points()
+        } else {
+            self.points
+        }
+    }
 
     pub fn center(&self) -> Pt2D {
         // TODO dedupe just out of fear of the first/last point being repeated
