@@ -588,7 +588,7 @@ impl TripManager {
         if let TripEndpoint::Border(_, ref loc) = trip.end {
             self.events.push(Event::PersonLeavesMap(
                 person,
-                TripMode::Walk,
+                Some(AgentID::Pedestrian(ped)),
                 i,
                 loc.clone(),
             ));
@@ -632,7 +632,7 @@ impl TripManager {
         if let TripEndpoint::Border(_, ref loc) = trip.end {
             self.events.push(Event::PersonLeavesMap(
                 person,
-                TripMode::from_agent(AgentID::Car(car)),
+                Some(AgentID::Car(car)),
                 i,
                 loc.clone(),
             ));
@@ -705,7 +705,7 @@ impl TripManager {
             }
             TripEndpoint::Border(i, ref loc) => {
                 self.events
-                    .push(Event::PersonLeavesMap(person, trip.mode, i, loc.clone()));
+                    .push(Event::PersonLeavesMap(person, None, i, loc.clone()));
             }
         }
 
@@ -977,7 +977,7 @@ impl TripManager {
                 assert_eq!(person.state, PersonState::OffMap);
                 self.events.push(Event::PersonEntersMap(
                     person.id,
-                    TripMode::from_agent(AgentID::Car(use_vehicle)),
+                    AgentID::Car(use_vehicle),
                     map.get_l(start_pos.lane()).src_i,
                     origin,
                 ));
@@ -1090,7 +1090,7 @@ impl TripManager {
                         SidewalkPOI::Border(i, ref loc) => {
                             self.events.push(Event::PersonEntersMap(
                                 person.id,
-                                TripMode::Walk,
+                                AgentID::Pedestrian(person.ped),
                                 i,
                                 loc.clone(),
                             ));
@@ -1101,7 +1101,7 @@ impl TripManager {
                             // with. For interactively spawned people, doesn't really matter.
                             self.events.push(Event::PersonEntersMap(
                                 person.id,
-                                TripMode::Walk,
+                                AgentID::Pedestrian(person.ped),
                                 map.get_l(start.sidewalk_pos.lane()).src_i,
                                 None,
                             ));
@@ -1172,7 +1172,7 @@ impl TripManager {
                         SidewalkPOI::Border(i, ref loc) => {
                             self.events.push(Event::PersonEntersMap(
                                 person.id,
-                                TripMode::Walk,
+                                AgentID::Pedestrian(person.ped),
                                 i,
                                 loc.clone(),
                             ));
@@ -1183,7 +1183,7 @@ impl TripManager {
                             // with. For interactively spawned people, doesn't really matter.
                             self.events.push(Event::PersonEntersMap(
                                 person.id,
-                                TripMode::Walk,
+                                AgentID::Pedestrian(person.ped),
                                 map.get_l(start.sidewalk_pos.lane()).src_i,
                                 None,
                             ));
@@ -1236,7 +1236,7 @@ impl TripManager {
         }
     }
 
-    pub fn all_arrivals_at_border(&self, at: IntersectionID) -> Vec<(Time, TripMode)> {
+    pub fn all_arrivals_at_border(&self, at: IntersectionID) -> Vec<(Time, AgentType)> {
         let mut times = Vec::new();
         for t in &self.trips {
             if t.aborted || t.cancelled {
@@ -1244,7 +1244,16 @@ impl TripManager {
             }
             if let TripEndpoint::Border(i, _) = t.start {
                 if i == at {
-                    times.push((t.departure, t.mode));
+                    // We can make some assumptions here.
+                    let agent_type = match t.mode {
+                        TripMode::Walk => AgentType::Pedestrian,
+                        TripMode::Bike => AgentType::Bike,
+                        TripMode::Drive => AgentType::Car,
+                        // TODO Not true for long. People will be able to spawn at borders already
+                        // on a bus.
+                        TripMode::Transit => AgentType::Pedestrian,
+                    };
+                    times.push((t.departure, agent_type));
                 }
             }
         }

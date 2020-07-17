@@ -2,7 +2,7 @@ use crate::app::{App, PerMap};
 use ezgui::{hotkey, Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextExt, TextSpan, Widget};
 use geom::{Duration, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
-use sim::{AgentID, CarID, PedestrianID, TripMode, TripPhaseType};
+use sim::{AgentID, AgentType, CarID, PedestrianID, TripMode, TripPhaseType};
 use std::collections::BTreeSet;
 
 // Aside from Road and Trip, everything here can actually be selected.
@@ -126,6 +126,16 @@ pub fn color_for_mode(app: &App, m: TripMode) -> Color {
         TripMode::Bike => app.cs.unzoomed_bike,
         TripMode::Transit => app.cs.unzoomed_bus,
         TripMode::Drive => app.cs.unzoomed_car,
+    }
+}
+
+pub fn color_for_agent_type(app: &App, a: AgentType) -> Color {
+    match a {
+        AgentType::Pedestrian => app.cs.unzoomed_pedestrian,
+        AgentType::Bike => app.cs.unzoomed_bike,
+        AgentType::Bus | AgentType::Train => app.cs.unzoomed_bus,
+        AgentType::TransitRider => app.cs.bus_lane,
+        AgentType::Car => app.cs.unzoomed_car,
     }
 }
 

@@ -9,7 +9,7 @@ use ezgui::{
 };
 use geom::{Distance, Time};
 use map_model::LaneType;
-use sim::TripMode;
+use sim::AgentType;
 
 pub struct BikeNetwork {
     composite: Composite,
@@ -67,8 +67,8 @@ impl BikeNetwork {
         }
 
         // Show throughput, broken down by bike lanes or not
-        for ((r, mode, _), count) in &app.primary.sim.get_analytics().road_thruput.counts {
-            if *mode == TripMode::Bike {
+        for ((r, agent_type, _), count) in &app.primary.sim.get_analytics().road_thruput.counts {
+            if *agent_type == AgentType::Bike {
                 let (mut fwd, mut back) = app.primary.map.get_r(*r).get_lane_types();
                 if fwd.any(|lt| lt == LaneType::Biking) || back.any(|lt| lt == LaneType::Biking) {
                     on_bike_lanes.add(*r, *count);
@@ -79,8 +79,10 @@ impl BikeNetwork {
         }
 
         // Use intersection data too, but bin as on bike lanes or not based on connecting roads
-        for ((i, mode, _), count) in &app.primary.sim.get_analytics().intersection_thruput.counts {
-            if *mode == TripMode::Bike {
+        for ((i, agent_type, _), count) in
+            &app.primary.sim.get_analytics().intersection_thruput.counts
+        {
+            if *agent_type == AgentType::Bike {
                 if app
                     .primary
                     .map

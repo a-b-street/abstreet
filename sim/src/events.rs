@@ -20,8 +20,14 @@ pub enum Event {
 
     PersonEntersBuilding(PersonID, BuildingID),
     PersonLeavesBuilding(PersonID, BuildingID),
-    PersonLeavesMap(PersonID, TripMode, IntersectionID, Option<OffMapLocation>),
-    PersonEntersMap(PersonID, TripMode, IntersectionID, Option<OffMapLocation>),
+    // None if aborted
+    PersonLeavesMap(
+        PersonID,
+        Option<AgentID>,
+        IntersectionID,
+        Option<OffMapLocation>,
+    ),
+    PersonEntersMap(PersonID, AgentID, IntersectionID, Option<OffMapLocation>),
     PersonEntersRemoteBuilding(PersonID, OffMapLocation),
     PersonLeavesRemoteBuilding(PersonID, OffMapLocation),
 

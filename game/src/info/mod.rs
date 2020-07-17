@@ -10,7 +10,7 @@ mod trip;
 use crate::app::App;
 use crate::common::Warping;
 use crate::game::Transition;
-use crate::helpers::{color_for_mode, copy_to_clipboard, hotkey_btn, ID};
+use crate::helpers::{color_for_agent_type, copy_to_clipboard, hotkey_btn, ID};
 use crate::sandbox::{SandboxMode, TimeWarpScreen};
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -22,7 +22,7 @@ use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, LaneID, OriginalLane, ParkingLotID,
 };
 use sim::{
-    AgentID, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID, TripMode,
+    AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID,
     VehicleType,
 };
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
@@ -595,7 +595,7 @@ fn make_table<I: Into<String>>(
     .collect()
 }
 
-fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
+fn throughput<F: Fn(&Analytics) -> Vec<(AgentType, Vec<(Time, usize)>)>>(
     ctx: &EventCtx,
     app: &App,
     title: &str,
@@ -604,18 +604,18 @@ fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
 ) -> Widget {
     let mut series = get_data(app.primary.sim.get_analytics())
         .into_iter()
-        .map(|(m, pts)| Series {
-            label: m.noun().to_string(),
-            color: color_for_mode(app, m),
+        .map(|(agent_type, pts)| Series {
+            label: agent_type.noun().to_string(),
+            color: color_for_agent_type(app, agent_type),
             pts,
         })
         .collect::<Vec<_>>();
     if opts.show_before {
         // TODO Ahh these colors don't show up differently at all.
-        for (m, pts) in get_data(app.prebaked()) {
+        for (agent_type, pts) in get_data(app.prebaked()) {
             series.push(Series {
-                label: m.noun().to_string(),
-                color: color_for_mode(app, m).alpha(0.3),
+                label: agent_type.noun().to_string(),
+                color: color_for_agent_type(app, agent_type).alpha(0.3),
                 pts,
             });
         }
@@ -684,7 +684,7 @@ pub trait ContextualActions {
 pub struct DataOptions {
     pub show_before: bool,
     pub show_end_of_day: bool,
-    disabled_modes: BTreeSet<TripMode>,
+    disabled_types: BTreeSet<AgentType>,
 }
 
 impl DataOptions {
@@ -692,7 +692,7 @@ impl DataOptions {
         DataOptions {
             show_before: false,
             show_end_of_day: false,
-            disabled_modes: BTreeSet::new(),
+            disabled_types: BTreeSet::new(),
         }
     }
 
@@ -722,24 +722,24 @@ impl DataOptions {
 
     pub fn from_controls(c: &Composite) -> DataOptions {
         let show_before = c.maybe_is_checked("Show before changes").unwrap_or(false);
-        let mut disabled_modes = BTreeSet::new();
-        for m in TripMode::all() {
-            let label = m.noun();
+        let mut disabled_types = BTreeSet::new();
+        for a in AgentType::all() {
+            let label = a.noun();
             if !c.maybe_is_checked(label).unwrap_or(true) {
-                disabled_modes.insert(m);
+                disabled_types.insert(a);
             }
         }
         DataOptions {
             show_before,
             show_end_of_day: show_before && c.maybe_is_checked("Show full day").unwrap_or(false),
-            disabled_modes,
+            disabled_types,
         }
     }
 
     pub fn disabled_series(&self) -> HashSet<String> {
-        self.disabled_modes
+        self.disabled_types
             .iter()
-            .map(|m| m.noun().to_string())
+            .map(|a| a.noun().to_string())
             .collect()
     }
 }

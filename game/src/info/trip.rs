@@ -54,17 +54,7 @@ pub fn ongoing(
 
     let col_width = 7;
     let props = app.primary.sim.agent_properties(agent);
-    // This is different than the entire TripMode, and also not the current TripPhaseType.
-    // Sigh.
-    let activity = match agent {
-        AgentID::Pedestrian(_) => "walking",
-        AgentID::Car(c) => match c.1 {
-            VehicleType::Car => "driving",
-            VehicleType::Bike => "biking",
-            VehicleType::Bus | VehicleType::Train => unreachable!(),
-        },
-        AgentID::BusPassenger(_, _) => "riding the bus",
-    };
+    let activity = agent.to_type().ongoing_verb();
     let time_so_far = app.primary.sim.time() - start_time;
 
     let mut col = Vec::new();

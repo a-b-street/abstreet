@@ -109,7 +109,7 @@ impl AgentID {
         }
     }
 
-    pub(crate) fn to_type(self) -> AgentType {
+    pub fn to_type(self) -> AgentType {
         match self {
             AgentID::Car(c) => match c.1 {
                 VehicleType::Car => AgentType::Car,
@@ -153,6 +153,27 @@ impl AgentType {
             AgentType::Pedestrian,
             AgentType::TransitRider,
         ]
+    }
+
+    pub fn noun(self) -> &'static str {
+        match self {
+            AgentType::Car => "Car",
+            AgentType::Bike => "Bike",
+            AgentType::Bus => "Bus",
+            AgentType::Train => "Train",
+            AgentType::Pedestrian => "Pedestrian",
+            AgentType::TransitRider => "Transit rider",
+        }
+    }
+
+    pub fn ongoing_verb(self) -> &'static str {
+        match self {
+            AgentType::Car => "driving",
+            AgentType::Bike => "biking",
+            AgentType::Bus | AgentType::Train => unreachable!(),
+            AgentType::Pedestrian => "walking",
+            AgentType::TransitRider => "riding transit",
+        }
     }
 }
 

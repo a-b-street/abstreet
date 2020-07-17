@@ -1139,22 +1139,26 @@ impl Sim {
     }
 
     // TODO This is an awkward copy of raw_throughput
-    pub fn all_arrivals_at_border(&self, i: IntersectionID) -> Vec<(TripMode, Vec<(Time, usize)>)> {
+    // TODO And it does NOT count buses/trains spawning
+    pub fn all_arrivals_at_border(
+        &self,
+        i: IntersectionID,
+    ) -> Vec<(AgentType, Vec<(Time, usize)>)> {
         let window_size = Duration::hours(1);
-        let mut pts_per_mode: BTreeMap<TripMode, Vec<(Time, usize)>> = BTreeMap::new();
-        let mut windows_per_mode: BTreeMap<TripMode, Window> = BTreeMap::new();
-        for mode in TripMode::all() {
-            pts_per_mode.insert(mode, vec![(Time::START_OF_DAY, 0)]);
-            windows_per_mode.insert(mode, Window::new(window_size));
+        let mut pts_per_type: BTreeMap<AgentType, Vec<(Time, usize)>> = BTreeMap::new();
+        let mut windows_per_type: BTreeMap<AgentType, Window> = BTreeMap::new();
+        for agent_type in AgentType::all() {
+            pts_per_type.insert(agent_type, vec![(Time::START_OF_DAY, 0)]);
+            windows_per_type.insert(agent_type, Window::new(window_size));
         }
 
-        for (t, m) in self.trips.all_arrivals_at_border(i) {
-            let count = windows_per_mode.get_mut(&m).unwrap().add(t);
-            pts_per_mode.get_mut(&m).unwrap().push((t, count));
+        for (t, agent_type) in self.trips.all_arrivals_at_border(i) {
+            let count = windows_per_type.get_mut(&agent_type).unwrap().add(t);
+            pts_per_type.get_mut(&agent_type).unwrap().push((t, count));
         }
 
-        for (m, pts) in pts_per_mode.iter_mut() {
-            let mut window = windows_per_mode.remove(m).unwrap();
+        for (agent_type, pts) in pts_per_type.iter_mut() {
+            let mut window = windows_per_type.remove(agent_type).unwrap();
 
             // Add a drop-off after window_size (+ a little epsilon!)
             let end = self.get_end_of_day();
@@ -1168,7 +1172,7 @@ impl Sim {
             }
         }
 
-        pts_per_mode.into_iter().collect()
+        pts_per_type.into_iter().collect()
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::{AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
+use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
 use abstutil::Counter;
 use geom::{Distance, Duration, Histogram, Time};
 use map_model::{
@@ -61,13 +61,14 @@ impl Analytics {
 
         // Throughput
         if let Event::AgentEntersTraversable(a, to) = ev {
-            let mode = TripMode::from_agent(a);
             match to {
                 Traversable::Lane(l) => {
-                    self.road_thruput.record(time, map.get_l(l).parent, mode);
+                    self.road_thruput
+                        .record(time, map.get_l(l).parent, a.to_type());
                 }
                 Traversable::Turn(t) => {
-                    self.intersection_thruput.record(time, t.parent, mode);
+                    self.intersection_thruput
+                        .record(time, t.parent, a.to_type());
 
                     if let Some(id) = map.get_turn_group(t) {
                         *self.demand.entry(id).or_insert(0) -= 1;
@@ -76,8 +77,14 @@ impl Analytics {
             };
         }
         match ev {
-            Event::PersonLeavesMap(_, mode, i, _) | Event::PersonEntersMap(_, mode, i, _) => {
-                self.intersection_thruput.record(time, i, mode);
+            Event::PersonLeavesMap(_, maybe_a, i, _) => {
+                // Ignore aborted trips
+                if let Some(a) = maybe_a {
+                    self.intersection_thruput.record(time, i, a.to_type());
+                }
+            }
+            Event::PersonEntersMap(_, a, i, _) => {
+                self.intersection_thruput.record(time, i, a.to_type());
             }
             _ => {}
         }
@@ -538,15 +545,14 @@ pub struct TripPhase {
     pub phase_type: TripPhaseType,
 }
 
-// Slightly misleading -- TripMode::Transit means buses, not pedestrians taking transit
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TimeSeriesCount<X: Ord + Clone> {
-    // (Road or intersection, mode, hour block) -> count for that hour
-    pub counts: BTreeMap<(X, TripMode, usize), usize>,
+    // (Road or intersection, type, hour block) -> count for that hour
+    pub counts: BTreeMap<(X, AgentType, usize), usize>,
 
     // Very expensive to store, so it's optional. But useful to flag on to experiment with
     // representations better than the hour count above.
-    pub raw: Vec<(Time, TripMode, X)>,
+    pub raw: Vec<(Time, AgentType, X)>,
 }
 
 impl<X: Ord + Clone> TimeSeriesCount<X> {
@@ -557,24 +563,24 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
         }
     }
 
-    fn record(&mut self, time: Time, id: X, mode: TripMode) {
+    fn record(&mut self, time: Time, id: X, agent_type: AgentType) {
         // TODO Manually change flag
         if false {
-            self.raw.push((time, mode, id.clone()));
+            self.raw.push((time, agent_type, id.clone()));
         }
 
         let hour = time.get_parts().0;
-        *self.counts.entry((id, mode, hour)).or_insert(0) += 1;
+        *self.counts.entry((id, agent_type, hour)).or_insert(0) += 1;
     }
 
     pub fn total_for(&self, id: X) -> usize {
         let mut cnt = 0;
-        for mode in TripMode::all() {
+        for agent_type in AgentType::all() {
             // TODO Hmm
             for hour in 0..24 {
                 cnt += self
                     .counts
-                    .get(&(id.clone(), mode, hour))
+                    .get(&(id.clone(), agent_type, hour))
                     .cloned()
                     .unwrap_or(0);
             }
@@ -590,36 +596,36 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
         cnt
     }
 
-    pub fn count_per_hour(&self, id: X, time: Time) -> Vec<(TripMode, Vec<(Time, usize)>)> {
+    pub fn count_per_hour(&self, id: X, time: Time) -> Vec<(AgentType, Vec<(Time, usize)>)> {
         let hour = time.get_hours();
         let mut results = Vec::new();
-        for mode in TripMode::all() {
+        for agent_type in AgentType::all() {
             let mut pts = Vec::new();
             for hour in 0..=hour {
                 let cnt = self
                     .counts
-                    .get(&(id.clone(), mode, hour))
+                    .get(&(id.clone(), agent_type, hour))
                     .cloned()
                     .unwrap_or(0);
                 pts.push((Time::START_OF_DAY + Duration::hours(hour), cnt));
                 pts.push((Time::START_OF_DAY + Duration::hours(hour + 1), cnt));
             }
             pts.pop();
-            results.push((mode, pts));
+            results.push((agent_type, pts));
         }
         results
     }
 
-    pub fn raw_throughput(&self, now: Time, id: X) -> Vec<(TripMode, Vec<(Time, usize)>)> {
+    pub fn raw_throughput(&self, now: Time, id: X) -> Vec<(AgentType, Vec<(Time, usize)>)> {
         let window_size = Duration::hours(1);
-        let mut pts_per_mode: BTreeMap<TripMode, Vec<(Time, usize)>> = BTreeMap::new();
-        let mut windows_per_mode: BTreeMap<TripMode, Window> = BTreeMap::new();
-        for mode in TripMode::all() {
-            pts_per_mode.insert(mode, vec![(Time::START_OF_DAY, 0)]);
-            windows_per_mode.insert(mode, Window::new(window_size));
+        let mut pts_per_type: BTreeMap<AgentType, Vec<(Time, usize)>> = BTreeMap::new();
+        let mut windows_per_type: BTreeMap<AgentType, Window> = BTreeMap::new();
+        for agent_type in AgentType::all() {
+            pts_per_type.insert(agent_type, vec![(Time::START_OF_DAY, 0)]);
+            windows_per_type.insert(agent_type, Window::new(window_size));
         }
 
-        for (t, m, x) in &self.raw {
+        for (t, agent_type, x) in &self.raw {
             if *x != id {
                 continue;
             }
@@ -627,12 +633,12 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
                 break;
             }
 
-            let count = windows_per_mode.get_mut(m).unwrap().add(*t);
-            pts_per_mode.get_mut(m).unwrap().push((*t, count));
+            let count = windows_per_type.get_mut(agent_type).unwrap().add(*t);
+            pts_per_type.get_mut(agent_type).unwrap().push((*t, count));
         }
 
-        for (m, pts) in pts_per_mode.iter_mut() {
-            let mut window = windows_per_mode.remove(m).unwrap();
+        for (agent_type, pts) in pts_per_type.iter_mut() {
+            let mut window = windows_per_type.remove(agent_type).unwrap();
 
             // Add a drop-off after window_size (+ a little epsilon!)
             let t = (pts.last().unwrap().0 + window_size + Duration::seconds(0.1)).min(now);
@@ -645,7 +651,7 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
             }
         }
 
-        pts_per_mode.into_iter().collect()
+        pts_per_type.into_iter().collect()
     }
 }
 
