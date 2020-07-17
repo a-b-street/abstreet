@@ -139,8 +139,10 @@ impl DrawCar {
         }
 
         if let Some(line) = input.label {
-            // Buses are a constant length, so hardcoding this is fine.
-            let (pt, angle) = input.body.dist_along(Distance::meters(9.0)).expect(&err);
+            let (pt, angle) = input
+                .body
+                .dist_along(input.body.length() - Distance::meters(3.5))
+                .expect(&err);
             draw_default.append(
                 Text::from(Line(line).fg(cs.bus_label))
                     .render_to_batch(prerender)
