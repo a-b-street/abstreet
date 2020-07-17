@@ -283,7 +283,8 @@ impl Polygon {
 
     // Usually m^2, unless the polygon is in screen-space
     pub fn area(&self) -> f64 {
-        to_geo(&self.points()).area()
+        // Polygon orientation messes this up sometimes
+        to_geo(&self.points()).area().abs()
     }
 
     // Doesn't handle multiple crossings in and out.
