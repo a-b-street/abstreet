@@ -10,7 +10,7 @@ use ezgui::{
 use geom::{Polygon, Time};
 use map_model::{BuildingID, IntersectionID, LaneID, RoadID, TurnType};
 use maplit::hashset;
-use sim::{DontDrawAgents, TripEndpoint};
+use sim::{DontDrawAgents, TripEndpoint, TripInfo};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 pub struct CommuterPatterns {
@@ -19,6 +19,10 @@ pub struct CommuterPatterns {
     blocks: Vec<Block>,
     current_block: Option<BlockID>,
     draw_current_block: Option<Drawable>,
+
+    // Indexed by BlockID
+    trips_from_block: Vec<Vec<TripInfo>>,
+    trips_to_block: Vec<Vec<TripInfo>>,
 
     composite: Composite,
     draw_all_blocks: Drawable,
@@ -46,6 +50,26 @@ impl CommuterPatterns {
         let (bldg_to_block, border_to_block, blocks) =
             ctx.loading_screen("group buildings into blocks", |_, _| group_bldgs(app));
 
+        let mut trips_from_block: Vec<Vec<TripInfo>> = std::iter::repeat_with(Vec::new)
+            .take(blocks.len())
+            .collect();
+        let mut trips_to_block: Vec<Vec<TripInfo>> = trips_from_block.clone();
+        for (_, trip) in app.primary.sim.all_trip_info() {
+            let block1 = match trip.start {
+                TripEndpoint::Bldg(b) => bldg_to_block[&b],
+                TripEndpoint::Border(i, _) => border_to_block[&i],
+            };
+            let block2 = match trip.end {
+                TripEndpoint::Bldg(b) => bldg_to_block[&b],
+                TripEndpoint::Border(i, _) => border_to_block[&i],
+            };
+            // Totally ignore trips within the same block
+            if block1 != block2 {
+                trips_from_block[block1].push(trip.clone());
+                trips_to_block[block2].push(trip);
+            }
+        }
+
         let mut all_blocks = GeomBatch::new();
         for block in &blocks {
             all_blocks.push(Color::YELLOW.alpha(0.5), block.shape.clone());
@@ -57,6 +81,8 @@ impl CommuterPatterns {
             blocks,
             current_block: None,
             draw_current_block: None,
+            trips_from_block,
+            trips_to_block,
 
             draw_all_blocks: ctx.upload(all_blocks),
             composite: make_panel(ctx, app),
@@ -64,34 +90,27 @@ impl CommuterPatterns {
     }
 
     // For all trips from (or to) the base block, how many of them go to all other blocks?
-    fn count_per_block(
-        &self,
-        app: &App,
-        base: &Block,
-        from: bool,
-        filter: Filters,
-    ) -> Vec<(&Block, usize)> {
+    fn count_per_block(&self, base: &Block, from: bool, filter: Filters) -> Vec<(&Block, usize)> {
+        let candidates = if from {
+            &self.trips_from_block[base.id]
+        } else {
+            &self.trips_to_block[base.id]
+        };
         let mut count: Counter<BlockID> = Counter::new();
-        for (_, trip) in app.primary.sim.all_trip_info() {
+        for trip in candidates {
             if trip.departure < filter.depart_from || trip.departure > filter.depart_until {
                 continue;
             }
-            let block1 = match trip.start {
-                TripEndpoint::Bldg(b) => self.bldg_to_block[&b],
-                TripEndpoint::Border(i, _) => self.border_to_block[&i],
-            };
-            let block2 = match trip.end {
-                TripEndpoint::Bldg(b) => self.bldg_to_block[&b],
-                TripEndpoint::Border(i, _) => self.border_to_block[&i],
-            };
-            if block1 == block2 {
-                continue;
-            }
-            if from && block1 == base.id {
-                count.inc(block2);
-            }
-            if !from && block2 == base.id {
-                count.inc(block1);
+            if from {
+                count.inc(match trip.end {
+                    TripEndpoint::Bldg(b) => self.bldg_to_block[&b],
+                    TripEndpoint::Border(i, _) => self.border_to_block[&i],
+                });
+            } else {
+                count.inc(match trip.start {
+                    TripEndpoint::Bldg(b) => self.bldg_to_block[&b],
+                    TripEndpoint::Border(i, _) => self.border_to_block[&i],
+                });
             }
         }
 
@@ -153,7 +172,7 @@ impl State for CommuterPatterns {
                                 self.composite.area_slider("depart until").get_percent(),
                             ),
                         };
-                    let others = self.count_per_block(app, block, from, filter);
+                    let others = self.count_per_block(block, from, filter);
                     let mut total_trips = 0;
                     if !others.is_empty() {
                         let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
