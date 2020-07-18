@@ -2,7 +2,7 @@ use crate::app::{App, ShowEverything};
 use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::DrawOptions;
-use abstutil::{Counter, MultiMap};
+use abstutil::{prettyprint_usize, Counter, MultiMap};
 use ezgui::{
     hotkey, AreaSlider, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, TextExt, VerticalAlignment, Widget,
@@ -16,6 +16,7 @@ pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,
     blocks: Vec<Block>,
     current_block: Option<BlockID>,
+    draw_current_block: Option<Drawable>,
 
     composite: Composite,
     draw_all_blocks: Drawable,
@@ -48,6 +49,7 @@ impl CommuterPatterns {
             bldg_to_block,
             blocks,
             current_block: None,
+            draw_current_block: None,
 
             draw_all_blocks: ctx.upload(all_blocks),
             composite: make_panel(ctx, app),
@@ -91,7 +93,7 @@ impl CommuterPatterns {
 }
 
 impl State for CommuterPatterns {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
         match self.composite.event(ctx) {
@@ -104,7 +106,9 @@ impl State for CommuterPatterns {
             None => {}
         }
 
+        // TODO Or if a filter changed!
         if ctx.redo_mouseover() {
+            let old_block = self.current_block;
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 self.current_block = self
                     .blocks
@@ -115,20 +119,68 @@ impl State for CommuterPatterns {
                 self.current_block = None;
             }
 
-            if let Some(_) = self.current_block {
-                // TODO Show total number of matching trips by updating the scale
-                // TODO Show number of buildings
-                self.composite.replace(
-                    ctx,
-                    "current",
-                    "Something selected".draw_text(ctx).named("current"),
-                );
-            } else {
-                self.composite.replace(
-                    ctx,
-                    "current",
-                    "Nothing selected".draw_text(ctx).named("current"),
-                );
+            if old_block != self.current_block {
+                if let Some(id) = self.current_block {
+                    let block = &self.blocks[id];
+
+                    // Show the members of this block
+                    let mut batch = GeomBatch::new();
+                    for b in &block.bldgs {
+                        batch.push(Color::PURPLE, app.primary.map.get_b(*b).polygon.clone());
+                    }
+
+                    let from = self.composite.is_checked("from / to this block");
+                    let filter =
+                        Filters {
+                            depart_from: app.primary.sim.get_end_of_day().percent_of(
+                                self.composite.area_slider("depart from").get_percent(),
+                            ),
+                            depart_until: app.primary.sim.get_end_of_day().percent_of(
+                                self.composite.area_slider("depart until").get_percent(),
+                            ),
+                        };
+                    let others = self.count_per_block(app, block, from, filter);
+                    let mut total_trips = 0;
+                    if !others.is_empty() {
+                        let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
+                        for (other, cnt) in others {
+                            total_trips += cnt;
+                            let pct = (cnt as f64) / max_cnt;
+                            // TODO Use app.cs.good_to_bad_red or some other color gradient
+                            batch.push(
+                                app.cs.good_to_bad_red.eval(pct).alpha(0.8),
+                                other.shape.clone(),
+                            );
+                        }
+                    }
+
+                    self.draw_current_block = Some(ctx.upload(batch));
+
+                    // TODO Show number of buildings
+                    self.composite.replace(
+                        ctx,
+                        "current",
+                        "Something selected".draw_text(ctx).named("current"),
+                    );
+
+                    let new_scale = ColorLegend::gradient(
+                        ctx,
+                        &app.cs.good_to_bad_red,
+                        vec![
+                            "0".to_string(),
+                            format!("{} trips", prettyprint_usize(total_trips)),
+                        ],
+                    )
+                    .named("scale");
+                    self.composite.replace(ctx, "scale", new_scale);
+                } else {
+                    self.draw_current_block = None;
+                    self.composite.replace(
+                        ctx,
+                        "current",
+                        "Nothing selected".draw_text(ctx).named("current"),
+                    );
+                }
             }
         }
 
@@ -148,48 +200,10 @@ impl State for CommuterPatterns {
         );
 
         g.redraw(&self.draw_all_blocks);
-        self.composite.draw(g);
-
-        // If the mouse is hovering over a block, draw some stuff.
-        // TODO Cache the batch!
-        if let Some(id) = self.current_block {
-            let block = &self.blocks[id];
-            let mut batch = GeomBatch::new();
-            // Show the members of this block
-            for b in &block.bldgs {
-                batch.push(Color::PURPLE, app.primary.map.get_b(*b).polygon.clone());
-            }
-
-            let from = self.composite.is_checked("from / to this block");
-            let filter = Filters {
-                depart_from: app
-                    .primary
-                    .sim
-                    .get_end_of_day()
-                    .percent_of(self.composite.area_slider("depart from").get_percent()),
-                depart_until: app
-                    .primary
-                    .sim
-                    .get_end_of_day()
-                    .percent_of(self.composite.area_slider("depart until").get_percent()),
-            };
-            let others = self.count_per_block(app, block, from, filter);
-            if !others.is_empty() {
-                let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
-                for (other, cnt) in others {
-                    let pct = (cnt as f64) / max_cnt;
-                    // TODO Use app.cs.good_to_bad_red or some other color gradient
-                    batch.push(
-                        app.cs.good_to_bad_red.eval(pct).alpha(0.8),
-                        other.shape.clone(),
-                    );
-                }
-            }
-
-            let draw = g.upload(batch);
-            g.redraw(&draw);
-            return;
+        if let Some(ref d) = self.draw_current_block {
+            g.redraw(d);
         }
+        self.composite.draw(g);
     }
 }
 
@@ -315,7 +329,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
             AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 1.0).named("depart until"),
         ]),
         "Nothing selected".draw_text(ctx).named("current"),
-        ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "0"]),
+        ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "0"]).named("scale"),
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
