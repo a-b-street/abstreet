@@ -8,13 +8,14 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Polygon, Time};
-use map_model::{BuildingID, LaneID, RoadID, TurnType};
+use map_model::{BuildingID, IntersectionID, LaneID, RoadID, TurnType};
 use maplit::hashset;
 use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,
+    border_to_block: HashMap<IntersectionID, BlockID>,
     blocks: Vec<Block>,
     current_block: Option<BlockID>,
     draw_current_block: Option<Drawable>,
@@ -26,7 +27,10 @@ pub struct CommuterPatterns {
 // Group many buildings into a single block
 struct Block {
     id: BlockID,
+    // A block is either some buildings or a single border. Might be worth expressing that more
+    // clearly.
     bldgs: HashSet<BuildingID>,
+    borders: HashSet<IntersectionID>,
     shape: Polygon,
 }
 
@@ -39,7 +43,7 @@ type BlockID = usize;
 
 impl CommuterPatterns {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let (bldg_to_block, blocks) = ctx
+        let (bldg_to_block, border_to_block, blocks) = ctx
             .loading_screen("group buildings into blocks", |_, timer| {
                 group_bldgs(app, timer)
             });
@@ -51,6 +55,7 @@ impl CommuterPatterns {
 
         Box::new(CommuterPatterns {
             bldg_to_block,
+            border_to_block,
             blocks,
             current_block: None,
             draw_current_block: None,
@@ -73,18 +78,22 @@ impl CommuterPatterns {
             if trip.departure < filter.depart_from || trip.departure > filter.depart_until {
                 continue;
             }
-            if let (TripEndpoint::Bldg(b1), TripEndpoint::Bldg(b2)) = (trip.start, trip.end) {
-                let block1 = self.bldg_to_block[&b1];
-                let block2 = self.bldg_to_block[&b2];
-                if block1 == block2 {
-                    continue;
-                }
-                if from && block1 == base.id {
-                    count.inc(block2);
-                }
-                if !from && block2 == base.id {
-                    count.inc(block1);
-                }
+            let block1 = match trip.start {
+                TripEndpoint::Bldg(b) => self.bldg_to_block[&b],
+                TripEndpoint::Border(i, _) => self.border_to_block[&i],
+            };
+            let block2 = match trip.end {
+                TripEndpoint::Bldg(b) => self.bldg_to_block[&b],
+                TripEndpoint::Border(i, _) => self.border_to_block[&i],
+            };
+            if block1 == block2 {
+                continue;
+            }
+            if from && block1 == base.id {
+                count.inc(block2);
+            }
+            if !from && block2 == base.id {
+                count.inc(block1);
             }
         }
 
@@ -131,6 +140,9 @@ impl State for CommuterPatterns {
                     let mut batch = GeomBatch::new();
                     for b in &block.bldgs {
                         batch.push(Color::PURPLE, app.primary.map.get_b(*b).polygon.clone());
+                    }
+                    for i in &block.borders {
+                        batch.push(Color::PURPLE, app.primary.map.get_i(*i).polygon.clone());
                     }
 
                     let from = self.composite.is_checked("from / to this block");
@@ -215,7 +227,14 @@ impl State for CommuterPatterns {
 // region bounded by 4 roads. But there are plenty of places with stranger shapes, or buildings
 // near the border of the map. The fallback is currently to just group those buildings that share
 // the same sidewalk.
-fn group_bldgs(app: &App, timer: &mut Timer) -> (HashMap<BuildingID, BlockID>, Vec<Block>) {
+fn group_bldgs(
+    app: &App,
+    timer: &mut Timer,
+) -> (
+    HashMap<BuildingID, BlockID>,
+    HashMap<IntersectionID, BlockID>,
+    Vec<Block>,
+) {
     let mut bldg_to_block = HashMap::new();
     let mut blocks = Vec::new();
 
@@ -241,10 +260,37 @@ fn group_bldgs(app: &App, timer: &mut Timer) -> (HashMap<BuildingID, BlockID>, V
         blocks.push(Block {
             id: block_id,
             bldgs: group.bldgs,
+            borders: HashSet::new(),
             shape: Polygon::convex_hull(polygons),
         });
     }
-    (bldg_to_block, blocks)
+
+    let mut border_to_block = HashMap::new();
+    for i in app.primary.map.all_incoming_borders() {
+        let id = blocks.len();
+        border_to_block.insert(i.id, id);
+        blocks.push(Block {
+            id,
+            bldgs: HashSet::new(),
+            borders: hashset! { i.id },
+            shape: i.polygon.clone(),
+        });
+    }
+    for i in app.primary.map.all_outgoing_borders() {
+        if border_to_block.contains_key(&i.id) {
+            continue;
+        }
+        let id = blocks.len();
+        border_to_block.insert(i.id, id);
+        blocks.push(Block {
+            id,
+            bldgs: HashSet::new(),
+            borders: hashset! { i.id },
+            shape: i.polygon.clone(),
+        });
+    }
+
+    (bldg_to_block, border_to_block, blocks)
 }
 
 struct Loop {
