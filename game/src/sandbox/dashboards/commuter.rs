@@ -11,53 +11,26 @@ use map_model::{BuildingID, LaneID, TurnType};
 use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
-// TODO Handle borders too
-
 pub struct CommuterPatterns {
-    bldg_to_block: HashMap<BuildingID, usize>,
+    bldg_to_block: HashMap<BuildingID, BlockID>,
     blocks: Vec<Block>,
 
     composite: Composite,
     draw_all_blocks: Drawable,
 }
 
+// Group many buildings into a single block
 struct Block {
-    id: usize,
+    id: BlockID,
     bldgs: HashSet<BuildingID>,
     shape: Polygon,
 }
 
+type BlockID = usize;
+
 impl CommuterPatterns {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let mut bldg_to_block = HashMap::new();
-        let mut blocks = Vec::new();
-
-        // Really dumb assignment to start with
-        for (bldgs, proper) in partition_sidewalk_loops(app) {
-            let block_id = blocks.len();
-            let mut polygons = Vec::new();
-            let mut lanes = HashSet::new();
-            for b in &bldgs {
-                bldg_to_block.insert(*b, block_id);
-                let bldg = app.primary.map.get_b(*b);
-                if proper {
-                    lanes.insert(bldg.sidewalk());
-                } else {
-                    polygons.push(bldg.polygon.clone());
-                }
-            }
-            if proper {
-                // TODO Even better, glue the loop of sidewalks together and fill that area.
-                for l in lanes {
-                    polygons.push(app.primary.draw_map.get_l(l).polygon.clone());
-                }
-            }
-            blocks.push(Block {
-                id: block_id,
-                bldgs,
-                shape: Polygon::convex_hull(polygons),
-            });
-        }
+        let (bldg_to_block, blocks) = group_bldgs(app);
 
         let mut all_blocks = GeomBatch::new();
         for block in &blocks {
@@ -69,23 +42,13 @@ impl CommuterPatterns {
             blocks,
 
             draw_all_blocks: ctx.upload(all_blocks),
-            composite: Composite::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line("Commute map by block").small_heading().draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                Checkbox::text(ctx, "from / to this block", hotkey(Key::Space), true),
-                Checkbox::text(ctx, "arrows / heatmap", hotkey(Key::H), true),
-            ]))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-            .build(ctx),
+            composite: make_panel(ctx),
         })
     }
 
+    // For all trips from (or to) the base block, how many of them go to all other blocks?
     fn count_per_block(&self, app: &App, base: &Block, from: bool) -> Vec<(&Block, usize)> {
-        let mut count: Counter<usize> = Counter::new();
+        let mut count: Counter<BlockID> = Counter::new();
         for (_, trip) in app.primary.sim.all_trip_info() {
             if let (TripEndpoint::Bldg(b1), TripEndpoint::Bldg(b2)) = (trip.start, trip.end) {
                 let block1 = self.bldg_to_block[&b1];
@@ -142,11 +105,13 @@ impl State for CommuterPatterns {
         g.redraw(&self.draw_all_blocks);
         self.composite.draw(g);
 
-        // TODO Expensive!
+        // If the mouse is hovering over a block, draw some stuff.
+        // TODO Don't do this in draw! Cache it and only recalculate when ctx.redo_mouseover().
         if let Some(pt) = g.get_cursor_in_map_space() {
             for block in &self.blocks {
                 if block.shape.contains_pt(pt) {
                     let mut batch = GeomBatch::new();
+                    // Show the members of this block
                     for b in &block.bldgs {
                         batch.push(Color::PURPLE, app.primary.map.get_b(*b).polygon.clone());
                     }
@@ -173,6 +138,7 @@ impl State for CommuterPatterns {
                                     );
                                 }
                             } else {
+                                // TODO Use app.cs.good_to_bad_red or some other color gradient
                                 batch.push(Color::RED.alpha(pct as f32), other.shape.clone());
                             }
                         }
@@ -185,6 +151,42 @@ impl State for CommuterPatterns {
             }
         }
     }
+}
+
+// This tries to group buildings into neighborhood "blocks". Much of the time, that's a smallish
+// region bounded by 4 roads. But there are plenty of places with stranger shapes, or buildings
+// near the border of the map. The fallback is currently to just group those buildings that share
+// the same sidewalk.
+fn group_bldgs(app: &App) -> (HashMap<BuildingID, BlockID>, Vec<Block>) {
+    let mut bldg_to_block = HashMap::new();
+    let mut blocks = Vec::new();
+
+    for (bldgs, proper) in partition_sidewalk_loops(app) {
+        let block_id = blocks.len();
+        let mut polygons = Vec::new();
+        let mut lanes = HashSet::new();
+        for b in &bldgs {
+            bldg_to_block.insert(*b, block_id);
+            let bldg = app.primary.map.get_b(*b);
+            if proper {
+                lanes.insert(bldg.sidewalk());
+            } else {
+                polygons.push(bldg.polygon.clone());
+            }
+        }
+        if proper {
+            // TODO Even better, glue the loop of sidewalks together and fill that area.
+            for l in lanes {
+                polygons.push(app.primary.draw_map.get_l(l).polygon.clone());
+            }
+        }
+        blocks.push(Block {
+            id: block_id,
+            bldgs,
+            shape: Polygon::convex_hull(polygons),
+        });
+    }
+    (bldg_to_block, blocks)
 }
 
 // True if it's a "proper" block, false if it's a hack.
@@ -209,7 +211,7 @@ fn partition_sidewalk_loops(app: &App) -> Vec<(HashSet<BuildingID>, bool)> {
                 todo_bldgs.remove(b);
             }
 
-            // Chase SharedSidewalkCorners. There should be zero or one new option for corners.
+            // Chase SharedSidewalkCorners. There should be zero or one new options for corners.
             let turns = map
                 .get_turns_from_lane(current_l)
                 .into_iter()
@@ -253,4 +255,19 @@ fn partition_sidewalk_loops(app: &App) -> Vec<(HashSet<BuildingID>, bool)> {
     }
 
     groups
+}
+
+fn make_panel(ctx: &mut EventCtx) -> Composite {
+    Composite::new(Widget::col(vec![
+        Widget::row(vec![
+            Line("Commute map by block").small_heading().draw(ctx),
+            Btn::text_fg("X")
+                .build(ctx, "close", hotkey(Key::Escape))
+                .align_right(),
+        ]),
+        Checkbox::text(ctx, "from / to this block", hotkey(Key::Space), true),
+        Checkbox::text(ctx, "arrows / heatmap", hotkey(Key::H), true),
+    ]))
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx)
 }
