@@ -132,8 +132,13 @@ impl GeomBatch {
     }
 
     /// Returns a batch containing an SVG from a file. Uses the current screen's scale factor.
-    pub fn screenspace_svg(prerender: &Prerender, filename: &str) -> GeomBatch {
-        svg::load_svg(prerender, filename, *prerender.assets.scale_factor.borrow()).0
+    pub fn screenspace_svg<I: Into<String>>(prerender: &Prerender, filename: I) -> GeomBatch {
+        svg::load_svg(
+            prerender,
+            &filename.into(),
+            *prerender.assets.scale_factor.borrow(),
+        )
+        .0
     }
 
     /// Transforms all colors in a batch.

@@ -1428,7 +1428,7 @@ fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
              buses! Cheaper housing! Less rain! Free this, subsidized that!",
         )
         .boss("Light rail and robot cars aren't here to save the day! Know what you'll be using?")
-        .extra("drone", "The traffic drone")
+        .extra("drone", 1.0, "The traffic drone")
         .player("Is that... duct tape?")
         .boss(
             "Can't spit anymore cause of COVID and don't get me started on prayers. Well, off to \

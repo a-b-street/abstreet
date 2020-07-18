@@ -13,7 +13,7 @@ pub struct CutsceneBuilder {
 enum Layout {
     PlayerSpeaking,
     BossSpeaking,
-    Extra(&'static str),
+    Extra(&'static str, f64),
 }
 
 struct Scene {
@@ -45,9 +45,14 @@ impl CutsceneBuilder {
         self
     }
 
-    pub fn extra<I: Into<String>>(mut self, character: &'static str, msg: I) -> CutsceneBuilder {
+    pub fn extra<I: Into<String>>(
+        mut self,
+        character: &'static str,
+        scale: f64,
+        msg: I,
+    ) -> CutsceneBuilder {
         self.scenes.push(Scene {
-            layout: Layout::Extra(character),
+            layout: Layout::Extra(character, scale),
             msg: Text::from(Line(msg).fg(Color::BLACK)),
         });
         self
@@ -224,7 +229,7 @@ fn make_panel(
                     scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                     Widget::draw_svg(ctx, "system/assets/characters/player.svg").align_right(),
                 ]),
-                Layout::Extra(name) => Widget::custom_row(vec![
+                Layout::Extra(name, scale) => Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
                         GeomBatch::screenspace_svg(
@@ -235,11 +240,20 @@ fn make_panel(
                         .autocrop(),
                     ),
                     Widget::col(vec![
-                        Widget::draw_svg(ctx, format!("system/assets/characters/{}.svg", name)),
+                        Widget::draw_batch(
+                            ctx,
+                            GeomBatch::screenspace_svg(
+                                ctx.prerender,
+                                format!("system/assets/characters/{}.svg", name),
+                            )
+                            .scale(scale)
+                            .autocrop(),
+                        ),
                         scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                     ]),
-                    Widget::draw_svg(ctx, "system/assets/characters/player.svg").align_right(),
-                ]),
+                    Widget::draw_svg(ctx, "system/assets/characters/player.svg"),
+                ])
+                .evenly_spaced(),
             }
             .margin_above(100),
             Widget::col(vec![
@@ -263,7 +277,7 @@ fn make_panel(
                 .margin_right(100),
             Line(name).big_heading_styled().draw(ctx),
         ])
-        .margin_below(50),
+        .margin_below(40),
         inner
             .fill_height()
             .padding(42)

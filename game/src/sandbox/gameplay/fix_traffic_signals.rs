@@ -76,6 +76,16 @@ impl FixTrafficSignals {
                  your job seriously.",
             )
             .player("Sorry, boss.")
+            .extra(
+                "parents",
+                0.6,
+                "Hi, er, we're calling from Lower Queen Anne. What's going on?!",
+            )
+            .extra(
+                "parents",
+                0.6,
+                "We just missed a VERY important appointment. Nobody's moving an inch!",
+            )
             .boss(
                 "Oh no... reports are coming in, ALL of the traffic signals downtown are screwed \
                  up!",
