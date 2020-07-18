@@ -6,9 +6,10 @@ use crate::render::DrawOptions;
 use abstutil::{prettyprint_usize, Counter, MultiMap};
 use ezgui::{
     hotkey, AreaSlider, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, VerticalAlignment,
+    Widget,
 };
-use geom::{Distance, Polygon, Time};
+use geom::{Circle, Distance, Polygon, Time};
 use map_model::{BuildingID, BuildingType, IntersectionID, LaneID, RoadID, TurnType};
 use maplit::hashset;
 use sim::{DontDrawAgents, TripEndpoint, TripInfo, TripMode};
@@ -273,6 +274,33 @@ impl State for CommuterPatterns {
                             other.shape.clone(),
                         );
                     }
+                }
+
+                batch.push(Color::BLACK.alpha(0.5), block.shape.clone());
+
+                {
+                    // Indicate direction over current block
+                    let icon_name: &str;
+                    let icon_scale: f64;
+                    let from = self.composite.is_checked("from / to this block");
+                    if from {
+                        icon_name = "outward.svg";
+                        icon_scale = 1.2;
+                    } else {
+                        icon_name = "inward.svg";
+                        icon_scale = 1.0;
+                    };
+
+                    let center = block.shape.polylabel();
+                    let icon = GeomBatch::mapspace_svg(
+                        ctx.prerender,
+                        &format!("system/assets/tools/{}", icon_name),
+                    )
+                    .scale(icon_scale)
+                    .centered_on(center)
+                    .color(RewriteColor::ChangeAll(Color::WHITE));
+
+                    batch.append(icon);
                 }
 
                 self.selected.as_mut().unwrap().draw = ctx.upload(batch);
