@@ -225,21 +225,21 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             aborted += 1;
             continue;
         };
-        let (departure, start, end, _, modified) = sim.trip_info(*id);
+        let trip = sim.trip_info(*id);
         if !opts.off_map_starts {
-            if let TripEndpoint::Border(_, _) = start {
+            if let TripEndpoint::Border(_, _) = trip.start {
                 continue;
             }
         }
         if !opts.off_map_ends {
-            if let TripEndpoint::Border(_, _) = end {
+            if let TripEndpoint::Border(_, _) = trip.end {
                 continue;
             }
         }
-        if !opts.unmodified_trips && !modified {
+        if !opts.unmodified_trips && !trip.modified {
             continue;
         }
-        if !opts.modified_trips && modified {
+        if !opts.modified_trips && trip.modified {
             continue;
         }
 
@@ -258,8 +258,8 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         data.push(Entry {
             trip: *id,
             mode,
-            departure,
-            modified,
+            departure: trip.departure,
+            modified: trip.modified,
             duration_after: *duration_after,
             duration_before,
             waiting,
@@ -534,13 +534,13 @@ pub fn preview_trip(g: &mut GfxCtx, app: &App, composite: &Composite) {
     g.unfork();
 }
 
-fn preview_route(g: &mut GfxCtx, app: &App, trip: TripID) -> GeomBatch {
+fn preview_route(g: &mut GfxCtx, app: &App, id: TripID) -> GeomBatch {
     let mut batch = GeomBatch::new();
     for p in app
         .primary
         .sim
         .get_analytics()
-        .get_trip_phases(trip, &app.primary.map)
+        .get_trip_phases(id, &app.primary.map)
     {
         if let Some((dist, ref path)) = p.path {
             if let Some(trace) = path.trace(&app.primary.map, dist, None) {
@@ -552,7 +552,7 @@ fn preview_route(g: &mut GfxCtx, app: &App, trip: TripID) -> GeomBatch {
         }
     }
 
-    let (_, start, end, _, _) = app.primary.sim.trip_info(trip);
+    let trip = app.primary.sim.trip_info(id);
     batch.append(
         GeomBatch::mapspace_svg(g.prerender, "system/assets/timeline/start_pos.svg")
             .scale(10.0)
@@ -561,7 +561,7 @@ fn preview_route(g: &mut GfxCtx, app: &App, trip: TripID) -> GeomBatch {
                 Color::hex("#5B5B5B"),
                 Color::hex("#CC4121"),
             ))
-            .centered_on(match start {
+            .centered_on(match trip.start {
                 TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
                 TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),
             }),
@@ -574,7 +574,7 @@ fn preview_route(g: &mut GfxCtx, app: &App, trip: TripID) -> GeomBatch {
                 Color::hex("#5B5B5B"),
                 Color::hex("#CC4121"),
             ))
-            .centered_on(match end {
+            .centered_on(match trip.end {
                 TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
                 TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),
             }),

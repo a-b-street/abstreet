@@ -4,8 +4,8 @@ use crate::{
     DrawPedCrowdInput, DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents,
     IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSimState, ParkingSpot,
     PedestrianID, Person, PersonID, PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot,
-    TransitSimState, TripEndpoint, TripID, TripManager, TripMode, TripPhaseType, TripResult,
-    TripSpawner, UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    TransitSimState, TripID, TripInfo, TripManager, TripPhaseType, TripResult, TripSpawner,
+    UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
     LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::Timer;
@@ -942,13 +942,10 @@ impl Sim {
         self.trips.trip_to_agent(id)
     }
 
-    // (start time, start position, end position, trip type, modified)
-    // TODO Time for a struct
-    pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode, bool) {
+    pub fn trip_info(&self, id: TripID) -> TripInfo {
         self.trips.trip_info(id)
     }
-    // TODO Use that struct
-    pub fn all_trip_info(&self) -> Vec<(TripID, Time, TripEndpoint, TripEndpoint, TripMode)> {
+    pub fn all_trip_info(&self) -> Vec<(TripID, TripInfo)> {
         self.trips.all_trip_info()
     }
     // If trip is finished, returns (total time, total waiting time)

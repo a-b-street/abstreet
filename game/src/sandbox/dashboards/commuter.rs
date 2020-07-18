@@ -86,8 +86,8 @@ impl CommuterPatterns {
 
     fn count_per_block(&self, app: &App, base: &Block, from: bool) -> Vec<(&Block, usize)> {
         let mut count: Counter<usize> = Counter::new();
-        for (_, _, start, end, _) in &app.primary.sim.all_trip_info() {
-            if let (TripEndpoint::Bldg(b1), TripEndpoint::Bldg(b2)) = (start, end) {
+        for (_, trip) in app.primary.sim.all_trip_info() {
+            if let (TripEndpoint::Bldg(b1), TripEndpoint::Bldg(b2)) = (trip.start, trip.end) {
                 let block1 = self.bldg_to_block[&b1];
                 let block2 = self.bldg_to_block[&b2];
                 if block1 == block2 {

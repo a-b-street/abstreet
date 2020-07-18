@@ -40,7 +40,7 @@ impl OpenTrip {
 pub fn ongoing(
     ctx: &mut EventCtx,
     app: &App,
-    trip: TripID,
+    id: TripID,
     agent: AgentID,
     open_trip: &mut OpenTrip,
     details: &mut Details,
@@ -49,13 +49,13 @@ pub fn ongoing(
         .primary
         .sim
         .get_analytics()
-        .get_trip_phases(trip, &app.primary.map);
-    let (start_time, _, _, _, _) = app.primary.sim.trip_info(trip);
+        .get_trip_phases(id, &app.primary.map);
+    let trip = app.primary.sim.trip_info(id);
 
     let col_width = 7;
     let props = app.primary.sim.agent_properties(agent);
     let activity = agent.to_type().ongoing_verb();
-    let time_so_far = app.primary.sim.time() - start_time;
+    let time_so_far = app.primary.sim.time() - trip.departure;
 
     let mut col = Vec::new();
 
@@ -116,7 +116,7 @@ pub fn ongoing(
     col.push(make_timeline(
         ctx,
         app,
-        trip,
+        id,
         open_trip,
         details,
         phases,
@@ -129,43 +129,43 @@ pub fn ongoing(
 pub fn future(
     ctx: &mut EventCtx,
     app: &App,
-    trip: TripID,
+    id: TripID,
     open_trip: &mut OpenTrip,
     details: &mut Details,
 ) -> Widget {
-    let (start_time, trip_start, trip_end, _, _) = app.primary.sim.trip_info(trip);
+    let trip = app.primary.sim.trip_info(id);
 
     let mut col = Vec::new();
 
     let now = app.primary.sim.time();
-    if now > start_time {
+    if now > trip.departure {
         col.extend(make_table(
             ctx,
-            vec![("Start delayed", (now - start_time).to_string())].into_iter(),
+            vec![("Start delayed", (now - trip.departure).to_string())].into_iter(),
         ));
     }
 
     if let Some(estimated_trip_time) = app
         .has_prebaked()
-        .and_then(|_| app.prebaked().finished_trip_time(trip))
+        .and_then(|_| app.prebaked().finished_trip_time(id))
     {
         col.extend(make_table(
             ctx,
             vec![("Estimated trip time", estimated_trip_time.to_string())].into_iter(),
         ));
 
-        let phases = app.prebaked().get_trip_phases(trip, &app.primary.map);
+        let phases = app.prebaked().get_trip_phases(id, &app.primary.map);
         col.push(make_timeline(
-            ctx, app, trip, open_trip, details, phases, None,
+            ctx, app, id, open_trip, details, phases, None,
         ));
     } else {
         // TODO Warp buttons. make_table is showing its age.
-        let (_, _, name1) = endpoint(&trip_start, &app.primary.map);
-        let (_, _, name2) = endpoint(&trip_end, &app.primary.map);
+        let (_, _, name1) = endpoint(&trip.start, &app.primary.map);
+        let (_, _, name2) = endpoint(&trip.end, &app.primary.map);
         col.extend(make_table(
             ctx,
             vec![
-                ("Departure", start_time.ampm_tostring()),
+                ("Departure", trip.departure.ampm_tostring()),
                 ("From", name1),
                 ("To", name2),
             ]
@@ -176,13 +176,13 @@ pub fn future(
             Btn::text_bg2("Wait for trip")
                 .tooltip(Text::from(Line(format!(
                     "This will advance the simulation to {}",
-                    start_time.ampm_tostring()
+                    trip.departure.ampm_tostring()
                 ))))
-                .build(ctx, format!("wait for {}", trip), None),
+                .build(ctx, format!("wait for {}", id), None),
         );
         details
             .time_warpers
-            .insert(format!("wait for {}", trip), (trip, start_time));
+            .insert(format!("wait for {}", id), (id, trip.departure));
     }
 
     Widget::col(col)
@@ -193,37 +193,37 @@ pub fn finished(
     app: &App,
     person: PersonID,
     open_trips: &mut BTreeMap<TripID, OpenTrip>,
-    trip: TripID,
+    id: TripID,
     details: &mut Details,
 ) -> Widget {
-    let (start_time, _, _, _, _) = app.primary.sim.trip_info(trip);
-    let phases = if open_trips[&trip].show_after {
+    let trip = app.primary.sim.trip_info(id);
+    let phases = if open_trips[&id].show_after {
         app.primary
             .sim
             .get_analytics()
-            .get_trip_phases(trip, &app.primary.map)
+            .get_trip_phases(id, &app.primary.map)
     } else {
-        app.prebaked().get_trip_phases(trip, &app.primary.map)
+        app.prebaked().get_trip_phases(id, &app.primary.map)
     };
 
     let mut col = Vec::new();
 
-    if open_trips[&trip].show_after && app.has_prebaked().is_some() {
+    if open_trips[&id].show_after && app.has_prebaked().is_some() {
         let mut open = open_trips.clone();
         open.insert(
-            trip,
+            id,
             OpenTrip {
                 show_after: false,
                 cached_routes: Vec::new(),
             },
         );
         details.hyperlinks.insert(
-            format!("show before changes for {}", trip),
+            format!("show before changes for {}", id),
             Tab::PersonTrips(person, open),
         );
         col.push(
             Btn::text_bg(
-                format!("show before changes for {}", trip),
+                format!("show before changes for {}", id),
                 Text::from_all(vec![
                     Line("After / "),
                     Line("Before").secondary(),
@@ -237,14 +237,14 @@ pub fn finished(
         );
     } else if app.has_prebaked().is_some() {
         let mut open = open_trips.clone();
-        open.insert(trip, OpenTrip::new());
+        open.insert(id, OpenTrip::new());
         details.hyperlinks.insert(
-            format!("show after changes for {}", trip),
+            format!("show after changes for {}", id),
             Tab::PersonTrips(person, open),
         );
         col.push(
             Btn::text_bg(
-                format!("show after changes for {}", trip),
+                format!("show after changes for {}", id),
                 Text::from_all(vec![
                     Line("After / ").secondary(),
                     Line("Before"),
@@ -261,14 +261,15 @@ pub fn finished(
     {
         let col_width = 15;
 
-        let total_trip_time = phases.last().as_ref().and_then(|p| p.end_time).unwrap() - start_time;
+        let total_trip_time =
+            phases.last().as_ref().and_then(|p| p.end_time).unwrap() - trip.departure;
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Trip time").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
             total_trip_time.to_string().draw_text(ctx),
         ]));
 
-        let (_, waiting) = app.primary.sim.finished_trip_time(trip).unwrap();
+        let (_, waiting) = app.primary.sim.finished_trip_time(id).unwrap();
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Total waiting time").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
@@ -279,8 +280,8 @@ pub fn finished(
     col.push(make_timeline(
         ctx,
         app,
-        trip,
-        open_trips.get_mut(&trip).unwrap(),
+        id,
+        open_trips.get_mut(&id).unwrap(),
         details,
         phases,
         None,
@@ -289,8 +290,8 @@ pub fn finished(
     Widget::col(col)
 }
 
-pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
-    let (start_time, trip_start, trip_end, _, _) = app.primary.sim.trip_info(trip);
+pub fn aborted(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
+    let trip = app.primary.sim.trip_info(id);
 
     let mut col = vec![Text::from_multiline(vec![
         Line("A glitch in the simulation happened."),
@@ -299,12 +300,12 @@ pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
     .draw(ctx)];
 
     // TODO Warp buttons. make_table is showing its age.
-    let (_, _, name1) = endpoint(&trip_start, &app.primary.map);
-    let (_, _, name2) = endpoint(&trip_end, &app.primary.map);
+    let (_, _, name1) = endpoint(&trip.start, &app.primary.map);
+    let (_, _, name2) = endpoint(&trip.end, &app.primary.map);
     col.extend(make_table(
         ctx,
         vec![
-            ("Departure", start_time.ampm_tostring()),
+            ("Departure", trip.departure.ampm_tostring()),
             ("From", name1),
             ("To", name2),
         ]
@@ -314,18 +315,18 @@ pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
     Widget::col(col)
 }
 
-pub fn cancelled(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
-    let (start_time, trip_start, trip_end, _, _) = app.primary.sim.trip_info(trip);
+pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
+    let trip = app.primary.sim.trip_info(id);
 
     let mut col = vec!["Trip cancelled due to traffic pattern modifications".draw_text(ctx)];
 
     // TODO Warp buttons. make_table is showing its age.
-    let (_, _, name1) = endpoint(&trip_start, &app.primary.map);
-    let (_, _, name2) = endpoint(&trip_end, &app.primary.map);
+    let (_, _, name1) = endpoint(&trip.start, &app.primary.map);
+    let (_, _, name2) = endpoint(&trip.end, &app.primary.map);
     col.extend(make_table(
         ctx,
         vec![
-            ("Departure", start_time.ampm_tostring()),
+            ("Departure", trip.departure.ampm_tostring()),
             ("From", name1),
             ("To", name2),
         ]
@@ -338,7 +339,7 @@ pub fn cancelled(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
 fn make_timeline(
     ctx: &mut EventCtx,
     app: &App,
-    trip: TripID,
+    trip_id: TripID,
     open_trip: &mut OpenTrip,
     details: &mut Details,
     phases: Vec<TripPhase>,
@@ -346,16 +347,15 @@ fn make_timeline(
 ) -> Widget {
     let map = &app.primary.map;
     let sim = &app.primary.sim;
-    // TODO Repeating stuff
-    let (start_time, trip_start, trip_end, _, _) = sim.trip_info(trip);
+    let trip = sim.trip_info(trip_id);
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
 
     let start_btn = {
-        let (id, center, name) = endpoint(&trip_start, map);
+        let (id, center, name) = endpoint(&trip.start, map);
         details
             .warpers
-            .insert(format!("jump to start of {}", trip), id);
-        if let TripEndpoint::Border(_, ref loc) = trip_start {
+            .insert(format!("jump to start of {}", trip_id), id);
+        if let TripEndpoint::Border(_, ref loc) = trip.start {
             if let Some(loc) = loc {
                 if let Ok(pl) =
                     PolyLine::new(vec![Pt2D::from_gps(loc.gps, map.get_gps_bounds()), center])
@@ -392,15 +392,15 @@ fn make_timeline(
             RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
         .tooltip(Text::from(Line(name)))
-        .build(ctx, format!("jump to start of {}", trip), None)
+        .build(ctx, format!("jump to start of {}", trip_id), None)
     };
 
     let goal_btn = {
-        let (id, center, name) = endpoint(&trip_end, map);
+        let (id, center, name) = endpoint(&trip.end, map);
         details
             .warpers
-            .insert(format!("jump to goal of {}", trip), id);
-        if let TripEndpoint::Border(_, ref loc) = trip_end {
+            .insert(format!("jump to goal of {}", trip_id), id);
+        if let TripEndpoint::Border(_, ref loc) = trip.end {
             if let Some(loc) = loc {
                 if let Ok(pl) =
                     PolyLine::new(vec![center, Pt2D::from_gps(loc.gps, map.get_gps_bounds())])
@@ -437,10 +437,10 @@ fn make_timeline(
             RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
         .tooltip(Text::from(Line(name)))
-        .build(ctx, format!("jump to goal of {}", trip), None)
+        .build(ctx, format!("jump to goal of {}", trip_id), None)
     };
 
-    let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - start_time;
+    let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - trip.departure;
 
     let total_width = 0.22 * ctx.canvas.window_width / ctx.get_scale_factor();
     let mut timeline = Vec::new();
@@ -527,7 +527,7 @@ fn make_timeline(
                 .tooltip(txt)
                 .build(
                     ctx,
-                    format!("examine trip phase {} of {}", idx + 1, trip),
+                    format!("examine trip phase {} of {}", idx + 1, trip_id),
                     None,
                 )
                 .centered_vert(),
@@ -579,7 +579,7 @@ fn make_timeline(
             .evenly_spaced()
             .margin_above(25),
         Widget::row(vec![
-            start_time.ampm_tostring().draw_text(ctx),
+            trip.departure.ampm_tostring().draw_text(ctx),
             if let Some(t) = end_time {
                 t.ampm_tostring().draw_text(ctx).align_right()
             } else {
@@ -588,26 +588,27 @@ fn make_timeline(
         ]),
         Widget::row(vec![
             {
-                details
-                    .time_warpers
-                    .insert(format!("jump to {}", start_time), (trip, start_time));
+                details.time_warpers.insert(
+                    format!("jump to {}", trip.departure),
+                    (trip_id, trip.departure),
+                );
                 Btn::svg(
                     "system/assets/speed/info_jump_to_time.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
                 .tooltip({
                     let mut txt = Text::from(Line("This will jump to "));
-                    txt.append(Line(start_time.ampm_tostring()).fg(Color::hex("#F9EC51")));
+                    txt.append(Line(trip.departure.ampm_tostring()).fg(Color::hex("#F9EC51")));
                     txt.add(Line("The simulation will continue, and your score"));
                     txt.add(Line("will be calculated at this new time."));
                     txt
                 })
-                .build(ctx, format!("jump to {}", start_time), None)
+                .build(ctx, format!("jump to {}", trip.departure), None)
             },
             if let Some(t) = end_time {
                 details
                     .time_warpers
-                    .insert(format!("jump to {}", t), (trip, t));
+                    .insert(format!("jump to {}", t), (trip_id, t));
                 Btn::svg(
                     "system/assets/speed/info_jump_to_time.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),

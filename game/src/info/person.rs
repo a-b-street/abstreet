@@ -45,8 +45,7 @@ pub fn trips(
                     wheres_waldo = false;
                     rows.push(current_status(ctx, person, map));
                 }
-                let start_time = sim.trip_info(*t).0;
-                if sim.time() > start_time {
+                if sim.time() > sim.trip_info(*t).departure {
                     (
                         "delayed start",
                         Color::YELLOW,
@@ -125,7 +124,7 @@ pub fn trips(
             }
             TripResult::TripDoesntExist => unreachable!(),
         };
-        let (_, _, _, trip_mode, modified) = sim.trip_info(*t);
+        let trip = sim.trip_info(*t);
 
         // TODO Style wrong. Button should be the entire row.
         rows.push(
@@ -137,7 +136,7 @@ pub fn trips(
                 Widget::row(vec![
                     Widget::draw_svg_transform(
                         ctx,
-                        match trip_mode {
+                        match trip.mode {
                             TripMode::Walk => "system/assets/meters/pedestrian.svg",
                             TripMode::Bike => "system/assets/meters/bike.svg",
                             TripMode::Drive => "system/assets/meters/car.svg",
@@ -156,7 +155,7 @@ pub fn trips(
                 .bg(color.alpha(0.2))
                 .padding(10)
                 .margin_right(21),
-                if modified {
+                if trip.modified {
                     Line("modified").draw(ctx).centered_vert().margin_right(15)
                 } else {
                     Widget::nothing()
@@ -337,8 +336,8 @@ pub fn schedule(
     // TODO Proportional 24-hour timeline would be easier to understand
     let mut last_t = Time::START_OF_DAY;
     for t in &person.trips {
-        let (start_time, from, _, _, _) = app.primary.sim.trip_info(*t);
-        let at = match from {
+        let trip = app.primary.sim.trip_info(*t);
+        let at = match trip.start {
             TripEndpoint::Bldg(b) => {
                 let b = app.primary.map.get_b(b);
                 if b.amenities.is_empty() {
@@ -351,14 +350,19 @@ pub fn schedule(
             TripEndpoint::Border(_, _) => "off-map".to_string(),
         };
         rows.push(
-            Text::from(Line(format!("- Spends {} at {}", start_time - last_t, at))).draw(ctx),
+            Text::from(Line(format!(
+                "- Spends {} at {}",
+                trip.departure - last_t,
+                at
+            )))
+            .draw(ctx),
         );
         // TODO Ideally end time if we know
-        last_t = start_time;
+        last_t = trip.departure;
     }
     // Where do they spend the night?
-    let (start_time, _, to, _, _) = app.primary.sim.trip_info(*person.trips.last().unwrap());
-    let at = match to {
+    let last_trip = app.primary.sim.trip_info(*person.trips.last().unwrap());
+    let at = match last_trip.end {
         TripEndpoint::Bldg(b) => {
             let b = app.primary.map.get_b(b);
             if b.amenities.is_empty() {
@@ -373,7 +377,7 @@ pub fn schedule(
     rows.push(
         Text::from(Line(format!(
             "- Spends {} at {}",
-            app.primary.sim.get_end_of_day() - start_time,
+            app.primary.sim.get_end_of_day() - last_trip.departure,
             at
         )))
         .draw(ctx),

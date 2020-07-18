@@ -25,7 +25,7 @@ pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::{AgentProperties, AlertHandler, Sim, SimCallback, SimOptions};
 pub(crate) use self::transit::TransitSimState;
-pub use self::trips::{Person, PersonState, TripResult};
+pub use self::trips::{Person, PersonState, TripInfo, TripResult};
 pub use self::trips::{TripEndpoint, TripMode};
 pub(crate) use self::trips::{TripLeg, TripManager};
 pub use crate::render::{

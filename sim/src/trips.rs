@@ -116,23 +116,25 @@ impl TripManager {
         };
         let trip = Trip {
             id,
+            info: TripInfo {
+                departure,
+                mode,
+                start,
+                end,
+                modified,
+            },
             person,
-            departure,
             started: false,
             finished_at: None,
             total_blocked_time: Duration::ZERO,
             aborted: false,
             cancelled: false,
-            mode,
             legs: VecDeque::from(legs),
-            start,
-            end,
-            modified,
         };
         self.unfinished_trips += 1;
         let person = &mut self.people[trip.person.0];
         if person.trips.is_empty() {
-            person.state = match trip.start {
+            person.state = match trip.info.start {
                 TripEndpoint::Bldg(b) => {
                     self.events
                         .push(Event::PersonEntersBuilding(trip.person, b));
@@ -149,10 +151,10 @@ impl TripManager {
         }
         if let Some(t) = person.trips.last() {
             // TODO If it's exactly ==, what?! See the ID.
-            if self.trips[t.0].departure > trip.departure {
+            if self.trips[t.0].info.departure > trip.info.departure {
                 panic!(
                     "{} has a trip starting at {}, then one at {}",
-                    person.id, self.trips[t.0].departure, trip.departure
+                    person.id, self.trips[t.0].info.departure, trip.info.departure
                 );
             }
         }
@@ -198,8 +200,8 @@ impl TripManager {
                     self.unfinished_trips -= 1;
                     self.events.push(Event::TripFinished {
                         trip: trip.id,
-                        mode: trip.mode,
-                        total_time: now - trip.departure,
+                        mode: trip.info.mode,
+                        total_time: now - trip.info.departure,
                         blocked_time: trip.total_blocked_time,
                     });
                     let person = trip.person;
@@ -432,8 +434,8 @@ impl TripManager {
         self.unfinished_trips -= 1;
         self.events.push(Event::TripFinished {
             trip: trip.id,
-            mode: trip.mode,
-            total_time: now - trip.departure,
+            mode: trip.info.mode,
+            total_time: now - trip.info.departure,
             blocked_time: trip.total_blocked_time,
         });
         let person = trip.person;
@@ -580,12 +582,12 @@ impl TripManager {
         self.unfinished_trips -= 1;
         self.events.push(Event::TripFinished {
             trip: trip.id,
-            mode: trip.mode,
-            total_time: now - trip.departure,
+            mode: trip.info.mode,
+            total_time: now - trip.info.departure,
             blocked_time: trip.total_blocked_time,
         });
         let person = trip.person;
-        if let TripEndpoint::Border(_, ref loc) = trip.end {
+        if let TripEndpoint::Border(_, ref loc) = trip.info.end {
             self.events.push(Event::PersonLeavesMap(
                 person,
                 Some(AgentID::Pedestrian(ped)),
@@ -623,13 +625,13 @@ impl TripManager {
         self.unfinished_trips -= 1;
         self.events.push(Event::TripFinished {
             trip: trip.id,
-            mode: trip.mode,
-            total_time: now - trip.departure,
+            mode: trip.info.mode,
+            total_time: now - trip.info.departure,
             blocked_time: trip.total_blocked_time,
         });
         let person = trip.person;
         self.people[person.0].state = PersonState::OffMap;
-        if let TripEndpoint::Border(_, ref loc) = trip.end {
+        if let TripEndpoint::Border(_, ref loc) = trip.info.end {
             self.events.push(Event::PersonLeavesMap(
                 person,
                 Some(AgentID::Car(car)),
@@ -660,8 +662,8 @@ impl TripManager {
         self.unfinished_trips -= 1;
         self.events.push(Event::TripFinished {
             trip: trip.id,
-            mode: trip.mode,
-            total_time: now - trip.departure,
+            mode: trip.info.mode,
+            total_time: now - trip.info.departure,
             blocked_time: trip.total_blocked_time,
         });
         let person = trip.person;
@@ -699,7 +701,7 @@ impl TripManager {
         if let PersonState::Inside(b) = self.people[person.0].state {
             self.events.push(Event::PersonLeavesBuilding(person, b));
         }
-        match trip.end {
+        match trip.info.end {
             TripEndpoint::Bldg(b) => {
                 self.events.push(Event::PersonEntersBuilding(person, b));
             }
@@ -710,14 +712,14 @@ impl TripManager {
         }
 
         // Warp to the destination
-        self.people[person.0].state = match trip.end {
+        self.people[person.0].state = match trip.info.end {
             TripEndpoint::Bldg(b) => PersonState::Inside(b),
             TripEndpoint::Border(_, _) => PersonState::OffMap,
         };
         // Don't forget the car!
         if let Some(vehicle) = abandoned_vehicle {
             if vehicle.vehicle_type == VehicleType::Car {
-                if let TripEndpoint::Bldg(b) = trip.end {
+                if let TripEndpoint::Bldg(b) = trip.info.end {
                     let driving_lane = map.find_driving_lane_near_building(b);
                     if let Some(spot) = parking
                         .get_all_free_spots(Position::start(driving_lane), &vehicle, b, map)
@@ -865,25 +867,15 @@ impl TripManager {
         std::mem::replace(&mut self.events, Vec::new())
     }
 
-    pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode, bool) {
-        let t = &self.trips[id.0];
-        (
-            t.departure,
-            t.start.clone(),
-            t.end.clone(),
-            t.mode,
-            t.modified,
-        )
+    pub fn trip_info(&self, id: TripID) -> TripInfo {
+        self.trips[id.0].info.clone()
     }
-    pub fn all_trip_info(&self) -> Vec<(TripID, Time, TripEndpoint, TripEndpoint, TripMode)> {
-        self.trips
-            .iter()
-            .map(|t| (t.id, t.departure, t.start.clone(), t.end.clone(), t.mode))
-            .collect()
+    pub fn all_trip_info(&self) -> Vec<(TripID, TripInfo)> {
+        self.trips.iter().map(|t| (t.id, t.info.clone())).collect()
     }
     pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
         let t = &self.trips[id.0];
-        Some((t.finished_at? - t.departure, t.total_blocked_time))
+        Some((t.finished_at? - t.info.departure, t.total_blocked_time))
     }
 
     pub fn bldg_to_people(&self, b: BuildingID) -> Vec<PersonID> {
@@ -1248,10 +1240,10 @@ impl TripManager {
             if t.aborted || t.cancelled {
                 continue;
             }
-            if let TripEndpoint::Border(i, _) = t.start {
+            if let TripEndpoint::Border(i, _) = t.info.start {
                 if i == at {
                     // We can make some assumptions here.
-                    let agent_type = match t.mode {
+                    let agent_type = match t.info.mode {
                         TripMode::Walk => AgentType::Pedestrian,
                         TripMode::Bike => AgentType::Bike,
                         TripMode::Drive => AgentType::Car,
@@ -1259,7 +1251,7 @@ impl TripManager {
                         // on a bus.
                         TripMode::Transit => AgentType::Pedestrian,
                     };
-                    times.push((t.departure, agent_type));
+                    times.push((t.info.departure, agent_type));
                 }
             }
         }
@@ -1271,18 +1263,25 @@ impl TripManager {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 struct Trip {
     id: TripID,
-    departure: Time,
+    info: TripInfo,
     started: bool,
     finished_at: Option<Time>,
     total_blocked_time: Duration,
     aborted: bool,
     cancelled: bool,
     legs: VecDeque<TripLeg>,
-    mode: TripMode,
-    start: TripEndpoint,
-    end: TripEndpoint,
     person: PersonID,
-    modified: bool,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+pub struct TripInfo {
+    // Scheduled departure; the start may be delayed if the previous trip is taking too long.
+    pub departure: Time,
+    pub mode: TripMode,
+    pub start: TripEndpoint,
+    pub end: TripEndpoint,
+    // Did a ScenarioModifier apply to this?
+    pub modified: bool,
 }
 
 impl Trip {
