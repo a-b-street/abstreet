@@ -7,7 +7,7 @@ use ezgui::{
     hotkey, AreaSlider, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, TextExt, VerticalAlignment, Widget,
 };
-use geom::{ArrowCap, Distance, PolyLine, Polygon, Time};
+use geom::{Polygon, Time};
 use map_model::{BuildingID, LaneID, TurnType};
 use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -161,7 +161,6 @@ impl State for CommuterPatterns {
             }
 
             let from = self.composite.is_checked("from / to this block");
-            let arrows = self.composite.is_checked("arrows / heatmap");
             let filter = Filters {
                 depart_from: app
                     .primary
@@ -179,24 +178,11 @@ impl State for CommuterPatterns {
                 let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
                 for (other, cnt) in others {
                     let pct = (cnt as f64) / max_cnt;
-                    if arrows {
-                        if let Ok(pl) = PolyLine::new(if from {
-                            vec![block.shape.center(), other.shape.center()]
-                        } else {
-                            vec![other.shape.center(), block.shape.center()]
-                        }) {
-                            batch.push(
-                                Color::hex("#A32015").alpha(0.7),
-                                pl.make_arrow(Distance::meters(15.0) * pct, ArrowCap::Triangle),
-                            );
-                        }
-                    } else {
-                        // TODO Use app.cs.good_to_bad_red or some other color gradient
-                        batch.push(
-                            app.cs.good_to_bad_red.eval(pct).alpha(0.8),
-                            other.shape.clone(),
-                        );
-                    }
+                    // TODO Use app.cs.good_to_bad_red or some other color gradient
+                    batch.push(
+                        app.cs.good_to_bad_red.eval(pct).alpha(0.8),
+                        other.shape.clone(),
+                    );
                 }
             }
 
@@ -320,7 +306,6 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
                 .align_right(),
         ]),
         Checkbox::text(ctx, "from / to this block", hotkey(Key::Space), true),
-        Checkbox::text(ctx, "arrows / heatmap", hotkey(Key::H), true),
         Widget::row(vec![
             "Departing from:".draw_text(ctx).margin_right(20),
             AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.0).named("depart from"),
