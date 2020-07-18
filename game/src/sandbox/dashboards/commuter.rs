@@ -2,7 +2,7 @@ use crate::app::{App, ShowEverything};
 use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::DrawOptions;
-use abstutil::{prettyprint_usize, Counter, MultiMap, Timer};
+use abstutil::{prettyprint_usize, Counter, MultiMap};
 use ezgui::{
     hotkey, AreaSlider, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, TextExt, VerticalAlignment, Widget,
@@ -43,10 +43,8 @@ type BlockID = usize;
 
 impl CommuterPatterns {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let (bldg_to_block, border_to_block, blocks) = ctx
-            .loading_screen("group buildings into blocks", |_, timer| {
-                group_bldgs(app, timer)
-            });
+        let (bldg_to_block, border_to_block, blocks) =
+            ctx.loading_screen("group buildings into blocks", |_, _| group_bldgs(app));
 
         let mut all_blocks = GeomBatch::new();
         for block in &blocks {
@@ -229,7 +227,6 @@ impl State for CommuterPatterns {
 // the same sidewalk.
 fn group_bldgs(
     app: &App,
-    timer: &mut Timer,
 ) -> (
     HashMap<BuildingID, BlockID>,
     HashMap<IntersectionID, BlockID>,
@@ -238,7 +235,7 @@ fn group_bldgs(
     let mut bldg_to_block = HashMap::new();
     let mut blocks = Vec::new();
 
-    for group in partition_sidewalk_loops(app, timer) {
+    for group in partition_sidewalk_loops(app) {
         let block_id = blocks.len();
         let mut polygons = Vec::new();
         let mut lanes = HashSet::new();
@@ -300,7 +297,7 @@ struct Loop {
     roads: HashSet<RoadID>,
 }
 
-fn partition_sidewalk_loops(app: &App, timer: &mut Timer) -> Vec<Loop> {
+fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
     let map = &app.primary.map;
 
     let mut groups = Vec::new();
@@ -360,14 +357,19 @@ fn partition_sidewalk_loops(app: &App, timer: &mut Timer) -> Vec<Loop> {
     }
 
     // Merge adjacent residential blocks
-    timer.start_iter("merging adjacent residential blocks", groups.len());
-    'FIXEDPT: loop {
-        timer.next();
+    loop {
         // Find a pair of blocks that have at least one residential road in common.
         // Rank comes from OSM highway type; < 6 means residential.
-        // TODO This is O(n^3) on original groups.len(). Seems like union-find could help?
+        let mut any = false;
         for mut idx1 in 0..groups.len() {
             for mut idx2 in 0..groups.len() {
+                // This is O(n^3) on original groups.len(). In practice, it's fine, as long as we
+                // don't start the search over from scratch after making a single merge. Starting
+                // over is really wasteful, because it's guaranteed that nothing there has changed.
+                if idx1 >= groups.len() || idx2 >= groups.len() {
+                    break;
+                }
+
                 if idx1 != idx2
                     && groups[idx1]
                         .roads
@@ -381,12 +383,13 @@ fn partition_sidewalk_loops(app: &App, timer: &mut Timer) -> Vec<Loop> {
                     let merge = groups.remove(idx2);
                     groups[idx1].bldgs.extend(merge.bldgs);
                     groups[idx1].roads.extend(merge.roads);
-                    continue 'FIXEDPT;
+                    any = true;
                 }
             }
         }
-        timer.next();
-        break;
+        if !any {
+            break;
+        }
     }
 
     // For all the weird remainders, just group them based on sidewalk.
