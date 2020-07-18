@@ -86,6 +86,10 @@ impl Progress {
         }
         None
     }
+
+    fn cancel_iter_early(&mut self) -> f64 {
+        elapsed_seconds(self.started_at)
+    }
 }
 
 enum StackEntry {
@@ -295,6 +299,19 @@ impl<'a> Timer<'a> {
             self.stack.pop();
             self.add_result(elapsed, result);
         }
+    }
+
+    pub fn cancel_iter_early(&mut self) {
+        if self.outermost_name == "throwaway" {
+            return;
+        }
+        let elapsed = if let Some(StackEntry::Progress(ref mut progress)) = self.stack.last_mut() {
+            progress.cancel_iter_early()
+        } else {
+            panic!("Can't cancel_iter_early() while a TimerSpan is top of the stack");
+        };
+        self.stack.pop();
+        self.add_result(elapsed, format!("cancelled early"));
     }
 
     pub(crate) fn add_result(&mut self, elapsed: f64, line: String) {

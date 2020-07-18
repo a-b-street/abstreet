@@ -2,13 +2,14 @@ use crate::app::{App, ShowEverything};
 use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::DrawOptions;
-use abstutil::{prettyprint_usize, Counter, MultiMap};
+use abstutil::{prettyprint_usize, Counter, MultiMap, Timer};
 use ezgui::{
     hotkey, AreaSlider, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Polygon, Time};
-use map_model::{BuildingID, LaneID, TurnType};
+use map_model::{BuildingID, LaneID, RoadID, TurnType};
+use maplit::hashset;
 use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
@@ -38,7 +39,10 @@ type BlockID = usize;
 
 impl CommuterPatterns {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let (bldg_to_block, blocks) = group_bldgs(app);
+        let (bldg_to_block, blocks) = ctx
+            .loading_screen("group buildings into blocks", |_, timer| {
+                group_bldgs(app, timer)
+            });
 
         let mut all_blocks = GeomBatch::new();
         for block in &blocks {
@@ -211,24 +215,24 @@ impl State for CommuterPatterns {
 // region bounded by 4 roads. But there are plenty of places with stranger shapes, or buildings
 // near the border of the map. The fallback is currently to just group those buildings that share
 // the same sidewalk.
-fn group_bldgs(app: &App) -> (HashMap<BuildingID, BlockID>, Vec<Block>) {
+fn group_bldgs(app: &App, timer: &mut Timer) -> (HashMap<BuildingID, BlockID>, Vec<Block>) {
     let mut bldg_to_block = HashMap::new();
     let mut blocks = Vec::new();
 
-    for (bldgs, proper) in partition_sidewalk_loops(app) {
+    for group in partition_sidewalk_loops(app, timer) {
         let block_id = blocks.len();
         let mut polygons = Vec::new();
         let mut lanes = HashSet::new();
-        for b in &bldgs {
+        for b in &group.bldgs {
             bldg_to_block.insert(*b, block_id);
             let bldg = app.primary.map.get_b(*b);
-            if proper {
+            if group.proper {
                 lanes.insert(bldg.sidewalk());
             } else {
                 polygons.push(bldg.polygon.clone());
             }
         }
-        if proper {
+        if group.proper {
             // TODO Even better, glue the loop of sidewalks together and fill that area.
             for l in lanes {
                 polygons.push(app.primary.draw_map.get_l(l).polygon.clone());
@@ -236,15 +240,21 @@ fn group_bldgs(app: &App) -> (HashMap<BuildingID, BlockID>, Vec<Block>) {
         }
         blocks.push(Block {
             id: block_id,
-            bldgs,
+            bldgs: group.bldgs,
             shape: Polygon::convex_hull(polygons),
         });
     }
     (bldg_to_block, blocks)
 }
 
-// True if it's a "proper" block, false if it's a hack.
-fn partition_sidewalk_loops(app: &App) -> Vec<(HashSet<BuildingID>, bool)> {
+struct Loop {
+    bldgs: HashSet<BuildingID>,
+    // True if it's a "proper" block, false if it's a hack.
+    proper: bool,
+    roads: HashSet<RoadID>,
+}
+
+fn partition_sidewalk_loops(app: &App, timer: &mut Timer) -> Vec<Loop> {
     let map = &app.primary.map;
 
     let mut groups = Vec::new();
@@ -293,10 +303,44 @@ fn partition_sidewalk_loops(app: &App) -> Vec<(HashSet<BuildingID>, bool)> {
         };
 
         if ok {
-            groups.push((bldgs, true));
+            groups.push(Loop {
+                bldgs,
+                proper: true,
+                roads: sidewalks.into_iter().map(|l| map.get_l(l).parent).collect(),
+            });
         } else {
             remainder.extend(bldgs);
         }
+    }
+
+    // Merge adjacent residential blocks
+    timer.start_iter("merging adjacent residential blocks", groups.len());
+    'FIXEDPT: loop {
+        timer.next();
+        // Find a pair of blocks that have at least one residential road in common.
+        // Rank comes from OSM highway type; < 6 means residential.
+        // TODO This is O(n^3) on original groups.len(). Seems like union-find could help?
+        for mut idx1 in 0..groups.len() {
+            for mut idx2 in 0..groups.len() {
+                if idx1 != idx2
+                    && groups[idx1]
+                        .roads
+                        .intersection(&groups[idx2].roads)
+                        .any(|r| map.get_r(*r).get_rank() < 6)
+                {
+                    // Indexing gets messed up, so remove the larger one
+                    if idx1 > idx2 {
+                        std::mem::swap(&mut idx1, &mut idx2);
+                    }
+                    let merge = groups.remove(idx2);
+                    groups[idx1].bldgs.extend(merge.bldgs);
+                    groups[idx1].roads.extend(merge.roads);
+                    continue 'FIXEDPT;
+                }
+            }
+        }
+        timer.next();
+        break;
     }
 
     // For all the weird remainders, just group them based on sidewalk.
@@ -305,7 +349,14 @@ fn partition_sidewalk_loops(app: &App) -> Vec<(HashSet<BuildingID>, bool)> {
         per_sidewalk.insert(map.get_b(b).sidewalk(), b);
     }
     for (_, bldgs) in per_sidewalk.consume() {
-        groups.push((bldgs.into_iter().collect(), false));
+        let r = map
+            .get_l(map.get_b(*bldgs.iter().next().unwrap()).sidewalk())
+            .parent;
+        groups.push(Loop {
+            bldgs: bldgs.into_iter().collect(),
+            proper: false,
+            roads: hashset! { r },
+        });
     }
 
     groups
