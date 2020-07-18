@@ -1,4 +1,5 @@
 use crate::app::{App, ShowEverything};
+use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::DrawOptions;
 use abstutil::{Counter, MultiMap};
@@ -14,6 +15,7 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,
     blocks: Vec<Block>,
+    current_block: Option<BlockID>,
 
     composite: Composite,
     draw_all_blocks: Drawable,
@@ -45,9 +47,10 @@ impl CommuterPatterns {
         Box::new(CommuterPatterns {
             bldg_to_block,
             blocks,
+            current_block: None,
 
             draw_all_blocks: ctx.upload(all_blocks),
-            composite: make_panel(ctx),
+            composite: make_panel(ctx, app),
         })
     }
 
@@ -101,6 +104,34 @@ impl State for CommuterPatterns {
             None => {}
         }
 
+        if ctx.redo_mouseover() {
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                self.current_block = self
+                    .blocks
+                    .iter()
+                    .find(|b| b.shape.contains_pt(pt))
+                    .map(|b| b.id);
+            } else {
+                self.current_block = None;
+            }
+
+            if let Some(_) = self.current_block {
+                // TODO Show total number of matching trips by updating the scale
+                // TODO Show number of buildings
+                self.composite.replace(
+                    ctx,
+                    "current",
+                    "Something selected".draw_text(ctx).named("current"),
+                );
+            } else {
+                self.composite.replace(
+                    ctx,
+                    "current",
+                    "Nothing selected".draw_text(ctx).named("current"),
+                );
+            }
+        }
+
         Transition::Keep
     }
 
@@ -120,58 +151,58 @@ impl State for CommuterPatterns {
         self.composite.draw(g);
 
         // If the mouse is hovering over a block, draw some stuff.
-        // TODO Don't do this in draw! Cache it and only recalculate when ctx.redo_mouseover().
-        if let Some(pt) = g.get_cursor_in_map_space() {
-            for block in &self.blocks {
-                if block.shape.contains_pt(pt) {
-                    let mut batch = GeomBatch::new();
-                    // Show the members of this block
-                    for b in &block.bldgs {
-                        batch.push(Color::PURPLE, app.primary.map.get_b(*b).polygon.clone());
-                    }
+        // TODO Cache the batch!
+        if let Some(id) = self.current_block {
+            let block = &self.blocks[id];
+            let mut batch = GeomBatch::new();
+            // Show the members of this block
+            for b in &block.bldgs {
+                batch.push(Color::PURPLE, app.primary.map.get_b(*b).polygon.clone());
+            }
 
-                    let from = self.composite.is_checked("from / to this block");
-                    let arrows = self.composite.is_checked("arrows / heatmap");
-                    let filter =
-                        Filters {
-                            depart_from: app.primary.sim.get_end_of_day().percent_of(
-                                self.composite.area_slider("depart from").get_percent(),
-                            ),
-                            depart_until: app.primary.sim.get_end_of_day().percent_of(
-                                self.composite.area_slider("depart until").get_percent(),
-                            ),
-                        };
-                    let others = self.count_per_block(app, block, from, filter);
-                    if !others.is_empty() {
-                        let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
-                        for (other, cnt) in others {
-                            let pct = (cnt as f64) / max_cnt;
-                            if arrows {
-                                if let Ok(pl) = PolyLine::new(if from {
-                                    vec![block.shape.center(), other.shape.center()]
-                                } else {
-                                    vec![other.shape.center(), block.shape.center()]
-                                }) {
-                                    batch.push(
-                                        Color::hex("#A32015").alpha(0.7),
-                                        pl.make_arrow(
-                                            Distance::meters(15.0) * pct,
-                                            ArrowCap::Triangle,
-                                        ),
-                                    );
-                                }
-                            } else {
-                                // TODO Use app.cs.good_to_bad_red or some other color gradient
-                                batch.push(Color::RED.alpha(pct as f32), other.shape.clone());
-                            }
+            let from = self.composite.is_checked("from / to this block");
+            let arrows = self.composite.is_checked("arrows / heatmap");
+            let filter = Filters {
+                depart_from: app
+                    .primary
+                    .sim
+                    .get_end_of_day()
+                    .percent_of(self.composite.area_slider("depart from").get_percent()),
+                depart_until: app
+                    .primary
+                    .sim
+                    .get_end_of_day()
+                    .percent_of(self.composite.area_slider("depart until").get_percent()),
+            };
+            let others = self.count_per_block(app, block, from, filter);
+            if !others.is_empty() {
+                let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
+                for (other, cnt) in others {
+                    let pct = (cnt as f64) / max_cnt;
+                    if arrows {
+                        if let Ok(pl) = PolyLine::new(if from {
+                            vec![block.shape.center(), other.shape.center()]
+                        } else {
+                            vec![other.shape.center(), block.shape.center()]
+                        }) {
+                            batch.push(
+                                Color::hex("#A32015").alpha(0.7),
+                                pl.make_arrow(Distance::meters(15.0) * pct, ArrowCap::Triangle),
+                            );
                         }
+                    } else {
+                        // TODO Use app.cs.good_to_bad_red or some other color gradient
+                        batch.push(
+                            app.cs.good_to_bad_red.eval(pct).alpha(0.8),
+                            other.shape.clone(),
+                        );
                     }
-
-                    let draw = g.upload(batch);
-                    g.redraw(&draw);
-                    return;
                 }
             }
+
+            let draw = g.upload(batch);
+            g.redraw(&draw);
+            return;
         }
     }
 }
@@ -280,7 +311,7 @@ fn partition_sidewalk_loops(app: &App) -> Vec<(HashSet<BuildingID>, bool)> {
     groups
 }
 
-fn make_panel(ctx: &mut EventCtx) -> Composite {
+fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
     Composite::new(Widget::col(vec![
         Widget::row(vec![
             Line("Commute map by block").small_heading().draw(ctx),
@@ -298,7 +329,9 @@ fn make_panel(ctx: &mut EventCtx) -> Composite {
             "Departing until:".draw_text(ctx).margin_right(20),
             AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 1.0).named("depart until"),
         ]),
+        "Nothing selected".draw_text(ctx).named("current"),
+        ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "0"]),
     ]))
-    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
 }
