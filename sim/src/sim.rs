@@ -947,6 +947,10 @@ impl Sim {
     pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode, bool) {
         self.trips.trip_info(id)
     }
+    // TODO Use that struct
+    pub fn all_trip_info(&self) -> Vec<(TripID, Time, TripEndpoint, TripEndpoint, TripMode)> {
+        self.trips.all_trip_info()
+    }
     // If trip is finished, returns (total time, total waiting time)
     pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
         self.trips.finished_trip_time(id)

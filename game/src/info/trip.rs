@@ -8,7 +8,7 @@ use ezgui::{
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
 use maplit::btreemap;
-use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType, VehicleType};
+use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use std::collections::BTreeMap;
 
 #[derive(Clone)]

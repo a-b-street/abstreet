@@ -875,6 +875,12 @@ impl TripManager {
             t.modified,
         )
     }
+    pub fn all_trip_info(&self) -> Vec<(TripID, Time, TripEndpoint, TripEndpoint, TripMode)> {
+        self.trips
+            .iter()
+            .map(|t| (t.id, t.departure, t.start.clone(), t.end.clone(), t.mode))
+            .collect()
+    }
     pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
         let t = &self.trips[id.0];
         Some((t.finished_at? - t.departure, t.total_blocked_time))

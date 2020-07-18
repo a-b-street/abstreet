@@ -1,4 +1,3 @@
-mod blocks;
 mod destinations;
 mod kml;
 pub mod mapping;

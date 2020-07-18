@@ -1,21 +1,21 @@
-use crate::app::App;
-use crate::game::{State, Transition};
+use crate::app::{App, ShowEverything};
+use crate::game::{DrawBaselayer, State, Transition};
+use crate::render::DrawOptions;
 use abstutil::{Counter, MultiMap};
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
-use map_model::{BuildingID, LaneID, Map, TurnType};
-use sim::{Scenario, TripEndpoint};
+use map_model::{BuildingID, LaneID, TurnType};
+use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 // TODO Handle borders too
 
-pub struct BlockMap {
+pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, usize>,
     blocks: Vec<Block>,
-    scenario: Scenario,
 
     composite: Composite,
     draw_all_blocks: Drawable,
@@ -27,8 +27,8 @@ struct Block {
     shape: Polygon,
 }
 
-impl BlockMap {
-    pub fn new(ctx: &mut EventCtx, app: &App, scenario: Scenario) -> Box<dyn State> {
+impl CommuterPatterns {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let mut bldg_to_block = HashMap::new();
         let mut blocks = Vec::new();
 
@@ -64,10 +64,9 @@ impl BlockMap {
             all_blocks.push(Color::YELLOW.alpha(0.5), block.shape.clone());
         }
 
-        Box::new(BlockMap {
+        Box::new(CommuterPatterns {
             bldg_to_block,
             blocks,
-            scenario,
 
             draw_all_blocks: ctx.upload(all_blocks),
             composite: Composite::new(Widget::col(vec![
@@ -85,24 +84,20 @@ impl BlockMap {
         })
     }
 
-    fn count_per_block(&self, base: &Block, from: bool, map: &Map) -> Vec<(&Block, usize)> {
+    fn count_per_block(&self, app: &App, base: &Block, from: bool) -> Vec<(&Block, usize)> {
         let mut count: Counter<usize> = Counter::new();
-        for p in &self.scenario.people {
-            for trip in &p.trips {
-                if let (TripEndpoint::Bldg(b1), TripEndpoint::Bldg(b2)) =
-                    (trip.trip.start(map), trip.trip.end(map))
-                {
-                    let block1 = self.bldg_to_block[&b1];
-                    let block2 = self.bldg_to_block[&b2];
-                    if block1 == block2 {
-                        continue;
-                    }
-                    if from && block1 == base.id {
-                        count.inc(block2);
-                    }
-                    if !from && block2 == base.id {
-                        count.inc(block1);
-                    }
+        for (_, _, start, end, _) in &app.primary.sim.all_trip_info() {
+            if let (TripEndpoint::Bldg(b1), TripEndpoint::Bldg(b2)) = (start, end) {
+                let block1 = self.bldg_to_block[&b1];
+                let block2 = self.bldg_to_block[&b2];
+                if block1 == block2 {
+                    continue;
+                }
+                if from && block1 == base.id {
+                    count.inc(block2);
+                }
+                if !from && block2 == base.id {
+                    count.inc(block1);
                 }
             }
         }
@@ -115,7 +110,7 @@ impl BlockMap {
     }
 }
 
-impl State for BlockMap {
+impl State for CommuterPatterns {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         ctx.canvas_movement();
 
@@ -132,7 +127,18 @@ impl State for BlockMap {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
+        app.draw(
+            g,
+            DrawOptions::new(),
+            &DontDrawAgents {},
+            &ShowEverything::new(),
+        );
+
         g.redraw(&self.draw_all_blocks);
         self.composite.draw(g);
 
@@ -147,7 +153,7 @@ impl State for BlockMap {
 
                     let from = self.composite.is_checked("from / to this block");
                     let arrows = self.composite.is_checked("arrows / heatmap");
-                    let others = self.count_per_block(block, from, &app.primary.map);
+                    let others = self.count_per_block(app, block, from);
                     if !others.is_empty() {
                         let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
                         for (other, cnt) in others {

@@ -1,3 +1,4 @@
+mod commuter;
 mod misc;
 mod parking_overhead;
 mod summaries;
@@ -16,6 +17,7 @@ pub enum DashTab {
     ParkingOverhead,
     ActiveTraffic,
     TransitRoutes,
+    CommuterPatterns,
 }
 
 impl DashTab {
@@ -27,6 +29,7 @@ impl DashTab {
             ("parking overhead", DashTab::ParkingOverhead),
             ("active traffic", DashTab::ActiveTraffic),
             ("transit routes", DashTab::TransitRoutes),
+            ("commuter patterns", DashTab::CommuterPatterns),
         ] {
             if tab == DashTab::TripSummaries && app.has_prebaked().is_none() {
                 continue;
@@ -61,6 +64,7 @@ impl DashTab {
             }
             "active traffic" => Transition::Replace(misc::ActiveTraffic::new(ctx, app)),
             "transit routes" => Transition::Replace(misc::TransitRoutes::new(ctx, app)),
+            "commuter patterns" => Transition::Replace(commuter::CommuterPatterns::new(ctx, app)),
             _ => unreachable!(),
         }
     }

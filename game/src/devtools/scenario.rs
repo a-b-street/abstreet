@@ -1,6 +1,5 @@
 use crate::app::App;
 use crate::common::{ColorDiscrete, CommonState};
-use crate::devtools::blocks::BlockMap;
 use crate::devtools::destinations::PopularDestinations;
 use crate::game::{State, Transition};
 use abstutil::prettyprint_usize;
@@ -56,7 +55,6 @@ impl ScenarioManager {
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
-                Btn::text_fg("block map").build_def(ctx, hotkey(Key::B)),
                 Btn::text_fg("popular destinations").build_def(ctx, hotkey(Key::D)),
                 Text::from_multiline(vec![
                     Line(format!(
@@ -92,9 +90,6 @@ impl State for ScenarioManager {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
-                }
-                "block map" => {
-                    return Transition::Push(BlockMap::new(ctx, app, self.scenario.clone()));
                 }
                 "popular destinations" => {
                     return Transition::Push(PopularDestinations::new(ctx, app, &self.scenario));
