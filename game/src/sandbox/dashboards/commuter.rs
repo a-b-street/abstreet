@@ -3,10 +3,10 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::DrawOptions;
 use abstutil::{Counter, MultiMap};
 use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, VerticalAlignment, Widget,
+    hotkey, AreaSlider, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, TextExt, VerticalAlignment, Widget,
 };
-use geom::{ArrowCap, Distance, PolyLine, Polygon};
+use geom::{ArrowCap, Distance, PolyLine, Polygon, Time};
 use map_model::{BuildingID, LaneID, TurnType};
 use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -24,6 +24,11 @@ struct Block {
     id: BlockID,
     bldgs: HashSet<BuildingID>,
     shape: Polygon,
+}
+
+struct Filters {
+    depart_from: Time,
+    depart_until: Time,
 }
 
 type BlockID = usize;
@@ -47,9 +52,18 @@ impl CommuterPatterns {
     }
 
     // For all trips from (or to) the base block, how many of them go to all other blocks?
-    fn count_per_block(&self, app: &App, base: &Block, from: bool) -> Vec<(&Block, usize)> {
+    fn count_per_block(
+        &self,
+        app: &App,
+        base: &Block,
+        from: bool,
+        filter: Filters,
+    ) -> Vec<(&Block, usize)> {
         let mut count: Counter<BlockID> = Counter::new();
         for (_, trip) in app.primary.sim.all_trip_info() {
+            if trip.departure < filter.depart_from || trip.departure > filter.depart_until {
+                continue;
+            }
             if let (TripEndpoint::Bldg(b1), TripEndpoint::Bldg(b2)) = (trip.start, trip.end) {
                 let block1 = self.bldg_to_block[&b1];
                 let block2 = self.bldg_to_block[&b2];
@@ -118,7 +132,16 @@ impl State for CommuterPatterns {
 
                     let from = self.composite.is_checked("from / to this block");
                     let arrows = self.composite.is_checked("arrows / heatmap");
-                    let others = self.count_per_block(app, block, from);
+                    let filter =
+                        Filters {
+                            depart_from: app.primary.sim.get_end_of_day().percent_of(
+                                self.composite.area_slider("depart from").get_percent(),
+                            ),
+                            depart_until: app.primary.sim.get_end_of_day().percent_of(
+                                self.composite.area_slider("depart until").get_percent(),
+                            ),
+                        };
+                    let others = self.count_per_block(app, block, from, filter);
                     if !others.is_empty() {
                         let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
                         for (other, cnt) in others {
@@ -267,6 +290,14 @@ fn make_panel(ctx: &mut EventCtx) -> Composite {
         ]),
         Checkbox::text(ctx, "from / to this block", hotkey(Key::Space), true),
         Checkbox::text(ctx, "arrows / heatmap", hotkey(Key::H), true),
+        Widget::row(vec![
+            "Departing from:".draw_text(ctx).margin_right(20),
+            AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.0).named("depart from"),
+        ]),
+        Widget::row(vec![
+            "Departing until:".draw_text(ctx).margin_right(20),
+            AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 1.0).named("depart until"),
+        ]),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
