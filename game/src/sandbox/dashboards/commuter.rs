@@ -8,7 +8,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Polygon, Time};
-use map_model::{BuildingID, IntersectionID, LaneID, RoadID, TurnType};
+use map_model::{BuildingID, BuildingType, IntersectionID, LaneID, RoadID, TurnType};
 use maplit::hashset;
 use sim::{DontDrawAgents, TripEndpoint, TripInfo};
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -155,12 +155,43 @@ impl State for CommuterPatterns {
 
                     // Show the members of this block
                     let mut batch = GeomBatch::new();
+                    let mut building_counts: Vec<(&str, u32)> = vec![
+                        ("Residential", 0),
+                        ("Residential/Commercial", 0),
+                        ("Commercial", 0),
+                        ("Vacant", 0), /* maybe "Empty Building" would be better, but currently
+                                        * it causes an undesireable lineheight change */
+                    ];
                     for b in &block.bldgs {
-                        batch.push(Color::PURPLE, app.primary.map.get_b(*b).polygon.clone());
+                        let building = app.primary.map.get_b(*b);
+                        batch.push(Color::PURPLE, building.polygon.clone());
+                        match building.bldg_type {
+                            BuildingType::Residential(_) => building_counts[0].1 += 1,
+                            BuildingType::ResidentialCommercial(_) => building_counts[1].1 += 1,
+                            BuildingType::Commercial => building_counts[2].1 += 1,
+                            BuildingType::Empty => building_counts[3].1 += 1,
+                        }
                     }
                     for i in &block.borders {
                         batch.push(Color::PURPLE, app.primary.map.get_i(*i).polygon.clone());
                     }
+
+                    let non_empty_building_counts: Vec<(&str, u32)> = building_counts
+                        .into_iter()
+                        .filter(|building_count| building_count.1 > 0)
+                        .collect();
+
+                    let block_buildings_description = if non_empty_building_counts.len() > 0 {
+                        non_empty_building_counts
+                            .into_iter()
+                            .map(|building_count| {
+                                format!("{}: {}", building_count.0, building_count.1)
+                            })
+                            .collect::<Vec<String>>()
+                            .join(", ")
+                    } else {
+                        "Empty".to_string()
+                    };
 
                     let from = self.composite.is_checked("from / to this block");
                     let filter =
@@ -189,11 +220,13 @@ impl State for CommuterPatterns {
 
                     self.draw_current_block = Some(ctx.upload(batch));
 
-                    // TODO Show number of buildings
                     self.composite.replace(
                         ctx,
                         "current",
-                        "Something selected".draw_text(ctx).named("current"),
+                        format!("Selected: {}", block_buildings_description)
+                            .draw_text(ctx)
+                            .named("current")
+                            .margin_below(10),
                     );
 
                     let new_scale = ColorLegend::gradient(
@@ -211,7 +244,10 @@ impl State for CommuterPatterns {
                     self.composite.replace(
                         ctx,
                         "current",
-                        "Nothing selected".draw_text(ctx).named("current"),
+                        "None selected"
+                            .draw_text(ctx)
+                            .named("current")
+                            .margin_below(10),
                     );
                 }
             }
@@ -447,7 +483,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
             "Departing until:".draw_text(ctx).margin_right(20),
             AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 1.0).named("depart until"),
         ]),
-        "Nothing selected".draw_text(ctx).named("current"),
+        "None selected".draw_text(ctx).named("current"),
         ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "0"]).named("scale"),
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
