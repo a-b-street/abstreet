@@ -57,9 +57,12 @@ Divide into implemented or not.
   - likely shouldn't apply during uber-turns
   - is it always fine to block the box at degenerate intersections?
 - hacks to allow conflicting turns at really broken intersections
-- upstreaming turn restrictions into OSM to prevent invalid U-turns and other
-  crazy movements
-- upstreaming lane count fixes into OSM to improve geometry
 - manually timing signals
 - Last resort: if someone's waiting on a turn >5m, just go.
 - Dynamic rerouting
+
+### Fixing data used in simulation
+
+- upstreaming turn restrictions into OSM to prevent invalid U-turns and other
+  crazy movements
+- upstreaming lane count fixes into OSM to improve geometry
