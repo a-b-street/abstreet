@@ -381,33 +381,34 @@ impl SpawnTrip {
                 is_bike,
                 origin,
             } => {
-                if let Some(start_pos) = dr
-                    .lanes(
-                        if is_bike {
-                            PathConstraints::Bike
-                        } else {
-                            PathConstraints::Car
-                        },
-                        map,
-                    )
+                let constraints = if is_bike {
+                    PathConstraints::Bike
+                } else {
+                    PathConstraints::Car
+                };
+                match dr
+                    .lanes(constraints, map)
                     .choose(rng)
+                    .ok_or_else(|| {
+                        format!("{} has no lanes to spawn a {:?}", dr.id, constraints).into()
+                    })
                     // TODO We could be more precise and say exactly what vehicle will be used here
                     .and_then(|l| TripSpec::spawn_vehicle_at(Position::start(*l), is_bike, map))
                 {
-                    TripSpec::VehicleAppearing {
+                    Ok(start_pos) => TripSpec::VehicleAppearing {
                         start_pos,
                         goal,
                         use_vehicle: use_vehicle.unwrap(),
                         retry_if_no_room: true,
                         origin,
-                    }
-                } else {
-                    TripSpec::NoRoomToSpawn {
+                    },
+                    Err(err) => TripSpec::NoRoomToSpawn {
                         i: dr.src_i(map),
                         goal,
                         use_vehicle: use_vehicle.unwrap(),
                         origin,
-                    }
+                        error: err.to_string(),
+                    },
                 }
             }
             SpawnTrip::UsingParkedCar(start_bldg, goal) => TripSpec::UsingParkedCar {

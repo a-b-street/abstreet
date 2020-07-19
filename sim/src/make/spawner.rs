@@ -8,6 +8,7 @@ use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
 use serde::{Deserialize, Serialize};
+use std::error::Error;
 
 // TODO Some of these fields are unused now that we separately pass TripEndpoint
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -28,6 +29,7 @@ pub enum TripSpec {
         goal: DrivingGoal,
         use_vehicle: CarID,
         origin: Option<OffMapLocation>,
+        error: String,
     },
     UsingParkedCar {
         // This must be a currently parked vehicle owned by the person.
@@ -377,20 +379,29 @@ impl TripSpawner {
 
 impl TripSpec {
     // If possible, fixes problems that schedule_trip would hit.
-    pub fn spawn_vehicle_at(pos: Position, is_bike: bool, map: &Map) -> Option<Position> {
+    pub fn spawn_vehicle_at(
+        pos: Position,
+        is_bike: bool,
+        map: &Map,
+    ) -> Result<Position, Box<dyn Error>> {
         let lane_len = map.get_l(pos.lane()).length();
         let vehicle_len = if is_bike { BIKE_LENGTH } else { MAX_CAR_LENGTH };
         // There's no hope.
         if lane_len <= vehicle_len {
-            return None;
+            return Err(format!(
+                "vehicle of length {} is too long to spawn on {}",
+                vehicle_len,
+                pos.lane()
+            )
+            .into());
         }
 
         if pos.dist_along() < vehicle_len {
-            Some(Position::new(pos.lane(), vehicle_len))
+            Ok(Position::new(pos.lane(), vehicle_len))
         } else if pos.dist_along() == lane_len {
-            Some(Position::new(pos.lane(), pos.dist_along() - EPSILON_DIST))
+            Ok(Position::new(pos.lane(), pos.dist_along() - EPSILON_DIST))
         } else {
-            Some(pos)
+            Ok(pos)
         }
     }
 

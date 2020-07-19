@@ -947,7 +947,7 @@ impl TripManager {
             self.events.push(Event::Alert(
                 AlertLocation::Person(person.id),
                 format!(
-                    "{} is still doing a trip, so not starting {}",
+                    "{} is still doing a trip, so not starting {} yet",
                     person.id, trip
                 ),
             ));
@@ -1008,13 +1008,15 @@ impl TripManager {
                     self.abort_trip(now, trip, Some(vehicle), parking, scheduler, map);
                 }
             }
-            TripSpec::NoRoomToSpawn { i, use_vehicle, .. } => {
+            TripSpec::NoRoomToSpawn {
+                i,
+                use_vehicle,
+                error,
+                ..
+            } => {
                 self.events.push(Event::Alert(
                     AlertLocation::Intersection(i),
-                    format!(
-                        "{} couldn't spawn at border {}, just aborting",
-                        person.id, i
-                    ),
+                    format!("{} couldn't spawn at border {}: {}", person.id, i, error),
                 ));
                 let vehicle = person.get_vehicle(use_vehicle);
                 self.abort_trip(now, trip, Some(vehicle), parking, scheduler, map);
