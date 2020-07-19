@@ -1,6 +1,7 @@
 use crate::app::{App, ShowEverything};
 use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
+use crate::helpers::checkbox_per_mode;
 use crate::render::DrawOptions;
 use abstutil::{prettyprint_usize, Counter, MultiMap};
 use ezgui::{
@@ -10,7 +11,7 @@ use ezgui::{
 use geom::{Polygon, Time};
 use map_model::{BuildingID, BuildingType, IntersectionID, LaneID, RoadID, TurnType};
 use maplit::hashset;
-use sim::{DontDrawAgents, TripEndpoint, TripInfo};
+use sim::{DontDrawAgents, TripEndpoint, TripInfo, TripMode};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 pub struct CommuterPatterns {
@@ -19,6 +20,7 @@ pub struct CommuterPatterns {
     blocks: Vec<Block>,
     current_block: Option<BlockID>,
     draw_current_block: Option<Drawable>,
+    filter: Filter,
 
     // Indexed by BlockID
     trips_from_block: Vec<Vec<TripInfo>>,
@@ -38,9 +40,14 @@ struct Block {
     shape: Polygon,
 }
 
-struct Filters {
+#[derive(PartialEq)]
+struct Filter {
+    // If false, then trips to this block
+    from_block: bool,
+    include_borders: bool,
     depart_from: Time,
     depart_until: Time,
+    modes: BTreeSet<TripMode>,
 }
 
 type BlockID = usize;
@@ -83,6 +90,13 @@ impl CommuterPatterns {
             draw_current_block: None,
             trips_from_block,
             trips_to_block,
+            filter: Filter {
+                from_block: true,
+                include_borders: true,
+                depart_from: Time::START_OF_DAY,
+                depart_until: app.primary.sim.get_end_of_day(),
+                modes: TripMode::all().into_iter().collect(),
+            },
 
             draw_all_blocks: ctx.upload(all_blocks),
             composite: make_panel(ctx, app),
@@ -90,27 +104,43 @@ impl CommuterPatterns {
     }
 
     // For all trips from (or to) the base block, how many of them go to all other blocks?
-    fn count_per_block(&self, base: &Block, from: bool, filter: Filters) -> Vec<(&Block, usize)> {
-        let candidates = if from {
+    fn count_per_block(&self, base: &Block) -> Vec<(&Block, usize)> {
+        let candidates = if self.filter.from_block {
             &self.trips_from_block[base.id]
         } else {
             &self.trips_to_block[base.id]
         };
         let mut count: Counter<BlockID> = Counter::new();
         for trip in candidates {
-            if trip.departure < filter.depart_from || trip.departure > filter.depart_until {
+            if trip.departure < self.filter.depart_from || trip.departure > self.filter.depart_until
+            {
                 continue;
             }
-            if from {
-                count.inc(match trip.end {
-                    TripEndpoint::Bldg(b) => self.bldg_to_block[&b],
-                    TripEndpoint::Border(i, _) => self.border_to_block[&i],
-                });
+            if !self.filter.modes.contains(&trip.mode) {
+                continue;
+            }
+            if self.filter.from_block {
+                match trip.end {
+                    TripEndpoint::Bldg(b) => {
+                        count.inc(self.bldg_to_block[&b]);
+                    }
+                    TripEndpoint::Border(i, _) => {
+                        if self.filter.include_borders {
+                            count.inc(self.border_to_block[&i]);
+                        }
+                    }
+                }
             } else {
-                count.inc(match trip.start {
-                    TripEndpoint::Bldg(b) => self.bldg_to_block[&b],
-                    TripEndpoint::Border(i, _) => self.border_to_block[&i],
-                });
+                match trip.start {
+                    TripEndpoint::Bldg(b) => {
+                        count.inc(self.bldg_to_block[&b]);
+                    }
+                    TripEndpoint::Border(i, _) => {
+                        if self.filter.include_borders {
+                            count.inc(self.border_to_block[&i]);
+                        }
+                    }
+                }
             }
         }
 
@@ -136,9 +166,8 @@ impl State for CommuterPatterns {
             None => {}
         }
 
-        // TODO Or if a filter changed!
+        let old_block = self.current_block;
         if ctx.redo_mouseover() {
-            let old_block = self.current_block;
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 self.current_block = self
                     .blocks
@@ -148,108 +177,118 @@ impl State for CommuterPatterns {
             } else {
                 self.current_block = None;
             }
+        }
 
-            if old_block != self.current_block {
-                if let Some(id) = self.current_block {
-                    let block = &self.blocks[id];
+        let mut filter = Filter {
+            from_block: self.composite.is_checked("from / to this block"),
+            include_borders: self.composite.is_checked("include borders"),
+            depart_from: app
+                .primary
+                .sim
+                .get_end_of_day()
+                .percent_of(self.composite.area_slider("depart from").get_percent()),
+            depart_until: app
+                .primary
+                .sim
+                .get_end_of_day()
+                .percent_of(self.composite.area_slider("depart until").get_percent()),
+            modes: BTreeSet::new(),
+        };
+        for m in TripMode::all() {
+            if self.composite.is_checked(m.ongoing_verb()) {
+                filter.modes.insert(m);
+            }
+        }
 
-                    // Show the members of this block
-                    let mut batch = GeomBatch::new();
-                    let mut building_counts: Vec<(&str, u32)> = vec![
-                        ("Residential", 0),
-                        ("Residential/Commercial", 0),
-                        ("Commercial", 0),
-                        ("Vacant", 0), /* maybe "Empty Building" would be better, but currently
-                                        * it causes an undesireable lineheight change */
-                    ];
-                    for b in &block.bldgs {
-                        let building = app.primary.map.get_b(*b);
-                        batch.push(Color::PURPLE, building.polygon.clone());
-                        match building.bldg_type {
-                            BuildingType::Residential(_) => building_counts[0].1 += 1,
-                            BuildingType::ResidentialCommercial(_) => building_counts[1].1 += 1,
-                            BuildingType::Commercial => building_counts[2].1 += 1,
-                            BuildingType::Empty => building_counts[3].1 += 1,
-                        }
+        if old_block != self.current_block || filter != self.filter {
+            self.filter = filter;
+            if let Some(id) = self.current_block {
+                let block = &self.blocks[id];
+
+                // Show the members of this block
+                let mut batch = GeomBatch::new();
+                let mut building_counts: Vec<(&str, u32)> = vec![
+                    ("Residential", 0),
+                    ("Residential/Commercial", 0),
+                    ("Commercial", 0),
+                    ("Vacant", 0), /* maybe "Empty Building" would be better, but currently
+                                    * it causes an undesireable lineheight change */
+                ];
+                for b in &block.bldgs {
+                    let building = app.primary.map.get_b(*b);
+                    batch.push(Color::PURPLE, building.polygon.clone());
+                    match building.bldg_type {
+                        BuildingType::Residential(_) => building_counts[0].1 += 1,
+                        BuildingType::ResidentialCommercial(_) => building_counts[1].1 += 1,
+                        BuildingType::Commercial => building_counts[2].1 += 1,
+                        BuildingType::Empty => building_counts[3].1 += 1,
                     }
-                    for i in &block.borders {
-                        batch.push(Color::PURPLE, app.primary.map.get_i(*i).polygon.clone());
-                    }
-
-                    let non_empty_building_counts: Vec<(&str, u32)> = building_counts
-                        .into_iter()
-                        .filter(|building_count| building_count.1 > 0)
-                        .collect();
-
-                    let block_buildings_description = if non_empty_building_counts.len() > 0 {
-                        non_empty_building_counts
-                            .into_iter()
-                            .map(|building_count| {
-                                format!("{}: {}", building_count.0, building_count.1)
-                            })
-                            .collect::<Vec<String>>()
-                            .join(", ")
-                    } else {
-                        "Empty".to_string()
-                    };
-
-                    let from = self.composite.is_checked("from / to this block");
-                    let filter =
-                        Filters {
-                            depart_from: app.primary.sim.get_end_of_day().percent_of(
-                                self.composite.area_slider("depart from").get_percent(),
-                            ),
-                            depart_until: app.primary.sim.get_end_of_day().percent_of(
-                                self.composite.area_slider("depart until").get_percent(),
-                            ),
-                        };
-                    let others = self.count_per_block(block, from, filter);
-                    let mut total_trips = 0;
-                    if !others.is_empty() {
-                        let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
-                        for (other, cnt) in others {
-                            total_trips += cnt;
-                            let pct = (cnt as f64) / max_cnt;
-                            // TODO Use app.cs.good_to_bad_red or some other color gradient
-                            batch.push(
-                                app.cs.good_to_bad_red.eval(pct).alpha(0.8),
-                                other.shape.clone(),
-                            );
-                        }
-                    }
-
-                    self.draw_current_block = Some(ctx.upload(batch));
-
-                    self.composite.replace(
-                        ctx,
-                        "current",
-                        format!("Selected: {}", block_buildings_description)
-                            .draw_text(ctx)
-                            .named("current")
-                            .margin_below(10),
-                    );
-
-                    let new_scale = ColorLegend::gradient(
-                        ctx,
-                        &app.cs.good_to_bad_red,
-                        vec![
-                            "0".to_string(),
-                            format!("{} trips", prettyprint_usize(total_trips)),
-                        ],
-                    )
-                    .named("scale");
-                    self.composite.replace(ctx, "scale", new_scale);
-                } else {
-                    self.draw_current_block = None;
-                    self.composite.replace(
-                        ctx,
-                        "current",
-                        "None selected"
-                            .draw_text(ctx)
-                            .named("current")
-                            .margin_below(10),
-                    );
                 }
+                for i in &block.borders {
+                    batch.push(Color::PURPLE, app.primary.map.get_i(*i).polygon.clone());
+                }
+
+                let non_empty_building_counts: Vec<(&str, u32)> = building_counts
+                    .into_iter()
+                    .filter(|building_count| building_count.1 > 0)
+                    .collect();
+
+                let block_buildings_description = if non_empty_building_counts.len() > 0 {
+                    non_empty_building_counts
+                        .into_iter()
+                        .map(|building_count| format!("{}: {}", building_count.0, building_count.1))
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                } else {
+                    "Empty".to_string()
+                };
+
+                let others = self.count_per_block(block);
+                let mut total_trips = 0;
+                if !others.is_empty() {
+                    let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
+                    for (other, cnt) in others {
+                        total_trips += cnt;
+                        let pct = (cnt as f64) / max_cnt;
+                        // TODO Use app.cs.good_to_bad_red or some other color gradient
+                        batch.push(
+                            app.cs.good_to_bad_red.eval(pct).alpha(0.8),
+                            other.shape.clone(),
+                        );
+                    }
+                }
+
+                self.draw_current_block = Some(ctx.upload(batch));
+
+                self.composite.replace(
+                    ctx,
+                    "current",
+                    format!("Selected: {}", block_buildings_description)
+                        .draw_text(ctx)
+                        .named("current")
+                        .margin_below(10),
+                );
+
+                let new_scale = ColorLegend::gradient(
+                    ctx,
+                    &app.cs.good_to_bad_red,
+                    vec![
+                        "0".to_string(),
+                        format!("{} trips", prettyprint_usize(total_trips)),
+                    ],
+                )
+                .named("scale");
+                self.composite.replace(ctx, "scale", new_scale);
+            } else {
+                self.draw_current_block = None;
+                self.composite.replace(
+                    ctx,
+                    "current",
+                    "None selected"
+                        .draw_text(ctx)
+                        .named("current")
+                        .margin_below(10),
+                );
             }
         }
 
@@ -475,6 +514,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
                 .align_right(),
         ]),
         Checkbox::text(ctx, "from / to this block", hotkey(Key::Space), true),
+        Checkbox::text(ctx, "include borders", None, true),
         Widget::row(vec![
             "Departing from:".draw_text(ctx).margin_right(20),
             AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.0).named("depart from"),
@@ -483,6 +523,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
             "Departing until:".draw_text(ctx).margin_right(20),
             AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 1.0).named("depart until"),
         ]),
+        checkbox_per_mode(ctx, app, &TripMode::all().into_iter().collect()),
         "None selected".draw_text(ctx).named("current"),
         ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "0"]).named("scale"),
     ]))
