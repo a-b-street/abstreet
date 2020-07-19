@@ -175,6 +175,7 @@ pub fn extract_osm(
                 osm_id: way.id,
             });
         } else if tags.is("highway", "service") {
+            // If we got here, is_road didn't interpret it as a normal road
             map.parking_aisles.push(pts);
         } else if tags.is("historic", "memorial") {
             if pts[0] == *pts.last().unwrap() {
@@ -418,6 +419,9 @@ fn is_road(tags: &mut Tags) -> bool {
     if tags.is("railway", "light_rail") {
         return true;
     }
+    if tags.is("railway", "tram") {
+        return false;
+    }
 
     if !tags.contains_key(osm::HIGHWAY) {
         return false;
@@ -442,8 +446,6 @@ fn is_road(tags: &mut Tags) -> bool {
             "path",
             "cycleway",
             "proposed",
-            // This one's debatable. Includes alleys.
-            "service",
             // more discovered manually
             "abandoned",
             "elevator",
@@ -455,6 +457,14 @@ fn is_road(tags: &mut Tags) -> bool {
         ],
     ) {
         return false;
+    }
+
+    // Service roads can represent lots of things, most of which we don't want to keep yet. What's
+    // allowed here is just based on what's been encountered so far in Seattle and Kraków.
+    if tags.is(osm::HIGHWAY, "service") {
+        if !tags.is("psv", "yes") && !tags.is("bus", "yes") {
+            return false;
+        }
     }
 
     // If there's no parking data in OSM already, then assume no parking and mark that it's
@@ -476,6 +486,8 @@ fn is_road(tags: &mut Tags) -> bool {
         tags.insert(osm::INFERRED_SIDEWALKS, "true");
         if tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"])
             || tags.is("junction", "roundabout")
+            || tags.is("foot", "no")
+            || tags.is(osm::HIGHWAY, "service")
         {
             tags.insert(osm::SIDEWALK, "none");
         } else if tags.is("oneway", "yes") {

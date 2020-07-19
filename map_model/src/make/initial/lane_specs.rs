@@ -71,22 +71,23 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         }
     };
 
-    let driving_lane = if tags.is("access", "no") && tags.is("bus", "yes") {
-        // Sup West Seattle
-        LaneType::Bus
-    } else if tags
-        .get("motor_vehicle:conditional")
-        .map(|x| x.starts_with("no"))
-        .unwrap_or(false)
-        && tags.is("bus", "yes")
-    {
-        // Example: 3rd Ave in downtown Seattle
-        LaneType::Bus
-    } else if tags.is("access", "no") || tags.is("highway", "construction") {
-        LaneType::Construction
-    } else {
-        LaneType::Driving
-    };
+    let driving_lane =
+        if tags.is("access", "no") && (tags.is("bus", "yes") || tags.is("psv", "yes")) {
+            // Sup West Seattle
+            LaneType::Bus
+        } else if tags
+            .get("motor_vehicle:conditional")
+            .map(|x| x.starts_with("no"))
+            .unwrap_or(false)
+            && tags.is("bus", "yes")
+        {
+            // Example: 3rd Ave in downtown Seattle
+            LaneType::Bus
+        } else if tags.is("access", "no") || tags.is("highway", "construction") {
+            LaneType::Construction
+        } else {
+            LaneType::Driving
+        };
 
     let mut fwd_side: Vec<LaneType> = iter::repeat(driving_lane).take(num_driving_fwd).collect();
     let mut back_side: Vec<LaneType> = iter::repeat(driving_lane).take(num_driving_back).collect();
