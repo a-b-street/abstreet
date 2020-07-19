@@ -29,6 +29,11 @@ front/back of vehicles.
 - Groups of traffic signals logically acting as a single intersection
 - Separate traffic signals along a corridor being unsynchronized
 - Vehicles performing illegal sequences of turns
+- Vehicles are stuck with their plan and not reacting to traffic by changing route
+- Real traffic would result in a gridlock without a deliberate actions to avoid
+  it. Such actions range from individual decisions of drivers to police manually
+  controlling traffic. Intelligent avoidance of gridlock is not simulated and
+  is extremely hard to simulate.
 
 ## Solutions
 
