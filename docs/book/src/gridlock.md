@@ -34,6 +34,11 @@ front/back of vehicles.
   it. Such actions range from individual decisions of drivers to police manually
   controlling traffic. Intelligent avoidance of gridlock is not simulated and
   is extremely hard to simulate.
+- Vehicles will wait in lane filled with already waiting vehicles, even if there
+  is a completely empty lane allowing travel in desired direction. It makes
+  easier for entire lane between crossings to fill, contributing to gridlocks.
+  Note that while this and other clearly stupid behaviors are clearly unrealistic,
+  it is not trivial to implement more realistic and more efficient decisions.
 
 ## Solutions
 
