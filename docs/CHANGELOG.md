@@ -510,3 +510,15 @@ changes here.
 - access-restricted zones: granular editing of individual roads now mostly works
 - removing the hardcoded relative directories, which many people have been having problems with
 - many many bug fixes, and some optimizations to reduce release file size
+
+0.2.4
+
+- bus/train routes overhauled; they're now one-way, regularly spawn every hour, and may begin or end at a border
+- new commute pattern explorer tool
+- new character art to give cutscenes a bit more personaliy
+- some progress on gridlocking maps, both from manual fixes and an attempt to reduce conflicts in multi-turn sequences
+- misc UI: show cars seeking parking in unzoomed mode, plot arrival rate at border intersections, consolidate bulk selection controls
+- trips modified by an experiment can now be filtered in summaries
+- buses, trains, and passengers on them are now properly distinguished in different stats
+- include krakow and berlin in release
+- buildings with holes in the middle are now rendered properly
