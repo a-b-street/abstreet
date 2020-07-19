@@ -34,6 +34,11 @@ front/back of vehicles.
   it. Such actions range from individual decisions of drivers to police manually
   controlling traffic. Intelligent avoidance of gridlock is not simulated and
   is extremely hard to simulate.
+- Vehicles will wait in lane filled with already waiting vehicles, even if there
+  is a completely empty lane allowing travel in desired direction. It makes
+  easier for entire lane between crossings to fill, contributing to gridlocks.
+  Note that while this and other clearly stupid behaviors are clearly unrealistic,
+  it is not trivial to implement more realistic and more efficient decisions.
 
 ## Solutions
 
@@ -57,9 +62,12 @@ Divide into implemented or not.
   - likely shouldn't apply during uber-turns
   - is it always fine to block the box at degenerate intersections?
 - hacks to allow conflicting turns at really broken intersections
-- upstreaming turn restrictions into OSM to prevent invalid U-turns and other
-  crazy movements
-- upstreaming lane count fixes into OSM to improve geometry
 - manually timing signals
 - Last resort: if someone's waiting on a turn >5m, just go.
 - Dynamic rerouting
+
+### Fixing data used in simulation
+
+- upstreaming turn restrictions into OSM to prevent invalid U-turns and other
+  crazy movements
+- upstreaming lane count fixes into OSM to improve geometry
