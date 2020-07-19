@@ -871,8 +871,11 @@ impl Composite {
         ctx.no_op_event(true, |ctx| assert!(self.event(ctx).is_none()));
     }
 
-    pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, new: Widget) {
-        *self.top_level.find_mut(id).unwrap() = new;
+    // All margins/padding/etc from the previous widget are retained.
+    pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, mut new: Widget) {
+        let old = self.top_level.find_mut(id).unwrap();
+        new.layout.style = old.layout.style;
+        *old = new;
         self.recompute_layout(ctx, true);
 
         // TODO Same no_op_event as align_above? Should we always do this in recompute_layout?

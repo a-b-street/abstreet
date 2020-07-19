@@ -115,11 +115,7 @@ impl State for ZoneEditor {
                 }
                 x => {
                     if self.selector.event(ctx, app, Some(x)) {
-                        let new_controls = self
-                            .selector
-                            .make_controls(ctx)
-                            .named("selector")
-                            .margin_below(10);
+                        let new_controls = self.selector.make_controls(ctx).named("selector");
                         self.composite.replace(ctx, "selector", new_controls);
                         let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.selector.roads);
                         self.unzoomed = unzoomed;
@@ -129,11 +125,7 @@ impl State for ZoneEditor {
             },
             None => {
                 if self.selector.event(ctx, app, None) {
-                    let new_controls = self
-                        .selector
-                        .make_controls(ctx)
-                        .named("selector")
-                        .margin_below(10);
+                    let new_controls = self.selector.make_controls(ctx).named("selector");
                     self.composite.replace(ctx, "selector", new_controls);
                     let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.selector.roads);
                     self.unzoomed = unzoomed;
@@ -210,6 +202,5 @@ fn make_instructions(ctx: &mut EventCtx, allow_through_traffic: &BTreeSet<TripMo
         Line("Trips may start or end in this zone, but through-traffic is only allowed for:")
             .draw(ctx)
     }
-    .margin_below(10)
     .named("instructions")
 }

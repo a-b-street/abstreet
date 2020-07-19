@@ -373,7 +373,7 @@ impl State for SaveEdits {
         let name = self.composite.text_box("filename");
         if name != self.current_name {
             self.current_name = name;
-            let btn = SaveEdits::btn(ctx, app, &self.current_name).margin_right(10);
+            let btn = SaveEdits::btn(ctx, app, &self.current_name);
             self.composite.replace(ctx, "save", btn);
         }
 

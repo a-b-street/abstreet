@@ -265,8 +265,7 @@ impl State for CommuterPatterns {
                     "current",
                     format!("Selected: {}", block_buildings_description)
                         .draw_text(ctx)
-                        .named("current")
-                        .margin_below(10),
+                        .named("current"),
                 );
 
                 let new_scale = ColorLegend::gradient(
@@ -284,10 +283,7 @@ impl State for CommuterPatterns {
                 self.composite.replace(
                     ctx,
                     "current",
-                    "None selected"
-                        .draw_text(ctx)
-                        .named("current")
-                        .margin_below(10),
+                    "None selected".draw_text(ctx).named("current"),
                 );
             }
         }

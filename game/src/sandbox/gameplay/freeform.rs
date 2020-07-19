@@ -231,8 +231,7 @@ impl AgentSpawner {
                 "instructions",
                 "Click a building or border to specify end"
                     .draw_text(ctx)
-                    .named("instructions")
-                    .margin_below(10),
+                    .named("instructions"),
             );
         }
         Box::new(spawner)
@@ -306,8 +305,7 @@ impl State for AgentSpawner {
                     "instructions",
                     "Click a building or border to specify end"
                         .draw_text(ctx)
-                        .named("instructions")
-                        .margin_below(10),
+                        .named("instructions"),
                 );
             }
         }
@@ -349,8 +347,7 @@ impl State for AgentSpawner {
                     "instructions",
                     "Click a building or border to specify end"
                         .draw_text(ctx)
-                        .named("instructions")
-                        .margin_below(10),
+                        .named("instructions"),
                 );
             } else if self.source.is_some() && self.source != Some(hovering.clone()) {
                 if self
@@ -385,8 +382,7 @@ impl State for AgentSpawner {
                         "instructions",
                         "Confirm the trip settings"
                             .draw_text(ctx)
-                            .named("instructions")
-                            .margin_below(10),
+                            .named("instructions"),
                     );
                     self.composite.replace(
                         ctx,
