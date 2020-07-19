@@ -701,6 +701,7 @@ impl Pedestrian {
         events.push(Event::AgentEntersTraversable(
             AgentID::Pedestrian(self.id),
             self.path.current_step().as_traversable(),
+            None,
         ));
         true
     }

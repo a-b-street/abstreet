@@ -249,6 +249,15 @@ impl VehicleType {
             VehicleType::Bike => PathConstraints::Bike,
         }
     }
+
+    pub(crate) fn is_transit(self) -> bool {
+        match self {
+            VehicleType::Car => false,
+            VehicleType::Bus => true,
+            VehicleType::Train => true,
+            VehicleType::Bike => false,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

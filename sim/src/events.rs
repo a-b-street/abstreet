@@ -35,7 +35,9 @@ pub enum Event {
 
     BikeStoppedAtSidewalk(CarID, LaneID),
 
-    AgentEntersTraversable(AgentID, Traversable),
+    // If the agent is a transit vehicle, then include a count of how many passengers are on
+    // board.
+    AgentEntersTraversable(AgentID, Traversable, Option<usize>),
     IntersectionDelayMeasured(IntersectionID, Duration, TripMode),
 
     TripFinished {

@@ -60,15 +60,31 @@ impl Analytics {
         }
 
         // Throughput
-        if let Event::AgentEntersTraversable(a, to) = ev {
+        if let Event::AgentEntersTraversable(a, to, passengers) = ev {
             match to {
                 Traversable::Lane(l) => {
                     self.road_thruput
-                        .record(time, map.get_l(l).parent, a.to_type());
+                        .record(time, map.get_l(l).parent, a.to_type(), 1);
+                    if let Some(n) = passengers {
+                        self.road_thruput.record(
+                            time,
+                            map.get_l(l).parent,
+                            AgentType::TransitRider,
+                            n,
+                        );
+                    }
                 }
                 Traversable::Turn(t) => {
                     self.intersection_thruput
-                        .record(time, t.parent, a.to_type());
+                        .record(time, t.parent, a.to_type(), 1);
+                    if let Some(n) = passengers {
+                        self.intersection_thruput.record(
+                            time,
+                            t.parent,
+                            AgentType::TransitRider,
+                            n,
+                        );
+                    }
 
                     if let Some(id) = map.get_turn_group(t) {
                         *self.demand.entry(id).or_insert(0) -= 1;
@@ -80,11 +96,11 @@ impl Analytics {
             Event::PersonLeavesMap(_, maybe_a, i, _) => {
                 // Ignore aborted trips
                 if let Some(a) = maybe_a {
-                    self.intersection_thruput.record(time, i, a.to_type());
+                    self.intersection_thruput.record(time, i, a.to_type(), 1);
                 }
             }
             Event::PersonEntersMap(_, a, i, _) => {
-                self.intersection_thruput.record(time, i, a.to_type());
+                self.intersection_thruput.record(time, i, a.to_type(), 1);
             }
             _ => {}
         }
@@ -563,14 +579,18 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
         }
     }
 
-    fn record(&mut self, time: Time, id: X, agent_type: AgentType) {
+    fn record(&mut self, time: Time, id: X, agent_type: AgentType, count: usize) {
         // TODO Manually change flag
         if false {
-            self.raw.push((time, agent_type, id.clone()));
+            // TODO Woo, handling transit passengers is even more expensive in this already
+            // expensive representation...
+            for _ in 0..count {
+                self.raw.push((time, agent_type, id.clone()));
+            }
         }
 
         let hour = time.get_parts().0;
-        *self.counts.entry((id, agent_type, hour)).or_insert(0) += 1;
+        *self.counts.entry((id, agent_type, hour)).or_insert(0) += count;
     }
 
     pub fn total_for(&self, id: X) -> usize {

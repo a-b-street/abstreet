@@ -403,10 +403,10 @@ fn rand_time(rng: &mut XorShiftRng, low: Time, high: Time) -> Time {
 
 fn select_trip_mode(distance: Distance) -> TripMode {
     if distance < Distance::miles(0.5) {
-        return TripMode::Walk
+        TripMode::Walk
     } else {
-        return TripMode::Drive;
-    };
+        TripMode::Drive
+    }
 }
 
 impl ScenarioGenerator {
@@ -439,17 +439,19 @@ impl ScenarioGenerator {
 
         let incoming_connections = map.all_incoming_borders();
         let outgoing_connections = map.all_outgoing_borders();
-        // transit
-        for (_home, _num_ppl) in &residences {
+        // Trips between map borders. For now, scale the number by the number of residences.
+        for _ in &residences {
             // TODO it would be nice to weigh border points by for example lane count
             let random_incoming_border = incoming_connections.choose(rng).unwrap();
             let random_outgoing_border = outgoing_connections.choose(rng).unwrap();
             let b_random_incoming_border = incoming_connections.choose(rng).unwrap();
             let b_random_outgoing_border = outgoing_connections.choose(rng).unwrap();
-            let distance_on_map = Distance::meters(2.0 * 1000.0); // TODO calculate
-            let distance_outside_map = Distance::meters(20.0 * 1000.0); // TODO randomize
+            // TODO calculate
+            let distance_on_map = Distance::meters(2.0 * 1000.0);
+            // TODO randomize
             // having random trip distance happening offscreen will allow things
-            // like very short car trips, representing larger car trip happening mostly offscreen 
+            // like very short car trips, representing larger car trip happening mostly offscreen
+            let distance_outside_map = Distance::meters(20.0 * 1000.0);
             let mode = select_trip_mode(distance_on_map + distance_outside_map);
             let (goto_work, return_home) = match (
                 SpawnTrip::new(

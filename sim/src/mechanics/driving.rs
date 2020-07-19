@@ -377,6 +377,11 @@ impl DrivingSimState {
                 self.events.push(Event::AgentEntersTraversable(
                     AgentID::Car(car.vehicle.id),
                     goto,
+                    if car.vehicle.vehicle_type.is_transit() {
+                        Some(transit.get_passengers(car.vehicle.id).len())
+                    } else {
+                        None
+                    },
                 ));
 
                 // Don't mark turn_finished until our back is out of the turn.
