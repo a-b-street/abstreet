@@ -401,6 +401,14 @@ fn rand_time(rng: &mut XorShiftRng, low: Time, high: Time) -> Time {
     Time::START_OF_DAY + Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
 }
 
+fn select_trip_mode(distance: Distance) -> TripMode {
+    if distance < Distance::miles(0.5) {
+        return TripMode::Walk
+    } else {
+        return TripMode::Drive;
+    };
+}
+
 impl ScenarioGenerator {
     // Designed in https://github.com/dabreegster/abstreet/issues/154
     pub fn proletariat_robot(map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) -> Scenario {
@@ -428,6 +436,59 @@ impl ScenarioGenerator {
         let mut s = Scenario::empty(map, "random people going to/from work");
         s.only_seed_buses = None;
         timer.start_iter("create people", total_ppl);
+
+        let incoming_connections = map.all_incoming_borders();
+        let outgoing_connections = map.all_outgoing_borders();
+        // transit
+        for (_home, _num_ppl) in &residences {
+            // TODO it would be nice to weigh border points by for example lane count
+            let random_incoming_border = incoming_connections.choose(rng).unwrap();
+            let random_outgoing_border = outgoing_connections.choose(rng).unwrap();
+            let b_random_incoming_border = incoming_connections.choose(rng).unwrap();
+            let b_random_outgoing_border = outgoing_connections.choose(rng).unwrap();
+            let distance_on_map = Distance::meters(2.0 * 1000.0); // TODO calculate
+            let distance_outside_map = Distance::meters(20.0 * 1000.0); // TODO randomize
+            // having random trip distance happening offscreen will allow things
+            // like very short car trips, representing larger car trip happening mostly offscreen 
+            let mode = select_trip_mode(distance_on_map + distance_outside_map);
+            let (goto_work, return_home) = match (
+                SpawnTrip::new(
+                    TripEndpoint::Border(random_incoming_border.id, None),
+                    TripEndpoint::Border(random_outgoing_border.id, None),
+                    mode,
+                    map,
+                ),
+                SpawnTrip::new(
+                    TripEndpoint::Border(b_random_incoming_border.id, None),
+                    TripEndpoint::Border(b_random_outgoing_border.id, None),
+                    mode,
+                    map,
+                ),
+            ) {
+                (Some(t1), Some(t2)) => (t1, t2),
+                // Skip the person if either trip can't be created.
+                _ => continue,
+            };
+
+            let depart_am = rand_time(
+                rng,
+                Time::START_OF_DAY + Duration::hours(0),
+                Time::START_OF_DAY + Duration::hours(12),
+            );
+            let depart_pm = rand_time(
+                rng,
+                Time::START_OF_DAY + Duration::hours(12),
+                Time::START_OF_DAY + Duration::hours(24),
+            );
+            s.people.push(PersonSpec {
+                id: PersonID(s.people.len()),
+                orig_id: None,
+                trips: vec![
+                    IndividTrip::new(depart_am, goto_work),
+                    IndividTrip::new(depart_pm, return_home),
+                ],
+            });
+        }
         for (home, num_ppl) in residences {
             for _ in 0..num_ppl {
                 timer.next();
