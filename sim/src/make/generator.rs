@@ -401,12 +401,37 @@ fn rand_time(rng: &mut XorShiftRng, low: Time, high: Time) -> Time {
     Time::START_OF_DAY + Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
 }
 
-fn select_trip_mode(distance: Distance) -> TripMode {
+fn select_trip_mode(distance: Distance, rng: &mut XorShiftRng) -> TripMode {
+    // TODO Make this probabilistic
+    // for example probability of walking currently has massive differences
+    // at thresholds, it would be nicer to change this graduall
+    // TODO - do not select based on distance but select one that is fastest/best in the
+    // given situation excellent bus connection / plenty of parking /
+    // cycleways / suitable rail connection all strongly influence
+    // selected mode of transport, distance is not the sole influence
+    // in some cities there may case where driving is only possible method
+    // to get somewhere, even at a short distance
     if distance < Distance::miles(0.5) {
-        TripMode::Walk
-    } else {
-        TripMode::Drive
+        return TripMode::Walk
+    } 
+    if rng.gen_bool(0.005) {
+        // low chance for really, really dedicated cyclists
+        return TripMode::Bike;
     }
+    if rng.gen_bool(0.3) {
+        // try transit if available, will
+        // degrade into walk if not available
+        return TripMode::Transit;
+    }
+    if distance < Distance::miles(3.0) {
+        if rng.gen_bool(0.15) {
+            return TripMode::Bike
+        }
+        if rng.gen_bool(0.05) {
+            return TripMode::Walk
+        }
+    }
+    return TripMode::Drive;
 }
 
 impl ScenarioGenerator {
@@ -447,12 +472,12 @@ impl ScenarioGenerator {
             let b_random_incoming_border = incoming_connections.choose(rng).unwrap();
             let b_random_outgoing_border = outgoing_connections.choose(rng).unwrap();
             // TODO calculate
-            let distance_on_map = Distance::meters(2.0 * 1000.0);
+            let distance_on_map = Distance::meters(2000.0);
             // TODO randomize
             // having random trip distance happening offscreen will allow things
             // like very short car trips, representing larger car trip happening mostly offscreen
-            let distance_outside_map = Distance::meters(20.0 * 1000.0);
-            let mode = select_trip_mode(distance_on_map + distance_outside_map);
+            let distance_outside_map = Distance::meters(rng.gen_range(0.0, 20_000.0));
+            let mode = select_trip_mode(distance_on_map + distance_outside_map, rng);
             let (goto_work, return_home) = match (
                 SpawnTrip::new(
                     TripEndpoint::Border(random_incoming_border.id, None),
@@ -471,7 +496,7 @@ impl ScenarioGenerator {
                 // Skip the person if either trip can't be created.
                 _ => continue,
             };
-
+            // TODO more reasonable time schedule, rush hour peak etc
             let depart_am = rand_time(
                 rng,
                 Time::START_OF_DAY + Duration::hours(0),
@@ -496,12 +521,6 @@ impl ScenarioGenerator {
                 timer.next();
                 // Make a person going from their home to a random workplace, then back again later.
 
-                // TODO refactor
-                // function or associated item not found in `rand_xorshift::XorShiftRng`
-                // so why it works in buildings.rs?
-                //let mut deterministicRng = XorShiftRng::seed_from_u64(home.0 as u64);
-                //let work = *workplaces.choose(deterministicRng).unwrap();
-
                 let work = *workplaces.choose(rng).unwrap();
                 // Decide mode based on walking distance.
                 let dist = if let Some(path) = map.pathfind(PathRequest {
@@ -519,34 +538,7 @@ impl ScenarioGenerator {
                     // working and living in the same building
                     continue;
                 }
-                // Longer trips will mostly drive of the time, remaining will attempt
-                // transit (falling back to a very long walk), with some small number of people
-                // cycling. TODO Make this probabilistic
-                // TODO - do not select based on distance but select one that is fastest/best in the
-                // given situation excellent bus connection / plenty of parking /
-                // cycleways / suitable rail connection all strongly influence
-                // selected mode of transport, distance is not the sole influence
-                let mode = if dist < Distance::miles(0.5) {
-                    TripMode::Walk
-                } else if dist < Distance::miles(2.0) {
-                    if rng.gen_bool(0.3) {
-                        // 30%
-                        TripMode::Transit
-                    } else if rng.gen_bool(0.8) {
-                        // 0.7 * 0.8 = 56%
-                        TripMode::Drive
-                    } else {
-                        // 14%
-                        TripMode::Bike
-                    }
-                } else if rng.gen_bool(0.005) {
-                    // low chance for really, really dedicated cyclists
-                    TripMode::Bike
-                } else if rng.gen_bool(0.7) {
-                    TripMode::Drive
-                } else {
-                    TripMode::Transit
-                };
+                let mode = select_trip_mode(dist, rng);
 
                 // TODO This will cause a single morning and afternoon rush. Outside of these times,
                 // it'll be really quiet. Probably want a normal distribution centered around these
