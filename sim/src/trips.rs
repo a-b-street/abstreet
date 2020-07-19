@@ -1373,21 +1373,6 @@ impl TripMode {
         ]
     }
 
-    pub(crate) fn from_agent(id: AgentID) -> TripMode {
-        match id {
-            AgentID::Pedestrian(_) => TripMode::Walk,
-            AgentID::Car(id) => match id.1 {
-                VehicleType::Car => TripMode::Drive,
-                VehicleType::Bike => TripMode::Bike,
-                // TODO Little confusing; this means buses, not bus riders.
-                VehicleType::Bus => TripMode::Transit,
-                VehicleType::Train => TripMode::Transit,
-            },
-            // TODO Now we can detangle this, right?
-            AgentID::BusPassenger(_, _) => TripMode::Transit,
-        }
-    }
-
     pub fn verb(self) -> &'static str {
         match self {
             TripMode::Walk => "walk",

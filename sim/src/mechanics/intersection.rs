@@ -1,6 +1,6 @@
 use crate::mechanics::car::Car;
 use crate::mechanics::Queue;
-use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed, TripMode};
+use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Duration, Time};
 use map_model::{
@@ -392,11 +392,8 @@ impl IntersectionSimState {
         let state = self.state.get_mut(&turn.parent).unwrap();
         let delay = now - state.waiting.remove(&req).unwrap();
         if map.maybe_get_traffic_signal(state.id).is_some() {
-            self.events.push(Event::IntersectionDelayMeasured(
-                turn.parent,
-                delay,
-                TripMode::from_agent(agent),
-            ));
+            self.events
+                .push(Event::IntersectionDelayMeasured(turn.parent, delay, agent));
         }
         state.accepted.insert(req);
         if self.break_turn_conflict_cycles {

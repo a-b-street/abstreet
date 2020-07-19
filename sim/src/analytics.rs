@@ -23,7 +23,8 @@ pub struct Analytics {
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
-    pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration, TripMode)>>,
+    // TODO Transit riders aren't represented here yet, just the vehicle they're riding.
+    pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration, AgentType)>>,
     // Per parking lane or lot, when does a spot become filled (true) or free (false)
     pub parking_lane_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
     pub parking_lot_changes: BTreeMap<ParkingLotID, Vec<(Time, bool)>>,
@@ -138,11 +139,11 @@ impl Analytics {
         }
 
         // Intersection delays
-        if let Event::IntersectionDelayMeasured(id, delay, mode) = ev {
+        if let Event::IntersectionDelayMeasured(id, delay, agent) = ev {
             self.intersection_delays
                 .entry(id)
                 .or_insert_with(Vec::new)
-                .push((time, delay, mode));
+                .push((time, delay, agent.to_type()));
         }
 
         // Parking spot changes

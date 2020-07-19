@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::helpers::color_for_mode;
+use crate::helpers::color_for_agent_type;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
 use ezgui::{
@@ -7,7 +7,7 @@ use ezgui::{
 };
 use geom::{ArrowCap, Distance, Duration, PolyLine, Time};
 use map_model::{IntersectionID, IntersectionType};
-use sim::TripMode;
+use sim::AgentType;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Vec<Widget> {
@@ -221,9 +221,9 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
     } else {
         app.primary.sim.get_analytics()
     };
-    let mut by_mode: BTreeMap<TripMode, Vec<(Time, Duration)>> = TripMode::all()
+    let mut by_type: BTreeMap<AgentType, Vec<(Time, Duration)>> = AgentType::all()
         .into_iter()
-        .map(|m| (m, Vec::new()))
+        .map(|t| (t, Vec::new()))
         .collect();
     let limit = if opts.show_end_of_day {
         app.primary.sim.get_end_of_day()
@@ -231,18 +231,18 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
         app.primary.sim.time()
     };
     if let Some(list) = data.intersection_delays.get(&i) {
-        for (t, dt, mode) in list {
+        for (t, dt, agent_type) in list {
             if *t > limit {
                 break;
             }
-            by_mode.get_mut(mode).unwrap().push((*t, *dt));
+            by_type.get_mut(agent_type).unwrap().push((*t, *dt));
         }
     }
-    let series: Vec<Series<Duration>> = by_mode
+    let series: Vec<Series<Duration>> = by_type
         .into_iter()
-        .map(|(mode, pts)| Series {
-            label: mode.noun().to_string(),
-            color: color_for_mode(app, mode),
+        .map(|(agent_type, pts)| Series {
+            label: agent_type.noun().to_string(),
+            color: color_for_agent_type(app, agent_type),
             pts,
         })
         .collect();

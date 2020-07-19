@@ -38,7 +38,7 @@ pub enum Event {
     // If the agent is a transit vehicle, then include a count of how many passengers are on
     // board.
     AgentEntersTraversable(AgentID, Traversable, Option<usize>),
-    IntersectionDelayMeasured(IntersectionID, Duration, TripMode),
+    IntersectionDelayMeasured(IntersectionID, Duration, AgentID),
 
     TripFinished {
         trip: TripID,
