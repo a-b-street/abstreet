@@ -1,14 +1,14 @@
 use crate::app::{App, ShowEverything};
-use crate::common::ColorLegend;
+use crate::common::{ColorLegend, CommonState};
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::checkbox_per_mode;
 use crate::render::DrawOptions;
 use abstutil::{prettyprint_usize, Counter, MultiMap};
 use ezgui::{
     hotkey, AreaSlider, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Polygon, Time};
+use geom::{Distance, Polygon, Time};
 use map_model::{BuildingID, BuildingType, IntersectionID, LaneID, RoadID, TurnType};
 use maplit::hashset;
 use sim::{DontDrawAgents, TripEndpoint, TripInfo, TripMode};
@@ -18,8 +18,7 @@ pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,
     border_to_block: HashMap<IntersectionID, BlockID>,
     blocks: Vec<Block>,
-    current_block: Option<BlockID>,
-    draw_current_block: Option<Drawable>,
+    selected: Option<CurrentBlock>,
     filter: Filter,
 
     // Indexed by BlockID
@@ -28,6 +27,13 @@ pub struct CommuterPatterns {
 
     composite: Composite,
     draw_all_blocks: Drawable,
+}
+
+struct CurrentBlock {
+    id: BlockID,
+    draw: Drawable,
+    // After clicking a block, show its outline to indicate it's been clicked.
+    sticky: Option<Drawable>,
 }
 
 // Group many buildings into a single block
@@ -86,8 +92,7 @@ impl CommuterPatterns {
             bldg_to_block,
             border_to_block,
             blocks,
-            current_block: None,
-            draw_current_block: None,
+            selected: None,
             trips_from_block,
             trips_to_block,
             filter: Filter {
@@ -166,16 +171,44 @@ impl State for CommuterPatterns {
             None => {}
         }
 
-        let old_block = self.current_block;
-        if ctx.redo_mouseover() {
+        let old_block = self.selected.as_ref().map(|b| b.id);
+        if let Some(ref mut current) = self.selected {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                self.current_block = self
-                    .blocks
-                    .iter()
-                    .find(|b| b.shape.contains_pt(pt))
-                    .map(|b| b.id);
-            } else {
-                self.current_block = None;
+                if app.per_obj.left_click(ctx, "change current block") {
+                    if let Some(b) = self.blocks.iter().find(|b| b.shape.contains_pt(pt)) {
+                        current.id = b.id;
+                        current.sticky = Some(ctx.upload(GeomBatch::from(vec![(
+                                Color::BLACK,
+                                self.blocks[current.id]
+                                    .shape
+                                    .to_outline(Distance::meters(10.0))
+                                    .unwrap(),
+                            )])));
+                    } else {
+                        self.selected = None;
+                    }
+                }
+            }
+        }
+        if self
+            .selected
+            .as_ref()
+            .map(|b| b.sticky.is_none())
+            .unwrap_or(true)
+            && ctx.redo_mouseover()
+        {
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                if let Some(b) = self.blocks.iter().find(|b| b.shape.contains_pt(pt)) {
+                    if old_block != Some(b.id) {
+                        self.selected = Some(CurrentBlock {
+                            id: b.id,
+                            draw: ctx.upload(GeomBatch::new()),
+                            sticky: None,
+                        });
+                    }
+                } else {
+                    self.selected = None;
+                }
             }
         }
 
@@ -200,9 +233,9 @@ impl State for CommuterPatterns {
             }
         }
 
-        if old_block != self.current_block || filter != self.filter {
+        if old_block != self.selected.as_ref().map(|b| b.id) || filter != self.filter {
             self.filter = filter;
-            if let Some(id) = self.current_block {
+            if let Some(id) = self.selected.as_ref().map(|b| b.id) {
                 let block = &self.blocks[id];
 
                 // Show the members of this block
@@ -211,13 +244,12 @@ impl State for CommuterPatterns {
                     ("Residential", 0),
                     ("Residential/Commercial", 0),
                     ("Commercial", 0),
-                    ("Vacant", 0), /* maybe "Empty Building" would be better, but currently
-                                    * it causes an undesireable lineheight change */
+                    ("Empty", 0),
                 ];
                 for b in &block.bldgs {
-                    let building = app.primary.map.get_b(*b);
-                    batch.push(Color::PURPLE, building.polygon.clone());
-                    match building.bldg_type {
+                    let b = app.primary.map.get_b(*b);
+                    batch.push(Color::PURPLE, b.polygon.clone());
+                    match b.bldg_type {
                         BuildingType::Residential(_) => building_counts[0].1 += 1,
                         BuildingType::ResidentialCommercial(_) => building_counts[1].1 += 1,
                         BuildingType::Commercial => building_counts[2].1 += 1,
@@ -227,21 +259,6 @@ impl State for CommuterPatterns {
                 for i in &block.borders {
                     batch.push(Color::PURPLE, app.primary.map.get_i(*i).polygon.clone());
                 }
-
-                let non_empty_building_counts: Vec<(&str, u32)> = building_counts
-                    .into_iter()
-                    .filter(|building_count| building_count.1 > 0)
-                    .collect();
-
-                let block_buildings_description = if non_empty_building_counts.len() > 0 {
-                    non_empty_building_counts
-                        .into_iter()
-                        .map(|building_count| format!("{}: {}", building_count.0, building_count.1))
-                        .collect::<Vec<String>>()
-                        .join(", ")
-                } else {
-                    "Empty".to_string()
-                };
 
                 let others = self.count_per_block(block);
                 let mut total_trips = 0;
@@ -258,15 +275,16 @@ impl State for CommuterPatterns {
                     }
                 }
 
-                self.draw_current_block = Some(ctx.upload(batch));
+                self.selected.as_mut().unwrap().draw = ctx.upload(batch);
 
-                self.composite.replace(
-                    ctx,
-                    "current",
-                    format!("Selected: {}", block_buildings_description)
-                        .draw_text(ctx)
-                        .named("current"),
-                );
+                let mut txt = Text::new();
+                for (name, cnt) in building_counts {
+                    if cnt != 0 {
+                        txt.add(Line(format!("{}: {}", name, cnt)));
+                    }
+                }
+                self.composite
+                    .replace(ctx, "current", txt.draw(ctx).named("current"));
 
                 let new_scale = ColorLegend::gradient(
                     ctx,
@@ -279,7 +297,6 @@ impl State for CommuterPatterns {
                 .named("scale");
                 self.composite.replace(ctx, "scale", new_scale);
             } else {
-                self.draw_current_block = None;
                 self.composite.replace(
                     ctx,
                     "current",
@@ -304,10 +321,14 @@ impl State for CommuterPatterns {
         );
 
         g.redraw(&self.draw_all_blocks);
-        if let Some(ref d) = self.draw_current_block {
-            g.redraw(d);
+        if let Some(ref b) = self.selected {
+            g.redraw(&b.draw);
+            if let Some(ref d) = b.sticky {
+                g.redraw(d);
+            }
         }
         self.composite.draw(g);
+        CommonState::draw_osd(g, app);
     }
 }
 
@@ -513,15 +534,15 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
         Checkbox::text(ctx, "include borders", None, true),
         Widget::row(vec![
             "Departing from:".draw_text(ctx).margin_right(20),
-            AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.0).named("depart from"),
+            AreaSlider::new(ctx, 0.15 * ctx.canvas.window_width, 0.0).named("depart from"),
         ]),
         Widget::row(vec![
             "Departing until:".draw_text(ctx).margin_right(20),
-            AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 1.0).named("depart until"),
+            AreaSlider::new(ctx, 0.15 * ctx.canvas.window_width, 1.0).named("depart until"),
         ]),
         checkbox_per_mode(ctx, app, &TripMode::all().into_iter().collect()),
-        "None selected".draw_text(ctx).named("current"),
         ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "0"]).named("scale"),
+        "None selected".draw_text(ctx).named("current"),
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
