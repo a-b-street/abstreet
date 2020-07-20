@@ -54,8 +54,8 @@ impl TrafficSignalEditor {
         }
         // The convex hull illuminates a bit more of the surrounding area, looks better
         let fade_area = Polygon::with_holes(
-            map.get_boundary_polygon().points().clone(),
-            vec![Polygon::convex_hull(holes).into_points()],
+            map.get_boundary_polygon().clone().into_ring(),
+            vec![Polygon::convex_hull(holes).into_ring()],
         );
 
         TrafficSignalEditor {

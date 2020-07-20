@@ -879,7 +879,10 @@ fn multipoly_geometry<'a>(
             Ok(Polygon::new(&outer[0]))
         }
     } else {
-        Ok(Polygon::with_holes(outer.pop().unwrap(), inner))
+        Ok(Polygon::with_holes(
+            Ring::must_new(outer.pop().unwrap()),
+            inner.into_iter().map(Ring::must_new).collect(),
+        ))
     }
 }
 

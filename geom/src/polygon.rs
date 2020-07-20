@@ -36,15 +36,16 @@ impl Polygon {
         }
     }
 
-    pub fn with_holes(outer: Vec<Pt2D>, mut inner: Vec<Vec<Pt2D>>) -> Polygon {
+    pub fn with_holes(outer: Ring, mut inner: Vec<Ring>) -> Polygon {
         inner.insert(0, outer);
-        let rings = inner
-            .iter()
-            .map(|pts| Ring::must_new(pts.clone()))
-            .collect();
         let geojson_style: Vec<Vec<Vec<f64>>> = inner
-            .into_iter()
-            .map(|ring| ring.into_iter().map(|pt| vec![pt.x(), pt.y()]).collect())
+            .iter()
+            .map(|ring| {
+                ring.points()
+                    .into_iter()
+                    .map(|pt| vec![pt.x(), pt.y()])
+                    .collect()
+            })
             .collect();
         let (vertices, holes, dims) = earcutr::flatten(&geojson_style);
         let indices = earcutr::earcut(&vertices, &holes, dims);
@@ -55,7 +56,7 @@ impl Polygon {
                 .map(|pair| Pt2D::new(pair[0], pair[1]))
                 .collect(),
             indices,
-            rings: Some(rings),
+            rings: Some(inner),
         }
     }
 
@@ -152,6 +153,9 @@ impl Polygon {
         } else {
             self.points
         }
+    }
+    pub fn into_ring(self) -> Ring {
+        Ring::must_new(self.into_points())
     }
 
     pub fn center(&self) -> Pt2D {

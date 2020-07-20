@@ -83,10 +83,8 @@ impl Circle {
             .into());
         }
 
-        let bigger = Circle::new(center, radius).to_ring().into_points();
-        let smaller = Circle::new(center, radius - thickness)
-            .to_ring()
-            .into_points();
+        let bigger = Circle::new(center, radius).to_ring();
+        let smaller = Circle::new(center, radius - thickness).to_ring();
         Ok(Polygon::with_holes(bigger, vec![smaller]))
     }
 }
