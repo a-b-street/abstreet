@@ -425,13 +425,13 @@ fn select_trip_mode(distance: Distance, rng: &mut XorShiftRng) -> TripMode {
     }
     if distance < Distance::miles(3.0) {
         if rng.gen_bool(0.15) {
-            return TripMode::Bike
+            return TripMode::Bike;
         }
         if rng.gen_bool(0.05) {
-            return TripMode::Walk
+            return TripMode::Walk;
         }
     }
-    return TripMode::Drive;
+    TripMode::Drive;
 }
 
 impl ScenarioGenerator {
