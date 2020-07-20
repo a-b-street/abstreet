@@ -54,7 +54,6 @@ pub enum Tab {
     PersonSchedule(PersonID),
 
     BusStatus(CarID),
-    BusDelays(CarID),
     BusStop(BusStopID),
 
     ParkedCar(CarID),
@@ -137,7 +136,6 @@ impl Tab {
                 } else if c.1 == VehicleType::Bus || c.1 == VehicleType::Train {
                     match app.session.info_panel_tab["bus"] {
                         "status" => Tab::BusStatus(c),
-                        "delays" => Tab::BusDelays(c),
                         _ => unreachable!(),
                     }
                 } else {
@@ -185,7 +183,7 @@ impl Tab {
                     _ => None,
                 }
             }
-            Tab::BusStatus(c) | Tab::BusDelays(c) => Some(ID::Car(*c)),
+            Tab::BusStatus(c) => Some(ID::Car(*c)),
             Tab::BusStop(bs) => Some(ID::BusStop(*bs)),
             // TODO If a parked car becomes in use while the panel is open, should update the
             // panel better.
@@ -242,7 +240,6 @@ impl Tab {
             Tab::PersonBio(_) => ("person", "bio"),
             Tab::PersonSchedule(_) => ("person", "schedule"),
             Tab::BusStatus(_) => ("bus", "status"),
-            Tab::BusDelays(_) => ("bus", "delays"),
             Tab::BusStop(_) => ("bus stop", "info"),
             Tab::ParkedCar(_) => ("parked car", "info"),
             Tab::BldgInfo(_) => ("bldg", "info"),
@@ -303,7 +300,6 @@ impl InfoPanel {
                 false,
             ),
             Tab::BusStatus(c) => (bus::bus_status(ctx, app, &mut details, c), true),
-            Tab::BusDelays(c) => (bus::bus_delays(ctx, app, &mut details, c), true),
             Tab::BusStop(bs) => (bus::stop(ctx, app, &mut details, bs), true),
             Tab::ParkedCar(c) => (
                 person::parked_car(ctx, app, &mut details, c, ctx_actions.is_paused()),

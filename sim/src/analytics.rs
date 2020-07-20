@@ -283,66 +283,6 @@ impl Analytics {
         results
     }
 
-    pub fn bus_arrivals(
-        &self,
-        now: Time,
-        r: BusRouteID,
-    ) -> BTreeMap<BusStopID, Histogram<Duration>> {
-        let mut per_bus: BTreeMap<CarID, Vec<(Time, BusStopID)>> = BTreeMap::new();
-        for (t, car, route, stop) in &self.bus_arrivals {
-            if *t > now {
-                break;
-            }
-            if *route == r {
-                per_bus
-                    .entry(*car)
-                    .or_insert_with(Vec::new)
-                    .push((*t, *stop));
-            }
-        }
-        let mut delay_to_stop: BTreeMap<BusStopID, Histogram<Duration>> = BTreeMap::new();
-        for events in per_bus.values() {
-            for pair in events.windows(2) {
-                delay_to_stop
-                    .entry(pair[1].1)
-                    .or_insert_with(Histogram::new)
-                    .add(pair[1].0 - pair[0].0);
-            }
-        }
-        delay_to_stop
-    }
-
-    // TODO Refactor!
-    // For each stop, a list of (time, delay)
-    pub fn bus_arrivals_over_time(
-        &self,
-        now: Time,
-        r: BusRouteID,
-    ) -> BTreeMap<BusStopID, Vec<(Time, Duration)>> {
-        let mut per_bus: BTreeMap<CarID, Vec<(Time, BusStopID)>> = BTreeMap::new();
-        for (t, car, route, stop) in &self.bus_arrivals {
-            if *t > now {
-                break;
-            }
-            if *route == r {
-                per_bus
-                    .entry(*car)
-                    .or_insert_with(Vec::new)
-                    .push((*t, *stop));
-            }
-        }
-        let mut delays_to_stop: BTreeMap<BusStopID, Vec<(Time, Duration)>> = BTreeMap::new();
-        for events in per_bus.values() {
-            for pair in events.windows(2) {
-                delays_to_stop
-                    .entry(pair[1].1)
-                    .or_insert_with(Vec::new)
-                    .push((pair[1].0, pair[1].0 - pair[0].0));
-            }
-        }
-        delays_to_stop
-    }
-
     // At some moment in time, what's the distribution of passengers waiting for a route like?
     pub fn bus_passenger_delays(
         &self,

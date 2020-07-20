@@ -1,12 +1,9 @@
 use crate::app::App;
 use crate::helpers::ID;
-use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
-use ezgui::{
-    Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
-    TextExt, Widget,
-};
+use crate::info::{header_btns, make_tabs, Details, Tab};
+use ezgui::{Btn, Color, EventCtx, GeomBatch, Line, RewriteColor, Text, TextExt, Widget};
 use geom::{Circle, Distance, Polygon, Pt2D, Statistic, Time};
-use map_model::{BusRouteID, BusStopID};
+use map_model::{BusRoute, BusStopID};
 use sim::{AgentID, CarID};
 use std::collections::BTreeMap;
 
@@ -67,24 +64,29 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
     rows
 }
 
-// TODO For now, this conflates a single bus with the whole route, but that's fine, since the sim
-// only spawns one per route anyway.
 pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarID) -> Vec<Widget> {
     let mut rows = bus_header(ctx, app, details, id, Tab::BusStatus(id));
 
-    let kv = app.primary.sim.bus_properties(id, &app.primary.map);
-    rows.extend(make_table(ctx, kv.into_iter()));
+    let route = app
+        .primary
+        .map
+        .get_br(app.primary.sim.bus_route_id(id).unwrap());
 
-    let route = app.primary.sim.bus_route_id(id).unwrap();
+    rows.push(
+        Text::from(Line(format!("Serves {}", route.full_name)))
+            .wrap_to_pct(ctx, 20)
+            .draw(ctx),
+    );
+    rows.push(
+        Line(format!(
+            "Currently has {} passengers",
+            app.primary.sim.num_transit_passengers(id),
+        ))
+        .draw(ctx),
+    );
+
     rows.push(passenger_delay(ctx, app, details, route));
 
-    rows
-}
-
-pub fn bus_delays(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarID) -> Vec<Widget> {
-    let mut rows = bus_header(ctx, app, details, id, Tab::BusDelays(id));
-    let route = app.primary.sim.bus_route_id(id).unwrap();
-    rows.push(delays_over_time(ctx, app, route));
     rows
 }
 
@@ -110,7 +112,7 @@ fn bus_header(
         Line(format!(
             "{} (route {})",
             id,
-            app.primary.map.get_br(route).full_name
+            app.primary.map.get_br(route).short_name
         ))
         .small_heading()
         .draw(ctx),
@@ -120,42 +122,18 @@ fn bus_header(
         ctx,
         &mut details.hyperlinks,
         tab,
-        vec![
-            ("Status", Tab::BusStatus(id)),
-            ("Delays", Tab::BusDelays(id)),
-        ],
+        vec![("Status", Tab::BusStatus(id))],
     ));
 
     rows
 }
 
-fn delays_over_time(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> Widget {
-    let route = app.primary.map.get_br(id);
-    let mut delays_per_stop = app
-        .primary
-        .sim
-        .get_analytics()
-        .bus_arrivals_over_time(app.primary.sim.time(), id);
-
-    let mut series = Vec::new();
-    for idx1 in 0..route.stops.len() - 1 {
-        let idx2 = idx1 + 1;
-        series.push(Series {
-            label: format!("Stop {}->{}", idx1 + 1, idx2 + 1),
-            color: app.cs.rotating_color_plot(idx1),
-            pts: delays_per_stop
-                .remove(&route.stops[idx2])
-                .unwrap_or_else(Vec::new),
-        });
-    }
-    Widget::col(vec![
-        Line("Delays between stops").small_heading().draw(ctx),
-        LinePlot::new(ctx, series, PlotOptions::fixed()),
-    ])
-}
-
-fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteID) -> Widget {
-    let route = app.primary.map.get_br(id);
+fn passenger_delay(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    route: &BusRoute,
+) -> Widget {
     let mut master_col = vec![Line("Passengers waiting").small_heading().draw(ctx)];
     let mut col = Vec::new();
 
@@ -163,7 +141,7 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
         .primary
         .sim
         .get_analytics()
-        .bus_passenger_delays(app.primary.sim.time(), id)
+        .bus_passenger_delays(app.primary.sim.time(), route.id)
         .collect::<BTreeMap<_, _>>();
     // TODO I smell an off by one
     for idx in 0..route.stops.len() {

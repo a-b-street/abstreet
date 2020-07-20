@@ -910,16 +910,8 @@ impl Sim {
         }
     }
 
-    // TODO Temporary until we figure out all the info to expose
-    pub fn bus_properties(&self, car: CarID, map: &Map) -> Vec<(String, String)> {
-        let passengers = self.transit.get_passengers(car);
-        vec![
-            (
-                "Route".to_string(),
-                map.get_br(self.transit.bus_route(car)).full_name.clone(),
-            ),
-            ("Passengers".to_string(), passengers.len().to_string()),
-        ]
+    pub fn num_transit_passengers(&self, car: CarID) -> usize {
+        self.transit.get_passengers(car).len()
     }
 
     pub fn bus_route_id(&self, maybe_bus: CarID) -> Option<BusRouteID> {
