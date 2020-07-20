@@ -471,6 +471,11 @@ impl ScenarioGenerator {
             let random_outgoing_border = outgoing_connections.choose(rng).unwrap();
             let b_random_incoming_border = incoming_connections.choose(rng).unwrap();
             let b_random_outgoing_border = outgoing_connections.choose(rng).unwrap();
+            if random_incoming_border.id == random_outgoing_border.id
+                || b_random_incoming_border.id == b_random_outgoing_border.id
+            {
+                continue;
+            }
             // TODO calculate
             let distance_on_map = Distance::meters(2000.0);
             // TODO randomize
