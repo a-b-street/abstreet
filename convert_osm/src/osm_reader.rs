@@ -467,6 +467,12 @@ fn is_road(tags: &mut Tags) -> bool {
         }
     }
 
+    if tags.is(osm::HIGHWAY, "construction")
+        && tags.is_any("construction", vec!["footway", "service"])
+    {
+        return false;
+    }
+
     // If there's no parking data in OSM already, then assume no parking and mark that it's
     // inferred.
     if !tags.contains_key(osm::PARKING_LEFT)
