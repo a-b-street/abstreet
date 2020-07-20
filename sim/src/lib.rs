@@ -440,9 +440,19 @@ impl SidewalkSpot {
         // Don't start biking on a blackhole!
         // TODO Maybe compute a separate blackhole graph that includes bike lanes.
         if let Some(redirect) = map.get_l(driving_lane).parking_blackhole {
+            // Make sure the driving lane is at least long enough to spawn on. Bikes spawn in the
+            // middle, so it needs to be double.
+            if map.get_l(redirect).length() < 2.0 * BIKE_LENGTH {
+                return None;
+            }
+
             let new_sidewalk = map.get_parent(redirect).bike_to_sidewalk(redirect)?;
             SidewalkSpot::bike_rack(new_sidewalk, map)
         } else {
+            if map.get_l(driving_lane).length() < 2.0 * BIKE_LENGTH {
+                return None;
+            }
+
             SidewalkSpot::bike_rack(sidewalk, map)
         }
     }
