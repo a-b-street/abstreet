@@ -29,16 +29,26 @@ front/back of vehicles.
 - Groups of traffic signals logically acting as a single intersection
 - Separate traffic signals along a corridor being unsynchronized
 - Vehicles performing illegal sequences of turns
-- Vehicles are stuck with their plan and not reacting to traffic by changing route
+- Vehicles are stuck with their plan and not reacting to traffic by changing
+  route
 - Real traffic would result in a gridlock without a deliberate actions to avoid
   it. Such actions range from individual decisions of drivers to police manually
-  controlling traffic. Intelligent avoidance of gridlock is not simulated and
-  is extremely hard to simulate.
+  controlling traffic. Intelligent avoidance of gridlock is not simulated and is
+  extremely hard to simulate.
 - Vehicles will wait in lane filled with already waiting vehicles, even if there
   is a completely empty lane allowing travel in desired direction. It makes
   easier for entire lane between crossings to fill, contributing to gridlocks.
-  Note that while this and other clearly stupid behaviors are clearly unrealistic,
-  it is not trivial to implement more realistic and more efficient decisions.
+  Note that while this and other clearly stupid behaviors are clearly
+  unrealistic, it is not trivial to implement more realistic and more efficient
+  decisions.
+- Issues caused by the unrealistic
+  [lane-changing model](https://github.com/dabreegster/abstreet/blob/master/docs/articles/trafficsim/article.md#lane-changing)
+  - Two turns that go to the same lane (one going "straight", the other often a
+    lane-change) conflict. The conflict is coarse, at the granularity of the
+    entire intersection. So if vehicles are piled up in two lanes trying to
+    merge into one, then one group is likely to go through as expected, but the
+    second group will wait for the first to completely clear the intersection.
+    Until then, it looks like a conflicting turn is being done.
 
 ## Solutions
 
@@ -53,9 +63,6 @@ Divide into implemented or not.
       conflicting turns on nearby intersections. Until groups of traffic signals
       are configured as one, this is necessary to prevent somebody from making
       it halfway through a sequence then getting blocked.
-  - Group both stop sign and traffic signal intersections when looking for
-    uber-turns. Even a single traffic signal surrounded by tiny roads with stop
-    signs is causing problems.
 - Cycle detector
 - block-the-box protection
   - the manual list of overrides
@@ -63,17 +70,21 @@ Divide into implemented or not.
   - is it always fine to block the box at degenerate intersections?
 - hacks to allow conflicting turns at really broken intersections
 - manually timing signals
-- Last resort: if someone's waiting on a turn >5m, just go.
 
-## Not implemented
+### Not implemented
 
 - Dynamic rerouting
 - Allow multiple vehicles through intersection at once if there is enough space
   on lane where given vehicle is going. Currrently vehicles travel through
   crossings one by one (or, with `--disable_block_the_box` enabled - will enter
   crossing even if leaving it will be impossible).
+- Last resort: if someone's waiting on a turn >5m, just go.
+- Uber-turns
+  - Group both stop sign and traffic signal intersections when looking for
+    uber-turns. Even a single traffic signal surrounded by tiny roads with stop
+    signs is causing problems.
 
-### Fixing data used in simulation
+## Fixing data used in simulation
 
 Give more examples of changesets.
 
