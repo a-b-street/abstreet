@@ -57,6 +57,19 @@ impl Circle {
         Polygon::precomputed(pts, indices)
     }
 
+    fn to_ring(&self) -> Ring {
+        Ring::must_new(
+            (0..=TRIANGLES_PER_CIRCLE)
+                .map(|i| {
+                    self.center.project_away(
+                        self.radius,
+                        Angle::new_degs((i as f64) / (TRIANGLES_PER_CIRCLE as f64) * 360.0),
+                    )
+                })
+                .collect(),
+        )
+    }
+
     pub fn outline(
         center: Pt2D,
         radius: Distance,
@@ -70,17 +83,11 @@ impl Circle {
             .into());
         }
 
-        // TODO This impl doesn't work because there's a weird edge
-        if false {
-            let mut pts = Circle::new(center, radius).to_polygon().into_points();
-            pts.push(pts[0]);
-            return Ok(Ring::must_new(pts).make_polygons(thickness));
-        }
-
-        // TODO Argh this one also leaves a little piece missing, but it looks less bad. Fine.
-        let bigger = Circle::new(center, radius).to_polygon();
-        let smaller = Circle::new(center, radius - thickness).to_polygon();
-        Ok(Polygon::union_all(bigger.difference(&smaller)))
+        let bigger = Circle::new(center, radius).to_ring().into_points();
+        let smaller = Circle::new(center, radius - thickness)
+            .to_ring()
+            .into_points();
+        Ok(Polygon::with_holes(bigger, vec![smaller]))
     }
 }
 
