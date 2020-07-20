@@ -64,7 +64,14 @@ Divide into implemented or not.
 - hacks to allow conflicting turns at really broken intersections
 - manually timing signals
 - Last resort: if someone's waiting on a turn >5m, just go.
+
+## Not implemented
+
 - Dynamic rerouting
+- Allow multiple vehicles through intersection at once if there is enough space
+  on lane where given vehicle is going. Currrently vehicles travel through
+  crossings one by one (or, with `--disable_block_the_box` enabled - will enter
+  crossing even if leaving it will be impossible).
 
 ### Fixing data used in simulation
 
