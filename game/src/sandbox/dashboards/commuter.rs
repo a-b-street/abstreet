@@ -6,7 +6,8 @@ use crate::render::DrawOptions;
 use abstutil::{prettyprint_usize, Counter, MultiMap};
 use ezgui::{
     hotkey, AreaSlider, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 use geom::{Distance, Polygon, Time};
 use map_model::{BuildingID, BuildingType, IntersectionID, LaneID, RoadID, TurnType};
@@ -258,6 +259,29 @@ impl State for CommuterPatterns {
                 }
                 for i in &block.borders {
                     batch.push(Color::PURPLE, app.primary.map.get_i(*i).polygon.clone());
+                }
+
+                batch.push(Color::BLACK.alpha(0.5), block.shape.clone());
+
+                {
+                    // Indicate direction over current block
+                    let (icon_name, icon_scale) =
+                        if self.composite.is_checked("from / to this block") {
+                            ("outward.svg", 1.2)
+                        } else {
+                            ("inward.svg", 1.0)
+                        };
+
+                    let center = block.shape.polylabel();
+                    let icon = GeomBatch::mapspace_svg(
+                        ctx.prerender,
+                        &format!("system/assets/tools/{}", icon_name),
+                    )
+                    .scale(icon_scale)
+                    .centered_on(center)
+                    .color(RewriteColor::ChangeAll(Color::WHITE));
+
+                    batch.append(icon);
                 }
 
                 let others = self.count_per_block(block);
