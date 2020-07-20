@@ -5,6 +5,7 @@ mod remove_disconnected;
 pub mod traffic_signals;
 mod transit;
 pub mod turns;
+mod walking_turns;
 
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
