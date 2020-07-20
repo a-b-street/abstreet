@@ -554,7 +554,14 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
                 .build(ctx, "close", hotkey(Key::Escape))
                 .align_right(),
         ]),
-        Checkbox::text(ctx, "from / to this block", hotkey(Key::Space), true),
+        Checkbox::toggle(
+            ctx,
+            "from / to this block",
+            "from",
+            "to",
+            hotkey(Key::Space),
+            true,
+        ),
         Checkbox::text(ctx, "include borders", None, true),
         Widget::row(vec![
             "Departing from:".draw_text(ctx).margin_right(20),

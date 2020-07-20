@@ -1,6 +1,6 @@
 use crate::{
     Btn, Button, Color, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, Text,
-    TextSpan, Widget, WidgetImpl, WidgetOutput,
+    TextExt, TextSpan, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::{Polygon, Pt2D};
 
@@ -107,6 +107,36 @@ impl Checkbox {
         .build(ctx, format!("show {}", label), None);
 
         Checkbox::new(enabled, false_btn, true_btn).named(label)
+    }
+
+    pub fn toggle<I: Into<String>>(
+        ctx: &EventCtx,
+        label: I,
+        left_label: I,
+        right_label: I,
+        hotkey: Option<MultiKey>,
+        enabled: bool,
+    ) -> Widget {
+        let left_label = left_label.into();
+        let right_label = right_label.into();
+        Widget::row(vec![
+            left_label.clone().draw_text(ctx),
+            Checkbox::new(
+                enabled,
+                Btn::svg_def("system/assets/tools/toggle_right.svg").build(
+                    ctx,
+                    left_label,
+                    hotkey.clone(),
+                ),
+                Btn::svg_def("system/assets/tools/toggle_left.svg").build(
+                    ctx,
+                    right_label.clone(),
+                    hotkey,
+                ),
+            )
+            .named(label),
+            right_label.draw_text(ctx),
+        ])
     }
 }
 

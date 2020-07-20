@@ -6,7 +6,7 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Polygon};
 use map_model::{IntersectionCluster, IntersectionID};
@@ -188,7 +188,17 @@ impl UberTurnViewer {
                     },
                     Btn::text_fg("X").build(ctx, "close", hotkey(Key::Escape)),
                 ]),
-                Checkbox::text(ctx, "legal / illegal movements", None, legal_turns),
+                Widget::row(vec![
+                    Checkbox::toggle(
+                        ctx,
+                        "legal / illegal movements",
+                        "legal",
+                        "illegal",
+                        None,
+                        legal_turns,
+                    ),
+                    "movements".draw_text(ctx),
+                ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
