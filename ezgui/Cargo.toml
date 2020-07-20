@@ -24,7 +24,6 @@ instant = "0.1.2"
 lru = "0.4.3"
 lyon = "0.15.8"
 serde = "1.0.110"
-simsearch = "0.2.0"
 stdweb  = { version = "0.4.20", optional = true }
 stretch = "0.3.2"
 ttf-parser = "0.6.1"

@@ -2,17 +2,14 @@ use crate::{
     Choice, EventCtx, GfxCtx, InputResult, Menu, ScreenDims, ScreenPt, TextBox, Widget, WidgetImpl,
     WidgetOutput,
 };
-use simsearch::SimSearch;
-use std::collections::HashMap;
+use abstutil::MultiMap;
 
 const NUM_SEARCH_RESULTS: usize = 10;
 
 // TODO I don't even think we need to declare Clone...
+// If multiple names map to the same data, all of the possible values will be returned
 pub struct Autocomplete<T: Clone> {
-    choices: HashMap<String, Vec<T>>,
-    // Maps index to choice
-    search_map: Vec<String>,
-    search: SimSearch<usize>,
+    choices: Vec<(String, Vec<T>)>,
 
     tb: TextBox,
     menu: Menu<()>,
@@ -21,25 +18,20 @@ pub struct Autocomplete<T: Clone> {
     chosen_values: Option<Vec<T>>,
 }
 
-impl<T: 'static + Clone> Autocomplete<T> {
-    // If multiple names map to the same data, all of the possible values will be returned
+impl<T: 'static + Clone + Ord> Autocomplete<T> {
     pub fn new(ctx: &mut EventCtx, raw_choices: Vec<(String, T)>) -> Widget {
-        let mut choices = HashMap::new();
+        let mut grouped: MultiMap<String, T> = MultiMap::new();
         for (name, data) in raw_choices {
-            choices.entry(name).or_insert_with(Vec::new).push(data);
+            grouped.insert(name, data);
         }
-
-        let mut search_map = Vec::new();
-        let mut search = SimSearch::new();
-        for name in choices.keys() {
-            search.insert(search_map.len(), name);
-            search_map.push(name.to_string());
-        }
+        let choices: Vec<(String, Vec<T>)> = grouped
+            .consume()
+            .into_iter()
+            .map(|(k, v)| (k, v.into_iter().collect()))
+            .collect();
 
         let mut a = Autocomplete {
             choices,
-            search_map,
-            search,
 
             tb: TextBox::new(ctx, 50, String::new(), true),
             menu: Menu::<()>::new(ctx, Vec::new()).take_menu(),
@@ -50,25 +42,31 @@ impl<T: 'static + Clone> Autocomplete<T> {
         a.recalc_menu(ctx);
         Widget::new(Box::new(a))
     }
+}
 
+impl<T: 'static + Clone> Autocomplete<T> {
     pub fn final_value(&self) -> Option<Vec<T>> {
         self.chosen_values.clone()
     }
 
     fn recalc_menu(&mut self, ctx: &mut EventCtx) {
-        let mut indices = self.search.search(&self.current_line);
-        if indices.is_empty() {
-            indices = (0..NUM_SEARCH_RESULTS.min(self.search_map.len())).collect();
+        let mut choices = vec![Choice::new(
+            format!("anything matching \"{}\"", self.current_line),
+            (),
+        )];
+        let query = self.current_line.to_ascii_lowercase();
+        for (name, _) in &self.choices {
+            if name.to_ascii_lowercase().contains(&query) {
+                choices.push(Choice::new(name, ()));
+            }
+            if choices.len() == NUM_SEARCH_RESULTS {
+                break;
+            }
         }
-        let mut choices = indices
-            .into_iter()
-            .take(NUM_SEARCH_RESULTS)
-            .map(|idx| Choice::new(&self.search_map[idx], ()))
-            .collect::<Vec<_>>();
-        choices.insert(
-            0,
-            Choice::new(format!("anything matching \"{}\"", self.current_line), ()),
-        );
+        // "anything matching" is silly if we've resolved to exactly one choice
+        if choices.len() == 2 {
+            choices.remove(0);
+        }
         self.menu = Menu::new(ctx, choices).take_menu();
     }
 }
@@ -104,22 +102,26 @@ impl<T: 'static + Clone> WidgetImpl for Autocomplete<T> {
                 InputResult::Canceled => {
                     self.menu.state = InputResult::StillActive;
                 }
-                InputResult::Done(ref name, _) => {
+                InputResult::Done(ref choice, _) => {
                     // Mutating choices is fine, because we're supposed to be consumed by the
                     // caller immediately after this.
-                    if name.starts_with("anything matching") {
+                    if choice.starts_with("anything matching") {
+                        let query = self.current_line.to_ascii_lowercase();
                         let mut matches = Vec::new();
-                        for (name, choices) in self.choices.drain() {
-                            if name
-                                .to_ascii_lowercase()
-                                .contains(&self.current_line.to_ascii_lowercase())
-                            {
+                        for (name, choices) in self.choices.drain(..) {
+                            if name.to_ascii_lowercase().contains(&query) {
                                 matches.extend(choices);
                             }
                         }
                         self.chosen_values = Some(matches);
                     } else {
-                        self.chosen_values = Some(self.choices.remove(name).unwrap());
+                        self.chosen_values = Some(
+                            self.choices
+                                .drain(..)
+                                .find(|(name, _)| name == choice)
+                                .unwrap()
+                                .1,
+                        );
                     }
                 }
             }

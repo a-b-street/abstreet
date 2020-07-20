@@ -412,8 +412,8 @@ fn select_trip_mode(distance: Distance, rng: &mut XorShiftRng) -> TripMode {
     // in some cities there may case where driving is only possible method
     // to get somewhere, even at a short distance
     if distance < Distance::miles(0.5) {
-        return TripMode::Walk
-    } 
+        return TripMode::Walk;
+    }
     if rng.gen_bool(0.005) {
         // low chance for really, really dedicated cyclists
         return TripMode::Bike;
@@ -431,7 +431,7 @@ fn select_trip_mode(distance: Distance, rng: &mut XorShiftRng) -> TripMode {
             return TripMode::Walk;
         }
     }
-    TripMode::Drive;
+    TripMode::Drive
 }
 
 impl ScenarioGenerator {
