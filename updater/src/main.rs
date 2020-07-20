@@ -55,9 +55,9 @@ async fn download() {
                 Ok(()) => {
                     unzip(&path);
                 }
-                Err(e) => {
-                    println!("{}, continuing", e);
-                    failed.push(path);
+                Err(err) => {
+                    println!("{}, but continuing", err);
+                    failed.push(format!("{} failed: {}", path, err));
                 }
             };
             // Whether or not download failed, still try to clean up tmp file
