@@ -70,6 +70,15 @@ pub enum BuildingType {
     Empty,
 }
 
+impl BuildingType {
+    pub fn has_residents(&self) -> bool {
+        match self {
+            BuildingType::Residential(_) | BuildingType::ResidentialCommercial(_) => true,
+            BuildingType::Commercial | BuildingType::Empty => false,
+        }
+    }
+}
+
 impl Building {
     pub fn sidewalk(&self) -> LaneID {
         self.front_path.sidewalk.lane()

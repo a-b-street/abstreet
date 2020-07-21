@@ -110,7 +110,22 @@ fn main() {
         }
 
         let mut maybe_map = if job.raw_to_map {
-            Some(utils::raw_to_map(&name, !job.skip_ch, &mut timer))
+            let mut map = utils::raw_to_map(&name, !job.skip_ch, &mut timer);
+
+            // Another strange step in the pipeline.
+            if name == "berlin_center" {
+                timer.start(format!(
+                    "distribute residents from planning areas for {}",
+                    name
+                ));
+                berlin::distribute_residents(&mut map, &mut timer);
+                timer.stop(format!(
+                    "distribute residents from planning areas for {}",
+                    name
+                ));
+            }
+
+            Some(map)
         } else if job.scenario || job.scenario_everyone {
             Some(map_model::Map::new(abstutil::path_map(&name), &mut timer))
         } else {

@@ -369,7 +369,7 @@ fn classify_bldg(
     tags: Tags,
     amenities: &BTreeSet<(String, String)>,
     area_sq_meters: f64,
-    rng: &mut rand_xorshift::XorShiftRng,
+    rng: &mut XorShiftRng,
 ) -> BuildingType {
     // used: top values from https://taginfo.openstreetmap.org/keys/building#values (>100k uses)
 

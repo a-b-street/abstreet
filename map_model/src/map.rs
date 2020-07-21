@@ -1,9 +1,9 @@
 use crate::raw::{DrivingSide, RawMap};
 use crate::{
-    Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID, ControlStopSign,
-    ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapEdits,
-    ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, Position, Road, RoadID, Turn,
-    TurnGroupID, TurnID, TurnType,
+    Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop, BusStopID,
+    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID, LaneType,
+    Map, MapEdits, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, Position, Road,
+    RoadID, Turn, TurnGroupID, TurnID, TurnType,
 };
 use abstutil::Timer;
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
@@ -666,5 +666,9 @@ impl Map {
                 p.num_spots = spots;
             }
         }
+    }
+
+    pub fn hack_override_bldg_type(&mut self, b: BuildingID, bldg_type: BuildingType) {
+        self.buildings[b.0].bldg_type = bldg_type;
     }
 }

@@ -1,6 +1,9 @@
 use crate::utils::{download, download_kml, osmconvert};
-use abstutil::Timer;
+use abstutil::{prettyprint_usize, Timer};
+use geom::Polygon;
 use kml::ExtraShapes;
+use rand::{Rng, SeedableRng};
+use rand_xorshift::XorShiftRng;
 use serde::Deserialize;
 use std::fs::File;
 
@@ -105,4 +108,64 @@ struct Record {
     // The total residents in that area
     #[serde(rename = "E_E")]
     e_e: String,
+}
+
+pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
+    for shape in abstutil::read_binary::<ExtraShapes>(
+        "data/input/berlin/planning_areas.bin".to_string(),
+        timer,
+    )
+    .shapes
+    {
+        let pts = map.get_gps_bounds().convert(&shape.points);
+        if pts
+            .iter()
+            .all(|pt| !map.get_boundary_polygon().contains_pt(*pt))
+        {
+            continue;
+        }
+        let region = Polygon::new(&pts);
+        let bldgs: Vec<map_model::BuildingID> = map
+            .all_buildings()
+            .into_iter()
+            .filter(|b| region.contains_pt(b.label_center) && b.bldg_type.has_residents())
+            .map(|b| b.id)
+            .collect();
+        let num_residents = shape.attributes["num_residents"].parse::<usize>().unwrap();
+        timer.note(format!(
+            "Distributing {} residents in {} to {} buildings",
+            prettyprint_usize(num_residents),
+            shape.attributes["spatial_alias"],
+            prettyprint_usize(bldgs.len())
+        ));
+
+        // Deterministically seed using the planning area's ID.
+        let mut rng =
+            XorShiftRng::seed_from_u64(shape.attributes["spatial_name"].parse::<u64>().unwrap());
+
+        // How do you randomly distribute num_residents into some buildings?
+        // https://stackoverflow.com/questions/2640053/getting-n-random-numbers-whose-sum-is-m
+        // TODO Problems:
+        // - If the region is partly out-of-bounds, then the full number of residents is matched to
+        //   a small set of buildings.
+        // - Because of how we round, the sum might not exactly be num_residents
+        // - This is not a uniform distribution, per stackoverflow
+        // - Larger buildings should get more people
+
+        let mut rand_nums: Vec<f64> = (0..bldgs.len()).map(|_| rng.gen_range(0.0, 1.0)).collect();
+        let sum: f64 = rand_nums.iter().sum();
+        for b in bldgs {
+            let n = (rand_nums.pop().unwrap() / sum * (num_residents as f64)) as usize;
+            let bldg_type = match map.get_b(b).bldg_type {
+                map_model::BuildingType::Residential(_) => map_model::BuildingType::Residential(n),
+                map_model::BuildingType::ResidentialCommercial(_) => {
+                    map_model::BuildingType::ResidentialCommercial(n)
+                }
+                _ => unreachable!(),
+            };
+            map.hack_override_bldg_type(b, bldg_type);
+        }
+    }
+
+    map.save();
 }

@@ -40,7 +40,8 @@ TODO:
 This work is [ongoing](https://github.com/dabreegster/abstreet/issues/119). See
 the
 [code](https://github.com/dabreegster/abstreet/blob/master/importer/src/berlin.rs).
-So far, we've found a population count per planning area.
+So far, we've found a population count per planning area and are randomly
+distributing the number of residents to all residential buildings in each area.
 
 ### Proletariat robot
 
