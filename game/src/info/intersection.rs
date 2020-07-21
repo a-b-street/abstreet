@@ -3,7 +3,8 @@ use crate::helpers::color_for_agent_type;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
 use ezgui::{
-    Btn, Color, EventCtx, GeomBatch, Line, PlotOptions, ScatterPlot, Series, Text, Widget,
+    Btn, Checkbox, Color, EventCtx, FanChart, GeomBatch, Line, PlotOptions, ScatterPlot, Series,
+    Text, Widget,
 };
 use geom::{ArrowCap, Distance, Duration, PolyLine, Time};
 use map_model::{IntersectionID, IntersectionType};
@@ -99,20 +100,29 @@ pub fn delay(
     details: &mut Details,
     id: IntersectionID,
     opts: &DataOptions,
+    fan_chart: bool,
 ) -> Vec<Widget> {
     let mut rows = header(
         ctx,
         app,
         details,
         id,
-        Tab::IntersectionDelay(id, opts.clone()),
+        Tab::IntersectionDelay(id, opts.clone(), fan_chart),
     );
     let i = app.primary.map.get_i(id);
 
     assert!(i.is_traffic_signal());
     rows.push(opts.to_controls(ctx, app));
+    rows.push(Checkbox::toggle(
+        ctx,
+        "fan chart / scatter plot",
+        "fan chart",
+        "scatter plot",
+        None,
+        fan_chart,
+    ));
 
-    rows.push(delay_plot(ctx, app, id, opts));
+    rows.push(delay_plot(ctx, app, id, opts, fan_chart));
 
     rows
 }
@@ -214,8 +224,13 @@ pub fn arrivals(
     rows
 }
 
-// TODO a fan chart might be nicer
-fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) -> Widget {
+fn delay_plot(
+    ctx: &EventCtx,
+    app: &App,
+    i: IntersectionID,
+    opts: &DataOptions,
+    fan_chart: bool,
+) -> Widget {
     let data = if opts.show_before {
         app.prebaked()
     } else {
@@ -246,18 +261,19 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
             pts,
         })
         .collect();
+    let plot_opts = PlotOptions {
+        filterable: true,
+        max_x: Some(limit),
+        max_y: None,
+        disabled: opts.disabled_series(),
+    };
     Widget::col(vec![
         Line("Delay through intersection").small_heading().draw(ctx),
-        ScatterPlot::new(
-            ctx,
-            series,
-            PlotOptions {
-                filterable: true,
-                max_x: Some(limit),
-                max_y: None,
-                disabled: opts.disabled_series(),
-            },
-        ),
+        if fan_chart {
+            FanChart::new(ctx, series, plot_opts)
+        } else {
+            ScatterPlot::new(ctx, series, plot_opts)
+        },
     ])
     .padding(10)
     .bg(app.cs.inner_panel)
@@ -292,7 +308,10 @@ fn header(
             ("Traffic", Tab::IntersectionTraffic(id, DataOptions::new())),
         ];
         if i.is_traffic_signal() {
-            tabs.push(("Delay", Tab::IntersectionDelay(id, DataOptions::new())));
+            tabs.push((
+                "Delay",
+                Tab::IntersectionDelay(id, DataOptions::new(), false),
+            ));
             tabs.push(("Current demand", Tab::IntersectionDemand(id)));
         }
         if i.is_incoming_border() {

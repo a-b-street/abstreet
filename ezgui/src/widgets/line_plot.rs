@@ -345,7 +345,7 @@ pub fn make_legend<T: Yvalue<T>>(
 }
 
 // TODO If this proves useful, lift to geom
-fn thick_lineseries(pts: Vec<Pt2D>, width: Distance) -> Polygon {
+pub fn thick_lineseries(pts: Vec<Pt2D>, width: Distance) -> Polygon {
     use lyon::math::{point, Point};
     use lyon::path::Path;
     use lyon::tessellation::geometry_builder::{BuffersBuilder, Positions, VertexBuffers};

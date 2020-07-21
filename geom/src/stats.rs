@@ -39,13 +39,14 @@ impl std::fmt::Display for Statistic {
 }
 
 pub trait HgramValue<T>: Copy + std::cmp::Ord + std::fmt::Display {
-    fn zero() -> T;
+    // TODO Weird name because I can't figure out associated type mess in FanChart
+    fn hgram_zero() -> T;
     fn to_u64(self) -> u64;
     fn from_u64(x: u64) -> T;
 }
 
 impl HgramValue<Duration> for Duration {
-    fn zero() -> Duration {
+    fn hgram_zero() -> Duration {
         Duration::ZERO
     }
     fn to_u64(self) -> u64 {
@@ -57,7 +58,7 @@ impl HgramValue<Duration> for Duration {
 }
 
 impl HgramValue<u16> for u16 {
-    fn zero() -> u16 {
+    fn hgram_zero() -> u16 {
         0
     }
     fn to_u64(self) -> u64 {
@@ -69,7 +70,7 @@ impl HgramValue<u16> for u16 {
 }
 
 impl HgramValue<usize> for usize {
-    fn zero() -> usize {
+    fn hgram_zero() -> usize {
         0
     }
     fn to_u64(self) -> u64 {
@@ -94,8 +95,8 @@ impl<T: HgramValue<T>> Default for Histogram<T> {
         Histogram {
             count: 0,
             histogram: Default::default(),
-            min: T::zero(),
-            max: T::zero(),
+            min: T::hgram_zero(),
+            max: T::hgram_zero(),
         }
     }
 }
@@ -117,6 +118,16 @@ impl<T: HgramValue<T>> Histogram<T> {
         self.histogram
             .increment(x.to_u64())
             .map_err(|err| format!("Can't add {}: {}", x, err))
+            .unwrap();
+    }
+
+    pub fn remove(&mut self, x: T) {
+        // TODO This doesn't update min/max! Why are we tracking that ourselves? Do we not trust
+        // the lossiness of the underlying histogram?
+        self.count -= 1;
+        self.histogram
+            .decrement(x.to_u64())
+            .map_err(|err| format!("Can't remove {}: {}", x, err))
             .unwrap();
     }
 

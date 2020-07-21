@@ -70,7 +70,9 @@ pub enum Tab {
 
     IntersectionInfo(IntersectionID),
     IntersectionTraffic(IntersectionID, DataOptions),
-    IntersectionDelay(IntersectionID, DataOptions),
+    // The extra bool is for fan chart. TODO Probably scatter plot should own the job of switching
+    // between these?
+    IntersectionDelay(IntersectionID, DataOptions, bool),
     IntersectionDemand(IntersectionID),
     IntersectionArrivals(IntersectionID, DataOptions),
 
@@ -94,7 +96,7 @@ impl Tab {
                 "traffic" => Tab::IntersectionTraffic(i, DataOptions::new()),
                 "delay" => {
                     if app.primary.map.get_i(i).is_traffic_signal() {
-                        Tab::IntersectionDelay(i, DataOptions::new())
+                        Tab::IntersectionDelay(i, DataOptions::new(), false)
                     } else {
                         Tab::IntersectionInfo(i)
                     }
@@ -200,7 +202,7 @@ impl Tab {
             Tab::Area(a) => Some(ID::Area(*a)),
             Tab::IntersectionInfo(i)
             | Tab::IntersectionTraffic(i, _)
-            | Tab::IntersectionDelay(i, _)
+            | Tab::IntersectionDelay(i, _, _)
             | Tab::IntersectionDemand(i)
             | Tab::IntersectionArrivals(i, _) => Some(ID::Intersection(*i)),
             Tab::LaneInfo(l) | Tab::LaneDebug(l) | Tab::LaneTraffic(l, _) => Some(ID::Lane(*l)),
@@ -211,7 +213,7 @@ impl Tab {
         // Avoid an occasionally expensive clone.
         match self {
             Tab::IntersectionTraffic(_, _)
-            | Tab::IntersectionDelay(_, _)
+            | Tab::IntersectionDelay(_, _, _)
             | Tab::IntersectionArrivals(_, _)
             | Tab::LaneTraffic(_, _) => {}
             _ => {
@@ -222,7 +224,6 @@ impl Tab {
         let mut new_tab = self.clone();
         match new_tab {
             Tab::IntersectionTraffic(_, ref mut opts)
-            | Tab::IntersectionDelay(_, ref mut opts)
             | Tab::IntersectionArrivals(_, ref mut opts)
             | Tab::LaneTraffic(_, ref mut opts) => {
                 let new_opts = DataOptions::from_controls(c);
@@ -230,6 +231,15 @@ impl Tab {
                     return None;
                 }
                 *opts = new_opts;
+            }
+            Tab::IntersectionDelay(_, ref mut opts, ref mut fan_chart) => {
+                let new_opts = DataOptions::from_controls(c);
+                let new_fan_chart = c.is_checked("fan chart / scatter plot");
+                if *opts == new_opts && *fan_chart == new_fan_chart {
+                    return None;
+                }
+                *opts = new_opts;
+                *fan_chart = new_fan_chart;
             }
             _ => unreachable!(),
         }
@@ -252,7 +262,7 @@ impl Tab {
             Tab::Area(_) => ("area", "info"),
             Tab::IntersectionInfo(_) => ("intersection", "info"),
             Tab::IntersectionTraffic(_, _) => ("intersection", "traffic"),
-            Tab::IntersectionDelay(_, _) => ("intersection", "delay"),
+            Tab::IntersectionDelay(_, _, _) => ("intersection", "delay"),
             Tab::IntersectionDemand(_) => ("intersection", "demand"),
             Tab::IntersectionArrivals(_, _) => ("intersection", "arrivals"),
             Tab::LaneInfo(_) => ("lane", "info"),
@@ -319,9 +329,10 @@ impl InfoPanel {
                 intersection::traffic(ctx, app, &mut details, i, opts),
                 false,
             ),
-            Tab::IntersectionDelay(i, ref opts) => {
-                (intersection::delay(ctx, app, &mut details, i, opts), false)
-            }
+            Tab::IntersectionDelay(i, ref opts, fan_chart) => (
+                intersection::delay(ctx, app, &mut details, i, opts, fan_chart),
+                false,
+            ),
             Tab::IntersectionDemand(i) => (
                 intersection::current_demand(ctx, app, &mut details, i),
                 false,

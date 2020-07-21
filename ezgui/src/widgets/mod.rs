@@ -4,6 +4,7 @@ pub mod checkbox;
 pub mod compare_times;
 pub mod containers;
 pub mod dropdown;
+pub mod fan_chart;
 pub mod filler;
 pub mod just_draw;
 pub mod line_plot;

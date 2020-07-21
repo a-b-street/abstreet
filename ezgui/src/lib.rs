@@ -11,6 +11,7 @@
 //! * [`CompareTimes`] - a scatter plot specialized for comparing times
 //! * [`DrawWithTooltips`] - draw static geometry, with mouse tooltips in certain regions
 //! * [`Dropdown`] - a button that expands into a menu
+//! * [`FanChart`] - visualize a range of values over time
 //! * [`Filler`] - just carve out space in the layout for something else
 //! * [`JustDraw`] (argh private) - just draw text, `GeomBatch`es, SVGs
 //! * [`LinePlot`] - visualize 2 variables with a line plot
@@ -65,6 +66,7 @@ pub(crate) use crate::widgets::button::Button;
 pub use crate::widgets::checkbox::Checkbox;
 pub use crate::widgets::compare_times::CompareTimes;
 pub(crate) use crate::widgets::dropdown::Dropdown;
+pub use crate::widgets::fan_chart::FanChart;
 pub use crate::widgets::filler::Filler;
 pub use crate::widgets::just_draw::DrawWithTooltips;
 pub(crate) use crate::widgets::just_draw::JustDraw;
