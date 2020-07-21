@@ -1,6 +1,7 @@
 use crate::app::App;
 use crate::helpers::ID;
 use crate::info::{header_btns, make_tabs, Details, Tab};
+use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Btn, Color, EventCtx, Line, RewriteColor, Text, TextExt, Widget};
 use geom::{Circle, Distance, Time};
 use map_model::{BusRouteID, BusStopID, PathConstraints};
@@ -49,7 +50,46 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         rows.push(txt.draw(ctx));
     }
 
-    // TODO new thing
+    let mut boardings: Counter<BusRouteID> = Counter::new();
+    let mut alightings: Counter<BusRouteID> = Counter::new();
+    if let Some(list) = app.primary.sim.get_analytics().passengers_boarding.get(&id) {
+        for (_, r, _) in list {
+            boardings.inc(*r);
+        }
+    }
+    if let Some(list) = app
+        .primary
+        .sim
+        .get_analytics()
+        .passengers_alighting
+        .get(&id)
+    {
+        for (_, r) in list {
+            alightings.inc(*r);
+        }
+    }
+    let mut txt = Text::new();
+    txt.add(Line("Total"));
+    txt.append(
+        Line(format!(
+            ": {} boardings, {} alightings",
+            prettyprint_usize(boardings.sum()),
+            prettyprint_usize(alightings.sum())
+        ))
+        .secondary(),
+    );
+    for r in app.primary.map.get_routes_serving_stop(id) {
+        txt.add(Line(format!("Route {}", r.short_name)));
+        txt.append(
+            Line(format!(
+                ": {} boardings, {} alightings",
+                prettyprint_usize(boardings.get(r.id)),
+                prettyprint_usize(alightings.get(r.id))
+            ))
+            .secondary(),
+        );
+    }
+    rows.push(txt.draw(ctx));
 
     // Draw where the bus/train stops
     details.zoomed.push(
@@ -155,6 +195,38 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         }
     }
 
+    let mut boardings: Counter<BusStopID> = Counter::new();
+    let mut alightings: Counter<BusStopID> = Counter::new();
+    for bs in &route.stops {
+        if let Some(list) = app.primary.sim.get_analytics().passengers_boarding.get(bs) {
+            for (_, r, _) in list {
+                if *r == id {
+                    boardings.inc(*bs);
+                }
+            }
+        }
+        if let Some(list) = app.primary.sim.get_analytics().passengers_alighting.get(bs) {
+            for (_, r) in list {
+                if *r == id {
+                    alightings.inc(*bs);
+                }
+            }
+        }
+    }
+
+    rows.push(
+        Text::from_all(vec![
+            Line("Total"),
+            Line(format!(
+                ": {} boardings, {} alightings",
+                prettyprint_usize(boardings.sum()),
+                prettyprint_usize(alightings.sum())
+            ))
+            .secondary(),
+        ])
+        .draw(ctx),
+    );
+
     rows.push(format!("{} stops", route.stops.len()).draw_text(ctx));
     for bs in &route.stops {
         let bs = app.primary.map.get_bs(*bs);
@@ -164,7 +236,16 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
                 RewriteColor::Change(Color::hex("#CC4121"), app.cs.hovering),
             )
             .build(ctx, &bs.name, None),
-            Line(&bs.name).draw(ctx),
+            Text::from_all(vec![
+                Line(&bs.name),
+                Line(format!(
+                    ": {} boardings, {} alightings",
+                    prettyprint_usize(boardings.get(bs.id)),
+                    prettyprint_usize(alightings.get(bs.id))
+                ))
+                .secondary(),
+            ])
+            .draw(ctx),
         ]));
         details.warpers.insert(bs.name.clone(), ID::BusStop(bs.id));
     }
