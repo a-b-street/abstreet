@@ -17,6 +17,9 @@ pub enum Event {
 
     BusArrivedAtStop(CarID, BusRouteID, BusStopID),
     BusDepartedFromStop(CarID, BusRouteID, BusStopID),
+    // How long waiting at the stop?
+    PassengerBoardsTransit(PersonID, CarID, BusRouteID, BusStopID, Duration),
+    PassengerAlightsTransit(PersonID, CarID, BusRouteID, BusStopID),
 
     PersonEntersBuilding(PersonID, BuildingID),
     PersonLeavesBuilding(PersonID, BuildingID),

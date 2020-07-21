@@ -1,6 +1,6 @@
 use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
 use abstutil::Counter;
-use geom::{Distance, Duration, Histogram, Time};
+use geom::{Distance, Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Path, PathRequest, RoadID,
     Traversable, TurnGroupID,
@@ -15,19 +15,27 @@ pub struct Analytics {
 
     // Unlike everything else in Analytics, this is just for a moment in time.
     pub demand: BTreeMap<TurnGroupID, usize>,
+
+    // TODO Reconsider this one
     pub bus_arrivals: Vec<(Time, CarID, BusRouteID, BusStopID)>,
-    pub bus_passengers_waiting: Vec<(Time, BusStopID, BusRouteID)>,
+    // For each passenger boarding, how long did they wait at the stop?
+    pub passengers_boarding: BTreeMap<BusStopID, Vec<(Time, BusRouteID, Duration)>>,
+    pub passengers_alighting: BTreeMap<BusStopID, Vec<(Time, BusRouteID)>>,
+
     pub started_trips: BTreeMap<TripID, Time>,
     // TODO Hack: No TripMode means aborted
     // Finish time, ID, mode (or None as aborted), trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
+
     // TODO Transit riders aren't represented here yet, just the vehicle they're riding.
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration, AgentType)>>,
+
     // Per parking lane or lot, when does a spot become filled (true) or free (false)
     pub parking_lane_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
     pub parking_lot_changes: BTreeMap<ParkingLotID, Vec<(Time, bool)>>,
+
     pub(crate) alerts: Vec<(Time, AlertLocation, String)>,
 
     // After we restore from a savestate, don't record anything. This is only going to make sense
@@ -43,7 +51,8 @@ impl Analytics {
             intersection_thruput: TimeSeriesCount::new(),
             demand: BTreeMap::new(),
             bus_arrivals: Vec::new(),
-            bus_passengers_waiting: Vec::new(),
+            passengers_boarding: BTreeMap::new(),
+            passengers_alighting: BTreeMap::new(),
             started_trips: BTreeMap::new(),
             finished_trips: Vec::new(),
             trip_log: Vec::new(),
@@ -111,11 +120,18 @@ impl Analytics {
             self.bus_arrivals.push((time, bus, route, stop));
         }
 
-        // Bus passengers
-        if let Event::TripPhaseStarting(_, _, _, ref tpt) = ev {
-            if let TripPhaseType::WaitingForBus(route, stop) = tpt {
-                self.bus_passengers_waiting.push((time, *stop, *route));
-            }
+        // Passengers boarding/alighting
+        if let Event::PassengerBoardsTransit(_, _, route, stop, waiting) = ev {
+            self.passengers_boarding
+                .entry(stop)
+                .or_insert_with(Vec::new)
+                .push((time, route, waiting));
+        }
+        if let Event::PassengerAlightsTransit(_, _, route, stop) = ev {
+            self.passengers_alighting
+                .entry(stop)
+                .or_insert_with(Vec::new)
+                .push((time, route));
         }
 
         // Started trips
@@ -281,49 +297,6 @@ impl Analytics {
             }
         }
         results
-    }
-
-    // At some moment in time, what's the distribution of passengers waiting for a route like?
-    pub fn bus_passenger_delays(
-        &self,
-        now: Time,
-        r: BusRouteID,
-    ) -> impl Iterator<Item = (BusStopID, Histogram<Duration>)> {
-        let mut waiting_per_stop = BTreeMap::new();
-        for (t, stop, route) in &self.bus_passengers_waiting {
-            if *t > now {
-                break;
-            }
-            if *route == r {
-                waiting_per_stop
-                    .entry(*stop)
-                    .or_insert_with(Vec::new)
-                    .push(*t);
-            }
-        }
-
-        for (t, _, route, stop) in &self.bus_arrivals {
-            if *t > now {
-                break;
-            }
-            if *route == r {
-                if let Some(ref mut times) = waiting_per_stop.get_mut(stop) {
-                    times.retain(|time| *time > *t);
-                }
-            }
-        }
-
-        waiting_per_stop.into_iter().filter_map(move |(k, v)| {
-            let mut delays = Histogram::new();
-            for t in v {
-                delays.add(now - t);
-            }
-            if delays.count() == 0 {
-                None
-            } else {
-                Some((k, delays))
-            }
-        })
     }
 
     pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {

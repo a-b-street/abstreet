@@ -114,8 +114,12 @@ impl App {
                     prettyprint_usize(serialized_size_bytes(&a.bus_arrivals))
                 );
                 println!(
-                    "- bus_passengers_waiting: {} bytes",
-                    prettyprint_usize(serialized_size_bytes(&a.bus_passengers_waiting))
+                    "- passengers_boarding: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.passengers_boarding))
+                );
+                println!(
+                    "- passengers_alighting: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.passengers_alighting))
                 );
                 println!(
                     "- started_trips: {} bytes",

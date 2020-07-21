@@ -194,6 +194,9 @@ impl TransitSimState {
                 for (person, stop2) in bus.passengers.drain(..) {
                     if stop1 == stop2 {
                         trips.person_left_bus(now, person, bus.car, map, scheduler);
+                        self.events.push(Event::PassengerAlightsTransit(
+                            person, bus.car, bus.route, stop1,
+                        ));
                     } else {
                         still_riding.push((person, stop2));
                     }
@@ -213,6 +216,13 @@ impl TransitSimState {
                             now - started_waiting,
                             walking,
                         );
+                        self.events.push(Event::PassengerBoardsTransit(
+                            person,
+                            bus.car,
+                            bus.route,
+                            stop1,
+                            now - started_waiting,
+                        ));
                         self.events.push(Event::TripPhaseStarting(
                             trip,
                             person,

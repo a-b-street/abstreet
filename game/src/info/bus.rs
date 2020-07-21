@@ -1,11 +1,10 @@
 use crate::app::App;
 use crate::helpers::ID;
 use crate::info::{header_btns, make_tabs, Details, Tab};
-use ezgui::{Btn, Color, EventCtx, GeomBatch, Line, RewriteColor, Text, TextExt, Widget};
-use geom::{Circle, Distance, Polygon, Pt2D, Statistic, Time};
-use map_model::{BusRoute, BusRouteID, BusStopID, PathConstraints};
+use ezgui::{Btn, Color, EventCtx, Line, RewriteColor, Text, TextExt, Widget};
+use geom::{Circle, Distance, Time};
+use map_model::{BusRouteID, BusStopID, PathConstraints};
 use sim::{AgentID, CarID};
-use std::collections::BTreeMap;
 
 pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
     let bs = app.primary.map.get_bs(id);
@@ -25,11 +24,14 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         if buses.is_empty() {
             rows.push(format!("Route {}: no buses running", r.short_name).draw_text(ctx));
         } else {
-            rows.push(Btn::text_fg(format!("Route {}", r.short_name)).build_def(ctx, None));
-            details.hyperlinks.insert(
-                format!("Route {}", r.short_name),
-                Tab::BusStatus(buses[0].0),
-            );
+            rows.push(Btn::text_fg(format!("Route {}", r.short_name)).build(
+                ctx,
+                &r.full_name,
+                None,
+            ));
+            details
+                .hyperlinks
+                .insert(r.full_name.clone(), Tab::BusStatus(buses[0].0));
         }
 
         let arrivals: Vec<(Time, CarID)> = all_arrivals
@@ -44,17 +46,10 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         } else {
             txt.add(Line("  No arrivals yet").secondary());
         }
-        // TODO Kind of inefficient...
-        if let Some(hgram) = sim
-            .get_analytics()
-            .bus_passenger_delays(sim.time(), r.id)
-            .find(|x| x.0 == id)
-            .map(|x| x.1)
-        {
-            txt.add(Line(format!("  Waiting: {}", hgram.describe())).secondary());
-        }
         rows.push(txt.draw(ctx));
     }
+
+    // TODO new thing
 
     // Draw where the bus/train stops
     details.zoomed.push(
@@ -86,8 +81,6 @@ pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
         ))
         .draw(ctx),
     );
-
-    rows.push(passenger_delay(ctx, app, details, route));
 
     rows
 }
@@ -130,81 +123,6 @@ fn bus_header(
     rows
 }
 
-fn passenger_delay(
-    ctx: &mut EventCtx,
-    app: &App,
-    details: &mut Details,
-    route: &BusRoute,
-) -> Widget {
-    let mut master_col = vec![Line("Passengers waiting").small_heading().draw(ctx)];
-    let mut col = Vec::new();
-
-    let mut delay_per_stop = app
-        .primary
-        .sim
-        .get_analytics()
-        .bus_passenger_delays(app.primary.sim.time(), route.id)
-        .collect::<BTreeMap<_, _>>();
-    // TODO I smell an off by one
-    for idx in 0..route.stops.len() {
-        col.push(Widget::row(vec![
-            format!("Stop {}", idx + 1).draw_text(ctx),
-            Btn::svg(
-                "system/assets/tools/pin.svg",
-                RewriteColor::Change(Color::hex("#CC4121"), app.cs.hovering),
-            )
-            .build(ctx, format!("Stop {}", idx + 1), None),
-            if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
-                format!(
-                    ": {} (avg {})",
-                    hgram.count(),
-                    hgram.select(Statistic::Mean).unwrap()
-                )
-                .draw_text(ctx)
-            } else {
-                ": nobody".draw_text(ctx)
-            },
-        ]));
-        details
-            .warpers
-            .insert(format!("Stop {}", idx + 1), ID::BusStop(route.stops[idx]));
-    }
-
-    let y_len = ctx.default_line_height() * (route.stops.len() as f64);
-    let mut batch = GeomBatch::new();
-    batch.push(
-        Color::CYAN,
-        Polygon::rounded_rectangle(15.0, y_len, Some(4.0)),
-    );
-    for (_, stop_idx, percent_next_stop) in app.primary.sim.status_of_buses(route.id) {
-        // TODO This whole function is wrong
-        let idx = if let Some(i) = stop_idx {
-            i as f64
-        } else {
-            continue;
-        };
-        // TODO Line it up right in the middle of the line of text. This is probably a bit
-        // wrong.
-        let base_percent_y = idx / ((route.stops.len() - 1) as f64);
-        batch.push(
-            Color::BLUE,
-            Circle::new(
-                Pt2D::new(
-                    7.5,
-                    base_percent_y * y_len + percent_next_stop * ctx.default_line_height(),
-                ),
-                Distance::meters(5.0),
-            )
-            .to_polygon(),
-        );
-    }
-    let timeline = Widget::draw_batch(ctx, batch);
-
-    master_col.push(Widget::row(vec![timeline, Widget::col(col)]));
-
-    Widget::col(master_col)
-}
-
 pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteID) -> Vec<Widget> {
     let route = app.primary.map.get_br(id);
     let mut rows = vec![];
@@ -235,6 +153,20 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
                 .hyperlinks
                 .insert(bus.to_string(), Tab::BusStatus(bus));
         }
+    }
+
+    rows.push(format!("{} stops", route.stops.len()).draw_text(ctx));
+    for bs in &route.stops {
+        let bs = app.primary.map.get_bs(*bs);
+        rows.push(Widget::row(vec![
+            Btn::svg(
+                "system/assets/tools/pin.svg",
+                RewriteColor::Change(Color::hex("#CC4121"), app.cs.hovering),
+            )
+            .build(ctx, &bs.name, None),
+            Line(&bs.name).draw(ctx),
+        ]));
+        details.warpers.insert(bs.name.clone(), ID::BusStop(bs.id));
     }
 
     rows
