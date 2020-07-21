@@ -19,7 +19,8 @@ pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,
     border_to_block: HashMap<IntersectionID, BlockID>,
     blocks: Vec<Block>,
-    selected: Option<CurrentBlock>,
+    block_drawables: HashMap<(BlockID, BlockDrawableType), Drawable>,
+    selection: BlockSelection,
     filter: Filter,
 
     // Indexed by BlockID
@@ -30,11 +31,17 @@ pub struct CommuterPatterns {
     draw_all_blocks: Drawable,
 }
 
-struct CurrentBlock {
-    id: BlockID,
-    draw: Drawable,
-    // After clicking a block, show its outline to indicate it's been clicked.
-    sticky: Option<Drawable>,
+#[derive(PartialEq)]
+enum BlockSelection {
+    Unlocked(Option<BlockID>),
+    Locked(BlockID, Option<BlockID>),
+}
+
+#[derive(PartialEq, Eq, Hash)]
+enum BlockDrawableType {
+    Base,
+    BaseLocked,
+    CompareTo,
 }
 
 // Group many buildings into a single block
@@ -93,7 +100,8 @@ impl CommuterPatterns {
             bldg_to_block,
             border_to_block,
             blocks,
-            selected: None,
+            block_drawables: HashMap::new(),
+            selection: BlockSelection::Unlocked(None),
             trips_from_block,
             trips_to_block,
             filter: Filter {
@@ -156,6 +164,10 @@ impl CommuterPatterns {
             .map(|(id, cnt)| (&self.blocks[id], cnt))
             .collect()
     }
+
+    fn clear_drawables_cache(&mut self) {
+        self.block_drawables.clear();
+    }
 }
 
 impl State for CommuterPatterns {
@@ -172,46 +184,54 @@ impl State for CommuterPatterns {
             None => {}
         }
 
-        let old_block = self.selected.as_ref().map(|b| b.id);
-        if let Some(ref mut current) = self.selected {
-            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if app.per_obj.left_click(ctx, "change current block") {
+        let old_base_block_id = match self.selection {
+            BlockSelection::Locked(clicked, _) => Some(clicked),
+            BlockSelection::Unlocked(hovered) => hovered,
+        };
+
+        if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+            if let Some(b) = self.blocks.iter().find(|b| b.shape.contains_pt(pt)) {
+                if app.per_obj.left_click(ctx, "clicked block") {
                     if let Some(b) = self.blocks.iter().find(|b| b.shape.contains_pt(pt)) {
-                        current.id = b.id;
-                        current.sticky = Some(ctx.upload(GeomBatch::from(vec![(
-                                Color::BLACK,
-                                self.blocks[current.id]
-                                    .shape
-                                    .to_outline(Distance::meters(10.0))
-                                    .unwrap(),
-                            )])));
-                    } else {
-                        self.selected = None;
-                    }
-                }
-            }
-        }
-        if self
-            .selected
-            .as_ref()
-            .map(|b| b.sticky.is_none())
-            .unwrap_or(true)
-            && ctx.redo_mouseover()
-        {
-            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if let Some(b) = self.blocks.iter().find(|b| b.shape.contains_pt(pt)) {
-                    if old_block != Some(b.id) {
-                        self.selected = Some(CurrentBlock {
-                            id: b.id,
-                            draw: ctx.upload(GeomBatch::new()),
-                            sticky: None,
-                        });
+                        if self.selection != BlockSelection::Locked(b.id, None) {
+                            self.selection = BlockSelection::Locked(b.id, None);
+                        }
                     }
                 } else {
-                    self.selected = None;
+                    match self.selection {
+                        BlockSelection::Locked(old_clicked_id, old_hovered_id) => {
+                            let new_hovered_id = if b.id == old_clicked_id {
+                                None
+                            } else {
+                                Some(b.id)
+                            };
+
+                            if old_hovered_id != new_hovered_id {
+                                self.selection =
+                                    BlockSelection::Locked(old_clicked_id, new_hovered_id)
+                            }
+                        }
+                        BlockSelection::Unlocked(old_id) => {
+                            if old_id != Some(b.id) {
+                                self.selection = BlockSelection::Unlocked(Some(b.id))
+                            }
+                        }
+                    };
                 }
+            } else {
+                self.selection = match self.selection {
+                    BlockSelection::Locked(clicked, _hovered) => {
+                        BlockSelection::Locked(clicked, None)
+                    }
+                    BlockSelection::Unlocked(_) => BlockSelection::Unlocked(None),
+                };
             }
         }
+
+        let base_block_id = match self.selection {
+            BlockSelection::Locked(clicked, _) => Some(clicked),
+            BlockSelection::Unlocked(hovered) => hovered,
+        };
 
         let mut filter = Filter {
             from_block: self.composite.is_checked("from / to this block"),
@@ -234,11 +254,25 @@ impl State for CommuterPatterns {
             }
         }
 
-        if old_block != self.selected.as_ref().map(|b| b.id) || filter != self.filter {
+        let mut should_clear_drawables_cache = false;
+        if filter != self.filter {
             self.filter = filter;
-            if let Some(id) = self.selected.as_ref().map(|b| b.id) {
-                let block = &self.blocks[id];
+            should_clear_drawables_cache = true;
+        }
 
+        if old_base_block_id != base_block_id {
+            should_clear_drawables_cache = true;
+        }
+
+        if should_clear_drawables_cache {
+            self.clear_drawables_cache();
+        }
+
+        // Draw updates for selected block
+        if let Some(base_block_id) = base_block_id {
+            let block = &self.blocks[base_block_id];
+            let key = (base_block_id, BlockDrawableType::Base);
+            if !self.block_drawables.contains_key(&key) {
                 // Show the members of this block
                 let mut batch = GeomBatch::new();
                 let mut building_counts: Vec<(&str, u32)> = vec![
@@ -265,12 +299,11 @@ impl State for CommuterPatterns {
 
                 {
                     // Indicate direction over current block
-                    let (icon_name, icon_scale) =
-                        if self.composite.is_checked("from / to this block") {
-                            ("outward.svg", 1.2)
-                        } else {
-                            ("inward.svg", 1.0)
-                        };
+                    let (icon_name, icon_scale) = if self.filter.from_block {
+                        ("outward.svg", 1.2)
+                    } else {
+                        ("inward.svg", 1.0)
+                    };
 
                     let center = block.shape.polylabel();
                     let icon = GeomBatch::mapspace_svg(
@@ -284,7 +317,7 @@ impl State for CommuterPatterns {
                     batch.append(icon);
                 }
 
-                let others = self.count_per_block(block);
+                let others = self.count_per_block(&block);
                 let mut total_trips = 0;
                 let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap_or(0);
                 if !others.is_empty() {
@@ -299,7 +332,8 @@ impl State for CommuterPatterns {
                     }
                 }
 
-                self.selected.as_mut().unwrap().draw = ctx.upload(batch);
+                let primary_drawable = ctx.upload(batch);
+                self.block_drawables.insert(key, primary_drawable);
 
                 let mut txt = Text::new();
                 txt.add(Line(format!("Total: {} trips", total_trips)));
@@ -308,6 +342,7 @@ impl State for CommuterPatterns {
                         txt.add(Line(format!("{}: {}", name, cnt)));
                     }
                 }
+
                 self.composite
                     .replace(ctx, "current", txt.draw(ctx).named("current"));
 
@@ -321,14 +356,65 @@ impl State for CommuterPatterns {
                 )
                 .named("scale");
                 self.composite.replace(ctx, "scale", new_scale);
-            } else {
-                self.composite.replace(
-                    ctx,
-                    "current",
-                    "None selected".draw_text(ctx).named("current"),
-                );
             }
+        } else {
+            self.composite.replace(
+                ctx,
+                "current",
+                "None selected".draw_text(ctx).named("current"),
+            );
         }
+
+        // Draw outline for Locked Selection
+        match self.selection {
+            BlockSelection::Locked(clicked, _) => {
+                let key = (clicked, BlockDrawableType::BaseLocked);
+                if !self.block_drawables.contains_key(&key) {
+                    let d = ctx.upload(GeomBatch::from(vec![(
+                        Color::BLACK,
+                        self.blocks[clicked]
+                            .shape
+                            .to_outline(Distance::meters(10.0))
+                            .unwrap(),
+                    )]));
+                    self.block_drawables.insert(key, d);
+                }
+            }
+            _ => {}
+        };
+
+        // While selection is locked, draw an overlay with compare_to information for the hovered
+        // block
+        match self.selection {
+            BlockSelection::Locked(clicked, Some(hovered)) => {
+                let key = (hovered, BlockDrawableType::CompareTo);
+                if !self.block_drawables.contains_key(&key) {
+                    let block = &self.blocks[hovered];
+
+                    let border = block.shape.to_outline(Distance::meters(10.0)).unwrap();
+
+                    let mut batch = GeomBatch::from(vec![(Color::WHITE.alpha(0.8), border)]);
+
+                    let base_block = &self.blocks[clicked];
+                    let others = self.count_per_block(&base_block);
+                    let count = others
+                        .into_iter()
+                        .find(|(block, _)| block.id == hovered)
+                        .map(|(_, count)| count)
+                        .unwrap_or(0);
+                    let label_text = format!("{}", count);
+                    batch.append(
+                        Text::from(Line(label_text).fg(Color::WHITE))
+                            .render_to_batch(ctx.prerender)
+                            .centered_on(block.shape.polylabel()),
+                    );
+
+                    let d = ctx.upload(batch);
+                    self.block_drawables.insert(key, d);
+                }
+            }
+            _ => {}
+        };
 
         Transition::Keep
     }
@@ -346,12 +432,27 @@ impl State for CommuterPatterns {
         );
 
         g.redraw(&self.draw_all_blocks);
-        if let Some(ref b) = self.selected {
-            g.redraw(&b.draw);
-            if let Some(ref d) = b.sticky {
-                g.redraw(d);
+
+        match self.selection {
+            BlockSelection::Locked(clicked, hovered) => {
+                let d = &self.block_drawables[&(clicked, BlockDrawableType::Base)];
+                g.redraw(&d);
+
+                let d = &self.block_drawables[&(clicked, BlockDrawableType::BaseLocked)];
+                g.redraw(&d);
+
+                if let Some(compare_to) = hovered {
+                    let d = &self.block_drawables[&(compare_to, BlockDrawableType::CompareTo)];
+                    g.redraw(&d);
+                }
             }
+            BlockSelection::Unlocked(Some(hovered)) => {
+                let d = &self.block_drawables[&(hovered, BlockDrawableType::Base)];
+                g.redraw(&d);
+            }
+            _ => {}
         }
+
         self.composite.draw(g);
         CommonState::draw_osd(g, app);
     }
