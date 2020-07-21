@@ -5,8 +5,8 @@ use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, VerticalAlignment, Widget,
 };
-use geom::{Duration, Polygon, Pt2D};
-use map_model::{connectivity, IntersectionID};
+use geom::{Distance, Polygon};
+use map_model::{connectivity, BuildingID};
 
 // TODO Move cursor live
 pub struct IsochroneViewer {
@@ -15,7 +15,7 @@ pub struct IsochroneViewer {
 }
 
 impl IsochroneViewer {
-    pub fn new(ctx: &mut EventCtx, app: &App, start: IntersectionID) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State> {
         let draw = make_isochrone(ctx, app, start);
         Box::new(IsochroneViewer {
             composite: Composite::new(Widget::col(vec![
@@ -57,55 +57,53 @@ impl State for IsochroneViewer {
     }
 }
 
-// TODO Probably to start, just color lanes/intersections
-fn make_isochrone(ctx: &mut EventCtx, app: &App, start: IntersectionID) -> Drawable {
+fn make_isochrone(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Drawable {
     let bounds = app.primary.map.get_bounds();
     let resolution_m = 100.0;
-    let mut grid: Grid<Duration> = Grid::new(
+    // Distance in meters
+    let mut grid: Grid<f64> = Grid::new(
         (bounds.width() / resolution_m).ceil() as usize,
         (bounds.height() / resolution_m).ceil() as usize,
-        Duration::ZERO,
+        0.0,
     );
 
-    for (i, cost) in connectivity::all_costs_from(&app.primary.map, start) {
-        let pt = app.primary.map.get_i(i).polygon.center();
+    for (b, cost) in connectivity::all_costs_from(&app.primary.map, start) {
+        let pt = app.primary.map.get_b(b).polygon.center();
         let idx = grid.idx(
             ((pt.x() - bounds.min_x) / resolution_m) as usize,
             ((pt.y() - bounds.min_y) / resolution_m) as usize,
         );
-        // Don't add! If two intersections map to the same cell, should pick a finer resolution.
-        grid.data[idx] = cost;
+        // Don't add! If two buildings map to the same cell, should pick a finer resolution.
+        grid.data[idx] = cost.inner_meters();
     }
 
-    // Turn into contours
-    let mut rows = Vec::new();
-    for row in grid.data.chunks(grid.width) {
-        rows.push(row.into_iter().map(|x| x.inner_seconds() as i16).collect());
-    }
-    let field = marching_squares::Field {
-        dimensions: (grid.width, grid.height),
-        top_left: marching_squares::Point { x: 0.0, y: 0.0 },
-        pixel_size: (resolution_m as f32, resolution_m as f32),
-        values: &rows,
-    };
+    let thresholds = vec![
+        0.1,
+        Distance::miles(0.5).inner_meters(),
+        Distance::miles(3.0).inner_meters(),
+        Distance::miles(6.0).inner_meters(),
+    ];
+    let colors = vec![
+        Color::BLACK.alpha(0.5),
+        Color::GREEN.alpha(0.5),
+        Color::BLUE.alpha(0.5),
+        Color::RED.alpha(0.5),
+    ];
+    let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, false);
     let mut batch = GeomBatch::new();
-    for (color, threshold) in vec![
-        (Color::RED.alpha(0.5), Duration::seconds(30.0)),
-        (Color::BLUE.alpha(0.5), Duration::minutes(2)),
-    ] {
-        for line in field.get_contours(threshold.inner_seconds() as i16) {
-            if line.points.len() >= 3 {
-                batch.push(
-                    color,
-                    Polygon::new(
-                        &line
-                            .points
-                            .into_iter()
-                            .map(|pt| Pt2D::new(pt.x.into(), pt.y.into()))
-                            .collect(),
-                    ),
-                );
+    for (feature, color) in c
+        .contours(&grid.data, &thresholds)
+        .unwrap()
+        .into_iter()
+        .zip(colors)
+    {
+        match feature.geometry.unwrap().value {
+            geojson::Value::MultiPolygon(polygons) => {
+                for p in polygons {
+                    batch.push(color, Polygon::from_geojson(&p).scale(resolution_m));
+                }
             }
+            _ => unreachable!(),
         }
     }
 

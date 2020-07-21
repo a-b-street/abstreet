@@ -413,7 +413,6 @@ impl ContextualActions for Actions {
                     }
                     if app.opts.dev {
                         actions.push((Key::U, "explore uber-turns".to_string()));
-                        actions.push((Key::I, "explore isochrone from here".to_string()));
                     }
                 }
                 ID::Lane(l) => {
@@ -428,6 +427,11 @@ impl ContextualActions for Actions {
                     if c.1 == VehicleType::Bus || c.1 == VehicleType::Train {
                         // TODO Hide the button if the layer is open
                         actions.push((Key::R, "show route".to_string()));
+                    }
+                }
+                ID::Building(_) => {
+                    if app.opts.dev {
+                        actions.push((Key::I, "explore isochrone from here".to_string()));
                     }
                 }
                 _ => {}
@@ -459,9 +463,6 @@ impl ContextualActions for Actions {
             (ID::Intersection(i), "explore uber-turns") => {
                 Transition::Push(uber_turns::UberTurnPicker::new(ctx, app, i))
             }
-            (ID::Intersection(i), "explore isochrone from here") => {
-                Transition::Push(IsochroneViewer::new(ctx, app, i))
-            }
             (ID::Lane(l), "explore turns from this lane") => {
                 Transition::Push(TurnExplorer::new(ctx, app, l))
             }
@@ -477,6 +478,9 @@ impl ContextualActions for Actions {
                     app.primary.sim.bus_route_id(c).unwrap(),
                 )));
                 Transition::Keep
+            }
+            (ID::Building(b), "explore isochrone from here") => {
+                Transition::Push(IsochroneViewer::new(ctx, app, b))
             }
             (_, "follow (run the simulation)") => {
                 *close_panel = false;
