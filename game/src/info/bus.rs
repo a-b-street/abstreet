@@ -3,7 +3,7 @@ use crate::helpers::ID;
 use crate::info::{header_btns, make_tabs, Details, Tab};
 use ezgui::{Btn, Color, EventCtx, GeomBatch, Line, RewriteColor, Text, TextExt, Widget};
 use geom::{Circle, Distance, Polygon, Pt2D, Statistic, Time};
-use map_model::{BusRoute, BusStopID};
+use map_model::{BusRoute, BusRouteID, BusStopID, PathConstraints};
 use sim::{AgentID, CarID};
 use std::collections::BTreeMap;
 
@@ -23,12 +23,13 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
     for r in app.primary.map.get_routes_serving_stop(id) {
         let buses = app.primary.sim.status_of_buses(r.id);
         if buses.is_empty() {
-            rows.push(format!("Route {}: no buses running", r.full_name).draw_text(ctx));
+            rows.push(format!("Route {}: no buses running", r.short_name).draw_text(ctx));
         } else {
-            rows.push(Btn::text_fg(format!("Route {}", r.full_name)).build_def(ctx, None));
-            details
-                .hyperlinks
-                .insert(format!("Route {}", r.full_name), Tab::BusStatus(buses[0].0));
+            rows.push(Btn::text_fg(format!("Route {}", r.short_name)).build_def(ctx, None));
+            details.hyperlinks.insert(
+                format!("Route {}", r.short_name),
+                Tab::BusStatus(buses[0].0),
+            );
         }
 
         let arrivals: Vec<(Time, CarID)> = all_arrivals
@@ -72,11 +73,12 @@ pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
         .map
         .get_br(app.primary.sim.bus_route_id(id).unwrap());
 
-    rows.push(
-        Text::from(Line(format!("Serves {}", route.full_name)))
-            .wrap_to_pct(ctx, 20)
-            .draw(ctx),
+    rows.push(Btn::text_fg(format!("Serves route {}", route.short_name)).build_def(ctx, None));
+    details.hyperlinks.insert(
+        format!("Serves route {}", route.short_name),
+        Tab::BusRoute(route.id),
     );
+
     rows.push(
         Line(format!(
             "Currently has {} passengers",
@@ -201,4 +203,39 @@ fn passenger_delay(
     master_col.push(Widget::row(vec![timeline, Widget::col(col)]));
 
     Widget::col(master_col)
+}
+
+pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteID) -> Vec<Widget> {
+    let route = app.primary.map.get_br(id);
+    let mut rows = vec![];
+
+    rows.push(Widget::row(vec![
+        Line(format!("Route {}", route.short_name))
+            .small_heading()
+            .draw(ctx),
+        header_btns(ctx),
+    ]));
+    rows.push(
+        Text::from(Line(&route.full_name))
+            .wrap_to_pct(ctx, 20)
+            .draw(ctx),
+    );
+
+    let buses = app.primary.sim.status_of_buses(id);
+    if buses.is_empty() {
+        if route.route_type == PathConstraints::Bus {
+            rows.push("No buses running".draw_text(ctx));
+        } else {
+            rows.push("No trains running".draw_text(ctx));
+        }
+    } else {
+        for (bus, _, _) in buses {
+            rows.push(Btn::text_fg(bus.to_string()).build_def(ctx, None));
+            details
+                .hyperlinks
+                .insert(bus.to_string(), Tab::BusStatus(bus));
+        }
+    }
+
+    rows
 }

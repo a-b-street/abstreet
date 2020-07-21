@@ -5,9 +5,9 @@ use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use ezgui::{
     Autocomplete, Btn, Composite, EventCtx, GfxCtx, Line, LinePlot, Outcome, PlotOptions, Series,
-    Text, Widget,
+    Widget,
 };
-use sim::{CarID, VehicleType};
+use map_model::BusRouteID;
 
 pub struct ActiveTraffic {
     composite: Composite,
@@ -69,36 +69,24 @@ pub struct TransitRoutes {
 
 impl TransitRoutes {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let mut inactive_routes = Vec::new();
-        let mut active_routes = Vec::new();
+        let mut routes = Vec::new();
         for r in app.primary.map.all_bus_routes() {
-            if let Some((bus, _, _)) = app.primary.sim.status_of_buses(r.id).get(0) {
-                active_routes.push((r.full_name.clone(), *bus));
-            } else {
-                inactive_routes.push(r.full_name.clone());
-            }
+            routes.push((r.full_name.clone(), r.id));
         }
         // TODO Sort first by length, then lexicographically
-        inactive_routes.sort();
-        active_routes.sort();
+        routes.sort();
 
         let col = vec![
             DashTab::TransitRoutes.picker(ctx, app),
             Line("Transit routes").small_heading().draw(ctx),
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/search.svg"),
-                Autocomplete::new(
-                    ctx,
-                    active_routes
-                        .iter()
-                        .map(|(r, id)| (r.clone(), *id))
-                        .collect(),
-                )
-                .named("search"),
+                Autocomplete::new(ctx, routes.iter().map(|(r, id)| (r.clone(), *id)).collect())
+                    .named("search"),
             ])
             .padding(8),
             Widget::row(
-                active_routes
+                routes
                     .into_iter()
                     .map(|(r, id)| {
                         Btn::text_fg(r)
@@ -108,14 +96,6 @@ impl TransitRoutes {
                     .collect(),
             )
             .flex_wrap(ctx, 80),
-            Line("Currently inactive routes").draw(ctx),
-            Text::from_multiline(
-                inactive_routes
-                    .into_iter()
-                    .map(|r| Line(r).secondary())
-                    .collect(),
-            )
-            .draw(ctx),
         ];
 
         Box::new(TransitRoutes {
@@ -128,12 +108,10 @@ impl TransitRoutes {
 
 impl State for TransitRoutes {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let bus = match self.composite.event(ctx) {
+        let route = match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => {
-                if let Some(x) = x.strip_prefix("Bus #") {
-                    CarID(x.parse::<usize>().unwrap(), VehicleType::Bus)
-                } else if let Some(x) = x.strip_prefix("Train #") {
-                    CarID(x.parse::<usize>().unwrap(), VehicleType::Train)
+                if let Some(x) = x.strip_prefix("BusRoute #") {
+                    BusRouteID(x.parse::<usize>().unwrap())
                 } else {
                     return DashTab::TransitRoutes.transition(ctx, app, &x);
                 }
@@ -157,7 +135,7 @@ impl State for TransitRoutes {
             sandbox.controls.common.as_mut().unwrap().launch_info_panel(
                 ctx,
                 app,
-                Tab::BusStatus(bus),
+                Tab::BusRoute(route),
                 &mut actions,
             )
         }))

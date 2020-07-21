@@ -19,7 +19,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Time};
 use map_model::{
-    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, OriginalLane, ParkingLotID,
+    AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, OriginalLane, ParkingLotID,
 };
 use sim::{
     AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID,
@@ -55,6 +55,7 @@ pub enum Tab {
 
     BusStatus(CarID),
     BusStop(BusStopID),
+    BusRoute(BusRouteID),
 
     ParkedCar(CarID),
 
@@ -185,6 +186,7 @@ impl Tab {
             }
             Tab::BusStatus(c) => Some(ID::Car(*c)),
             Tab::BusStop(bs) => Some(ID::BusStop(*bs)),
+            Tab::BusRoute(_) => None,
             // TODO If a parked car becomes in use while the panel is open, should update the
             // panel better.
             Tab::ParkedCar(c) => match app.primary.sim.lookup_parked_car(*c)?.spot {
@@ -241,6 +243,7 @@ impl Tab {
             Tab::PersonSchedule(_) => ("person", "schedule"),
             Tab::BusStatus(_) => ("bus", "status"),
             Tab::BusStop(_) => ("bus stop", "info"),
+            Tab::BusRoute(_) => ("bus route", "info"),
             Tab::ParkedCar(_) => ("parked car", "info"),
             Tab::BldgInfo(_) => ("bldg", "info"),
             Tab::BldgPeople(_) => ("bldg", "people"),
@@ -301,6 +304,7 @@ impl InfoPanel {
             ),
             Tab::BusStatus(c) => (bus::bus_status(ctx, app, &mut details, c), true),
             Tab::BusStop(bs) => (bus::stop(ctx, app, &mut details, bs), true),
+            Tab::BusRoute(br) => (bus::route(ctx, app, &mut details, br), true),
             Tab::ParkedCar(c) => (
                 person::parked_car(ctx, app, &mut details, c, ctx_actions.is_paused()),
                 true,
