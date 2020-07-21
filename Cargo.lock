@@ -444,6 +444,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "contour"
+version = "0.1.0"
+source = "git+https://github.com/dabreegster/contour-rs#356b770587504de761a5ded7bb7684e779232ae7"
+dependencies = [
+ "geojson 0.19.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc-hash 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 1.0.51 (registry+https://github.com/rust-lang/crates.io-index)",
+ "slab 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "convert_osm"
 version = "0.1.0"
 dependencies = [
@@ -1032,6 +1044,7 @@ dependencies = [
  "chrono 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "clipboard 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "colorous 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "contour 0.1.0 (git+https://github.com/dabreegster/contour-rs)",
  "downcast-rs 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "enumset 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ezgui 0.1.0",
@@ -2729,6 +2742,11 @@ version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "rustc-hash"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "rustc-serialize"
 version = "0.3.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3949,6 +3967,7 @@ dependencies = [
 "checksum colorous 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "ebeb47d6d3334179ee49ef9a1f3a03d177450b25705854d92e2e1d128b49c736"
 "checksum const-random 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = "2f1af9ac737b2dd2d577701e59fd09ba34822f6f2ebdb30a7647405d9e55e16a"
 "checksum const-random-macro 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = "25e4c606eb459dd29f7c57b2e0879f2b6f14ee130918c2b78ccb58a9624e6c7a"
+"checksum contour 0.1.0 (git+https://github.com/dabreegster/contour-rs)" = "<none>"
 "checksum core-foundation 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "57d24c7a13c43e870e37c1556b74555437870a04514f7685f5b354e090567171"
 "checksum core-foundation-sys 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b3a71ab494c0b5b860bdc8407ae08978052417070c2ced38573a9157ad75b8ac"
 "checksum core-graphics 0.19.0 (registry+https://github.com/rust-lang/crates.io-index)" = "59e78b2e0aaf43f08e7ae0d6bc96895ef72ff0921c7d4ff4762201b2dba376dd"
@@ -4199,6 +4218,7 @@ dependencies = [
 "checksum roxmltree 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)" = "17dfc6c39f846bfc7d2ec442ad12055d79608d501380789b965d22f9354451f2"
 "checksum rstar 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)" = "0650eaaa56cbd1726fd671150fce8ac6ed9d9a25d1624430d7ee9d196052f6b6"
 "checksum rustc-demangle 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)" = "4c691c0e608126e00913e33f0ccf3727d5fc84573623b8d65b2df340b5201783"
+"checksum rustc-hash 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 "checksum rustc-serialize 0.3.24 (registry+https://github.com/rust-lang/crates.io-index)" = "dcf128d1287d2ea9d80910b5f1120d0b8eede3fbf1abe91c40d39ea7d51e6fda"
 "checksum rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
 "checksum rustls 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c0d4a31f5d68413404705d6982529b0e11a9aacd4839d1d6222ee3b8cb4015e1"

@@ -20,6 +20,7 @@ pub struct HeatmapOptions {
     resolution: usize,
     radius: usize,
     smoothing: bool,
+    contours: bool,
     color_scheme: String,
 }
 
@@ -29,6 +30,7 @@ impl HeatmapOptions {
             resolution: 10,
             radius: 3,
             smoothing: true,
+            contours: true,
             color_scheme: "Turbo".to_string(),
         }
     }
@@ -51,6 +53,7 @@ impl HeatmapOptions {
                     .align_right(),
             ]),
             Checkbox::text(ctx, "smoothing", None, self.smoothing),
+            Checkbox::text(ctx, "contours", None, self.contours),
             Widget::row(vec![
                 "Color scheme".draw_text(ctx).centered_vert(),
                 Widget::dropdown(
@@ -74,6 +77,7 @@ impl HeatmapOptions {
                 resolution: c.spinner("resolution") as usize,
                 radius: c.spinner("radius") as usize,
                 smoothing: c.is_checked("smoothing"),
+                contours: c.is_checked("contours"),
                 color_scheme: c.dropdown_value("Color scheme"),
             }
         } else {
@@ -184,20 +188,53 @@ pub fn make_heatmap(
         distrib.add(*count as usize);
     }
 
-    // Now draw rectangles
-    let square = Polygon::rectangle(opts.resolution as f64, opts.resolution as f64);
-    for y in 0..grid.height {
-        for x in 0..grid.width {
-            let count = grid.data[grid.idx(x, y)];
-            if count > 0.0 {
-                let pct = (count as f64) / (distrib.select(Statistic::Max).unwrap() as f64);
-                let c = gradient.eval_continuous(pct);
-                // Don't block the map underneath
-                let color = Color::rgb(c.r as usize, c.g as usize, c.b as usize).alpha(0.6);
-                batch.push(
-                    color,
-                    square.translate((x * opts.resolution) as f64, (y * opts.resolution) as f64),
-                );
+    if opts.contours {
+        let max = distrib.select(Statistic::Max).unwrap() as f64;
+        let mut thresholds: Vec<f64> = (0..=5).map(|i| (i as f64) / 5.0 * max).collect();
+        // Skip 0; it'll cover the entire map. But have a low value to distinguish
+        // nothing/something.
+        thresholds[0] = 0.1;
+        let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, false);
+        for (feature, value) in c
+            .contours(&grid.data, &thresholds)
+            .unwrap()
+            .into_iter()
+            .zip(thresholds)
+        {
+            // TODO We should technically not depend on the order of features matching the input
+            // thresholds, but extracting geojson values doesn't sound fun
+            match feature.geometry.unwrap().value {
+                geojson::Value::MultiPolygon(polygons) => {
+                    let c = gradient.eval_continuous(value / max);
+                    // Don't block the map underneath
+                    let color = Color::rgb(c.r as usize, c.g as usize, c.b as usize).alpha(0.6);
+                    for p in polygons {
+                        batch.push(
+                            color,
+                            Polygon::from_geojson(&p).scale(opts.resolution as f64),
+                        );
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }
+    } else {
+        // Now draw rectangles
+        let square = Polygon::rectangle(opts.resolution as f64, opts.resolution as f64);
+        for y in 0..grid.height {
+            for x in 0..grid.width {
+                let count = grid.data[grid.idx(x, y)];
+                if count > 0.0 {
+                    let pct = (count as f64) / (distrib.select(Statistic::Max).unwrap() as f64);
+                    let c = gradient.eval_continuous(pct);
+                    // Don't block the map underneath
+                    let color = Color::rgb(c.r as usize, c.g as usize, c.b as usize).alpha(0.6);
+                    batch.push(
+                        color,
+                        square
+                            .translate((x * opts.resolution) as f64, (y * opts.resolution) as f64),
+                    );
+                }
             }
         }
     }

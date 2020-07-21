@@ -60,6 +60,20 @@ impl Polygon {
         }
     }
 
+    // TODO Doesn't remember rings yet
+    pub fn from_geojson(raw: &Vec<Vec<Vec<f64>>>) -> Polygon {
+        let (vertices, holes, dims) = earcutr::flatten(raw);
+        let indices = earcutr::earcut(&vertices, &holes, dims);
+        Polygon {
+            points: vertices
+                .chunks(2)
+                .map(|pair| Pt2D::new(pair[0], pair[1]))
+                .collect(),
+            indices,
+            rings: None,
+        }
+    }
+
     pub fn precomputed(points: Vec<Pt2D>, indices: Vec<usize>) -> Polygon {
         assert!(indices.len() % 3 == 0);
         Polygon {
