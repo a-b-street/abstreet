@@ -122,7 +122,9 @@ pub fn extract_osm(
         let mut tags = tags_to_map(&way.tags);
         tags.insert(osm::OSM_WAY_ID, way.id.to_string());
 
-        if is_road(&mut tags) {
+        // TODO Two temporary overrides for Sydney. Need to fix upstream in OSM; there's duplicate
+        // geometry here.
+        if is_road(&mut tags) && way.id != 797198032 && way.id != 173224279 {
             // TODO Hardcoding these overrides. OSM is correct, these don't have
             // sidewalks; there's a crosswalk mapped. But until we can snap sidewalks properly, do
             // this to prevent the sidewalks from being disconnected.
@@ -361,6 +363,7 @@ pub fn extract_osm(
 
     timer.start_iter("match buildings to amenity areas", amenity_areas.len());
     for (name, amenity, poly) in amenity_areas {
+        timer.next();
         for b in map.buildings.values_mut() {
             if poly.contains_pt(b.polygon.center()) {
                 b.amenities.insert((name.clone(), amenity.clone()));
@@ -437,6 +440,7 @@ fn is_road(tags: &mut Tags) -> bool {
             "footway",
             "living_street",
             "pedestrian",
+            "stairs",
             "track",
             "bus_guideway",
             "escape",
@@ -454,6 +458,7 @@ fn is_road(tags: &mut Tags) -> bool {
             "corridor",
             "junction",
             "bus_stop",
+            "no",
         ],
     ) {
         return false;
@@ -660,6 +665,7 @@ fn glue_multipolygon(
         polygons.push(Polygon::new(&result));
         return polygons;
     }
+    result.dedup();
     if let Some(poly) = glue_to_boundary(PolyLine::must_new(result.clone()), boundary) {
         polygons.push(poly);
     } else {

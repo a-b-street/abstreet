@@ -71,13 +71,11 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         let mut mut_r = map.roads.remove(&id).unwrap();
         let center = PolyLine::must_new(mut_r.center_points.clone());
         let border_pt = boundary_ring.all_intersections(&center)[0];
-        mut_r.center_points = center
-            .reversed()
-            .get_slice_ending_at(border_pt)
-            .unwrap()
-            .reversed()
-            .points()
-            .clone();
+        if let Some(pl) = center.reversed().get_slice_ending_at(border_pt) {
+            mut_r.center_points = pl.reversed().into_points();
+        } else {
+            panic!("{} interacts with border strangely", id);
+        }
         i.point = mut_r.center_points[0];
         map.roads.insert(
             OriginalRoad {
@@ -130,11 +128,11 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         let mut mut_r = map.roads.remove(&id).unwrap();
         let center = PolyLine::must_new(mut_r.center_points.clone());
         let border_pt = boundary_ring.all_intersections(&center.reversed())[0];
-        mut_r.center_points = center
-            .get_slice_ending_at(border_pt)
-            .unwrap()
-            .points()
-            .clone();
+        if let Some(pl) = center.get_slice_ending_at(border_pt) {
+            mut_r.center_points = pl.into_points();
+        } else {
+            panic!("{} interacts with border strangely", id);
+        }
         i.point = *mut_r.center_points.last().unwrap();
         map.roads.insert(
             OriginalRoad {

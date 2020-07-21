@@ -232,8 +232,11 @@ impl Map {
             if i.intersection_type == IntersectionType::TrafficSignal {
                 let mut ok = false;
                 for r in &i.roads {
+                    // Skip signals only connected to roads under construction or purely to control
+                    // light rail tracks.
                     if map.roads[r.0].osm_tags.get(osm::HIGHWAY)
                         != Some(&"construction".to_string())
+                        && !map.roads[r.0].is_light_rail()
                     {
                         ok = true;
                         break;

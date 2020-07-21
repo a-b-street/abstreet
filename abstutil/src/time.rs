@@ -9,6 +9,7 @@ pub fn elapsed_seconds(since: Instant) -> f64 {
     (dt.as_secs() as f64) + (f64::from(dt.subsec_nanos()) * 1e-9)
 }
 
+#[derive(Debug)]
 struct Progress {
     label: String,
     processed_items: usize,
@@ -216,7 +217,8 @@ impl<'a> Timer<'a> {
 
         let span = match self.stack.pop().unwrap() {
             StackEntry::TimerSpan(s) => s,
-            _ => unreachable!(),
+            StackEntry::Progress(p) => panic!("stop() during unfinished start_iter(): {:?}", p),
+            StackEntry::File(f) => panic!("stop() while reading file {}", f.path),
         };
         assert_eq!(span.name, name);
         let elapsed = elapsed_seconds(span.started_at);
