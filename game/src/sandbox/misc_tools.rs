@@ -296,16 +296,6 @@ impl TurnExplorer {
                     color_turn_type(TurnType::Left),
                     "left turn",
                 ));
-                col.push(ColorLegend::row(
-                    ctx,
-                    color_turn_type(TurnType::LaneChangeLeft),
-                    "straight, but lane-change left",
-                ));
-                col.push(ColorLegend::row(
-                    ctx,
-                    color_turn_type(TurnType::LaneChangeRight),
-                    "straight, but lane-change right",
-                ));
             }
         } else {
             col.push(ColorLegend::row(ctx, CURRENT_TURN, "current turn"));
@@ -324,8 +314,6 @@ fn color_turn_type(t: TurnType) -> Color {
         TurnType::SharedSidewalkCorner => Color::BLACK,
         TurnType::Crosswalk => Color::WHITE,
         TurnType::Straight => Color::BLUE,
-        TurnType::LaneChangeLeft => Color::CYAN,
-        TurnType::LaneChangeRight => Color::PURPLE,
         TurnType::Right => Color::GREEN,
         TurnType::Left => Color::RED,
     }

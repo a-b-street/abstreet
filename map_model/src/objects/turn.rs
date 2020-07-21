@@ -28,8 +28,6 @@ pub enum TurnType {
     SharedSidewalkCorner,
     // These are for vehicle turns
     Straight,
-    LaneChangeLeft,
-    LaneChangeRight,
     Right,
     Left,
 }
@@ -171,17 +169,8 @@ impl TurnGroup {
                 from,
                 to,
             );
-            let turn_types: BTreeSet<TurnType> = members
-                .iter()
-                .map(|t| match map.get_t(*t).turn_type {
-                    TurnType::Crosswalk | TurnType::SharedSidewalkCorner => unreachable!(),
-                    TurnType::Straight | TurnType::LaneChangeLeft | TurnType::LaneChangeRight => {
-                        TurnType::Straight
-                    }
-                    TurnType::Left => TurnType::Left,
-                    TurnType::Right => TurnType::Right,
-                })
-                .collect();
+            let turn_types: BTreeSet<TurnType> =
+                members.iter().map(|t| map.get_t(*t).turn_type).collect();
             if turn_types.len() > 1 {
                 println!(
                     "TurnGroup between {} and {} has weird turn types! {:?}",

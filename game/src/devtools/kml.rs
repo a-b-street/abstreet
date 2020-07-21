@@ -58,7 +58,11 @@ impl ViewKML {
                     "convert shapes",
                     raw_shapes.shapes.into_iter().enumerate().collect(),
                     |(idx, shape)| {
-                        if boundary.contains_pt(Pt2D::from_gps(shape.points[0], bounds)) {
+                        if shape
+                            .points
+                            .iter()
+                            .any(|gps| boundary.contains_pt(Pt2D::from_gps(*gps, bounds)))
+                        {
                             let pts: Vec<Pt2D> = shape
                                 .points
                                 .into_iter()

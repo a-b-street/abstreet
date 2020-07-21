@@ -244,19 +244,13 @@ impl Lane {
             "left" | "left\\left" => vec![TurnType::Left],
             "right" => vec![TurnType::Right],
             // TODO What is blank supposed to mean? From few observed cases, same as through
-            "through" | "" => vec![
-                TurnType::Straight,
-                TurnType::LaneChangeLeft,
-                TurnType::LaneChangeRight,
-            ],
+            "through" | "" => vec![TurnType::Straight],
             // TODO Check this more carefully
-            "slight_right" | "slight right" | "merge_to_right" | "sharp_right" => vec![
-                TurnType::Straight,
-                TurnType::LaneChangeRight,
-                TurnType::Right,
-            ],
+            "slight_right" | "slight right" | "merge_to_right" | "sharp_right" => {
+                vec![TurnType::Straight, TurnType::Right]
+            }
             "slight_left" | "slight left" | "merge_to_left" | "sharp_left" => {
-                vec![TurnType::Straight, TurnType::LaneChangeLeft, TurnType::Left]
+                vec![TurnType::Straight, TurnType::Left]
             }
             "reverse" => {
                 // TODO We need TurnType::UTurn. Until then, u-turns usually show up as

@@ -3,7 +3,7 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Drawable, GeomBatch, GfxCtx, RewriteColor};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH};
+use map_model::{Lane, LaneID, LaneType, Map, Road, PARKING_SPOT_LENGTH};
 use std::cell::RefCell;
 
 pub struct DrawLane {
@@ -301,10 +301,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
 
     // TODO Maybe draw arrows per target road, not lane
     for turn in map.get_turns_from_lane(lane.id) {
-        if turn.turn_type == TurnType::LaneChangeLeft || turn.turn_type == TurnType::LaneChangeRight
-        {
-            continue;
-        }
+        // TODO We used to skip straight-with-LCing
         results.push(
             PolyLine::must_new(vec![
                 common_base.last_pt(),

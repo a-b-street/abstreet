@@ -114,7 +114,7 @@ impl DrawCar {
                             .make_arrow(arrow_thickness, ArrowCap::Triangle),
                         );
                     }
-                    TurnType::Straight | TurnType::LaneChangeLeft | TurnType::LaneChangeRight => {}
+                    TurnType::Straight => {}
                     TurnType::Crosswalk | TurnType::SharedSidewalkCorner => unreachable!(),
                 }
 
