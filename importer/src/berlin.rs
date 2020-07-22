@@ -131,12 +131,21 @@ pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
             .filter(|b| region.contains_pt(b.label_center) && b.bldg_type.has_residents())
             .map(|b| b.id)
             .collect();
-        let num_residents = shape.attributes["num_residents"].parse::<usize>().unwrap();
+        let orig_num_residents = shape.attributes["num_residents"].parse::<f64>().unwrap();
+
+        // If the region is partly out-of-bounds, then scale down the number of residents linearly
+        // based on area of the overlapping part of the polygon.
+        let pct_overlap = Polygon::union_all(region.intersection(map.get_boundary_polygon()))
+            .area()
+            / region.area();
+        let num_residents = (pct_overlap * orig_num_residents) as usize;
         timer.note(format!(
-            "Distributing {} residents in {} to {} buildings",
+            "Distributing {} residents in {} to {} buildings. {}% of this area overlapped with \
+             the map, scaled residents accordingly.",
             prettyprint_usize(num_residents),
             shape.attributes["spatial_alias"],
-            prettyprint_usize(bldgs.len())
+            prettyprint_usize(bldgs.len()),
+            (pct_overlap * 100.0) as usize
         ));
 
         // Deterministically seed using the planning area's ID.
@@ -146,8 +155,6 @@ pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
         // How do you randomly distribute num_residents into some buildings?
         // https://stackoverflow.com/questions/2640053/getting-n-random-numbers-whose-sum-is-m
         // TODO Problems:
-        // - If the region is partly out-of-bounds, then the full number of residents is matched to
-        //   a small set of buildings.
         // - Because of how we round, the sum might not exactly be num_residents
         // - This is not a uniform distribution, per stackoverflow
         // - Larger buildings should get more people
