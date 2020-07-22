@@ -1,23 +1,18 @@
 use crate::app::{App, PerMap};
 use crate::common::Tab;
-use crate::game::{msg, State, Transition, WizardState};
+use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::info::OpenTrip;
 use crate::sandbox::SandboxMode;
-use ezgui::{EventCtx, GfxCtx, Warper, Wizard};
+use ezgui::{
+    hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, TextExt, Warper, Widget,
+};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
 use std::collections::BTreeMap;
 
 const WARP_TO_CAM_ZOOM: f64 = 10.0;
-
-pub struct EnteringWarp;
-impl EnteringWarp {
-    pub fn new() -> Box<dyn State> {
-        WizardState::new(Box::new(warp_to))
-    }
-}
 
 pub struct Warping {
     warper: Warper,
@@ -67,20 +62,88 @@ impl State for Warping {
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
 }
 
-fn warp_to(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let mut wizard = wiz.wrap(ctx);
-    let to = wizard.input_string("Warp to what?")?;
-    if let Some(t) = inner_warp(ctx, app, &to) {
-        Some(t)
-    } else {
-        Some(Transition::Replace(msg(
-            "Bad warp ID",
-            vec![format!("{} isn't a valid ID", to)],
-        )))
+pub struct DebugWarp {
+    composite: Composite,
+}
+
+impl DebugWarp {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn State> {
+        let c = ctx.style().hotkey_color;
+        Box::new(DebugWarp {
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Warp to an object by ID").small_heading().draw(ctx),
+                    Btn::text_fg("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                "Example: r42 is Road #42".draw_text(ctx),
+                // T
+                // his
+                //
+                // i
+                // s
+                //
+                // d
+                // isorienting...
+                Text::from_all(vec![
+                    Line("r").fg(c),
+                    Line("oad, "),
+                    Line("l").fg(c),
+                    Line("ane, "),
+                    Line("i").fg(c),
+                    Line("ntersection, "),
+                    Line("b").fg(c),
+                    Line("uilding, "),
+                    Line("p").fg(c),
+                    Line("edestrian, "),
+                    Line("c").fg(c),
+                    Line("ar, "),
+                    Line("t").fg(c),
+                    Line("rip, "),
+                    Line("P").fg(c),
+                    Line("erson"),
+                ])
+                .draw(ctx),
+                Widget::text_entry(ctx, String::new(), true).named("input"),
+                Btn::text_fg("Go!").build_def(ctx, hotkey(Key::Enter)),
+            ]))
+            .build(ctx),
+        })
     }
 }
 
-fn inner_warp(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transition> {
+impl State for DebugWarp {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => {
+                    return Transition::Pop;
+                }
+                "Go!" => {
+                    let input = self.composite.text_box("input");
+                    if let Some(t) = warp_to_id(ctx, app, &input) {
+                        t
+                    } else {
+                        Transition::Replace(msg(
+                            "Bad warp ID",
+                            vec![format!("{} isn't a valid ID", input)],
+                        ))
+                    }
+                }
+                _ => unreachable!(),
+            },
+            None => Transition::Keep,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
+        self.composite.draw(g);
+    }
+}
+
+fn warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transition> {
     if line.is_empty() {
         return None;
     }

@@ -52,7 +52,7 @@ impl CommonState {
             app.opts.dev = !app.opts.dev;
         }
         if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::J).unwrap()) {
-            return Some(Transition::Push(warp::EnteringWarp::new()));
+            return Some(Transition::Push(warp::DebugWarp::new(ctx)));
         }
 
         if let Some(id) = app.primary.current_selection.clone() {
@@ -99,6 +99,12 @@ impl CommonState {
         };
         let mut osd = if let Some(ref id) = app.primary.current_selection {
             CommonState::osd_for(app, id.clone())
+        } else if app.opts.dev {
+            Text::from_all(vec![
+                Line("Nothing selected. Hint: "),
+                Line("Ctrl+J").fg(g.style().hotkey_color),
+                Line(" to warp"),
+            ])
         } else {
             Text::from(Line("..."))
         };
@@ -223,6 +229,12 @@ impl CommonState {
     pub fn draw_osd(g: &mut GfxCtx, app: &App) {
         let osd = if let Some(ref id) = app.primary.current_selection {
             CommonState::osd_for(app, id.clone())
+        } else if app.opts.dev {
+            Text::from_all(vec![
+                Line("Nothing selected. Hint: "),
+                Line("Ctrl+J").fg(g.style().hotkey_color),
+                Line(" to warp"),
+            ])
         } else {
             Text::from(Line("..."))
         };
