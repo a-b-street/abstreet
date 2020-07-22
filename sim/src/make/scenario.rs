@@ -293,15 +293,22 @@ fn seed_parked_cars(
 
     timer.start_iter("seed parked cars", parked_cars.len());
     let mut ok = true;
+    let total_cars = parked_cars.len();
+    let mut seeded = 0;
     for (vehicle, b) in parked_cars {
         timer.next();
         if !ok {
             continue;
         }
-        if let Some(spot) = find_spot_near_building(b, &mut open_spots_per_road, map, timer) {
+        if let Some(spot) = find_spot_near_building(b, &mut open_spots_per_road, map) {
+            seeded += 1;
             sim.seed_parked_car(vehicle, spot);
         } else {
-            timer.warn("Not enough room to seed parked cars.".to_string());
+            timer.warn(format!(
+                "Not enough room to seed parked cars. Only found spots for {} of {}",
+                prettyprint_usize(seeded),
+                prettyprint_usize(total_cars)
+            ));
             ok = false;
         }
     }
@@ -314,7 +321,6 @@ fn find_spot_near_building(
     b: BuildingID,
     open_spots_per_road: &mut BTreeMap<RoadID, Vec<(ParkingSpot, Option<BuildingID>)>>,
     map: &Map,
-    timer: &mut Timer,
 ) -> Option<ParkingSpot> {
     let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
     let mut visited: HashSet<RoadID> = HashSet::new();
@@ -325,14 +331,6 @@ fn find_spot_near_building(
     }
 
     loop {
-        if roads_queue.is_empty() {
-            timer.warn(format!(
-                "Giving up looking for a free parking spot, searched {} roads of {}: {:?}",
-                visited.len(),
-                open_spots_per_road.len(),
-                visited
-            ));
-        }
         let r = roads_queue.pop_front()?;
         if let Some(spots) = open_spots_per_road.get_mut(&r) {
             // Fill in all private parking first before
