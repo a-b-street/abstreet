@@ -192,6 +192,7 @@ pub fn split_up_roads(
         traffic_signals.len(),
     );
     for (pt, forwards) in traffic_signals {
+        timer.next();
         for (id, r) in &map.roads {
             if r.center_points.contains(&pt.to_pt2d()) {
                 // Example: https://www.openstreetmap.org/node/26734224

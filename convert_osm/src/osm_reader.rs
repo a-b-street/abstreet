@@ -462,6 +462,7 @@ fn is_road(tags: &mut Tags) -> bool {
             "junction",
             "bus_stop",
             "no",
+            "platform",
         ],
     ) {
         return false;
