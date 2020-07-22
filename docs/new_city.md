@@ -6,10 +6,12 @@ hit problems. I'd really appreciate help and PRs to improve this.
 
 ## Quick start
 
-If you're using the binary release and have a `.osm` file, just do:
+Use this if you want to import a city on your computer without making it available to other users yet. 
+
+- If you're using the **binary release** and have a `.osm` file, just do:
 `./importer --oneshot=map.osm`.
 
-If you're building from source, do: `./import.sh --oneshot=map.osm`. If you
+- If you're building **from source**, do: `./import.sh --oneshot=map.osm`. If you
 can't run `import.sh`, make sure you have all
 [dependencies](dev.md#building-map-data).
 
@@ -22,7 +24,7 @@ should first make sure your .osm has been clipped:
 You can also try `--oneshot_drive_on_left`, but you'll spot some bugs. Get in
 touch if you need these fixed soon or want to help.
 
-## How to get .osm files
+### How to get .osm files
 
 If the area is small enough, try the "export" tool on
 https://www.openstreetmap.org. You can download larger areas from
@@ -33,7 +35,9 @@ coordinates from that polygon into the
 [Osmosis format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format).
 The `data/geojson_to_osmosis.py` script can help with the formatting.
 
-## Including the city by default
+## Including the city to A/B street more permanently
+
+Follow this guide to add a new city to A/B street by default so other users can use it as well.
 
 1.  Make sure you can run `import.sh` -- see
     [the instructions](dev.md#building-map-data). You'll need Rust, osmconvert,
