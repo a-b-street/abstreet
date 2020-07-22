@@ -196,18 +196,29 @@ impl Road {
 
     pub(crate) fn speed_limit_from_osm(&self) -> Speed {
         if let Some(limit) = self.osm_tags.get(osm::MAXSPEED) {
-            // TODO handle other units
-            if limit.ends_with(" mph") {
-                if let Ok(mph) = limit[0..limit.len() - 4].parse::<f64>() {
-                    return Speed::miles_per_hour(mph);
-                }
+            if let Ok(kmph) = limit.parse::<f64>() {
+                return Speed::km_per_hour(kmph);
             }
+
+            if let Some(mph) = limit
+                .strip_suffix(" mph")
+                .and_then(|x| x.parse::<f64>().ok())
+            {
+                return Speed::miles_per_hour(mph);
+            }
+
+            // TODO Handle implicits, like PL:zone30
         }
 
+        // These're half reasonable guesses. Better to explicitly tag in OSM.
         if self.osm_tags.get(osm::HIGHWAY) == Some(&"primary".to_string())
             || self.osm_tags.get(osm::HIGHWAY) == Some(&"secondary".to_string())
         {
             return Speed::miles_per_hour(40.0);
+        }
+        if self.osm_tags.get(osm::HIGHWAY) == Some(&"living_street".to_string()) {
+            // about 12mph
+            return Speed::km_per_hour(20.0);
         }
         Speed::miles_per_hour(20.0)
     }
