@@ -344,8 +344,13 @@ impl RawRoad {
         self.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string())
     }
 
+    // TODO For the moment, treating all rail things as light rail
     pub fn is_light_rail(&self) -> bool {
-        self.osm_tags.get("railway") == Some(&"light_rail".to_string())
+        if let Some(v) = self.osm_tags.get("railway") {
+            vec!["light_rail", "rail"].contains(&v.as_ref())
+        } else {
+            false
+        }
     }
 
     pub fn is_footway(&self) -> bool {

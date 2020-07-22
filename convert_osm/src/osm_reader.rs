@@ -417,9 +417,11 @@ fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> Tags {
 }
 
 fn is_road(tags: &mut Tags) -> bool {
-    if tags.is("railway", "light_rail") {
+    if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return true;
     }
+    // TODO Because trams overlap with roads, they're harder:
+    // https://github.com/dabreegster/abstreet/issues/141
     if tags.is("railway", "tram") {
         return false;
     }

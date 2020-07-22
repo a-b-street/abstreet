@@ -18,7 +18,7 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     }
 
     // Easy special cases first.
-    if tags.is("railway", "light_rail") {
+    if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return (vec![LaneType::LightRail], Vec::new());
     }
     if tags.is(osm::HIGHWAY, "footway") {
