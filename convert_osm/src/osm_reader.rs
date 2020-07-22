@@ -122,9 +122,7 @@ pub fn extract_osm(
         let mut tags = tags_to_map(&way.tags);
         tags.insert(osm::OSM_WAY_ID, way.id.to_string());
 
-        // TODO Two temporary overrides for Sydney. Need to fix upstream in OSM; there's duplicate
-        // geometry here.
-        if is_road(&mut tags) && way.id != 797198032 && way.id != 173224279 {
+        if is_road(&mut tags) {
             // TODO Hardcoding these overrides. OSM is correct, these don't have
             // sidewalks; there's a crosswalk mapped. But until we can snap sidewalks properly, do
             // this to prevent the sidewalks from being disconnected.
@@ -425,6 +423,9 @@ fn is_road(tags: &mut Tags) -> bool {
     if tags.is("railway", "tram") {
         return false;
     }
+    if tags.is("area", "yes") {
+        return false;
+    }
 
     if !tags.contains_key(osm::HIGHWAY) {
         return false;
@@ -438,7 +439,6 @@ fn is_road(tags: &mut Tags) -> bool {
             // List of non-car types from https://wiki.openstreetmap.org/wiki/Key:highway
             // TODO Footways are very useful, but they need more work to associate with main roads
             "footway",
-            "living_street",
             "pedestrian",
             "stairs",
             "track",

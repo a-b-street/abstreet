@@ -25,21 +25,27 @@ impl DrawRoad {
         } else {
             cs.road_center_line
         };
-        // If the road is a one-way (only parking and sidewalk on the off-side), draw a solid line
-        // No center line at all if there's a shared left turn lane or it's light rail
-        if !r.is_light_rail()
-            && r.children_backwards
+        // No center line at all if there's a shared left turn lane, it's light rail, or it's a
+        // footway
+        if r.is_light_rail()
+            || (!r.children_forwards.is_empty()
+                && r.children_forwards[0].1 == LaneType::SharedLeftTurn)
+            || r.is_footway()
+        {
+        } else {
+            // If the road is a one-way (only parking and sidewalk on the off-side), draw a solid
+            // line
+            if r.children_backwards
                 .iter()
                 .all(|(_, lt)| *lt == LaneType::Parking || *lt == LaneType::Sidewalk)
-        {
-            draw.push(color, center.make_polygons(width));
-        } else if r.children_forwards.is_empty()
-            || (r.children_forwards[0].1 != LaneType::SharedLeftTurn && !r.is_light_rail())
-        {
-            draw.extend(
-                color,
-                center.dashed_lines(width, Distance::meters(2.0), Distance::meters(1.0)),
-            );
+            {
+                draw.push(color, center.make_polygons(width));
+            } else {
+                draw.extend(
+                    color,
+                    center.dashed_lines(width, Distance::meters(2.0), Distance::meters(1.0)),
+                );
+            }
         }
 
         DrawRoad {

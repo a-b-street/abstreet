@@ -129,7 +129,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
     let mut closest: FindClosest<(OriginalRoad, bool)> =
         FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, r) in &map.roads {
-        if r.is_light_rail() {
+        if r.is_light_rail() || r.is_footway() {
             continue;
         }
         let center = PolyLine::must_new(r.center_points.clone());

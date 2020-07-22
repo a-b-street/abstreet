@@ -354,6 +354,7 @@ impl Road {
                 "tertiary_link" => 9,
 
                 "residential" => 5,
+                "living_street" => 3,
 
                 "footway" => 1,
 
@@ -401,6 +402,12 @@ impl Road {
         !self.children_forwards.is_empty() && self.children_forwards[0].1 == LaneType::LightRail
     }
 
+    pub fn is_footway(&self) -> bool {
+        self.children_forwards.len() == 1
+            && self.children_forwards[0].1 == LaneType::Sidewalk
+            && self.children_backwards.is_empty()
+    }
+
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {
         if self.src_i == other.src_i || self.src_i == other.dst_i {
             self.src_i
@@ -418,6 +425,8 @@ impl Road {
     pub(crate) fn access_restrictions_from_osm(&self) -> EnumSet<PathConstraints> {
         if self.osm_tags.get("access") == Some(&"private".to_string()) {
             EnumSet::new()
+        } else if self.osm_tags.get(osm::HIGHWAY) == Some(&"living_street".to_string()) {
+            PathConstraints::Pedestrian | PathConstraints::Bike
         } else {
             EnumSet::all()
         }

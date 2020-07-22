@@ -543,6 +543,9 @@ impl ScenarioGenerator {
                     // working and living in the same building
                     continue;
                 }
+                // TODO If home or work is in an access-restricted zone (like a living street),
+                // then probably don't drive there. Actually, it depends on the specific tagging;
+                // access=no in the US usually means a gated community.
                 let mode = select_trip_mode(dist, rng);
 
                 // TODO This will cause a single morning and afternoon rush. Outside of these times,
