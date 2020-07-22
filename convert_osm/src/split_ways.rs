@@ -4,13 +4,13 @@ use map_model::raw::{
     OriginalIntersection, OriginalRoad, RawIntersection, RawMap, RawRoad, RestrictionType,
 };
 use map_model::{osm, IntersectionType};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 pub fn split_up_roads(
     (
         mut map,
         roads,
-        traffic_signals,
+        mut traffic_signals,
         osm_node_ids,
         simple_turn_restrictions,
         complicated_turn_restrictions,
@@ -18,7 +18,7 @@ pub fn split_up_roads(
     ): (
         RawMap,
         Vec<(i64, RawRoad)>,
-        HashSet<HashablePt2D>,
+        HashMap<HashablePt2D, bool>,
         HashMap<HashablePt2D, i64>,
         Vec<(i64, RestrictionType, i64, i64, i64)>,
         Vec<(i64, i64, i64, i64)>,
@@ -52,7 +52,7 @@ pub fn split_up_roads(
             *id,
             RawIntersection {
                 point: pt.to_pt2d(),
-                intersection_type: if traffic_signals.contains(pt) {
+                intersection_type: if traffic_signals.remove(pt).is_some() {
                     IntersectionType::TrafficSignal
                 } else {
                     IntersectionType::StopSign
@@ -183,6 +183,28 @@ pub fn split_up_roads(
             .unwrap()
             .complicated_turn_restrictions
             .push((via, to));
+    }
+
+    // Handle traffic signals tagged on incoming ways and not at intersections
+    // (https://wiki.openstreetmap.org/wiki/Tag:highway=traffic%20signals?uselang=en#Tag_all_incoming_ways).
+    timer.start_iter(
+        "match traffic signals to intersections",
+        traffic_signals.len(),
+    );
+    for (pt, forwards) in traffic_signals {
+        for (id, r) in &map.roads {
+            if r.center_points.contains(&pt.to_pt2d()) {
+                // Example: https://www.openstreetmap.org/node/26734224
+                if r.osm_tags.get(osm::HIGHWAY) == Some(&"construction".to_string()) {
+                    break;
+                }
+
+                let i = if forwards { id.i2 } else { id.i1 };
+                map.intersections.get_mut(&i).unwrap().intersection_type =
+                    IntersectionType::TrafficSignal;
+                break;
+            }
+        }
     }
 
     timer.stop("splitting up roads");

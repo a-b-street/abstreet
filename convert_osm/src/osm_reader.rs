@@ -5,7 +5,7 @@ use map_model::raw::{
     RawParkingLot, RawRoad, RestrictionType,
 };
 use map_model::{osm, AreaType};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::error::Error;
 
 pub fn extract_osm(
@@ -18,8 +18,8 @@ pub fn extract_osm(
     RawMap,
     // Un-split roads
     Vec<(i64, RawRoad)>,
-    // Traffic signals
-    HashSet<HashablePt2D>,
+    // Traffic signals to the direction they apply (or just true if unspecified)
+    HashMap<HashablePt2D, bool>,
     // OSM Node IDs
     HashMap<HashablePt2D, i64>,
     // Simple turn restrictions: (relation ID, restriction type, from way ID, via node ID, to way
@@ -62,7 +62,7 @@ pub fn extract_osm(
 
     let mut id_to_way: HashMap<i64, Vec<Pt2D>> = HashMap::new();
     let mut roads: Vec<(i64, RawRoad)> = Vec::new();
-    let mut traffic_signals: HashSet<HashablePt2D> = HashSet::new();
+    let mut traffic_signals: HashMap<HashablePt2D, bool> = HashMap::new();
     let mut osm_node_ids = HashMap::new();
     let mut node_amenities = Vec::new();
 
@@ -74,7 +74,8 @@ pub fn extract_osm(
 
         let tags = tags_to_map(&node.tags);
         if tags.is(osm::HIGHWAY, "traffic_signals") {
-            traffic_signals.insert(pt.to_hashable());
+            let backwards = tags.is("traffic_signals:direction", "backward");
+            traffic_signals.insert(pt.to_hashable(), !backwards);
         }
         if let Some(amenity) = tags.get("amenity") {
             node_amenities.push((
