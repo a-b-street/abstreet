@@ -51,7 +51,7 @@ residential buildings, make them go to some workplace in the morning, then
 return in the evening. OpenStreetMap building tags can be used to roughly
 classify building types and distinguish small houses from large apartments. See
 the `proletariat_robot`
-[code](https://github.com/dabreegster/abstreet/blob/master/sim/src/make/generator.rs)
+[code](https://github.com/dabreegster/abstreet/blob/master/sim/src/make/activity_model.rs)
 for an implementation of this.
 
 This is [ongoing](https://github.com/dabreegster/abstreet/issues/154) work

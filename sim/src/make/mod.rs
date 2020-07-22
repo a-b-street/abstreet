@@ -1,3 +1,4 @@
+mod activity_model;
 mod generator;
 mod load;
 mod modifier;
