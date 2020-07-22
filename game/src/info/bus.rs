@@ -228,14 +228,15 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     );
 
     rows.push(format!("{} stops", route.stops.len()).draw_text(ctx));
-    for bs in &route.stops {
+    for (idx, bs) in route.stops.iter().enumerate() {
         let bs = app.primary.map.get_bs(*bs);
+        let name = format!("Stop {}: {}", idx + 1, bs.name);
         rows.push(Widget::row(vec![
             Btn::svg(
                 "system/assets/tools/pin.svg",
                 RewriteColor::Change(Color::hex("#CC4121"), app.cs.hovering),
             )
-            .build(ctx, &bs.name, None),
+            .build(ctx, &name, None),
             Text::from_all(vec![
                 Line(&bs.name),
                 Line(format!(
@@ -247,7 +248,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
             ])
             .draw(ctx),
         ]));
-        details.warpers.insert(bs.name.clone(), ID::BusStop(bs.id));
+        details.warpers.insert(name, ID::BusStop(bs.id));
     }
 
     rows

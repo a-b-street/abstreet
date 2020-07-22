@@ -193,14 +193,15 @@ impl CommonState {
                 if app.opts.dev {
                     osd.append(Line(bs.to_string()).fg(id_color));
                 } else {
-                    osd.append(Line("a bus stop"));
+                    osd.append(Line("transit stop "));
+                    osd.append(Line(&map.get_bs(bs).name).fg(name_color));
                 }
                 osd.append(Line(" served by "));
 
                 let routes: BTreeSet<String> = map
                     .get_routes_serving_stop(bs)
                     .into_iter()
-                    .map(|r| r.full_name.clone())
+                    .map(|r| r.short_name.clone())
                     .collect();
                 list_names(&mut osd, |l| l.fg(name_color), routes);
             }
