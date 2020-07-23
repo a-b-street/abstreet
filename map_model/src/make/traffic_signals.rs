@@ -1,6 +1,6 @@
 use crate::{
-    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Phase, RoadID, TurnGroup,
-    TurnGroupID, TurnPriority, TurnType,
+    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Phase, PhaseType, RoadID,
+    TurnGroup, TurnGroupID, TurnPriority, TurnType,
 };
 use abstutil::Timer;
 use geom::Duration;
@@ -41,6 +41,9 @@ pub fn get_possible_policies(
     }
     if let Some(ts) = four_way_four_phase(map, id) {
         results.push(("four-phase".to_string(), ts));
+    }
+    if let Some(ts) = half_signal(map, id) {
+        results.push(("half signal (2 roads with crosswalk)".to_string(), ts));
     }
     if let Some(ts) = degenerate(map, id) {
         results.push(("degenerate (2 roads)".to_string(), ts));
@@ -120,6 +123,33 @@ fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         phases,
         offset: Duration::ZERO,
         turn_groups: TurnGroup::for_i(i, map),
+    };
+    ts.validate().ok()
+}
+
+fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+    if map.get_i(i).roads.len() != 2 {
+        return None;
+    }
+
+    let turn_groups = TurnGroup::for_i(i, map);
+    let mut vehicle_phase = Phase::new();
+    let mut ped_phase = Phase::new();
+    for (id, group) in &turn_groups {
+        if id.crosswalk {
+            ped_phase.edit_group(group, TurnPriority::Protected);
+        } else {
+            vehicle_phase.edit_group(group, TurnPriority::Protected);
+        }
+    }
+    vehicle_phase.phase_type = PhaseType::Fixed(Duration::minutes(1));
+    ped_phase.phase_type = PhaseType::Fixed(Duration::seconds(10.0));
+
+    let ts = ControlTrafficSignal {
+        id: i,
+        phases: vec![vehicle_phase, ped_phase],
+        offset: Duration::ZERO,
+        turn_groups,
     };
     ts.validate().ok()
 }
