@@ -70,6 +70,7 @@ Divide into implemented or not.
   - is it always fine to block the box at degenerate intersections?
 - hacks to allow conflicting turns at really broken intersections
 - manually timing signals
+- penalties for lane choice to make lane usage realistic
 
 ### Not implemented
 

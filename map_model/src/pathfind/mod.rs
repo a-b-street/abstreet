@@ -4,7 +4,7 @@ mod node_map;
 pub mod uber_turns;
 mod walking;
 
-pub use self::driving::cost;
+pub use self::driving::driving_cost;
 use self::driving::VehiclePathfinder;
 use self::walking::{one_step_walking_path, walking_path_to_steps, SidewalkPathfinder};
 pub use self::walking::{walking_cost, WalkingNode};

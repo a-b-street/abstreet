@@ -267,7 +267,7 @@ impl Lane {
     pub fn get_max_cost(&self, constraints: PathConstraints, map: &Map) -> usize {
         map.get_turns_to_lane(self.id)
             .into_iter()
-            .map(|turn| pathfind::cost(self, turn, constraints, map))
+            .map(|turn| pathfind::driving_cost(self, turn, constraints, map))
             .max()
             .unwrap_or_else(|| {
                 // Probably a border.

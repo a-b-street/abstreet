@@ -178,7 +178,7 @@ fn make_input_graph(
                         from,
                         nodes.get(Node::Lane(turn.id.dst)),
                         // Round up! 0 cost edges are ignored
-                        cost(l, turn, constraints, map).max(1),
+                        driving_cost(l, turn, constraints, map).max(1),
                     );
                 }
             } else {
@@ -188,7 +188,7 @@ fn make_input_graph(
 
                     let mut sum_cost = 0;
                     for t in &ut.path {
-                        sum_cost += cost(map.get_l(t.src), map.get_t(*t), constraints, map);
+                        sum_cost += driving_cost(map.get_l(t.src), map.get_t(*t), constraints, map);
                     }
                     input_graph.add_edge(from, nodes.get(Node::UberTurn(*idx)), sum_cost.max(1));
                     input_graph.add_edge(
@@ -213,10 +213,10 @@ fn make_input_graph(
     input_graph
 }
 
-pub fn cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -> usize {
+pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -> usize {
     // TODO Could cost turns differently.
 
-    match constraints {
+    let base = match constraints {
         PathConstraints::Car | PathConstraints::Train => {
             // Prefer slightly longer route on faster roads
             let t1 = lane.length() / map.get_r(lane.parent).speed_limit;
@@ -257,5 +257,17 @@ pub fn cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -
             (lt_penalty * (t1 + t2)).inner_seconds().round() as usize
         }
         PathConstraints::Pedestrian => unreachable!(),
+    };
+
+    // Normally opportunistic lane-changing adjusts the path live, but that doesn't work near
+    // uber-turns. So still use some of the penalties here.
+    let (lt, lc, rightmost) = turn.penalty(map);
+    // TODO Since these costs wind up mattering most for particular lane choice, I guess just
+    // adding is reasonable?
+    let mut extra_penalty = lt + lc;
+    if constraints == PathConstraints::Bike {
+        extra_penalty = rightmost;
     }
+
+    base + extra_penalty
 }

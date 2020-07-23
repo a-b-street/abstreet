@@ -1,4 +1,4 @@
-use crate::pathfind::{cost, walking_cost, WalkingNode};
+use crate::pathfind::{driving_cost, walking_cost, WalkingNode};
 use crate::{
     IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoadID, TurnID,
 };
@@ -61,7 +61,9 @@ impl Zone {
             &graph,
             req.start.lane(),
             |l| l == req.end.lane(),
-            |(_, _, turn)| cost(map.get_l(turn.src), map.get_t(*turn), req.constraints, map),
+            |(_, _, turn)| {
+                driving_cost(map.get_l(turn.src), map.get_t(*turn), req.constraints, map)
+            },
             |_| 0,
         )?;
         let mut steps = Vec::new();
