@@ -460,7 +460,7 @@ impl PathConstraints {
                 } else if l.is_driving() || (l.is_bus() && map.config.bikes_can_use_bus_lanes) {
                     let road = map.get_r(l.parent);
                     !road.osm_tags.is("bicycle", "no")
-                        && road
+                        && !road
                             .osm_tags
                             .is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"])
                 } else {
