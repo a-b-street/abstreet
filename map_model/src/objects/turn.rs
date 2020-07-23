@@ -109,8 +109,8 @@ impl Turn {
     }
 
     // TODO Maybe precompute this.
-    // penalties for (lane types, lane-changing)
-    pub fn penalty(&self, map: &Map) -> (usize, usize) {
+    // penalties for (lane types, lane-changing, rightmost)
+    pub fn penalty(&self, map: &Map) -> (usize, usize, usize) {
         let from = map.get_l(self.id.src);
         let to = map.get_l(self.id.dst);
 
@@ -132,7 +132,10 @@ impl Turn {
         // matter.
         let lt_cost = if to.is_biking() || to.is_bus() { 0 } else { 1 };
 
-        (lt_cost, lc_cost)
+        // Keep right
+        let rightmost = if to_idx > 0 { 1 } else { 0 };
+
+        (lt_cost, lc_cost, rightmost)
     }
 }
 

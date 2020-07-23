@@ -258,8 +258,12 @@ impl Sim {
             Command::SpawnCar(
                 CreateCar {
                     start_dist: vehicle.length,
+                    router: Router::follow_bus_route(
+                        vehicle.id,
+                        path.clone(),
+                        req.end.dist_along(),
+                    ),
                     vehicle,
-                    router: Router::follow_bus_route(path.clone(), req.end.dist_along()),
                     req,
                     maybe_parked_car: None,
                     trip_and_person: None,
@@ -1174,7 +1178,7 @@ impl Sim {
         if lane.is_sidewalk() {
             (0, 0)
         } else {
-            self.driving.target_lane_penalty(lane)
+            self.driving.target_lane_penalty(lane.id)
         }
     }
 }

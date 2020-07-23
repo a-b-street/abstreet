@@ -1,11 +1,12 @@
 use crate::mechanics::Queue;
 use crate::{
-    Event, ParkingSimState, ParkingSpot, PersonID, SidewalkSpot, TripID, TripPhaseType, Vehicle,
+    CarID, Event, ParkingSimState, ParkingSpot, PersonID, SidewalkSpot, TripID, TripPhaseType,
+    Vehicle, VehicleType,
 };
 use geom::Distance;
 use map_model::{
     BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
-    Position, Traversable, TurnID, TurnType,
+    Position, Traversable, TurnID,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -15,6 +16,7 @@ pub struct Router {
     // Front is always the current step
     path: Path,
     goal: Goal,
+    owner: CarID,
 }
 
 #[derive(Debug)]
@@ -51,13 +53,19 @@ enum Goal {
 }
 
 impl Router {
-    pub fn end_at_border(path: Path, end_dist: Distance, i: IntersectionID) -> Router {
+    pub fn end_at_border(
+        owner: CarID,
+        path: Path,
+        end_dist: Distance,
+        i: IntersectionID,
+    ) -> Router {
         Router {
             path,
             goal: Goal::EndAtBorder { end_dist, i },
+            owner,
         }
     }
-    pub fn vanish_bus(l: LaneID, map: &Map) -> Router {
+    pub fn vanish_bus(owner: CarID, l: LaneID, map: &Map) -> Router {
         let lane = map.get_l(l);
         Router {
             path: Path::one_step(l, map),
@@ -65,10 +73,11 @@ impl Router {
                 end_dist: lane.length(),
                 i: lane.dst_i,
             },
+            owner,
         }
     }
 
-    pub fn park_near(path: Path, bldg: BuildingID) -> Router {
+    pub fn park_near(owner: CarID, path: Path, bldg: BuildingID) -> Router {
         Router {
             path,
             goal: Goal::ParkNearBuilding {
@@ -77,10 +86,16 @@ impl Router {
                 stuck_end_dist: None,
                 started_looking: false,
             },
+            owner,
         }
     }
 
-    pub fn bike_then_stop(path: Path, end_dist: Distance, map: &Map) -> Option<Router> {
+    pub fn bike_then_stop(
+        owner: CarID,
+        path: Path,
+        end_dist: Distance,
+        map: &Map,
+    ) -> Option<Router> {
         let last_lane = path.get_steps().iter().last().unwrap().as_lane();
         if map
             .get_parent(last_lane)
@@ -90,6 +105,7 @@ impl Router {
             Some(Router {
                 path,
                 goal: Goal::BikeThenStop { end_dist },
+                owner,
             })
         } else {
             println!("{} is the end of a bike route, with no sidewalk", last_lane);
@@ -97,10 +113,11 @@ impl Router {
         }
     }
 
-    pub fn follow_bus_route(path: Path, end_dist: Distance) -> Router {
+    pub fn follow_bus_route(owner: CarID, path: Path, end_dist: Distance) -> Router {
         Router {
             path,
             goal: Goal::FollowBusRoute { end_dist },
+            owner,
         }
     }
 
@@ -349,37 +366,26 @@ impl Router {
         let parent = map.get_parent(orig_target_lane);
         let next_parent = map.get_l(next_lane).src_i;
 
-        // Look for other candidate lanes. Must be the same lane type -- if there was a bus/bike
-        // lane originally and pathfinding already decided to use it, stick with that decision.
-        let orig_lt = map.get_l(orig_target_lane).lane_type;
-        let siblings = parent.children(parent.is_forwards(orig_target_lane));
-
-        let (_, turn1, best_lane, turn2) = siblings
+        // Look for other candidates, and assign a cost to each.
+        let constraints = self.owner.1.to_constraints();
+        let (_, turn1, best_lane, turn2) = parent
+            .children(parent.is_forwards(orig_target_lane))
             .iter()
-            .filter_map(|(l, lt)| {
-                let turn1 = TurnID {
+            .filter(|(l, _)| constraints.can_use(map.get_l(*l), map))
+            .filter_map(|(l, _)| {
+                let t1 = TurnID {
                     parent: current_turn.parent,
                     src: current_turn.src,
                     dst: *l,
                 };
-                if orig_lt == *lt && map.maybe_get_t(turn1).is_some() {
-                    // All other things being equal, prefer to not change lanes at all.
-                    let penalize_unnecessary_lc =
-                        if map.get_t(turn1).turn_type == TurnType::Straight {
-                            0
-                        } else {
-                            1
-                        };
-                    // Now make sure we can go from this lane to next_lane.
-                    let turn2 = TurnID {
+                if let Some(turn1) = map.maybe_get_t(t1) {
+                    // Make sure we can go from this lane to next_lane.
+                    if let Some(turn2) = map.maybe_get_t(TurnID {
                         parent: next_parent,
                         src: *l,
                         dst: next_lane,
-                    };
-                    if map.maybe_get_t(turn2).is_some() {
-                        let cost =
-                            penalize_unnecessary_lc + queues[&Traversable::Lane(*l)].cars.len();
-                        Some((cost, turn1, *l, turn2))
+                    }) {
+                        Some((turn1, *l, turn2))
                     } else {
                         None
                     }
@@ -387,18 +393,43 @@ impl Router {
                     None
                 }
             })
-            .min_by_key(|(len, _, _, _)| *len)
+            .map(|(turn1, l, turn2)| {
+                let (lt, lc, mut rightmost) = turn1.penalty(map);
+                let (vehicles, mut bike) = queues[&Traversable::Lane(l)].target_lane_penalty();
+
+                // The magic happens here. We have different penalties:
+                //
+                // 1) Are we headed towards a general purpose lane instead of a dedicated bike/bus
+                //    lane?
+                // 2) Are there any bikes in the target lane? This ONLY matters if we're a car. If
+                //    we're another bike, the speed difference won't matter.
+                // 3) IF we're a bike, are we headed to something other than the rightmost lane?
+                // 4) Are there lots of vehicles stacked up in one lane?
+                // 5) Are we changing lanes?
+                //
+                // A linear combination of these penalties is hard to reason about. Instead, we
+                // make our choice based on each penalty in order, breaking ties by moving onto the
+                // next thing.
+                if self.owner.1 == VehicleType::Bike {
+                    bike = 0;
+                } else {
+                    rightmost = 0;
+                }
+                let cost = (lt, bike, rightmost, vehicles, lc);
+
+                (cost, turn1, l, turn2)
+            })
+            .min_by_key(|(cost, _, _, _)| *cost)
             .unwrap();
         // TODO Only switch if the target queue is some amount better; don't oscillate
         // unnecessarily.
-        // TODO Better weight function... any slower vehicles in one?
         if best_lane == orig_target_lane {
             return;
         }
 
-        self.path.modify_step(1, PathStep::Turn(turn1), map);
+        self.path.modify_step(1, PathStep::Turn(turn1.id), map);
         self.path.modify_step(2, PathStep::Lane(best_lane), map);
-        self.path.modify_step(3, PathStep::Turn(turn2), map);
+        self.path.modify_step(3, PathStep::Turn(turn2.id), map);
     }
 
     pub fn replace_path_for_serialization(&mut self, path: Path) -> Path {

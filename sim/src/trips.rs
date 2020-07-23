@@ -292,7 +292,7 @@ impl TripManager {
         };
 
         let router = drive_to
-            .make_router(path, map, parked_car.vehicle.vehicle_type)
+            .make_router(parked_car.vehicle.id, path, map)
             .unwrap();
         scheduler.push(
             now,
@@ -345,7 +345,7 @@ impl TripManager {
         };
         if let Some(router) = map
             .pathfind(req.clone())
-            .and_then(|path| drive_to.make_router(path, map, VehicleType::Bike))
+            .and_then(|path| drive_to.make_router(bike, path, map))
         {
             scheduler.push(
                 now,
@@ -985,7 +985,7 @@ impl TripManager {
                 assert!(parking.lookup_parked_car(vehicle.id).is_none());
                 let req = maybe_req.unwrap();
                 if let Some(router) =
-                    maybe_path.and_then(|path| goal.make_router(path, map, vehicle.vehicle_type))
+                    maybe_path.and_then(|path| goal.make_router(vehicle.id, path, map))
                 {
                     scheduler.push(
                         now,

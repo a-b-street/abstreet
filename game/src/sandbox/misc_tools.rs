@@ -298,16 +298,16 @@ impl TurnExplorer {
                 ));
             }
         } else {
-            let (lt, lc) = turns[idx - 1].penalty(&app.primary.map);
+            let (lt, lc, rightmost) = turns[idx - 1].penalty(&app.primary.map);
             let (vehicles, bike) = app
                 .primary
                 .sim
                 .target_lane_penalty(app.primary.map.get_l(turns[idx - 1].id.dst));
             col.push(
                 format!(
-                    "Penalties: {} for lane types, {} for lane changing, {} for vehicles, {} for \
-                     slow bikes",
-                    lt, lc, vehicles, bike
+                    "Penalties: {} for lane types, {} for lane changing, {} for keeping right, {} \
+                     for vehicles, {} for slow bikes",
+                    lt, lc, rightmost, vehicles, bike
                 )
                 .draw_text(ctx),
             );

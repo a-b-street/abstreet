@@ -265,16 +265,16 @@ impl TransitSimState {
                     .push(Event::BusDepartedFromStop(id, bus.route, stop.id));
                 if let Some((req, path)) = stop.next_stop.clone() {
                     bus.state = BusState::DrivingToStop(stop_idx + 1);
-                    Router::follow_bus_route(path, req.end.dist_along())
+                    Router::follow_bus_route(id, path, req.end.dist_along())
                 } else {
                     if let Some((req, path)) = route.end_at_border.clone() {
                         bus.state = BusState::DrivingOffMap;
-                        Router::follow_bus_route(path, req.end.dist_along())
+                        Router::follow_bus_route(id, path, req.end.dist_along())
                     } else {
                         let on = stop.driving_pos.lane();
                         route.active_vehicles.remove(&id);
                         bus.state = BusState::Done;
-                        Router::vanish_bus(on, map)
+                        Router::vanish_bus(id, on, map)
                     }
                 }
             }

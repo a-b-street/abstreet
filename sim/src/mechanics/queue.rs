@@ -1,5 +1,5 @@
 use crate::mechanics::car::{Car, CarState};
-use crate::{CarID, FOLLOWING_DISTANCE};
+use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 use geom::{Distance, Time};
 use map_model::{Map, Traversable};
 use serde::{Deserialize, Serialize};
@@ -224,6 +224,26 @@ impl Queue {
     pub fn free_reserved_space(&mut self, car: &Car) {
         self.reserved_length -= car.vehicle.length + FOLLOWING_DISTANCE;
         assert!(self.reserved_length >= Distance::ZERO);
+    }
+
+    pub fn target_lane_penalty(&self) -> (usize, usize) {
+        let mut num_vehicles = self.cars.len();
+        if self.laggy_head.is_some() {
+            num_vehicles += 1;
+        }
+
+        let bike_cost = if self.cars.iter().any(|c| c.1 == VehicleType::Bike)
+            || self
+                .laggy_head
+                .map(|c| c.1 == VehicleType::Bike)
+                .unwrap_or(false)
+        {
+            1
+        } else {
+            0
+        };
+
+        (num_vehicles, bike_cost)
     }
 }
 
