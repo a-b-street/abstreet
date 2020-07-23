@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use serde::{Deserialize, Serialize};
 use std::cmp::Ord;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -202,7 +203,7 @@ impl<K: Clone + PartialEq, V> VecMap<K, V> {
 }
 
 // Convenience functions around a string->string map
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Tags(BTreeMap<String, String>);
 
 impl Tags {
@@ -233,9 +234,12 @@ impl Tags {
     pub fn insert<K: Into<String>, V: Into<String>>(&mut self, k: K, v: V) {
         self.0.insert(k.into(), v.into());
     }
+    pub fn remove(&mut self, k: &str) -> Option<String> {
+        self.0.remove(k)
+    }
 
-    // TODO Maybe store this directly instead.
-    pub fn take(self) -> BTreeMap<String, String> {
-        self.0
+    // TODO Really just iter()
+    pub fn inner(&self) -> &BTreeMap<String, String> {
+        &self.0
     }
 }

@@ -1,6 +1,6 @@
 use crate::make::initial::lane_specs::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, MapConfig, RoadSpec};
-use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
@@ -328,7 +328,7 @@ pub struct RawRoad {
     // cul-de-sac roads for roundabout handling. No transformation of these points whatsoever has
     // happened.
     pub center_points: Vec<Pt2D>,
-    pub osm_tags: BTreeMap<String, String>,
+    pub osm_tags: Tags,
     pub turn_restrictions: Vec<(RestrictionType, OriginalRoad)>,
     // (via, to). For turn restrictions where 'via' is an entire road. Only BanTurns.
     pub complicated_turn_restrictions: Vec<(OriginalRoad, OriginalRoad)>,
@@ -341,24 +341,16 @@ impl RawRoad {
     }
 
     pub fn synthetic(&self) -> bool {
-        self.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string())
+        self.osm_tags.is(osm::SYNTHETIC, "true")
     }
 
     // TODO For the moment, treating all rail things as light rail
     pub fn is_light_rail(&self) -> bool {
-        if let Some(v) = self.osm_tags.get("railway") {
-            vec!["light_rail", "rail"].contains(&v.as_ref())
-        } else {
-            false
-        }
+        self.osm_tags.is_any("railway", vec!["light_rail", "rail"])
     }
 
     pub fn is_footway(&self) -> bool {
-        if let Some(v) = self.osm_tags.get(osm::HIGHWAY) {
-            vec!["pedestrian"].contains(&v.as_ref())
-        } else {
-            false
-        }
+        self.osm_tags.is(osm::HIGHWAY, "pedestrian")
     }
 }
 
@@ -374,7 +366,7 @@ pub struct RawIntersection {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RawBuilding {
     pub polygon: Polygon,
-    pub osm_tags: BTreeMap<String, String>,
+    pub osm_tags: Tags,
     pub public_garage_name: Option<String>,
     pub num_parking_spots: usize,
     // (Name, amenity type)
@@ -385,7 +377,7 @@ pub struct RawBuilding {
 pub struct RawArea {
     pub area_type: AreaType,
     pub polygon: Polygon,
-    pub osm_tags: BTreeMap<String, String>,
+    pub osm_tags: Tags,
     pub osm_id: i64,
 }
 

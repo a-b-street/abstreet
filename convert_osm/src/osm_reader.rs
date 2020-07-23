@@ -135,7 +135,7 @@ pub fn extract_osm(
                 way.id,
                 RawRoad {
                     center_points: pts,
-                    osm_tags: tags.take(),
+                    osm_tags: tags,
                     turn_restrictions: Vec::new(),
                     complicated_turn_restrictions: Vec::new(),
                 },
@@ -154,7 +154,7 @@ pub fn extract_osm(
                     public_garage_name: None,
                     num_parking_spots: 0,
                     amenities: get_bldg_amenities(&tags),
-                    osm_tags: tags.take(),
+                    osm_tags: tags,
                 },
             );
         } else if let Some(at) = get_area_type(&tags) {
@@ -165,7 +165,7 @@ pub fn extract_osm(
                 area_type: at,
                 osm_id: way.id,
                 polygon: Polygon::new(&pts),
-                osm_tags: tags.take(),
+                osm_tags: tags,
             });
         } else if tags.is("natural", "coastline") {
             coastline_groups.push((way.id, pts));
@@ -209,7 +209,7 @@ pub fn extract_osm(
                             area_type,
                             osm_id: rel.id,
                             polygon,
-                            osm_tags: tags.clone().take(),
+                            osm_tags: tags.clone(),
                         });
                     }
                 }
@@ -272,7 +272,7 @@ pub fn extract_osm(
                             public_garage_name: None,
                             num_parking_spots: 0,
                             amenities: get_bldg_amenities(&tags),
-                            osm_tags: tags.take(),
+                            osm_tags: tags,
                         },
                     );
                 }
@@ -337,8 +337,8 @@ pub fn extract_osm(
     // Special case the coastline.
     println!("{} ways of coastline", coastline_groups.len());
     for polygon in glue_multipolygon(-1, coastline_groups, &boundary) {
-        let mut osm_tags = BTreeMap::new();
-        osm_tags.insert("water".to_string(), "ocean".to_string());
+        let mut osm_tags = Tags::new(BTreeMap::new());
+        osm_tags.insert("water", "ocean");
         // Put it at the beginning, so that it's naturally beneath island areas
         map.areas.insert(
             0,

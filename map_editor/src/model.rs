@@ -1,5 +1,5 @@
 use crate::world::{Object, ObjectID, World};
-use abstutil::Timer;
+use abstutil::{Tags, Timer};
 use ezgui::{Color, Line, Prerender, Text};
 use geom::{
     ArrowCap, Bounds, Circle, Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D,
@@ -177,7 +177,7 @@ impl Model {
         match id {
             ID::Building(b) => {
                 txt.add_highlighted(Line(b.to_string()), Color::BLUE);
-                for (k, v) in &self.map.buildings[&b].osm_tags {
+                for (k, v) in self.map.buildings[&b].osm_tags.inner() {
                     txt.add_appended(vec![
                         Line(k).fg(Color::RED),
                         Line(" = "),
@@ -203,7 +203,7 @@ impl Model {
                     txt.add(Line("some road"));
                 }
 
-                for (k, v) in &road.osm_tags {
+                for (k, v) in road.osm_tags.inner() {
                     txt.add_appended(vec![
                         Line(k).fg(Color::RED),
                         Line(" = "),
@@ -358,22 +358,22 @@ impl Model {
             i1,
             i2,
         };
-        let mut osm_tags = BTreeMap::new();
-        osm_tags.insert(osm::SYNTHETIC.to_string(), "true".to_string());
+        let mut osm_tags = Tags::new(BTreeMap::new());
+        osm_tags.insert(osm::SYNTHETIC, "true");
         osm_tags.insert(
-            osm::SYNTHETIC_LANES.to_string(),
+            osm::SYNTHETIC_LANES,
             RoadSpec {
                 fwd: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
                 back: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
             }
             .to_string(),
         );
-        osm_tags.insert(osm::ENDPT_FWD.to_string(), "true".to_string());
-        osm_tags.insert(osm::ENDPT_BACK.to_string(), "true".to_string());
-        osm_tags.insert(osm::OSM_WAY_ID.to_string(), id.osm_way_id.to_string());
+        osm_tags.insert(osm::ENDPT_FWD, "true");
+        osm_tags.insert(osm::ENDPT_BACK, "true");
+        osm_tags.insert(osm::OSM_WAY_ID, id.osm_way_id.to_string());
         // Reasonable defaults.
-        osm_tags.insert(osm::NAME.to_string(), "Streety McStreetFace".to_string());
-        osm_tags.insert(osm::MAXSPEED.to_string(), "25 mph".to_string());
+        osm_tags.insert(osm::NAME, "Streety McStreetFace");
+        osm_tags.insert(osm::MAXSPEED, "25 mph");
 
         self.map.roads.insert(
             id,
@@ -399,7 +399,7 @@ impl Model {
                 .get_mut(&id)
                 .unwrap()
                 .osm_tags
-                .insert(osm::SYNTHETIC_LANES.to_string(), s.to_string());
+                .insert(osm::SYNTHETIC_LANES, s.to_string());
         } else {
             println!("Bad RoadSpec: {}", spec);
         }
@@ -415,7 +415,7 @@ impl Model {
             (r.get_spec(), &mut r.osm_tags)
         };
         mem::swap(&mut lanes.fwd, &mut lanes.back);
-        osm_tags.insert(osm::SYNTHETIC_LANES.to_string(), lanes.to_string());
+        osm_tags.insert(osm::SYNTHETIC_LANES, lanes.to_string());
 
         self.road_added(id, prerender);
     }
@@ -431,22 +431,25 @@ impl Model {
         self.road_deleted(id);
 
         let osm_tags = &mut self.map.roads.get_mut(&id).unwrap().osm_tags;
-        osm_tags.insert(osm::NAME.to_string(), name);
-        osm_tags.insert(osm::MAXSPEED.to_string(), speed);
-        osm_tags.insert(osm::HIGHWAY.to_string(), highway);
+        osm_tags.insert(osm::NAME, name);
+        osm_tags.insert(osm::MAXSPEED, speed);
+        osm_tags.insert(osm::HIGHWAY, highway);
 
         self.road_added(id, prerender);
     }
 
     pub fn toggle_r_sidewalks(&mut self, some_id: OriginalRoad, prerender: &Prerender) {
         // Update every road belonging to the way.
-        let osm_id = self.map.roads[&some_id].osm_tags[osm::OSM_WAY_ID].clone();
+        let osm_id = self.map.roads[&some_id]
+            .osm_tags
+            .get(osm::OSM_WAY_ID)
+            .unwrap();
         let matching_roads = self
             .map
             .roads
             .iter()
             .filter_map(|(k, v)| {
-                if v.osm_tags[osm::OSM_WAY_ID] == osm_id {
+                if v.osm_tags.is(osm::OSM_WAY_ID, osm_id) {
                     Some(*k)
                 } else {
                     None
@@ -475,13 +478,13 @@ impl Model {
             let osm_tags = &mut self.map.roads.get_mut(&id).unwrap().osm_tags;
             osm_tags.remove(osm::INFERRED_SIDEWALKS);
             if value == Some("both".to_string()) {
-                osm_tags.insert(osm::SIDEWALK.to_string(), "right".to_string());
+                osm_tags.insert(osm::SIDEWALK, "right");
             } else if value == Some("right".to_string()) {
-                osm_tags.insert(osm::SIDEWALK.to_string(), "left".to_string());
+                osm_tags.insert(osm::SIDEWALK, "left");
             } else if value == Some("left".to_string()) {
-                osm_tags.insert(osm::SIDEWALK.to_string(), "none".to_string());
+                osm_tags.insert(osm::SIDEWALK, "none");
             } else if value == Some("none".to_string()) {
-                osm_tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
+                osm_tags.insert(osm::SIDEWALK, "both");
             }
 
             self.road_added(id, prerender);
@@ -501,8 +504,7 @@ impl Model {
 
     fn road_objects(&self, id: OriginalRoad) -> Vec<Object<ID>> {
         let r = &self.map.roads[&id];
-        let unset =
-            r.synthetic() && r.osm_tags.get(osm::NAME) == Some(&"Streety McStreetFace".to_string());
+        let unset = r.synthetic() && r.osm_tags.is(osm::NAME, "Streety McStreetFace");
         let lanes_unknown = r.osm_tags.contains_key(osm::INFERRED_SIDEWALKS);
         let spec = r.get_spec();
         let center_pts = PolyLine::must_new(r.center_points.clone());
@@ -768,7 +770,7 @@ impl Model {
             id,
             RawBuilding {
                 polygon: Polygon::rectangle_centered(center, BUILDING_LENGTH, BUILDING_LENGTH),
-                osm_tags: BTreeMap::new(),
+                osm_tags: Tags::new(BTreeMap::new()),
                 public_garage_name: None,
                 num_parking_spots: 0,
                 amenities: BTreeSet::new(),

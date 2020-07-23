@@ -1,14 +1,11 @@
 use crate::{osm, LaneType};
 use abstutil::Tags;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 use std::{fmt, iter};
 
 // TODO This is ripe for unit testing.
 // (original direction, reversed direction)
-pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Vec<LaneType>) {
-    let tags = Tags::new(osm_tags.clone());
-
+pub fn get_lane_types(tags: &Tags) -> (Vec<LaneType>, Vec<LaneType>) {
     if let Some(s) = tags.get(osm::SYNTHETIC_LANES) {
         if let Some(spec) = RoadSpec::parse(s.to_string()) {
             return (spec.fwd, spec.back);

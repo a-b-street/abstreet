@@ -196,7 +196,7 @@ pub fn split_up_roads(
         for (id, r) in &map.roads {
             if r.center_points.contains(&pt.to_pt2d()) {
                 // Example: https://www.openstreetmap.org/node/26734224
-                if r.osm_tags.get(osm::HIGHWAY) == Some(&"construction".to_string()) {
+                if r.osm_tags.is(osm::HIGHWAY, "construction") {
                     break;
                 }
 

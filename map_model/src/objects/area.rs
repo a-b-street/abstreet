@@ -1,7 +1,6 @@
-use abstutil::{deserialize_usize, serialize_usize};
+use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::Polygon;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -32,6 +31,6 @@ pub struct Area {
     pub id: AreaID,
     pub area_type: AreaType,
     pub polygon: Polygon,
-    pub osm_tags: BTreeMap<String, String>,
+    pub osm_tags: Tags,
     pub osm_id: i64,
 }

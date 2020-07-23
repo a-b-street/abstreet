@@ -4,7 +4,7 @@ pub mod lane_specs;
 pub use self::geometry::intersection_polygon;
 use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad, RawMap, RawRoad};
 use crate::{IntersectionType, LaneType, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
-use abstutil::Timer;
+use abstutil::{Tags, Timer};
 use geom::{Bounds, Distance, PolyLine, Pt2D};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -132,7 +132,7 @@ impl LaneSpec {
     }
 }
 
-pub fn get_lane_specs(osm_tags: &BTreeMap<String, String>) -> Vec<LaneSpec> {
+pub fn get_lane_specs(osm_tags: &Tags) -> Vec<LaneSpec> {
     let (side1_types, side2_types) = lane_specs::get_lane_types(osm_tags);
 
     let mut specs: Vec<LaneSpec> = Vec::new();

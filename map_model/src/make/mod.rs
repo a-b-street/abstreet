@@ -197,7 +197,7 @@ impl Map {
             }
             if road.get_name() == "???" {
                 // Suppress the warning in some cases.
-                if !(road.osm_tags.get("noname") == Some(&"yes".to_string())
+                if !(road.osm_tags.is("noname", "yes")
                     || road
                         .osm_tags
                         .get(osm::HIGHWAY)
@@ -234,8 +234,7 @@ impl Map {
                 for r in &i.roads {
                     // Skip signals only connected to roads under construction or purely to control
                     // light rail tracks.
-                    if map.roads[r.0].osm_tags.get(osm::HIGHWAY)
-                        != Some(&"construction".to_string())
+                    if !map.roads[r.0].osm_tags.is(osm::HIGHWAY, "construction")
                         && !map.roads[r.0].is_light_rail()
                     {
                         ok = true;

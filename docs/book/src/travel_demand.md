@@ -79,3 +79,5 @@ modify the mode for some people (change 50% of all driving trips between 7 and
 
 - https://github.com/replicahq/doppelganger
 - https://github.com/stasmix/popsynth
+- https://zephyrtransport.github.io/zephyr-directory/projects/
+- https://activitysim.github.io

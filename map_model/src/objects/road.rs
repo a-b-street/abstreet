@@ -1,10 +1,10 @@
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints, Zone};
-use abstutil::{deserialize_usize, serialize_usize};
+use abstutil::{deserialize_usize, serialize_usize, Tags};
 use enumset::EnumSet;
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::HashSet;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -89,10 +89,7 @@ impl DirectedRoadID {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Road {
     pub id: RoadID,
-    // I've previously tried storing these in a compressed lookup table (since the keys and values
-    // are often common), but the performance benefit was negligible, and the increased API
-    // complexity was annoying.
-    pub osm_tags: BTreeMap<String, String>,
+    pub osm_tags: Tags,
     // self is 'from'
     pub turn_restrictions: Vec<(RestrictionType, RoadID)>,
     // self is 'from'. (via, to). Only BanTurns.
@@ -211,12 +208,13 @@ impl Road {
         }
 
         // These're half reasonable guesses. Better to explicitly tag in OSM.
-        if self.osm_tags.get(osm::HIGHWAY) == Some(&"primary".to_string())
-            || self.osm_tags.get(osm::HIGHWAY) == Some(&"secondary".to_string())
+        if self
+            .osm_tags
+            .is_any(osm::HIGHWAY, vec!["primary", "secondary"])
         {
             return Speed::miles_per_hour(40.0);
         }
-        if self.osm_tags.get(osm::HIGHWAY) == Some(&"living_street".to_string()) {
+        if self.osm_tags.is(osm::HIGHWAY, "living_street") {
             // about 12mph
             return Speed::km_per_hour(20.0);
         }
@@ -434,9 +432,9 @@ impl Road {
     }
 
     pub(crate) fn access_restrictions_from_osm(&self) -> EnumSet<PathConstraints> {
-        if self.osm_tags.get("access") == Some(&"private".to_string()) {
+        if self.osm_tags.is("access", "private") {
             EnumSet::new()
-        } else if self.osm_tags.get(osm::HIGHWAY) == Some(&"living_street".to_string()) {
+        } else if self.osm_tags.is(osm::HIGHWAY, "living_street") {
             PathConstraints::Pedestrian | PathConstraints::Bike
         } else {
             EnumSet::all()

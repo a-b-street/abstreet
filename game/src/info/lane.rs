@@ -139,7 +139,10 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
     txt.add(Line("Raw OpenStreetMap data"));
     rows.push(txt.draw(ctx));
 
-    rows.extend(make_table(ctx, r.osm_tags.clone().into_iter()));
+    rows.extend(make_table(
+        ctx,
+        r.osm_tags.inner().iter().map(|(k, v)| (k, v.to_string())),
+    ));
 
     rows
 }

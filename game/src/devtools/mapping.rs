@@ -2,7 +2,7 @@ use crate::app::{App, ShowEverything};
 use crate::common::{CityPicker, ColorLegend};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::{nice_map_name, ID};
-use abstutil::{prettyprint_usize, Timer};
+use abstutil::{prettyprint_usize, Tags, Timer};
 use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
@@ -314,7 +314,7 @@ impl State for ParkingMapper {
                         Line(Key::O.describe()).fg(ctx.style().hotkey_color),
                         Line(" to open OpenStreetMap for this way"),
                     ]);
-                    for (k, v) in &road.osm_tags {
+                    for (k, v) in road.osm_tags.inner() {
                         if k.starts_with("abst:") {
                             continue;
                         }
@@ -476,7 +476,7 @@ fn generate_osmc(
         let mut tree = xmltree::Element::parse(resp.as_bytes())?
             .take_child("way")
             .unwrap();
-        let mut osm_tags = BTreeMap::new();
+        let mut osm_tags = Tags::new(BTreeMap::new());
         let mut other_children = Vec::new();
         for node in tree.children.drain(..) {
             if let Some(elem) = node.as_element() {
@@ -494,45 +494,36 @@ fn generate_osmc(
         osm_tags.remove(osm::PARKING_BOTH);
         match value {
             Value::BothSides => {
-                osm_tags.insert(osm::PARKING_BOTH.to_string(), "parallel".to_string());
+                osm_tags.insert(osm::PARKING_BOTH, "parallel");
                 if in_seattle {
-                    osm_tags.insert(
-                        "parking:condition:both:maxstay".to_string(),
-                        "3 days".to_string(),
-                    );
+                    osm_tags.insert("parking:condition:both:maxstay", "3 days");
                 }
             }
             Value::NoStopping => {
-                osm_tags.insert(osm::PARKING_BOTH.to_string(), "no_stopping".to_string());
+                osm_tags.insert(osm::PARKING_BOTH, "no_stopping");
             }
             Value::RightOnly => {
-                osm_tags.insert(osm::PARKING_RIGHT.to_string(), "parallel".to_string());
-                osm_tags.insert(osm::PARKING_LEFT.to_string(), "no_stopping".to_string());
+                osm_tags.insert(osm::PARKING_RIGHT, "parallel");
+                osm_tags.insert(osm::PARKING_LEFT, "no_stopping");
                 if in_seattle {
-                    osm_tags.insert(
-                        "parking:condition:right:maxstay".to_string(),
-                        "3 days".to_string(),
-                    );
+                    osm_tags.insert("parking:condition:right:maxstay", "3 days");
                 }
             }
             Value::LeftOnly => {
-                osm_tags.insert(osm::PARKING_LEFT.to_string(), "parallel".to_string());
-                osm_tags.insert(osm::PARKING_RIGHT.to_string(), "no_stopping".to_string());
+                osm_tags.insert(osm::PARKING_LEFT, "parallel");
+                osm_tags.insert(osm::PARKING_RIGHT, "no_stopping");
                 if in_seattle {
-                    osm_tags.insert(
-                        "parking:condition:left:maxstay".to_string(),
-                        "3 days".to_string(),
-                    );
+                    osm_tags.insert("parking:condition:left:maxstay", "3 days");
                 }
             }
             Value::Complicated => unreachable!(),
         }
 
         tree.children = other_children;
-        for (k, v) in osm_tags {
+        for (k, v) in osm_tags.inner() {
             let mut new_elem = xmltree::Element::new("tag");
-            new_elem.attributes.insert("k".to_string(), k);
-            new_elem.attributes.insert("v".to_string(), v);
+            new_elem.attributes.insert("k".to_string(), k.to_string());
+            new_elem.attributes.insert("v".to_string(), v.to_string());
             tree.children.push(xmltree::XMLNode::Element(new_elem));
         }
 

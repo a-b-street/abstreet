@@ -9,7 +9,7 @@ use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{calculate_corners, DrawOptions};
-use abstutil::Timer;
+use abstutil::{Tags, Timer};
 use ezgui::{
     hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget, Wizard,
@@ -17,7 +17,7 @@ use ezgui::{
 use geom::Pt2D;
 use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::HashSet;
 
 pub struct DebugMode {
     composite: Composite,
@@ -345,6 +345,7 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Tra
     let color = Color::RED;
     for r in map.all_roads() {
         if r.osm_tags
+            .inner()
             .iter()
             .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
         {
@@ -354,6 +355,7 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Tra
     }
     for a in map.all_areas() {
         if a.osm_tags
+            .inner()
             .iter()
             .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
         {
@@ -672,8 +674,8 @@ fn find_degenerate_roads(app: &App) {
     }
 }
 
-fn diff_tags(t1: &BTreeMap<String, String>, t2: &BTreeMap<String, String>) {
-    for (k, v1) in t1 {
+fn diff_tags(t1: &Tags, t2: &Tags) {
+    for (k, v1) in t1.inner() {
         if k == osm::OSM_WAY_ID {
             continue;
         }
@@ -682,7 +684,7 @@ fn diff_tags(t1: &BTreeMap<String, String>, t2: &BTreeMap<String, String>) {
             println!("- {} = \"{}\" vs \"{}\"", k, v1, v2);
         }
     }
-    for (k, v2) in t2 {
+    for (k, v2) in t2.inner() {
         if !t1.contains_key(k) {
             println!("- {} = \"\" vs \"{}\"", k, v2);
         }

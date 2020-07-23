@@ -90,17 +90,15 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
             let pct = pct as i64;
             for (id, r) in map.roads.iter_mut() {
                 if r.osm_tags.contains_key(osm::INFERRED_PARKING)
-                    && (r.osm_tags.get(osm::HIGHWAY) == Some(&"residential".to_string())
-                        || r.osm_tags.get(osm::HIGHWAY) == Some(&"tertiary".to_string()))
+                    && r.osm_tags
+                        .is_any(osm::HIGHWAY, vec!["residential", "tertiary"])
                     && id.osm_way_id % 100 <= pct
                 {
-                    if r.osm_tags.get("oneway") == Some(&"yes".to_string()) {
+                    if r.osm_tags.is("oneway", "yes") {
                         r.osm_tags.remove(osm::PARKING_BOTH);
-                        r.osm_tags
-                            .insert(osm::PARKING_RIGHT.to_string(), "parallel".to_string());
+                        r.osm_tags.insert(osm::PARKING_RIGHT, "parallel");
                     } else {
-                        r.osm_tags
-                            .insert(osm::PARKING_BOTH.to_string(), "parallel".to_string());
+                        r.osm_tags.insert(osm::PARKING_BOTH, "parallel");
                     }
                 }
             }
@@ -175,10 +173,8 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             let has_parking = category != Some(&"None".to_string())
                 && category != Some(&"No Parking Allowed".to_string());
 
-            let definitely_no_parking = match tags.get(osm::HIGHWAY) {
-                Some(hwy) => hwy == "motorway" || hwy == "motorway_link",
-                None => false,
-            };
+            let definitely_no_parking =
+                tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"]);
             if has_parking && definitely_no_parking {
                 timer.warn(format!(
                     "Blockface says there's parking along motorway {}, ignoring",
@@ -188,20 +184,20 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             }
 
             if let Some(both) = tags.remove(osm::PARKING_BOTH) {
-                tags.insert(osm::PARKING_LEFT.to_string(), both.clone());
-                tags.insert(osm::PARKING_RIGHT.to_string(), both.clone());
+                tags.insert(osm::PARKING_LEFT, both.clone());
+                tags.insert(osm::PARKING_RIGHT, both);
             }
 
             tags.insert(
                 if fwds {
-                    osm::PARKING_RIGHT.to_string()
+                    osm::PARKING_RIGHT
                 } else {
-                    osm::PARKING_LEFT.to_string()
+                    osm::PARKING_LEFT
                 },
                 if has_parking {
-                    "parallel".to_string()
+                    "parallel"
                 } else {
-                    "no_parking".to_string()
+                    "no_parking"
                 },
             );
 
@@ -211,7 +207,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             {
                 let value = tags.remove(osm::PARKING_LEFT).unwrap();
                 tags.remove(osm::PARKING_RIGHT).unwrap();
-                tags.insert(osm::PARKING_BOTH.to_string(), value);
+                tags.insert(osm::PARKING_BOTH, value);
             }
         }
     }

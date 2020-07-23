@@ -74,7 +74,7 @@ pub fn make_all_buildings(
                 parking: None,
                 label_center: b.polygon.polylabel(),
                 bldg_type: classify_bldg(
-                    Tags::new(b.osm_tags.clone()),
+                    b.osm_tags.clone(),
                     &b.amenities,
                     b.polygon.area(),
                     &mut rng,
@@ -281,7 +281,7 @@ fn trim_path(poly: &Polygon, path: Line) -> Line {
     path
 }
 
-fn get_address(tags: &BTreeMap<String, String>, sidewalk: LaneID, map: &Map) -> String {
+fn get_address(tags: &Tags, sidewalk: LaneID, map: &Map) -> String {
     match (tags.get("addr:housenumber"), tags.get("addr:street")) {
         (Some(num), Some(st)) => format!("{} {}", num, st),
         (None, Some(st)) => format!("??? {}", st),
