@@ -114,12 +114,46 @@ impl Turn {
         let from = map.get_l(self.id.src);
         let to = map.get_l(self.id.dst);
 
-        // TODO What if turns are only allowed from a few lanes? We might wind up penalizing too
-        // much. Maybe that doesn't matter?
-        let (from_idx, _from_cnt) = map
-            .get_r(from.parent)
-            .travel_lane_offset(from.id, from.lane_type);
-        let (to_idx, _to_cnt) = map.get_r(to.parent).travel_lane_offset(to.id, to.lane_type);
+        // Starting from the right / farthest from the center line, where is this travel lane?
+        // Filters by the lane type and ignores lanes that don't go to the target road.
+        let from_idx = {
+            let mut cnt = 0;
+            let r = map.get_r(from.parent);
+            for (l, lt) in r.children(r.is_forwards(from.id)).iter().rev() {
+                if from.lane_type != *lt {
+                    continue;
+                }
+                if map
+                    .get_turns_from_lane(*l)
+                    .into_iter()
+                    .any(|t| map.get_l(t.id.dst).parent == to.parent)
+                {
+                    cnt += 1;
+                    if from.id == *l {
+                        break;
+                    }
+                }
+            }
+            cnt
+        };
+
+        // Starting from the right / farthest from the center line, where is this travel lane?
+        // Filters by the lane type.
+        let to_idx = {
+            let mut cnt = 0;
+            let r = map.get_r(to.parent);
+            for (l, lt) in r.children(r.is_forwards(to.id)).iter().rev() {
+                if to.lane_type != *lt {
+                    continue;
+                }
+                cnt += 1;
+                if to.id == *l {
+                    break;
+                }
+            }
+            cnt
+        };
+
         // TODO I thought about different cases where there are the same/more/less lanes going in
         // and out, but then actually, I think the reasonable thing in all cases is just to do
         // this. If that holds true, simplify travel_lane_offset; don't need the count.
@@ -133,7 +167,7 @@ impl Turn {
         let lt_cost = if to.is_biking() || to.is_bus() { 0 } else { 1 };
 
         // Keep right
-        let rightmost = if to_idx > 0 { 1 } else { 0 };
+        let rightmost = if to_idx > 1 { 1 } else { 0 };
 
         (lt_cost, lc_cost, rightmost)
     }
