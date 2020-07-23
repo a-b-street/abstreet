@@ -14,7 +14,7 @@ use crate::{
     IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints, Position, Road,
     RoadID, Zone,
 };
-use abstutil::Timer;
+use abstutil::{Parallelism, Timer};
 use enumset::EnumSet;
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Polygon, Speed, EPSILON_DIST};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
@@ -409,6 +409,7 @@ fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
     timer
         .parallelize(
             "find closest lane point",
+            Parallelism::Fastest,
             pts.into_iter().collect(),
             |query_pt| {
                 if let Some((l, pt)) = closest.closest_pt(query_pt.to_pt2d(), max_dist_away) {

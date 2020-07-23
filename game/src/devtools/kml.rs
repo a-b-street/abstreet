@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::game::{State, Transition};
 use aabb_quadtree::QuadTree;
-use abstutil::prettyprint_usize;
+use abstutil::{prettyprint_usize, Parallelism};
 use ezgui::{
     hotkey, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
@@ -56,6 +56,7 @@ impl ViewKML {
             let objects: Vec<Object> = timer
                 .parallelize(
                     "convert shapes",
+                    Parallelism::Fastest,
                     raw_shapes.shapes.into_iter().enumerate().collect(),
                     |(idx, shape)| {
                         let pts = bounds.convert(&shape.points);

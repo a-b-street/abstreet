@@ -1,5 +1,5 @@
 use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
-use abstutil::{prettyprint_usize, MultiMap, Timer};
+use abstutil::{prettyprint_usize, MultiMap, Parallelism, Timer};
 use geom::LonLat;
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, PathRequest, PathStep};
 use sim::{
@@ -204,8 +204,11 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
         .collect();
 
     let total_trips = popdat.trips.len();
-    let maybe_results: Vec<Option<Trip>> =
-        timer.parallelize("clip trips", popdat.trips.iter().collect(), |orig| {
+    let maybe_results: Vec<Option<Trip>> = timer.parallelize(
+        "clip trips",
+        Parallelism::Polite,
+        popdat.trips.iter().collect(),
+        |orig| {
             let (from, to) = endpoints(
                 &orig.from,
                 &orig.to,
@@ -230,7 +233,8 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
                 to,
                 orig: orig.clone(),
             })
-        });
+        },
+    );
     let trips: Vec<Trip> = maybe_results.into_iter().flatten().collect();
 
     timer.note(format!(
@@ -255,16 +259,19 @@ pub fn make_weekday_scenario(
     // person -> (trip seq, index into individ_trips)
     let mut trips_per_person: MultiMap<OrigPersonID, ((usize, bool, usize), usize)> =
         MultiMap::new();
-    for (trip, depart, person, seq) in
-        timer.parallelize("turn Soundcast trips into SpawnTrips", trips, |trip| {
+    for (trip, depart, person, seq) in timer.parallelize(
+        "turn Soundcast trips into SpawnTrips",
+        Parallelism::Polite,
+        trips,
+        |trip| {
             (
                 SpawnTrip::new(trip.from, trip.to, trip.orig.mode, map),
                 trip.orig.depart_at,
                 trip.orig.person,
                 trip.orig.seq,
             )
-        })
-    {
+        },
+    ) {
         if let Some(trip) = trip {
             let idx = individ_trips.len();
             individ_trips.push(Some(IndividTrip::new(depart, trip)));

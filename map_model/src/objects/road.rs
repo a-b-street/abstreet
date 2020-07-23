@@ -178,6 +178,7 @@ impl Road {
             .iter()
             .rev()
             .chain(self.children(!fwds).iter())
+            // TODO Bug, bus lanes OK. use PathConstraints::Bike.
             .find(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Biking)
             .map(|(id, _)| *id)
     }

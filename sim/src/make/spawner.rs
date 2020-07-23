@@ -2,7 +2,7 @@ use crate::{
     CarID, Command, DrivingGoal, OffMapLocation, Person, PersonID, Scheduler, SidewalkSpot,
     TripEndpoint, TripLeg, TripManager, TripMode, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH,
 };
-use abstutil::Timer;
+use abstutil::{Parallelism, Timer};
 use geom::{Duration, Time, EPSILON_DIST};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
@@ -157,8 +157,9 @@ impl TripSpawner {
                         spec = backup_plan.unwrap();
                     } else {
                         panic!(
-                            "Can't start biking from {}; no biking or driving lane nearby?",
-                            start
+                            "Can't start biking from {}; no biking or driving lane nearby? Can't \
+                             walk instead, goal is {:?}",
+                            start, goal
                         );
                     }
                 } else if let DrivingGoal::ParkNear(b) = goal {
@@ -207,6 +208,7 @@ impl TripSpawner {
         }
         let paths = timer.parallelize(
             "calculate paths",
+            Parallelism::Fastest,
             std::mem::replace(&mut self.trips, Vec::new()),
             |tuple| {
                 let req = tuple.2.get_pathfinding_request(map);

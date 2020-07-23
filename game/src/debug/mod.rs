@@ -9,7 +9,7 @@ use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{calculate_corners, DrawOptions};
-use abstutil::{Tags, Timer};
+use abstutil::{Parallelism, Tags, Timer};
 use ezgui::{
     hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget, Wizard,
@@ -404,12 +404,15 @@ fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
     let mut cnt = 0;
     let sim = &app.primary.sim;
     let map = &app.primary.map;
-    for maybe_trace in
-        Timer::new("calculate all routes").parallelize("route to geometry", agents, |id| {
+    for maybe_trace in Timer::new("calculate all routes").parallelize(
+        "route to geometry",
+        Parallelism::Fastest,
+        agents,
+        |id| {
             sim.trace_route(id, map, None)
                 .map(|trace| trace.make_polygons(NORMAL_LANE_THICKNESS))
-        })
-    {
+        },
+    ) {
         if let Some(t) = maybe_trace {
             cnt += 1;
             batch.push(app.cs.route, t);

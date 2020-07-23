@@ -8,7 +8,7 @@ use crate::{
     UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
     LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
 };
-use abstutil::Timer;
+use abstutil::{Parallelism, Timer};
 use derivative::Derivative;
 use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};
 use instant::Instant;
@@ -837,6 +837,7 @@ impl Sim {
     pub fn restore_paths(&mut self, map: &Map, timer: &mut Timer) {
         let paths = timer.parallelize(
             "calculate paths",
+            Parallelism::Fastest,
             self.scheduler.get_requests_for_savestate(),
             |req| map.pathfind(req).unwrap(),
         );
