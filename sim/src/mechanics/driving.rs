@@ -3,12 +3,12 @@ use crate::mechanics::Queue;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
     DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PersonID,
-    Scheduler, TimeInterval, TransitSimState, TripManager, UnzoomedAgent, Vehicle, WalkingSimState,
-    FOLLOWING_DISTANCE,
+    Scheduler, TimeInterval, TransitSimState, TripManager, UnzoomedAgent, Vehicle, VehicleType,
+    WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Time};
-use map_model::{LaneID, Map, Path, PathStep, Traversable};
+use map_model::{Lane, LaneID, Map, Path, PathStep, Traversable};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet, VecDeque};
 
@@ -1050,5 +1050,26 @@ impl DrivingSimState {
 
     pub fn collect_events(&mut self) -> Vec<Event> {
         std::mem::replace(&mut self.events, Vec::new())
+    }
+
+    pub fn target_lane_penalty(&self, lane: &Lane) -> (usize, usize) {
+        let queue = &self.queues[&Traversable::Lane(lane.id)];
+        let mut num_vehicles = queue.cars.len();
+        if queue.laggy_head.is_some() {
+            num_vehicles += 1;
+        }
+
+        let bike_cost = if queue.cars.iter().any(|c| c.1 == VehicleType::Bike)
+            || queue
+                .laggy_head
+                .map(|c| c.1 == VehicleType::Bike)
+                .unwrap_or(false)
+        {
+            1
+        } else {
+            0
+        };
+
+        (num_vehicles, bike_cost)
     }
 }

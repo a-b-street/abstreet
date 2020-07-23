@@ -299,9 +299,17 @@ impl TurnExplorer {
             }
         } else {
             let (lt, lc) = turns[idx - 1].penalty(&app.primary.map);
+            let (vehicles, bike) = app
+                .primary
+                .sim
+                .target_lane_penalty(app.primary.map.get_l(turns[idx - 1].id.dst));
             col.push(
-                format!("Penalties: {} for lane types, {} for lane changing", lt, lc)
-                    .draw_text(ctx),
+                format!(
+                    "Penalties: {} for lane types, {} for lane changing, {} for vehicles, {} for \
+                     slow bikes",
+                    lt, lc, vehicles, bike
+                )
+                .draw_text(ctx),
             );
             col.push(ColorLegend::row(ctx, CURRENT_TURN, "current turn"));
             col.push(ColorLegend::row(ctx, CONFLICTING_TURN, "conflicting turn"));

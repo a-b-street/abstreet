@@ -13,7 +13,7 @@ use derivative::Derivative;
 use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};
 use instant::Instant;
 use map_model::{
-    BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, ParkingLotID, Path,
+    BuildingID, BusRoute, BusRouteID, IntersectionID, Lane, LaneID, Map, ParkingLotID, Path,
     PathConstraints, PathRequest, Position, RoadID, Traversable,
 };
 use rand_xorshift::XorShiftRng;
@@ -1167,6 +1167,15 @@ impl Sim {
         }
 
         pts_per_type.into_iter().collect()
+    }
+
+    // (number of vehicles in the lane, penalty if a bike or other slow vehicle is present)
+    pub fn target_lane_penalty(&self, lane: &Lane) -> (usize, usize) {
+        if lane.is_sidewalk() {
+            (0, 0)
+        } else {
+            self.driving.target_lane_penalty(lane)
+        }
     }
 }
 
