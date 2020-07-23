@@ -107,6 +107,33 @@ impl Turn {
     pub fn between_sidewalks(&self) -> bool {
         self.turn_type == TurnType::SharedSidewalkCorner || self.turn_type == TurnType::Crosswalk
     }
+
+    // TODO Maybe precompute this.
+    // penalties for (lane types, lane-changing)
+    pub fn penalty(&self, map: &Map) -> (usize, usize) {
+        let from = map.get_l(self.id.src);
+        let to = map.get_l(self.id.dst);
+
+        // TODO What if turns are only allowed from a few lanes? We might wind up penalizing too
+        // much. Maybe that doesn't matter?
+        let (from_idx, _from_cnt) = map
+            .get_r(from.parent)
+            .travel_lane_offset(from.id, from.lane_type);
+        let (to_idx, _to_cnt) = map.get_r(to.parent).travel_lane_offset(to.id, to.lane_type);
+        // TODO I thought about different cases where there are the same/more/less lanes going in
+        // and out, but then actually, I think the reasonable thing in all cases is just to do
+        // this. If that holds true, simplify travel_lane_offset; don't need the count.
+        let lc_cost = ((from_idx as isize) - (to_idx as isize)).abs() as usize;
+
+        // Always prefer a dedicated bike or bus lane. This takes care of entering one from a
+        // driving lane and staying on one.
+        // It may seem weird to have a cost for cars just sticking to driving lanes, but this cost
+        // is relative to all available options. All choices for a car are the same, so it doesn't
+        // matter.
+        let lt_cost = if to.is_biking() || to.is_bus() { 0 } else { 1 };
+
+        (lt_cost, lc_cost)
+    }
 }
 
 // One road usually has 4 crosswalks, each a singleton TurnGroup. We need all of the information

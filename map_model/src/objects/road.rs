@@ -158,6 +158,24 @@ impl Road {
         panic!("{} doesn't contain {}", self.id, lane);
     }
 
+    // Starting from the right / farthest from the center line, where is this travel lane? Returns
+    // the (order, number of travel lanes). So on a directed road with 3 matching lanes, the
+    // rightmost lane would be (1, 3) and the leftmost would be (3, 3).
+    // TODO When lane types aren't contiguous, this may be misleading.
+    pub fn travel_lane_offset(&self, lane: LaneID, match_lt: LaneType) -> (usize, usize) {
+        let mut cnt = 0;
+        let mut order = None;
+        for (l, lt) in self.children(self.is_forwards(lane)).iter().rev() {
+            if *lt == match_lt {
+                cnt += 1;
+            }
+            if lane == *l {
+                order = Some(cnt);
+            }
+        }
+        (order.unwrap(), cnt)
+    }
+
     pub fn parking_to_driving(&self, parking: LaneID) -> Option<LaneID> {
         // TODO Crossing bike/bus lanes means higher layers of sim should know to block these off
         // when parking/unparking

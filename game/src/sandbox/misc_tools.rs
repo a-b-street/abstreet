@@ -4,7 +4,7 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::{draw_signal_phase, make_signal_diagram, DrawOptions, BIG_ARROW_THICKNESS};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Text, VerticalAlignment, Widget,
+    Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, Polygon, Time};
 use map_model::{IntersectionID, LaneID, TurnType};
@@ -238,7 +238,7 @@ impl State for TurnExplorer {
 
 impl TurnExplorer {
     fn make_panel(ctx: &mut EventCtx, app: &App, l: LaneID, idx: usize) -> Composite {
-        let num_turns = app.primary.map.get_turns_from_lane(l).len();
+        let turns = app.primary.map.get_turns_from_lane(l);
 
         let mut col = vec![Widget::row(vec![
             Text::from(
@@ -258,10 +258,10 @@ impl TurnExplorer {
             } else {
                 Btn::text_fg("<").build(ctx, "previous turn", hotkey(Key::LeftArrow))
             },
-            Text::from(Line(format!("{}/{}", idx, num_turns)).secondary())
+            Text::from(Line(format!("{}/{}", idx, turns.len())).secondary())
                 .draw(ctx)
                 .centered_vert(),
-            if idx == num_turns {
+            if idx == turns.len() {
                 Btn::text_fg(">").inactive(ctx)
             } else {
                 Btn::text_fg(">").build(ctx, "next turn", hotkey(Key::RightArrow))
@@ -298,6 +298,11 @@ impl TurnExplorer {
                 ));
             }
         } else {
+            let (lt, lc) = turns[idx - 1].penalty(&app.primary.map);
+            col.push(
+                format!("Penalties: {} for lane types, {} for lane changing", lt, lc)
+                    .draw_text(ctx),
+            );
             col.push(ColorLegend::row(ctx, CURRENT_TURN, "current turn"));
             col.push(ColorLegend::row(ctx, CONFLICTING_TURN, "conflicting turn"));
         }
