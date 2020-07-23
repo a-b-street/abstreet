@@ -142,6 +142,107 @@ pub fn make_walking_turns(
     result
 }
 
+// TODO Need to filter out extraneous crosswalks. Why weren't they being created before?
+fn _new_make_walking_turns(
+    driving_side: DrivingSide,
+    i: &Intersection,
+    all_roads: &Vec<Road>,
+    all_lanes: &Vec<Lane>,
+    timer: &mut Timer,
+) -> Vec<Turn> {
+    // Consider all roads in counter-clockwise order. Every road has up to two sidewalks. Gather
+    // those in order, remembering what roads don't have them.
+    let mut lanes: Vec<Option<&Lane>> = Vec::new();
+    let mut num_sidewalks = 0;
+    for r in i.get_roads_sorted_by_incoming_angle(all_roads) {
+        let r = &all_roads[r.0];
+        let fwd = get_sidewalk(all_lanes, &r.children_forwards);
+        let back = get_sidewalk(all_lanes, &r.children_backwards);
+        if fwd.is_some() {
+            num_sidewalks += 1;
+        }
+        if back.is_some() {
+            num_sidewalks += 1;
+        }
+        let (in_lane, out_lane) = if r.src_i == i.id {
+            (back, fwd)
+        } else {
+            (fwd, back)
+        };
+        lanes.push(in_lane);
+        lanes.push(out_lane);
+    }
+    if num_sidewalks <= 1 {
+        return Vec::new();
+    }
+    // Make sure we start with a sidewalk.
+    while lanes[0].is_none() {
+        lanes.rotate_left(1);
+    }
+    let mut result: Vec<Turn> = Vec::new();
+
+    let mut from: Option<&Lane> = lanes[0];
+    let first_from = from.unwrap().id;
+    let mut adj = true;
+    for l in lanes.iter().skip(1).chain(lanes.iter()) {
+        if i.id.0 == 284 {
+            println!(
+                "looking at {:?}. from is {:?}, first_from is {}, adj is {}",
+                l.map(|l| l.id),
+                from.map(|l| l.id),
+                first_from,
+                adj
+            );
+        }
+
+        if from.is_none() {
+            from = *l;
+            adj = true;
+            continue;
+        }
+        let l1 = from.unwrap();
+
+        if l.is_none() {
+            adj = false;
+            continue;
+        }
+        let l2 = l.unwrap();
+
+        if adj && l1.parent != l2.parent {
+            // Because of the order we go, have to swap l1 and l2 here. l1 is the outgoing, l2 the
+            // incoming.
+            let geom = make_shared_sidewalk_corner(driving_side, i, l2, l1, timer);
+            result.push(Turn {
+                id: turn_id(i.id, l1.id, l2.id),
+                turn_type: TurnType::SharedSidewalkCorner,
+                other_crosswalk_ids: BTreeSet::new(),
+                geom: geom.reversed(),
+            });
+            result.push(Turn {
+                id: turn_id(i.id, l2.id, l1.id),
+                turn_type: TurnType::SharedSidewalkCorner,
+                other_crosswalk_ids: BTreeSet::new(),
+                geom: geom,
+            });
+
+            from = Some(l2);
+        // adj stays true
+        } else {
+            // TODO Just one for degenerate intersections
+            result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
+            from = Some(l2);
+            adj = true;
+        }
+
+        // Have we made it all the way around?
+        if first_from == from.unwrap().id {
+            break;
+        }
+    }
+
+    result
+}
+
 fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Option<Vec<Turn>> {
     let l1_pt = l1.endpoint(i);
     let l2_pt = l2.endpoint(i);
