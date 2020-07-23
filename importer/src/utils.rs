@@ -32,13 +32,13 @@ pub fn download(output: &str, url: &str) {
         };
         println!("- Unzipping into {}", unzip_to);
         run(Command::new("unzip").arg(tmp).arg("-d").arg(unzip_to));
-        rm(tmp);
+        std::fs::remove_file(tmp).unwrap();
     } else if url.ends_with(".gz") {
         println!("- Gunzipping");
-        run(Command::new("mv").arg(tmp).arg(format!("{}.gz", output)));
+        std::fs::rename(tmp, format!("{}.gz", output)).unwrap();
         run(Command::new("gunzip").arg(format!("{}.gz", output)));
     } else {
-        run(Command::new("mv").arg(tmp).arg(output));
+        std::fs::rename(tmp, output).unwrap();
     }
 }
 
@@ -62,9 +62,7 @@ pub fn download_kml(
 
     let tmp = "tmp_output";
     if Path::new(&output.replace(".bin", ".kml")).exists() {
-        run(Command::new("cp")
-            .arg(output.replace(".bin", ".kml"))
-            .arg(tmp));
+        std::fs::copy(output.replace(".bin", ".kml"), tmp).unwrap();
     } else {
         println!("- Missing {}, so downloading {}", output, url);
         run(Command::new("curl")
@@ -87,9 +85,7 @@ pub fn download_kml(
     abstutil::write_binary(output.clone(), &shapes);
     // Keep the intermediate file; otherwise we inadvertently grab new upstream data when
     // changing some binary formats
-    run(Command::new("mv")
-        .arg(tmp)
-        .arg(output.replace(".bin", ".kml")));
+    std::fs::rename(tmp, output.replace(".bin", ".kml")).unwrap();
 }
 
 // Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.
@@ -110,13 +106,6 @@ pub fn osmconvert(input: &str, clipping_polygon: String, output: String) {
         .arg(format!("-B={}", clipping_polygon))
         .arg("--complete-ways")
         .arg(format!("-o={}", output)));
-}
-
-// Removes files. Be careful!
-pub fn rm<I: Into<String>>(path: I) {
-    let path = path.into();
-    println!("- Removing {}", path);
-    run(Command::new("rm").arg("-rfv").arg(path));
 }
 
 // Runs a command, asserts success. STDOUT and STDERR aren't touched.
