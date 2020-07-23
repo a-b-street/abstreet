@@ -390,32 +390,48 @@ fn make_load_edits(app: &App, mode: GameplayMode) -> Box<dyn State> {
     let current_edits_name = app.primary.map.get_edits().edits_name.clone();
 
     WizardState::new(Box::new(move |wiz, ctx, app| {
-        let (_, new_edits) = wiz.wrap(ctx).choose("Load which edits?", || {
+        let mut wizard = wiz.wrap(ctx);
+        let (path, perma_edits) = wizard.choose("Load which edits?", || {
             let mut list = Choice::from(
                 abstutil::load_all_objects(abstutil::path_all_edits(app.primary.map.get_name()))
                     .into_iter()
                     .chain(abstutil::load_all_objects::<PermanentMapEdits>(
                         abstutil::path("system/proposals"),
                     ))
-                    .filter_map(|(path, perma)| {
-                        match PermanentMapEdits::from_permanent(perma, &app.primary.map) {
-                            Ok(edits) => Some((path, edits)),
-                            Err(err) => {
-                                println!("{} is corrupted: {}", path, err);
-                                None
-                            }
-                        }
-                    })
-                    .filter(|(_, edits)| {
-                        mode.allows(edits) && edits.edits_name != current_edits_name
-                    })
+                    .filter(|(_, edits)| edits.edits_name != current_edits_name)
                     .collect(),
             );
-            list.push(Choice::new("start over with blank edits", MapEdits::new()));
+            // TODO It'd be a nicer UI to have separate columns for proposals and edits, a
+            // dedicated button, etc
+            list.push(Choice::new(
+                "start over with blank edits",
+                PermanentMapEdits::to_permanent(&MapEdits::new(), &app.primary.map),
+            ));
             list
         })?;
-        apply_map_edits(ctx, app, new_edits);
-        Some(Transition::Pop)
+
+        match PermanentMapEdits::from_permanent(perma_edits, &app.primary.map).and_then(|edits| {
+            if mode.allows(&edits) {
+                Ok(edits)
+            } else {
+                Err(
+                    "The current gameplay mode restricts edits. These edits have a banned command."
+                        .to_string(),
+                )
+            }
+        }) {
+            Ok(edits) => {
+                apply_map_edits(ctx, app, edits);
+                Some(Transition::Pop)
+            }
+            Err(err) => {
+                wizard.acknowledge("Error", || {
+                    vec![format!("Can't load {}", path), err.clone()]
+                })?;
+                wizard.reset();
+                None
+            }
+        }
     }))
 }
 

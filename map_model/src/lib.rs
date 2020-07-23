@@ -49,6 +49,7 @@ impl Cloneable for ControlTrafficSignal {}
 impl Cloneable for IntersectionID {}
 impl Cloneable for LaneType {}
 impl Cloneable for MapEdits {}
+impl Cloneable for PermanentMapEdits {}
 impl Cloneable for raw::RestrictionType {}
 
 #[derive(Serialize, Deserialize)]
