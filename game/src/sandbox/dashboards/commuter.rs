@@ -336,7 +336,10 @@ impl State for CommuterPatterns {
                 self.block_drawables.insert(key, primary_drawable);
 
                 let mut txt = Text::new();
-                txt.add(Line(format!("Total: {} trips", total_trips)));
+                txt.add(Line(format!(
+                    "Total: {} trips",
+                    abstutil::prettyprint_usize(total_trips)
+                )));
                 for (name, cnt) in building_counts {
                     if cnt != 0 {
                         txt.add(Line(format!("{}: {}", name, cnt)));
@@ -402,7 +405,7 @@ impl State for CommuterPatterns {
                         .find(|(block, _)| block.id == hovered)
                         .map(|(_, count)| count)
                         .unwrap_or(0);
-                    let label_text = format!("{}", count);
+                    let label_text = format!("{}", abstutil::prettyprint_usize(count));
                     batch.append(
                         Text::from(Line(label_text).fg(Color::WHITE))
                             .render_to_batch(ctx.prerender)
