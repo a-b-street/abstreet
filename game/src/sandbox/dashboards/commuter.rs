@@ -286,11 +286,11 @@ impl State for CommuterPatterns {
 
                 let others = self.count_per_block(block);
                 let mut total_trips = 0;
+                let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap_or(0);
                 if !others.is_empty() {
-                    let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
                     for (other, cnt) in others {
                         total_trips += cnt;
-                        let pct = (cnt as f64) / max_cnt;
+                        let pct = (cnt as f64) / (max_cnt as f64);
                         // TODO Use app.cs.good_to_bad_red or some other color gradient
                         batch.push(
                             app.cs.good_to_bad_red.eval(pct).alpha(0.8),
@@ -302,6 +302,7 @@ impl State for CommuterPatterns {
                 self.selected.as_mut().unwrap().draw = ctx.upload(batch);
 
                 let mut txt = Text::new();
+                txt.add(Line(format!("Total: {} trips", total_trips)));
                 for (name, cnt) in building_counts {
                     if cnt != 0 {
                         txt.add(Line(format!("{}: {}", name, cnt)));
@@ -315,7 +316,7 @@ impl State for CommuterPatterns {
                     &app.cs.good_to_bad_red,
                     vec![
                         "0".to_string(),
-                        format!("{} trips", prettyprint_usize(total_trips)),
+                        format!("{} trips", prettyprint_usize(max_cnt)),
                     ],
                 )
                 .named("scale");
