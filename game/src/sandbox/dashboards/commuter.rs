@@ -344,58 +344,50 @@ impl State for CommuterPatterns {
             None => {}
         }
 
-        let block_selection = if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-            if let Some(b) = self.blocks.iter().find(|b| b.shape.contains_pt(pt)) {
-                if app.per_obj.left_click(ctx, "clicked block") {
-                    match self.current_block.0 {
-                        BlockSelection::Locked { base: old_base, .. } => {
-                            if old_base == b.id {
-                                BlockSelection::Unlocked(b.id)
-                            } else {
-                                BlockSelection::Locked {
-                                    base: b.id,
-                                    compare_to: None,
-                                }
-                            }
-                        }
-                        _ => BlockSelection::Locked {
-                            base: b.id,
-                            compare_to: None,
-                        },
-                    }
-                } else {
-                    match self.current_block.0 {
-                        BlockSelection::Locked { base, .. } => {
-                            if base == b.id {
-                                BlockSelection::Locked {
-                                    base,
-                                    compare_to: None,
-                                }
-                            } else {
-                                BlockSelection::Locked {
-                                    base,
-                                    compare_to: Some(b.id),
-                                }
-                            }
-                        }
-                        BlockSelection::Unlocked(_) => BlockSelection::Unlocked(b.id),
-                        BlockSelection::NothingSelected => BlockSelection::Unlocked(b.id),
-                    }
-                }
-            } else {
-                // cursor not over any block
+        let block_selection = if let Some(Some(b)) = ctx
+            .canvas
+            .get_cursor_in_map_space()
+            .map(|pt| self.blocks.iter().find(|b| b.shape.contains_pt(pt)))
+        {
+            if app.per_obj.left_click(ctx, "clicked block") {
                 match self.current_block.0 {
-                    BlockSelection::NothingSelected | BlockSelection::Unlocked(_) => {
-                        BlockSelection::NothingSelected
+                    BlockSelection::Locked { base: old_base, .. } => {
+                        if old_base == b.id {
+                            BlockSelection::Unlocked(b.id)
+                        } else {
+                            BlockSelection::Locked {
+                                base: b.id,
+                                compare_to: None,
+                            }
+                        }
                     }
-                    BlockSelection::Locked { base, .. } => BlockSelection::Locked {
-                        base,
+                    _ => BlockSelection::Locked {
+                        base: b.id,
                         compare_to: None,
                     },
                 }
+            } else {
+                // Hovering over block
+                match self.current_block.0 {
+                    BlockSelection::Locked { base, .. } => {
+                        if base == b.id {
+                            BlockSelection::Locked {
+                                base,
+                                compare_to: None,
+                            }
+                        } else {
+                            BlockSelection::Locked {
+                                base,
+                                compare_to: Some(b.id),
+                            }
+                        }
+                    }
+                    BlockSelection::Unlocked(_) => BlockSelection::Unlocked(b.id),
+                    BlockSelection::NothingSelected => BlockSelection::Unlocked(b.id),
+                }
             }
         } else {
-            // cursor not in map space
+            // cursor not over any block
             match self.current_block.0 {
                 BlockSelection::NothingSelected | BlockSelection::Unlocked(_) => {
                     BlockSelection::NothingSelected
