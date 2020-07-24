@@ -281,8 +281,9 @@ impl CommuterPatterns {
                             .unwrap_or(0);
                         let label_text = format!("{}", abstutil::prettyprint_usize(count));
                         batch.append(
-                            Text::from(Line(label_text).fg(Color::WHITE))
+                            Text::from(Line(label_text).fg(Color::BLACK))
                                 .render_to_batch(ctx.prerender)
+                                .scale(2.0)
                                 .centered_on(compare_to_block.shape.polylabel()),
                         );
                     }
