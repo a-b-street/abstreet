@@ -34,10 +34,9 @@ pub struct CommuterPatterns {
 enum BlockSelection {
     NothingSelected,
     Unlocked(BlockID),
-    LockedWithoutComparison(BlockID),
-    LockedWithComparison {
-        locked: BlockID,
-        compare_to: BlockID,
+    Locked {
+        base: BlockID,
+        compare_to: Option<BlockID>,
     },
 }
 
@@ -180,11 +179,7 @@ impl CommuterPatterns {
 
         let base_block_id = match block_selection {
             BlockSelection::Unlocked(id) => Some(id),
-            BlockSelection::LockedWithoutComparison(id) => Some(id),
-            BlockSelection::LockedWithComparison {
-                locked: id,
-                compare_to: _,
-            } => Some(id),
+            BlockSelection::Locked { base, .. } => Some(base),
             BlockSelection::NothingSelected => None,
         };
 
@@ -251,8 +246,7 @@ impl CommuterPatterns {
 
                 // Draw outline for Locked Selection
                 match block_selection {
-                    BlockSelection::LockedWithoutComparison(_)
-                    | BlockSelection::LockedWithComparison { .. } => {
+                    BlockSelection::Locked { .. } => {
                         let outline = base_block.shape.to_outline(Distance::meters(10.0)).unwrap();
                         batch.push(Color::BLACK, outline);
                     }
@@ -262,9 +256,9 @@ impl CommuterPatterns {
                 // While selection is locked, draw an overlay with compare_to information for the
                 // hovered block
                 match block_selection {
-                    BlockSelection::LockedWithComparison {
-                        locked: _,
-                        compare_to,
+                    BlockSelection::Locked {
+                        base: _,
+                        compare_to: Some(compare_to),
                     } => {
                         let compare_to_block = &self.blocks[compare_to];
 
@@ -354,28 +348,33 @@ impl State for CommuterPatterns {
             if let Some(b) = self.blocks.iter().find(|b| b.shape.contains_pt(pt)) {
                 if app.per_obj.left_click(ctx, "clicked block") {
                     match self.current_block.0 {
-                        BlockSelection::LockedWithoutComparison(old_locked) => {
-                            if old_locked == b.id {
+                        BlockSelection::Locked { base: old_base, .. } => {
+                            if old_base == b.id {
                                 BlockSelection::Unlocked(b.id)
                             } else {
-                                BlockSelection::LockedWithoutComparison(b.id)
+                                BlockSelection::Locked {
+                                    base: b.id,
+                                    compare_to: None,
+                                }
                             }
                         }
-                        _ => BlockSelection::LockedWithoutComparison(b.id),
+                        _ => BlockSelection::Locked {
+                            base: b.id,
+                            compare_to: None,
+                        },
                     }
                 } else {
                     match self.current_block.0 {
-                        BlockSelection::LockedWithoutComparison(locked)
-                        | BlockSelection::LockedWithComparison {
-                            locked,
-                            compare_to: _,
-                        } => {
-                            if locked == b.id {
-                                BlockSelection::LockedWithoutComparison(locked)
+                        BlockSelection::Locked { base, .. } => {
+                            if base == b.id {
+                                BlockSelection::Locked {
+                                    base,
+                                    compare_to: None,
+                                }
                             } else {
-                                BlockSelection::LockedWithComparison {
-                                    locked,
-                                    compare_to: b.id,
+                                BlockSelection::Locked {
+                                    base,
+                                    compare_to: Some(b.id),
                                 }
                             }
                         }
@@ -384,28 +383,27 @@ impl State for CommuterPatterns {
                     }
                 }
             } else {
+                // cursor not over any block
                 match self.current_block.0 {
                     BlockSelection::NothingSelected | BlockSelection::Unlocked(_) => {
                         BlockSelection::NothingSelected
                     }
-                    BlockSelection::LockedWithoutComparison(locked_id)
-                    | BlockSelection::LockedWithComparison {
-                        locked: locked_id,
-                        compare_to: _,
-                    } => BlockSelection::LockedWithoutComparison(locked_id),
+                    BlockSelection::Locked { base, .. } => BlockSelection::Locked {
+                        base,
+                        compare_to: None,
+                    },
                 }
             }
         } else {
-            // CLEANUP: consolidate with the above "else" branch
+            // cursor not in map space
             match self.current_block.0 {
                 BlockSelection::NothingSelected | BlockSelection::Unlocked(_) => {
                     BlockSelection::NothingSelected
                 }
-                BlockSelection::LockedWithoutComparison(locked_id)
-                | BlockSelection::LockedWithComparison {
-                    locked: locked_id,
-                    compare_to: _,
-                } => BlockSelection::LockedWithoutComparison(locked_id),
+                BlockSelection::Locked { base, .. } => BlockSelection::Locked {
+                    base,
+                    compare_to: None,
+                },
             }
         };
 
