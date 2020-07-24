@@ -353,7 +353,16 @@ impl State for CommuterPatterns {
         let block_selection = if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
             if let Some(b) = self.blocks.iter().find(|b| b.shape.contains_pt(pt)) {
                 if app.per_obj.left_click(ctx, "clicked block") {
-                    BlockSelection::LockedWithoutComparison(b.id)
+                    match self.current_block.0 {
+                        BlockSelection::LockedWithoutComparison(old_locked) => {
+                            if old_locked == b.id {
+                                BlockSelection::Unlocked(b.id)
+                            } else {
+                                BlockSelection::LockedWithoutComparison(b.id)
+                            }
+                        }
+                        _ => BlockSelection::LockedWithoutComparison(b.id),
+                    }
                 } else {
                     match self.current_block.0 {
                         BlockSelection::LockedWithoutComparison(locked)
