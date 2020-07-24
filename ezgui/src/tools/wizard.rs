@@ -384,7 +384,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         self.wizard.ack = Some(
             Composite::new(
                 Widget::col(vec![
-                    txt.draw(self.ctx),
+                    txt.wrap_to_pct(self.ctx, 50).draw(self.ctx),
                     Btn::text_bg2("OK").build(self.ctx, "OK", hotkey(Key::Enter)),
                 ])
                 .outline(10.0, Color::WHITE),

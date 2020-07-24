@@ -1,5 +1,5 @@
 use crate::{
-    hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt,
+    hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, Outcome, ScreenDims, ScreenPt,
     ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::Pt2D;
@@ -79,7 +79,7 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, _output: &mut WidgetOutput) {
+    fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         if self.choices.is_empty() {
             return;
         }
@@ -122,6 +122,9 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
                 };
                 if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                     if rect.contains(pt) && choice.active {
+                        // TODO Two ways of communicating results, based on use in wizards or a
+                        // larger composite.
+                        output.outcome = Some(Outcome::Clicked(choice.label.clone()));
                         self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
                         return;
                     }
@@ -143,6 +146,7 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             if let Some(ref hotkey) = choice.hotkey {
                 if ctx.input.new_was_pressed(hotkey) {
                     self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
+                    output.outcome = Some(Outcome::Clicked(choice.label.clone()));
                     return;
                 }
             }
@@ -153,6 +157,7 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             let choice = &self.choices[self.current_idx];
             if choice.active {
                 self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
+                output.outcome = Some(Outcome::Clicked(choice.label.clone()));
                 return;
             } else {
                 return;

@@ -17,7 +17,7 @@ pub use self::validate::{
 use crate::app::{App, ShowEverything};
 use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{DrawIntersection, DrawMap, DrawRoad};
@@ -25,7 +25,8 @@ use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, PersistentSplit, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+    Key, Line, Menu, Outcome, PersistentSplit, RewriteColor, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 use geom::Speed;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits, PermanentMapEdits};
@@ -174,7 +175,7 @@ impl State for EditMode {
                 "load edits" => {
                     if app.primary.map.unsaved_edits() {
                         return Transition::PushTwice(
-                            make_load_edits(app, self.mode.clone()),
+                            LoadEdits::new(ctx, app, self.mode.clone()),
                             SaveEdits::new(
                                 ctx,
                                 app,
@@ -184,7 +185,7 @@ impl State for EditMode {
                             ),
                         );
                     } else {
-                        return Transition::Push(make_load_edits(app, self.mode.clone()));
+                        return Transition::Push(LoadEdits::new(ctx, app, self.mode.clone()));
                     }
                 }
                 "save edits as" | "save edits" => {
@@ -386,53 +387,116 @@ impl State for SaveEdits {
     }
 }
 
-fn make_load_edits(app: &App, mode: GameplayMode) -> Box<dyn State> {
-    let current_edits_name = app.primary.map.get_edits().edits_name.clone();
+struct LoadEdits {
+    composite: Composite,
+    mode: GameplayMode,
+}
 
-    WizardState::new(Box::new(move |wiz, ctx, app| {
-        let mut wizard = wiz.wrap(ctx);
-        let (path, perma_edits) = wizard.choose("Load which edits?", || {
-            let mut list = Choice::from(
-                abstutil::load_all_objects(abstutil::path_all_edits(app.primary.map.get_name()))
+impl LoadEdits {
+    fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn State> {
+        let current_edits_name = &app.primary.map.get_edits().edits_name;
+        let your_edits = vec![
+            Line("Your edits").small_heading().draw(ctx),
+            Menu::new(
+                ctx,
+                abstutil::list_all_objects(abstutil::path_all_edits(app.primary.map.get_name()))
                     .into_iter()
-                    .chain(abstutil::load_all_objects::<PermanentMapEdits>(
-                        abstutil::path("system/proposals"),
-                    ))
-                    .filter(|(_, edits)| edits.edits_name != current_edits_name)
+                    .map(|name| Choice::new(name.clone(), ()).active(&name != current_edits_name))
                     .collect(),
-            );
-            // TODO It'd be a nicer UI to have separate columns for proposals and edits, a
-            // dedicated button, etc
-            list.push(Choice::new(
-                "start over with blank edits",
-                PermanentMapEdits::to_permanent(&MapEdits::new(), &app.primary.map),
-            ));
-            list
-        })?;
-
-        match PermanentMapEdits::from_permanent(perma_edits, &app.primary.map).and_then(|edits| {
-            if mode.allows(&edits) {
-                Ok(edits)
-            } else {
-                Err(
-                    "The current gameplay mode restricts edits. These edits have a banned command."
-                        .to_string(),
-                )
-            }
-        }) {
-            Ok(edits) => {
-                apply_map_edits(ctx, app, edits);
-                Some(Transition::Pop)
-            }
-            Err(err) => {
-                wizard.acknowledge("Error", || {
-                    vec![format!("Can't load {}", path), err.clone()]
-                })?;
-                wizard.reset();
-                None
+            ),
+        ];
+        // ezgui can't toggle keyboard focus between two menus, so just use buttons for the less
+        // common use case.
+        let mut proposals = vec![Line("Community proposals").small_heading().draw(ctx)];
+        // Up-front filter out proposals that definitely don't fit the current map
+        for (name, perma) in
+            abstutil::load_all_objects::<PermanentMapEdits>(abstutil::path("system/proposals"))
+        {
+            if PermanentMapEdits::from_permanent(perma, &app.primary.map).is_ok() {
+                proposals.push(Btn::text_fg(&name).build(
+                    ctx,
+                    abstutil::path(format!("system/proposals/{}.json", name)),
+                    None,
+                ));
             }
         }
-    }))
+
+        Box::new(LoadEdits {
+            mode,
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Load edits").small_heading().draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Btn::text_fg("Start over with blank edits").build_def(ctx, None),
+                Widget::row(vec![Widget::col(your_edits), Widget::col(proposals)]).evenly_spaced(),
+            ]))
+            .exact_size_percent(50, 50)
+            .build(ctx),
+        })
+    }
+}
+
+impl State for LoadEdits {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => Transition::Pop,
+                "Start over with blank edits" => {
+                    apply_map_edits(ctx, app, MapEdits::new());
+                    Transition::Pop
+                }
+                name => {
+                    // TODO Kind of a hack. If it ends with .json, it's already a path. Otherwise
+                    // it's a result from the menu.
+                    let path = if name.ends_with(".json") {
+                        name.to_string()
+                    } else {
+                        abstutil::path_edits(app.primary.map.get_name(), name)
+                    };
+
+                    match abstutil::maybe_read_json::<PermanentMapEdits>(
+                        path.clone(),
+                        &mut Timer::throwaway(),
+                    )
+                    .map_err(|err| err.to_string())
+                    .and_then(|perma| PermanentMapEdits::from_permanent(perma, &app.primary.map))
+                    .and_then(|edits| {
+                        if self.mode.allows(&edits) {
+                            Ok(edits)
+                        } else {
+                            Err(
+                                "The current gameplay mode restricts edits. These edits have a \
+                                 banned command."
+                                    .to_string(),
+                            )
+                        }
+                    }) {
+                        Ok(edits) => {
+                            apply_map_edits(ctx, app, edits);
+                            Transition::Pop
+                        }
+                        // TODO Hack. Have to replace ourselves, because the Menu might be
+                        // invalidated now that something was chosen.
+                        Err(err) => Transition::ReplaceThenPush(
+                            LoadEdits::new(ctx, app, self.mode.clone()),
+                            // TODO Menu draws at a weird Z-order to deal with tooltips, so now the
+                            // menu underneath bleeds through
+                            msg("Error", vec![format!("Can't load {}", path), err.clone()]),
+                        ),
+                    }
+                }
+            },
+            None => Transition::Keep,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
+        self.composite.draw(g);
+    }
 }
 
 fn make_topcenter(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Composite {
