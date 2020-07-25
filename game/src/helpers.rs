@@ -154,6 +154,11 @@ pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
 }
 
 pub fn amenity_type(a: &str) -> Option<&'static str> {
+    // NOTE: names are used in amenities function in other file
+    // TODO: create categories for:
+    // hairdresser beauty chemist
+    // car_repair
+    // laundry
     if a == "supermarket" || a == "convenience" {
         Some("groceries")
     } else if a == "restaurant"
@@ -163,6 +168,12 @@ pub fn amenity_type(a: &str) -> Option<&'static str> {
         || a == "ice_cream"
         || a == "pastry"
         || a == "deli"
+        || a == "greengrocer"
+        || a == "bakery"
+        || a == "butcher"
+        || a == "confectionery"
+        || a == "beverages"
+        || a == "alcohol"
     {
         Some("food")
     } else if a == "pub" || a == "bar" || a == "nightclub" || a == "lounge" {
@@ -170,30 +181,53 @@ pub fn amenity_type(a: &str) -> Option<&'static str> {
     } else if a == "doctors"
         || a == "dentist"
         || a == "clinic"
+        || a == "hospital"
         || a == "pharmacy"
         || a == "chiropractor"
+        || a == "optician"
     {
         Some("medical")
     } else if a == "place_of_worship" {
         Some("church / temple")
-    } else if a == "college" || a == "school" || a == "kindergarten" || a == "university" {
+    } else if a == "college" || a == "school" || a == "university" {
         Some("education")
-    } else if a == "bank" || a == "post_office" || a == "atm" {
+    } else if a == "bank" || a == "post_office" {
         Some("bank / post office")
     } else if a == "theatre"
         || a == "arts_centre"
         || a == "library"
         || a == "cinema"
         || a == "art_gallery"
+        || a == "museum"
     {
-        Some("media")
-    } else if a == "childcare" {
+        Some("culture")
+    } else if a == "childcare" || a == "kindergarten" {
         Some("childcare")
     } else if a == "second_hand"
         || a == "clothes"
         || a == "furniture"
         || a == "shoes"
         || a == "department_store"
+        || a == "car"
+        || a == "kiosk"
+        || a == "hardware"
+        || a == "mobile_phone"
+        || a == "florist"
+        || a == "electronics"
+        || a == "car_parts"
+        || a == "doityourself"
+        || a == "jewelry"
+        || a == "variety_store"
+        || a == "gift"
+        || a == "bicycle"
+        || a == "books"
+        || a == "sports"
+        || a == "travel_agency"
+        || a == "stationery"
+        || a == "pet"
+        || a == "computer"
+        || a == "tyres"
+        || a == "newsagent"
     {
         Some("shopping")
     } else {
