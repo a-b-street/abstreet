@@ -97,51 +97,74 @@ impl Occupancy {
         lots: bool,
         private_bldgs: bool,
     ) -> Occupancy {
-        let (mut filled_spots, mut avail_spots) = app.primary.sim.get_all_parking_spots();
-        let mut filled_private_spots = 0;
-        let mut avail_private_spots = 0;
-        filled_spots.retain(|spot| match spot {
-            ParkingSpot::Onstreet(_, _) => onstreet,
-            ParkingSpot::Offstreet(b, _) => {
-                if app
-                    .primary
-                    .map
-                    .get_b(*b)
-                    .parking
-                    .as_ref()
-                    .unwrap()
-                    .public_garage_name
-                    .is_some()
-                {
-                    garages
-                } else {
-                    filled_private_spots += 1;
-                    private_bldgs
+        let mut filled_spots = Counter::new();
+        let mut avail_spots = Counter::new();
+        let mut keys = HashSet::new();
+
+        let mut public_filled = 0;
+        let mut public_avail = 0;
+        let mut private_filled = 0;
+        let mut private_avail = 0;
+
+        let (all_filled_spots, all_avail_spots) = app.primary.sim.get_all_parking_spots();
+
+        for (input, public_counter, private_counter, spots) in vec![
+            (
+                all_filled_spots,
+                &mut public_filled,
+                &mut private_filled,
+                &mut filled_spots,
+            ),
+            (
+                all_avail_spots,
+                &mut public_avail,
+                &mut private_avail,
+                &mut avail_spots,
+            ),
+        ] {
+            for spot in input {
+                match spot {
+                    ParkingSpot::Onstreet(_, _) => {
+                        if !onstreet {
+                            continue;
+                        }
+                        *public_counter += 1;
+                    }
+                    ParkingSpot::Offstreet(b, _) => {
+                        if app
+                            .primary
+                            .map
+                            .get_b(b)
+                            .parking
+                            .as_ref()
+                            .unwrap()
+                            .public_garage_name
+                            .is_some()
+                        {
+                            if !garages {
+                                continue;
+                            }
+                            *public_counter += 1;
+                        } else {
+                            if !private_bldgs {
+                                continue;
+                            }
+                            *private_counter += 1;
+                        }
+                    }
+                    ParkingSpot::Lot(_, _) => {
+                        if !lots {
+                            continue;
+                        }
+                        *public_counter += 1;
+                    }
                 }
+
+                let loc = Loc::new(spot, &app.primary.map);
+                keys.insert(loc);
+                spots.inc(loc);
             }
-            ParkingSpot::Lot(_, _) => lots,
-        });
-        avail_spots.retain(|spot| match spot {
-            ParkingSpot::Onstreet(_, _) => onstreet,
-            ParkingSpot::Offstreet(b, _) => {
-                if app
-                    .primary
-                    .map
-                    .get_b(*b)
-                    .parking
-                    .as_ref()
-                    .unwrap()
-                    .public_garage_name
-                    .is_some()
-                {
-                    garages
-                } else {
-                    avail_private_spots += 1;
-                    private_bldgs
-                }
-            }
-            ParkingSpot::Lot(_, _) => lots,
-        });
+        }
 
         let mut total_ppl = 0;
         let mut has_car = 0;
@@ -174,13 +197,13 @@ impl Occupancy {
                 )),
                 Line(format!(
                     "{} / {} public spots filled",
-                    prettyprint_usize(filled_spots.len()),
-                    prettyprint_usize(filled_spots.len() + avail_spots.len())
+                    prettyprint_usize(public_filled),
+                    prettyprint_usize(public_filled + public_avail)
                 )),
                 Line(format!(
                     "{} / {} private spots filled",
-                    prettyprint_usize(filled_private_spots),
-                    prettyprint_usize(filled_private_spots + avail_private_spots)
+                    prettyprint_usize(private_filled),
+                    prettyprint_usize(private_filled + private_avail)
                 )),
             ])
             .draw(ctx),
@@ -199,24 +222,10 @@ impl Occupancy {
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
 
-        let mut filled = Counter::new();
-        let mut avail = Counter::new();
-        let mut keys = HashSet::new();
-        for spot in filled_spots {
-            let loc = Loc::new(spot, &app.primary.map);
-            keys.insert(loc);
-            filled.inc(loc);
-        }
-        for spot in avail_spots {
-            let loc = Loc::new(spot, &app.primary.map);
-            keys.insert(loc);
-            avail.inc(loc);
-        }
-
         let mut colorer = ColorNetwork::new(app);
         for loc in keys {
-            let open = avail.get(loc);
-            let closed = filled.get(loc);
+            let open = avail_spots.get(loc);
+            let closed = filled_spots.get(loc);
             let percent = (closed as f64) / ((open + closed) as f64);
             let color = app.cs.good_to_bad_red.eval(percent);
             match loc {
