@@ -1,11 +1,12 @@
 mod clip;
-mod osm_reader;
+mod extract;
 mod parking;
+mod reader;
 mod split_ways;
 mod srtm;
 
 use abstutil::Timer;
-use geom::{Distance, FindClosest, Pt2D};
+use geom::{Distance, FindClosest, GPSBounds, LonLat, Polygon, Pt2D};
 use map_model::raw::{OriginalBuilding, RawMap};
 use map_model::MapConfig;
 
@@ -61,8 +62,16 @@ pub enum PrivateOffstreetParking {
 }
 
 pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
-    let (mut map, amenities) =
-        split_ways::split_up_roads(osm_reader::extract_osm(&opts, timer), timer);
+    let mut map = RawMap::blank(&opts.city_name, &opts.name);
+    if let Some(ref path) = opts.clip {
+        let pts = LonLat::read_osmosis_polygon(path.to_string()).unwrap();
+        let gps_bounds = GPSBounds::from(pts.clone());
+        map.boundary_polygon = Polygon::new(&gps_bounds.convert(&pts));
+        map.gps_bounds = gps_bounds;
+    }
+
+    let extract = extract::extract_osm(&mut map, &opts, timer);
+    let amenities = split_ways::split_up_roads(&mut map, extract, timer);
     clip::clip_map(&mut map, timer);
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
@@ -103,7 +112,12 @@ fn use_elevation(map: &mut RawMap, path: &str, timer: &mut Timer) {
     timer.start("apply elevation data to intersections");
     let elevation = srtm::Elevation::load(path).unwrap();
     for i in map.intersections.values_mut() {
-        i.elevation = elevation.get(i.point.to_gps(&map.gps_bounds));
+        // TODO Not sure why, but I've seen nodes from South Carolina wind up in the updated
+        // Seattle extract. And I think there's a bug with clipping, because they survive to this
+        // point. O_O
+        if map.boundary_polygon.contains_pt(i.point) {
+            i.elevation = elevation.get(i.point.to_gps(&map.gps_bounds));
+        }
     }
     timer.stop("apply elevation data to intersections");
 }

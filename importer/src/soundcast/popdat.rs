@@ -12,9 +12,8 @@ pub struct PopDat {
 }
 
 // Extract trip demand data from PSRC's Soundcast outputs.
-pub fn import_data(huge_map: &Map) -> PopDat {
-    let mut timer = abstutil::Timer::new("creating popdat");
-    let trips = import_trips(huge_map, &mut timer);
+pub fn import_data(huge_map: &Map, timer: &mut Timer) -> PopDat {
+    let trips = import_trips(huge_map, timer);
     let popdat = PopDat { trips };
     abstutil::write_binary(abstutil::path_popdat(), &popdat);
     popdat

@@ -1,17 +1,17 @@
-use crate::osm_reader::OsmExtract;
+use crate::extract::OsmExtract;
 use abstutil::{Counter, Timer};
 use geom::{Distance, HashablePt2D, Pt2D};
 use map_model::raw::{OriginalIntersection, OriginalRoad, RawIntersection, RawMap};
 use map_model::{osm, IntersectionType};
 use std::collections::HashMap;
 
-// Also returns amenities
+// Returns amenities
 pub fn split_up_roads(
+    map: &mut RawMap,
     mut input: OsmExtract,
     timer: &mut Timer,
-) -> (RawMap, Vec<(Pt2D, String, String)>) {
+) -> Vec<(Pt2D, String, String)> {
     timer.start("splitting up roads");
-    let mut map = input.map;
 
     let mut pt_to_intersection: HashMap<HashablePt2D, OriginalIntersection> = HashMap::new();
     let mut counts_per_pt = Counter::new();
@@ -24,7 +24,7 @@ pub fn split_up_roads(
             if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
                 if !pt_to_intersection.contains_key(&pt) {
                     let id = OriginalIntersection {
-                        osm_node_id: input.osm_node_ids[&pt],
+                        osm_node_id: input.osm_node_ids[&pt].0,
                     };
                     pt_to_intersection.insert(pt, id);
                 }
@@ -76,7 +76,7 @@ pub fn split_up_roads(
                 // Start a new road
                 map.roads.insert(
                     OriginalRoad {
-                        osm_way_id: *osm_way_id,
+                        osm_way_id: osm_way_id.0,
                         i1,
                         i2: *i2,
                     },
@@ -95,18 +95,18 @@ pub fn split_up_roads(
     let mut restrictions = Vec::new();
     for (rel_osm, restriction, from_osm, via_osm, to_osm) in input.simple_turn_restrictions {
         let roads = map.roads_per_intersection(OriginalIntersection {
-            osm_node_id: via_osm,
+            osm_node_id: via_osm.0,
         });
         match (
-            roads.iter().find(|r| r.osm_way_id == from_osm),
-            roads.iter().find(|r| r.osm_way_id == to_osm),
+            roads.iter().find(|r| r.osm_way_id == from_osm.0),
+            roads.iter().find(|r| r.osm_way_id == to_osm.0),
         ) {
             (Some(from), Some(to)) => {
                 restrictions.push((*from, restriction, *to));
             }
             _ => {
                 timer.warn(format!(
-                    "Couldn't resolve {:?} from way {} to way {} via node {}: see https://www.openstreetmap.org/relation/{}",
+                    "Couldn't resolve {:?} from way {} to way {} via node {}: see {}",
                     restriction, from_osm, to_osm, via_osm, rel_osm
                 ));
             }
@@ -127,13 +127,13 @@ pub fn split_up_roads(
         let via_candidates: Vec<OriginalRoad> = map
             .roads
             .keys()
-            .filter(|r| r.osm_way_id == via_osm)
+            .filter(|r| r.osm_way_id == via_osm.0)
             .cloned()
             .collect();
         if via_candidates.len() != 1 {
             timer.warn(format!(
-                "Couldn't resolve turn restriction from way {} to way {} via way {}. Candidate roads for \
-                 via: {:?}. See https://www.openstreetmap.org/relation/{}",
+                "Couldn't resolve turn restriction from way {} to way {} via way {}. Candidate \
+                 roads for via: {:?}. See {}",
                 from_osm, to_osm, via_osm, via_candidates, rel_osm
             ));
             continue;
@@ -144,12 +144,12 @@ pub fn split_up_roads(
             .roads_per_intersection(via.i1)
             .into_iter()
             .chain(map.roads_per_intersection(via.i2).into_iter())
-            .find(|r| r.osm_way_id == from_osm);
+            .find(|r| r.osm_way_id == from_osm.0);
         let maybe_to = map
             .roads_per_intersection(via.i1)
             .into_iter()
             .chain(map.roads_per_intersection(via.i2).into_iter())
-            .find(|r| r.osm_way_id == to_osm);
+            .find(|r| r.osm_way_id == to_osm.0);
         match (maybe_from, maybe_to) {
             (Some(from), Some(to)) => {
                 complicated_restrictions.push((from, via, to));
@@ -194,7 +194,7 @@ pub fn split_up_roads(
     }
 
     timer.stop("splitting up roads");
-    (map, input.amenities)
+    input.amenities
 }
 
 // TODO Consider doing this in PolyLine::new always. extend() there does this too.

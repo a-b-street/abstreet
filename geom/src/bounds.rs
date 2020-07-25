@@ -82,7 +82,7 @@ impl Bounds {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GPSBounds {
     pub(crate) min_lon: f64,
     pub(crate) min_lat: f64,

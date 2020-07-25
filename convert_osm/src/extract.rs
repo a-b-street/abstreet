@@ -1,6 +1,7 @@
+use crate::reader::{Document, Member, NodeID, Relation, RelationID, WayID};
 use crate::Options;
-use abstutil::{retain_btreemap, FileWithProgress, Tags, Timer};
-use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
+use abstutil::{retain_btreemap, Tags, Timer};
+use geom::{HashablePt2D, PolyLine, Polygon, Pt2D, Ring};
 use map_model::raw::{
     OriginalBuilding, OriginalIntersection, RawArea, RawBuilding, RawBusRoute, RawBusStop, RawMap,
     RawParkingLot, RawRoad, RestrictionType,
@@ -10,53 +11,28 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::error::Error;
 
 pub struct OsmExtract {
-    pub map: RawMap,
     // Unsplit roads
-    pub roads: Vec<(i64, RawRoad)>,
+    pub roads: Vec<(WayID, RawRoad)>,
     // Traffic signals to the direction they apply (or just true if unspecified)
     pub traffic_signals: HashMap<HashablePt2D, bool>,
-    pub osm_node_ids: HashMap<HashablePt2D, i64>,
+    pub osm_node_ids: HashMap<HashablePt2D, NodeID>,
     // (relation ID, restriction type, from way ID, via node ID, to way ID)
-    pub simple_turn_restrictions: Vec<(i64, RestrictionType, i64, i64, i64)>,
+    pub simple_turn_restrictions: Vec<(RelationID, RestrictionType, WayID, NodeID, WayID)>,
     // (relation ID, from way ID, via way ID, to way ID)
-    pub complicated_turn_restrictions: Vec<(i64, i64, i64, i64)>,
+    pub complicated_turn_restrictions: Vec<(RelationID, WayID, WayID, WayID)>,
     // (location, name, amenity type)
     pub amenities: Vec<(Pt2D, String, String)>,
 }
 
-pub fn extract_osm(opts: &Options, timer: &mut Timer) -> OsmExtract {
-    let (reader, done) = FileWithProgress::new(&opts.osm_input).unwrap();
-    let doc = osm_xml::OSM::parse(reader).expect("OSM parsing failed");
-    println!(
-        "OSM doc has {} nodes, {} ways, {} relations",
-        doc.nodes.len(),
-        doc.ways.len(),
-        doc.relations.len()
-    );
-    done(timer);
-
-    let map = if let Some(ref path) = opts.clip {
-        let pts = LonLat::read_osmosis_polygon(path.to_string()).unwrap();
-        let mut gps_bounds = GPSBounds::new();
-        for pt in &pts {
-            gps_bounds.update(*pt);
-        }
-
-        let mut map = RawMap::blank(&opts.city_name, &opts.name);
-        map.boundary_polygon = Polygon::new(&gps_bounds.convert(&pts));
-        map.gps_bounds = gps_bounds;
-        map
-    } else {
-        let mut m = RawMap::blank(&opts.city_name, &opts.name);
-        for node in doc.nodes.values() {
-            m.gps_bounds.update(LonLat::new(node.lon, node.lat));
-        }
-        m.boundary_polygon = m.gps_bounds.to_bounds().get_rectangle();
-        m
-    };
+pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmExtract {
+    let mut doc = crate::reader::read(&opts.osm_input, &map.gps_bounds, timer).unwrap();
+    if opts.clip.is_none() {
+        // Use the boundary from .osm.
+        map.gps_bounds = doc.gps_bounds.clone();
+        map.boundary_polygon = map.gps_bounds.to_bounds().get_rectangle();
+    }
 
     let mut out = OsmExtract {
-        map,
         roads: Vec::new(),
         traffic_signals: HashMap::new(),
         osm_node_ids: HashMap::new(),
@@ -66,29 +42,30 @@ pub fn extract_osm(opts: &Options, timer: &mut Timer) -> OsmExtract {
     };
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
-    for node in doc.nodes.values() {
+    for (id, node) in &doc.nodes {
         timer.next();
-        let pt = Pt2D::from_gps(LonLat::new(node.lon, node.lat), &out.map.gps_bounds);
-        out.osm_node_ids.insert(pt.to_hashable(), node.id);
+        out.osm_node_ids.insert(node.pt.to_hashable(), *id);
 
-        let tags = tags_to_map(&node.tags);
-        if tags.is(osm::HIGHWAY, "traffic_signals") {
-            let backwards = tags.is("traffic_signals:direction", "backward");
-            out.traffic_signals.insert(pt.to_hashable(), !backwards);
+        if node.tags.is(osm::HIGHWAY, "traffic_signals") {
+            let backwards = node.tags.is("traffic_signals:direction", "backward");
+            out.traffic_signals
+                .insert(node.pt.to_hashable(), !backwards);
         }
-        if let Some(amenity) = tags.get("amenity") {
+        if let Some(amenity) = node.tags.get("amenity") {
             out.amenities.push((
-                pt,
-                tags.get("name")
+                node.pt,
+                node.tags
+                    .get("name")
                     .cloned()
                     .unwrap_or_else(|| "unnamed".to_string()),
                 amenity.clone(),
             ));
         }
-        if let Some(shop) = tags.get("shop") {
+        if let Some(shop) = node.tags.get("shop") {
             out.amenities.push((
-                pt,
-                tags.get("name")
+                node.pt,
+                node.tags
+                    .get("name")
                     .cloned()
                     .unwrap_or_else(|| "unnamed".to_string()),
                 shop.clone(),
@@ -96,233 +73,206 @@ pub fn extract_osm(opts: &Options, timer: &mut Timer) -> OsmExtract {
         }
     }
 
-    let mut id_to_way: HashMap<i64, Vec<Pt2D>> = HashMap::new();
-    let mut coastline_groups: Vec<(i64, Vec<Pt2D>)> = Vec::new();
+    let mut coastline_groups: Vec<(WayID, Vec<Pt2D>)> = Vec::new();
     let mut memorial_areas: Vec<Polygon> = Vec::new();
     timer.start_iter("processing OSM ways", doc.ways.len());
-    for way in doc.ways.values() {
+    for (id, way) in &mut doc.ways {
         timer.next();
+        let id = *id;
 
-        let mut valid = true;
-        let mut gps_pts = Vec::new();
-        for node_ref in &way.nodes {
-            match doc.resolve_reference(node_ref) {
-                osm_xml::Reference::Node(node) => {
-                    gps_pts.push(LonLat::new(node.lon, node.lat));
-                }
-                // Don't handle nested ways/relations yet
-                _ => {
-                    valid = false;
-                }
-            }
-        }
-        if !valid || gps_pts.is_empty() {
-            continue;
-        }
-        let pts = out.map.gps_bounds.convert(&gps_pts);
-        let mut tags = tags_to_map(&way.tags);
-        tags.insert(osm::OSM_WAY_ID, way.id.to_string());
+        way.tags.insert(osm::OSM_WAY_ID, id.0.to_string());
 
-        if is_road(&mut tags, opts) {
+        if is_road(&mut way.tags, opts) {
             // TODO Hardcoding these overrides. OSM is correct, these don't have
             // sidewalks; there's a crosswalk mapped. But until we can snap sidewalks properly, do
             // this to prevent the sidewalks from being disconnected.
-            if way.id == 332060260 || way.id == 332060236 {
-                tags.insert(osm::SIDEWALK, "right");
+            if id == WayID(332060260) || id == WayID(332060236) {
+                way.tags.insert(osm::SIDEWALK, "right");
             }
 
             out.roads.push((
-                way.id,
+                id,
                 RawRoad {
-                    center_points: pts,
-                    osm_tags: tags,
+                    center_points: way.pts.clone(),
+                    osm_tags: way.tags.clone(),
                     turn_restrictions: Vec::new(),
                     complicated_turn_restrictions: Vec::new(),
                 },
             ));
-        } else if is_bldg(&tags) {
-            let mut deduped = pts.clone();
+        } else if is_bldg(&way.tags) {
+            // TODO Also do something like this in reader?
+            let mut deduped = way.pts.clone();
             deduped.dedup();
             if deduped.len() < 3 {
                 continue;
             }
 
-            out.map.buildings.insert(
-                OriginalBuilding { osm_way_id: way.id },
+            map.buildings.insert(
+                OriginalBuilding { osm_way_id: id.0 },
                 RawBuilding {
                     polygon: Polygon::new(&deduped),
                     public_garage_name: None,
                     num_parking_spots: 0,
-                    amenities: get_bldg_amenities(&tags),
-                    osm_tags: tags,
+                    amenities: get_bldg_amenities(&way.tags),
+                    osm_tags: way.tags.clone(),
                 },
             );
-        } else if let Some(at) = get_area_type(&tags) {
-            if pts.len() < 3 {
+        } else if let Some(at) = get_area_type(&way.tags) {
+            if way.pts.len() < 3 {
                 continue;
             }
-            out.map.areas.push(RawArea {
+            map.areas.push(RawArea {
                 area_type: at,
-                osm_id: way.id,
-                polygon: Polygon::new(&pts),
-                osm_tags: tags,
+                osm_id: id.0,
+                polygon: Polygon::new(&way.pts),
+                osm_tags: way.tags.clone(),
             });
-        } else if tags.is("natural", "coastline") {
-            coastline_groups.push((way.id, pts));
-        } else if tags.is("amenity", "parking") {
-            // TODO Verify parking = surface or handle other cases?
-            out.map.parking_lots.push(RawParkingLot {
-                polygon: Polygon::new(&pts),
-                osm_id: way.id,
-            });
-        } else if tags.is("highway", "service") {
-            // If we got here, is_road didn't interpret it as a normal road
-            out.map.parking_aisles.push(pts);
-        } else if tags.is("historic", "memorial") {
-            if pts[0] == *pts.last().unwrap() {
-                memorial_areas.push(Polygon::new(&pts));
+        } else if way.tags.is("natural", "coastline") {
+            coastline_groups.push((id, way.pts.clone()));
+        } else if way.tags.is("amenity", "parking") {
+            if way.pts.len() < 3 {
+                continue;
             }
-        } else {
-            // The way might be part of a relation later.
-            id_to_way.insert(way.id, pts);
+            // TODO Verify parking = surface or handle other cases?
+            map.parking_lots.push(RawParkingLot {
+                polygon: Polygon::new(&way.pts),
+                osm_id: id.0,
+            });
+        } else if way.tags.is("highway", "service") {
+            // If we got here, is_road didn't interpret it as a normal road
+            map.parking_aisles.push(way.pts.clone());
+        } else if way.tags.is("historic", "memorial") {
+            if way.pts[0] == *way.pts.last().unwrap() {
+                memorial_areas.push(Polygon::new(&way.pts));
+            }
         }
     }
 
-    let boundary = Ring::must_new(out.map.boundary_polygon.points().clone());
+    let boundary = Ring::must_new(map.boundary_polygon.points().clone());
 
     let mut amenity_areas: Vec<(String, String, Polygon)> = Vec::new();
     // Vehicle position (stop) -> pedestrian position (platform)
     let mut stop_areas: Vec<(Pt2D, Pt2D)> = Vec::new();
-    timer.start_iter("processing OSM relations", doc.relations.len());
-    for rel in doc.relations.values() {
-        timer.next();
-        let mut tags = tags_to_map(&rel.tags);
-        tags.insert(osm::OSM_REL_ID, rel.id.to_string());
 
-        if let Some(area_type) = get_area_type(&tags) {
-            if tags.is("type", "multipolygon") {
-                if let Some(pts_per_way) = get_multipolygon_members(rel, &id_to_way) {
-                    for polygon in glue_multipolygon(rel.id, pts_per_way, &boundary) {
-                        out.map.areas.push(RawArea {
-                            area_type,
-                            osm_id: rel.id,
-                            polygon,
-                            osm_tags: tags.clone(),
-                        });
-                    }
+    // TODO Fill this out in a separate loop to keep a mutable borrow short. Maybe do this in
+    // reader, or stop doing this entirely.
+    for (id, rel) in &mut doc.relations {
+        rel.tags.insert(osm::OSM_REL_ID, id.0.to_string());
+    }
+
+    timer.start_iter("processing OSM relations", doc.relations.len());
+    for (id, rel) in &doc.relations {
+        timer.next();
+        let id = *id;
+
+        if let Some(area_type) = get_area_type(&rel.tags) {
+            if rel.tags.is("type", "multipolygon") {
+                for polygon in
+                    glue_multipolygon(id, get_multipolygon_members(id, rel, &doc), &boundary)
+                {
+                    map.areas.push(RawArea {
+                        area_type,
+                        osm_id: id.0,
+                        polygon,
+                        osm_tags: rel.tags.clone(),
+                    });
                 }
             }
-        } else if tags.is("type", "restriction") {
-            let mut from_way_id: Option<i64> = None;
-            let mut via_node_id: Option<i64> = None;
-            let mut via_way_id: Option<i64> = None;
-            let mut to_way_id: Option<i64> = None;
-            for member in &rel.members {
+        } else if rel.tags.is("type", "restriction") {
+            let mut from_way_id: Option<WayID> = None;
+            let mut via_node_id: Option<NodeID> = None;
+            let mut via_way_id: Option<WayID> = None;
+            let mut to_way_id: Option<WayID> = None;
+            for (role, member) in &rel.members {
                 match member {
-                    osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) => {
+                    Member::Way(w) => {
                         if role == "from" {
-                            from_way_id = Some(*id);
+                            from_way_id = Some(*w);
                         } else if role == "to" {
-                            to_way_id = Some(*id);
+                            to_way_id = Some(*w);
                         } else if role == "via" {
-                            via_way_id = Some(*id);
+                            via_way_id = Some(*w);
                         }
                     }
-                    osm_xml::Member::Node(osm_xml::UnresolvedReference::Node(id), ref role) => {
+                    Member::Node(n) => {
                         if role == "via" {
-                            via_node_id = Some(*id);
+                            via_node_id = Some(*n);
                         }
                     }
                     _ => unreachable!(),
                 }
             }
-            if let Some(restriction) = tags.get("restriction") {
+            if let Some(restriction) = rel.tags.get("restriction") {
                 if let Some(rt) = RestrictionType::new(restriction) {
                     if let (Some(from), Some(via), Some(to)) = (from_way_id, via_node_id, to_way_id)
                     {
-                        out.simple_turn_restrictions
-                            .push((rel.id, rt, from, via, to));
+                        out.simple_turn_restrictions.push((id, rt, from, via, to));
                     } else if let (Some(from), Some(via), Some(to)) =
                         (from_way_id, via_way_id, to_way_id)
                     {
                         if rt == RestrictionType::BanTurns {
-                            out.complicated_turn_restrictions
-                                .push((rel.id, from, via, to));
+                            out.complicated_turn_restrictions.push((id, from, via, to));
                         } else {
                             timer.warn(format!(
-                                "Weird complicated turn restriction \"{}\" from way {} to way {} \
-                                 via way {}: {}",
-                                restriction,
-                                from,
-                                to,
-                                via,
-                                rel_url(rel.id)
+                                "Weird complicated turn restriction \"{}\" from {} to {} via {}: \
+                                 {}",
+                                restriction, from, to, via, id
                             ));
                         }
                     }
                 }
             }
-        } else if is_bldg(&tags) {
-            match multipoly_geometry(rel, &doc, &id_to_way) {
+        } else if is_bldg(&rel.tags) {
+            match multipoly_geometry(id, rel, &doc) {
                 Ok(polygon) => {
-                    out.map.buildings.insert(
-                        OriginalBuilding { osm_way_id: rel.id },
+                    map.buildings.insert(
+                        OriginalBuilding { osm_way_id: id.0 },
                         RawBuilding {
                             polygon,
                             public_garage_name: None,
                             num_parking_spots: 0,
-                            amenities: get_bldg_amenities(&tags),
-                            osm_tags: tags,
+                            amenities: get_bldg_amenities(&rel.tags),
+                            osm_tags: rel.tags.clone(),
                         },
                     );
                 }
                 Err(err) => println!("Skipping building: {}", err),
             }
-        } else if tags.is("type", "route") {
-            out.map.bus_routes.extend(extract_route(
-                &tags,
-                rel,
-                &doc,
-                &id_to_way,
-                &out.map.gps_bounds,
-                &out.map.boundary_polygon,
-            ));
-        } else if tags.is("type", "multipolygon") && tags.contains_key("amenity") {
-            let name = tags
+        } else if rel.tags.is("type", "route") {
+            map.bus_routes
+                .extend(extract_route(id, rel, &doc, &map.boundary_polygon));
+        } else if rel.tags.is("type", "multipolygon") && rel.tags.contains_key("amenity") {
+            let name = rel
+                .tags
                 .get("name")
                 .cloned()
                 .unwrap_or_else(|| "unnamed".to_string());
-            let amenity = tags.get("amenity").clone().unwrap();
-            for member in &rel.members {
-                if let osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) =
-                    member
-                {
-                    if role != "outer" {
-                        continue;
-                    }
-                    if let Some(pts) = id_to_way.get(&id) {
-                        if pts[0] == *pts.last().unwrap() {
-                            amenity_areas.push((name.clone(), amenity.clone(), Polygon::new(pts)));
-                        }
+            let amenity = rel.tags.get("amenity").clone().unwrap();
+            for (role, member) in &rel.members {
+                if role != "outer" {
+                    continue;
+                }
+                if let Member::Way(w) = member {
+                    let pts = &doc.ways[w].pts;
+                    if pts[0] == *pts.last().unwrap() && pts.len() >= 3 {
+                        amenity_areas.push((name.clone(), amenity.clone(), Polygon::new(pts)));
                     }
                 }
             }
-        } else if tags.is("public_transport", "stop_area") {
+        } else if rel.tags.is("public_transport", "stop_area") {
             let mut stops = Vec::new();
             let mut platform: Option<Pt2D> = None;
-            for (role, member) in get_members(rel, &doc) {
-                if let osm_xml::Reference::Node(node) = member {
-                    let pt = Pt2D::from_gps(LonLat::new(node.lon, node.lat), &out.map.gps_bounds);
+            for (role, member) in &rel.members {
+                if let Member::Node(n) = member {
+                    let pt = doc.nodes[n].pt;
                     if role == "stop" {
                         stops.push(pt);
                     } else if role == "platform" {
                         platform = Some(pt);
                     }
-                } else if let osm_xml::Reference::Way(way) = member {
+                } else if let Member::Way(w) = member {
                     if role == "platform" {
-                        if let Some(pts) = id_to_way.get(&way.id) {
-                            platform = Some(Pt2D::center(pts));
-                        }
+                        platform = Some(Pt2D::center(&doc.ways[w].pts));
                     }
                 }
             }
@@ -336,11 +286,11 @@ pub fn extract_osm(opts: &Options, timer: &mut Timer) -> OsmExtract {
 
     // Special case the coastline.
     println!("{} ways of coastline", coastline_groups.len());
-    for polygon in glue_multipolygon(-1, coastline_groups, &boundary) {
+    for polygon in glue_multipolygon(RelationID(-1), coastline_groups, &boundary) {
         let mut osm_tags = Tags::new(BTreeMap::new());
         osm_tags.insert("water", "ocean");
         // Put it at the beginning, so that it's naturally beneath island areas
-        out.map.areas.insert(
+        map.areas.insert(
             0,
             RawArea {
                 area_type: AreaType::Water,
@@ -355,7 +305,7 @@ pub fn extract_osm(opts: &Options, timer: &mut Timer) -> OsmExtract {
     timer.start_iter("match buildings to memorial areas", memorial_areas.len());
     for area in memorial_areas {
         timer.next();
-        retain_btreemap(&mut out.map.buildings, |_, b| {
+        retain_btreemap(&mut map.buildings, |_, b| {
             !area.contains_pt(b.polygon.center())
         });
     }
@@ -363,7 +313,7 @@ pub fn extract_osm(opts: &Options, timer: &mut Timer) -> OsmExtract {
     timer.start_iter("match buildings to amenity areas", amenity_areas.len());
     for (name, amenity, poly) in amenity_areas {
         timer.next();
-        for b in out.map.buildings.values_mut() {
+        for b in map.buildings.values_mut() {
             if poly.contains_pt(b.polygon.center()) {
                 b.amenities.insert((name.clone(), amenity.clone()));
             }
@@ -373,7 +323,7 @@ pub fn extract_osm(opts: &Options, timer: &mut Timer) -> OsmExtract {
     // Match platforms from stop_areas. Not sure what order routes and stop_areas will appear in
     // relations, so do this after reading all of them.
     for (vehicle_pos, ped_pos) in stop_areas {
-        for route in &mut out.map.bus_routes {
+        for route in &mut map.bus_routes {
             for stop in &mut route.stops {
                 if stop.vehicle_pos == vehicle_pos {
                     stop.ped_pos = Some(ped_pos);
@@ -384,29 +334,13 @@ pub fn extract_osm(opts: &Options, timer: &mut Timer) -> OsmExtract {
 
     // Hack to fix z-ordering for Green Lake (and probably other places). Put water and islands
     // last. I think the more proper fix is interpreting "inner" roles in relations.
-    out.map.areas.sort_by_key(|a| match a.area_type {
+    map.areas.sort_by_key(|a| match a.area_type {
         AreaType::Island => 2,
         AreaType::Water => 1,
         _ => 0,
     });
 
     out
-}
-
-fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> Tags {
-    Tags::new(
-        raw_tags
-            .iter()
-            .filter_map(|tag| {
-                // Toss out really useless metadata.
-                if tag.key.starts_with("tiger:") || tag.key.starts_with("old_name:") {
-                    None
-                } else {
-                    Some((tag.key.clone(), tag.val.clone()))
-                }
-            })
-            .collect(),
-    )
 }
 
 fn is_road(tags: &mut Tags, opts: &Options) -> bool {
@@ -572,44 +506,27 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
 }
 
 fn get_multipolygon_members(
-    rel: &osm_xml::Relation,
-    id_to_way: &HashMap<i64, Vec<Pt2D>>,
-) -> Option<Vec<(i64, Vec<Pt2D>)>> {
-    let mut ok = true;
-    let mut pts_per_way: Vec<(i64, Vec<Pt2D>)> = Vec::new();
-    for member in &rel.members {
-        match member {
-            osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) => {
-                // If the way is clipped out, that's fine
-                if let Some(pts) = id_to_way.get(id) {
-                    if role == "outer" {
-                        pts_per_way.push((*id, pts.to_vec()));
-                    } else {
-                        println!(
-                            "{} has unhandled member role {}, ignoring it",
-                            rel_url(rel.id),
-                            role
-                        );
-                    }
-                }
-            }
-            _ => {
-                println!("{} refers to {:?}", rel_url(rel.id), member);
-                ok = false;
+    id: RelationID,
+    rel: &Relation,
+    doc: &Document,
+) -> Vec<(WayID, Vec<Pt2D>)> {
+    let mut pts_per_way = Vec::new();
+    for (role, member) in &rel.members {
+        if let Member::Way(w) = member {
+            if role == "outer" {
+                pts_per_way.push((*w, doc.ways[w].pts.clone()));
+            } else {
+                println!("{} has unhandled member role {}, ignoring it", id, role);
             }
         }
     }
-    if ok {
-        Some(pts_per_way)
-    } else {
-        None
-    }
+    pts_per_way
 }
 
 // The result could be more than one disjoint polygon.
 fn glue_multipolygon(
-    rel_id: i64,
-    mut pts_per_way: Vec<(i64, Vec<Pt2D>)>,
+    rel_id: RelationID,
+    mut pts_per_way: Vec<(WayID, Vec<Pt2D>)>,
     boundary: &Ring,
 ) -> Vec<Polygon> {
     // First deal with all of the closed loops.
@@ -646,10 +563,10 @@ fn glue_multipolygon(
                 // TODO Investigate what's going on here. At the very least, take what we have so
                 // far and try to glue it up.
                 println!(
-                    "Throwing away {} chunks from relation {}: ways {:?}",
+                    "Throwing away {} chunks from relation {}: {:?}",
                     pts_per_way.len(),
                     rel_id,
-                    pts_per_way.iter().map(|(id, _)| *id).collect::<Vec<i64>>()
+                    pts_per_way.iter().map(|(id, _)| *id).collect::<Vec<_>>()
                 );
                 break;
             } else {
@@ -700,19 +617,18 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
 }
 
 fn extract_route(
-    tags: &Tags,
-    rel: &osm_xml::Relation,
-    doc: &osm_xml::OSM,
-    id_to_way: &HashMap<i64, Vec<Pt2D>>,
-    gps_bounds: &GPSBounds,
+    rel_id: RelationID,
+    rel: &Relation,
+    doc: &Document,
     boundary: &Polygon,
 ) -> Option<RawBusRoute> {
-    let full_name = tags.get("name")?.clone();
-    let short_name = tags
+    let full_name = rel.tags.get("name")?.clone();
+    let short_name = rel
+        .tags
         .get("ref")
         .cloned()
         .unwrap_or_else(|| full_name.clone());
-    let is_bus = match tags.get("route")?.as_ref() {
+    let is_bus = match rel.tags.get("route")?.as_ref() {
         "bus" => true,
         "light_rail" => false,
         x => {
@@ -720,9 +636,7 @@ fn extract_route(
                 // TODO Handle these at some point
                 println!(
                     "Skipping route {} of unknown type {}: {}",
-                    full_name,
-                    x,
-                    rel_url(rel.id)
+                    full_name, x, rel_id
                 );
             }
             return None;
@@ -733,47 +647,49 @@ fn extract_route(
     let mut stops = Vec::new();
     let mut platforms = HashMap::new();
     let mut all_pts = Vec::new();
-    for (role, member) in get_members(rel, doc) {
+    for (role, member) in &rel.members {
         if role == "stop" {
-            if let osm_xml::Reference::Node(node) = member {
+            if let Member::Node(n) = member {
+                let node = &doc.nodes[n];
                 stops.push(RawBusStop {
-                    name: tags_to_map(&node.tags)
+                    name: node
+                        .tags
                         .get("name")
                         .cloned()
                         .unwrap_or_else(|| format!("stop #{}", stops.len() + 1)),
-                    vehicle_pos: Pt2D::from_gps(LonLat::new(node.lon, node.lat), gps_bounds),
+                    vehicle_pos: node.pt,
                     ped_pos: None,
                 });
             }
         } else if role == "platform" {
             let (platform_name, pt) = match member {
-                osm_xml::Reference::Node(node) => (
-                    tags_to_map(&node.tags)
-                        .get("name")
-                        .cloned()
-                        .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
-                    Pt2D::from_gps(LonLat::new(node.lon, node.lat), gps_bounds),
-                ),
-                osm_xml::Reference::Way(way) => (
-                    tags_to_map(&way.tags)
-                        .get("name")
-                        .cloned()
-                        .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
-                    if let Some(ref pts) = id_to_way.get(&way.id) {
-                        Pt2D::center(pts)
-                    } else {
-                        continue;
-                    },
-                ),
+                Member::Node(n) => {
+                    let node = &doc.nodes[n];
+                    (
+                        node.tags
+                            .get("name")
+                            .cloned()
+                            .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
+                        node.pt,
+                    )
+                }
+                Member::Way(w) => {
+                    let way = &doc.ways[w];
+                    (
+                        way.tags
+                            .get("name")
+                            .cloned()
+                            .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
+                        Pt2D::center(&way.pts),
+                    )
+                }
                 _ => continue,
             };
             platforms.insert(platform_name, pt);
-        } else if let osm_xml::Reference::Way(way) = member {
+        } else if let Member::Way(w) = member {
             // The order of nodes might be wrong, doesn't matter
-            for node in &way.nodes {
-                if let osm_xml::UnresolvedReference::Node(id) = node {
-                    all_pts.push(OriginalIntersection { osm_node_id: *id });
-                }
+            for n in &doc.ways[w].nodes {
+                all_pts.push(OriginalIntersection { osm_node_id: n.0 });
             }
         }
     }
@@ -802,7 +718,7 @@ fn extract_route(
         "Kept {} / {} contiguous stops from route {}",
         keep_stops.len(),
         orig_num,
-        rel_url(rel.id)
+        rel_id
     );
 
     if keep_stops.len() < 2 {
@@ -815,7 +731,7 @@ fn extract_route(
         full_name,
         short_name,
         is_bus,
-        osm_rel_id: rel.id,
+        osm_rel_id: rel_id.0,
         stops: keep_stops,
         border_start: None,
         border_end: None,
@@ -823,53 +739,27 @@ fn extract_route(
     })
 }
 
-// Work around osm_xml's API, which shows the node/way/relation distinction twice. This returns
-// (role, resolved node/way/relation)
-fn get_members<'a>(
-    rel: &'a osm_xml::Relation,
-    doc: &'a osm_xml::OSM,
-) -> Vec<(&'a String, osm_xml::Reference<'a>)> {
-    rel.members
-        .iter()
-        .map(|member| {
-            let (id_ref, role) = match member {
-                osm_xml::Member::Node(id, role)
-                | osm_xml::Member::Way(id, role)
-                | osm_xml::Member::Relation(id, role) => (id, role),
-            };
-            (role, doc.resolve_reference(id_ref))
-        })
-        .collect()
-}
-
-fn multipoly_geometry<'a>(
-    rel: &'a osm_xml::Relation,
-    doc: &'a osm_xml::OSM,
-    id_to_way: &HashMap<i64, Vec<Pt2D>>,
+fn multipoly_geometry(
+    rel_id: RelationID,
+    rel: &Relation,
+    doc: &Document,
 ) -> Result<Polygon, Box<dyn Error>> {
     let mut outer: Vec<Vec<Pt2D>> = Vec::new();
     let mut inner: Vec<Vec<Pt2D>> = Vec::new();
-    for (role, member) in get_members(rel, &doc) {
-        if let osm_xml::Reference::Way(node) = member {
-            if let Some(pts) = id_to_way.get(&node.id) {
-                let mut deduped = pts.clone();
-                deduped.dedup();
-                if deduped.len() < 3 {
-                    continue;
-                }
+    for (role, member) in &rel.members {
+        if let Member::Way(w) = member {
+            let mut deduped = doc.ways[w].pts.clone();
+            deduped.dedup();
+            if deduped.len() < 3 {
+                continue;
+            }
 
-                if role == "outer" {
-                    outer.push(deduped);
-                } else if role == "inner" {
-                    inner.push(deduped);
-                } else {
-                    return Err(format!(
-                        "What's role {} for multipolygon {}?",
-                        role,
-                        rel_url(rel.id)
-                    )
-                    .into());
-                }
+            if role == "outer" {
+                outer.push(deduped);
+            } else if role == "inner" {
+                inner.push(deduped);
+            } else {
+                return Err(format!("What's role {} for multipolygon {}?", role, rel_id).into());
             }
         }
     }
@@ -877,7 +767,7 @@ fn multipoly_geometry<'a>(
     if outer.len() == 0 || outer.len() > 1 && !inner.is_empty() {
         return Err(format!(
             "Multipolygon {} has {} outer, {} inner. Huh?",
-            rel_url(rel.id),
+            rel_id,
             outer.len(),
             inner.len()
         )
@@ -895,8 +785,4 @@ fn multipoly_geometry<'a>(
             inner.into_iter().map(Ring::must_new).collect(),
         ))
     }
-}
-
-fn rel_url(id: i64) -> String {
-    format!("https://www.openstreetmap.org/relation/{}", id)
 }

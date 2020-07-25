@@ -7,7 +7,7 @@ use rand_xorshift::XorShiftRng;
 use serde::Deserialize;
 use std::fs::File;
 
-fn input() {
+fn input(timer: &mut Timer) {
     download(
         "input/berlin/osm/berlin-latest.osm.pbf",
         "http://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf",
@@ -26,6 +26,7 @@ fn input() {
         &bounds,
         // Keep partly out-of-bounds polygons
         false,
+        timer
     );
 
     // From
@@ -39,18 +40,18 @@ fn input() {
     correlate_population(
         "data/input/berlin/planning_areas.bin",
         "data/input/berlin/EWR201812E_Matrix.csv",
+        timer,
     );
 }
 
-pub fn osm_to_raw(name: &str) {
-    input();
+pub fn osm_to_raw(name: &str, timer: &mut Timer) {
+    input(timer);
     osmconvert(
         "input/berlin/osm/berlin-latest.osm.pbf",
         format!("input/berlin/polygons/{}.poly", name),
         format!("input/berlin/osm/{}.osm", name),
     );
 
-    println!("- Running convert_osm");
     let map = convert_osm::convert(
         convert_osm::Options {
             osm_input: abstutil::path(format!("input/berlin/osm/{}.osm", name)),
@@ -72,17 +73,15 @@ pub fn osm_to_raw(name: &str) {
             elevation: None,
             include_railroads: true,
         },
-        &mut abstutil::Timer::throwaway(),
+        timer,
     );
     let output = abstutil::path(format!("input/raw_maps/{}.bin", name));
-    println!("- Saving {}", output);
     abstutil::write_binary(output, &map);
 }
 
 // Modify the filtered KML of planning areas with the number of residents from a different dataset.
-fn correlate_population(kml_path: &str, csv_path: &str) {
-    let mut shapes =
-        abstutil::read_binary::<ExtraShapes>(kml_path.to_string(), &mut Timer::throwaway());
+fn correlate_population(kml_path: &str, csv_path: &str, timer: &mut Timer) {
+    let mut shapes = abstutil::read_binary::<ExtraShapes>(kml_path.to_string(), timer);
     for rec in csv::ReaderBuilder::new()
         .delimiter(b';')
         .from_reader(File::open(csv_path).unwrap())

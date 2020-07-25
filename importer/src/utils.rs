@@ -49,6 +49,7 @@ pub fn download_kml(
     url: &str,
     bounds: &geom::GPSBounds,
     require_all_pts_in_bounds: bool,
+    timer: &mut Timer,
 ) {
     assert!(url.ends_with(".kml"));
     let output = abstutil::path(output);
@@ -75,13 +76,7 @@ pub fn download_kml(
 
     println!("- Extracting KML data");
 
-    let shapes = kml::load(
-        tmp,
-        bounds,
-        require_all_pts_in_bounds,
-        &mut abstutil::Timer::new("extracting shapes from KML"),
-    )
-    .unwrap();
+    let shapes = kml::load(tmp, bounds, require_all_pts_in_bounds, timer).unwrap();
     abstutil::write_binary(output.clone(), &shapes);
     // Keep the intermediate file; otherwise we inadvertently grab new upstream data when
     // changing some binary formats

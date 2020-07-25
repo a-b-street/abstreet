@@ -102,9 +102,9 @@ fn main() {
     for name in names {
         if job.osm_to_raw {
             match job.city.as_ref() {
-                "berlin" => berlin::osm_to_raw(&name),
-                "krakow" => krakow::osm_to_raw(&name),
-                "seattle" => seattle::osm_to_raw(&name),
+                "berlin" => berlin::osm_to_raw(&name, &mut timer),
+                "krakow" => krakow::osm_to_raw(&name, &mut timer),
+                "seattle" => seattle::osm_to_raw(&name, &mut timer),
                 x => panic!("Unknown city {}", x),
             }
         }

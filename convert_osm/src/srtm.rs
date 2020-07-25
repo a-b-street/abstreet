@@ -42,6 +42,9 @@ impl Elevation {
         let x = ((pt.x() - self.lon_offset).abs() * (GRID_DIM as f64)) as usize;
         let y = ((pt.y() - self.lat_offset).abs() * (GRID_DIM as f64)) as usize;
         let i = x + (y * GRID_DIM);
+        if i >= self.data.len() {
+            panic!("srtm lookup for out-of-bounds {}", pt);
+        }
         Distance::meters(f64::from(self.data[i]))
     }
 }
