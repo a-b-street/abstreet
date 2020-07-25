@@ -222,8 +222,9 @@ impl GameplayMode {
                         )));
                     } else {
                         println!(
-                            "WARNING: Missing or corrupt prebaked results for {} on {}, some \
-                             stuff might break",
+                            "No prebaked simulation results for \"{}\" scenario on {} map. This \
+                             means trip dashboards can't compare current times to any kind of \
+                             baseline.",
                             scenario.scenario_name, scenario.map_name
                         );
                         app.set_prebaked(None);
