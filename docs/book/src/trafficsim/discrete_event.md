@@ -1,12 +1,4 @@
-# A/B Street's Traffic Simulation
-
-This article describes how cars, bikes, buses, and pedestrians are modeled in
-A/B Street. All code lives in the `sim` crate. This is up-to-date as of
-July 2019. Since then, the main change is some gridlock resolution that I've yet
-to describe.
-
-[This recorded presentation](https://youtu.be/chYd5I-5oyc?t=1086) covers some of
-this.
+# Discrete-event simulation
 
 The traffic simulation models different agents (cars, bikes, buses, pedestrians,
 and intersections) over time. Agents don't constantly sense and react to the
@@ -16,25 +8,7 @@ scheduled for some time in the future, and handling them changes the state of
 some agents. The core simulation loop simply processes events in order -- see
 `scheduler.rs` and the `step` method in `sim.rs`.
 
-<!--ts-->
-
-- [A/B Street's Traffic Simulation](#ab-streets-traffic-simulation)
-  - [Discrete-event simulation](#discrete-event-simulation)
-    - [Cars](#cars)
-      - [Exact positions](#exact-positions)
-    - [Lane-changing](#lane-changing)
-    - [Pedestrians](#pedestrians)
-    - [Intersections](#intersections)
-  - [Demand data](#demand-data)
-  - [Appendix: discrete-time simulation](#appendix-discrete-time-simulation)
-
-<!-- Added by: dabreegster, at: Wed Jul 10 12:06:04 BST 2019 -->
-
-<!--te-->
-
-## Discrete-event simulation
-
-### Cars
+## Cars
 
 (Note: Cars, bikes, and buses are all modeled the same way -- bikes just have a
 max speed, and buses/bikes can use restricted lanes.)
@@ -80,7 +54,7 @@ example sequence:
   way.
 - And so on...
 
-#### Exact positions
+### Exact positions
 
 For a discrete-event simulation, we don't usually care exactly where on a lane a
 car is at some time. But we do need to know for drawing and for a few cases
@@ -102,7 +76,7 @@ the laggy head on the old lane can be erased, unblocking the lead vehicle. This
 requires calculating exact distances and some occasionally expensive cases where
 we have to schedule frequent events to check when a laggy head is clear.
 
-### Lane-changing
+## Lane-changing
 
 Lane-changing (LCing) deserves special mention. A/B Street cheats by not
 allowing it on lanes themselves. Instead, at intersections, cars can perform
@@ -127,7 +101,7 @@ choice. They make this decision once when they reach the front of a queue; look
 for `opportunistically_lanechange` in `router.rs`. The decision could be
 improved.
 
-### Pedestrians
+## Pedestrians
 
 Pedestrian modeling -- in `mechanics/walking.rs` is way simpler. Pedestrians
 don't need to queue on sidewalks; they can "ghost" through each other. In
@@ -135,7 +109,7 @@ Seattle, there aren't huge crowds of people walking and slowing down, except for
 niche cases like Pike Place Market. So in A/B Street, the only scarce resource
 modeled is the time spent waiting to cross intersections.
 
-### Intersections
+## Intersections
 
 I need to flesh this section out. See `mechanics/intersections.rs` for how stop
 signs and traffic signals work. Two things I need to fix before making this
@@ -156,24 +130,6 @@ vehicles in that lane. This accounts for other vehicles performing a turn bound
 for that lane. See `try_to_reserve_entry` in `mechanics/queue.rs`. When a car
 completely leaves a lane (determined by the "laggy head" described above), this
 space is freed, and blocked cars are woken up.
-
-## Demand data
-
-The input to a traffic simulation consists of a list of trips -- start from
-building 1 at some time, and travel to building 2 via walking/driving/bus/bike.
-How do we generate a realistic set of trips to capture Seatle's traffic
-patterns? Picking origins and destinations uniformly at random yields extremely
-unrealistic results. One approach is to harvest location data from phones -- but
-this is expensive and invasive to privacy. Another approach is to generate a
-synthetic population based on census data, land-use of different buildings,
-vehicle counts, travel surveys, and such. In Seattle, the Puget Sound Regional
-Council (PSRC) uses the
-[Soundcast model](https://www.psrc.org/activity-based-travel-model-soundcast) to
-do exactly this.
-
-A/B Street imports data from PSRC using the `popdat` crate (the canonically
-trendy rendering of "population data"). This is further processed in
-`game/src/mission/trips.rs`.
 
 ## Appendix: discrete-time simulation
 

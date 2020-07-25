@@ -36,7 +36,7 @@ Measure the effects:
 - Technical
   - [Developer guide](docs/dev.md)
   - [Map model](docs/book/src/map/README.md)
-  - [Traffic simulation](docs/articles/trafficsim/article.md)
+  - [Traffic simulation](docs/book/src/trafficsim/README.md)
   - [Running A/B Street in a new city](docs/new_city.md)
   - [UX design](https://yuwen-li.com/work/abstreet)
 - Presentations
