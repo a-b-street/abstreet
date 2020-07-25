@@ -8,28 +8,28 @@ use map_model::{osm, AreaType};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::error::Error;
 
+pub struct OsmExtract {
+    pub map: RawMap,
+    // Unsplit roads
+    pub roads: Vec<(i64, RawRoad)>,
+    // Traffic signals to the direction they apply (or just true if unspecified)
+    pub traffic_signals: HashMap<HashablePt2D, bool>,
+    pub osm_node_ids: HashMap<HashablePt2D, i64>,
+    // (relation ID, restriction type, from way ID, via node ID, to way ID)
+    pub simple_turn_restrictions: Vec<(i64, RestrictionType, i64, i64, i64)>,
+    // (relation ID, from way ID, via way ID, to way ID)
+    pub complicated_turn_restrictions: Vec<(i64, i64, i64, i64)>,
+    // (location, name, amenity type)
+    pub amenities: Vec<(Pt2D, String, String)>,
+}
+
 pub fn extract_osm(
     osm_path: &str,
     maybe_clip_path: &Option<String>,
     city_name: &str,
     map_name: &str,
     timer: &mut Timer,
-) -> (
-    RawMap,
-    // Un-split roads
-    Vec<(i64, RawRoad)>,
-    // Traffic signals to the direction they apply (or just true if unspecified)
-    HashMap<HashablePt2D, bool>,
-    // OSM Node IDs
-    HashMap<HashablePt2D, i64>,
-    // Simple turn restrictions: (relation ID, restriction type, from way ID, via node ID, to way
-    // ID)
-    Vec<(i64, RestrictionType, i64, i64, i64)>,
-    // Complicated turn restrictions: (relation ID, from way ID, via way ID, to way ID)
-    Vec<(i64, i64, i64, i64)>,
-    // Amenities (location, name, amenity type)
-    Vec<(Pt2D, String, String)>,
-) {
+) -> OsmExtract {
     let (reader, done) = FileWithProgress::new(osm_path).unwrap();
     let doc = osm_xml::OSM::parse(reader).expect("OSM parsing failed");
     println!(
@@ -40,7 +40,7 @@ pub fn extract_osm(
     );
     done(timer);
 
-    let mut map = if let Some(path) = maybe_clip_path {
+    let map = if let Some(path) = maybe_clip_path {
         let pts = LonLat::read_osmosis_polygon(path.to_string()).unwrap();
         let mut gps_bounds = GPSBounds::new();
         for pt in &pts {
@@ -60,25 +60,29 @@ pub fn extract_osm(
         m
     };
 
-    let mut id_to_way: HashMap<i64, Vec<Pt2D>> = HashMap::new();
-    let mut roads: Vec<(i64, RawRoad)> = Vec::new();
-    let mut traffic_signals: HashMap<HashablePt2D, bool> = HashMap::new();
-    let mut osm_node_ids = HashMap::new();
-    let mut node_amenities = Vec::new();
+    let mut out = OsmExtract {
+        map,
+        roads: Vec::new(),
+        traffic_signals: HashMap::new(),
+        osm_node_ids: HashMap::new(),
+        simple_turn_restrictions: Vec::new(),
+        complicated_turn_restrictions: Vec::new(),
+        amenities: Vec::new(),
+    };
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
     for node in doc.nodes.values() {
         timer.next();
-        let pt = Pt2D::from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds);
-        osm_node_ids.insert(pt.to_hashable(), node.id);
+        let pt = Pt2D::from_gps(LonLat::new(node.lon, node.lat), &out.map.gps_bounds);
+        out.osm_node_ids.insert(pt.to_hashable(), node.id);
 
         let tags = tags_to_map(&node.tags);
         if tags.is(osm::HIGHWAY, "traffic_signals") {
             let backwards = tags.is("traffic_signals:direction", "backward");
-            traffic_signals.insert(pt.to_hashable(), !backwards);
+            out.traffic_signals.insert(pt.to_hashable(), !backwards);
         }
         if let Some(amenity) = tags.get("amenity") {
-            node_amenities.push((
+            out.amenities.push((
                 pt,
                 tags.get("name")
                     .cloned()
@@ -87,7 +91,7 @@ pub fn extract_osm(
             ));
         }
         if let Some(shop) = tags.get("shop") {
-            node_amenities.push((
+            out.amenities.push((
                 pt,
                 tags.get("name")
                     .cloned()
@@ -97,6 +101,7 @@ pub fn extract_osm(
         }
     }
 
+    let mut id_to_way: HashMap<i64, Vec<Pt2D>> = HashMap::new();
     let mut coastline_groups: Vec<(i64, Vec<Pt2D>)> = Vec::new();
     let mut memorial_areas: Vec<Polygon> = Vec::new();
     timer.start_iter("processing OSM ways", doc.ways.len());
@@ -119,7 +124,7 @@ pub fn extract_osm(
         if !valid || gps_pts.is_empty() {
             continue;
         }
-        let pts = map.gps_bounds.convert(&gps_pts);
+        let pts = out.map.gps_bounds.convert(&gps_pts);
         let mut tags = tags_to_map(&way.tags);
         tags.insert(osm::OSM_WAY_ID, way.id.to_string());
 
@@ -131,7 +136,7 @@ pub fn extract_osm(
                 tags.insert(osm::SIDEWALK, "right");
             }
 
-            roads.push((
+            out.roads.push((
                 way.id,
                 RawRoad {
                     center_points: pts,
@@ -147,7 +152,7 @@ pub fn extract_osm(
                 continue;
             }
 
-            map.buildings.insert(
+            out.map.buildings.insert(
                 OriginalBuilding { osm_way_id: way.id },
                 RawBuilding {
                     polygon: Polygon::new(&deduped),
@@ -161,7 +166,7 @@ pub fn extract_osm(
             if pts.len() < 3 {
                 continue;
             }
-            map.areas.push(RawArea {
+            out.map.areas.push(RawArea {
                 area_type: at,
                 osm_id: way.id,
                 polygon: Polygon::new(&pts),
@@ -171,13 +176,13 @@ pub fn extract_osm(
             coastline_groups.push((way.id, pts));
         } else if tags.is("amenity", "parking") {
             // TODO Verify parking = surface or handle other cases?
-            map.parking_lots.push(RawParkingLot {
+            out.map.parking_lots.push(RawParkingLot {
                 polygon: Polygon::new(&pts),
                 osm_id: way.id,
             });
         } else if tags.is("highway", "service") {
             // If we got here, is_road didn't interpret it as a normal road
-            map.parking_aisles.push(pts);
+            out.map.parking_aisles.push(pts);
         } else if tags.is("historic", "memorial") {
             if pts[0] == *pts.last().unwrap() {
                 memorial_areas.push(Polygon::new(&pts));
@@ -188,10 +193,8 @@ pub fn extract_osm(
         }
     }
 
-    let boundary = Ring::must_new(map.boundary_polygon.points().clone());
+    let boundary = Ring::must_new(out.map.boundary_polygon.points().clone());
 
-    let mut simple_turn_restrictions = Vec::new();
-    let mut complicated_turn_restrictions = Vec::new();
     let mut amenity_areas: Vec<(String, String, Polygon)> = Vec::new();
     // Vehicle position (stop) -> pedestrian position (platform)
     let mut stop_areas: Vec<(Pt2D, Pt2D)> = Vec::new();
@@ -205,7 +208,7 @@ pub fn extract_osm(
             if tags.is("type", "multipolygon") {
                 if let Some(pts_per_way) = get_multipolygon_members(rel, &id_to_way) {
                     for polygon in glue_multipolygon(rel.id, pts_per_way, &boundary) {
-                        map.areas.push(RawArea {
+                        out.map.areas.push(RawArea {
                             area_type,
                             osm_id: rel.id,
                             polygon,
@@ -242,12 +245,14 @@ pub fn extract_osm(
                 if let Some(rt) = RestrictionType::new(restriction) {
                     if let (Some(from), Some(via), Some(to)) = (from_way_id, via_node_id, to_way_id)
                     {
-                        simple_turn_restrictions.push((rel.id, rt, from, via, to));
+                        out.simple_turn_restrictions
+                            .push((rel.id, rt, from, via, to));
                     } else if let (Some(from), Some(via), Some(to)) =
                         (from_way_id, via_way_id, to_way_id)
                     {
                         if rt == RestrictionType::BanTurns {
-                            complicated_turn_restrictions.push((rel.id, from, via, to));
+                            out.complicated_turn_restrictions
+                                .push((rel.id, from, via, to));
                         } else {
                             timer.warn(format!(
                                 "Weird complicated turn restriction \"{}\" from way {} to way {} \
@@ -265,7 +270,7 @@ pub fn extract_osm(
         } else if is_bldg(&tags) {
             match multipoly_geometry(rel, &doc, &id_to_way) {
                 Ok(polygon) => {
-                    map.buildings.insert(
+                    out.map.buildings.insert(
                         OriginalBuilding { osm_way_id: rel.id },
                         RawBuilding {
                             polygon,
@@ -279,13 +284,13 @@ pub fn extract_osm(
                 Err(err) => println!("Skipping building: {}", err),
             }
         } else if tags.is("type", "route") {
-            map.bus_routes.extend(extract_route(
+            out.map.bus_routes.extend(extract_route(
                 &tags,
                 rel,
                 &doc,
                 &id_to_way,
-                &map.gps_bounds,
-                &map.boundary_polygon,
+                &out.map.gps_bounds,
+                &out.map.boundary_polygon,
             ));
         } else if tags.is("type", "multipolygon") && tags.contains_key("amenity") {
             let name = tags
@@ -312,7 +317,7 @@ pub fn extract_osm(
             let mut platform: Option<Pt2D> = None;
             for (role, member) in get_members(rel, &doc) {
                 if let osm_xml::Reference::Node(node) = member {
-                    let pt = Pt2D::from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds);
+                    let pt = Pt2D::from_gps(LonLat::new(node.lon, node.lat), &out.map.gps_bounds);
                     if role == "stop" {
                         stops.push(pt);
                     } else if role == "platform" {
@@ -340,7 +345,7 @@ pub fn extract_osm(
         let mut osm_tags = Tags::new(BTreeMap::new());
         osm_tags.insert("water", "ocean");
         // Put it at the beginning, so that it's naturally beneath island areas
-        map.areas.insert(
+        out.map.areas.insert(
             0,
             RawArea {
                 area_type: AreaType::Water,
@@ -355,7 +360,7 @@ pub fn extract_osm(
     timer.start_iter("match buildings to memorial areas", memorial_areas.len());
     for area in memorial_areas {
         timer.next();
-        retain_btreemap(&mut map.buildings, |_, b| {
+        retain_btreemap(&mut out.map.buildings, |_, b| {
             !area.contains_pt(b.polygon.center())
         });
     }
@@ -363,7 +368,7 @@ pub fn extract_osm(
     timer.start_iter("match buildings to amenity areas", amenity_areas.len());
     for (name, amenity, poly) in amenity_areas {
         timer.next();
-        for b in map.buildings.values_mut() {
+        for b in out.map.buildings.values_mut() {
             if poly.contains_pt(b.polygon.center()) {
                 b.amenities.insert((name.clone(), amenity.clone()));
             }
@@ -373,7 +378,7 @@ pub fn extract_osm(
     // Match platforms from stop_areas. Not sure what order routes and stop_areas will appear in
     // relations, so do this after reading all of them.
     for (vehicle_pos, ped_pos) in stop_areas {
-        for route in &mut map.bus_routes {
+        for route in &mut out.map.bus_routes {
             for stop in &mut route.stops {
                 if stop.vehicle_pos == vehicle_pos {
                     stop.ped_pos = Some(ped_pos);
@@ -384,21 +389,13 @@ pub fn extract_osm(
 
     // Hack to fix z-ordering for Green Lake (and probably other places). Put water and islands
     // last. I think the more proper fix is interpreting "inner" roles in relations.
-    map.areas.sort_by_key(|a| match a.area_type {
+    out.map.areas.sort_by_key(|a| match a.area_type {
         AreaType::Island => 2,
         AreaType::Water => 1,
         _ => 0,
     });
 
-    (
-        map,
-        roads,
-        traffic_signals,
-        osm_node_ids,
-        simple_turn_restrictions,
-        complicated_turn_restrictions,
-        node_amenities,
-    )
+    out
 }
 
 fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> Tags {

@@ -1,36 +1,21 @@
+use crate::osm_reader::OsmExtract;
 use abstutil::{Counter, Timer};
 use geom::{Distance, HashablePt2D, Pt2D};
-use map_model::raw::{
-    OriginalIntersection, OriginalRoad, RawIntersection, RawMap, RawRoad, RestrictionType,
-};
+use map_model::raw::{OriginalIntersection, OriginalRoad, RawIntersection, RawMap};
 use map_model::{osm, IntersectionType};
 use std::collections::HashMap;
 
+// Also returns amenities
 pub fn split_up_roads(
-    (
-        mut map,
-        roads,
-        mut traffic_signals,
-        osm_node_ids,
-        simple_turn_restrictions,
-        complicated_turn_restrictions,
-        amenities,
-    ): (
-        RawMap,
-        Vec<(i64, RawRoad)>,
-        HashMap<HashablePt2D, bool>,
-        HashMap<HashablePt2D, i64>,
-        Vec<(i64, RestrictionType, i64, i64, i64)>,
-        Vec<(i64, i64, i64, i64)>,
-        Vec<(Pt2D, String, String)>,
-    ),
+    mut input: OsmExtract,
     timer: &mut Timer,
 ) -> (RawMap, Vec<(Pt2D, String, String)>) {
     timer.start("splitting up roads");
+    let mut map = input.map;
 
     let mut pt_to_intersection: HashMap<HashablePt2D, OriginalIntersection> = HashMap::new();
     let mut counts_per_pt = Counter::new();
-    for (_, r) in &roads {
+    for (_, r) in &input.roads {
         for (idx, raw_pt) in r.center_points.iter().enumerate() {
             let pt = raw_pt.to_hashable();
             let count = counts_per_pt.inc(pt);
@@ -39,7 +24,7 @@ pub fn split_up_roads(
             if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
                 if !pt_to_intersection.contains_key(&pt) {
                     let id = OriginalIntersection {
-                        osm_node_id: osm_node_ids[&pt],
+                        osm_node_id: input.osm_node_ids[&pt],
                     };
                     pt_to_intersection.insert(pt, id);
                 }
@@ -52,7 +37,7 @@ pub fn split_up_roads(
             *id,
             RawIntersection {
                 point: pt.to_pt2d(),
-                intersection_type: if traffic_signals.remove(pt).is_some() {
+                intersection_type: if input.traffic_signals.remove(pt).is_some() {
                     IntersectionType::TrafficSignal
                 } else {
                     IntersectionType::StopSign
@@ -64,8 +49,8 @@ pub fn split_up_roads(
     }
 
     // Now actually split up the roads based on the intersections
-    timer.start_iter("split roads", roads.len());
-    for (osm_way_id, orig_road) in &roads {
+    timer.start_iter("split roads", input.roads.len());
+    for (osm_way_id, orig_road) in &input.roads {
         timer.next();
         let mut r = orig_road.clone();
         let mut pts = Vec::new();
@@ -108,7 +93,7 @@ pub fn split_up_roads(
 
     // Resolve simple turn restrictions (via a node)
     let mut restrictions = Vec::new();
-    for (rel_osm, restriction, from_osm, via_osm, to_osm) in simple_turn_restrictions {
+    for (rel_osm, restriction, from_osm, via_osm, to_osm) in input.simple_turn_restrictions {
         let roads = map.roads_per_intersection(OriginalIntersection {
             osm_node_id: via_osm,
         });
@@ -138,7 +123,7 @@ pub fn split_up_roads(
     // Resolve complicated turn restrictions (via a way). TODO Only handle via ways immediately
     // connected to both roads, for now
     let mut complicated_restrictions = Vec::new();
-    for (rel_osm, from_osm, via_osm, to_osm) in complicated_turn_restrictions {
+    for (rel_osm, from_osm, via_osm, to_osm) in input.complicated_turn_restrictions {
         let via_candidates: Vec<OriginalRoad> = map
             .roads
             .keys()
@@ -189,9 +174,9 @@ pub fn split_up_roads(
     // (https://wiki.openstreetmap.org/wiki/Tag:highway=traffic%20signals?uselang=en#Tag_all_incoming_ways).
     timer.start_iter(
         "match traffic signals to intersections",
-        traffic_signals.len(),
+        input.traffic_signals.len(),
     );
-    for (pt, forwards) in traffic_signals {
+    for (pt, forwards) in input.traffic_signals {
         timer.next();
         for (id, r) in &map.roads {
             if r.center_points.contains(&pt.to_pt2d()) {
@@ -209,7 +194,7 @@ pub fn split_up_roads(
     }
 
     timer.stop("splitting up roads");
-    (map, amenities)
+    (map, input.amenities)
 }
 
 // TODO Consider doing this in PolyLine::new always. extend() there does this too.
