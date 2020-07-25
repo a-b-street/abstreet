@@ -84,6 +84,9 @@ pub fn read(
             }
             "node" => {
                 let id = NodeID(obj.attribute("id").unwrap().parse::<i64>().unwrap());
+                if doc.nodes.contains_key(&id) {
+                    return Err(format!("Duplicate {}, your .osm is corrupt", id).into());
+                }
                 let pt = Pt2D::from_gps(
                     LonLat::new(
                         obj.attribute("lon").unwrap().parse::<f64>().unwrap(),
@@ -96,7 +99,11 @@ pub fn read(
             }
             "way" => {
                 let id = WayID(obj.attribute("id").unwrap().parse::<i64>().unwrap());
+                if doc.ways.contains_key(&id) {
+                    return Err(format!("Duplicate {}, your .osm is corrupt", id).into());
+                }
                 let tags = read_tags(obj);
+
                 let mut nodes = Vec::new();
                 let mut pts = Vec::new();
                 for child in obj.children() {
@@ -115,6 +122,9 @@ pub fn read(
             }
             "relation" => {
                 let id = RelationID(obj.attribute("id").unwrap().parse::<i64>().unwrap());
+                if doc.relations.contains_key(&id) {
+                    return Err(format!("Duplicate {}, your .osm is corrupt", id).into());
+                }
                 let tags = read_tags(obj);
                 let mut members = Vec::new();
                 for child in obj.children() {
