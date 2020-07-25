@@ -445,8 +445,8 @@ dependencies = [
 
 [[package]]
 name = "contour"
-version = "0.1.0"
-source = "git+https://github.com/dabreegster/contour-rs#356b770587504de761a5ded7bb7684e779232ae7"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "geojson 0.19.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1044,7 +1044,7 @@ dependencies = [
  "chrono 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "clipboard 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "colorous 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "contour 0.1.0 (git+https://github.com/dabreegster/contour-rs)",
+ "contour 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "downcast-rs 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "enumset 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ezgui 0.1.0",
@@ -3963,7 +3963,7 @@ dependencies = [
 "checksum colorous 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "ebeb47d6d3334179ee49ef9a1f3a03d177450b25705854d92e2e1d128b49c736"
 "checksum const-random 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = "2f1af9ac737b2dd2d577701e59fd09ba34822f6f2ebdb30a7647405d9e55e16a"
 "checksum const-random-macro 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = "25e4c606eb459dd29f7c57b2e0879f2b6f14ee130918c2b78ccb58a9624e6c7a"
-"checksum contour 0.1.0 (git+https://github.com/dabreegster/contour-rs)" = "<none>"
+"checksum contour 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "32505c91a846e14e02e458fc4ecdb6755858bfaf876717968d35cf623f6f554c"
 "checksum core-foundation 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "57d24c7a13c43e870e37c1556b74555437870a04514f7685f5b354e090567171"
 "checksum core-foundation-sys 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b3a71ab494c0b5b860bdc8407ae08978052417070c2ced38573a9157ad75b8ac"
 "checksum core-graphics 0.19.0 (registry+https://github.com/rust-lang/crates.io-index)" = "59e78b2e0aaf43f08e7ae0d6bc96895ef72ff0921c7d4ff4762201b2dba376dd"

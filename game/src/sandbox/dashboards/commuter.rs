@@ -183,7 +183,7 @@ impl CommuterPatterns {
             BlockSelection::NothingSelected => None,
         };
 
-        return match base_block_id {
+        match base_block_id {
             None => (ctx.upload(batch), None),
             Some(base_block_id) => {
                 let base_block = &self.blocks[base_block_id];
@@ -290,7 +290,7 @@ impl CommuterPatterns {
                 };
                 (ctx.upload(batch), Some(composite_data))
             }
-        };
+        }
     }
 
     fn redraw_composite(&mut self, state: Option<&CompositeState>, ctx: &mut EventCtx, app: &App) {

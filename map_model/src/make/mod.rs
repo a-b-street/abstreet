@@ -1,6 +1,7 @@
 mod bridges;
 mod buildings;
 pub mod initial;
+mod parking_lots;
 mod remove_disconnected;
 pub mod traffic_signals;
 mod transit;
@@ -280,8 +281,12 @@ impl Map {
             map.lanes[lane.0].building_paths = bldgs;
         }
 
-        map.parking_lots =
-            buildings::make_all_parking_lots(&raw.parking_lots, &raw.parking_aisles, &map, timer);
+        map.parking_lots = parking_lots::make_all_parking_lots(
+            &raw.parking_lots,
+            &raw.parking_aisles,
+            &map,
+            timer,
+        );
 
         map.zones = Zone::make_all(&map);
 
