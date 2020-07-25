@@ -19,7 +19,7 @@ pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,
     border_to_block: HashMap<IntersectionID, BlockID>,
     blocks: Vec<Block>,
-    selected: Option<CurrentBlock>,
+    current_block: (BlockSelection, Drawable),
     filter: Filter,
 
     // Indexed by BlockID
@@ -30,11 +30,20 @@ pub struct CommuterPatterns {
     draw_all_blocks: Drawable,
 }
 
-struct CurrentBlock {
-    id: BlockID,
-    draw: Drawable,
-    // After clicking a block, show its outline to indicate it's been clicked.
-    sticky: Option<Drawable>,
+#[derive(PartialEq, Clone, Copy)]
+enum BlockSelection {
+    NothingSelected,
+    Unlocked(BlockID),
+    Locked {
+        base: BlockID,
+        compare_to: Option<BlockID>,
+    },
+}
+
+struct CompositeState<'a> {
+    building_counts: Vec<(&'a str, u32)>,
+    max_count: usize,
+    total_trips: usize,
 }
 
 // Group many buildings into a single block
@@ -93,7 +102,10 @@ impl CommuterPatterns {
             bldg_to_block,
             border_to_block,
             blocks,
-            selected: None,
+            current_block: (
+                BlockSelection::NothingSelected,
+                ctx.upload(GeomBatch::new()),
+            ),
             trips_from_block,
             trips_to_block,
             filter: Filter {
@@ -156,6 +168,166 @@ impl CommuterPatterns {
             .map(|(id, cnt)| (&self.blocks[id], cnt))
             .collect()
     }
+
+    fn build_block_drawable<'a>(
+        &self,
+        block_selection: BlockSelection,
+        ctx: &EventCtx,
+        app: &App,
+    ) -> (Drawable, Option<CompositeState<'a>>) {
+        let mut batch = GeomBatch::new();
+
+        let base_block_id = match block_selection {
+            BlockSelection::Unlocked(id) => Some(id),
+            BlockSelection::Locked { base, .. } => Some(base),
+            BlockSelection::NothingSelected => None,
+        };
+
+        return match base_block_id {
+            None => (ctx.upload(batch), None),
+            Some(base_block_id) => {
+                let base_block = &self.blocks[base_block_id];
+
+                // Show the members of this block
+                let mut building_counts: Vec<(&'a str, u32)> = vec![
+                    ("Residential", 0),
+                    ("Residential/Commercial", 0),
+                    ("Commercial", 0),
+                    ("Empty", 0),
+                ];
+                for b in &base_block.bldgs {
+                    let b = app.primary.map.get_b(*b);
+                    batch.push(Color::PURPLE, b.polygon.clone());
+                    match b.bldg_type {
+                        BuildingType::Residential(_) => building_counts[0].1 += 1,
+                        BuildingType::ResidentialCommercial(_) => building_counts[1].1 += 1,
+                        BuildingType::Commercial => building_counts[2].1 += 1,
+                        BuildingType::Empty => building_counts[3].1 += 1,
+                    }
+                }
+                for i in &base_block.borders {
+                    batch.push(Color::PURPLE, app.primary.map.get_i(*i).polygon.clone());
+                }
+
+                batch.push(Color::BLACK.alpha(0.5), base_block.shape.clone());
+
+                {
+                    // Indicate direction over current block
+                    let (icon_name, icon_scale) = if self.filter.from_block {
+                        ("outward.svg", 1.2)
+                    } else {
+                        ("inward.svg", 1.0)
+                    };
+
+                    let center = base_block.shape.polylabel();
+                    let icon = GeomBatch::mapspace_svg(
+                        ctx.prerender,
+                        &format!("system/assets/tools/{}", icon_name),
+                    )
+                    .scale(icon_scale)
+                    .centered_on(center)
+                    .color(RewriteColor::ChangeAll(Color::WHITE));
+
+                    batch.append(icon);
+                }
+
+                let others = self.count_per_block(&base_block);
+
+                let mut total_trips = 0;
+                let max_count = others.iter().map(|(_, cnt)| *cnt).max().unwrap_or(0);
+                for (other, cnt) in &others {
+                    total_trips += cnt;
+                    let pct = (*cnt as f64) / (max_count as f64);
+                    batch.push(
+                        app.cs.good_to_bad_red.eval(pct).alpha(0.8),
+                        other.shape.clone(),
+                    );
+                }
+
+                // Draw outline for Locked Selection
+                match block_selection {
+                    BlockSelection::Locked { .. } => {
+                        let outline = base_block.shape.to_outline(Distance::meters(10.0)).unwrap();
+                        batch.push(Color::BLACK, outline);
+                    }
+                    _ => {}
+                };
+
+                // While selection is locked, draw an overlay with compare_to information for the
+                // hovered block
+                match block_selection {
+                    BlockSelection::Locked {
+                        base: _,
+                        compare_to: Some(compare_to),
+                    } => {
+                        let compare_to_block = &self.blocks[compare_to];
+
+                        let border = compare_to_block
+                            .shape
+                            .to_outline(Distance::meters(10.0))
+                            .unwrap();
+                        batch.push(Color::WHITE.alpha(0.8), border);
+
+                        let count = others
+                            .into_iter()
+                            .find(|(b, _)| b.id == compare_to)
+                            .map(|(_, count)| count)
+                            .unwrap_or(0);
+                        let label_text = format!("{}", abstutil::prettyprint_usize(count));
+                        batch.append(
+                            Text::from(Line(label_text).fg(Color::BLACK))
+                                .render_to_batch(ctx.prerender)
+                                .scale(2.0)
+                                .centered_on(compare_to_block.shape.polylabel()),
+                        );
+                    }
+                    _ => {}
+                };
+                let composite_data = CompositeState {
+                    building_counts,
+                    total_trips,
+                    max_count,
+                };
+                (ctx.upload(batch), Some(composite_data))
+            }
+        };
+    }
+
+    fn redraw_composite(&mut self, state: Option<&CompositeState>, ctx: &mut EventCtx, app: &App) {
+        if let Some(state) = state {
+            let mut txt = Text::new();
+            txt.add(Line(format!(
+                "Total: {} trips",
+                abstutil::prettyprint_usize(state.total_trips)
+            )));
+
+            for (name, cnt) in &state.building_counts {
+                if *cnt != 0 {
+                    txt.add(Line(format!("{}: {}", name, cnt)));
+                }
+            }
+
+            self.composite
+                .replace(ctx, "current", txt.draw(ctx).named("current"));
+
+            let new_scale = ColorLegend::gradient(
+                ctx,
+                &app.cs.good_to_bad_red,
+                vec![
+                    "0".to_string(),
+                    format!("{} trips", prettyprint_usize(state.max_count)),
+                ],
+            )
+            .named("scale");
+            self.composite.replace(ctx, "scale", new_scale);
+        } else {
+            self.composite.replace(
+                ctx,
+                "current",
+                "None selected".draw_text(ctx).named("current"),
+            );
+        }
+    }
 }
 
 impl State for CommuterPatterns {
@@ -172,46 +344,60 @@ impl State for CommuterPatterns {
             None => {}
         }
 
-        let old_block = self.selected.as_ref().map(|b| b.id);
-        if let Some(ref mut current) = self.selected {
-            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if app.per_obj.left_click(ctx, "change current block") {
-                    if let Some(b) = self.blocks.iter().find(|b| b.shape.contains_pt(pt)) {
-                        current.id = b.id;
-                        current.sticky = Some(ctx.upload(GeomBatch::from(vec![(
-                                Color::BLACK,
-                                self.blocks[current.id]
-                                    .shape
-                                    .to_outline(Distance::meters(10.0))
-                                    .unwrap(),
-                            )])));
-                    } else {
-                        self.selected = None;
-                    }
-                }
-            }
-        }
-        if self
-            .selected
-            .as_ref()
-            .map(|b| b.sticky.is_none())
-            .unwrap_or(true)
-            && ctx.redo_mouseover()
+        let block_selection = if let Some(Some(b)) = ctx
+            .canvas
+            .get_cursor_in_map_space()
+            .map(|pt| self.blocks.iter().find(|b| b.shape.contains_pt(pt)))
         {
-            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if let Some(b) = self.blocks.iter().find(|b| b.shape.contains_pt(pt)) {
-                    if old_block != Some(b.id) {
-                        self.selected = Some(CurrentBlock {
-                            id: b.id,
-                            draw: ctx.upload(GeomBatch::new()),
-                            sticky: None,
-                        });
+            if app.per_obj.left_click(ctx, "clicked block") {
+                match self.current_block.0 {
+                    BlockSelection::Locked { base: old_base, .. } => {
+                        if old_base == b.id {
+                            BlockSelection::Unlocked(b.id)
+                        } else {
+                            BlockSelection::Locked {
+                                base: b.id,
+                                compare_to: None,
+                            }
+                        }
                     }
-                } else {
-                    self.selected = None;
+                    _ => BlockSelection::Locked {
+                        base: b.id,
+                        compare_to: None,
+                    },
+                }
+            } else {
+                // Hovering over block
+                match self.current_block.0 {
+                    BlockSelection::Locked { base, .. } => {
+                        if base == b.id {
+                            BlockSelection::Locked {
+                                base,
+                                compare_to: None,
+                            }
+                        } else {
+                            BlockSelection::Locked {
+                                base,
+                                compare_to: Some(b.id),
+                            }
+                        }
+                    }
+                    BlockSelection::Unlocked(_) => BlockSelection::Unlocked(b.id),
+                    BlockSelection::NothingSelected => BlockSelection::Unlocked(b.id),
                 }
             }
-        }
+        } else {
+            // cursor not over any block
+            match self.current_block.0 {
+                BlockSelection::NothingSelected | BlockSelection::Unlocked(_) => {
+                    BlockSelection::NothingSelected
+                }
+                BlockSelection::Locked { base, .. } => BlockSelection::Locked {
+                    base,
+                    compare_to: None,
+                },
+            }
+        };
 
         let mut filter = Filter {
             from_block: self.composite.is_checked("from / to this block"),
@@ -234,102 +420,12 @@ impl State for CommuterPatterns {
             }
         }
 
-        if old_block != self.selected.as_ref().map(|b| b.id) || filter != self.filter {
+        if filter != self.filter || block_selection != self.current_block.0 {
             self.filter = filter;
-            if let Some(id) = self.selected.as_ref().map(|b| b.id) {
-                let block = &self.blocks[id];
-
-                // Show the members of this block
-                let mut batch = GeomBatch::new();
-                let mut building_counts: Vec<(&str, u32)> = vec![
-                    ("Residential", 0),
-                    ("Residential/Commercial", 0),
-                    ("Commercial", 0),
-                    ("Empty", 0),
-                ];
-                for b in &block.bldgs {
-                    let b = app.primary.map.get_b(*b);
-                    batch.push(Color::PURPLE, b.polygon.clone());
-                    match b.bldg_type {
-                        BuildingType::Residential(_) => building_counts[0].1 += 1,
-                        BuildingType::ResidentialCommercial(_) => building_counts[1].1 += 1,
-                        BuildingType::Commercial => building_counts[2].1 += 1,
-                        BuildingType::Empty => building_counts[3].1 += 1,
-                    }
-                }
-                for i in &block.borders {
-                    batch.push(Color::PURPLE, app.primary.map.get_i(*i).polygon.clone());
-                }
-
-                batch.push(Color::BLACK.alpha(0.5), block.shape.clone());
-
-                {
-                    // Indicate direction over current block
-                    let (icon_name, icon_scale) =
-                        if self.composite.is_checked("from / to this block") {
-                            ("outward.svg", 1.2)
-                        } else {
-                            ("inward.svg", 1.0)
-                        };
-
-                    let center = block.shape.polylabel();
-                    let icon = GeomBatch::mapspace_svg(
-                        ctx.prerender,
-                        &format!("system/assets/tools/{}", icon_name),
-                    )
-                    .scale(icon_scale)
-                    .centered_on(center)
-                    .color(RewriteColor::ChangeAll(Color::WHITE));
-
-                    batch.append(icon);
-                }
-
-                let others = self.count_per_block(block);
-                let mut total_trips = 0;
-                let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap_or(0);
-                if !others.is_empty() {
-                    for (other, cnt) in others {
-                        total_trips += cnt;
-                        let pct = (cnt as f64) / (max_cnt as f64);
-                        // TODO Use app.cs.good_to_bad_red or some other color gradient
-                        batch.push(
-                            app.cs.good_to_bad_red.eval(pct).alpha(0.8),
-                            other.shape.clone(),
-                        );
-                    }
-                }
-
-                self.selected.as_mut().unwrap().draw = ctx.upload(batch);
-
-                let mut txt = Text::new();
-                txt.add(Line(format!("Total: {} trips", total_trips)));
-                for (name, cnt) in building_counts {
-                    if cnt != 0 {
-                        txt.add(Line(format!("{}: {}", name, cnt)));
-                    }
-                }
-                self.composite
-                    .replace(ctx, "current", txt.draw(ctx).named("current"));
-
-                let new_scale = ColorLegend::gradient(
-                    ctx,
-                    &app.cs.good_to_bad_red,
-                    vec![
-                        "0".to_string(),
-                        format!("{} trips", prettyprint_usize(max_cnt)),
-                    ],
-                )
-                .named("scale");
-                self.composite.replace(ctx, "scale", new_scale);
-            } else {
-                self.composite.replace(
-                    ctx,
-                    "current",
-                    "None selected".draw_text(ctx).named("current"),
-                );
-            }
+            let (drawable, per_block_counts) = self.build_block_drawable(block_selection, ctx, app);
+            self.redraw_composite(per_block_counts.as_ref(), ctx, app);
+            self.current_block = (block_selection, drawable);
         }
-
         Transition::Keep
     }
 
@@ -346,12 +442,8 @@ impl State for CommuterPatterns {
         );
 
         g.redraw(&self.draw_all_blocks);
-        if let Some(ref b) = self.selected {
-            g.redraw(&b.draw);
-            if let Some(ref d) = b.sticky {
-                g.redraw(d);
-            }
-        }
+        g.redraw(&self.current_block.1);
+
         self.composite.draw(g);
         CommonState::draw_osd(g, app);
     }
