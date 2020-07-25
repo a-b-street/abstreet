@@ -1,3 +1,4 @@
+use crate::Options;
 use abstutil::{retain_btreemap, FileWithProgress, Tags, Timer};
 use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use map_model::raw::{
@@ -23,14 +24,8 @@ pub struct OsmExtract {
     pub amenities: Vec<(Pt2D, String, String)>,
 }
 
-pub fn extract_osm(
-    osm_path: &str,
-    maybe_clip_path: &Option<String>,
-    city_name: &str,
-    map_name: &str,
-    timer: &mut Timer,
-) -> OsmExtract {
-    let (reader, done) = FileWithProgress::new(osm_path).unwrap();
+pub fn extract_osm(opts: &Options, timer: &mut Timer) -> OsmExtract {
+    let (reader, done) = FileWithProgress::new(&opts.osm_input).unwrap();
     let doc = osm_xml::OSM::parse(reader).expect("OSM parsing failed");
     println!(
         "OSM doc has {} nodes, {} ways, {} relations",
@@ -40,19 +35,19 @@ pub fn extract_osm(
     );
     done(timer);
 
-    let map = if let Some(path) = maybe_clip_path {
+    let map = if let Some(ref path) = opts.clip {
         let pts = LonLat::read_osmosis_polygon(path.to_string()).unwrap();
         let mut gps_bounds = GPSBounds::new();
         for pt in &pts {
             gps_bounds.update(*pt);
         }
 
-        let mut map = RawMap::blank(city_name, map_name);
+        let mut map = RawMap::blank(&opts.city_name, &opts.name);
         map.boundary_polygon = Polygon::new(&gps_bounds.convert(&pts));
         map.gps_bounds = gps_bounds;
         map
     } else {
-        let mut m = RawMap::blank(city_name, map_name);
+        let mut m = RawMap::blank(&opts.city_name, &opts.name);
         for node in doc.nodes.values() {
             m.gps_bounds.update(LonLat::new(node.lon, node.lat));
         }
@@ -128,7 +123,7 @@ pub fn extract_osm(
         let mut tags = tags_to_map(&way.tags);
         tags.insert(osm::OSM_WAY_ID, way.id.to_string());
 
-        if is_road(&mut tags) {
+        if is_road(&mut tags, opts) {
             // TODO Hardcoding these overrides. OSM is correct, these don't have
             // sidewalks; there's a crosswalk mapped. But until we can snap sidewalks properly, do
             // this to prevent the sidewalks from being disconnected.
@@ -414,8 +409,11 @@ fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> Tags {
     )
 }
 
-fn is_road(tags: &mut Tags) -> bool {
-    if tags.is_any("railway", vec!["light_rail", "rail"]) {
+fn is_road(tags: &mut Tags, opts: &Options) -> bool {
+    if tags.is("railway", "light_rail") {
+        return true;
+    }
+    if tags.is("railway", "rail") && opts.include_railroads {
         return true;
     }
     // TODO Because trams overlap with roads, they're harder:

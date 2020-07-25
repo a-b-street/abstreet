@@ -24,6 +24,8 @@ pub struct Options {
     // If provided, pull elevation data from this SRTM file. The SRTM parser is incorrect, so the
     // results will be nonsense.
     pub elevation: Option<String>,
+    // OSM railway=rail will be included as light rail if so. Cosmetic only.
+    pub include_railroads: bool,
 }
 
 // What roads will have on-street parking lanes? Data from
@@ -59,16 +61,8 @@ pub enum PrivateOffstreetParking {
 }
 
 pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
-    let (mut map, amenities) = split_ways::split_up_roads(
-        osm_reader::extract_osm(
-            &opts.osm_input,
-            &opts.clip,
-            &opts.city_name,
-            &opts.name,
-            timer,
-        ),
-        timer,
-    );
+    let (mut map, amenities) =
+        split_ways::split_up_roads(osm_reader::extract_osm(&opts, timer), timer);
     clip::clip_map(&mut map, timer);
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when

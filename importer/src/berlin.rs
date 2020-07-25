@@ -70,6 +70,7 @@ pub fn osm_to_raw(name: &str) {
             public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(3),
             elevation: None,
+            include_railroads: true,
         },
         &mut abstutil::Timer::throwaway(),
     );
