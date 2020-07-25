@@ -250,6 +250,7 @@ impl Static {
     pub fn amenities(ctx: &mut EventCtx, app: &App) -> Static {
         let mut colorer = ColorDiscrete::new(
             app,
+            // names are coming from amenity_type in another file
             vec![
                 ("groceries", Color::BLACK),
                 ("food", Color::RED),
@@ -258,7 +259,7 @@ impl Static {
                 ("church / temple", Color::GREEN),
                 ("education", Color::CYAN),
                 ("bank / post office", Color::YELLOW),
-                ("media", Color::PINK),
+                ("culture", Color::PINK),
                 ("childcare", Color::ORANGE),
                 ("shopping", Color::WHITE),
                 ("other", Color::hex("#96322F")),
