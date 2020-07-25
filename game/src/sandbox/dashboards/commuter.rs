@@ -9,8 +9,8 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, VerticalAlignment,
     Widget,
 };
-use geom::{Distance, Polygon, Time};
-use map_model::{BuildingID, BuildingType, IntersectionID, LaneID, RoadID, TurnType};
+use geom::{Distance, PolyLine, Polygon, Time};
+use map_model::{BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use maplit::hashset;
 use sim::{DontDrawAgents, TripEndpoint, TripInfo, TripMode};
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -274,12 +274,16 @@ impl CommuterPatterns {
                             .map(|(_, count)| count)
                             .unwrap_or(0);
                         let label_text = format!("{}", abstutil::prettyprint_usize(count));
-                        batch.append(
-                            Text::from(Line(label_text).fg(Color::BLACK))
-                                .render_to_batch(ctx.prerender)
-                                .scale(2.0)
-                                .centered_on(compare_to_block.shape.polylabel()),
-                        );
+                        let label = Text::from(Line(label_text).fg(Color::BLACK))
+                            .render_to_batch(ctx.prerender)
+                            .scale(2.0)
+                            .centered_on(compare_to_block.shape.polylabel());
+
+                        let dims = label.get_dims();
+                        let label_bg =  Polygon::rounded_rectangle(dims.width + 70.0, dims.height + 20.0, None);
+                        let bg = GeomBatch::from(vec![(Color::WHITE, label_bg)]).centered_on(compare_to_block.shape.polylabel());
+                        batch.append(bg);
+                        batch.append(label);
                     }
                     _ => {}
                 };
@@ -498,24 +502,69 @@ fn group_bldgs(
             id,
             bldgs: HashSet::new(),
             borders: hashset! { i.id },
-            shape: i.polygon.clone(),
+            shape: build_shape_for_border(i, BorderType::Incoming, &app.primary.map),
         });
     }
     for i in app.primary.map.all_outgoing_borders() {
-        if border_to_block.contains_key(&i.id) {
+        if let Some(incoming_border_id) = border_to_block.get(&i.id) {
+            let two_way_border = &mut blocks[*incoming_border_id];
+            two_way_border.shape = build_shape_for_border(i, BorderType::Both, &app.primary.map);
             continue;
         }
         let id = blocks.len();
         border_to_block.insert(i.id, id);
+
         blocks.push(Block {
             id,
             bldgs: HashSet::new(),
             borders: hashset! { i.id },
-            shape: i.polygon.clone(),
+            shape: build_shape_for_border(i, BorderType::Outgoing, &app.primary.map),
         });
     }
 
     (bldg_to_block, border_to_block, blocks)
+}
+
+enum BorderType {
+    Incoming,
+    Outgoing,
+    Both,
+}
+
+fn build_shape_for_border(
+    border: &map_model::Intersection,
+    border_type: BorderType,
+    map: &Map,
+) -> Polygon {
+    let start = border.polygon.center();
+
+    let road = match border_type {
+        BorderType::Incoming | BorderType::Both => map.get_parent(border.outgoing_lanes[0]),
+        BorderType::Outgoing => map.get_parent(border.incoming_lanes[0]),
+    };
+
+    let center_line = road.get_current_center(map);
+    let angle = if road.src_i == border.id {
+        center_line.first_line().angle().opposite()
+    } else {
+        center_line.first_line().angle()
+    };
+
+    let length = Distance::meters(150.0);
+    let thickness = Distance::meters(30.0);
+    let end = start.project_away(length, angle);
+
+    match border_type {
+        BorderType::Incoming => PolyLine::new(vec![end, start])
+            .unwrap()
+            .make_arrow(thickness, geom::ArrowCap::Triangle),
+        BorderType::Outgoing => PolyLine::new(vec![start, end])
+            .unwrap()
+            .make_arrow(thickness, geom::ArrowCap::Triangle),
+        BorderType::Both => PolyLine::new(vec![start, end])
+            .unwrap()
+            .make_double_arrow(thickness, geom::ArrowCap::Triangle),
+    }
 }
 
 struct Loop {
