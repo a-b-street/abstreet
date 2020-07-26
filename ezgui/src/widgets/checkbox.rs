@@ -1,6 +1,6 @@
 use crate::{
-    Btn, Button, Color, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, Text,
-    TextExt, TextSpan, Widget, WidgetImpl, WidgetOutput,
+    Btn, Button, Color, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, RewriteColor, ScreenDims,
+    ScreenPt, Text, TextExt, TextSpan, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::{Polygon, Pt2D};
 
@@ -28,6 +28,7 @@ impl Checkbox {
         }
     }
 
+    // TODO Probably rename "toggle"
     pub fn text<I: Into<String>>(
         ctx: &EventCtx,
         label: I,
@@ -35,12 +36,38 @@ impl Checkbox {
         enabled: bool,
     ) -> Widget {
         let label = label.into();
+        let off = icon_and_text(ctx, "system/assets/tools/toggle_off.svg", &label);
+        let on = icon_and_text(ctx, "system/assets/tools/toggle_on.svg", &label);
+        // The dims should be the same for both
+        let dims = off.get_dims();
+        let vert_pad = 4.0;
+        let horiz_pad = 4.0;
+        let hitbox = Polygon::rectangle(dims.width + 2.0 * horiz_pad, dims.height + 2.0 * vert_pad);
+        let off = off.translate(horiz_pad, vert_pad);
+        let on = on.translate(horiz_pad, vert_pad);
+
         Checkbox::new(
             enabled,
-            Btn::text_fg(format!("[ ] {}", label)).build(ctx, &label, hotkey.clone()),
-            Btn::text_fg(format!("[X] {}", label)).build(ctx, &label, hotkey),
+            Btn::custom(
+                off.clone(),
+                off.color(RewriteColor::Change(
+                    Color::hex("#F2F2F2"),
+                    ctx.style().hovering_color,
+                )),
+                hitbox.clone(),
+            )
+            .build(ctx, &label, hotkey.clone()),
+            Btn::custom(
+                on.clone(),
+                on.color(RewriteColor::Change(
+                    Color::hex("#F2F2F2"),
+                    ctx.style().hovering_color,
+                )),
+                hitbox,
+            )
+            .build(ctx, &label, hotkey),
         )
-        .outline(ctx.style().outline_thickness, ctx.style().outline_color)
+        //.outline(ctx.style().outline_thickness, ctx.style().outline_color)
         .named(label)
     }
 
@@ -109,6 +136,7 @@ impl Checkbox {
         Checkbox::new(enabled, false_btn, true_btn).named(label)
     }
 
+    // TODO These should actually be radio buttons
     pub fn toggle<I: Into<String>>(
         ctx: &EventCtx,
         label: I,
@@ -162,4 +190,15 @@ impl WidgetImpl for Checkbox {
     fn draw(&self, g: &mut GfxCtx) {
         self.btn.draw(g);
     }
+}
+
+// TODO This should become a BtnBuilder style
+fn icon_and_text(ctx: &EventCtx, svg_path: &str, label: &str) -> GeomBatch {
+    let mut batch = GeomBatch::screenspace_svg(ctx.prerender, svg_path);
+    let horiz_pad = 8.0;
+    let txt = Text::from(Line(label))
+        .render_to_batch(ctx.prerender)
+        .translate(batch.get_dims().width + horiz_pad, 0.0);
+    batch.append(txt);
+    batch
 }
