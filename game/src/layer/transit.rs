@@ -6,7 +6,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D, Time};
-use map_model::{BusRouteID, PathConstraints, PathRequest, PathStep};
+use map_model::{BusRouteID, PathConstraints, PathStep};
 
 pub struct TransitNetwork {
     composite: Composite,
@@ -110,12 +110,8 @@ impl TransitNetwork {
                 if !show_trains && br.route_type == PathConstraints::Train {
                     continue;
                 }
-                for (bs1, bs2) in loop_pairs(&br.stops) {
-                    if let Some(path) = map.pathfind(PathRequest {
-                        start: map.get_bs(bs1).driving_pos,
-                        end: map.get_bs(bs2).driving_pos,
-                        constraints: br.route_type,
-                    }) {
+                for req in br.all_steps(map) {
+                    if let Some(path) = map.pathfind(req) {
                         for step in path.get_steps() {
                             if let PathStep::Lane(l) = step {
                                 colorer.add_l(*l, "routes");
@@ -281,14 +277,4 @@ impl ShowTransitRoute {
             bus_locations,
         }
     }
-}
-
-// TODO Use elsewhere
-fn loop_pairs<T: Copy>(list: &Vec<T>) -> Vec<(T, T)> {
-    let mut pairs = Vec::new();
-    for pair in list.windows(2) {
-        pairs.push((pair[0], pair[1]));
-    }
-    pairs.push((*list.last().unwrap(), list[0]));
-    pairs
 }
