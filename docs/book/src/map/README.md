@@ -79,3 +79,26 @@ messy and for now, most of these aren't quite guaranteed to be true.
   to border intersections -- if a car spawns on a highway along the border of
   the map, it may be forced to disappear on the opposite border of the map, if
   the highway happens to not have any exits within the map boundary.
+
+## Connectivity
+
+For a single mode, each lane is connected to two intersections. Turns connect
+two lanes. There are no turns between sidewalks and driving/bike/bus lanes.
+
+All buildings and parking lots have driveways. This must connect to a sidewalk,
+allowing pedestrians to enter/exit that object. The driveway OPTIONALLY
+connects to the nearest driveable lane. This allows cars to enter/exit that
+object for parking.
+
+Public transit stops are located somewhere on a sidewalk. They're associated
+with a driveable position where the bus or train stops. In the future, this
+will need to account for dedicated surface-level platforms and for underground
+transit stations, likely associated with a building.
+
+There's a concept of "parking blackholes." If you treat every road as
+bidirectional without access restrictions, then the graph is connected. But the
+more detailed view has to factor in one-way roads and things near the map
+border. These blackholes influence where cars will try to look for parking
+(since we don't want them entering a blackhole and getting stuck) and also, for
+temporary/unintentional reasons, where pedestrian<->bicycle transitions will
+happen.

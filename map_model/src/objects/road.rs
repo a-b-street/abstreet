@@ -374,8 +374,11 @@ impl Road {
                 "service" => 0,
                 // If you hit this error and the highway type doesn't represent a driveable road,
                 // you may want to instead filter out the OSM way entirely in
-                // convert_osm/src/osm_reader.rs's is_road().
-                _ => panic!("Unknown OSM highway {}", highway),
+                // convert_osm/src/extract.rs's is_road().
+                _ => panic!(
+                    "Unknown OSM highway {}. Other tags: {:?}",
+                    highway, self.osm_tags
+                ),
             }
         } else {
             0

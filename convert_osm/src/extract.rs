@@ -344,72 +344,61 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 }
 
 fn is_road(tags: &mut Tags, opts: &Options) -> bool {
+    // First deal with railways.
     if tags.is("railway", "light_rail") {
         return true;
     }
     if tags.is("railway", "rail") && opts.include_railroads {
         return true;
     }
-    // TODO Because trams overlap with roads, they're harder:
-    // https://github.com/dabreegster/abstreet/issues/141
+    // Explicitly need this to avoid overlapping geometry in Berlin.
     if tags.is("railway", "tram") {
         return false;
     }
-    if tags.is("area", "yes") {
-        return false;
-    }
 
-    if !tags.contains_key(osm::HIGHWAY) {
+    let highway = if let Some(x) = tags.get(osm::HIGHWAY) {
+        if x == "construction" {
+            // What exactly is under construction?
+            if let Some(x) = tags.get("construction") {
+                x
+            } else {
+                return false;
+            }
+        } else {
+            x
+        }
+    } else {
         return false;
-    }
+    };
 
-    // https://github.com/Project-OSRM/osrm-backend/blob/master/profiles/car.lua is another
-    // potential reference
-    if tags.is_any(
-        osm::HIGHWAY,
-        vec![
-            // List of non-car types from https://wiki.openstreetmap.org/wiki/Key:highway
-            // TODO Footways are very useful, but they need more work to associate with main roads
-            "footway",
-            "pedestrian",
-            "stairs",
-            "track",
-            "bus_guideway",
-            "escape",
-            "raceway",
-            "bridleway",
-            "steps",
-            "path",
-            "cycleway",
-            "proposed",
-            // more discovered manually
-            "abandoned",
-            "elevator",
-            "planned",
-            "razed",
-            "corridor",
-            "junction",
-            "bus_stop",
-            "no",
-            "platform",
-        ],
-    ) {
+    if !vec![
+        "living_street",
+        "motorway",
+        "motorway_link",
+        "primary",
+        "primary_link",
+        "residential",
+        "secondary",
+        "secondary_link",
+        "service",
+        "tertiary",
+        "tertiary_link",
+        "trunk",
+        "trunk_link",
+        "unclassified",
+    ]
+    .contains(&highway.as_ref())
+    {
         return false;
     }
 
     // Service roads can represent lots of things, most of which we don't want to keep yet. What's
     // allowed here is just based on what's been encountered so far in Seattle and Kraków.
-    if tags.is(osm::HIGHWAY, "service") {
-        if !tags.is("psv", "yes") && !tags.is("bus", "yes") {
-            return false;
-        }
-    }
-
-    if tags.is(osm::HIGHWAY, "construction")
-        && tags.is_any("construction", vec!["footway", "service"])
-    {
+    if highway == "service" && !tags.is("psv", "yes") && !tags.is("bus", "yes") {
         return false;
     }
+
+    // It's a road! Now fill in some possibly missing data.
 
     // If there's no parking data in OSM already, then assume no parking and mark that it's
     // inferred.
