@@ -3,9 +3,10 @@ use crate::common::Tab;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
+use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     Autocomplete, Btn, Composite, EventCtx, GfxCtx, Line, LinePlot, Outcome, PlotOptions, Series,
-    Widget,
+    TextExt, Widget,
 };
 use map_model::BusRouteID;
 
@@ -69,11 +70,36 @@ pub struct TransitRoutes {
 
 impl TransitRoutes {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let mut routes = Vec::new();
-        for r in app.primary.map.all_bus_routes() {
-            routes.push((r.full_name.clone(), r.id));
+        // Count total boardings/alightings per route
+        let mut boardings = Counter::new();
+        for list in app.primary.sim.get_analytics().passengers_boarding.values() {
+            for (_, r, _) in list {
+                boardings.inc(*r);
+            }
         }
-        // TODO Sort first by length, then lexicographically
+        let mut alightings = Counter::new();
+        for list in app
+            .primary
+            .sim
+            .get_analytics()
+            .passengers_alighting
+            .values()
+        {
+            for (_, r) in list {
+                alightings.inc(*r);
+            }
+        }
+
+        // Sort descending by count, but ascending by name. Hence the funny negation.
+        let mut routes: Vec<(isize, isize, String, BusRouteID)> = Vec::new();
+        for r in app.primary.map.all_bus_routes() {
+            routes.push((
+                -1 * (boardings.get(r.id) as isize),
+                -1 * (alightings.get(r.id) as isize),
+                r.full_name.clone(),
+                r.id,
+            ));
+        }
         routes.sort();
 
         let col = vec![
@@ -81,21 +107,33 @@ impl TransitRoutes {
             Line("Transit routes").small_heading().draw(ctx),
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/search.svg"),
-                Autocomplete::new(ctx, routes.iter().map(|(r, id)| (r.clone(), *id)).collect())
-                    .named("search"),
+                Autocomplete::new(
+                    ctx,
+                    routes
+                        .iter()
+                        .map(|(_, _, r, id)| (r.clone(), *id))
+                        .collect(),
+                )
+                .named("search"),
             ])
             .padding(8),
-            Widget::row(
+            // TODO Maybe a table instead
+            Widget::col(
                 routes
                     .into_iter()
-                    .map(|(r, id)| {
-                        Btn::text_fg(r)
-                            .build(ctx, id.to_string(), None)
-                            .margin_below(10)
+                    .map(|(boardings, alightings, name, id)| {
+                        Widget::row(vec![
+                            Btn::text_fg(name).build(ctx, id.to_string(), None),
+                            format!(
+                                "{} boardings, {} alightings",
+                                prettyprint_usize(-boardings as usize),
+                                prettyprint_usize(-alightings as usize)
+                            )
+                            .draw_text(ctx),
+                        ])
                     })
                     .collect(),
-            )
-            .flex_wrap(ctx, 80),
+            ),
         ];
 
         Box::new(TransitRoutes {
