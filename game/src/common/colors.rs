@@ -239,6 +239,16 @@ impl<'a> ColorNetwork<'a> {
         }
     }
 
+    pub fn add_l(&mut self, l: LaneID, color: Color) {
+        self.unzoomed
+            .push(color, self.map.get_parent(l).get_thick_polygon(self.map));
+        let lane = self.map.get_l(l);
+        self.zoomed.push(
+            color.alpha(0.4),
+            lane.lane_center_pts.make_polygons(lane.width),
+        );
+    }
+
     pub fn add_r(&mut self, r: RoadID, color: Color) {
         self.unzoomed
             .push(color, self.map.get_r(r).get_thick_polygon(self.map));

@@ -1,10 +1,11 @@
 use crate::app::App;
+use crate::common::ColorNetwork;
 use crate::helpers::ID;
 use crate::info::{header_btns, make_tabs, Details, Tab};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Btn, Color, EventCtx, Line, RewriteColor, Text, TextExt, Widget};
 use geom::{Circle, Distance, Time};
-use map_model::{BusRouteID, BusStopID, PathConstraints};
+use map_model::{BusRouteID, BusStopID, PathConstraints, PathStep};
 use sim::{AgentID, CarID};
 
 pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
@@ -21,7 +22,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
 
     let all_arrivals = &sim.get_analytics().bus_arrivals;
     for r in app.primary.map.get_routes_serving_stop(id) {
-        let buses = app.primary.sim.status_of_buses(r.id);
+        let buses = app.primary.sim.status_of_buses(r.id, &app.primary.map);
         if buses.is_empty() {
             rows.push(format!("Route {}: no buses running", r.short_name).draw_text(ctx));
         } else {
@@ -164,7 +165,8 @@ fn bus_header(
 }
 
 pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteID) -> Vec<Widget> {
-    let route = app.primary.map.get_br(id);
+    let map = &app.primary.map;
+    let route = map.get_br(id);
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
@@ -179,7 +181,8 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
             .draw(ctx),
     );
 
-    let buses = app.primary.sim.status_of_buses(id);
+    let buses = app.primary.sim.status_of_buses(id, map);
+    let mut bus_locations = Vec::new();
     if buses.is_empty() {
         if route.route_type == PathConstraints::Bus {
             rows.push("No buses running".draw_text(ctx));
@@ -187,11 +190,12 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
             rows.push("No trains running".draw_text(ctx));
         }
     } else {
-        for (bus, _, _) in buses {
+        for (bus, _, _, pt) in buses {
             rows.push(Btn::text_fg(bus.to_string()).build_def(ctx, None));
             details
                 .hyperlinks
                 .insert(bus.to_string(), Tab::BusStatus(bus));
+            bus_locations.push(pt);
         }
     }
 
@@ -228,8 +232,21 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     );
 
     rows.push(format!("{} stops", route.stops.len()).draw_text(ctx));
+    if let Some(l) = route.start_border {
+        let i = map.get_i(map.get_l(l).src_i);
+        let name = format!("Starts at {}", i.name(map));
+        rows.push(Widget::row(vec![
+            Btn::svg(
+                "system/assets/timeline/goal_pos.svg",
+                RewriteColor::Change(Color::WHITE, app.cs.hovering),
+            )
+            .build(ctx, &name, None),
+            name.clone().draw_text(ctx),
+        ]));
+        details.warpers.insert(name, ID::Intersection(i.id));
+    }
     for (idx, bs) in route.stops.iter().enumerate() {
-        let bs = app.primary.map.get_bs(*bs);
+        let bs = map.get_bs(*bs);
         let name = format!("Stop {}: {}", idx + 1, bs.name);
         rows.push(Widget::row(vec![
             Btn::svg(
@@ -249,6 +266,61 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
             .draw(ctx),
         ]));
         details.warpers.insert(name, ID::BusStop(bs.id));
+    }
+    if let Some(l) = route.end_border {
+        let i = map.get_i(map.get_l(l).dst_i);
+        let name = format!("Ends at {}", i.name(map));
+        rows.push(Widget::row(vec![
+            Btn::svg(
+                "system/assets/timeline/goal_pos.svg",
+                RewriteColor::Change(Color::WHITE, app.cs.hovering),
+            )
+            .build(ctx, &name, None),
+            name.clone().draw_text(ctx),
+        ]));
+        details.warpers.insert(name, ID::Intersection(i.id));
+    }
+
+    // Draw the route, label stops, and show location of buses
+    {
+        let mut colorer = ColorNetwork::new(app);
+        for req in route.all_steps(map) {
+            for step in map.pathfind(req).unwrap().get_steps() {
+                if let PathStep::Lane(l) = step {
+                    colorer.add_l(*l, app.cs.unzoomed_bus);
+                }
+            }
+        }
+        details.unzoomed.append(colorer.unzoomed);
+        details.zoomed.append(colorer.zoomed);
+
+        for pt in bus_locations {
+            details.unzoomed.push(
+                Color::BLUE,
+                Circle::new(pt, Distance::meters(20.0)).to_polygon(),
+            );
+            details.zoomed.push(
+                Color::BLUE.alpha(0.5),
+                Circle::new(pt, Distance::meters(5.0)).to_polygon(),
+            );
+        }
+
+        for bs in &route.stops {
+            let bs = map.get_bs(*bs);
+            details.unzoomed.append(
+                Text::from(Line(&bs.name))
+                    .with_bg()
+                    .render_to_batch(ctx.prerender)
+                    .centered_on(bs.sidewalk_pos.pt(map)),
+            );
+            details.zoomed.append(
+                Text::from(Line(&bs.name))
+                    .with_bg()
+                    .render_to_batch(ctx.prerender)
+                    .scale(0.1)
+                    .centered_on(bs.sidewalk_pos.pt(map)),
+            );
+        }
     }
 
     rows

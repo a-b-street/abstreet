@@ -25,7 +25,7 @@ use ezgui::{
 pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use geom::{Polygon, Time};
 use map_model::MapEdits;
-use sim::{AgentType, VehicleType};
+use sim::AgentType;
 pub use speed::TimeWarpScreen;
 pub use speed::{SpeedControls, TimePanel};
 
@@ -423,12 +423,6 @@ impl ContextualActions for Actions {
                         actions.push((Key::E, "edit lane".to_string()));
                     }
                 }
-                ID::Car(c) => {
-                    if c.1 == VehicleType::Bus || c.1 == VehicleType::Train {
-                        // TODO Hide the button if the layer is open
-                        actions.push((Key::R, "show route".to_string()));
-                    }
-                }
                 ID::Building(_) => {
                     if app.opts.dev {
                         actions.push((Key::I, "explore isochrone from here".to_string()));
@@ -470,15 +464,6 @@ impl ContextualActions for Actions {
                 Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
                 Box::new(LaneEditor::new(ctx, app, l, self.gameplay.clone())),
             ),
-            (ID::Car(c), "show route") => {
-                *close_panel = false;
-                app.layer = Some(Box::new(crate::layer::transit::ShowTransitRoute::new(
-                    ctx,
-                    app,
-                    app.primary.sim.bus_route_id(c).unwrap(),
-                )));
-                Transition::Keep
-            }
             (ID::Building(b), "explore isochrone from here") => {
                 Transition::Push(IsochroneViewer::new(ctx, app, b))
             }
