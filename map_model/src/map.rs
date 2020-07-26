@@ -431,7 +431,7 @@ impl Map {
     pub fn all_outgoing_borders(&self) -> Vec<&Intersection> {
         let mut result: Vec<&Intersection> = Vec::new();
         for i in &self.intersections {
-            if i.is_border() && !i.incoming_lanes.is_empty() {
+            if i.is_outgoing_border() {
                 result.push(i);
             }
         }

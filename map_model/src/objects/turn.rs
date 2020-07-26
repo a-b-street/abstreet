@@ -3,6 +3,7 @@ use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+use std::error::Error;
 use std::fmt;
 
 // Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
@@ -232,7 +233,11 @@ impl TurnGroup {
                 members.iter().map(|t| &map.get_t(*t).geom).collect(),
                 from,
                 to,
-            );
+            )
+            .expect(&format!(
+                "Weird turn group geometry near {}",
+                map.get_i(i).orig_id
+            ));
             let turn_types: BTreeSet<TurnType> =
                 members.iter().map(|t| map.get_t(*t).turn_type).collect();
             if turn_types.len() > 1 {
@@ -340,7 +345,7 @@ fn turn_group_geom(
     polylines: Vec<&PolyLine>,
     from: DirectedRoadID,
     to: DirectedRoadID,
-) -> PolyLine {
+) -> Result<PolyLine, Box<dyn Error>> {
     let num_pts = polylines[0].points().len();
     for pl in &polylines {
         if num_pts != pl.points().len() {
@@ -348,7 +353,7 @@ fn turn_group_geom(
                 "TurnGroup between {} and {} can't make nice geometry",
                 from, to
             );
-            return polylines[0].clone();
+            return Ok(polylines[0].clone());
         }
     }
 
@@ -358,5 +363,5 @@ fn turn_group_geom(
             &polylines.iter().map(|pl| pl.points()[idx]).collect(),
         ));
     }
-    PolyLine::must_new(pts)
+    PolyLine::deduping_new(pts)
 }
