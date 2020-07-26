@@ -10,11 +10,11 @@ Grab a pre-built binary release -- updated every Sunday, announced at
 [r/abstreet](http://old.reddit.com/r/abstreet):
 
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.2.4/abstreet_windows_v0_2_4.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.2.5/abstreet_windows_v0_2_5.zip
   - Unzip the folder, then run `play_abstreet.bat`. You'll probably getting a
     warning about running software from an unknown publisher.
 - Mac:
-  https://github.com/dabreegster/abstreet/releases/download/v0.2.4/abstreet_mac_v0_2_4.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.2.5/abstreet_mac_v0_2_5.zip
   - Unzip the directory, then run `play_abstreet.sh`.
   - If that just opens a text file instead of running the game, then instead
     open terminal, `cd` to the directory you just unzipped. Then do:
@@ -22,7 +22,7 @@ Grab a pre-built binary release -- updated every Sunday, announced at
   - [Help needed](https://github.com/dabreegster/abstreet/issues/66) to package
     this as a Mac .app, to make this process simpler
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.2.4/abstreet_linux_v0_2_4.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.2.5/abstreet_linux_v0_2_5.zip
   - Unzip the directory, then run `play_abstreet.sh`.
 - FreeBSD: https://www.freshports.org/games/abstreet/ (thanks to
   [Yuri](https://github.com/yurivict))

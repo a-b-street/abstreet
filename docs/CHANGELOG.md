@@ -522,3 +522,11 @@ changes here.
 - buses, trains, and passengers on them are now properly distinguished in different stats
 - include krakow and berlin in release
 - buildings with holes in the middle are now rendered properly
+
+0.2.5
+
+- cars pick lanes better
+- overhaul bus/stop/route info panels
+- UI: better autocomplete, commuter pattern improvements by Michael, toggles instead of checkboxes, contours for heatmaps, edit mode loader revamp
+- internal refactors: turn creation, osm tags, osm parsing
+- import living streets from OSM as restricted-access zones, and other importer tweaks for berlin, krakow, san jose, sydney
