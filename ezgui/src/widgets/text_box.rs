@@ -63,7 +63,7 @@ impl WidgetImpl for TextBox {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, _output: &mut WidgetOutput) {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut WidgetOutput) {
         if ctx.redo_mouseover() {
             if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                 self.hovering = ScreenRectangle::top_left(self.top_left, self.dims).contains(pt);

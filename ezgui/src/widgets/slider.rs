@@ -204,7 +204,7 @@ impl WidgetImpl for Slider {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, _output: &mut WidgetOutput) {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut WidgetOutput) {
         if self.inner_event(ctx) {
             self.recalc(ctx);
         }
@@ -371,7 +371,7 @@ impl WidgetImpl for AreaSlider {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, _output: &mut WidgetOutput) {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut WidgetOutput) {
         if self.inner_event(ctx) {
             self.recalc(ctx);
         }

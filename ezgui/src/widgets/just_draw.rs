@@ -59,7 +59,7 @@ impl WidgetImpl for JustDraw {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, _ctx: &mut EventCtx, _output: &mut WidgetOutput) {}
+    fn event(&mut self, _: &mut EventCtx, _: &mut WidgetOutput) {}
 
     fn draw(&self, g: &mut GfxCtx) {
         g.redraw_at(self.top_left, &self.draw);
@@ -94,7 +94,7 @@ impl WidgetImpl for DrawWithTooltips {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, _ctx: &mut EventCtx, _output: &mut WidgetOutput) {}
+    fn event(&mut self, _: &mut EventCtx, _: &mut WidgetOutput) {}
 
     fn draw(&self, g: &mut GfxCtx) {
         g.redraw_at(self.top_left, &self.draw);
