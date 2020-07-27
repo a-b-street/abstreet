@@ -543,6 +543,56 @@ impl PolyLine {
         Polygon::new(&pts)
     }
 
+    pub fn make_double_arrow(&self, thickness: Distance, cap: ArrowCap) -> Polygon {
+        let head_size = thickness * 2.0;
+        let triangle_height = head_size / 2.0_f64.sqrt();
+
+        if self.length() < triangle_height * 2.0 + EPSILON_DIST {
+            // Just give up and make the thick line.
+            return self.make_polygons(thickness);
+        }
+        let slice = self.exact_slice(triangle_height, self.length() - triangle_height);
+
+        let angle = slice.last_pt().angle_to(self.last_pt());
+        let corner1 = self
+            .last_pt()
+            .project_away(head_size, angle.rotate_degs(-135.0));
+        let corner2 = self
+            .last_pt()
+            .project_away(head_size, angle.rotate_degs(135.0));
+
+        let mut pts = slice.shift_with_sharp_angles(thickness / 2.0, MITER_THRESHOLD);
+        match cap {
+            ArrowCap::Triangle => {
+                pts.push(corner2);
+                pts.push(self.last_pt());
+                pts.push(corner1);
+            }
+        }
+        let mut side2 = slice.shift_with_sharp_angles(-thickness / 2.0, MITER_THRESHOLD);
+        side2.reverse();
+        pts.extend(side2);
+
+        let angle = self.first_pt().angle_to(slice.first_pt());
+        let corner3 = self
+            .first_pt()
+            .project_away(head_size, angle.rotate_degs(-45.0));
+        let corner4 = self
+            .first_pt()
+            .project_away(head_size, angle.rotate_degs(45.0));
+        match cap {
+            ArrowCap::Triangle => {
+                pts.push(corner3);
+                pts.push(self.first_pt());
+                pts.push(corner4);
+            }
+        }
+
+        pts.push(pts[0]);
+        pts.dedup();
+        Polygon::new(&pts)
+    }
+
     pub fn dashed_arrow(
         &self,
         width: Distance,
