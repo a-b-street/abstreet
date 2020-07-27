@@ -280,8 +280,10 @@ impl CommuterPatterns {
                             .centered_on(compare_to_block.shape.polylabel());
 
                         let dims = label.get_dims();
-                        let label_bg =  Polygon::rounded_rectangle(dims.width + 70.0, dims.height + 20.0, None);
-                        let bg = GeomBatch::from(vec![(Color::WHITE, label_bg)]).centered_on(compare_to_block.shape.polylabel());
+                        let label_bg =
+                            Polygon::rounded_rectangle(dims.width + 70.0, dims.height + 20.0, None);
+                        let bg = GeomBatch::from(vec![(Color::WHITE, label_bg)])
+                            .centered_on(compare_to_block.shape.polylabel());
                         batch.append(bg);
                         batch.append(label);
                     }
@@ -538,11 +540,7 @@ fn build_shape_for_border(
 ) -> Polygon {
     let start = border.polygon.center();
 
-    let road = match border_type {
-        BorderType::Incoming | BorderType::Both => map.get_parent(border.outgoing_lanes[0]),
-        BorderType::Outgoing => map.get_parent(border.incoming_lanes[0]),
-    };
-
+    let road = map.get_r(*border.roads.iter().next().unwrap());
     let center_line = road.get_current_center(map);
     let angle = if road.src_i == border.id {
         center_line.first_line().angle().opposite()
@@ -555,14 +553,13 @@ fn build_shape_for_border(
     let end = start.project_away(length, angle);
 
     match border_type {
-        BorderType::Incoming => PolyLine::new(vec![end, start])
-            .unwrap()
-            .make_arrow(thickness, geom::ArrowCap::Triangle),
-        BorderType::Outgoing => PolyLine::new(vec![start, end])
-            .unwrap()
-            .make_arrow(thickness, geom::ArrowCap::Triangle),
-        BorderType::Both => PolyLine::new(vec![start, end])
-            .unwrap()
+        BorderType::Incoming => {
+            PolyLine::must_new(vec![end, start]).make_arrow(thickness, geom::ArrowCap::Triangle)
+        }
+        BorderType::Outgoing => {
+            PolyLine::must_new(vec![start, end]).make_arrow(thickness, geom::ArrowCap::Triangle)
+        }
+        BorderType::Both => PolyLine::must_new(vec![start, end])
             .make_double_arrow(thickness, geom::ArrowCap::Triangle),
     }
 }
