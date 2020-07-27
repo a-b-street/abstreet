@@ -6,6 +6,8 @@ use geo::algorithm::contains::Contains;
 use geo::prelude::{ClosestPoint, EuclideanDistance};
 use std::collections::HashMap;
 
+// TODO Maybe use https://crates.io/crates/spatial-join proximity maps
+
 pub struct FindClosest<K> {
     // TODO maybe any type of geo:: thing
     geometries: HashMap<K, geo::LineString<f64>>,

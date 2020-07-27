@@ -8,7 +8,7 @@ use ezgui::{
     hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, TextExt, Warper, Widget,
 };
 use geom::Pt2D;
-use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
+use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
 use std::collections::BTreeMap;
 
@@ -103,6 +103,8 @@ impl DebugWarp {
                     Line("rip, "),
                     Line("P").fg(c),
                     Line("erson"),
+                    Line("R").fg(c),
+                    Line("oute"),
                 ])
                 .draw(ctx),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
@@ -166,6 +168,22 @@ fn warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
             'r' => {
                 let r = app.primary.map.maybe_get_r(RoadID(idx))?;
                 ID::Lane(r.children_forwards[0].0)
+            }
+            'R' => {
+                let r = BusRouteID(idx);
+                app.primary.map.maybe_get_br(r)?;
+                return Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
+                    // Other states pretty much don't use info panels.
+                    if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
+                        let mut actions = s.contextual_actions();
+                        s.controls.common.as_mut().unwrap().launch_info_panel(
+                            ctx,
+                            app,
+                            Tab::BusRoute(r),
+                            &mut actions,
+                        );
+                    }
+                })));
             }
             'l' => ID::Lane(LaneID(idx)),
             'i' => ID::Intersection(IntersectionID(idx)),

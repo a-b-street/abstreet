@@ -439,7 +439,11 @@ impl Road {
         if self.osm_tags.is("access", "private") {
             EnumSet::new()
         } else if self.osm_tags.is(osm::HIGHWAY, "living_street") {
-            PathConstraints::Pedestrian | PathConstraints::Bike
+            let mut allow = PathConstraints::Pedestrian | PathConstraints::Bike;
+            if self.osm_tags.is("psv", "yes") || self.osm_tags.is("bus", "yes") {
+                allow |= PathConstraints::Bus;
+            }
+            allow
         } else {
             EnumSet::all()
         }

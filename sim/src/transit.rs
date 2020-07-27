@@ -261,13 +261,11 @@ impl TransitSimState {
                 bus.state = BusState::Done;
                 for (person, maybe_stop2) in bus.passengers.drain(..) {
                     if let Some(stop2) = maybe_stop2 {
-                        // TODO Pre-existing bug...
-                        println!(
+                        panic!(
                             "{} fell asleep on {} and just rode off-map, but they were supposed \
                              to hop off at {}",
                             person, bus.car, stop2
                         );
-                        continue;
                     }
                     trips.transit_rider_reached_border(now, person, id, map, parking, scheduler);
                 }
@@ -296,7 +294,14 @@ impl TransitSimState {
                     } else {
                         let on = stop.driving_pos.lane();
                         route.active_vehicles.remove(&id);
-                        assert!(bus.passengers.is_empty());
+                        // TODO Bug.
+                        for (person, stop2) in &bus.passengers {
+                            println!(
+                                "{} of {} is vanishing at its last stop, but {} is still riding \
+                                 until {:?}",
+                                bus.car, bus.route, person, stop2
+                            );
+                        }
                         bus.state = BusState::Done;
                         Router::vanish_bus(id, on, map)
                     }

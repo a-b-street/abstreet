@@ -1,8 +1,8 @@
 use crate::pathfind::driving::VehiclePathfinder;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::{
-    BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest,
-    PathStep, Position,
+    BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathConstraints,
+    PathRequest, PathStep, Position,
 };
 use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
 use geom::{Distance, Speed};
@@ -70,8 +70,8 @@ impl SidewalkPathfinder {
         }
         if use_transit {
             // Add a node for each bus stop.
-            for stop in map.all_bus_stops().values() {
-                nodes.get_or_insert(WalkingNode::RideBus(stop.id));
+            for bs in map.all_bus_stops().keys() {
+                nodes.get_or_insert(WalkingNode::RideBus(*bs));
             }
             for i in map.all_outgoing_borders() {
                 // We could filter for those with sidewalks, but eh
@@ -137,37 +137,70 @@ impl SidewalkPathfinder {
             self.nodes.get(WalkingNode::end_transit(end, map)),
         )?;
 
-        let mut nodes = self.nodes.translate(&raw_path);
+        let nodes = self.nodes.translate(&raw_path);
+        if false {
+            println!("should_use_transit from {} to {}?", start, end);
+            for n in &nodes {
+                println!("- {:?}", n);
+            }
+        }
+
         let mut first_stop = None;
+        let mut last_stop = None;
+        let mut possible_routes: Vec<&BusRoute> = Vec::new();
         for n in &nodes {
-            if let WalkingNode::RideBus(stop) = n {
-                first_stop = Some(*stop);
-                break;
-            }
-        }
-        let first_stop = first_stop?;
-        let possible_routes = map.get_routes_serving_stop(first_stop);
-
-        nodes.reverse();
-        // Should we ride that first bus off-map?
-        if let (WalkingNode::LeaveMap(_), WalkingNode::RideBus(stop2)) = (nodes[0], nodes[1]) {
-            if let Some(route) = possible_routes.iter().find(|r| r.stops.contains(&stop2)) {
-                // The only way there'd only be one RideBus node in the path is this case. If
-                // there's a transfer, there are at least two stops.
-                return Some((first_stop, None, route.id));
-            }
-        }
-
-        for n in nodes {
-            if let WalkingNode::RideBus(stop2) = n {
-                // If there's no route, this actually implies a transfer! TODO Handle that.
-                if let Some(route) = possible_routes.iter().find(|r| r.stops.contains(&stop2)) {
-                    assert_ne!(first_stop, stop2);
-                    return Some((first_stop, Some(stop2), route.id));
+            match n {
+                WalkingNode::RideBus(stop) => {
+                    if first_stop.is_none() {
+                        first_stop = Some(*stop);
+                        possible_routes = map.get_routes_serving_stop(*stop);
+                        assert!(!possible_routes.is_empty());
+                    } else {
+                        // Keep riding the same route?
+                        // We need to do this check, because some transfers might be instantaneous
+                        // at the same stop and involve no walking.
+                        let mut filtered = possible_routes.clone();
+                        filtered.retain(|r| r.stops.contains(stop));
+                        if filtered.is_empty() {
+                            // Aha, a transfer!
+                            return Some((
+                                first_stop.unwrap(),
+                                Some(last_stop.expect("impossible transit transfer")),
+                                possible_routes[0].id,
+                            ));
+                        }
+                        last_stop = Some(*stop);
+                        possible_routes = filtered;
+                    }
+                }
+                WalkingNode::LeaveMap(i) => {
+                    // Make sure the route actually leaves via the correct border!
+                    if let Some(r) = possible_routes.iter().find(|r| {
+                        r.end_border
+                            .map(|l| map.get_l(l).dst_i == *i)
+                            .unwrap_or(false)
+                    }) {
+                        return Some((first_stop.unwrap(), None, r.id));
+                    }
+                    // We can get close to the border, but should hop off at some stop.
+                    return Some((
+                        first_stop.unwrap(),
+                        Some(last_stop.expect("impossible transit transfer")),
+                        possible_routes[0].id,
+                    ));
+                }
+                WalkingNode::SidewalkEndpoint(_, _) => {
+                    if let Some(stop1) = first_stop {
+                        return Some((
+                            stop1,
+                            Some(last_stop.expect("impossible transit transfer")),
+                            possible_routes[0].id,
+                        ));
+                    }
                 }
             }
         }
-        unreachable!()
+        None
     }
 }
 
@@ -278,10 +311,6 @@ fn transit_input_graph(
         }
 
         if let Some(l) = route.end_border {
-            // TODO Various bugs still.
-            if true {
-                continue;
-            }
             let graph = match route.route_type {
                 PathConstraints::Bus => bus_graph,
                 PathConstraints::Train => train_graph,
@@ -302,30 +331,7 @@ fn transit_input_graph(
                     nodes.get(WalkingNode::LeaveMap(border.id)),
                     driving_cost,
                 );
-                // There are potentially two SidewalkEndpoints where someone might try to
-                // vanish
-                if let Some(l) = border
-                    .get_incoming_lanes(map, PathConstraints::Pedestrian)
-                    .next()
-                {
-                    used_border_nodes.insert(border.id);
-                    input_graph.add_edge(
-                        nodes.get(WalkingNode::LeaveMap(border.id)),
-                        nodes.get(WalkingNode::SidewalkEndpoint(l, true)),
-                        driving_cost,
-                    );
-                }
-                if let Some(l) = border
-                    .get_outgoing_lanes(map, PathConstraints::Pedestrian)
-                    .get(0)
-                {
-                    used_border_nodes.insert(border.id);
-                    input_graph.add_edge(
-                        nodes.get(WalkingNode::LeaveMap(border.id)),
-                        nodes.get(WalkingNode::SidewalkEndpoint(*l, false)),
-                        driving_cost,
-                    );
-                }
+                used_border_nodes.insert(border.id);
             } else {
                 panic!(
                     "No bus route from {} to end of {} now for {}! Prevent this edit",

@@ -215,6 +215,10 @@ impl Map {
         self.traffic_signals.get(&id)
     }
 
+    pub fn maybe_get_br(&self, route: BusRouteID) -> Option<&BusRoute> {
+        self.bus_routes.get(route.0)
+    }
+
     pub fn get_r(&self, id: RoadID) -> &Road {
         &self.roads[id.0]
     }
