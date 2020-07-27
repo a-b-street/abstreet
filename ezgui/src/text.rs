@@ -333,6 +333,9 @@ impl Text {
             max_width = max_width.max(line_dims.width);
         }
 
+        let spaceholder = Polygon::rectangle(max_width, y);
+        output_batch.push(Color::BLACK.alpha(0.01), spaceholder);
+
         if let Some(c) = self.bg_color {
             output_batch.push(c, Polygon::rectangle(max_width, y));
         }

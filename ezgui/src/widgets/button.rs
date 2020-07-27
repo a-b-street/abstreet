@@ -392,9 +392,9 @@ impl BtnBuilder {
                 const HORIZ_PADDING: f64 = 30.0;
                 const VERT_PADDING: f64 = 10.0;
 
-                let dims = text.size(ctx);
+                // let dims = text.size(ctx);
                 let txt_batch = text.render_ctx(ctx);
-                // let dims = txt_batch.get_dims();
+                let dims = txt_batch.get_dims();
                 println!("label: {}, dims: {:?}", label, dims);
                 let geom = Polygon::rounded_rectangle(
                     dims.width + 2.0 * HORIZ_PADDING,
