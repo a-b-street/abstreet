@@ -211,6 +211,15 @@ impl CommuterPatterns {
 
                 batch.push(Color::BLACK.alpha(0.5), base_block.shape.clone());
 
+                // Draw outline for Locked Selection
+                match block_selection {
+                    BlockSelection::Locked { .. } => {
+                        let outline = base_block.shape.to_outline(Distance::meters(10.0)).unwrap();
+                        batch.push(Color::BLACK, outline);
+                    }
+                    _ => {}
+                };
+
                 {
                     // Indicate direction over current block
                     let (icon_name, icon_scale) = if self.filter.from_block {
@@ -243,15 +252,6 @@ impl CommuterPatterns {
                         other.shape.clone(),
                     );
                 }
-
-                // Draw outline for Locked Selection
-                match block_selection {
-                    BlockSelection::Locked { .. } => {
-                        let outline = base_block.shape.to_outline(Distance::meters(10.0)).unwrap();
-                        batch.push(Color::BLACK, outline);
-                    }
-                    _ => {}
-                };
 
                 // While selection is locked, draw an overlay with compare_to information for the
                 // hovered block
