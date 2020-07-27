@@ -129,7 +129,7 @@ impl FanChart {
             p99.reverse();
             band.extend(transform(p99));
             band.push(band[0]);
-            batch.push(s.color.alpha(0.5), Polygon::new(&band));
+            batch.push(s.color.alpha(0.5), Polygon::buggy_new(band));
 
             batch.push(
                 s.color,

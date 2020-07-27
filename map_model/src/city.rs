@@ -1,5 +1,5 @@
 use crate::{AreaType, Map};
-use geom::{LonLat, Polygon};
+use geom::{LonLat, Polygon, Ring};
 use serde::{Deserialize, Serialize};
 
 // TODO Ah we could also stash the friendly names here!
@@ -25,7 +25,10 @@ impl City {
                 name
             )))
             .unwrap();
-            (name, Polygon::new(&huge_map.get_gps_bounds().convert(&pts)))
+            (
+                name,
+                Ring::must_new(huge_map.get_gps_bounds().convert(&pts)).to_polygon(),
+            )
         })
         .collect::<Vec<_>>();
         // Just a sort of z-ordering hack so that the largest encompassing region isn't first

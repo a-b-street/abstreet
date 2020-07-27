@@ -5,7 +5,7 @@ use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
     VerticalAlignment, Widget,
 };
-use geom::{Circle, Distance, LonLat, Polygon, Pt2D};
+use geom::{Circle, Distance, LonLat, Pt2D, Ring};
 use std::fs::File;
 use std::io::{Error, Write};
 
@@ -118,7 +118,7 @@ impl State for PolygonEditor {
             );
         }
         if pts.len() >= 3 {
-            g.draw_polygon(POLYGON_COLOR, &Polygon::new(&pts));
+            g.draw_polygon(POLYGON_COLOR, &Ring::must_new(pts.clone()).to_polygon());
         }
         for (idx, pt) in pts.iter().enumerate() {
             let color = if Some(idx) == self.mouseover_pt {

@@ -6,7 +6,7 @@ mod split_ways;
 mod srtm;
 
 use abstutil::Timer;
-use geom::{Distance, FindClosest, GPSBounds, LonLat, Polygon, Pt2D};
+use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
 use map_model::raw::{OriginalBuilding, RawMap};
 use map_model::MapConfig;
 
@@ -66,7 +66,7 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     if let Some(ref path) = opts.clip {
         let pts = LonLat::read_osmosis_polygon(path.to_string()).unwrap();
         let gps_bounds = GPSBounds::from(pts.clone());
-        map.boundary_polygon = Polygon::new(&gps_bounds.convert(&pts));
+        map.boundary_polygon = Ring::must_new(gps_bounds.convert(&pts)).to_polygon();
         map.gps_bounds = gps_bounds;
     }
 

@@ -210,12 +210,12 @@ fn make_object(
     let mut color = Color::RED.alpha(0.8);
     let polygon = if pts.len() == 1 {
         Circle::new(pts[0], RADIUS).to_polygon()
-    } else if pts[0] == *pts.last().unwrap() {
+    } else if let Ok(ring) = Ring::new(pts.clone()) {
         if attribs.get("spatial_type") == Some(&"Polygon".to_string()) {
             color = cs.rotating_color_plot(obj_idx).alpha(0.8);
-            Polygon::new(&pts)
+            ring.to_polygon()
         } else {
-            Ring::must_new(pts).make_polygons(THICKNESS)
+            ring.to_outline(THICKNESS)
         }
     } else {
         let backup = pts[0];

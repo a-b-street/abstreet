@@ -462,7 +462,7 @@ impl Marker {
             );
             batch.unioned_polygon()
         } else {
-            let poly = Polygon::new(&pts);
+            let poly = Ring::must_new(pts.clone()).to_polygon();
             batch.push(Color::RED.alpha(0.8), poly.clone());
             if let Ok(o) = poly.to_outline(Distance::meters(1.0)) {
                 batch.push(Color::RED, o);
@@ -502,7 +502,10 @@ impl Marker {
                     .centered_on(self.pts[0]),
             );
         } else {
-            batch.push(app.cs.hovering, Polygon::new(&self.pts));
+            batch.push(
+                app.cs.hovering,
+                Ring::must_new(self.pts.clone()).to_polygon(),
+            );
             // TODO Refactor plz
             batch.append(
                 Text::from(Line(&self.event))

@@ -99,18 +99,29 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                     complicated_turn_restrictions: Vec::new(),
                 },
             ));
-        } else if is_bldg(&way.tags) {
-            // TODO Also do something like this in reader?
-            let mut deduped = way.pts.clone();
-            deduped.dedup();
-            if deduped.len() < 3 {
-                continue;
-            }
+            continue;
+        } else if way.tags.is("highway", "service") {
+            // If we got here, is_road didn't interpret it as a normal road
+            map.parking_aisles.push(way.pts.clone());
+        } else if way.tags.is("natural", "coastline") {
+            coastline_groups.push((id, way.pts.clone()));
+            continue;
+        }
 
+        // All the other cases we care about are areas.
+        let mut deduped = way.pts.clone();
+        deduped.dedup();
+        let polygon = if let Ok(ring) = Ring::new(deduped) {
+            ring.to_polygon()
+        } else {
+            continue;
+        };
+
+        if is_bldg(&way.tags) {
             map.buildings.insert(
                 OriginalBuilding { osm_way_id: id.0 },
                 RawBuilding {
-                    polygon: Polygon::new(&deduped),
+                    polygon,
                     public_garage_name: None,
                     num_parking_spots: 0,
                     amenities: get_bldg_amenities(&way.tags),
@@ -118,37 +129,24 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 },
             );
         } else if let Some(at) = get_area_type(&way.tags) {
-            if way.pts.len() < 3 {
-                continue;
-            }
             map.areas.push(RawArea {
                 area_type: at,
                 osm_id: id.0,
-                polygon: Polygon::new(&way.pts),
+                polygon,
                 osm_tags: way.tags.clone(),
             });
-        } else if way.tags.is("natural", "coastline") {
-            coastline_groups.push((id, way.pts.clone()));
         } else if way.tags.is("amenity", "parking") {
-            if way.pts.len() < 3 {
-                continue;
-            }
             // TODO Verify parking = surface or handle other cases?
             map.parking_lots.push(RawParkingLot {
-                polygon: Polygon::new(&way.pts),
+                polygon,
                 osm_id: id.0,
             });
-        } else if way.tags.is("highway", "service") {
-            // If we got here, is_road didn't interpret it as a normal road
-            map.parking_aisles.push(way.pts.clone());
         } else if way.tags.is("historic", "memorial") {
-            if way.pts[0] == *way.pts.last().unwrap() {
-                memorial_areas.push(Polygon::new(&way.pts));
-            }
+            memorial_areas.push(polygon);
         }
     }
 
-    let boundary = Ring::must_new(map.boundary_polygon.points().clone());
+    let boundary = map.boundary_polygon.clone().into_ring();
 
     let mut amenity_areas: Vec<(String, String, Polygon)> = Vec::new();
     // Vehicle position (stop) -> pedestrian position (platform)
@@ -253,9 +251,8 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                     continue;
                 }
                 if let Member::Way(w) = member {
-                    let pts = &doc.ways[w].pts;
-                    if pts[0] == *pts.last().unwrap() && pts.len() >= 3 {
-                        amenity_areas.push((name.clone(), amenity.clone(), Polygon::new(pts)));
+                    if let Ok(ring) = Ring::new(doc.ways[w].pts.clone()) {
+                        amenity_areas.push((name.clone(), amenity.clone(), ring.to_polygon()));
                     }
                 }
             }
@@ -521,8 +518,8 @@ fn glue_multipolygon(
     // First deal with all of the closed loops.
     let mut polygons: Vec<Polygon> = Vec::new();
     pts_per_way.retain(|(_, pts)| {
-        if pts[0] == *pts.last().unwrap() {
-            polygons.push(Polygon::new(pts));
+        if let Ok(ring) = Ring::new(pts.clone()) {
+            polygons.push(ring.to_polygon());
             false
         } else {
             true
@@ -566,17 +563,17 @@ fn glue_multipolygon(
         }
     }
 
-    if result[0] == *result.last().unwrap() {
-        polygons.push(Polygon::new(&result));
+    result.dedup();
+    if let Ok(ring) = Ring::new(result.clone()) {
+        polygons.push(ring.to_polygon());
         return polygons;
     }
-    result.dedup();
     if let Some(poly) = glue_to_boundary(PolyLine::must_new(result.clone()), boundary) {
         polygons.push(poly);
     } else {
         // Give up and just connect the ends directly.
         result.push(result[0]);
-        polygons.push(Polygon::new(&result));
+        polygons.push(Ring::must_new(result).to_polygon());
     }
 
     polygons
@@ -601,8 +598,7 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
         trimmed_pts.pop();
         trimmed_pts.extend(boundary_glue.reversed().into_points());
     }
-    assert_eq!(trimmed_pts[0], *trimmed_pts.last().unwrap());
-    Some(Polygon::new(&trimmed_pts))
+    Some(Ring::must_new(trimmed_pts).to_polygon())
 }
 
 fn extract_route(
@@ -764,9 +760,11 @@ fn multipoly_geometry(
     }
     if inner.is_empty() {
         if outer.len() > 1 {
-            Ok(Polygon::union_all(outer.iter().map(Polygon::new).collect()))
+            Ok(Polygon::union_all(
+                outer.into_iter().map(Polygon::buggy_new).collect(),
+            ))
         } else {
-            Ok(Polygon::new(&outer[0]))
+            Ok(Polygon::buggy_new(outer.remove(0)))
         }
     } else {
         Ok(Polygon::with_holes(

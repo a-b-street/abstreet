@@ -1,7 +1,7 @@
 use crate::make::initial::lane_specs::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, MapConfig, RoadSpec};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
-use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring};
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -200,7 +200,7 @@ impl RawMap {
         let (i_pts, debug) =
             initial::intersection_polygon(self.config.driving_side, &i, &mut roads, timer);
         (
-            Polygon::new(&i_pts),
+            Ring::must_new(i_pts).to_polygon(),
             roads
                 .values()
                 .map(|r| r.trimmed_center_pts.make_polygons(2.0 * r.half_width))

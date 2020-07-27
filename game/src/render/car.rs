@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
-use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D};
+use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D, Ring};
 use map_model::{Map, TurnType};
 use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
 
@@ -60,12 +60,14 @@ impl DrawCar {
 
             let (corner_pt, corner_angle) = input.body.dist_along(front_corner).expect(&err);
             let (tip_pt, tip_angle) = input.body.dist_along(len).expect(&err);
-            let front = Polygon::new(&vec![
+            let front = Ring::must_new(vec![
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(90.0)),
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(-90.0)),
                 tip_pt.project_away(CAR_WIDTH / 4.0, tip_angle.rotate_degs(-90.0)),
                 tip_pt.project_away(CAR_WIDTH / 4.0, tip_angle.rotate_degs(90.0)),
-            ]);
+                corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(90.0)),
+            ])
+            .to_polygon();
             front.union(thick_line)
         };
 

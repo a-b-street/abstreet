@@ -40,9 +40,13 @@ impl Ring {
         Ring::new(pts).unwrap()
     }
 
-    pub fn make_polygons(&self, thickness: Distance) -> Polygon {
+    pub fn to_outline(&self, thickness: Distance) -> Polygon {
         // TODO Has a weird corner. Use the polygon offset thing instead?
         PolyLine::unchecked_new(self.pts.clone()).make_polygons(thickness)
+    }
+
+    pub fn to_polygon(self) -> Polygon {
+        Polygon::with_holes(self, Vec::new())
     }
 
     pub fn points(&self) -> &Vec<Pt2D> {

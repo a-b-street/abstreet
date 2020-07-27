@@ -6,7 +6,7 @@ use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
-use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
+use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
     Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
 };
@@ -209,7 +209,7 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
             pts.push(map.right_shift_line(l1.last_line(), width / 2.0).pt2());
             pts.push(map.left_shift_line(l1.last_line(), width / 2.0).pt2());
             pts.push(pts[0]);
-            corners.push(Polygon::new(&pts));
+            corners.push(Polygon::buggy_new(pts));
         }
     }
 
@@ -281,11 +281,12 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon
 
 // TODO A squished octagon would look better
 fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
-    Polygon::new(
-        &(0..8)
+    Ring::must_new(
+        (0..=8)
             .map(|i| center.project_away(radius, facing.rotate_degs(22.5 + f64::from(i * 360 / 8))))
             .collect(),
     )
+    .to_polygon()
 }
 
 pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorScheme) {

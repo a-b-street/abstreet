@@ -2,7 +2,7 @@ use crate::{
     Btn, Button, Color, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, RewriteColor, ScreenDims,
     ScreenPt, Text, TextExt, TextSpan, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::{Polygon, Pt2D};
+use geom::{Polygon, Pt2D, Ring};
 
 pub struct Checkbox {
     pub(crate) enabled: bool,
@@ -97,7 +97,8 @@ impl Checkbox {
         let vert_pad = 4.0;
         let horiz_pad = 4.0;
 
-        let checkmark = Polygon::new(&vec![
+        // TODO What was I thinking...
+        let checkmark = Ring::must_new(vec![
             Pt2D::new(11.4528, 22.1072),
             Pt2D::new(5.89284, 16.5472),
             Pt2D::new(3.99951, 18.4272),
@@ -106,6 +107,7 @@ impl Checkbox {
             Pt2D::new(25.5728, 8.00049),
             Pt2D::new(11.4528, 22.1072),
         ])
+        .to_polygon()
         .translate(0.0, -4.0);
         let bounds = checkmark.get_bounds();
         let hitbox = Polygon::rectangle(

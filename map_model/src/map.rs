@@ -6,7 +6,7 @@ use crate::{
     RoadID, Turn, TurnGroupID, TurnID, TurnType,
 };
 use abstutil::Timer;
-use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
@@ -126,11 +126,12 @@ impl Map {
             areas: Vec::new(),
             parking_lots: Vec::new(),
             zones: Vec::new(),
-            boundary_polygon: Polygon::new(&vec![
+            boundary_polygon: Ring::must_new(vec![
                 Pt2D::new(0.0, 0.0),
                 Pt2D::new(1.0, 0.0),
                 Pt2D::new(1.0, 1.0),
-            ]),
+            ])
+            .to_polygon(),
             stop_signs: BTreeMap::new(),
             traffic_signals: BTreeMap::new(),
             gps_bounds: GPSBounds::new(),

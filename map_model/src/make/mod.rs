@@ -17,7 +17,7 @@ use crate::{
 };
 use abstutil::{Parallelism, Timer};
 use enumset::EnumSet;
-use geom::{Bounds, Distance, FindClosest, HashablePt2D, Polygon, Speed, EPSILON_DIST};
+use geom::{Bounds, Distance, FindClosest, HashablePt2D, Ring, Speed, EPSILON_DIST};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 impl Map {
@@ -67,10 +67,7 @@ impl Map {
             let id = IntersectionID(idx);
             map.intersections.push(Intersection {
                 id,
-                // IMPORTANT! We're relying on the triangulation algorithm not to mess with the
-                // order of the points. Sidewalk corner rendering depends on it
-                // later.
-                polygon: Polygon::new(&i.polygon),
+                polygon: Ring::must_new(i.polygon.clone()).to_polygon(),
                 turns: BTreeSet::new(),
                 elevation: i.elevation,
                 // Might change later

@@ -93,7 +93,7 @@ impl PolyLine {
         side1.extend(side2);
         side1.push(side1[0]);
         side1.dedup();
-        Some(Ring::must_new(side1).make_polygons(boundary_width))
+        Some(Ring::must_new(side1).to_outline(boundary_width))
     }
 
     pub fn reversed(&self) -> PolyLine {
@@ -540,7 +540,7 @@ impl PolyLine {
         pts.extend(side2);
         pts.push(pts[0]);
         pts.dedup();
-        Polygon::new(&pts)
+        Ring::must_new(pts).to_polygon()
     }
 
     pub fn make_double_arrow(&self, thickness: Distance, cap: ArrowCap) -> Polygon {
@@ -590,7 +590,7 @@ impl PolyLine {
 
         pts.push(pts[0]);
         pts.dedup();
-        Polygon::new(&pts)
+        Ring::must_new(pts).to_polygon()
     }
 
     pub fn dashed_arrow(

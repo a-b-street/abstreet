@@ -307,7 +307,7 @@ impl Minimap {
                 Pt2D::new(x1, y2),
                 Pt2D::new(x1, y1),
             ])
-            .make_polygons(Distance::meters(20.0)),
+            .to_outline(Distance::meters(20.0)),
         );
         g.disable_clipping();
         g.unfork();

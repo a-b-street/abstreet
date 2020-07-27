@@ -1,6 +1,6 @@
 use crate::utils::{download, download_kml, osmconvert};
 use abstutil::{prettyprint_usize, Timer};
-use geom::Polygon;
+use geom::{Polygon, Ring};
 use kml::ExtraShapes;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
@@ -124,7 +124,7 @@ pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
         {
             continue;
         }
-        let region = Polygon::new(&pts);
+        let region = Ring::must_new(pts).to_polygon();
         let bldgs: Vec<map_model::BuildingID> = map
             .all_buildings()
             .into_iter()

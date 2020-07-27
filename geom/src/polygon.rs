@@ -18,12 +18,13 @@ pub struct Polygon {
 }
 
 impl Polygon {
-    // TODO Should the first and last points match or not?
-    pub fn new(orig_pts: &Vec<Pt2D>) -> Polygon {
+    // TODO Last result when we've got something that isn't a valid Ring, but want to draw it
+    // anyway. Fix the root cause of those cases instead.
+    pub fn buggy_new(orig_pts: Vec<Pt2D>) -> Polygon {
         assert!(orig_pts.len() >= 3);
 
         let mut vertices = Vec::new();
-        for pt in orig_pts {
+        for pt in &orig_pts {
             vertices.push(pt.x());
             vertices.push(pt.y());
         }
@@ -74,6 +75,8 @@ impl Polygon {
         }
     }
 
+    // TODO No guarantee points forms a ring. In fact, the main caller is PolyLine, and it's NOT
+    // true there yet.
     pub fn precomputed(points: Vec<Pt2D>, indices: Vec<usize>) -> Polygon {
         assert!(indices.len() % 3 == 0);
         Polygon {
@@ -85,7 +88,7 @@ impl Polygon {
 
     pub fn from_triangle(tri: &Triangle) -> Polygon {
         Polygon {
-            points: vec![tri.pt1, tri.pt2, tri.pt3],
+            points: vec![tri.pt1, tri.pt2, tri.pt3, tri.pt1],
             indices: vec![0, 1, 2],
             rings: None,
         }
@@ -255,9 +258,10 @@ impl Polygon {
         // If the radius was maximized, then some of the edges will be zero length.
         pts.dedup();
 
-        Polygon::new(&pts)
+        Ring::must_new(pts).to_polygon()
     }
 
+    // TODO Result won't be a nice Ring
     pub fn union(self, other: Polygon) -> Polygon {
         let mut points = self.points;
         let mut indices = self.indices;
@@ -277,6 +281,7 @@ impl Polygon {
         result
     }
 
+    // TODO Result won't be a nice Ring
     pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
         from_multi(to_geo(self.points()).intersection(&to_geo(other.points())))
     }
@@ -296,10 +301,10 @@ impl Polygon {
     pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, Box<dyn Error>> {
         if let Some(ref rings) = self.rings {
             Ok(Polygon::union_all(
-                rings.iter().map(|r| r.make_polygons(thickness)).collect(),
+                rings.iter().map(|r| r.to_outline(thickness)).collect(),
             ))
         } else {
-            Ring::new(self.points.clone()).map(|r| r.make_polygons(thickness))
+            Ring::new(self.points.clone()).map(|r| r.to_outline(thickness))
         }
     }
 
@@ -422,8 +427,8 @@ fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f64> {
 }
 
 fn from_geo(p: geo::Polygon<f64>) -> Polygon {
-    Polygon::new(
-        &p.into_inner()
+    Polygon::buggy_new(
+        p.into_inner()
             .0
             .into_points()
             .into_iter()

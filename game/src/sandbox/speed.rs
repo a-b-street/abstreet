@@ -10,7 +10,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Text, UpdateType,
     VerticalAlignment, Widget,
 };
-use geom::{Duration, Polygon, Pt2D, Time};
+use geom::{Duration, Polygon, Pt2D, Ring, Time};
 use instant::Instant;
 use sim::AlertLocation;
 
@@ -746,7 +746,7 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon
     }
     downsampled.push(Pt2D::new(width, height));
     downsampled.push(downsampled[0]);
-    Polygon::new(&downsampled)
+    Ring::must_new(downsampled).to_polygon()
 }
 
 // TODO Maybe color, put in helpers

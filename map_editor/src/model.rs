@@ -92,13 +92,7 @@ impl Model {
         let bounds = self.compute_bounds();
         if bounds.min_x != 0.0 || bounds.min_y != 0.0 {
             for b in self.map.buildings.values_mut() {
-                b.polygon = Polygon::new(
-                    &b.polygon
-                        .points()
-                        .iter()
-                        .map(|pt| pt.offset(-bounds.min_x, -bounds.min_y))
-                        .collect(),
-                );
+                b.polygon = b.polygon.translate(-bounds.min_x, -bounds.min_y);
             }
             for i in self.map.intersections.values_mut() {
                 i.point = i.point.offset(-bounds.min_x, -bounds.min_y);
