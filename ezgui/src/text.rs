@@ -334,7 +334,7 @@ impl Text {
         }
 
         let spaceholder = Polygon::rectangle(max_width, y);
-        output_batch.push(Color::BLACK.alpha(0.01), spaceholder);
+        output_batch.push(Color::BLACK.alpha(0.0), spaceholder);
 
         if let Some(c) = self.bg_color {
             output_batch.push(c, Polygon::rectangle(max_width, y));
