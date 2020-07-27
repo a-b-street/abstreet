@@ -35,8 +35,8 @@ Measure the effects:
 - [Case studies](https://dabreegster.github.io/abstreet/)
 - Technical
   - [Developer guide](docs/dev.md)
-  - [Map model](docs/book/src/map/README.md)
-  - [Traffic simulation](docs/book/src/trafficsim/README.md)
+  - [Map model](docs/book/src/map)
+  - [Traffic simulation](docs/book/src/trafficsim)
   - [Running A/B Street in a new city](docs/new_city.md)
   - [UX design](https://yuwen-li.com/work/abstreet)
 - Presentations

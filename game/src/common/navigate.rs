@@ -20,7 +20,7 @@ impl Navigator {
             composite: Composite::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Enter a street name").small_heading().draw(ctx),
-                    Btn::text_fg("X")
+                    Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
@@ -34,6 +34,7 @@ impl Navigator {
                         .collect(),
                 )
                 .named("street"),
+                Btn::text_fg("Search by business name or address").build_def(ctx, hotkey(Key::Tab)),
             ]))
             .build(ctx),
         })
@@ -46,6 +47,9 @@ impl State for Navigator {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
+                }
+                "Search by business name or address" => {
+                    return Transition::Replace(SearchBuildings::new(ctx, app));
                 }
                 _ => unreachable!(),
             },
@@ -108,7 +112,7 @@ impl CrossStreet {
                         )));
                         txt.draw(ctx)
                     },
-                    Btn::text_fg("X")
+                    Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
@@ -183,6 +187,92 @@ impl State for CrossStreet {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.redraw(&self.draw);
+        State::grey_out_map(g, app);
+        self.composite.draw(g);
+    }
+}
+
+struct SearchBuildings {
+    composite: Composite,
+}
+
+impl SearchBuildings {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        Box::new(SearchBuildings {
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Enter a business name or address")
+                        .small_heading()
+                        .draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Autocomplete::new(
+                    ctx,
+                    app.primary
+                        .map
+                        .all_buildings()
+                        .iter()
+                        .flat_map(|b| {
+                            let mut results = Vec::new();
+                            if !b.address.starts_with("???") {
+                                results.push((b.address.clone(), b.id));
+                            }
+                            if let Some(ref n) = b.name {
+                                results.push((n.clone(), b.id));
+                            }
+                            for (a, _) in &b.amenities {
+                                results.push((format!("{} (at {})", a, b.address), b.id));
+                            }
+                            results
+                        })
+                        .collect(),
+                )
+                .named("bldg"),
+                Btn::text_fg("Search for streets").build_def(ctx, hotkey(Key::Tab)),
+            ]))
+            .build(ctx),
+        })
+    }
+}
+
+impl State for SearchBuildings {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => {
+                    return Transition::Pop;
+                }
+                "Search for streets" => {
+                    return Transition::Replace(Navigator::new(ctx, app));
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+        if let Some(bldgs) = self.composite.autocomplete_done("bldg") {
+            if bldgs.is_empty() {
+                return Transition::Pop;
+            }
+            let b = app.primary.map.get_b(bldgs[0]);
+            return Transition::Replace(Warping::new(
+                ctx,
+                b.label_center,
+                Some(app.opts.min_zoom_for_detail),
+                Some(ID::Building(b.id)),
+                &mut app.primary,
+            ));
+        }
+
+        if self.composite.clicked_outside(ctx) {
+            return Transition::Pop;
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
         self.composite.draw(g);
     }
