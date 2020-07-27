@@ -67,11 +67,17 @@ pub struct TransitSimState {
 }
 
 impl TransitSimState {
-    pub fn new() -> TransitSimState {
+    pub fn new(map: &Map) -> TransitSimState {
+        // Keep this filled out always so get_passengers can return &Vec without a hassle
+        let mut peds_waiting = BTreeMap::new();
+        for bs in map.all_bus_stops().keys() {
+            peds_waiting.insert(*bs, Vec::new());
+        }
+
         TransitSimState {
             buses: BTreeMap::new(),
             routes: BTreeMap::new(),
-            peds_waiting: BTreeMap::new(),
+            peds_waiting,
             events: Vec::new(),
         }
     }
@@ -207,7 +213,7 @@ impl TransitSimState {
                 // Board new passengers.
                 let mut still_waiting = Vec::new();
                 for (ped, route, maybe_stop2, started_waiting) in
-                    self.peds_waiting.remove(&stop1).unwrap_or_else(Vec::new)
+                    self.peds_waiting.remove(&stop1).unwrap()
                 {
                     if bus.route == route {
                         let (trip, person) = trips.ped_boarded_bus(
@@ -347,8 +353,8 @@ impl TransitSimState {
         }
 
         self.peds_waiting
-            .entry(stop1)
-            .or_insert_with(Vec::new)
+            .get_mut(&stop1)
+            .unwrap()
             .push((ped, route_id, maybe_stop2, now));
         None
     }
@@ -406,5 +412,12 @@ impl TransitSimState {
             }
         }
         (buses, trains)
+    }
+
+    pub fn get_people_waiting_at_stop(
+        &self,
+        at: BusStopID,
+    ) -> &Vec<(PedestrianID, BusRouteID, Option<BusStopID>, Time)> {
+        &self.peds_waiting[&at]
     }
 }

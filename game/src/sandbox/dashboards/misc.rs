@@ -70,7 +70,7 @@ pub struct TransitRoutes {
 
 impl TransitRoutes {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        // Count total boardings/alightings per route
+        // Count totals per route
         let mut boardings = Counter::new();
         for list in app.primary.sim.get_analytics().passengers_boarding.values() {
             for (_, r, _) in list {
@@ -89,13 +89,20 @@ impl TransitRoutes {
                 alightings.inc(*r);
             }
         }
+        let mut waiting = Counter::new();
+        for bs in app.primary.map.all_bus_stops().keys() {
+            for (_, r, _, _) in app.primary.sim.get_people_waiting_at_stop(*bs) {
+                waiting.inc(*r);
+            }
+        }
 
         // Sort descending by count, but ascending by name. Hence the funny negation.
-        let mut routes: Vec<(isize, isize, String, BusRouteID)> = Vec::new();
+        let mut routes: Vec<(isize, isize, isize, String, BusRouteID)> = Vec::new();
         for r in app.primary.map.all_bus_routes() {
             routes.push((
                 -1 * (boardings.get(r.id) as isize),
                 -1 * (alightings.get(r.id) as isize),
+                -1 * (waiting.get(r.id) as isize),
                 r.full_name.clone(),
                 r.id,
             ));
@@ -111,7 +118,7 @@ impl TransitRoutes {
                     ctx,
                     routes
                         .iter()
-                        .map(|(_, _, r, id)| (r.clone(), *id))
+                        .map(|(_, _, _, r, id)| (r.clone(), *id))
                         .collect(),
                 )
                 .named("search"),
@@ -121,13 +128,14 @@ impl TransitRoutes {
             Widget::col(
                 routes
                     .into_iter()
-                    .map(|(boardings, alightings, name, id)| {
+                    .map(|(boardings, alightings, waiting, name, id)| {
                         Widget::row(vec![
                             Btn::text_fg(name).build(ctx, id.to_string(), None),
                             format!(
-                                "{} boardings, {} alightings",
+                                "{} boardings, {} alightings, {} currently waiting",
                                 prettyprint_usize(-boardings as usize),
-                                prettyprint_usize(-alightings as usize)
+                                prettyprint_usize(-alightings as usize),
+                                prettyprint_usize(-waiting as usize)
                             )
                             .draw_text(ctx),
                         ])

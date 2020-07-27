@@ -22,19 +22,10 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
 
     let all_arrivals = &sim.get_analytics().bus_arrivals;
     for r in app.primary.map.get_routes_serving_stop(id) {
-        let buses = app.primary.sim.status_of_buses(r.id, &app.primary.map);
-        if buses.is_empty() {
-            rows.push(format!("Route {}: no buses running", r.short_name).draw_text(ctx));
-        } else {
-            rows.push(Btn::text_fg(format!("Route {}", r.short_name)).build(
-                ctx,
-                &r.full_name,
-                None,
-            ));
-            details
-                .hyperlinks
-                .insert(r.full_name.clone(), Tab::BusStatus(buses[0].0));
-        }
+        rows.push(Btn::text_fg(format!("Route {}", r.short_name)).build(ctx, &r.full_name, None));
+        details
+            .hyperlinks
+            .insert(r.full_name.clone(), Tab::BusRoute(r.id));
 
         let arrivals: Vec<(Time, CarID)> = all_arrivals
             .iter()
@@ -201,6 +192,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
 
     let mut boardings: Counter<BusStopID> = Counter::new();
     let mut alightings: Counter<BusStopID> = Counter::new();
+    let mut waiting: Counter<BusStopID> = Counter::new();
     for bs in &route.stops {
         if let Some(list) = app.primary.sim.get_analytics().passengers_boarding.get(bs) {
             for (_, r, _) in list {
@@ -216,15 +208,22 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
                 }
             }
         }
+
+        for (_, r, _, _) in app.primary.sim.get_people_waiting_at_stop(*bs) {
+            if *r == id {
+                waiting.inc(*bs);
+            }
+        }
     }
 
     rows.push(
         Text::from_all(vec![
             Line("Total"),
             Line(format!(
-                ": {} boardings, {} alightings",
+                ": {} boardings, {} alightings, {} currently waiting",
                 prettyprint_usize(boardings.sum()),
-                prettyprint_usize(alightings.sum())
+                prettyprint_usize(alightings.sum()),
+                prettyprint_usize(waiting.sum())
             ))
             .secondary(),
         ])
@@ -257,9 +256,10 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
             Text::from_all(vec![
                 Line(&bs.name),
                 Line(format!(
-                    ": {} boardings, {} alightings",
+                    ": {} boardings, {} alightings, {} currently waiting",
                     prettyprint_usize(boardings.get(bs.id)),
-                    prettyprint_usize(alightings.get(bs.id))
+                    prettyprint_usize(alightings.get(bs.id)),
+                    prettyprint_usize(waiting.get(bs.id))
                 ))
                 .secondary(),
             ])

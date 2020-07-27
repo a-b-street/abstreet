@@ -13,8 +13,8 @@ use derivative::Derivative;
 use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};
 use instant::Instant;
 use map_model::{
-    BuildingID, BusRoute, BusRouteID, IntersectionID, Lane, LaneID, Map, ParkingLotID, Path,
-    PathConstraints, PathRequest, Position, RoadID, Traversable,
+    BuildingID, BusRoute, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, ParkingLotID,
+    Path, PathConstraints, PathRequest, Position, RoadID, Traversable,
 };
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
@@ -118,7 +118,7 @@ impl Sim {
                 opts.dont_block_the_box,
                 opts.break_turn_conflict_cycles,
             ),
-            transit: TransitSimState::new(),
+            transit: TransitSimState::new(map),
             trips: TripManager::new(opts.pathfinding_upfront),
             pandemic: if let Some(rng) = opts.enable_pandemic_model {
                 Some(PandemicModel::new(rng))
@@ -854,6 +854,7 @@ impl Sim {
 }
 
 // Queries of all sorts
+// TODO Many of these just delegate to an inner piece. This is unorganized and hard to maintain.
 impl Sim {
     pub fn time(&self) -> Time {
         self.time
@@ -1177,6 +1178,13 @@ impl Sim {
         } else {
             self.driving.target_lane_penalty(lane.id)
         }
+    }
+
+    pub fn get_people_waiting_at_stop(
+        &self,
+        at: BusStopID,
+    ) -> &Vec<(PedestrianID, BusRouteID, Option<BusStopID>, Time)> {
+        self.transit.get_people_waiting_at_stop(at)
     }
 }
 
