@@ -294,9 +294,8 @@ impl TransitSimState {
                     } else {
                         let on = stop.driving_pos.lane();
                         route.active_vehicles.remove(&id);
-                        // TODO Bug.
                         for (person, stop2) in &bus.passengers {
-                            println!(
+                            panic!(
                                 "{} of {} is vanishing at its last stop, but {} is still riding \
                                  until {:?}",
                                 bus.car, bus.route, person, stop2

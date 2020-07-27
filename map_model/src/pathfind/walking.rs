@@ -27,6 +27,8 @@ pub struct SidewalkPathfinder {
 pub enum WalkingNode {
     // false is src_i, true is dst_i
     SidewalkEndpoint(LaneID, bool),
+    // TODO Lots of complexity below could be avoided by explicitly sticking BusRouteID here too.
+    // Worth it?
     RideBus(BusStopID),
     LeaveMap(IntersectionID),
 }
@@ -150,26 +152,36 @@ impl SidewalkPathfinder {
         let mut possible_routes: Vec<&BusRoute> = Vec::new();
         for n in &nodes {
             match n {
-                WalkingNode::RideBus(stop) => {
+                WalkingNode::RideBus(stop2) => {
                     if first_stop.is_none() {
-                        first_stop = Some(*stop);
-                        possible_routes = map.get_routes_serving_stop(*stop);
+                        first_stop = Some(*stop2);
+                        possible_routes = map.get_routes_serving_stop(*stop2);
                         assert!(!possible_routes.is_empty());
                     } else {
                         // Keep riding the same route?
                         // We need to do this check, because some transfers might be instantaneous
                         // at the same stop and involve no walking.
+                        // Also need to make sure the stops are in the proper order. We might have
+                        // a transfer, then try to hop on the first route again, but starting from
+                        // a different point.
+                        let stop1 = first_stop.unwrap();
                         let mut filtered = possible_routes.clone();
-                        filtered.retain(|r| r.stops.contains(stop));
+                        filtered.retain(|r| {
+                            let idx1 = r.stops.iter().position(|s| *s == stop1).unwrap();
+                            let idx2 = r.stops.iter().position(|s| s == stop2);
+                            idx2.map(|idx2| idx1 < idx2).unwrap_or(false)
+                        });
                         if filtered.is_empty() {
                             // Aha, a transfer!
                             return Some((
                                 first_stop.unwrap(),
-                                Some(last_stop.expect("impossible transit transfer")),
+                                // TODO I thought this should be impossible, but huge_seattle hits
+                                // it. Workaround for now by just walking.
+                                Some(last_stop?),
                                 possible_routes[0].id,
                             ));
                         }
-                        last_stop = Some(*stop);
+                        last_stop = Some(*stop2);
                         possible_routes = filtered;
                     }
                 }
