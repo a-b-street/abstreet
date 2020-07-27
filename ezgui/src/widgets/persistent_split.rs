@@ -75,7 +75,7 @@ impl<T: 'static + Clone + PartialEq> WidgetImpl for PersistentSplit<T> {
             return;
         }
 
-        self.dropdown.event(ctx, output);
+        self.dropdown.event(ctx, &mut WidgetOutput::new());
         let new_value = self.dropdown.current_value();
         if new_value != self.current_value {
             self.current_value = new_value;

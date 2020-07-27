@@ -91,7 +91,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
 
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         if let Some(ref mut m) = self.menu {
-            m.event(ctx, output);
+            m.event(ctx, &mut WidgetOutput::new());
             match m.state {
                 InputResult::StillActive => {}
                 InputResult::Canceled => {

@@ -54,4 +54,13 @@ pub struct WidgetOutput {
     pub outcome: Option<Outcome>,
 }
 
+impl WidgetOutput {
+    pub fn new() -> WidgetOutput {
+        WidgetOutput {
+            redo_layout: false,
+            outcome: None,
+        }
+    }
+}
+
 downcast_rs::impl_downcast!(WidgetImpl);

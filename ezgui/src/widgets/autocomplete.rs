@@ -96,13 +96,7 @@ impl<T: 'static + Clone> WidgetImpl for Autocomplete<T> {
             output.redo_layout = true;
         } else {
             // Don't let the menu fill out the real outcome.
-            self.menu.event(
-                ctx,
-                &mut WidgetOutput {
-                    redo_layout: false,
-                    outcome: None,
-                },
-            );
+            self.menu.event(ctx, &mut WidgetOutput::new());
             match self.menu.state {
                 InputResult::StillActive => {}
                 // Ignore this and make sure the Composite has a quit control
