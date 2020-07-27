@@ -7,4 +7,4 @@ set -e
 
 # From http://download.geofabrik.de/north-america/us/washington.html
 curl -L -O http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf
-osmupdate -v washington-latest.osm.pbf updated_wa.osm.pbf
+osmupdate -v washington-latest.osm.pbf -B=data/input/seattle/polygons/huge_seattle.poly updated_wa.osm.pbf

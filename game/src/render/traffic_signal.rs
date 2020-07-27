@@ -127,18 +127,13 @@ pub fn draw_signal_phase(
         TrafficSignalStyle::GroupArrows => {
             for g in &phase.yield_groups {
                 assert!(!g.crosswalk);
-                batch.push(
-                    app.cs.signal_permitted_turn.alpha(0.3),
-                    signal.turn_groups[g]
-                        .geom
-                        .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
-                );
-                batch.extend(
-                    app.cs.signal_permitted_turn,
-                    signal.turn_groups[g]
-                        .geom
-                        .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0),
-                );
+                let arrow = signal.turn_groups[g]
+                    .geom
+                    .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle);
+                batch.push(app.cs.signal_permitted_turn.alpha(0.3), arrow.clone());
+                if let Ok(p) = arrow.to_outline(BIG_ARROW_THICKNESS / 2.0) {
+                    batch.push(app.cs.signal_permitted_turn, p);
+                }
             }
             let mut dont_walk = BTreeSet::new();
             for g in signal.turn_groups.keys() {
@@ -178,18 +173,13 @@ pub fn draw_signal_phase(
         TrafficSignalStyle::Sidewalks => {
             for g in &phase.yield_groups {
                 assert!(!g.crosswalk);
-                batch.push(
-                    app.cs.signal_permitted_turn.alpha(0.3),
-                    signal.turn_groups[g]
-                        .geom
-                        .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
-                );
-                batch.extend(
-                    app.cs.signal_permitted_turn,
-                    signal.turn_groups[g]
-                        .geom
-                        .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0),
-                );
+                let arrow = signal.turn_groups[g]
+                    .geom
+                    .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle);
+                batch.push(app.cs.signal_permitted_turn.alpha(0.3), arrow.clone());
+                if let Ok(p) = arrow.to_outline(BIG_ARROW_THICKNESS / 2.0) {
+                    batch.push(app.cs.signal_permitted_turn, p);
+                }
             }
             for g in &phase.protected_groups {
                 if g.crosswalk {
@@ -234,13 +224,14 @@ pub fn draw_signal_phase(
                         );
                     }
                     TurnPriority::Yield => {
-                        batch.extend(
-                            app.cs.signal_permitted_turn,
-                            turn.geom.make_arrow_outline(
-                                BIG_ARROW_THICKNESS * 2.0,
-                                BIG_ARROW_THICKNESS / 2.0,
-                            ),
-                        );
+                        let arrow = turn
+                            .geom
+                            .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle);
+                        if let Ok(p) = arrow.to_outline(BIG_ARROW_THICKNESS / 2.0) {
+                            batch.push(app.cs.signal_permitted_turn, p);
+                        } else {
+                            batch.push(app.cs.signal_permitted_turn, arrow);
+                        }
                     }
                     TurnPriority::Banned => {}
                 }

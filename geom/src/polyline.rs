@@ -9,9 +9,9 @@ use std::fmt;
 // TODO How to tune this?
 const MITER_THRESHOLD: f64 = 500.0;
 
+// TODO There used to be a second style that just has extra little hooks going out
 pub enum ArrowCap {
     Triangle,
-    Lines,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -518,6 +518,7 @@ impl PolyLine {
             return self.make_polygons(thickness);
         }
         let slice = self.exact_slice(Distance::ZERO, self.length() - triangle_height);
+
         let angle = slice.last_pt().angle_to(self.last_pt());
         let corner1 = self
             .last_pt()
@@ -526,49 +527,20 @@ impl PolyLine {
             .last_pt()
             .project_away(head_size, angle.rotate_degs(135.0));
 
+        let mut pts = slice.shift_with_sharp_angles(thickness / 2.0, MITER_THRESHOLD);
         match cap {
-            ArrowCap::Triangle => slice.make_polygons(thickness).union(Polygon::new(&vec![
-                self.last_pt(),
-                corner1,
-                corner2,
-            ])),
-            ArrowCap::Lines => self.make_polygons(thickness).union(
-                PolyLine::must_new(vec![corner1, self.last_pt(), corner2]).make_polygons(thickness),
-            ),
+            ArrowCap::Triangle => {
+                pts.push(corner2);
+                pts.push(self.last_pt());
+                pts.push(corner1);
+            }
         }
-    }
-
-    // TODO Refactor
-    pub fn make_arrow_outline(
-        &self,
-        arrow_thickness: Distance,
-        outline_thickness: Distance,
-    ) -> Vec<Polygon> {
-        let head_size = arrow_thickness * 2.0;
-        let triangle_height = head_size / 2.0_f64.sqrt();
-
-        if self.length() < triangle_height {
-            return vec![self.make_polygons(arrow_thickness)];
-        }
-        let slice = self.exact_slice(Distance::ZERO, self.length() - triangle_height);
-
-        if let Some(p) = slice.to_thick_boundary(arrow_thickness, outline_thickness) {
-            let angle = slice.last_pt().angle_to(self.last_pt());
-            vec![
-                p,
-                Ring::must_new(vec![
-                    self.last_pt(),
-                    self.last_pt()
-                        .project_away(head_size, angle.rotate_degs(-135.0)),
-                    self.last_pt()
-                        .project_away(head_size, angle.rotate_degs(135.0)),
-                    self.last_pt(),
-                ])
-                .make_polygons(outline_thickness),
-            ]
-        } else {
-            vec![self.make_polygons(arrow_thickness)]
-        }
+        let mut side2 = slice.shift_with_sharp_angles(-thickness / 2.0, MITER_THRESHOLD);
+        side2.reverse();
+        pts.extend(side2);
+        pts.push(pts[0]);
+        pts.dedup();
+        Polygon::new(&pts)
     }
 
     pub fn dashed_arrow(

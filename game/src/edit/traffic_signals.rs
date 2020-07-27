@@ -331,18 +331,13 @@ impl State for TrafficSignalEditor {
                 let block_color = match self.group_selected.unwrap().1 {
                     Some(TurnPriority::Protected) => {
                         let green = Color::hex("#72CE36");
-                        batch.push(
-                            green.alpha(0.5),
-                            signal.turn_groups[&g.id]
-                                .geom
-                                .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
-                        );
-                        batch.extend(
-                            green,
-                            signal.turn_groups[&g.id]
-                                .geom
-                                .make_arrow_outline(BIG_ARROW_THICKNESS, Distance::meters(0.1)),
-                        );
+                        let arrow = signal.turn_groups[&g.id]
+                            .geom
+                            .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
+                        batch.push(green.alpha(0.5), arrow.clone());
+                        if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
+                            batch.push(green, p);
+                        }
                         green
                     }
                     Some(TurnPriority::Yield) => {
@@ -377,18 +372,13 @@ impl State for TrafficSignalEditor {
                     }
                     Some(TurnPriority::Banned) => {
                         let red = Color::hex("#EB3223");
-                        batch.push(
-                            red.alpha(0.5),
-                            signal.turn_groups[&g.id]
-                                .geom
-                                .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
-                        );
-                        batch.extend(
-                            red,
-                            signal.turn_groups[&g.id]
-                                .geom
-                                .make_arrow_outline(BIG_ARROW_THICKNESS, Distance::meters(0.1)),
-                        );
+                        let arrow = signal.turn_groups[&g.id]
+                            .geom
+                            .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
+                        batch.push(red.alpha(0.5), arrow.clone());
+                        if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
+                            batch.push(red, p);
+                        }
                         red
                     }
                     None => app.cs.signal_turn_block_bg,
