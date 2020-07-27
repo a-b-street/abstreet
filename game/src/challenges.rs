@@ -3,7 +3,7 @@ use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
-use abstutil::Timer;
+use abstutil::{prettyprint_usize, Timer};
 use ezgui::{hotkey, Btn, Color, Composite, EventCtx, Key, Line, Text, TextExt, Widget};
 use geom::{Duration, Time};
 use map_model::Map;
@@ -381,8 +381,19 @@ fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &
         abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
         sim.get_analytics(),
     );
+    let agents_left = sim.num_agents().sum();
+    timer.note(format!("{} agents left by end of day", agents_left));
     timer.stop(format!(
         "prebake for {} / {}",
         scenario.map_name, scenario.scenario_name
     ));
+
+    // TODO Ah, it's people waiting on a bus that never spawned. Woops.
+    if agents_left > 500 && false {
+        panic!(
+            "{} agents left by end of day on {}; seems bad",
+            prettyprint_usize(agents_left),
+            scenario.map_name
+        );
+    }
 }

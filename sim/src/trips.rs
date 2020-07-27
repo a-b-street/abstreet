@@ -829,7 +829,7 @@ impl TripManager {
             self.unfinished_trips,
         )
     }
-    pub fn num_agents(&self, transit: &TransitSimState) -> BTreeMap<AgentType, usize> {
+    pub fn num_agents(&self, transit: &TransitSimState) -> Counter<AgentType> {
         let mut cnt = Counter::new();
         for a in self.active_trip_mode.keys() {
             cnt.inc(a.to_type());
@@ -837,10 +837,7 @@ impl TripManager {
         let (buses, trains) = transit.active_vehicles();
         cnt.add(AgentType::Bus, buses);
         cnt.add(AgentType::Train, trains);
-        AgentType::all()
-            .into_iter()
-            .map(|k| (k, cnt.get(k)))
-            .collect()
+        cnt
     }
     pub fn num_ppl(&self) -> (usize, usize, usize) {
         let mut ppl_in_bldg = 0;

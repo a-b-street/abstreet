@@ -8,7 +8,7 @@ use crate::{
     UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
     LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
 };
-use abstutil::{Parallelism, Timer};
+use abstutil::{Counter, Parallelism, Timer};
 use derivative::Derivative;
 use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};
 use instant::Instant;
@@ -871,7 +871,7 @@ impl Sim {
     pub fn num_trips(&self) -> (usize, usize) {
         self.trips.num_trips()
     }
-    pub fn num_agents(&self) -> BTreeMap<AgentType, usize> {
+    pub fn num_agents(&self) -> Counter<AgentType> {
         self.trips.num_agents(&self.transit)
     }
     // (total number of people, just in buildings, just off map)

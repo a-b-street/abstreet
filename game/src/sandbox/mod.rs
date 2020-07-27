@@ -306,24 +306,24 @@ impl AgentMeter {
             Widget::custom_row(vec![
                 Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "system/assets/meters/pedestrian.svg").margin_right(5),
-                    prettyprint_usize(by_type[&AgentType::Pedestrian]).draw_text(ctx),
+                    prettyprint_usize(by_type.get(AgentType::Pedestrian)).draw_text(ctx),
                 ]),
                 Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "system/assets/meters/bike.svg").margin_right(5),
-                    prettyprint_usize(by_type[&AgentType::Bike]).draw_text(ctx),
+                    prettyprint_usize(by_type.get(AgentType::Bike)).draw_text(ctx),
                 ]),
                 Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "system/assets/meters/car.svg").margin_right(5),
-                    prettyprint_usize(by_type[&AgentType::Car]).draw_text(ctx),
+                    prettyprint_usize(by_type.get(AgentType::Car)).draw_text(ctx),
                 ]),
                 Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "system/assets/meters/bus.svg").margin_right(5),
-                    prettyprint_usize(by_type[&AgentType::Bus] + by_type[&AgentType::Train])
+                    prettyprint_usize(by_type.get(AgentType::Bus) + by_type.get(AgentType::Train))
                         .draw_text(ctx),
                 ]),
                 Widget::custom_row(vec![
                     Widget::draw_svg(ctx, "system/assets/meters/passenger.svg").margin_right(5),
-                    prettyprint_usize(by_type[&AgentType::TransitRider]).draw_text(ctx),
+                    prettyprint_usize(by_type.get(AgentType::TransitRider)).draw_text(ctx),
                 ]),
             ])
             .centered(),

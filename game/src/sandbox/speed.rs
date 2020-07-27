@@ -744,6 +744,7 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon
     for pt in lttb::lttb(pts, 100) {
         downsampled.push(Pt2D::new(pt.x, pt.y));
     }
+    downsampled.push(Pt2D::new(width, height));
     downsampled.push(downsampled[0]);
     Polygon::new(&downsampled)
 }
