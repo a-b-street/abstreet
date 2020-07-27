@@ -519,6 +519,7 @@ impl DrivingSimState {
                             car.vehicle.id,
                             trips,
                             walking,
+                            parking,
                             scheduler,
                             map,
                         ) {

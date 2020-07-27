@@ -51,7 +51,7 @@ pub enum TripSpec {
         goal: SidewalkSpot,
         route: BusRouteID,
         stop1: BusStopID,
-        stop2: BusStopID,
+        maybe_stop2: Option<BusStopID>,
     },
     // Completely off-map trip. Don't really simulate much of it.
     Remote {
@@ -337,22 +337,30 @@ impl TripSpawner {
                 TripSpec::UsingTransit {
                     route,
                     stop1,
-                    stop2,
+                    maybe_stop2,
                     goal,
                     ..
                 } => {
                     let walk_to = SidewalkSpot::bus_stop(stop1, map);
+                    let legs = if let Some(stop2) = maybe_stop2 {
+                        vec![
+                            TripLeg::Walk(walk_to.clone()),
+                            TripLeg::RideBus(route, Some(stop2)),
+                            TripLeg::Walk(goal),
+                        ]
+                    } else {
+                        vec![
+                            TripLeg::Walk(walk_to.clone()),
+                            TripLeg::RideBus(route, None),
+                        ]
+                    };
                     trips.new_trip(
                         person.id,
                         start_time,
                         trip_start,
                         TripMode::Transit,
                         modified,
-                        vec![
-                            TripLeg::Walk(walk_to.clone()),
-                            TripLeg::RideBus(route, stop2),
-                            TripLeg::Walk(goal),
-                        ],
+                        legs,
                         map,
                     )
                 }

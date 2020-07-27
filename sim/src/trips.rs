@@ -112,6 +112,11 @@ impl TripManager {
             Some(TripLeg::Remote(ref to)) => {
                 TripEndpoint::Border(map.all_incoming_borders()[0].id, Some(to.clone()))
             }
+            Some(TripLeg::RideBus(r, ref maybe_stop2)) => {
+                assert!(maybe_stop2.is_none());
+                // TODO No way to plumb OffMapLocation here
+                TripEndpoint::Border(map.get_l(map.get_br(*r).end_border.unwrap()).dst_i, None)
+            }
             _ => unreachable!(),
         };
         let trip = Trip {
@@ -464,7 +469,7 @@ impl TripManager {
             _ => unreachable!(),
         }
         match trip.legs[1] {
-            TripLeg::RideBus(route, stop2) => {
+            TripLeg::RideBus(route, maybe_stop2) => {
                 self.events.push(Event::TripPhaseStarting(
                     trip.id,
                     trip.person,
@@ -478,7 +483,7 @@ impl TripManager {
                     trip.person,
                     stop,
                     route,
-                    stop2,
+                    maybe_stop2,
                     map,
                 ) {
                     trip.legs.pop_front();
@@ -535,7 +540,10 @@ impl TripManager {
             .unwrap()
             .0];
         let start = match trip.legs.pop_front().unwrap() {
-            TripLeg::RideBus(_, stop) => SidewalkSpot::bus_stop(stop, map),
+            TripLeg::RideBus(_, maybe_stop2) => SidewalkSpot::bus_stop(
+                maybe_stop2.expect("someone left a bus, even though they should've ridden off-map"),
+                map,
+            ),
             _ => unreachable!(),
         };
         self.people[person.0].on_bus.take().unwrap();
@@ -594,6 +602,43 @@ impl TripManager {
                 i,
                 loc.clone(),
             ));
+        }
+        self.people[person.0].state = PersonState::OffMap;
+        self.person_finished_trip(now, person, parking, scheduler, map);
+    }
+
+    pub fn transit_rider_reached_border(
+        &mut self,
+        now: Time,
+        person: PersonID,
+        bus: CarID,
+        map: &Map,
+        parking: &mut ParkingSimState,
+        scheduler: &mut Scheduler,
+    ) {
+        let agent = AgentID::BusPassenger(person, bus);
+        let trip = &mut self.trips[self.active_trip_mode.remove(&agent).unwrap().0];
+
+        match trip.legs.pop_front() {
+            Some(TripLeg::RideBus(_, maybe_spot2)) => assert!(maybe_spot2.is_none()),
+            _ => unreachable!(),
+        }
+        assert!(trip.legs.is_empty());
+        assert!(!trip.finished_at.is_some());
+        trip.finished_at = Some(now);
+        self.unfinished_trips -= 1;
+        self.events.push(Event::TripFinished {
+            trip: trip.id,
+            mode: trip.info.mode,
+            total_time: now - trip.info.departure,
+            blocked_time: trip.total_blocked_time,
+        });
+        let person = trip.person;
+        if let TripEndpoint::Border(i, ref loc) = trip.info.end {
+            self.events
+                .push(Event::PersonLeavesMap(person, Some(agent), i, loc.clone()));
+        } else {
+            unreachable!()
         }
         self.people[person.0].state = PersonState::OffMap;
         self.person_finished_trip(now, person, parking, scheduler, map);
@@ -1350,7 +1395,8 @@ pub enum TripLeg {
     Walk(SidewalkSpot),
     // A person may own many vehicles, so specify which they use
     Drive(CarID, DrivingGoal),
-    RideBus(BusRouteID, BusStopID),
+    // Maybe get off at a stop, maybe ride off-map
+    RideBus(BusRouteID, Option<BusStopID>),
     Remote(OffMapLocation),
 }
 

@@ -218,7 +218,7 @@ impl SpawnOverTime {
             if rng.gen_bool(self.percent_use_transit) {
                 // TODO This throws away some work. It also sequentially does expensive
                 // work right here.
-                if let Some((stop1, stop2, route)) =
+                if let Some((stop1, maybe_stop2, route)) =
                     map.should_use_transit(start_spot.sidewalk_pos, goal.sidewalk_pos)
                 {
                     scenario.people.push(PersonSpec {
@@ -226,7 +226,7 @@ impl SpawnOverTime {
                         orig_id: None,
                         trips: vec![IndividTrip::new(
                             depart,
-                            SpawnTrip::UsingTransit(start_spot, goal, route, stop1, stop2),
+                            SpawnTrip::UsingTransit(start_spot, goal, route, stop1, maybe_stop2),
                         )],
                     });
                     return;
@@ -279,7 +279,7 @@ impl BorderSpawnOverTime {
                 if rng.gen_bool(self.percent_use_transit) {
                     // TODO This throws away some work. It also sequentially does expensive
                     // work right here.
-                    if let Some((stop1, stop2, route)) =
+                    if let Some((stop1, maybe_stop2, route)) =
                         map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
                     {
                         scenario.people.push(PersonSpec {
@@ -287,7 +287,13 @@ impl BorderSpawnOverTime {
                             orig_id: None,
                             trips: vec![IndividTrip::new(
                                 depart,
-                                SpawnTrip::UsingTransit(start.clone(), goal, route, stop1, stop2),
+                                SpawnTrip::UsingTransit(
+                                    start.clone(),
+                                    goal,
+                                    route,
+                                    stop1,
+                                    maybe_stop2,
+                                ),
                             )],
                         });
                         continue;

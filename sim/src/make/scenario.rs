@@ -71,7 +71,13 @@ pub enum SpawnTrip {
     UsingParkedCar(BuildingID, DrivingGoal),
     UsingBike(BuildingID, DrivingGoal),
     JustWalking(SidewalkSpot, SidewalkSpot),
-    UsingTransit(SidewalkSpot, SidewalkSpot, BusRouteID, BusStopID, BusStopID),
+    UsingTransit(
+        SidewalkSpot,
+        SidewalkSpot,
+        BusRouteID,
+        BusStopID,
+        Option<BusStopID>,
+    ),
     // Completely off-map trip. Don't really simulate much of it.
     Remote {
         from: OffMapLocation,
@@ -420,13 +426,15 @@ impl SpawnTrip {
                 goal,
             },
             SpawnTrip::JustWalking(start, goal) => TripSpec::JustWalking { start, goal },
-            SpawnTrip::UsingTransit(start, goal, route, stop1, stop2) => TripSpec::UsingTransit {
-                start,
-                goal,
-                route,
-                stop1,
-                stop2,
-            },
+            SpawnTrip::UsingTransit(start, goal, route, stop1, maybe_stop2) => {
+                TripSpec::UsingTransit {
+                    start,
+                    goal,
+                    route,
+                    stop1,
+                    maybe_stop2,
+                }
+            }
             SpawnTrip::Remote {
                 from,
                 to,
@@ -552,10 +560,10 @@ impl SpawnTrip {
             TripMode::Transit => {
                 let start = from.start_sidewalk_spot(map)?;
                 let goal = to.end_sidewalk_spot(map)?;
-                if let Some((stop1, stop2, route)) =
+                if let Some((stop1, maybe_stop2, route)) =
                     map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
                 {
-                    SpawnTrip::UsingTransit(start, goal, route, stop1, stop2)
+                    SpawnTrip::UsingTransit(start, goal, route, stop1, maybe_stop2)
                 } else {
                     //timer.warn(format!("{:?} not actually using transit, because pathfinding
                     // didn't find any useful route", trip));

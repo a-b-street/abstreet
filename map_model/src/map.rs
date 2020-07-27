@@ -568,7 +568,7 @@ impl Map {
         &self,
         start: Position,
         end: Position,
-    ) -> Option<(BusStopID, BusStopID, BusRouteID)> {
+    ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
         self.pathfinder
             .as_ref()
             .unwrap()

@@ -1,6 +1,6 @@
 use crate::{
-    CarID, Event, PedestrianID, PersonID, Router, Scheduler, TripID, TripManager, TripPhaseType,
-    VehicleType, WalkingSimState,
+    CarID, Event, ParkingSimState, PedestrianID, PersonID, Router, Scheduler, TripID, TripManager,
+    TripPhaseType, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
@@ -31,7 +31,7 @@ struct Bus {
     car: CarID,
     route: BusRouteID,
     // Where does each passenger want to deboard?
-    passengers: Vec<(PersonID, BusStopID)>,
+    passengers: Vec<(PersonID, Option<BusStopID>)>,
     state: BusState,
 }
 
@@ -61,7 +61,7 @@ pub struct TransitSimState {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    peds_waiting: BTreeMap<BusStopID, Vec<(PedestrianID, BusRouteID, BusStopID, Time)>>,
+    peds_waiting: BTreeMap<BusStopID, Vec<(PedestrianID, BusRouteID, Option<BusStopID>, Time)>>,
 
     events: Vec<Event>,
 }
@@ -178,6 +178,7 @@ impl TransitSimState {
         id: CarID,
         trips: &mut TripManager,
         walking: &mut WalkingSimState,
+        parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
         map: &Map,
     ) -> bool {
@@ -191,21 +192,21 @@ impl TransitSimState {
 
                 // Deboard existing passengers.
                 let mut still_riding = Vec::new();
-                for (person, stop2) in bus.passengers.drain(..) {
-                    if stop1 == stop2 {
+                for (person, maybe_stop2) in bus.passengers.drain(..) {
+                    if Some(stop1) == maybe_stop2 {
                         trips.person_left_bus(now, person, bus.car, map, scheduler);
                         self.events.push(Event::PassengerAlightsTransit(
                             person, bus.car, bus.route, stop1,
                         ));
                     } else {
-                        still_riding.push((person, stop2));
+                        still_riding.push((person, maybe_stop2));
                     }
                 }
                 bus.passengers = still_riding;
 
                 // Board new passengers.
                 let mut still_waiting = Vec::new();
-                for (ped, route, stop2, started_waiting) in
+                for (ped, route, maybe_stop2, started_waiting) in
                     self.peds_waiting.remove(&stop1).unwrap_or_else(Vec::new)
                 {
                     if bus.route == route {
@@ -228,14 +229,18 @@ impl TransitSimState {
                             person,
                             Some(PathRequest {
                                 start: map.get_bs(stop1).driving_pos,
-                                end: map.get_bs(stop2).driving_pos,
+                                end: if let Some(stop2) = maybe_stop2 {
+                                    map.get_bs(stop2).driving_pos
+                                } else {
+                                    self.routes[&route].end_at_border.as_ref().unwrap().0.end
+                                },
                                 constraints: bus.car.1.to_constraints(),
                             }),
                             TripPhaseType::RidingBus(route, stop1, bus.car),
                         ));
-                        bus.passengers.push((person, stop2));
+                        bus.passengers.push((person, maybe_stop2));
                     } else {
-                        still_waiting.push((ped, route, stop2, started_waiting));
+                        still_waiting.push((ped, route, maybe_stop2, started_waiting));
                     }
                 }
                 self.peds_waiting.insert(stop1, still_waiting);
@@ -248,6 +253,18 @@ impl TransitSimState {
                     .active_vehicles
                     .remove(&id);
                 bus.state = BusState::Done;
+                for (person, maybe_stop2) in bus.passengers.drain(..) {
+                    if let Some(stop2) = maybe_stop2 {
+                        // TODO Pre-existing bug...
+                        println!(
+                            "{} fell asleep on {} and just rode off-map, but they were supposed \
+                             to hop off at {}",
+                            person, bus.car, stop2
+                        );
+                        continue;
+                    }
+                    trips.transit_rider_reached_border(now, person, id, map, parking, scheduler);
+                }
                 false
             }
             BusState::AtStop(_) | BusState::Done => unreachable!(),
@@ -273,6 +290,7 @@ impl TransitSimState {
                     } else {
                         let on = stop.driving_pos.lane();
                         route.active_vehicles.remove(&id);
+                        assert!(bus.passengers.is_empty());
                         bus.state = BusState::Done;
                         Router::vanish_bus(id, on, map)
                     }
@@ -290,10 +308,10 @@ impl TransitSimState {
         person: PersonID,
         stop1: BusStopID,
         route_id: BusRouteID,
-        stop2: BusStopID,
+        maybe_stop2: Option<BusStopID>,
         map: &Map,
     ) -> Option<CarID> {
-        assert!(stop1 != stop2);
+        assert!(Some(stop1) != maybe_stop2);
         if let Some(route) = self.routes.get(&route_id) {
             for bus in &route.active_vehicles {
                 if let BusState::AtStop(idx) = self.buses[bus].state {
@@ -302,13 +320,17 @@ impl TransitSimState {
                             .get_mut(bus)
                             .unwrap()
                             .passengers
-                            .push((person, stop2));
+                            .push((person, maybe_stop2));
                         self.events.push(Event::TripPhaseStarting(
                             trip,
                             person,
                             Some(PathRequest {
                                 start: map.get_bs(stop1).driving_pos,
-                                end: map.get_bs(stop2).driving_pos,
+                                end: if let Some(stop2) = maybe_stop2 {
+                                    map.get_bs(stop2).driving_pos
+                                } else {
+                                    route.end_at_border.as_ref().unwrap().0.end
+                                },
                                 constraints: bus.1.to_constraints(),
                             }),
                             TripPhaseType::RidingBus(route_id, stop1, *bus),
@@ -327,7 +349,7 @@ impl TransitSimState {
         self.peds_waiting
             .entry(stop1)
             .or_insert_with(Vec::new)
-            .push((ped, route_id, stop2, now));
+            .push((ped, route_id, maybe_stop2, now));
         None
     }
 
@@ -335,7 +357,7 @@ impl TransitSimState {
         self.events.drain(..).collect()
     }
 
-    pub fn get_passengers(&self, bus: CarID) -> &Vec<(PersonID, BusStopID)> {
+    pub fn get_passengers(&self, bus: CarID) -> &Vec<(PersonID, Option<BusStopID>)> {
         &self.buses[&bus].passengers
     }
 
