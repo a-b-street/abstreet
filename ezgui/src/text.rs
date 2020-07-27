@@ -257,6 +257,40 @@ impl Text {
         self.render(&ctx.prerender.assets)
     }
 
+    pub fn size(&self, ctx: &EventCtx) -> ScreenDims {
+        let assets = &ctx.prerender.assets;
+        let tolerance = svg::HIGH_QUALITY;
+        let mut master_batch = GeomBatch::new();
+
+        println!("rendering text had lines: {:?}", &self.lines);
+        let mut y = 0.0;
+        let mut max_width = 0.0_f64;
+        for (_, line) in self.lines.clone() {
+            // Assume size doesn't change mid-line. Always use this fixed line height per font
+            // size.
+            let line_height = assets.line_height(line[0].font, line[0].size);
+
+            let line_batch = render_line(line, tolerance, assets);
+            let line_dims = if line_batch.is_empty() {
+                ScreenDims::new(0.0, line_height)
+            } else {
+                // Also lie a little about width to make things look reasonable. TODO Probably
+                // should tune based on font size.
+                ScreenDims::new(line_batch.get_dims().width + 5.0, line_height)
+            };
+
+            y += line_dims.height;
+
+            // Add all of the padding at the bottom of the line.
+            let offset = line_height / SCALE_LINE_HEIGHT * 0.2;
+            master_batch.append(line_batch.translate(0.0, y - offset));
+
+            max_width = max_width.max(line_dims.width);
+        }
+
+        ScreenDims::new(max_width, y)
+    }
+
     pub(crate) fn inner_render(self, assets: &Assets, tolerance: f32) -> GeomBatch {
         let hash_key = self.hash_key();
         if let Some(batch) = assets.get_cached_text(&hash_key) {
@@ -266,6 +300,7 @@ impl Text {
         let mut output_batch = GeomBatch::new();
         let mut master_batch = GeomBatch::new();
 
+        println!("rendering text had lines: {:?}", &self.lines);
         let mut y = 0.0;
         let mut max_width = 0.0_f64;
         for (line_color, line) in self.lines {
@@ -304,6 +339,7 @@ impl Text {
         output_batch.append(master_batch);
         output_batch.autocrop_dims = false;
 
+        println!("rendering text had height: {}", y);
         assets.cache_text(hash_key, output_batch.clone());
         output_batch
     }

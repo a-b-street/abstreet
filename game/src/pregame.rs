@@ -150,10 +150,17 @@ impl MainMenu {
             .centered(),
             Widget::col(vec![
                 Widget::row(vec![
-                    Btn::text_bg2("About").build_def(ctx, None),
-                    Btn::text_bg2("Feedback").build_def(ctx, None),
+                    Btn::text_bg2("AAA").build_def(ctx, None),
+                    Btn::text_bg2("aaa").build_def(ctx, None),
+                    Btn::text_bg2("yyy").build_def(ctx, None),
+                    Btn::text_bg2("fff").build_def(ctx, None),
                 ]),
-                built_info::time().draw(ctx),
+                //built_info::time().draw(ctx),
+                // MJK
+                Widget::row(vec![
+                            Text::from(Line("aaa")).bg(Color::RED).draw(ctx),
+                            Text::from(Line("yyy")).bg(Color::RED).draw(ctx)
+                ])
             ])
             .centered(),
         ];
