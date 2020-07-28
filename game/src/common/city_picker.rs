@@ -36,9 +36,9 @@ impl CityPicker {
             &mut abstutil::Timer::throwaway(),
         ) {
             let bounds = city.boundary.get_bounds();
-            let zoom_no_scale_factor = (0.8 * ctx.canvas.window_width / bounds.width())
+
+            let zoom = (0.8 * ctx.canvas.window_width / bounds.width())
                 .min(0.8 * ctx.canvas.window_height / bounds.height());
-            let zoom = zoom_no_scale_factor / ctx.get_scale_factor();
 
             batch.push(app.cs.map_background, city.boundary);
             for (area_type, polygon) in city.areas {
@@ -56,7 +56,7 @@ impl CityPicker {
                 } else {
                     batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
                 }
-                regions.push((name, color, polygon.scale(zoom_no_scale_factor)));
+                regions.push((name, color, polygon.scale(zoom)));
             }
             batch = batch.scale(zoom);
         }

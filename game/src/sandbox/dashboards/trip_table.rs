@@ -448,12 +448,10 @@ pub fn make_table(
             .enumerate()
             .map(|(idx, w)| {
                 let margin = extra_margin + width_per_col[idx] - w.get_width_for_forcing();
-                // TODO margin_right scales up, so we have to cancel that out. Otherwise here we're
-                // already working in physical pixels. Sigh.
                 if idx == width_per_col.len() - 1 {
-                    w.margin_right(((margin - extra_margin) / ctx.get_scale_factor()) as usize)
+                    w.margin_right((margin - extra_margin) as usize)
                 } else {
-                    w.margin_right((margin / ctx.get_scale_factor()) as usize)
+                    w.margin_right(margin as usize)
                 }
             })
             .collect(),

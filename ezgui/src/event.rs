@@ -1,4 +1,4 @@
-use crate::ScreenPt;
+use crate::{ScreenDims, ScreenPt};
 use geom::Duration;
 use winit::event::{
     ElementState, KeyboardInput, MouseButton, MouseScrollDelta, VirtualKeyCode, WindowEvent,
@@ -23,11 +23,11 @@ pub enum Event {
     WindowLostCursor,
     WindowGainedCursor,
     MouseWheelScroll(f64, f64),
-    WindowResized(f64, f64),
+    WindowResized(ScreenDims),
 }
 
 impl Event {
-    pub fn from_winit_event(ev: WindowEvent) -> Option<Event> {
+    pub fn from_winit_event(ev: WindowEvent, scale_factor: f64) -> Option<Event> {
         match ev {
             WindowEvent::MouseInput { state, button, .. } => match (button, state) {
                 (MouseButton::Left, ElementState::Pressed) => Some(Event::LeftMouseButtonDown),
@@ -47,9 +47,9 @@ impl Event {
                     None
                 }
             }
-            WindowEvent::CursorMoved { position, .. } => {
-                Some(Event::MouseMovedTo(ScreenPt::new(position.x, position.y)))
-            }
+            WindowEvent::CursorMoved { position, .. } => Some(Event::MouseMovedTo(
+                position.to_logical(scale_factor).into(),
+            )),
             WindowEvent::MouseWheel { delta, .. } => match delta {
                 MouseScrollDelta::LineDelta(dx, dy) => {
                     if dx == 0.0 && dy == 0.0 {
@@ -72,7 +72,7 @@ impl Event {
                 }
             },
             WindowEvent::Resized(size) => {
-                Some(Event::WindowResized(size.width.into(), size.height.into()))
+                Some(Event::WindowResized(size.to_logical(scale_factor).into()))
             }
             WindowEvent::Focused(gained) => Some(if gained {
                 Event::WindowGainedCursor

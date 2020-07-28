@@ -255,11 +255,7 @@ impl BtnBuilder {
                 rewrite_hover,
                 maybe_tooltip,
             } => {
-                let (normal, bounds) = svg::load_svg(
-                    ctx.prerender,
-                    &path,
-                    *ctx.prerender.assets.scale_factor.borrow(),
-                );
+                let (normal, bounds) = svg::load_svg(ctx.prerender, &path);
                 let geom = Polygon::rectangle(bounds.width(), bounds.height());
 
                 let hovered = normal.clone().color(rewrite_hover);

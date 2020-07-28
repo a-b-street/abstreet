@@ -312,14 +312,15 @@ impl PrerenderInnards {
         }
     }
 
-    pub fn window_resized(&self, width: f64, height: f64) {
-        self.windowed_context
-            .resize(winit::dpi::PhysicalSize::new(width as u32, height as u32));
-        unsafe {
-            self.gl.viewport(0, 0, width as i32, height as i32);
-            // I think it's safe to assume there's not a clip right now.
-            self.gl.scissor(0, 0, width as i32, height as i32);
-        }
+    pub fn window_resized(&self, new_size: ScreenDims) {
+        todo!("DPI TODO: support other backends");
+        //self.windowed_context
+        //    .resize(winit::dpi::PhysicalSize::new(width as u32, height as u32));
+        //unsafe {
+        //    self.gl.viewport(0, 0, width as i32, height as i32);
+        //    // I think it's safe to assume there's not a clip right now.
+        //    self.gl.scissor(0, 0, width as i32, height as i32);
+        //}
     }
 
     pub fn get_inner_size(&self) -> (f64, f64) {

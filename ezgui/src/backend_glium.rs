@@ -4,13 +4,7 @@ use glium::uniforms::UniformValue;
 use glium::Surface;
 use std::cell::Cell;
 
-pub fn setup(
-    window_title: &str,
-) -> (
-    PrerenderInnards,
-    winit::event_loop::EventLoop<()>,
-    ScreenDims,
-) {
+pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     let event_loop = winit::event_loop::EventLoop::new();
     let display = match glium::Display::new(
         winit::window::WindowBuilder::new()
@@ -105,19 +99,6 @@ pub fn setup(
     )
     .unwrap();
 
-    let inner_window = display.gl_window().window().inner_size();
-    let monitor = event_loop.primary_monitor().size();
-    let initial_size = if cfg!(target_os = "linux") {
-        monitor
-    } else {
-        inner_window
-    };
-    println!(
-        "Inner window size is {:?}, monitor is {:?}, scale factor is {}",
-        inner_window,
-        monitor,
-        display.gl_window().window().scale_factor()
-    );
     (
         PrerenderInnards {
             display,
@@ -125,7 +106,6 @@ pub fn setup(
             total_bytes_uploaded: Cell::new(0),
         },
         event_loop,
-        ScreenDims::new(initial_size.width.into(), initial_size.height.into()),
     )
 }
 
@@ -166,18 +146,15 @@ impl<'a> GfxCtxInnards<'a> {
             .unwrap();
     }
 
-    pub fn enable_clipping(&mut self, rect: ScreenRectangle, canvas: &Canvas) {
+    pub fn enable_clipping(&mut self, rect: ScreenRectangle, scale_factor: f64, canvas: &Canvas) {
         assert!(self.params.scissor.is_none());
-        // The scissor rectangle has to be in device coordinates, so you would think some transform
-        // by scale factor (previously called HiDPI factor) has to happen here. But actually,
-        // window dimensions and the rectangle passed in are already scaled up. So don't do
-        // anything here!
+        // The scissor rectangle is in units of physical pixles, as opposed to logical pixels
         self.params.scissor = Some(glium::Rect {
-            left: rect.x1 as u32,
+            left: (rect.x1 * scale_factor) as u32,
             // Y-inversion
-            bottom: (canvas.window_height - rect.y2) as u32,
-            width: (rect.x2 - rect.x1) as u32,
-            height: (rect.y2 - rect.y1) as u32,
+            bottom: ((canvas.window_height - rect.y2) * scale_factor) as u32,
+            width: ((rect.x2 - rect.x1) * scale_factor) as u32,
+            height: ((rect.y2 - rect.y1) * scale_factor) as u32,
         });
     }
 
@@ -300,11 +277,15 @@ impl PrerenderInnards {
         }
     }
 
-    pub fn window_resized(&self, _: f64, _: f64) {}
+    pub fn window_resized(&self, _new_size: ScreenDims) {}
 
-    pub fn get_inner_size(&self) -> (f64, f64) {
-        let size = self.display.gl_window().window().inner_size();
-        (size.width.into(), size.height.into())
+    pub fn window_size(&self, scale_factor: f64) -> ScreenDims {
+        self.display
+            .gl_window()
+            .window()
+            .inner_size()
+            .to_logical(scale_factor)
+            .into()
     }
 
     pub fn set_window_icon(&self, icon: winit::window::Icon) {

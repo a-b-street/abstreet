@@ -180,7 +180,7 @@ impl Demand {
                 txt_batch.append(
                     Text::from(Line(prettyprint_usize(demand)).fg(Color::RED))
                         .render_ctx(ctx)
-                        .scale(0.15 / ctx.get_scale_factor())
+                        .scale(0.15)
                         .centered_on(pl.middle()),
                 );
             }

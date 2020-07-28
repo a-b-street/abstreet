@@ -932,9 +932,7 @@ fn make_signal_diagram(
                 ctx,
                 GeomBatch::from(vec![(
                     Color::WHITE,
-                    // TODO draw_batch will scale up, but that's inappropriate here, since we're
-                    // depending on window width, which already factors in scale
-                    Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+                    Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
                 )]),
             )
             .centered_horiz(),
@@ -1029,7 +1027,7 @@ fn make_signal_diagram(
             ctx,
             GeomBatch::from(vec![(
                 Color::WHITE,
-                Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+                Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
             )]),
         )
         .centered_horiz(),
