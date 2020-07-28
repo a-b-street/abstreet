@@ -43,12 +43,12 @@ impl DebugMode {
                         .align_right(),
                 ]),
                 Text::new().draw(ctx).named("current info"),
-                Checkbox::text(ctx, "show buildings", hotkey(Key::Num1), true),
-                Checkbox::text(ctx, "show intersections", hotkey(Key::Num2), true),
-                Checkbox::text(ctx, "show lanes", hotkey(Key::Num3), true),
-                Checkbox::text(ctx, "show areas", hotkey(Key::Num4), true),
-                Checkbox::text(ctx, "show labels", hotkey(Key::Num5), false),
-                Checkbox::text(ctx, "show route for all agents", hotkey(Key::R), false),
+                Checkbox::switch(ctx, "show buildings", hotkey(Key::Num1), true),
+                Checkbox::switch(ctx, "show intersections", hotkey(Key::Num2), true),
+                Checkbox::switch(ctx, "show lanes", hotkey(Key::Num3), true),
+                Checkbox::switch(ctx, "show areas", hotkey(Key::Num4), true),
+                Checkbox::switch(ctx, "show labels", hotkey(Key::Num5), false),
+                Checkbox::switch(ctx, "show route for all agents", hotkey(Key::R), false),
                 Widget::col(
                     vec![
                         (lctrl(Key::H), "unhide everything"),

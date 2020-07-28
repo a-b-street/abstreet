@@ -52,8 +52,8 @@ impl HeatmapOptions {
                     .named("radius")
                     .align_right(),
             ]),
-            Checkbox::text(ctx, "smoothing", None, self.smoothing),
-            Checkbox::text(ctx, "contours", None, self.contours),
+            Checkbox::switch(ctx, "smoothing", None, self.smoothing),
+            Checkbox::switch(ctx, "contours", None, self.contours),
             Widget::row(vec![
                 "Color scheme".draw_text(ctx).centered_vert(),
                 Widget::dropdown(

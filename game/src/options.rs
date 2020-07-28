@@ -68,26 +68,26 @@ impl OptionsPanel {
                 ]),
                 "Camera controls".draw_text(ctx),
                 Widget::col(vec![
-                    Checkbox::text(
+                    Checkbox::checkbox(
                         ctx,
                         "Invert direction of vertical scrolling",
                         None,
                         ctx.canvas.invert_scroll,
                     ),
-                    Checkbox::text(
+                    Checkbox::checkbox(
                         ctx,
                         "Pan map when cursor is at edge of screen",
                         None,
                         ctx.canvas.edge_auto_panning,
                     )
                     .named("autopan"),
-                    Checkbox::text(
+                    Checkbox::checkbox(
                         ctx,
                         "Use touchpad to pan and hold Control to zoom",
                         None,
                         ctx.canvas.touchpad_to_move,
                     ),
-                    Checkbox::text(
+                    Checkbox::checkbox(
                         ctx,
                         "Use arrow keys to pan and Q/W to zoom",
                         None,
@@ -103,7 +103,7 @@ impl OptionsPanel {
                 .padding(8),
                 "Appearance".draw_text(ctx),
                 Widget::col(vec![
-                    Checkbox::text(ctx, "Draw road names", None, app.opts.label_roads),
+                    Checkbox::checkbox(ctx, "Draw road names", None, app.opts.label_roads),
                     Widget::row(vec![
                         "Traffic signal rendering:".draw_text(ctx),
                         Widget::dropdown(
@@ -181,7 +181,7 @@ impl OptionsPanel {
                             ],
                         ),
                     ]),
-                    Checkbox::text(
+                    Checkbox::checkbox(
                         ctx,
                         "Draw enlarged unzoomed agents",
                         None,
@@ -192,8 +192,8 @@ impl OptionsPanel {
                 .padding(8),
                 "Debug".draw_text(ctx),
                 Widget::col(vec![
-                    Checkbox::text(ctx, "Enable developer mode", None, app.opts.dev),
-                    Checkbox::text(
+                    Checkbox::checkbox(ctx, "Enable developer mode", None, app.opts.dev),
+                    Checkbox::checkbox(
                         ctx,
                         "Draw all agents to debug geometry (Slow!)",
                         None,

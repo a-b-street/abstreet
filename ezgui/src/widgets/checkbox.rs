@@ -28,8 +28,7 @@ impl Checkbox {
         }
     }
 
-    // TODO Probably rename "toggle"
-    pub fn text<I: Into<String>>(
+    pub fn switch<I: Into<String>>(
         ctx: &EventCtx,
         label: I,
         hotkey: Option<MultiKey>,
@@ -71,7 +70,23 @@ impl Checkbox {
         .named(label)
     }
 
-    pub fn custom_text<I: Into<String>>(
+    pub fn checkbox<I: Into<String>>(
+        ctx: &EventCtx,
+        label: I,
+        hotkey: Option<MultiKey>,
+        enabled: bool,
+    ) -> Widget {
+        let label = label.into();
+        Checkbox::new(
+            enabled,
+            Btn::text_fg(format!("[ ] {}", label)).build(ctx, &label, hotkey.clone()),
+            Btn::text_fg(format!("[X] {}", label)).build(ctx, &label, hotkey),
+        )
+        .outline(ctx.style().outline_thickness, ctx.style().outline_color)
+        .named(label)
+    }
+
+     pub fn custom_checkbox<I: Into<String>>(
         ctx: &EventCtx,
         label: I,
         spans: Vec<TextSpan>,

@@ -357,10 +357,10 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
     let mut col = vec![DashTab::TripTable.picker(ctx, app)];
     col.push(checkbox_per_mode(ctx, app, &opts.modes));
     col.push(Widget::row(vec![
-        Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts),
-        Checkbox::text(ctx, "ending off-map", None, opts.off_map_ends),
+        Checkbox::switch(ctx, "starting off-map", None, opts.off_map_starts),
+        Checkbox::switch(ctx, "ending off-map", None, opts.off_map_ends),
         if app.primary.has_modified_trips {
-            Checkbox::text(
+            Checkbox::switch(
                 ctx,
                 "trips unmodified by experiment",
                 None,
@@ -370,7 +370,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             Widget::nothing()
         },
         if app.primary.has_modified_trips {
-            Checkbox::text(
+            Checkbox::switch(
                 ctx,
                 "trips modified by experiment",
                 None,

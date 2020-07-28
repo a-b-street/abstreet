@@ -701,7 +701,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
             hotkey(Key::Space),
             true,
         ),
-        Checkbox::text(ctx, "include borders", None, true),
+        Checkbox::switch(ctx, "include borders", None, true),
         Widget::row(vec![
             "Departing from:".draw_text(ctx).margin_right(20),
             AreaSlider::new(ctx, 0.15 * ctx.canvas.window_width, 0.0).named("depart from"),

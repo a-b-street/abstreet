@@ -98,7 +98,7 @@ impl PopularDestinations {
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
-                Checkbox::text(ctx, "Show heatmap", None, opts.is_some()),
+                Checkbox::switch(ctx, "Show heatmap", None, opts.is_some()),
                 controls,
                 breakdown.draw(ctx),
             ]))
