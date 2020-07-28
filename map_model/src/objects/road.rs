@@ -344,44 +344,53 @@ impl Road {
 
     // Used to determine which roads have stop signs when roads of different types intersect.
     pub fn get_rank(&self) -> usize {
-        if let Some(highway) = self.osm_tags.get(osm::HIGHWAY) {
-            match highway.as_ref() {
-                "motorway" => 20,
-                "motorway_link" => 19,
-                // TODO Probably not true in general. For the West Seattle bridge.
-                "construction" => 18,
-
-                "trunk" => 17,
-                "trunk_link" => 16,
-
-                "primary" => 15,
-                "primary_link" => 14,
-
-                "secondary" => 13,
-                "secondary_link" => 12,
-
-                "tertiary" => 10,
-                "tertiary_link" => 9,
-
-                "residential" => 5,
-                "living_street" => 3,
-
-                "footway" => 1,
-
-                "unclassified" => 0,
-                "road" => 0,
-                "crossing" => 0,
-                "service" => 0,
-                // If you hit this error and the highway type doesn't represent a driveable road,
-                // you may want to instead filter out the OSM way entirely in
-                // convert_osm/src/extract.rs's is_road().
-                _ => panic!(
-                    "Unknown OSM highway {}. Other tags: {:?}",
-                    highway, self.osm_tags
-                ),
+        let hwy = if let Some(x) = self.osm_tags.get(osm::HIGHWAY) {
+            if x == "construction" {
+                // What exactly is under construction?
+                if let Some(x) = self.osm_tags.get("construction") {
+                    x
+                } else {
+                    return 0;
+                }
+            } else {
+                x
             }
         } else {
-            0
+            return 0;
+        };
+
+        match hwy.as_ref() {
+            "motorway" => 20,
+            "motorway_link" => 19,
+
+            "trunk" => 17,
+            "trunk_link" => 16,
+
+            "primary" => 15,
+            "primary_link" => 14,
+
+            "secondary" => 13,
+            "secondary_link" => 12,
+
+            "tertiary" => 10,
+            "tertiary_link" => 9,
+
+            "residential" => 5,
+            "living_street" => 3,
+
+            "footway" => 1,
+
+            "unclassified" => 0,
+            "road" => 0,
+            "crossing" => 0,
+            "service" => 0,
+            // If you hit this error and the highway type doesn't represent a driveable road,
+            // you may want to instead filter out the OSM way entirely in
+            // convert_osm/src/extract.rs's is_road().
+            _ => panic!(
+                "Unknown OSM highway {}. Other tags: {:?}",
+                hwy, self.osm_tags
+            ),
         }
     }
 
