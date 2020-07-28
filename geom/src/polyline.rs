@@ -722,6 +722,21 @@ impl PolyLine {
     pub fn get_bounds(&self) -> Bounds {
         Bounds::from(&self.pts)
     }
+
+    // If the current line is at least this long, return it. Otherwise, extend the end of it,
+    // following the angle of the last line.
+    pub fn extend_to_length(&self, min_len: Distance) -> PolyLine {
+        let need_len = min_len - self.length();
+        if need_len <= Distance::ZERO {
+            return self.clone();
+        }
+        let line = self.last_line();
+        let extension = PolyLine::must_new(vec![
+            line.pt2(),
+            line.pt2().project_away(need_len, line.angle()),
+        ]);
+        self.clone().must_extend(extension)
+    }
 }
 
 impl fmt::Display for PolyLine {

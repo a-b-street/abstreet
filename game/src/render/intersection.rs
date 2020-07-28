@@ -244,7 +244,7 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon
             )
         };
         result.push(
-            // DEGENERATE_INTERSECTION_HALF_LENGTH is 5m...
+            // DEGENERATE_INTERSECTION_HALF_LENGTH is 2.5m...
             PolyLine::must_new(vec![
                 line.unbounded_dist_along(Distance::meters(-9.5)),
                 line.unbounded_dist_along(Distance::meters(-0.5)),

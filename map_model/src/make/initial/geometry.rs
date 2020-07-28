@@ -49,7 +49,7 @@ pub fn intersection_polygon(
     });
 
     if lines.len() == 1 {
-        deadend(driving_side, roads, i.id, &lines, timer)
+        deadend(driving_side, roads, i.id, &lines)
     } else {
         generalized_trim_back(driving_side, roads, i.id, &lines, timer)
     }
@@ -281,64 +281,66 @@ fn deadend(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: OriginalIntersection,
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
-    timer: &mut Timer,
 ) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
 
-    let (id, _, pl_a, pl_b) = &lines[0];
-    if pl_a.length() > len && pl_b.length() > len {
-        let r = roads.get_mut(&id).unwrap();
-        if r.trimmed_center_pts.length() >= len + 3.0 * geom::EPSILON_DIST {
-            if r.src_i == i {
-                r.trimmed_center_pts = r
-                    .trimmed_center_pts
-                    .exact_slice(len, r.trimmed_center_pts.length());
-            } else {
-                r.trimmed_center_pts = r
-                    .trimmed_center_pts
-                    .exact_slice(Distance::ZERO, r.trimmed_center_pts.length() - len);
-            }
+    let (id, _, mut pl_a, mut pl_b) = lines[0].clone();
+    // If the lines are too short (usually due to the boundary polygon cutting off border roads too
+    // much), just extend them.
+    // TODO Not sure why we need +1.5x more, but this looks better. Some math is definitely off
+    // somewhere.
+    pl_a = pl_a.extend_to_length(len + 1.5 * DEGENERATE_INTERSECTION_HALF_LENGTH);
+    pl_b = pl_b.extend_to_length(len + 1.5 * DEGENERATE_INTERSECTION_HALF_LENGTH);
 
-            // After trimming the center points, the two sides of the road may be at different
-            // points, so shift the center out again to find the endpoints.
-            // TODO Refactor with generalized_trim_back.
-            let mut endpts = vec![pl_b.last_pt(), pl_a.last_pt()];
-            if r.dst_i == i {
-                endpts.push(
-                    driving_side
-                        .right_shift(r.trimmed_center_pts.clone(), r.half_width)
-                        .last_pt(),
-                );
-                endpts.push(
-                    driving_side
-                        .left_shift(r.trimmed_center_pts.clone(), r.half_width)
-                        .last_pt(),
-                );
-            } else {
-                endpts.push(
-                    driving_side
-                        .left_shift(r.trimmed_center_pts.clone(), r.half_width)
-                        .first_pt(),
-                );
-                endpts.push(
-                    driving_side
-                        .right_shift(r.trimmed_center_pts.clone(), r.half_width)
-                        .first_pt(),
-                );
-            }
-
-            return (close_off_polygon(endpts), Vec::new());
+    let r = roads.get_mut(&id).unwrap();
+    let len_with_buffer = len + 3.0 * geom::EPSILON_DIST;
+    let trimmed = if r.trimmed_center_pts.length() >= len_with_buffer {
+        if r.src_i == i {
+            r.trimmed_center_pts = r
+                .trimmed_center_pts
+                .exact_slice(len, r.trimmed_center_pts.length());
+        } else {
+            r.trimmed_center_pts = r
+                .trimmed_center_pts
+                .exact_slice(Distance::ZERO, r.trimmed_center_pts.length() - len);
         }
+        r.trimmed_center_pts.clone()
+    } else {
+        if r.src_i == i {
+            r.trimmed_center_pts.extend_to_length(len_with_buffer)
+        } else {
+            r.trimmed_center_pts
+                .reversed()
+                .extend_to_length(len_with_buffer)
+                .reversed()
+        }
+    };
+
+    // After trimming the center points, the two sides of the road may be at different
+    // points, so shift the center out again to find the endpoints.
+    // TODO Refactor with generalized_trim_back.
+    let mut endpts = vec![pl_b.last_pt(), pl_a.last_pt()];
+    if r.dst_i == i {
+        endpts.push(
+            driving_side
+                .right_shift(trimmed.clone(), r.half_width)
+                .last_pt(),
+        );
+        endpts.push(
+            driving_side
+                .left_shift(trimmed.clone(), r.half_width)
+                .last_pt(),
+        );
+    } else {
+        endpts.push(
+            driving_side
+                .left_shift(trimmed.clone(), r.half_width)
+                .first_pt(),
+        );
+        endpts.push(driving_side.right_shift(trimmed, r.half_width).first_pt());
     }
 
-    timer.warn(format!(
-        "{} is a dead-end for {}, which is too short to make degenerate intersection geometry",
-        i, id
-    ));
-    (
-        vec![pl_a.last_pt(), pl_b.last_pt(), pl_a.last_pt()],
-        Vec::new(),
-    )
+    (close_off_polygon(endpts), Vec::new())
 }
 
 fn close_off_polygon(mut pts: Vec<Pt2D>) -> Vec<Pt2D> {
