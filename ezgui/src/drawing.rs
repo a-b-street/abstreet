@@ -4,7 +4,7 @@ use crate::{
     Canvas, Color, Drawable, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle, Style, Text,
 };
 use geom::{Bounds, Polygon, Pt2D};
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 
 // Lower is more on top
 const MAPSPACE_Z: f32 = 1.0;
@@ -136,7 +136,8 @@ impl<'a> GfxCtx<'a> {
 
     // TODO Stateful API :(
     pub fn enable_clipping(&mut self, rect: ScreenRectangle) {
-        self.inner.enable_clipping(rect, self.canvas);
+        let scale_factor = self.prerender.get_scale_factor();
+        self.inner.enable_clipping(rect, scale_factor, self.canvas);
     }
 
     pub fn disable_clipping(&mut self) {
@@ -227,6 +228,7 @@ pub struct Prerender {
     pub(crate) inner: PrerenderInnards,
     pub(crate) assets: Assets,
     pub(crate) num_uploads: Cell<usize>,
+    pub scale_factor: RefCell<f64>,
 }
 
 impl Prerender {
@@ -250,5 +252,17 @@ impl Prerender {
 
     pub(crate) fn request_redraw(&self) {
         self.inner.request_redraw()
+    }
+
+    pub fn get_scale_factor(&self) -> f64 {
+        *self.scale_factor.borrow()
+    }
+
+    pub fn set_scale_factor(&self, scale_factor: f64) {
+        *self.scale_factor.borrow_mut() = scale_factor;
+    }
+
+    pub fn window_size(&self) -> ScreenDims {
+        self.inner.window_size(self.get_scale_factor())
     }
 }

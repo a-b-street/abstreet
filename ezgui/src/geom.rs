@@ -137,23 +137,18 @@ impl GeomBatch {
     pub fn from_svg_contents(raw: Vec<u8>) -> GeomBatch {
         let mut batch = GeomBatch::new();
         let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
-        svg::add_svg_inner(&mut batch, svg_tree, svg::HIGH_QUALITY, 1.0).unwrap();
+        svg::add_svg_inner(&mut batch, svg_tree, svg::HIGH_QUALITY).unwrap();
         batch
     }
 
     /// Returns a batch containing an SVG from a file.
     pub fn mapspace_svg(prerender: &Prerender, filename: &str) -> GeomBatch {
-        svg::load_svg(prerender, filename, 1.0).0
+        svg::load_svg(prerender, filename).0
     }
 
-    /// Returns a batch containing an SVG from a file. Uses the current screen's scale factor.
+    /// Returns a batch containing an SVG from a file.
     pub fn screenspace_svg<I: Into<String>>(prerender: &Prerender, filename: I) -> GeomBatch {
-        svg::load_svg(
-            prerender,
-            &filename.into(),
-            *prerender.assets.scale_factor.borrow(),
-        )
-        .0
+        svg::load_svg(prerender, &filename.into()).0
     }
 
     /// Transforms all colors in a batch.

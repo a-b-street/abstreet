@@ -1,6 +1,6 @@
 use crate::{
-    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, Line, Prerender, ScreenPt, Style,
-    Text, UserInput,
+    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, Line, Prerender, ScreenDims,
+    ScreenPt, Style, Text, UserInput,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Polygon;
@@ -41,8 +41,7 @@ impl<'a> EventCtx<'a> {
             &timer_name,
             Box::new(LoadingScreen::new(
                 self.prerender,
-                self.canvas.window_width,
-                self.canvas.window_height,
+                self.canvas.get_window_dims(),
                 timer_name.clone(),
             )),
         );
@@ -113,18 +112,6 @@ impl<'a> EventCtx<'a> {
         self.prerender.upload(batch)
     }
 
-    pub fn set_scale_factor(&self, scale: f64) {
-        self.prerender.assets.set_scale_factor(scale)
-    }
-
-    pub fn get_scale_factor(&self) -> f64 {
-        *self.prerender.assets.scale_factor.borrow()
-    }
-
-    pub fn monitor_scale_factor(&self) -> f64 {
-        self.prerender.inner.monitor_scale_factor()
-    }
-
     pub(crate) fn cursor_clickable(&mut self) {
         self.prerender
             .inner
@@ -153,13 +140,12 @@ pub struct LoadingScreen<'a> {
 impl<'a> LoadingScreen<'a> {
     pub fn new(
         prerender: &'a Prerender,
-        initial_width: f64,
-        initial_height: f64,
+        initial_size: ScreenDims,
         title: String,
     ) -> LoadingScreen<'a> {
-        let canvas = Canvas::new(initial_width, initial_height);
+        let canvas = Canvas::new(initial_size);
         let max_capacity =
-            (0.8 * initial_height / *prerender.assets.default_line_height.borrow()) as usize;
+            (0.8 * initial_size.height / *prerender.assets.default_line_height.borrow()) as usize;
         LoadingScreen {
             prerender,
             lines: VecDeque::new(),

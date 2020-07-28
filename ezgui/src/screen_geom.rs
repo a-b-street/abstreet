@@ -2,6 +2,7 @@ use crate::Canvas;
 use geom::{trim_f64, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
 
+/// ScreenPt is in units of logical pixels, as opposed to physical pixels.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ScreenPt {
     pub x: f64,
@@ -20,6 +21,13 @@ impl ScreenPt {
     }
 }
 
+impl From<winit::dpi::LogicalPosition<f64>> for ScreenPt {
+    fn from(lp: winit::dpi::LogicalPosition<f64>) -> ScreenPt {
+        ScreenPt { x: lp.x, y: lp.y }
+    }
+}
+
+/// ScreenRectangle is in units of logical pixels, as opposed to physical pixels.
 #[derive(Clone, Debug)]
 pub struct ScreenRectangle {
     pub x1: f64,
@@ -87,7 +95,7 @@ impl ScreenRectangle {
     }
 }
 
-// TODO Everything screen-space should probably just be usize, can't have fractional pixels?
+/// ScreenDims is in units of logical pixels, as opposed to physical pixels.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct ScreenDims {
     pub width: f64,
@@ -122,6 +130,15 @@ impl ScreenDims {
                 // corner.y is the bottom corner
                 ScreenPt::new(corner.x - self.width, corner.y - self.height)
             }
+        }
+    }
+}
+
+impl From<winit::dpi::LogicalSize<f64>> for ScreenDims {
+    fn from(lp: winit::dpi::LogicalSize<f64>) -> ScreenDims {
+        ScreenDims {
+            width: lp.width,
+            height: lp.height,
         }
     }
 }

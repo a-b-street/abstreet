@@ -1,4 +1,3 @@
-use crate::assets::Assets;
 use crate::{Key, ScreenDims, ScreenPt, ScreenRectangle, UpdateType, UserInput};
 use abstutil::Timer;
 use geom::{Bounds, Pt2D};
@@ -49,7 +48,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub(crate) fn new(initial_width: f64, initial_height: f64) -> Canvas {
+    pub(crate) fn new(initial_dims: ScreenDims) -> Canvas {
         Canvas {
             cam_x: 0.0,
             cam_y: 0.0,
@@ -62,8 +61,8 @@ impl Canvas {
             drag_canvas_from: None,
             drag_just_ended: false,
 
-            window_width: initial_width,
-            window_height: initial_height,
+            window_width: initial_dims.width,
+            window_height: initial_dims.height,
 
             map_dims: (0.0, 0.0),
             invert_scroll: false,
@@ -265,6 +264,10 @@ impl Canvas {
         b
     }
 
+    pub fn get_window_dims(&self) -> ScreenDims {
+        ScreenDims::new(self.window_width, self.window_height)
+    }
+
     fn get_map_bounds(&self) -> Bounds {
         let mut b = Bounds::new();
         b.update(Pt2D::new(0.0, 0.0));
@@ -306,7 +309,6 @@ impl Canvas {
 
     pub(crate) fn align_window(
         &self,
-        assets: &Assets,
         dims: ScreenDims,
         horiz: HorizontalAlignment,
         vert: VerticalAlignment,
@@ -323,9 +325,7 @@ impl Canvas {
             VerticalAlignment::Center => (self.window_height - dims.height) / 2.0,
             VerticalAlignment::Bottom => self.window_height - dims.height,
             // TODO Hack
-            VerticalAlignment::BottomAboveOSD => {
-                self.window_height - dims.height - 60.0 * *assets.scale_factor.borrow()
-            }
+            VerticalAlignment::BottomAboveOSD => self.window_height - dims.height - 60.0,
             VerticalAlignment::Percent(pct) => pct * self.window_height,
             VerticalAlignment::Above(y) => y - dims.height,
             VerticalAlignment::Below(y) => y,

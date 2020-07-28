@@ -12,8 +12,8 @@ pub const LOW_QUALITY: f32 = 1.0;
 // Code here adapted from
 // https://github.com/nical/lyon/blob/0d0ee771180fb317b986d9cf30266722e0773e01/examples/wgpu_svg/src/main.rs
 
-pub fn load_svg(prerender: &Prerender, filename: &str, scale_factor: f64) -> (GeomBatch, Bounds) {
-    if let Some(pair) = prerender.assets.get_cached_svg(filename, scale_factor) {
+pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
+    if let Some(pair) = prerender.assets.get_cached_svg(filename) {
         return pair;
     }
 
@@ -25,14 +25,11 @@ pub fn load_svg(prerender: &Prerender, filename: &str, scale_factor: f64) -> (Ge
     };
     let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
     let mut batch = GeomBatch::new();
-    match add_svg_inner(&mut batch, svg_tree, HIGH_QUALITY, scale_factor) {
+    match add_svg_inner(&mut batch, svg_tree, HIGH_QUALITY) {
         Ok(bounds) => {
-            prerender.assets.cache_svg(
-                filename.to_string(),
-                scale_factor,
-                batch.clone(),
-                bounds.clone(),
-            );
+            prerender
+                .assets
+                .cache_svg(filename.to_string(), batch.clone(), bounds.clone());
             (batch, bounds)
         }
         Err(err) => panic!("{}: {}", filename, err),
@@ -46,7 +43,6 @@ pub fn add_svg_inner(
     batch: &mut GeomBatch,
     svg_tree: usvg::Tree,
     tolerance: f32,
-    scale: f64,
 ) -> Result<Bounds, String> {
     let mut fill_tess = tessellation::FillTessellator::new();
     let mut stroke_tess = tessellation::StrokeTessellator::new();
@@ -88,7 +84,7 @@ pub fn add_svg_inner(
             Polygon::precomputed(
                 mesh.vertices
                     .into_iter()
-                    .map(|v| Pt2D::new(scale * f64::from(v.x), scale * f64::from(v.y)))
+                    .map(|v| Pt2D::new(f64::from(v.x), f64::from(v.y)))
                     .collect(),
                 mesh.indices.into_iter().map(|idx| idx as usize).collect(),
             ),
@@ -97,7 +93,7 @@ pub fn add_svg_inner(
     let size = svg_tree.svg_node().size;
     Ok(Bounds::from(&vec![
         Pt2D::new(0.0, 0.0),
-        Pt2D::new(scale * size.width(), scale * size.height()),
+        Pt2D::new(size.width(), size.height()),
     ]))
 }
 

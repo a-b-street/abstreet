@@ -248,7 +248,7 @@ fn make_meter(
             ctx,
             GeomBatch::from(vec![(
                 Color::WHITE,
-                Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+                Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
             )]),
         )
         .centered_horiz(),

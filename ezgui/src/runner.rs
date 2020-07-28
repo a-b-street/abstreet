@@ -4,7 +4,7 @@ use crate::{Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, UpdateType, 
 use geom::Duration;
 use image::{GenericImageView, Pixel};
 use instant::Instant;
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::panic;
 use winit::window::Icon;
 
@@ -59,22 +59,16 @@ impl<G: GUI> State<G> {
 
         // Update some ezgui state that's stashed in Canvas for sad reasons.
         {
-            if let Event::WindowResized(width, height) = input.event {
-                let inner_size = prerender.inner.get_inner_size();
+            if let Event::WindowResized(new_size) = input.event {
+                let inner_size = prerender.window_size();
                 println!(
-                    "winit event says the window was resized from {}, {} to {}, {}. But inner \
-                     size is {}, {}, so using that",
-                    self.canvas.window_width,
-                    self.canvas.window_height,
-                    width,
-                    height,
-                    inner_size.0,
-                    inner_size.1
+                    "winit event says the window was resized from {}, {} to {:?}. But inner size \
+                     is {:?}, so using that",
+                    self.canvas.window_width, self.canvas.window_height, new_size, inner_size
                 );
-                let (width, height) = inner_size;
-                prerender.inner.window_resized(width, height);
-                self.canvas.window_width = width;
-                self.canvas.window_height = height;
+                prerender.inner.window_resized(new_size);
+                self.canvas.window_width = inner_size.width;
+                self.canvas.window_height = inner_size.height;
             }
 
             if input.event == Event::KeyPress(Key::LeftControl) {
@@ -197,11 +191,8 @@ impl Settings {
 }
 
 pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: F) -> ! {
-    let (prerender_innards, event_loop, window_size) =
-        crate::backend::setup(&settings.window_title);
+    let (prerender_innards, event_loop) = crate::backend::setup(&settings.window_title);
 
-    let mut canvas = Canvas::new(window_size.width, window_size.height);
-    prerender_innards.window_resized(canvas.window_width, canvas.window_height);
     if let Some(ref path) = settings.window_icon {
         if !cfg!(target_arch = "wasm32") {
             let image = image::open(path).unwrap();
@@ -214,17 +205,23 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
             prerender_innards.set_window_icon(icon);
         }
     }
+
+    let monitor_scale_factor = prerender_innards.monitor_scale_factor();
     let prerender = Prerender {
-        assets: Assets::new(
-            abstutil::path("system/fonts"),
-            settings
-                .scale_factor
-                .unwrap_or_else(|| prerender_innards.monitor_scale_factor()),
-        ),
+        assets: Assets::new(abstutil::path("system/fonts")),
         num_uploads: Cell::new(0),
         inner: prerender_innards,
+        scale_factor: RefCell::new(settings.scale_factor.unwrap_or(monitor_scale_factor)),
     };
     let mut style = Style::standard();
+
+    // DPI TODO: This is going to cause a regression for devs on linux - since not all UI elements
+    // properly resize, e.g. the minimap. However, since only dev's are launching directly to the
+    // simulation, in practice this shouldn't cause much of an issue until we can get the minimap
+    // to resize itself.
+    let initial_size = prerender.window_size();
+    let mut canvas = Canvas::new(initial_size);
+    prerender.inner.window_resized(initial_size);
 
     let gui = make_gui(&mut EventCtx {
         fake_mouseover: true,
@@ -265,7 +262,8 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
                 std::process::exit(0);
             }
             winit::event::Event::WindowEvent { event, .. } => {
-                if let Some(ev) = Event::from_winit_event(event) {
+                let scale_factor = prerender.get_scale_factor();
+                if let Some(ev) = Event::from_winit_event(event, scale_factor) {
                     ev
                 } else {
                     // Don't touch control_flow if we got an irrelevant event

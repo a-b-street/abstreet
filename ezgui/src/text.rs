@@ -454,12 +454,7 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
         Err(err) => panic!("render_line({}): {}", contents, err),
     };
     let mut batch = GeomBatch::new();
-    match crate::svg::add_svg_inner(
-        &mut batch,
-        svg_tree,
-        tolerance,
-        *assets.scale_factor.borrow(),
-    ) {
+    match crate::svg::add_svg_inner(&mut batch, svg_tree, tolerance) {
         Ok(_) => batch,
         Err(err) => panic!("render_line({}): {}", contents, err),
     }

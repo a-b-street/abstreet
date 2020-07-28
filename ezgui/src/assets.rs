@@ -11,22 +11,20 @@ use usvg::Options;
 // TODO We don't need refcell maybe? Can we take &mut Assets?
 pub struct Assets {
     pub default_line_height: RefCell<f64>,
-    pub scale_factor: RefCell<f64>,
     text_cache: RefCell<LruCache<String, GeomBatch>>,
     line_height_cache: RefCell<HashMap<(Font, usize), f64>>,
     // Keyed by filename, then scale factor mangled into a hashable form. Tuple doesn't work
     // because of borrowing.
-    svg_cache: RefCell<HashMap<String, HashMap<usize, (GeomBatch, Bounds)>>>,
+    svg_cache: RefCell<HashMap<String, (GeomBatch, Bounds)>>,
     #[cfg(not(feature = "wasm-backend"))]
     font_to_id: HashMap<Font, fontdb::ID>,
     pub text_opts: Options,
 }
 
 impl Assets {
-    pub fn new(font_dir: String, scale_factor: f64) -> Assets {
+    pub fn new(font_dir: String) -> Assets {
         let mut a = Assets {
             default_line_height: RefCell::new(0.0),
-            scale_factor: RefCell::new(scale_factor),
             text_cache: RefCell::new(LruCache::new(500)),
             line_height_cache: RefCell::new(HashMap::new()),
             svg_cache: RefCell::new(HashMap::new()),
@@ -89,7 +87,7 @@ impl Assets {
                 ((ascent - descent) as f64) * scale
             })
             .unwrap();
-        let height = text::SCALE_LINE_HEIGHT * *self.scale_factor.borrow() * line_height;
+        let height = text::SCALE_LINE_HEIGHT * line_height;
 
         self.line_height_cache.borrow_mut().insert(key, height);
         height
@@ -113,29 +111,11 @@ impl Assets {
         self.text_cache.borrow_mut().put(key, geom);
     }
 
-    pub fn get_cached_svg(&self, key: &str, scale_factor: f64) -> Option<(GeomBatch, Bounds)> {
-        self.svg_cache
-            .borrow()
-            .get(key)
-            .and_then(|m| m.get(&key_scale_factor(scale_factor)).cloned())
-    }
-    pub fn cache_svg(&self, key: String, scale_factor: f64, geom: GeomBatch, bounds: Bounds) {
-        self.svg_cache
-            .borrow_mut()
-            .entry(key)
-            .or_insert_with(HashMap::new)
-            .insert(key_scale_factor(scale_factor), (geom, bounds));
+    pub fn get_cached_svg(&self, key: &str) -> Option<(GeomBatch, Bounds)> {
+        self.svg_cache.borrow().get(key).cloned()
     }
 
-    pub fn set_scale_factor(&self, scale_factor: f64) {
-        *self.scale_factor.borrow_mut() = scale_factor;
-        self.text_cache.borrow_mut().clear();
-        self.line_height_cache.borrow_mut().clear();
-        *self.default_line_height.borrow_mut() =
-            self.line_height(text::DEFAULT_FONT, text::DEFAULT_FONT_SIZE);
+    pub fn cache_svg(&self, key: String, geom: GeomBatch, bounds: Bounds) {
+        self.svg_cache.borrow_mut().insert(key, (geom, bounds));
     }
-}
-
-fn key_scale_factor(x: f64) -> usize {
-    (x * 100.0) as usize
 }

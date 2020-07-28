@@ -230,7 +230,7 @@ impl Widget {
     // TODO These are literally just convenient APIs to avoid importing JustDraw. Do we want this
     // or not?
     pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> Widget {
-        JustDraw::wrap(ctx, batch.scale(ctx.get_scale_factor()))
+        JustDraw::wrap(ctx, batch)
     }
     pub fn draw_svg<I: Into<String>>(ctx: &EventCtx, filename: I) -> Widget {
         JustDraw::svg(ctx, filename.into())
@@ -307,9 +307,8 @@ impl Widget {
             // TODO 35 is a sad magic number. By default, Composites have padding of 16, so assuming
             // this geometry is going in one of those, it makes sense to subtract 32. But that still
             // caused some scrolling in a test, so snip away a few more pixels.
-            self.layout.style.min_size.width = Dimension::Points(
-                (w * ctx.canvas.window_width * ctx.get_scale_factor()) as f32 - 35.0,
-            );
+            self.layout.style.min_size.width =
+                Dimension::Points((w * ctx.canvas.window_width) as f32 - 35.0);
         }
 
         // Pretend we're in a Composite and basically copy recompute_layout
@@ -325,12 +324,7 @@ impl Widget {
                 .unwrap();
 
             let mut nodes = vec![];
-            self.get_flexbox(
-                root,
-                ctx.get_scale_factor() as f32,
-                &mut stretch,
-                &mut nodes,
-            );
+            self.get_flexbox(root, &mut stretch, &mut nodes);
             nodes.reverse();
 
             let container_size = Size {
@@ -371,13 +365,7 @@ impl Widget {
     }
 
     // Populate a flattened list of Nodes, matching the traversal order
-    fn get_flexbox(
-        &self,
-        parent: Node,
-        scale_factor: f32,
-        stretch: &mut Stretch,
-        nodes: &mut Vec<Node>,
-    ) {
+    fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
         if let Some(container) = self.widget.downcast_ref::<Container>() {
             let mut style = self.layout.style.clone();
             style.flex_direction = if container.is_row {
@@ -388,7 +376,7 @@ impl Widget {
             let node = stretch.new_node(style, Vec::new()).unwrap();
             nodes.push(node);
             for widget in &container.members {
-                widget.get_flexbox(node, scale_factor, stretch, nodes);
+                widget.get_flexbox(node, stretch, nodes);
             }
             stretch.add_child(parent, node).unwrap();
             return;
@@ -398,32 +386,6 @@ impl Widget {
                 width: Dimension::Points(self.widget.get_dims().width as f32),
                 height: Dimension::Points(self.widget.get_dims().height as f32),
             };
-            if scale_factor != 1.0 {
-                if let Dimension::Points(ref mut px) = style.padding.start {
-                    *px *= scale_factor;
-                }
-                if let Dimension::Points(ref mut px) = style.padding.end {
-                    *px *= scale_factor;
-                }
-                if let Dimension::Points(ref mut px) = style.padding.top {
-                    *px *= scale_factor;
-                }
-                if let Dimension::Points(ref mut px) = style.padding.bottom {
-                    *px *= scale_factor;
-                }
-                if let Dimension::Points(ref mut px) = style.margin.start {
-                    *px *= scale_factor;
-                }
-                if let Dimension::Points(ref mut px) = style.margin.end {
-                    *px *= scale_factor;
-                }
-                if let Dimension::Points(ref mut px) = style.margin.top {
-                    *px *= scale_factor;
-                }
-                if let Dimension::Points(ref mut px) = style.margin.bottom {
-                    *px *= scale_factor;
-                }
-            }
             let node = stretch.new_node(style, Vec::new()).unwrap();
             stretch.add_child(parent, node).unwrap();
             nodes.push(node);
@@ -660,12 +622,7 @@ impl Composite {
             .unwrap();
 
         let mut nodes = vec![];
-        self.top_level.get_flexbox(
-            root,
-            ctx.get_scale_factor() as f32,
-            &mut stretch,
-            &mut nodes,
-        );
+        self.top_level.get_flexbox(root, &mut stretch, &mut nodes);
         nodes.reverse();
 
         // TODO Express more simply. Constraining this seems useless.
@@ -682,9 +639,9 @@ impl Composite {
             let result = stretch.layout(root).unwrap();
             ScreenDims::new(result.size.width.into(), result.size.height.into())
         };
-        let top_left =
-            ctx.canvas
-                .align_window(&ctx.prerender.assets, effective_dims, self.horiz, self.vert);
+        let top_left = ctx
+            .canvas
+            .align_window(effective_dims, self.horiz, self.vert);
         let offset = self.scroll_offset();
         self.top_level.apply_flexbox(
             &stretch,
@@ -792,12 +749,9 @@ impl Composite {
             g.fork_screenspace();
             g.draw_polygon(Color::RED.alpha(0.5), self.top_level.rect.to_polygon());
 
-            let top_left = g.canvas.align_window(
-                &g.prerender.assets,
-                self.container_dims,
-                self.horiz,
-                self.vert,
-            );
+            let top_left = g
+                .canvas
+                .align_window(self.container_dims, self.horiz, self.vert);
             g.draw_polygon(
                 Color::BLUE.alpha(0.5),
                 Polygon::rectangle(self.container_dims.width, self.container_dims.height)
@@ -1006,9 +960,7 @@ impl CompositeBuilder {
         };
 
         // If the panel fits without a scrollbar, don't add one.
-        let top_left =
-            ctx.canvas
-                .align_window(&ctx.prerender.assets, c.container_dims, c.horiz, c.vert);
+        let top_left = ctx.canvas.align_window(c.container_dims, c.horiz, c.vert);
         if c.contents_dims.width > c.container_dims.width {
             c.scrollable_x = true;
             c.top_level = Widget::custom_col(vec![
