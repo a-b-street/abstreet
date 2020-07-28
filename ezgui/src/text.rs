@@ -75,11 +75,6 @@ impl TextSpan {
         self.size = 32;
         self
     }
-    pub fn big_heading_monospaced_styled(mut self) -> TextSpan {
-        self.font = Font::OverpassMonoBold;
-        self.size = 32;
-        self
-    }
     pub fn big_heading_plain(mut self) -> TextSpan {
         self.font = Font::OverpassBold;
         self.size = 32;
@@ -107,7 +102,12 @@ impl TextSpan {
         self.size = 16;
         self
     }
-    pub fn monospaced_small(mut self) -> TextSpan {
+    pub fn big_monospaced(mut self) -> TextSpan {
+        self.font = Font::OverpassMonoBold;
+        self.size = 32;
+        self
+    }
+    pub fn small_monospaced(mut self) -> TextSpan {
         self.font = Font::OverpassMonoBold;
         self.size = 16;
         self
