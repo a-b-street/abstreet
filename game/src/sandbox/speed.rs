@@ -663,7 +663,7 @@ impl TimePanel {
             time: app.primary.sim.time(),
             composite: Composite::new(Widget::col(vec![
                 Text::from(
-                    Line(app.primary.sim.time().ampm_tostring_spacers()).big_heading_styled(),
+                    Line(app.primary.sim.time().ampm_tostring()).big_heading_monospaced_styled(),
                 )
                 .draw(ctx)
                 .centered_horiz(),
@@ -701,11 +701,11 @@ impl TimePanel {
                     Widget::draw_batch(ctx, batch)
                 },
                 Widget::custom_row(vec![
-                    Line("00:00").small().draw(ctx),
+                    Line("00:00").monospaced_small().draw(ctx),
                     Widget::draw_svg(ctx, "system/assets/speed/sunrise.svg"),
-                    Line("12:00").small().draw(ctx),
+                    Line("12:00").monospaced_small().draw(ctx),
                     Widget::draw_svg(ctx, "system/assets/speed/sunset.svg"),
-                    Line("24:00").small().draw(ctx),
+                    Line("24:00").monospaced_small().draw(ctx),
                 ])
                 .evenly_spaced(),
             ]))

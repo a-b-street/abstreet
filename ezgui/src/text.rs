@@ -27,6 +27,7 @@ pub enum Font {
     OverpassBold,
     OverpassRegular,
     OverpassSemiBold,
+    OverpassMonoBold,
 }
 
 impl Font {
@@ -37,6 +38,7 @@ impl Font {
             Font::OverpassBold => "Overpass",
             Font::OverpassRegular => "Overpass",
             Font::OverpassSemiBold => "Overpass",
+            Font::OverpassMonoBold => "Overpass Mono",
         }
     }
 }
@@ -73,6 +75,11 @@ impl TextSpan {
         self.size = 32;
         self
     }
+    pub fn big_heading_monospaced_styled(mut self) -> TextSpan {
+        self.font = Font::OverpassMonoBold;
+        self.size = 32;
+        self
+    }
     pub fn big_heading_plain(mut self) -> TextSpan {
         self.font = Font::OverpassBold;
         self.size = 32;
@@ -97,6 +104,11 @@ impl TextSpan {
     }
     pub fn small(mut self) -> TextSpan {
         self.font = Font::OverpassRegular;
+        self.size = 16;
+        self
+    }
+    pub fn monospaced_small(mut self) -> TextSpan {
+        self.font = Font::OverpassMonoBold;
         self.size = 16;
         self
     }

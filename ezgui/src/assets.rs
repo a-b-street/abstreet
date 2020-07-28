@@ -40,6 +40,7 @@ impl Assets {
             Font::OverpassBold,
             Font::OverpassRegular,
             Font::OverpassSemiBold,
+            Font::OverpassMonoBold,
         ] {
             a.font_to_id.insert(
                 font,
@@ -48,7 +49,7 @@ impl Assets {
                     .query(&fontdb::Query {
                         families: &vec![fontdb::Family::Name(font.family())],
                         weight: match font {
-                            Font::OverpassBold => fontdb::Weight::BOLD,
+                            Font::OverpassBold | Font::OverpassMonoBold => fontdb::Weight::BOLD,
                             Font::OverpassSemiBold => fontdb::Weight::SEMIBOLD,
                             _ => fontdb::Weight::NORMAL,
                         },
