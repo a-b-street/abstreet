@@ -175,7 +175,7 @@ impl Throughput {
                 .wrap_to_pct(ctx, 15)
                 .draw(ctx),
             if app.has_prebaked().is_some() {
-                Checkbox::text(ctx, "Compare before edits", None, false)
+                Checkbox::switch(ctx, "Compare before edits", None, false)
             } else {
                 Widget::nothing()
             },
@@ -266,7 +266,7 @@ impl Throughput {
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
             ]),
-            Checkbox::text(ctx, "Compare before edits", None, true),
+            Checkbox::switch(ctx, "Compare before edits", None, true),
             scale.make_legend(ctx, vec!["less traffic", "same", "more"]),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
@@ -378,7 +378,7 @@ impl Delay {
                     .align_right(),
             ]),
             if app.has_prebaked().is_some() {
-                Checkbox::text(ctx, "Compare before edits", None, false)
+                Checkbox::switch(ctx, "Compare before edits", None, false)
             } else {
                 Widget::nothing()
             },
@@ -430,7 +430,7 @@ impl Delay {
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
             ]),
-            Checkbox::text(ctx, "Compare before edits", None, true),
+            Checkbox::switch(ctx, "Compare before edits", None, true),
             ColorLegend::gradient(
                 ctx,
                 &ColorScale(vec![green, Color::WHITE, red]),

@@ -208,13 +208,13 @@ impl Occupancy {
             ])
             .draw(ctx),
             Widget::row(vec![
-                Checkbox::text(ctx, "On-street spots", None, onstreet),
-                Checkbox::text(ctx, "Parking lots", None, lots),
+                Checkbox::switch(ctx, "On-street spots", None, onstreet),
+                Checkbox::switch(ctx, "Parking lots", None, lots),
             ])
             .evenly_spaced(),
             Widget::row(vec![
-                Checkbox::text(ctx, "Public garages", None, garages),
-                Checkbox::text(ctx, "Private buildings", None, private_bldgs),
+                Checkbox::switch(ctx, "Public garages", None, garages),
+                Checkbox::switch(ctx, "Private buildings", None, private_bldgs),
             ])
             .evenly_spaced(),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%", "100%"]),

@@ -231,7 +231,7 @@ fn make_controls(
         ]),
     ];
 
-    col.push(Checkbox::text(
+    col.push(Checkbox::switch(
         ctx,
         "Show heatmap",
         None,

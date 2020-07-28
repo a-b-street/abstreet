@@ -299,8 +299,8 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         .evenly_spaced(),
     );
     col.push(Widget::row(vec![
-        Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts),
-        Checkbox::text(ctx, "ending off-map", None, opts.off_map_ends),
+        Checkbox::switch(ctx, "starting off-map", None, opts.off_map_starts),
+        Checkbox::switch(ctx, "ending off-map", None, opts.off_map_ends),
     ]));
     col.push(Widget::row(vec![
         if opts.skip > 0 {

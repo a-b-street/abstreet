@@ -398,7 +398,7 @@ impl JumpToTime {
                 Btn::text_bg2("Jump to the next delay over 5 minutes")
                     .build_def(ctx, None)
                     .centered_horiz(),
-                Checkbox::text(
+                Checkbox::checkbox(
                     ctx,
                     "don't draw (for faster simulations)",
                     None,

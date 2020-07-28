@@ -712,7 +712,7 @@ impl DataOptions {
             return Widget::nothing();
         }
         Widget::row(vec![
-            Checkbox::custom_text(
+            Checkbox::custom_checkbox(
                 ctx,
                 "Show before changes",
                 vec![
@@ -723,7 +723,7 @@ impl DataOptions {
                 self.show_before,
             ),
             if self.show_before {
-                Checkbox::text(ctx, "Show full day", None, self.show_end_of_day)
+                Checkbox::switch(ctx, "Show full day", None, self.show_end_of_day)
             } else {
                 Widget::nothing()
             },

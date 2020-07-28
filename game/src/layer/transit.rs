@@ -130,9 +130,9 @@ impl TransitNetwork {
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
             ]),
-            Checkbox::text(ctx, "show all routes", None, show_all_routes),
-            Checkbox::text(ctx, "show buses", None, show_buses),
-            Checkbox::text(ctx, "show trains", None, show_trains),
+            Checkbox::switch(ctx, "show all routes", None, show_all_routes),
+            Checkbox::switch(ctx, "show buses", None, show_buses),
+            Checkbox::switch(ctx, "show trains", None, show_trains),
             legend,
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
