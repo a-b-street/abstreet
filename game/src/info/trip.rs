@@ -160,29 +160,46 @@ pub fn future(
         ));
     } else {
         // TODO Warp buttons. make_table is showing its age.
-        let (_, _, name1) = endpoint(&trip.start, &app.primary.map);
-        let (_, _, name2) = endpoint(&trip.end, &app.primary.map);
-        col.extend(make_table(
-            ctx,
-            vec![
-                ("Departure", trip.departure.ampm_tostring()),
-                ("From", name1),
-                ("To", name2),
-            ]
-            .into_iter(),
-        ));
-
-        col.push(
-            Btn::text_bg2("Wait for trip")
-                .tooltip(Text::from(Line(format!(
-                    "This will advance the simulation to {}",
-                    trip.departure.ampm_tostring()
-                ))))
-                .build(ctx, format!("wait for {}", id), None),
-        );
+        let (id1, _, name1) = endpoint(&trip.start, &app.primary.map);
+        let (id2, _, name2) = endpoint(&trip.end, &app.primary.map);
+        details
+            .warpers
+            .insert(format!("jump to start of {}", id), id1);
+        details
+            .warpers
+            .insert(format!("jump to goal of {}", id), id2);
         details
             .time_warpers
             .insert(format!("wait for {}", id), (id, trip.departure));
+
+        col.push(
+            Widget::row(vec![
+                Btn::svg(
+                    "system/assets/timeline/start_pos.svg",
+                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                )
+                .tooltip(Text::from(Line(name1)))
+                .build(ctx, format!("jump to start of {}", id), None),
+                Btn::text_bg2("Wait for trip")
+                    .tooltip(Text::from(Line(format!(
+                        "This will advance the simulation to {}",
+                        trip.departure.ampm_tostring()
+                    ))))
+                    .build(ctx, format!("wait for {}", id), None),
+                Btn::svg(
+                    "system/assets/timeline/goal_pos.svg",
+                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                )
+                .tooltip(Text::from(Line(name2)))
+                .build(ctx, format!("jump to goal of {}", id), None),
+            ])
+            .evenly_spaced(),
+        );
+
+        col.extend(make_table(
+            ctx,
+            vec![("Departure", trip.departure.ampm_tostring())].into_iter(),
+        ));
     }
 
     Widget::col(col)
