@@ -231,7 +231,6 @@ fn make_controls(
         ]),
     ];
 
-    // MJK: how to show this UI?
     col.push(Checkbox::switch(
         ctx,
         "Show heatmap",
