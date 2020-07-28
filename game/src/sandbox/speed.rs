@@ -124,9 +124,8 @@ impl SpeedControls {
     }
 
     pub fn new(ctx: &mut EventCtx, app: &App) -> SpeedControls {
-        let composite = SpeedControls::make_panel(ctx, app, false, SpeedSetting::Realtime);
         SpeedControls {
-            composite,
+            composite: SpeedControls::make_panel(ctx, app, false, SpeedSetting::Realtime),
             paused: false,
             setting: SpeedSetting::Realtime,
         }

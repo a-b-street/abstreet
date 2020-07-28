@@ -533,9 +533,6 @@ impl Widget {
     pub(crate) fn take_menu<T: 'static + Clone>(self) -> Menu<T> {
         *self.widget.downcast::<Menu<T>>().ok().unwrap()
     }
-    pub(crate) fn take_just_draw(self) -> JustDraw {
-        *self.widget.downcast::<JustDraw>().ok().unwrap()
-    }
 }
 
 enum Dims {
@@ -810,6 +807,12 @@ impl Composite {
     pub fn dropdown_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {
         self.find::<Dropdown<T>>(name).current_value()
     }
+    pub(crate) fn dropdown_value_label<T: 'static + PartialEq + Clone>(
+        &self,
+        name: &str,
+    ) -> String {
+        self.find::<Dropdown<T>>(name).current_value_label()
+    }
     pub fn persistent_split_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {
         self.find::<PersistentSplit<T>>(name).current_value()
     }
@@ -885,6 +888,16 @@ impl Composite {
 
     pub fn currently_hovering(&self) -> Option<&String> {
         self.top_level.currently_hovering()
+    }
+
+    // TODO Experimental
+    pub(crate) fn get_dims(&self) -> ScreenDims {
+        self.container_dims
+    }
+
+    pub(crate) fn set_pos(&mut self, top_left: ScreenPt) {
+        self.horiz = HorizontalAlignment::LeftAt(top_left.x);
+        self.vert = VerticalAlignment::Below(top_left.y);
     }
 }
 

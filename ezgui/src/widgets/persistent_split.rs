@@ -1,5 +1,5 @@
 use crate::{
-    Btn, Button, Choice, Color, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey,
+    Btn, Choice, Color, Composite, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey,
     ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::Polygon;
@@ -7,36 +7,39 @@ use geom::Polygon;
 // TODO Radio buttons in the menu
 pub struct PersistentSplit<T: Clone + PartialEq> {
     current_value: T,
-    btn: Button,
-    spacer: JustDraw,
-    dropdown: Dropdown<T>,
+    hotkey: Option<MultiKey>,
+    label: String,
+    composite: Composite,
 }
 
 impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
     pub fn new(
-        ctx: &EventCtx,
+        ctx: &mut EventCtx,
         label: &str,
         default_value: T,
         hotkey: Option<MultiKey>,
         choices: Vec<Choice<T>>,
     ) -> Widget {
-        let dropdown = Dropdown::new(ctx, "change", default_value, choices, true);
-        let btn = Btn::plaintext(dropdown.current_value_label())
-            .build(ctx, label, hotkey)
-            .take_btn();
-
-        Widget::new(Box::new(PersistentSplit {
-            current_value: dropdown.current_value(),
-            spacer: JustDraw::wrap(
-                ctx,
-                GeomBatch::from(vec![(
-                    Color::WHITE.alpha(0.5),
-                    Polygon::rectangle(3.0, btn.get_dims().height),
-                )]),
-            )
-            .take_just_draw(),
+        let dropdown = Dropdown::new(ctx, "change", default_value.clone(), choices, true);
+        let btn = Btn::plaintext(dropdown.current_value_label()).build(ctx, label, hotkey.clone());
+        let spacer = JustDraw::wrap(
+            ctx,
+            GeomBatch::from(vec![(
+                Color::WHITE.alpha(0.5),
+                Polygon::rectangle(3.0, btn.widget.get_dims().height),
+            )]),
+        );
+        let composite = Composite::new(Widget::custom_row(vec![
             btn,
-            dropdown,
+            spacer,
+            Widget::new(Box::new(dropdown)).named("dropdown"),
+        ]))
+        .build_custom(ctx);
+        Widget::new(Box::new(PersistentSplit {
+            composite,
+            current_value: default_value,
+            hotkey,
+            label: label.to_string(),
         }))
         .named(label)
     }
@@ -50,47 +53,39 @@ impl<T: 'static + PartialEq + Clone> PersistentSplit<T> {
 
 impl<T: 'static + Clone + PartialEq> WidgetImpl for PersistentSplit<T> {
     fn get_dims(&self) -> ScreenDims {
-        let dims1 = self.btn.get_dims();
-        let dims2 = self.spacer.get_dims();
-        let dims3 = self.dropdown.get_dims();
-        ScreenDims::new(
-            dims1.width + dims2.width + dims3.width,
-            dims1.height.max(dims2.height).max(dims3.height),
-        )
+        self.composite.get_dims()
     }
 
     fn set_pos(&mut self, top_left: ScreenPt) {
-        self.btn.set_pos(top_left);
-        self.spacer
-            .set_pos(ScreenPt::new(top_left.x + self.btn.dims.width, top_left.y));
-        self.dropdown.set_pos(ScreenPt::new(
-            top_left.x + self.btn.dims.width + self.spacer.get_dims().width,
-            top_left.y,
-        ));
+        self.composite.set_pos(top_left);
     }
 
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
-        self.btn.event(ctx, output);
-        if output.outcome.is_some() {
-            return;
+        match self.composite.event(ctx) {
+            Some(o) => {
+                output.outcome = Some(o);
+                return;
+            }
+            None => {}
         }
 
-        self.dropdown.event(ctx, &mut WidgetOutput::new());
-        let new_value = self.dropdown.current_value();
+        let new_value = self.composite.dropdown_value("dropdown");
         if new_value != self.current_value {
             self.current_value = new_value;
-            let hotkey = self.btn.hotkey.take();
-            let label = self.btn.action.clone();
-            self.btn = Btn::plaintext(self.dropdown.current_value_label())
-                .build(ctx, label, hotkey)
-                .take_btn();
+            self.composite.replace(
+                ctx,
+                &self.label,
+                Btn::plaintext(self.composite.dropdown_value_label::<T>("dropdown")).build(
+                    ctx,
+                    self.label.clone(),
+                    self.hotkey.clone(),
+                ),
+            );
             output.redo_layout = true;
         }
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        self.btn.draw(g);
-        self.spacer.draw(g);
-        self.dropdown.draw(g);
+        self.composite.draw(g);
     }
 }

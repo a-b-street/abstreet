@@ -317,6 +317,7 @@ impl Canvas {
             HorizontalAlignment::Right => self.window_width - dims.width,
             HorizontalAlignment::Percent(pct) => pct * self.window_width,
             HorizontalAlignment::Centered(x) => x - (dims.width / 2.0),
+            HorizontalAlignment::LeftAt(x) => x,
         };
         let y1 = match vert {
             VerticalAlignment::Top => 0.0,
@@ -341,6 +342,7 @@ pub enum HorizontalAlignment {
     Right,
     Percent(f64),
     Centered(f64),
+    LeftAt(f64),
 }
 
 #[derive(Clone, Copy)]
