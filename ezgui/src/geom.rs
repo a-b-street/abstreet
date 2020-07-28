@@ -6,6 +6,7 @@ use geom::{Angle, Bounds, Polygon, Pt2D};
 pub struct GeomBatch {
     pub(crate) list: Vec<(FancyColor, Polygon)>,
     pub autocrop_dims: bool,
+    pub override_height: Option<f64>,
 }
 
 impl GeomBatch {
@@ -14,6 +15,7 @@ impl GeomBatch {
         GeomBatch {
             list: Vec::new(),
             autocrop_dims: true,
+            override_height: None,
         }
     }
 
@@ -25,6 +27,7 @@ impl GeomBatch {
                 .map(|(c, p)| (FancyColor::RGBA(c), p))
                 .collect(),
             autocrop_dims: true,
+            override_height: None,
         }
     }
 
@@ -105,16 +108,19 @@ impl GeomBatch {
         // TODO Maybe warn about this happening and avoid in the first place? Sometimes we wind up
         // trying to draw completely empty text.
         if self.is_empty() {
-            return ScreenDims::new(0.0, 0.0);
+            return ScreenDims::new(0.0, self.override_height.unwrap_or(0.0));
         }
         let mut bounds = Bounds::new();
         for (_, poly) in &self.list {
             bounds.union(poly.get_bounds());
         }
         if self.autocrop_dims {
-            ScreenDims::new(bounds.width(), bounds.height())
+            ScreenDims::new(
+                bounds.width(),
+                self.override_height.unwrap_or(bounds.height()),
+            )
         } else {
-            ScreenDims::new(bounds.max_x, bounds.max_y)
+            ScreenDims::new(bounds.max_x, self.override_height.unwrap_or(bounds.max_y))
         }
     }
 

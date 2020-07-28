@@ -273,15 +273,16 @@ impl Text {
             // size.
             let line_height = assets.line_height(line[0].font, line[0].size);
 
+            println!("rendering {:?}", line);
             let line_batch = render_line(line, tolerance, assets);
-            let line_dims = if line_batch.is_empty() {
-                ScreenDims::new(0.0, line_height)
-            } else {
-                // Also lie a little about width to make things look reasonable. TODO Probably
-                // should tune based on font size.
-                ScreenDims::new(line_batch.get_dims().width + 5.0, line_height)
-            };
-
+            for (_, poly) in &line_batch.list {
+                for pt in poly.points() {
+                    if pt.x() < 0.0 || pt.y() < 0.0 {
+                        println!("- slightly negative {}", pt);
+                    }
+                }
+            }
+            let line_dims = ScreenDims::new(line_batch.get_dims().width, line_height);
             if let Some(c) = line_color {
                 master_batch.push(
                     c,
@@ -303,6 +304,7 @@ impl Text {
         }
         output_batch.append(master_batch);
         output_batch.autocrop_dims = false;
+        output_batch.override_height = Some(y);
 
         assets.cache_text(hash_key, output_batch.clone());
         output_batch
@@ -399,9 +401,10 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
     // Just set a sufficiently large view box
     let mut svg = r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg">"##.to_string();
 
+    // TODO I thought 0% instead of absolute 0 would get rid of negatives, but I guess not
     write!(
         &mut svg,
-        r##"<text x="0" y="0" font-size="{}" font-family="{}" {}>"##,
+        r##"<text x="0%" y="0%" font-size="{}" font-family="{}" {}>"##,
         spans[0].size,
         spans[0].font.family(),
         match spans[0].font {
