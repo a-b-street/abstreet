@@ -1,14 +1,13 @@
 use crate::{
     CarID, Command, DrivingGoal, OffMapLocation, Person, PersonID, Scheduler, SidewalkSpot,
-    TripEndpoint, TripLeg, TripManager, TripMode, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH,
+    TripEndpoint, TripLeg, TripManager, TripMode, VehicleType,
 };
 use abstutil::{Parallelism, Timer};
-use geom::{Duration, Time, EPSILON_DIST};
+use geom::{Duration, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 
 // TODO Some of these fields are unused now that we separately pass TripEndpoint
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -85,26 +84,10 @@ impl TripSpawner {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
         match &spec {
             TripSpec::VehicleAppearing {
-                start_pos,
-                goal,
-                use_vehicle,
-                ..
+                start_pos, goal, ..
             } => {
-                let vehicle = person.get_vehicle(*use_vehicle);
-                if start_pos.dist_along() < vehicle.length {
-                    panic!(
-                        "Can't spawn a {:?} at {}; too close to the start",
-                        vehicle.vehicle_type,
-                        start_pos.dist_along()
-                    );
-                }
                 if start_pos.dist_along() >= map.get_l(start_pos.lane()).length() {
-                    panic!(
-                        "Can't spawn a {:?} at {}; {} isn't that long",
-                        vehicle.vehicle_type,
-                        start_pos.dist_along(),
-                        start_pos.lane()
-                    );
+                    panic!("Can't spawn at {}; it isn't that long", start_pos);
                 }
                 match goal {
                     DrivingGoal::Border(_, end_lane, _) => {
@@ -112,8 +95,8 @@ impl TripSpawner {
                             && start_pos.dist_along() == map.get_l(*end_lane).length()
                         {
                             panic!(
-                                "Can't start a {:?} at the edge of a border already",
-                                vehicle.vehicle_type
+                                "Can't start at {}; it's the edge of a border already",
+                                start_pos
                             );
                         }
                     }
@@ -388,33 +371,6 @@ impl TripSpawner {
 }
 
 impl TripSpec {
-    // If possible, fixes problems that schedule_trip would hit.
-    pub fn spawn_vehicle_at(
-        pos: Position,
-        is_bike: bool,
-        map: &Map,
-    ) -> Result<Position, Box<dyn Error>> {
-        let lane_len = map.get_l(pos.lane()).length();
-        let vehicle_len = if is_bike { BIKE_LENGTH } else { MAX_CAR_LENGTH };
-        // There's no hope.
-        if lane_len <= vehicle_len {
-            return Err(format!(
-                "vehicle of length {} is too long to spawn on {}",
-                vehicle_len,
-                pos.lane()
-            )
-            .into());
-        }
-
-        if pos.dist_along() < vehicle_len {
-            Ok(Position::new(pos.lane(), vehicle_len))
-        } else if pos.dist_along() == lane_len {
-            Ok(Position::new(pos.lane(), pos.dist_along() - EPSILON_DIST))
-        } else {
-            Ok(pos)
-        }
-    }
-
     pub(crate) fn get_pathfinding_request(&self, map: &Map) -> Option<PathRequest> {
         match self {
             TripSpec::VehicleAppearing {

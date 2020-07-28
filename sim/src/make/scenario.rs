@@ -4,7 +4,7 @@ use crate::{
     MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::{prettyprint_usize, Counter, Timer};
-use geom::{Distance, Duration, LonLat, Speed, Time};
+use geom::{Distance, Duration, LonLat, Speed, Time, EPSILON_DIST};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, DirectedRoadID, Map, PathConstraints, Position, RoadID,
 };
@@ -103,13 +103,13 @@ impl Scenario {
         if let Some(ref routes) = self.only_seed_buses {
             for route in map.all_bus_routes() {
                 if routes.contains(&route.full_name) {
-                    sim.seed_bus_route(route, map, timer);
+                    sim.seed_bus_route(route, map);
                 }
             }
         } else {
             // All of them
             for route in map.all_bus_routes() {
-                sim.seed_bus_route(route, map, timer);
+                sim.seed_bus_route(route, map);
             }
         }
 
@@ -390,29 +390,22 @@ impl SpawnTrip {
                 } else {
                     PathConstraints::Car
                 };
-                match dr
-                    .lanes(constraints, map)
-                    .choose(rng)
-                    .ok_or_else(|| {
-                        format!("{} has no lanes to spawn a {:?}", dr.id, constraints).into()
-                    })
-                    // TODO We could be more precise and say exactly what vehicle will be used here
-                    .and_then(|l| TripSpec::spawn_vehicle_at(Position::start(*l), is_bike, map))
-                {
-                    Ok(start_pos) => TripSpec::VehicleAppearing {
-                        start_pos,
+                if let Some(l) = dr.lanes(constraints, map).choose(rng) {
+                    TripSpec::VehicleAppearing {
+                        start_pos: Position::new(*l, EPSILON_DIST),
                         goal,
                         use_vehicle: use_vehicle.unwrap(),
                         retry_if_no_room: true,
                         origin,
-                    },
-                    Err(err) => TripSpec::NoRoomToSpawn {
+                    }
+                } else {
+                    TripSpec::NoRoomToSpawn {
                         i: dr.src_i(map),
                         goal,
                         use_vehicle: use_vehicle.unwrap(),
                         origin,
-                        error: err.to_string(),
-                    },
+                        error: format!("{} has no lanes to spawn a {:?}", dr.id, constraints),
+                    }
                 }
             }
             SpawnTrip::UsingParkedCar(start_bldg, goal) => TripSpec::UsingParkedCar {

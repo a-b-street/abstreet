@@ -49,17 +49,19 @@ impl DrawCar {
             );
         }
 
-        let err = format!("{} on {} has weird body", input.id, input.on);
-        let body_polygon = {
-            let len = input.body.length();
-            let front_corner = len - Distance::meters(1.0);
+        let body_polygon = if input.body.length() < Distance::meters(1.0) {
+            // Simpler shape while appearing from a border
+            input.body.make_polygons(CAR_WIDTH)
+        } else {
+            let front_corner = input.body.length() - Distance::meters(1.0);
             let thick_line = input
                 .body
                 .exact_slice(Distance::ZERO, front_corner)
                 .make_polygons(CAR_WIDTH);
 
-            let (corner_pt, corner_angle) = input.body.dist_along(front_corner).expect(&err);
-            let (tip_pt, tip_angle) = input.body.dist_along(len).expect(&err);
+            let (corner_pt, corner_angle) = input.body.must_dist_along(front_corner);
+            let tip_pt = input.body.last_pt();
+            let tip_angle = input.body.last_line().angle();
             let front = Ring::must_new(vec![
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(90.0)),
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(-90.0)),
@@ -80,7 +82,8 @@ impl DrawCar {
             );
         }
 
-        {
+        // If the vehicle is temporarily too short for anything, just omit.
+        if input.body.length() >= Distance::meters(2.5) {
             let arrow_len = 0.8 * CAR_WIDTH;
             let arrow_thickness = Distance::meters(0.5);
 
@@ -89,8 +92,7 @@ impl DrawCar {
                     TurnType::Left => {
                         let (pos, angle) = input
                             .body
-                            .dist_along(input.body.length() - Distance::meters(2.5))
-                            .expect(&err);
+                            .must_dist_along(input.body.length() - Distance::meters(2.5));
 
                         draw_default.push(
                             cs.turn_arrow,
@@ -104,8 +106,7 @@ impl DrawCar {
                     TurnType::Right => {
                         let (pos, angle) = input
                             .body
-                            .dist_along(input.body.length() - Distance::meters(2.5))
-                            .expect(&err);
+                            .must_dist_along(input.body.length() - Distance::meters(2.5));
 
                         draw_default.push(
                             cs.turn_arrow,
@@ -121,7 +122,7 @@ impl DrawCar {
                 }
 
                 // Always draw the brake light
-                let (pos, angle) = input.body.dist_along(Distance::meters(0.5)).expect(&err);
+                let (pos, angle) = input.body.must_dist_along(Distance::meters(0.5));
                 // TODO rounded
                 let window_length_gap = Distance::meters(0.2);
                 let window_thickness = Distance::meters(0.3);
@@ -141,17 +142,19 @@ impl DrawCar {
         }
 
         if let Some(line) = input.label {
-            let (pt, angle) = input
+            // If the vehicle is temporarily too short, just skip the label.
+            if let Ok((pt, angle)) = input
                 .body
                 .dist_along(input.body.length() - Distance::meters(3.5))
-                .expect(&err);
-            draw_default.append(
-                Text::from(Line(line).fg(cs.bus_label))
-                    .render_to_batch(prerender)
-                    .scale(0.07)
-                    .centered_on(pt)
-                    .rotate(angle.reorient()),
-            );
+            {
+                draw_default.append(
+                    Text::from(Line(line).fg(cs.bus_label))
+                        .render_to_batch(prerender)
+                        .scale(0.07)
+                        .centered_on(pt)
+                        .rotate(angle.reorient()),
+                );
+            }
         }
 
         // TODO Technically some of the body may need to be at different zorders during

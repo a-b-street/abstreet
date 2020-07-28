@@ -10,7 +10,7 @@ use crate::{
 };
 use abstutil::{Counter, Parallelism, Timer};
 use derivative::Derivative;
-use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};
+use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time, EPSILON_DIST};
 use instant::Instant;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, ParkingLotID,
@@ -228,7 +228,7 @@ impl Sim {
         self.parking.add_parked_car(ParkedCar { vehicle, spot });
     }
 
-    pub(crate) fn seed_bus_route(&mut self, route: &BusRoute, map: &Map, timer: &mut Timer) {
+    pub(crate) fn seed_bus_route(&mut self, route: &BusRoute, map: &Map) {
         // Spawn one bus for the first leg.
         let (req, path) = self.transit.create_empty_route(route, map);
 
@@ -246,18 +246,11 @@ impl Sim {
         }
         .make(CarID(self.trips.new_car_id(), vehicle_type), None);
 
-        let start = req.start.lane();
-        if map.get_l(start).length() < vehicle.length {
-            // TODO What do we actually do about this? :\
-            timer.error(format!("Can't start a bus on {}, too short", start));
-            return;
-        }
-
         self.scheduler.push(
             self.time,
             Command::SpawnCar(
                 CreateCar {
-                    start_dist: vehicle.length,
+                    start_dist: EPSILON_DIST,
                     router: Router::follow_bus_route(
                         vehicle.id,
                         path.clone(),
@@ -572,7 +565,7 @@ impl Sim {
                 );
             }
             Command::SeedBus(r) => {
-                self.seed_bus_route(map.get_br(r), map, &mut Timer::throwaway());
+                self.seed_bus_route(map.get_br(r), map);
             }
         }
 

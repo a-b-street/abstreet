@@ -79,10 +79,9 @@ impl Car {
             let mut i = 0;
             while leftover > Distance::ZERO {
                 if i == self.last_steps.len() {
-                    panic!(
-                        "{} spawned too close to short stuff; still need to account for {}",
-                        self.vehicle.id, leftover
-                    );
+                    // The vehicle is gradually appearing from somewhere. That's fine, just return
+                    // a truncated body.
+                    break;
                 }
                 partly_on.push(self.last_steps[i]);
                 let len = self.last_steps[i].length(map);
