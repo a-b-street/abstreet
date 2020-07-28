@@ -259,8 +259,8 @@ fn make_controls(ctx: &mut EventCtx) -> Composite {
             .named("paused"),
             Btn::text_fg("Reset timer").build(ctx, "reset the stopwatch", None),
             Btn::text_fg("New faces").build(ctx, "generate new faces", hotkey(Key::F)),
-            Checkbox::checkbox(ctx, "Draw scrollable canvas", None, true),
-            Checkbox::checkbox(ctx, "Show timeseries", lctrl(Key::T), false),
+            Checkbox::switch(ctx, "Draw scrollable canvas", None, true),
+            Checkbox::switch(ctx, "Show timeseries", lctrl(Key::T), false),
         ])
         .evenly_spaced(),
         "Stopwatch: ...".draw_text(ctx).named("stopwatch"),
