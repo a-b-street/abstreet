@@ -125,19 +125,21 @@ impl SidewalkPathfinder {
         Some(self.nodes.translate(&raw_path))
     }
 
-    // Attempt the pathfinding and see if we should ride a bus. If so, says (stop1, optional stop
-    // 2, route). If there's no stop 2, then ride the bus off the border.
     pub fn should_use_transit(
         &self,
         map: &Map,
         start: Position,
         end: Position,
-    ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
-        let raw_path = fast_paths::calc_path(
+    ) -> Vec<(BusStopID, Option<BusStopID>, BusRouteID)> {
+        let raw_path = if let Some(p) = fast_paths::calc_path(
             &self.graph,
             self.nodes.get(WalkingNode::closest(start, map)),
             self.nodes.get(WalkingNode::end_transit(end, map)),
-        )?;
+        ) {
+            p
+        } else {
+            return Vec::new();
+        };
 
         let nodes = self.nodes.translate(&raw_path);
         if false {
@@ -147,6 +149,7 @@ impl SidewalkPathfinder {
             }
         }
 
+        let mut hops: Vec<(BusStopID, Option<BusStopID>, BusRouteID)> = Vec::new();
         let mut first_stop = None;
         let mut last_stop = None;
         let mut possible_routes: Vec<&BusRoute> = Vec::new();
@@ -172,47 +175,65 @@ impl SidewalkPathfinder {
                             idx2.map(|idx2| idx1 < idx2).unwrap_or(false)
                         });
                         if filtered.is_empty() {
-                            // Aha, a transfer!
-                            return Some((
+                            hops.push((
                                 first_stop.unwrap(),
-                                // TODO I thought this should be impossible, but huge_seattle hits
-                                // it. Workaround for now by just walking.
-                                Some(last_stop?),
+                                Some(last_stop.unwrap()),
                                 possible_routes[0].id,
                             ));
+                            // No-walking transfer
+                            // TODO Gross code, simplify
+                            first_stop = Some(last_stop.unwrap());
+                            last_stop = Some(*stop2);
+                            possible_routes = map.get_routes_serving_stop(first_stop.unwrap());
+                            assert!(!possible_routes.is_empty());
+                            possible_routes.retain(|r| {
+                                let idx1 = r
+                                    .stops
+                                    .iter()
+                                    .position(|s| *s == first_stop.unwrap())
+                                    .unwrap();
+                                let idx2 = r.stops.iter().position(|s| s == stop2);
+                                idx2.map(|idx2| idx1 < idx2).unwrap_or(false)
+                            });
+                            assert!(!possible_routes.is_empty());
+                        } else {
+                            last_stop = Some(*stop2);
+                            possible_routes = filtered;
                         }
-                        last_stop = Some(*stop2);
-                        possible_routes = filtered;
                     }
                 }
                 WalkingNode::LeaveMap(i) => {
                     // Make sure the route actually leaves via the correct border!
+                    // TODO Why do we need this?
                     if let Some(r) = possible_routes.iter().find(|r| {
                         r.end_border
                             .map(|l| map.get_l(l).dst_i == *i)
                             .unwrap_or(false)
                     }) {
-                        return Some((first_stop.unwrap(), None, r.id));
+                        hops.push((first_stop.unwrap(), None, r.id));
+                    } else {
+                        // We can get close to the border, but should hop off at some stop.
+                        // TODO I don't understand why this case happens.
+                        hops.push((
+                            first_stop.unwrap(),
+                            Some(last_stop.unwrap()),
+                            possible_routes[0].id,
+                        ));
                     }
-                    // We can get close to the border, but should hop off at some stop.
-                    return Some((
-                        first_stop.unwrap(),
-                        Some(last_stop.expect("impossible transit transfer")),
-                        possible_routes[0].id,
-                    ));
+                    // This should be the last node, so just fall-through
                 }
                 WalkingNode::SidewalkEndpoint(_, _) => {
                     if let Some(stop1) = first_stop {
-                        return Some((
-                            stop1,
-                            Some(last_stop.expect("impossible transit transfer")),
-                            possible_routes[0].id,
-                        ));
+                        hops.push((stop1, Some(last_stop.unwrap()), possible_routes[0].id));
+                        first_stop = None;
+                        last_stop = None;
+                        possible_routes = Vec::new();
+                        // If there's another RideBus after this, it's a walk before transferring.
                     }
                 }
             }
         }
-        None
+        hops
     }
 }
 

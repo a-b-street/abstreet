@@ -218,8 +218,10 @@ impl SpawnOverTime {
             if rng.gen_bool(self.percent_use_transit) {
                 // TODO This throws away some work. It also sequentially does expensive
                 // work right here.
-                if let Some((stop1, maybe_stop2, route)) =
-                    map.should_use_transit(start_spot.sidewalk_pos, goal.sidewalk_pos)
+                if let Some((stop1, maybe_stop2, route)) = map
+                    .should_use_transit(start_spot.sidewalk_pos, goal.sidewalk_pos)
+                    .get(0)
+                    .cloned()
                 {
                     scenario.people.push(PersonSpec {
                         id,
@@ -279,8 +281,10 @@ impl BorderSpawnOverTime {
                 if rng.gen_bool(self.percent_use_transit) {
                     // TODO This throws away some work. It also sequentially does expensive
                     // work right here.
-                    if let Some((stop1, maybe_stop2, route)) =
-                        map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
+                    if let Some((stop1, maybe_stop2, route)) = map
+                        .should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
+                        .get(0)
+                        .cloned()
                     {
                         scenario.people.push(PersonSpec {
                             id,

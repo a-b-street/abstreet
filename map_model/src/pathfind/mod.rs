@@ -875,7 +875,7 @@ impl Pathfinder {
         map: &Map,
         start: Position,
         end: Position,
-    ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
+    ) -> Vec<(BusStopID, Option<BusStopID>, BusRouteID)> {
         self.walking_with_transit_graph
             .as_ref()
             .unwrap()

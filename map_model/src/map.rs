@@ -569,11 +569,15 @@ impl Map {
         self.pathfinder.as_ref().unwrap().pathfind(req, self)
     }
 
+    // If empty, should just walk. If non-empty, go to the first stop, ride the specified route
+    // until the second stop. Repeat, possibly walking to a different stop or transfering at the
+    // same one. The second optional stop can only be None for the last hop; it means ride off-map
+    // into the glorious sunset. If it isn't, then there's walking at the very end.
     pub fn should_use_transit(
         &self,
         start: Position,
         end: Position,
-    ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
+    ) -> Vec<(BusStopID, Option<BusStopID>, BusRouteID)> {
         self.pathfinder
             .as_ref()
             .unwrap()

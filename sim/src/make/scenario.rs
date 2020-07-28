@@ -560,9 +560,11 @@ impl SpawnTrip {
             TripMode::Transit => {
                 let start = from.start_sidewalk_spot(map)?;
                 let goal = to.end_sidewalk_spot(map)?;
-                if let Some((stop1, maybe_stop2, route)) =
-                    map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
-                {
+                let hops = map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos);
+                if hops.len() > 1 {
+                    println!("Multi-hop transit trip! {:?}", hops);
+                }
+                if let Some((stop1, maybe_stop2, route)) = hops.get(0).cloned() {
                     SpawnTrip::UsingTransit(start, goal, route, stop1, maybe_stop2)
                 } else {
                     //timer.warn(format!("{:?} not actually using transit, because pathfinding
