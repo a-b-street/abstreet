@@ -126,80 +126,88 @@ pub fn trips(
         };
         let trip = sim.trip_info(*t);
 
-        // TODO Style wrong. Button should be the entire row.
-        rows.push(
-            Widget::custom_row(vec![
-                format!("Trip {} ", idx + 1)
-                    .draw_text(ctx)
-                    .centered_vert()
-                    .margin_right(21),
-                Widget::row(vec![
-                    Widget::draw_svg_transform(
-                        ctx,
-                        match trip.mode {
-                            TripMode::Walk => "system/assets/meters/pedestrian.svg",
-                            TripMode::Bike => "system/assets/meters/bike.svg",
-                            TripMode::Drive => "system/assets/meters/car.svg",
-                            TripMode::Transit => "system/assets/meters/bus.svg",
-                        },
-                        RewriteColor::ChangeAll(color),
-                    ),
-                    Line(trip_status)
-                        .small()
-                        .fg(color)
-                        .draw(ctx)
-                        .centered_vert(),
-                ])
-                .fully_rounded()
-                .outline(1.0, color)
-                .bg(color.alpha(0.2))
-                .padding(10)
-                .margin_right(21),
-                if trip.modified {
-                    Line("modified").draw(ctx).centered_vert().margin_right(15)
-                } else {
-                    Widget::nothing()
-                },
-                if trip_status == "finished" {
-                    if let Some(before) = app
-                        .has_prebaked()
-                        .and_then(|_| app.prebaked().finished_trip_time(*t))
-                    {
-                        let (after, _) = app.primary.sim.finished_trip_time(*t).unwrap();
-                        Text::from(cmp_duration_shorter(after, before))
-                            .draw(ctx)
-                            .centered_vert()
-                    } else {
-                        Widget::nothing()
-                    }
-                } else {
-                    Widget::nothing()
-                },
-                Btn::plaintext(if open_trips.contains_key(t) {
-                    "↓"
-                } else {
-                    "↑"
-                })
-                .build(
-                    ctx,
-                    format!(
-                        "{} {}",
-                        if open_trips.contains_key(t) {
-                            "hide"
-                        } else {
-                            "show"
-                        },
-                        t
-                    ),
-                    None,
-                )
+        let row_btn = Widget::custom_row(vec![
+            format!("Trip {} ", idx + 1)
+                .batch_text(ctx)
                 .centered_vert()
-                .align_right(),
+                .margin_right(21),
+            Widget::row(vec![
+                GeomBatch::screenspace_svg(
+                    ctx.prerender,
+                    match trip.mode {
+                        TripMode::Walk => "system/assets/meters/pedestrian.svg",
+                        TripMode::Bike => "system/assets/meters/bike.svg",
+                        TripMode::Drive => "system/assets/meters/car.svg",
+                        TripMode::Transit => "system/assets/meters/bus.svg",
+                    },
+                )
+                .color(RewriteColor::ChangeAll(color))
+                .batch(),
+                Line(trip_status)
+                    .small()
+                    .fg(color)
+                    .batch(ctx)
+                    .centered_vert(),
             ])
-            .outline(2.0, Color::WHITE)
-            .padding(16)
-            .bg(app.cs.inner_panel)
-            .margin_above(if idx == 0 { 0 } else { 16 }),
+            .fully_rounded()
+            .outline(1.0, color)
+            .bg(color.alpha(0.2))
+            .padding(10)
+            .margin_right(21),
+            if trip.modified {
+                Line("modified").batch(ctx).centered_vert().margin_right(15)
+            } else {
+                Widget::nothing()
+            },
+            if trip_status == "finished" {
+                if let Some(before) = app
+                    .has_prebaked()
+                    .and_then(|_| app.prebaked().finished_trip_time(*t))
+                {
+                    let (after, _) = app.primary.sim.finished_trip_time(*t).unwrap();
+                    Text::from(cmp_duration_shorter(after, before))
+                        .batch(ctx)
+                        .centered_vert()
+                } else {
+                    Widget::nothing()
+                }
+            } else {
+                Widget::nothing()
+            },
+            if open_trips.contains_key(t) {
+                "↓"
+            } else {
+                "↑"
+            }
+            .batch_text(ctx)
+            .centered_vert()
+            .align_right(),
+        ])
+        .outline(2.0, Color::WHITE)
+        .padding(16)
+        .bg(app.cs.inner_panel)
+        .margin_above(if idx == 0 { 0 } else { 16 })
+        .to_geom(ctx, 0.3);
+        let hitbox = row_btn.get_bounds().get_rectangle();
+        rows.push(
+            Btn::custom(
+                row_btn.clone(),
+                row_btn.color(RewriteColor::Change(app.cs.inner_panel, app.cs.hovering)),
+                hitbox,
+            )
+            .build(
+                ctx,
+                format!(
+                    "{} {}",
+                    if open_trips.contains_key(t) {
+                        "hide"
+                    } else {
+                        "show"
+                    },
+                    t
+                ),
+                None,
+            ),
         );
 
         if let Some(info) = maybe_info {

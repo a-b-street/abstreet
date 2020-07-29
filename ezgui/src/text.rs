@@ -1,6 +1,7 @@
 use crate::assets::Assets;
 use crate::{
-    svg, Color, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey, Prerender, ScreenDims, Widget,
+    svg, Color, DeferDraw, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey, Prerender, ScreenDims,
+    Widget,
 };
 use geom::Polygon;
 use std::collections::hash_map::DefaultHasher;
@@ -61,6 +62,9 @@ impl TextSpan {
 
     pub fn draw(self, ctx: &EventCtx) -> Widget {
         Text::from(self).draw(ctx)
+    }
+    pub fn batch(self, ctx: &EventCtx) -> Widget {
+        Text::from(self).batch(ctx)
     }
 
     // Yuwen's new styles, defined in Figma. Should document them in Github better.
@@ -335,6 +339,9 @@ impl Text {
     pub fn draw(self, ctx: &EventCtx) -> Widget {
         JustDraw::wrap(ctx, self.render_ctx(ctx))
     }
+    pub fn batch(self, ctx: &EventCtx) -> Widget {
+        DeferDraw::new(self.render_ctx(ctx))
+    }
 
     pub fn wrap_to_pct(self, ctx: &EventCtx, pct: usize) -> Text {
         self.inner_wrap_to_pct(
@@ -460,16 +467,23 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
 
 pub trait TextExt {
     fn draw_text(self, ctx: &EventCtx) -> Widget;
+    fn batch_text(self, ctx: &EventCtx) -> Widget;
 }
 
 impl TextExt for &str {
     fn draw_text(self, ctx: &EventCtx) -> Widget {
         Line(self).draw(ctx)
     }
+    fn batch_text(self, ctx: &EventCtx) -> Widget {
+        Line(self).batch(ctx)
+    }
 }
 
 impl TextExt for String {
     fn draw_text(self, ctx: &EventCtx) -> Widget {
         Line(self).draw(ctx)
+    }
+    fn batch_text(self, ctx: &EventCtx) -> Widget {
+        Line(self).batch(ctx)
     }
 }

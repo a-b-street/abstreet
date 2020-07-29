@@ -4,16 +4,16 @@ use crate::{
 };
 use geom::Polygon;
 
-// Just draw something. A widget just so widgetsing works.
+// Just draw something, no interaction.
 pub struct JustDraw {
-    pub(crate) draw: Drawable,
+    pub draw: Drawable,
 
-    pub(crate) top_left: ScreenPt,
-    pub(crate) dims: ScreenDims,
+    pub top_left: ScreenPt,
+    pub dims: ScreenDims,
 }
 
 impl JustDraw {
-    pub(crate) fn wrap(ctx: &EventCtx, batch: GeomBatch) -> Widget {
+    pub fn wrap(ctx: &EventCtx, batch: GeomBatch) -> Widget {
         Widget::new(Box::new(JustDraw {
             dims: batch.get_dims(),
             draw: ctx.upload(batch),
@@ -21,7 +21,7 @@ impl JustDraw {
         }))
     }
 
-    pub(crate) fn svg(ctx: &EventCtx, filename: String) -> Widget {
+    pub fn svg(ctx: &EventCtx, filename: String) -> Widget {
         let (batch, bounds) = svg::load_svg(
             ctx.prerender,
             &filename,
@@ -34,7 +34,7 @@ impl JustDraw {
             top_left: ScreenPt::new(0.0, 0.0),
         }))
     }
-    pub(crate) fn svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> Widget {
+    pub fn svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> Widget {
         let (batch, bounds) = svg::load_svg(
             ctx.prerender,
             filename,
@@ -113,5 +113,42 @@ impl WidgetImpl for DrawWithTooltips {
                 }
             }
         }
+    }
+}
+
+// TODO Name is bad. Lay out JustDraw stuff with flexbox, just to consume it and produce one big
+// GeomBatch.
+pub struct DeferDraw {
+    pub batch: GeomBatch,
+
+    pub top_left: ScreenPt,
+    dims: ScreenDims,
+}
+
+impl DeferDraw {
+    pub fn new(batch: GeomBatch) -> Widget {
+        Widget::new(Box::new(DeferDraw {
+            dims: batch.get_dims(),
+            batch,
+            top_left: ScreenPt::new(0.0, 0.0),
+        }))
+    }
+}
+
+impl WidgetImpl for DeferDraw {
+    fn get_dims(&self) -> ScreenDims {
+        self.dims
+    }
+
+    fn set_pos(&mut self, top_left: ScreenPt) {
+        self.top_left = top_left;
+    }
+
+    fn event(&mut self, _: &mut EventCtx, _: &mut WidgetOutput) {
+        unreachable!()
+    }
+
+    fn draw(&self, _: &mut GfxCtx) {
+        unreachable!()
     }
 }

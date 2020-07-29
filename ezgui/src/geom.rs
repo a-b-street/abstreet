@@ -1,4 +1,6 @@
-use crate::{svg, Color, Drawable, EventCtx, FancyColor, GfxCtx, Prerender, ScreenDims};
+use crate::{
+    svg, Color, DeferDraw, Drawable, EventCtx, FancyColor, GfxCtx, Prerender, ScreenDims, Widget,
+};
 use geom::{Angle, Bounds, Polygon, Pt2D};
 
 /// A mutable builder for a group of colored polygons.
@@ -71,12 +73,26 @@ impl GeomBatch {
         ctx.prerender.upload(self)
     }
 
-    /// Sets the top-left to 0, 0. Not sure exactly when this should be used.
-    pub fn autocrop(mut self) -> GeomBatch {
+    /// Wrap in a Widget for layouting, so this batch can become part of a larger one.
+    pub fn batch(self) -> Widget {
+        DeferDraw::new(self)
+    }
+
+    /// Compute the bounds of all polygons in this batch.
+    pub fn get_bounds(&self) -> Bounds {
         let mut bounds = Bounds::new();
         for (_, poly) in &self.list {
             bounds.union(poly.get_bounds());
         }
+        if !self.autocrop_dims {
+            bounds.update(Pt2D::new(0.0, 0.0));
+        }
+        bounds
+    }
+
+    /// Sets the top-left to 0, 0. Not sure exactly when this should be used.
+    pub fn autocrop(mut self) -> GeomBatch {
+        let bounds = self.get_bounds();
         if bounds.min_x == 0.0 && bounds.min_y == 0.0 {
             return self;
         }
@@ -107,15 +123,8 @@ impl GeomBatch {
         if self.is_empty() {
             return ScreenDims::new(0.0, 0.0);
         }
-        let mut bounds = Bounds::new();
-        for (_, poly) in &self.list {
-            bounds.union(poly.get_bounds());
-        }
-        if self.autocrop_dims {
-            ScreenDims::new(bounds.width(), bounds.height())
-        } else {
-            ScreenDims::new(bounds.max_x, bounds.max_y)
-        }
+        let bounds = self.get_bounds();
+        ScreenDims::new(bounds.width(), bounds.height())
     }
 
     /// Returns a batch containing a parsed SVG string.
@@ -177,12 +186,7 @@ impl GeomBatch {
 
     /// Rotates each polygon in the batch relative to the center of the entire batch.
     pub fn rotate_around_batch_center(mut self, angle: Angle) -> GeomBatch {
-        let mut bounds = Bounds::new();
-        for (_, poly) in &self.list {
-            bounds.union(poly.get_bounds());
-        }
-        let center = bounds.center();
-
+        let center = self.get_bounds().center();
         for (_, poly) in &mut self.list {
             *poly = poly.rotate_around(angle, center);
         }

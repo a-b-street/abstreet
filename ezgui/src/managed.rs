@@ -1,9 +1,9 @@
 use crate::widgets::containers::{Container, Nothing};
 use crate::{
-    AreaSlider, Autocomplete, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx,
-    GeomBatch, GfxCtx, HorizontalAlignment, JustDraw, Menu, Outcome, PersistentSplit, RewriteColor,
-    ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
-    WidgetOutput,
+    AreaSlider, Autocomplete, Button, Checkbox, Choice, Color, DeferDraw, Drawable, Dropdown,
+    EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, JustDraw, Menu, Outcome, PersistentSplit,
+    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox,
+    VerticalAlignment, WidgetImpl, WidgetOutput,
 };
 use geom::{Distance, Polygon};
 use std::collections::HashSet;
@@ -20,6 +20,8 @@ pub struct Widget {
     layout: LayoutStyle,
     pub(crate) rect: ScreenRectangle,
     bg: Option<Drawable>,
+    // to_geom forces this one to happen
+    bg_batch: Option<GeomBatch>,
     id: Option<String>,
 }
 
@@ -220,6 +222,7 @@ impl Widget {
             },
             rect: ScreenRectangle::placeholder(),
             bg: None,
+            bg_batch: None,
             id: None,
         }
     }
@@ -302,6 +305,51 @@ impl Widget {
     pub fn nothing() -> Widget {
         Widget::new(Box::new(Nothing {}))
     }
+
+    pub fn to_geom(mut self, ctx: &EventCtx, exact_pct_width: f64) -> GeomBatch {
+        // TODO 35 is a sad magic number. By default, Composites have padding of 16, so assuming
+        // this geometry is going in one of those, it makes sense to subtract 32. But that still
+        // caused some scrolling in a test, so snip away a few more pixels.
+        self.layout.style.min_size.width =
+            Dimension::Points((exact_pct_width * ctx.canvas.window_width) as f32 - 35.0);
+        // Pretend we're in a Composite and basically copy recompute_layout
+        {
+            let mut stretch = Stretch::new();
+            let root = stretch
+                .new_node(
+                    Style {
+                        ..Default::default()
+                    },
+                    Vec::new(),
+                )
+                .unwrap();
+
+            let mut nodes = vec![];
+            self.get_flexbox(
+                root,
+                ctx.get_scale_factor() as f32,
+                &mut stretch,
+                &mut nodes,
+            );
+            nodes.reverse();
+
+            let container_size = Size {
+                width: Number::Undefined,
+                height: Number::Undefined,
+            };
+            stretch.compute_layout(root, container_size).unwrap();
+
+            self.apply_flexbox(&stretch, &mut nodes, 0.0, 0.0, (0.0, 0.0), ctx, true, true);
+            assert!(nodes.is_empty());
+        }
+
+        // Now build one big batch from all of the geometry, which now has the correct top left
+        // position.
+        let mut batch = GeomBatch::new();
+        self.consume_geometry(&mut batch);
+        batch.autocrop_dims = false;
+        batch
+    }
 }
 
 // Internals
@@ -381,6 +429,7 @@ impl Widget {
         }
     }
 
+    // TODO Clean up argument passing
     fn apply_flexbox(
         &mut self,
         stretch: &Stretch,
@@ -390,6 +439,7 @@ impl Widget {
         scroll_offset: (f64, f64),
         ctx: &EventCtx,
         recompute_layout: bool,
+        defer_draw: bool,
     ) {
         let result = stretch.layout(nodes.pop().unwrap()).unwrap();
         let x: f64 = result.location.x.into();
@@ -425,7 +475,11 @@ impl Widget {
                         .unwrap(),
                 );
             }
-            self.bg = Some(ctx.upload(batch));
+            if defer_draw {
+                self.bg_batch = Some(batch);
+            } else {
+                self.bg = Some(ctx.upload(batch));
+            }
         }
 
         if let Some(container) = self.widget.downcast_mut::<Container>() {
@@ -439,6 +493,7 @@ impl Widget {
                     scroll_offset,
                     ctx,
                     recompute_layout,
+                    defer_draw,
                 );
             }
         } else {
@@ -486,6 +541,25 @@ impl Widget {
             if let Some(ref other) = prev.top_level.find(self.id.as_ref().unwrap()) {
                 self.widget.restore(ctx, &other.widget);
             }
+        }
+    }
+
+    fn consume_geometry(mut self, batch: &mut GeomBatch) {
+        if let Some(bg) = self.bg_batch.take() {
+            batch.append(bg.translate(self.rect.x1, self.rect.y1));
+        }
+
+        if self.widget.is::<Container>() {
+            // downcast() consumes, so we have to do the is() check first
+            if let Ok(container) = self.widget.downcast::<Container>() {
+                for w in container.members {
+                    w.consume_geometry(batch);
+                }
+            }
+        } else if let Ok(defer) = self.widget.downcast::<DeferDraw>() {
+            batch.append(defer.batch.translate(defer.top_left.x, defer.top_left.y));
+        } else {
+            panic!("to_geom called on a widget tree that has something interactive");
         }
     }
 
@@ -619,6 +693,7 @@ impl Composite {
             offset,
             ctx,
             recompute_bg,
+            false,
         );
         assert!(nodes.is_empty());
     }

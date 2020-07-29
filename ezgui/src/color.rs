@@ -21,7 +21,7 @@ impl fmt::Display for Color {
 }
 
 // TODO Maybe needs a better name
-#[derive(Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum FancyColor {
     RGBA(Color),
     LinearGradient(LinearGradient),
@@ -104,7 +104,7 @@ impl Color {
 // https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient is the best reference I've
 // found, even though it's technically for CSS, not SVG. Ah, and
 // https://www.w3.org/TR/SVG11/pservers.html
-#[derive(Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinearGradient {
     pub line: Line,
     pub stops: Vec<(f64, Color)>,

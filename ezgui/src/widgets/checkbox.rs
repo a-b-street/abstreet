@@ -86,7 +86,7 @@ impl Checkbox {
         .named(label)
     }
 
-     pub fn custom_checkbox<I: Into<String>>(
+    pub fn custom_checkbox<I: Into<String>>(
         ctx: &EventCtx,
         label: I,
         spans: Vec<TextSpan>,
