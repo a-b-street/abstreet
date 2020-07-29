@@ -5,8 +5,7 @@ use crate::layer::PickLayer;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, ScreenDims, ScreenPt, Spinner, VerticalAlignment,
-    Widget,
+    HorizontalAlignment, Key, Outcome, ScreenDims, ScreenPt, Spinner, VerticalAlignment, Widget,
 };
 use geom::{Distance, Polygon, Pt2D, Ring};
 
@@ -431,14 +430,10 @@ fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     let a = &app.unzoomed_agents;
     Widget::custom_row(vec![
         Checkbox::colored(ctx, "Car", a.car_color, a.cars).margin_right(8),
-        Line("Car").draw(ctx).margin_right(8),
         Widget::draw_svg(ctx, "system/assets/timeline/parking.svg").margin_right(24),
-        Checkbox::colored(ctx, "Bike", a.bike_color, a.bikes).margin_right(8),
-        Line("Bike").draw(ctx).margin_right(24),
-        Checkbox::colored(ctx, "Bus", a.bus_color, a.buses_and_trains).margin_right(8),
-        Line("Bus").draw(ctx).margin_right(24),
+        Checkbox::colored(ctx, "Bike", a.bike_color, a.bikes).margin_right(24),
+        Checkbox::colored(ctx, "Bus", a.bus_color, a.buses_and_trains).margin_right(24),
         Checkbox::colored(ctx, "Pedestrian", a.ped_color, a.peds).margin_right(8),
-        Line("Pedestrian").draw(ctx),
     ])
 }
 
@@ -447,20 +442,10 @@ fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     Widget::col(vec![
         Widget::custom_row(vec![
             Checkbox::colored(ctx, "Car", a.car_color, a.cars).margin_right(8),
-            Line("Car").draw(ctx).margin_right(8),
-            Widget::draw_svg(ctx, "system/assets/timeline/parking.svg").margin_right(24),
+            Widget::draw_svg(ctx, "system/assets/timeline/parking.svg"),
         ]),
-        Widget::custom_row(vec![
-            Checkbox::colored(ctx, "Bike", a.bike_color, a.bikes).margin_right(8),
-            Line("Bike").draw(ctx),
-        ]),
-        Widget::custom_row(vec![
-            Checkbox::colored(ctx, "Bus", a.bus_color, a.buses_and_trains).margin_right(8),
-            Line("Bus").draw(ctx),
-        ]),
-        Widget::custom_row(vec![
-            Checkbox::colored(ctx, "Pedestrian", a.ped_color, a.peds).margin_right(8),
-            Line("Pedestrian").draw(ctx),
-        ]),
+        Checkbox::colored(ctx, "Bike", a.bike_color, a.bikes),
+        Checkbox::colored(ctx, "Bus", a.bus_color, a.buses_and_trains),
+        Checkbox::colored(ctx, "Pedestrian", a.ped_color, a.peds),
     ])
 }

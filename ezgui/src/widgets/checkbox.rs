@@ -2,7 +2,6 @@ use crate::{
     Btn, Button, Color, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, RewriteColor, ScreenDims,
     ScreenPt, Text, TextExt, TextSpan, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::{Polygon, Pt2D, Ring};
 
 pub struct Checkbox {
     pub(crate) enabled: bool,
@@ -115,48 +114,47 @@ impl Checkbox {
     }
 
     pub fn colored(ctx: &EventCtx, label: &str, color: Color, enabled: bool) -> Widget {
-        let vert_pad = 4.0;
-        let horiz_pad = 4.0;
-
-        // TODO What was I thinking...
-        let checkmark = Ring::must_new(vec![
-            Pt2D::new(11.4528, 22.1072),
-            Pt2D::new(5.89284, 16.5472),
-            Pt2D::new(3.99951, 18.4272),
-            Pt2D::new(11.4528, 25.8805),
-            Pt2D::new(27.4528, 9.88049),
-            Pt2D::new(25.5728, 8.00049),
-            Pt2D::new(11.4528, 22.1072),
+        let off = Widget::row(vec![
+            GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/checkbox.svg")
+                .color(RewriteColor::ChangeAll(color.alpha(0.3)))
+                .batch()
+                .centered_vert(),
+            label.batch_text(ctx),
         ])
-        .to_polygon()
-        .translate(0.0, -4.0);
-        let bounds = checkmark.get_bounds();
-        let hitbox = Polygon::rectangle(
-            bounds.width() + 2.0 * horiz_pad,
-            bounds.height() + 2.0 * vert_pad,
-        );
+        .to_geom(ctx, None);
+        let on = Widget::row(vec![
+            GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/checkbox.svg")
+                .color(RewriteColor::Change(Color::BLACK, color))
+                .batch()
+                .centered_vert(),
+            label.batch_text(ctx),
+        ])
+        .to_geom(ctx, None);
+        // Dims should be the same for both
+        let hitbox = off.get_bounds().get_rectangle();
 
-        let true_btn = Btn::custom(
-            GeomBatch::from(vec![
-                (color, hitbox.clone()),
-                (Color::WHITE, checkmark.clone()),
-            ]),
-            GeomBatch::from(vec![
-                (color, hitbox.clone()),
-                (ctx.style().hovering_color, checkmark),
-            ]),
-            hitbox.clone(),
+        Checkbox::new(
+            enabled,
+            Btn::custom(
+                off.clone(),
+                off.color(RewriteColor::Change(
+                    Color::WHITE,
+                    ctx.style().hovering_color,
+                )),
+                hitbox.clone(),
+            )
+            .build(ctx, label, None),
+            Btn::custom(
+                on.clone(),
+                on.color(RewriteColor::Change(
+                    Color::WHITE,
+                    ctx.style().hovering_color,
+                )),
+                hitbox,
+            )
+            .build(ctx, label, None),
         )
-        .build(ctx, format!("hide {}", label), None);
-
-        let false_btn = Btn::custom(
-            GeomBatch::from(vec![(color.alpha(0.3), hitbox.clone())]),
-            GeomBatch::from(vec![(color, hitbox.clone())]),
-            hitbox,
-        )
-        .build(ctx, format!("show {}", label), None);
-
-        Checkbox::new(enabled, false_btn, true_btn).named(label)
+        .named(label)
     }
 
     // TODO These should actually be radio buttons

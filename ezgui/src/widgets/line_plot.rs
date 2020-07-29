@@ -322,10 +322,12 @@ pub fn make_legend<T: Yvalue<T>>(
         }
         seen.insert(s.label.clone());
         if opts.filterable {
-            row.push(Widget::row(vec![
-                Checkbox::colored(ctx, &s.label, s.color, !opts.disabled.contains(&s.label)),
-                Line(&s.label).draw(ctx),
-            ]));
+            row.push(Checkbox::colored(
+                ctx,
+                &s.label,
+                s.color,
+                !opts.disabled.contains(&s.label),
+            ));
         } else {
             let radius = 15.0;
             row.push(Widget::row(vec![

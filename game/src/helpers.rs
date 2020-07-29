@@ -1,5 +1,5 @@
 use crate::app::{App, PerMap};
-use ezgui::{hotkey, Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextExt, TextSpan, Widget};
+use ezgui::{hotkey, Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
 use geom::{Duration, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use sim::{AgentID, AgentType, CarID, PedestrianID, TripMode, TripPhaseType};
@@ -274,9 +274,8 @@ pub fn checkbox_per_mode(
                 color_for_mode(app, m),
                 current_state.contains(&m),
             )
-            .margin_right(5),
+            .margin_right(24),
         );
-        filters.push(m.ongoing_verb().draw_text(ctx).margin_right(10));
     }
     Widget::custom_row(filters)
 }
