@@ -459,7 +459,7 @@ fn make_timeline(
 
     let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - trip.departure;
 
-    let total_width = 0.22 * ctx.canvas.window_width / ctx.get_scale_factor();
+    let total_width = 0.22 * ctx.canvas.window_width;
     let mut timeline = Vec::new();
     let num_phases = phases.len();
     let mut elevation = Vec::new();
@@ -496,8 +496,12 @@ fn make_timeline(
             (100.0 * percent_duration) as usize
         )));
 
+        // TODO We're manually mixing screenspace_svg, our own geometry, and a centered_on(). Be
+        // careful about the scale factor. I'm confused about some of the math here, figured it out
+        // by trial and error.
+        let scale = ctx.get_scale_factor();
         let phase_width = total_width * percent_duration;
-        let rect = Polygon::rectangle(phase_width, 15.0);
+        let rect = Polygon::rectangle(phase_width * scale, 15.0 * scale);
         let mut normal = GeomBatch::from(vec![(color, rect.clone())]);
         if idx == num_phases - 1 {
             if let Some(p) = progress_along_path {
@@ -506,7 +510,7 @@ fn make_timeline(
                         ctx.prerender,
                         "system/assets/timeline/current_pos.svg",
                     )
-                    .centered_on(Pt2D::new(p * phase_width, 7.5 * ctx.get_scale_factor())),
+                    .centered_on(Pt2D::new(p * phase_width * scale, 7.5 * scale)),
                 );
             }
         }
@@ -530,7 +534,7 @@ fn make_timeline(
             )
             .centered_on(
                 // TODO Hardcoded layouting...
-                Pt2D::new(0.5 * phase_width, -20.0 * ctx.get_scale_factor()),
+                Pt2D::new(0.5 * phase_width * scale, -20.0),
             ),
         );
 

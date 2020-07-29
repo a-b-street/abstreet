@@ -230,12 +230,7 @@ impl Widget {
     // TODO These are literally just convenient APIs to avoid importing JustDraw. Do we want this
     // or not?
     pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> Widget {
-        let scale = ctx.get_scale_factor();
-        if scale == 1.0 {
-            JustDraw::wrap(ctx, batch)
-        } else {
-            JustDraw::wrap(ctx, batch.scale(scale))
-        }
+        JustDraw::wrap(ctx, batch.scale(ctx.get_scale_factor()))
     }
     pub fn draw_svg<I: Into<String>>(ctx: &EventCtx, filename: I) -> Widget {
         JustDraw::svg(ctx, filename.into())
@@ -311,8 +306,9 @@ impl Widget {
             // TODO 35 is a sad magic number. By default, Composites have padding of 16, so assuming
             // this geometry is going in one of those, it makes sense to subtract 32. But that still
             // caused some scrolling in a test, so snip away a few more pixels.
-            self.layout.style.min_size.width =
-                Dimension::Points((w * ctx.canvas.window_width) as f32 - 35.0);
+            self.layout.style.min_size.width = Dimension::Points(
+                (w * ctx.canvas.window_width * ctx.get_scale_factor()) as f32 - 35.0,
+            );
         }
 
         // Pretend we're in a Composite and basically copy recompute_layout

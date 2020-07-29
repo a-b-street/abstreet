@@ -448,14 +448,11 @@ pub fn make_table(
     rows: Vec<(String, Vec<GeomBatch>)>,
     total_width: f64,
 ) -> Widget {
-    let total_width = total_width / ctx.get_scale_factor();
-    let mut width_per_col: Vec<f64> = headers
-        .iter()
-        .map(|w| w.get_width_for_forcing() / ctx.get_scale_factor())
-        .collect();
+    let total_width = total_width;
+    let mut width_per_col: Vec<f64> = headers.iter().map(|w| w.get_width_for_forcing()).collect();
     for (_, row) in &rows {
         for (col, width) in row.iter().zip(width_per_col.iter_mut()) {
-            *width = width.max(col.get_dims().width / ctx.get_scale_factor());
+            *width = width.max(col.get_dims().width);
         }
     }
     let extra_margin = ((total_width - width_per_col.clone().into_iter().sum::<f64>())
@@ -467,24 +464,26 @@ pub fn make_table(
             .into_iter()
             .enumerate()
             .map(|(idx, w)| {
-                let margin = extra_margin + width_per_col[idx]
-                    - (w.get_width_for_forcing() / ctx.get_scale_factor());
+                let margin = extra_margin + width_per_col[idx] - w.get_width_for_forcing();
+                // TODO margin_right scales up, so we have to cancel that out. Otherwise here we're
+                // already working in physical pixels. Sigh.
                 if idx == width_per_col.len() - 1 {
-                    w.margin_right((margin - extra_margin) as usize)
+                    w.margin_right(((margin - extra_margin) / ctx.get_scale_factor()) as usize)
                 } else {
-                    w.margin_right(margin as usize)
+                    w.margin_right((margin / ctx.get_scale_factor()) as usize)
                 }
             })
             .collect(),
     )
     .bg(app.cs.section_bg)];
 
+    // TODO Maybe can do this now simpler with to_geom
     for (label, row) in rows {
         let mut batch = GeomBatch::new();
         batch.autocrop_dims = false;
         let mut x1 = 0.0;
         for (col, width) in row.into_iter().zip(width_per_col.iter()) {
-            batch.append(col.scale(1.0 / ctx.get_scale_factor()).translate(x1, 0.0));
+            batch.append(col.translate(x1, 0.0));
             x1 += *width + extra_margin;
         }
 

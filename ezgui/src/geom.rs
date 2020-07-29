@@ -195,6 +195,9 @@ impl GeomBatch {
 
     /// Scales the batch by some factor.
     pub fn scale(mut self, factor: f64) -> GeomBatch {
+        if factor == 1.0 {
+            return self;
+        }
         for (_, poly) in &mut self.list {
             *poly = poly.scale(factor);
         }
