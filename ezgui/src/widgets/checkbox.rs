@@ -35,15 +35,22 @@ impl Checkbox {
         enabled: bool,
     ) -> Widget {
         let label = label.into();
-        let off = icon_and_text(ctx, "system/assets/tools/toggle_off.svg", &label);
-        let on = icon_and_text(ctx, "system/assets/tools/toggle_on.svg", &label);
-        // The dims should be the same for both
-        let dims = off.get_dims();
-        let vert_pad = 4.0;
-        let horiz_pad = 4.0;
-        let hitbox = Polygon::rectangle(dims.width + 2.0 * horiz_pad, dims.height + 2.0 * vert_pad);
-        let off = off.translate(horiz_pad, vert_pad);
-        let on = on.translate(horiz_pad, vert_pad);
+        let off = Widget::row(vec![
+            GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/toggle_off.svg")
+                .batch()
+                .centered_vert(),
+            label.clone().batch_text(ctx),
+        ])
+        .to_geom(ctx, None);
+        let on = Widget::row(vec![
+            GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/toggle_on.svg")
+                .batch()
+                .centered_vert(),
+            label.clone().batch_text(ctx),
+        ])
+        .to_geom(ctx, None);
+        // Dims should be the same for both
+        let hitbox = off.get_bounds().get_rectangle();
 
         Checkbox::new(
             enabled,
@@ -66,7 +73,6 @@ impl Checkbox {
             )
             .build(ctx, &label, hotkey),
         )
-        //.outline(ctx.style().outline_thickness, ctx.style().outline_color)
         .named(label)
     }
 
@@ -207,15 +213,4 @@ impl WidgetImpl for Checkbox {
     fn draw(&self, g: &mut GfxCtx) {
         self.btn.draw(g);
     }
-}
-
-// TODO This should become a BtnBuilder style
-fn icon_and_text(ctx: &EventCtx, svg_path: &str, label: &str) -> GeomBatch {
-    let mut batch = GeomBatch::screenspace_svg(ctx.prerender, svg_path);
-    let horiz_pad = 8.0;
-    let txt = Text::from(Line(label))
-        .render_to_batch(ctx.prerender)
-        .translate(batch.get_dims().width + horiz_pad, 0.0);
-    batch.append(txt);
-    batch
 }

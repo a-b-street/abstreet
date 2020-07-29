@@ -306,12 +306,15 @@ impl Widget {
         Widget::new(Box::new(Nothing {}))
     }
 
-    pub fn to_geom(mut self, ctx: &EventCtx, exact_pct_width: f64) -> GeomBatch {
-        // TODO 35 is a sad magic number. By default, Composites have padding of 16, so assuming
-        // this geometry is going in one of those, it makes sense to subtract 32. But that still
-        // caused some scrolling in a test, so snip away a few more pixels.
-        self.layout.style.min_size.width =
-            Dimension::Points((exact_pct_width * ctx.canvas.window_width) as f32 - 35.0);
+    pub fn to_geom(mut self, ctx: &EventCtx, exact_pct_width: Option<f64>) -> GeomBatch {
+        if let Some(w) = exact_pct_width {
+            // TODO 35 is a sad magic number. By default, Composites have padding of 16, so assuming
+            // this geometry is going in one of those, it makes sense to subtract 32. But that still
+            // caused some scrolling in a test, so snip away a few more pixels.
+            self.layout.style.min_size.width =
+                Dimension::Points((w * ctx.canvas.window_width) as f32 - 35.0);
+        }
+
         // Pretend we're in a Composite and basically copy recompute_layout
         {
             let mut stretch = Stretch::new();

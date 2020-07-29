@@ -187,7 +187,7 @@ pub fn trips(
         .padding(16)
         .bg(app.cs.inner_panel)
         .margin_above(if idx == 0 { 0 } else { 16 })
-        .to_geom(ctx, 0.3);
+        .to_geom(ctx, Some(0.3));
         let hitbox = row_btn.get_bounds().get_rectangle();
         rows.push(
             Btn::custom(
