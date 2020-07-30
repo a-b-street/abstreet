@@ -8,7 +8,7 @@ use ezgui::{
     Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Distance, Time};
-use map_model::LaneType;
+use map_model::{osm, LaneType};
 use sim::AgentType;
 
 pub struct BikeNetwork {
@@ -285,6 +285,47 @@ impl Static {
             colorer,
             "amenities",
             "Amenities".to_string(),
+            Widget::nothing(),
+        )
+    }
+
+    pub fn no_sidewalks(ctx: &mut EventCtx, app: &App) -> Static {
+        let mut colorer = ColorDiscrete::new(app, vec![("no sidewalks", Color::RED)]);
+
+        for r in app.primary.map.all_roads() {
+            if r.is_light_rail()
+                || r.osm_tags.is_any(
+                    osm::HIGHWAY,
+                    vec!["motorway", "motorway_link", "construction"],
+                )
+                || r.osm_tags.is("foot", "no")
+                || r.osm_tags.is("access", "no")
+                || r.osm_tags.is("motorroad", "yes")
+            {
+                continue;
+            }
+            // If it's a one-way, fine to not have sidewalks on both sides.
+            if r.children_forwards
+                .last()
+                .map(|(_, lt)| *lt != LaneType::Sidewalk)
+                .unwrap_or(true)
+            {
+                colorer.add_r(r.id, "no sidewalks");
+            } else if !r.osm_tags.is("oneway", "yes")
+                && r.children_backwards
+                    .last()
+                    .map(|(_, lt)| *lt != LaneType::Sidewalk)
+                    .unwrap_or(true)
+            {
+                colorer.add_r(r.id, "no sidewalks");
+            }
+        }
+
+        Static::new(
+            ctx,
+            colorer,
+            "no sidewalks",
+            "No sidewalks".to_string(),
             Widget::nothing(),
         )
     }

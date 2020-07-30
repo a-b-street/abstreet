@@ -113,6 +113,7 @@ impl PickLayer {
                     btn("bike network", Key::B),
                     btn("transit network", Key::U),
                     btn("population map", Key::X),
+                    btn("no sidewalks", Key::S),
                 ]),
             ])
             .evenly_spaced(),
@@ -122,7 +123,7 @@ impl PickLayer {
             "Experimental".draw_text(ctx),
             btn("amenities", Key::A),
             btn("backpressure", Key::Z),
-            btn("elevation", Key::S),
+            btn("elevation", Key::V),
         ]);
         if app.primary.sim.get_pandemic_model().is_some() {
             col.push(btn("pandemic model", Key::Y));
@@ -171,6 +172,9 @@ impl State for PickLayer {
                 }
                 "elevation" => {
                     app.layer = Some(Box::new(elevation::Elevation::new(ctx, app)));
+                }
+                "no sidewalks" => {
+                    app.layer = Some(Box::new(map::Static::no_sidewalks(ctx, app)));
                 }
                 "map edits" => {
                     app.layer = Some(Box::new(map::Static::edits(ctx, app)));
