@@ -118,7 +118,6 @@ impl Btn {
             path: path.into(),
             rewrite_hover,
             maybe_tooltip: None,
-            pad: 0,
         }
     }
     pub fn svg_def<I: Into<String>>(path: I) -> BtnBuilder {
@@ -126,7 +125,6 @@ impl Btn {
             path: path.into(),
             rewrite_hover: RewriteColor::ChangeAll(Color::ORANGE),
             maybe_tooltip: None,
-            pad: 0,
         }
     }
 
@@ -136,7 +134,6 @@ impl Btn {
             label: label.clone(),
             txt: Text::from(Line(label)),
             maybe_tooltip: None,
-            pad: (15.0, 8.0),
         }
     }
 
@@ -203,14 +200,12 @@ pub enum BtnBuilder {
         path: String,
         rewrite_hover: RewriteColor,
         maybe_tooltip: Option<Text>,
-        pad: usize,
     },
     TextFG(String, Text, Option<Text>),
     PlainText {
         label: String,
         txt: Text,
         maybe_tooltip: Option<Text>,
-        pad: (f64, f64),
     },
     TextBG {
         label: String,
@@ -250,20 +245,6 @@ impl BtnBuilder {
         self
     }
 
-    pub fn pad(mut self, new_pad: usize) -> BtnBuilder {
-        match self {
-            BtnBuilder::SVG { ref mut pad, .. } => {
-                *pad = new_pad;
-                self
-            }
-            BtnBuilder::PlainText { ref mut pad, .. } => {
-                *pad = (new_pad as f64, new_pad as f64);
-                self
-            }
-            _ => unreachable!(),
-        }
-    }
-
     pub fn build<I: Into<String>>(
         self,
         ctx: &EventCtx,
@@ -275,19 +256,15 @@ impl BtnBuilder {
                 path,
                 rewrite_hover,
                 maybe_tooltip,
-                pad,
             } => {
-                let (orig, bounds) = svg::load_svg(
+                let (normal, bounds) = svg::load_svg(
                     ctx.prerender,
                     &path,
                     *ctx.prerender.assets.scale_factor.borrow(),
                 );
-                let pad = pad as f64;
-                let geom =
-                    Polygon::rectangle(bounds.width() + 2.0 * pad, bounds.height() + 2.0 * pad);
+                let geom = Polygon::rectangle(bounds.width(), bounds.height());
 
-                let normal = orig.clone().translate(pad, pad);
-                let hovered = orig.translate(pad, pad).color(rewrite_hover);
+                let hovered = normal.clone().color(rewrite_hover);
 
                 Button::new(
                     ctx,
@@ -332,11 +309,9 @@ impl BtnBuilder {
             }
             // Same as TextFG without the outline
             BtnBuilder::PlainText {
-                txt,
-                maybe_tooltip,
-                pad,
-                ..
+                txt, maybe_tooltip, ..
             } => {
+                let pad = (15.0, 8.0);
                 let normal_txt = txt;
 
                 let unselected_batch = normal_txt.clone().render_ctx(ctx);

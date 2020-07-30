@@ -321,9 +321,7 @@ fn make_meter(
         } else {
             Widget::row(vec![
                 if app.primary.dirty_from_edits {
-                    Btn::plaintext("(!)")
-                        .pad(0)
-                        .build(ctx, "explain score", None)
+                    Btn::plaintext("(!)").build(ctx, "explain score", None)
                 } else {
                     Widget::nothing()
                 },

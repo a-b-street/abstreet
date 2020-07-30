@@ -38,16 +38,20 @@ impl SpeedControls {
         let mut row = Vec::new();
         row.push(
             if paused {
-                Btn::svg_def("system/assets/speed/triangle.svg")
-                    .pad(9)
-                    .build(ctx, "play", hotkey(Key::Space))
+                Btn::svg_def("system/assets/speed/triangle.svg").build(
+                    ctx,
+                    "play",
+                    hotkey(Key::Space),
+                )
             } else {
-                Btn::svg_def("system/assets/speed/pause.svg").pad(9).build(
+                Btn::svg_def("system/assets/speed/pause.svg").build(
                     ctx,
                     "pause",
                     hotkey(Key::Space),
                 )
             }
+            .container()
+            .padding(9)
             .bg(app.cs.section_bg)
             .margin_right(16),
         );
@@ -105,13 +109,13 @@ impl SpeedControls {
         row.push(
             Widget::custom_row(vec![
                 Btn::svg_def("system/assets/speed/jump_to_time.svg")
-                    .pad(9)
-                    .build(ctx, "jump to specific time", hotkey(Key::B)),
-                Btn::svg_def("system/assets/speed/reset.svg").pad(9).build(
-                    ctx,
-                    "reset to midnight",
-                    hotkey(Key::X),
-                ),
+                    .build(ctx, "jump to specific time", hotkey(Key::B))
+                    .container()
+                    .padding(9),
+                Btn::svg_def("system/assets/speed/reset.svg")
+                    .build(ctx, "reset to midnight", hotkey(Key::X))
+                    .container()
+                    .padding(9),
             ])
             .bg(app.cs.section_bg),
         );

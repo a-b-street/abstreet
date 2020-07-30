@@ -119,7 +119,7 @@ impl Widget {
         Widget::row(vec![self])
     }
 
-    // TODO Alright, this seems to not work on JustDraw's (or at least SVGs).
+    // TODO Maybe panic if we call this on a non-container
     pub fn padding(mut self, pixels: usize) -> Widget {
         self.layout.style.padding = Rect {
             start: Dimension::Points(pixels as f32),
