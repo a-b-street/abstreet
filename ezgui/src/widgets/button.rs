@@ -277,24 +277,23 @@ impl BtnBuilder {
                 )
             }
             BtnBuilder::TextFG(_, normal_txt, maybe_t) => {
-                // TODO Padding here is unfortunate, but I don't understand when the flexbox padding
-                // actually works.
-                let horiz_padding = 15.0;
-                let vert_padding = 8.0;
-
-                let unselected_batch = normal_txt.clone().render_ctx(ctx);
-                let dims = unselected_batch.get_dims();
-                let selected_batch = normal_txt.change_fg(Color::ORANGE).render_ctx(ctx);
-                assert_eq!(dims, selected_batch.get_dims());
-                let geom = Polygon::rectangle(
-                    dims.width + 2.0 * horiz_padding,
-                    dims.height + 2.0 * vert_padding,
-                );
-
-                let mut normal = GeomBatch::new();
-                normal.append(unselected_batch.translate(horiz_padding, vert_padding));
-                let mut hovered = GeomBatch::new();
-                hovered.append(selected_batch.translate(horiz_padding, vert_padding));
+                // Apply outline here to force the hitbox to cover the otherwise empty bottom and
+                // right
+                let normal = normal_txt
+                    .clone()
+                    .batch(ctx)
+                    .container()
+                    .padding(8)
+                    .outline(2.0, Color::WHITE)
+                    .to_geom(ctx, None);
+                let hovered = normal_txt
+                    .change_fg(Color::ORANGE)
+                    .batch(ctx)
+                    .container()
+                    .padding(8)
+                    .outline(2.0, Color::WHITE)
+                    .to_geom(ctx, None);
+                let hitbox = normal.get_bounds().get_rectangle();
 
                 Button::new(
                     ctx,
@@ -303,14 +302,15 @@ impl BtnBuilder {
                     key,
                     &action_tooltip.into(),
                     maybe_t,
-                    geom,
+                    hitbox,
                 )
-                .outline(2.0, Color::WHITE)
             }
             // Same as TextFG without the outline
             BtnBuilder::PlainText {
                 txt, maybe_tooltip, ..
             } => {
+                // TODO Have to use an invisible spacer, or make to_geom also return the
+                // ScreenRectangle / a Polygon hitbox.
                 let pad = (15.0, 8.0);
                 let normal_txt = txt;
 
@@ -407,7 +407,6 @@ impl BtnBuilder {
                     top_left: btn.top_left,
                     dims: btn.dims,
                 }))
-                .outline(2.0, Color::WHITE)
             }
             // TODO This'll only work reasonably for text_bg2
             BtnBuilder::TextBG {
