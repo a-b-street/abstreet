@@ -126,7 +126,7 @@ pub fn trips(
         };
         let trip = sim.trip_info(*t);
 
-        let row_btn = Widget::custom_row(vec![
+        let (row_btn, hitbox) = Widget::custom_row(vec![
             format!("Trip {} ", idx + 1)
                 .batch_text(ctx)
                 .centered_vert()
@@ -186,9 +186,7 @@ pub fn trips(
         .outline(2.0, Color::WHITE)
         .padding(16)
         .bg(app.cs.inner_panel)
-        .margin_above(if idx == 0 { 0 } else { 16 })
         .to_geom(ctx, Some(0.3));
-        let hitbox = row_btn.get_bounds().get_rectangle();
         rows.push(
             Btn::custom(
                 row_btn.clone(),
@@ -207,7 +205,8 @@ pub fn trips(
                     t
                 ),
                 None,
-            ),
+            )
+            .margin_above(if idx == 0 { 0 } else { 16 }),
         );
 
         if let Some(info) = maybe_info {

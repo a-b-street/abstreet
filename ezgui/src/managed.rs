@@ -301,7 +301,8 @@ impl Widget {
         Widget::new(Box::new(Nothing {}))
     }
 
-    pub fn to_geom(mut self, ctx: &EventCtx, exact_pct_width: Option<f64>) -> GeomBatch {
+    // Also returns the hitbox of the entire widget
+    pub fn to_geom(mut self, ctx: &EventCtx, exact_pct_width: Option<f64>) -> (GeomBatch, Polygon) {
         if let Some(w) = exact_pct_width {
             // TODO 35 is a sad magic number. By default, Composites have padding of 16, so assuming
             // this geometry is going in one of those, it makes sense to subtract 32. But that still
@@ -344,10 +345,11 @@ impl Widget {
 
         // Now build one big batch from all of the geometry, which now has the correct top left
         // position.
+        let hitbox = self.rect.to_polygon();
         let mut batch = GeomBatch::new();
         self.consume_geometry(&mut batch);
         batch.autocrop_dims = false;
-        batch
+        (batch, hitbox)
     }
 }
 

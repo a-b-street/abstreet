@@ -90,7 +90,7 @@ impl GeomBatch {
     }
 
     /// Compute the bounds of all polygons in this batch.
-    pub fn get_bounds(&self) -> Bounds {
+    fn get_bounds(&self) -> Bounds {
         let mut bounds = Bounds::new();
         for (_, poly) in &self.list {
             bounds.union(poly.get_bounds());

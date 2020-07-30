@@ -34,22 +34,20 @@ impl Checkbox {
         enabled: bool,
     ) -> Widget {
         let label = label.into();
-        let off = Widget::row(vec![
+        let (off, hitbox) = Widget::row(vec![
             GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/toggle_off.svg")
                 .batch()
                 .centered_vert(),
             label.clone().batch_text(ctx),
         ])
         .to_geom(ctx, None);
-        let on = Widget::row(vec![
+        let (on, _) = Widget::row(vec![
             GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/toggle_on.svg")
                 .batch()
                 .centered_vert(),
             label.clone().batch_text(ctx),
         ])
         .to_geom(ctx, None);
-        // Dims should be the same for both
-        let hitbox = off.get_bounds().get_rectangle();
 
         Checkbox::new(
             enabled,
@@ -114,7 +112,7 @@ impl Checkbox {
     }
 
     pub fn colored(ctx: &EventCtx, label: &str, color: Color, enabled: bool) -> Widget {
-        let off = Widget::row(vec![
+        let (off, hitbox) = Widget::row(vec![
             GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/checkbox.svg")
                 .color(RewriteColor::ChangeAll(color.alpha(0.3)))
                 .batch()
@@ -122,7 +120,7 @@ impl Checkbox {
             label.batch_text(ctx),
         ])
         .to_geom(ctx, None);
-        let on = Widget::row(vec![
+        let (on, _) = Widget::row(vec![
             GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/checkbox.svg")
                 .color(RewriteColor::Change(Color::BLACK, color))
                 .batch()
@@ -130,8 +128,6 @@ impl Checkbox {
             label.batch_text(ctx),
         ])
         .to_geom(ctx, None);
-        // Dims should be the same for both
-        let hitbox = off.get_bounds().get_rectangle();
 
         Checkbox::new(
             enabled,

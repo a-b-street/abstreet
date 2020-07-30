@@ -1,6 +1,6 @@
 use crate::{
-    svg, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, Outcome,
-    RewriteColor, ScreenDims, ScreenPt, Text, Widget, WidgetImpl, WidgetOutput,
+    svg, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, Outcome, RewriteColor,
+    ScreenDims, ScreenPt, Text, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::Polygon;
 
@@ -277,23 +277,18 @@ impl BtnBuilder {
                 )
             }
             BtnBuilder::TextFG(_, normal_txt, maybe_t) => {
-                // Apply outline here to force the hitbox to cover the otherwise empty bottom and
-                // right
-                let normal = normal_txt
+                let (normal, hitbox) = normal_txt
                     .clone()
                     .batch(ctx)
                     .container()
                     .padding(8)
-                    .outline(2.0, Color::WHITE)
                     .to_geom(ctx, None);
-                let hovered = normal_txt
+                let (hovered, _) = normal_txt
                     .change_fg(Color::ORANGE)
                     .batch(ctx)
                     .container()
                     .padding(8)
-                    .outline(2.0, Color::WHITE)
                     .to_geom(ctx, None);
-                let hitbox = normal.get_bounds().get_rectangle();
 
                 Button::new(
                     ctx,
@@ -304,26 +299,24 @@ impl BtnBuilder {
                     maybe_t,
                     hitbox,
                 )
+                .outline(2.0, Color::WHITE)
             }
             // Same as TextFG without the outline
             BtnBuilder::PlainText {
                 txt, maybe_tooltip, ..
             } => {
-                // TODO Have to use an invisible spacer, or make to_geom also return the
-                // ScreenRectangle / a Polygon hitbox.
-                let pad = (15.0, 8.0);
-                let normal_txt = txt;
-
-                let unselected_batch = normal_txt.clone().render_ctx(ctx);
-                let dims = unselected_batch.get_dims();
-                let selected_batch = normal_txt.change_fg(Color::ORANGE).render_ctx(ctx);
-                assert_eq!(dims, selected_batch.get_dims());
-                let geom = Polygon::rectangle(dims.width + 2.0 * pad.0, dims.height + 2.0 * pad.1);
-
-                let mut normal = GeomBatch::new();
-                normal.append(unselected_batch.translate(pad.0, pad.1));
-                let mut hovered = GeomBatch::new();
-                hovered.append(selected_batch.translate(pad.0, pad.1));
+                let (normal, hitbox) = txt
+                    .clone()
+                    .batch(ctx)
+                    .container()
+                    .padding(8)
+                    .to_geom(ctx, None);
+                let (hovered, _) = txt
+                    .change_fg(Color::ORANGE)
+                    .batch(ctx)
+                    .container()
+                    .padding(8)
+                    .to_geom(ctx, None);
 
                 Button::new(
                     ctx,
@@ -332,7 +325,7 @@ impl BtnBuilder {
                     key,
                     &action_tooltip.into(),
                     maybe_tooltip,
-                    geom,
+                    hitbox,
                 )
             }
             BtnBuilder::TextBG {
@@ -342,22 +335,19 @@ impl BtnBuilder {
                 selected_bg_color,
                 ..
             } => {
-                const HORIZ_PADDING: f64 = 30.0;
-                const VERT_PADDING: f64 = 10.0;
-
-                let txt_batch = text.render_ctx(ctx);
-                let dims = txt_batch.get_dims();
-                let geom = Polygon::rounded_rectangle(
-                    dims.width + 2.0 * HORIZ_PADDING,
-                    dims.height + 2.0 * VERT_PADDING,
-                    Some(VERT_PADDING),
-                );
-
-                let mut normal = GeomBatch::from(vec![(unselected_bg_color, geom.clone())]);
-                normal.append(txt_batch.clone().translate(HORIZ_PADDING, VERT_PADDING));
-
-                let mut hovered = GeomBatch::from(vec![(selected_bg_color, geom.clone())]);
-                hovered.append(txt_batch.translate(HORIZ_PADDING, VERT_PADDING));
+                let (normal, hitbox) = text
+                    .clone()
+                    .batch(ctx)
+                    .container()
+                    .padding(15)
+                    .bg(unselected_bg_color)
+                    .to_geom(ctx, None);
+                let (hovered, _) = text
+                    .batch(ctx)
+                    .container()
+                    .padding(15)
+                    .bg(selected_bg_color)
+                    .to_geom(ctx, None);
 
                 Button::new(
                     ctx,
@@ -366,7 +356,7 @@ impl BtnBuilder {
                     key,
                     &action_tooltip.into(),
                     maybe_tooltip,
-                    geom,
+                    hitbox,
                 )
             }
             BtnBuilder::Custom(normal, hovered, hitbox, maybe_t) => Button::new(
@@ -396,31 +386,22 @@ impl BtnBuilder {
         }
     }
 
-    pub fn inactive(mut self, ctx: &EventCtx) -> Widget {
+    pub fn inactive(self, ctx: &EventCtx) -> Widget {
         match self {
-            BtnBuilder::TextFG(_, txt, _) => {
-                let btn = BtnBuilder::TextFG(String::new(), txt.change_fg(Color::grey(0.5)), None)
-                    .build(ctx, "dummy", None)
-                    .take_btn();
-                Widget::new(Box::new(JustDraw {
-                    draw: btn.draw_normal,
-                    top_left: btn.top_left,
-                    dims: btn.dims,
-                }))
-            }
+            BtnBuilder::TextFG(_, txt, _) => txt
+                .change_fg(Color::grey(0.5))
+                .draw(ctx)
+                .container()
+                .padding(8)
+                .outline(2.0, Color::WHITE),
             // TODO This'll only work reasonably for text_bg2
             BtnBuilder::TextBG {
-                ref mut unselected_bg_color,
+                text,
+                unselected_bg_color,
                 ..
             } => {
-                assert_eq!(*unselected_bg_color, Color::WHITE);
-                *unselected_bg_color = Color::grey(0.7);
-                let btn = self.build(ctx, "dummy", None).take_btn();
-                Widget::new(Box::new(JustDraw {
-                    draw: btn.draw_normal,
-                    top_left: btn.top_left,
-                    dims: btn.dims,
-                }))
+                assert_eq!(unselected_bg_color, Color::WHITE);
+                text.draw(ctx).container().padding(15).bg(Color::grey(0.7))
             }
             _ => panic!("Can't use inactive on this kind of button"),
         }
