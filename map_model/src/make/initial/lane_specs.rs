@@ -1,4 +1,4 @@
-use crate::{osm, LaneType, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
+use crate::{osm, LaneType, NORMAL_LANE_THICKNESS, SHOULDER_THICKNESS, SIDEWALK_THICKNESS};
 use abstutil::Tags;
 use geom::Distance;
 use serde::{Deserialize, Serialize};
@@ -244,7 +244,56 @@ pub fn get_lane_specs(tags: &Tags) -> Vec<LaneSpec> {
         back_side.push(LaneType::Sidewalk);
     }
 
-    LaneSpec::normal(fwd_side, back_side)
+    // TODO Replicating some of the work from the "no sidewalks" layer. Actually, I guess that one
+    // can change to just look for shoulders.
+    let mut need_fwd_shoulder = fwd_side
+        .last()
+        .map(|lt| *lt != LaneType::Sidewalk)
+        .unwrap_or(true);
+    let mut need_back_shoulder = back_side
+        .last()
+        .map(|lt| *lt != LaneType::Sidewalk)
+        .unwrap_or(true);
+    if tags.is_any(
+        osm::HIGHWAY,
+        vec!["motorway", "motorway_link", "construction"],
+    ) || tags.is("foot", "no")
+        || tags.is("access", "no")
+        || tags.is("motorroad", "yes")
+    {
+        need_fwd_shoulder = false;
+        need_back_shoulder = false;
+    }
+    // If it's a one-way, fine to not have sidewalks on both sides.
+    if tags.is("oneway", "yes") {
+        need_back_shoulder = false;
+    }
+
+    // TODO Now I'm regretting the weird order this returns...
+    let mut specs = LaneSpec::normal(fwd_side, back_side);
+    if need_fwd_shoulder {
+        let idx = specs
+            .iter()
+            .position(|s| s.reverse_pts)
+            .unwrap_or(specs.len());
+        specs.insert(
+            idx,
+            LaneSpec {
+                lane_type: LaneType::Shoulder,
+                reverse_pts: false,
+                width: SHOULDER_THICKNESS,
+            },
+        );
+    }
+    if need_back_shoulder {
+        specs.push(LaneSpec {
+            lane_type: LaneType::Shoulder,
+            reverse_pts: true,
+            width: SHOULDER_THICKNESS,
+        });
+    }
+
+    specs
 }
 
 // This is a convenient way for map_editor to plumb instructions here.
@@ -297,6 +346,7 @@ impl RoadSpec {
             LaneType::Driving => 'd',
             LaneType::Parking => 'p',
             LaneType::Sidewalk => 's',
+            LaneType::Shoulder => 'S',
             LaneType::Biking => 'b',
             LaneType::Bus => 'u',
             LaneType::SharedLeftTurn => 'l',
@@ -310,6 +360,7 @@ impl RoadSpec {
             'd' => Some(LaneType::Driving),
             'p' => Some(LaneType::Parking),
             's' => Some(LaneType::Sidewalk),
+            'S' => Some(LaneType::Shoulder),
             'b' => Some(LaneType::Biking),
             'u' => Some(LaneType::Bus),
             'l' => Some(LaneType::SharedLeftTurn),

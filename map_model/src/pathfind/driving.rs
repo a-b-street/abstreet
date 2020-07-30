@@ -70,7 +70,7 @@ impl VehiclePathfinder {
     }
 
     pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<(Path, usize)> {
-        assert!(!map.get_l(req.start.lane()).is_sidewalk());
+        assert!(!map.get_l(req.start.lane()).is_walkable());
         let mut calc = self
             .path_calc
             .get_or(|| RefCell::new(fast_paths::create_calculator(&self.graph)))

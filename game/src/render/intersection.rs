@@ -9,6 +9,7 @@ use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, T
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
     Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
+    SIDEWALK_THICKNESS,
 };
 use std::cell::RefCell;
 
@@ -187,7 +188,10 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
             if map.get_l(turn.id.src).dst_i != i.id {
                 continue;
             }
-            let width = map.get_l(turn.id.src).width;
+            let width = map
+                .get_l(turn.id.src)
+                .width
+                .min(map.get_l(turn.id.dst).width);
 
             // Special case for dead-ends: just thicken the geometry.
             if i.roads.len() == 1 {
@@ -294,7 +298,8 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
         return;
     }
 
-    let width = map.get_l(turn.id.src).width;
+    // This size also looks better for shoulders
+    let width = SIDEWALK_THICKNESS;
     // Start at least width out to not hit sidewalk corners. Also account for the thickness of the
     // crosswalk line itself. Center the lines inside these two boundaries.
     let boundary = width;

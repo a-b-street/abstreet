@@ -65,7 +65,7 @@ impl SidewalkPathfinder {
         let mut nodes = NodeMap::new();
         // We're assuming that to start with, no sidewalks are closed for construction!
         for l in map.all_lanes() {
-            if l.is_sidewalk() {
+            if l.is_walkable() {
                 nodes.get_or_insert(WalkingNode::SidewalkEndpoint(l.id, true));
                 nodes.get_or_insert(WalkingNode::SidewalkEndpoint(l.id, false));
             }
@@ -226,13 +226,17 @@ fn make_input_graph(
     let mut input_graph = InputGraph::new();
 
     for l in map.all_lanes() {
-        if l.is_sidewalk()
+        if l.is_walkable()
             && map
                 .get_r(l.parent)
                 .allow_through_traffic
                 .contains(PathConstraints::Pedestrian)
         {
-            let cost = walking_cost(l.length());
+            let mut cost = walking_cost(l.length());
+            // TODO Tune this penalty, along with many others.
+            if l.is_shoulder() {
+                cost *= 2;
+            }
             let n1 = nodes.get(WalkingNode::SidewalkEndpoint(l.id, true));
             let n2 = nodes.get(WalkingNode::SidewalkEndpoint(l.id, false));
             input_graph.add_edge(n1, n2, cost);
@@ -362,7 +366,7 @@ fn transit_input_graph(
             let some_sidewalk = map
                 .all_lanes()
                 .into_iter()
-                .find(|l| l.is_sidewalk())
+                .find(|l| l.is_walkable())
                 .expect("no sidewalks in map");
             input_graph.add_edge(
                 nodes.get(WalkingNode::LeaveMap(i.id)),

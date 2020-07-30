@@ -280,8 +280,8 @@ impl Map {
             .map(|t| self.get_t(*t))
             .filter(|t| t.id.src == l)
             .collect();
-        // Sidewalks are bidirectional
-        if lane.is_sidewalk() {
+        // Sidewalks/shoulders are bidirectional
+        if lane.is_walkable() {
             for t in &self.get_i(lane.src_i).turns {
                 if t.src == l {
                     turns.push(self.get_t(*t));
@@ -300,8 +300,8 @@ impl Map {
             .map(|t| self.get_t(*t))
             .filter(|t| t.id.dst == l)
             .collect();
-        // Sidewalks are bidirectional
-        if lane.is_sidewalk() {
+        // Sidewalks/shoulders are bidirectional
+        if lane.is_walkable() {
             for t in &self.get_i(lane.dst_i).turns {
                 if t.dst == l {
                     turns.push(self.get_t(*t));

@@ -269,7 +269,7 @@ impl TurnExplorer {
             Btn::text_fg("X").build(ctx, "close", hotkey(Key::Escape)),
         ])];
         if idx == 0 {
-            if app.primary.map.get_l(l).is_sidewalk() {
+            if app.primary.map.get_l(l).is_walkable() {
                 col.push(ColorLegend::row(
                     ctx,
                     color_turn_type(TurnType::Crosswalk),

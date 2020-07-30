@@ -581,7 +581,7 @@ impl Model {
             LaneType::Driving => Color::BLACK,
             LaneType::Bus => Color::rgb(190, 74, 76),
             LaneType::Parking => Color::grey(0.2),
-            LaneType::Sidewalk => Color::grey(0.8),
+            LaneType::Sidewalk | LaneType::Shoulder => Color::grey(0.8),
             LaneType::Biking => Color::rgb(15, 125, 75),
             LaneType::SharedLeftTurn => Color::YELLOW,
             LaneType::Construction => Color::rgb(255, 109, 0),

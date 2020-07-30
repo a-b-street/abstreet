@@ -35,6 +35,7 @@ pub enum LaneType {
     Driving,
     Parking,
     Sidewalk,
+    Shoulder,
     Biking,
     Bus,
     SharedLeftTurn,
@@ -50,6 +51,7 @@ impl LaneType {
             LaneType::Bus => true,
             LaneType::Parking => false,
             LaneType::Sidewalk => false,
+            LaneType::Shoulder => false,
             LaneType::SharedLeftTurn => false,
             LaneType::Construction => false,
             LaneType::LightRail => true,
@@ -63,6 +65,7 @@ impl LaneType {
             LaneType::Bus => true,
             LaneType::Parking => false,
             LaneType::Sidewalk => true,
+            LaneType::Shoulder => true,
             LaneType::SharedLeftTurn => false,
             LaneType::Construction => false,
             LaneType::LightRail => true,
@@ -76,6 +79,7 @@ impl LaneType {
             LaneType::Bus => "a bus-only lane",
             LaneType::Parking => "an on-street parking lane",
             LaneType::Sidewalk => "a sidewalk",
+            LaneType::Shoulder => "a shoulder",
             LaneType::SharedLeftTurn => "a shared left-turn lane",
             LaneType::Construction => "a lane that's closed for construction",
             LaneType::LightRail => "a light rail track",
@@ -89,6 +93,7 @@ impl LaneType {
             LaneType::Bus => "bus lane",
             LaneType::Parking => "parking lane",
             LaneType::Sidewalk => "sidewalk",
+            LaneType::Shoulder => "shoulder",
             LaneType::SharedLeftTurn => "left-turn lane",
             LaneType::Construction => "construction",
             LaneType::LightRail => "light rail track",
@@ -193,8 +198,16 @@ impl Lane {
         self.lane_type == LaneType::Bus
     }
 
+    pub fn is_walkable(&self) -> bool {
+        self.lane_type == LaneType::Sidewalk || self.lane_type == LaneType::Shoulder
+    }
+
     pub fn is_sidewalk(&self) -> bool {
         self.lane_type == LaneType::Sidewalk
+    }
+
+    pub fn is_shoulder(&self) -> bool {
+        self.lane_type == LaneType::Shoulder
     }
 
     pub fn is_parking(&self) -> bool {

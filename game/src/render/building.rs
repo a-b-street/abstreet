@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
+use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS};
 use std::cell::RefCell;
 
 pub struct DrawBuilding {
@@ -15,6 +15,7 @@ pub struct DrawBuilding {
 impl DrawBuilding {
     pub fn new(
         bldg: &Building,
+        map: &Map,
         cs: &ColorScheme,
         bldg_batch: &mut GeomBatch,
         paths_batch: &mut GeomBatch,
@@ -27,7 +28,7 @@ impl DrawBuilding {
         let front_path_line = orig_line
             .slice(
                 Distance::ZERO,
-                orig_line.length() - SIDEWALK_THICKNESS / 2.0,
+                orig_line.length() - map.get_l(bldg.sidewalk()).width / 2.0,
             )
             .unwrap_or_else(|| orig_line.clone());
 

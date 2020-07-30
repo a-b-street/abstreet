@@ -188,7 +188,7 @@ impl Road {
         let (fwds, idx) = self.dir_and_offset(bike);
         self.children(fwds)[idx..]
             .iter()
-            .find(|(_, lt)| *lt == LaneType::Sidewalk)
+            .find(|(_, lt)| *lt == LaneType::Sidewalk || *lt == LaneType::Shoulder)
             .map(|(id, _)| *id)
     }
 
@@ -254,7 +254,7 @@ impl Road {
         let (dir, from_idx) = self.dir_and_offset(from);
         let mut list = self.children(dir);
         // Deal with one-ways and sidewalks on both sides
-        if list.len() == 1 && list[0].1 == LaneType::Sidewalk {
+        if list.len() == 1 && (list[0].1 == LaneType::Sidewalk || list[0].1 == LaneType::Shoulder) {
             list = self.children(!dir);
         }
 

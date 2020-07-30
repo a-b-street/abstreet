@@ -1166,7 +1166,7 @@ impl Sim {
 
     // (number of vehicles in the lane, penalty if a bike or other slow vehicle is present)
     pub fn target_lane_penalty(&self, lane: &Lane) -> (usize, usize) {
-        if lane.is_sidewalk() {
+        if lane.is_walkable() {
             (0, 0)
         } else {
             self.driving.target_lane_penalty(lane.id)

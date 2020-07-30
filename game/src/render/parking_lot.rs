@@ -4,10 +4,7 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
-use map_model::{
-    Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
-    SIDEWALK_THICKNESS,
-};
+use map_model::{Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH};
 
 pub struct DrawParkingLot {
     pub id: ParkingLotID,
@@ -17,6 +14,7 @@ pub struct DrawParkingLot {
 impl DrawParkingLot {
     pub fn new(
         lot: &ParkingLot,
+        map: &Map,
         cs: &ColorScheme,
         unzoomed_batch: &mut GeomBatch,
         prerender: &Prerender,
@@ -41,7 +39,7 @@ impl DrawParkingLot {
         let front_path_line = orig_line
             .slice(
                 Distance::ZERO,
-                orig_line.length() - SIDEWALK_THICKNESS / 2.0,
+                orig_line.length() - map.get_l(lot.sidewalk_pos.lane()).width / 2.0,
             )
             .unwrap_or_else(|| orig_line.clone());
 

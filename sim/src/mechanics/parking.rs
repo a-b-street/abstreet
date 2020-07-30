@@ -482,7 +482,9 @@ impl ParkingLane {
         if map.get_l(driving_lane).parking_blackhole.is_some() {
             return None;
         }
-        let sidewalk = if let Ok(l) = map.find_closest_lane(lane.id, vec![LaneType::Sidewalk]) {
+        let sidewalk = if let Ok(l) =
+            map.find_closest_lane(lane.id, vec![LaneType::Sidewalk, LaneType::Shoulder])
+        {
             l
         } else {
             timer.warn(format!("Parking lane {} has no sidewalk!", lane.id));

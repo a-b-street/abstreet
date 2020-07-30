@@ -29,7 +29,7 @@ pub fn make_all_parking_lots(
         map.get_bounds(),
         query,
         map.all_lanes(),
-        |l| l.is_sidewalk(),
+        |l| l.is_walkable(),
         sidewalk_buffer,
         Distance::meters(1000.0),
         timer,

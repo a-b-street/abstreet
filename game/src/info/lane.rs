@@ -13,7 +13,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
 
     let mut kv = Vec::new();
 
-    if !l.is_sidewalk() {
+    if !l.is_walkable() {
         kv.push(("Type", l.lane_type.describe().to_string()));
     }
     if r.is_private() {
@@ -199,7 +199,13 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
     let l = map.get_l(id);
     let r = map.get_r(l.parent);
 
-    let label = if l.is_sidewalk() { "Sidewalk" } else { "Lane" };
+    let label = if l.is_shoulder() {
+        "Shoulder"
+    } else if l.is_sidewalk() {
+        "Sidewalk"
+    } else {
+        "Lane"
+    };
     rows.push(Widget::row(vec![
         Line(format!("{} #{}", label, id.0))
             .small_heading()

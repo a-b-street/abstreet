@@ -79,6 +79,7 @@ impl DrawMap {
             timer.next();
             buildings.push(DrawBuilding::new(
                 b,
+                map,
                 cs,
                 &mut all_buildings,
                 &mut all_building_paths,
@@ -98,6 +99,7 @@ impl DrawMap {
         for pl in map.all_parking_lots() {
             parking_lots.push(DrawParkingLot::new(
                 pl,
+                map,
                 cs,
                 &mut all_unzoomed_parking_lots,
                 ctx.prerender,

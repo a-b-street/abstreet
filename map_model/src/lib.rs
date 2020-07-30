@@ -43,6 +43,7 @@ use std::collections::BTreeMap;
 // TODO Minimize uses of these!
 pub const NORMAL_LANE_THICKNESS: Distance = Distance::const_meters(2.5);
 pub const SIDEWALK_THICKNESS: Distance = Distance::const_meters(1.5);
+pub(crate) const SHOULDER_THICKNESS: Distance = Distance::const_meters(0.5);
 
 impl Cloneable for BusRouteID {}
 impl Cloneable for ControlTrafficSignal {}

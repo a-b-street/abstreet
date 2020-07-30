@@ -40,7 +40,7 @@ impl DrawLane {
                     LaneType::Driving => app.cs.driving_lane,
                     LaneType::Bus => app.cs.bus_lane,
                     LaneType::Parking => app.cs.parking_lane,
-                    LaneType::Sidewalk => app.cs.sidewalk,
+                    LaneType::Sidewalk | LaneType::Shoulder => app.cs.sidewalk,
                     LaneType::Biking => app.cs.bike_lane,
                     LaneType::SharedLeftTurn => app.cs.driving_lane,
                     LaneType::Construction => app.cs.parking_lane,
@@ -53,6 +53,7 @@ impl DrawLane {
             LaneType::Sidewalk => {
                 draw.extend(app.cs.sidewalk_lines, calculate_sidewalk_lines(lane));
             }
+            LaneType::Shoulder => {}
             LaneType::Parking => {
                 draw.extend(
                     app.cs.general_road_marking,

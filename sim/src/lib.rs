@@ -424,7 +424,7 @@ impl SidewalkSpot {
     }
 
     pub fn bike_rack(sidewalk: LaneID, map: &Map) -> Option<SidewalkSpot> {
-        assert!(map.get_l(sidewalk).is_sidewalk());
+        assert!(map.get_l(sidewalk).is_walkable());
         let driving_lane = map.get_parent(sidewalk).sidewalk_to_bike(sidewalk)?;
         // TODO Arbitrary, but safe
         let sidewalk_pos = Position::new(sidewalk, map.get_l(sidewalk).length() / 2.0);
@@ -436,7 +436,7 @@ impl SidewalkSpot {
     }
 
     pub fn bike_from_bike_rack(sidewalk: LaneID, map: &Map) -> Option<SidewalkSpot> {
-        assert!(map.get_l(sidewalk).is_sidewalk());
+        assert!(map.get_l(sidewalk).is_walkable());
         let driving_lane = map.get_parent(sidewalk).sidewalk_to_bike(sidewalk)?;
         // Don't start biking on a blackhole!
         // TODO Maybe compute a separate blackhole graph that includes bike lanes.
@@ -520,7 +520,7 @@ impl SidewalkSpot {
 
     pub fn suddenly_appear(l: LaneID, dist: Distance, map: &Map) -> SidewalkSpot {
         let lane = map.get_l(l);
-        assert!(lane.is_sidewalk());
+        assert!(lane.is_walkable());
         assert!(dist <= lane.length());
         SidewalkSpot {
             sidewalk_pos: Position::new(l, dist),

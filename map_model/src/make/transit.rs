@@ -188,7 +188,7 @@ impl Matcher {
             map.get_bounds(),
             lookup_sidewalk_pts,
             map.all_lanes(),
-            |l| l.is_sidewalk(),
+            |l| l.is_walkable(),
             Distance::ZERO,
             // TODO Generous for cap hill light rail platform
             Distance::meters(50.0),
@@ -266,9 +266,10 @@ impl Matcher {
             .bus_pts
             .get(&stop.vehicle_pos.to_hashable())
             .ok_or("vehicle for bus didnt match")?;
-        let sidewalk = map
-            .get_parent(orig_driving_pos.lane())
-            .find_closest_lane(orig_driving_pos.lane(), vec![LaneType::Sidewalk])?;
+        let sidewalk = map.get_parent(orig_driving_pos.lane()).find_closest_lane(
+            orig_driving_pos.lane(),
+            vec![LaneType::Sidewalk, LaneType::Shoulder],
+        )?;
         let sidewalk_pos = orig_driving_pos.equiv_pos(sidewalk, Distance::ZERO, map);
         let lane = map
             .get_parent(sidewalk_pos.lane())

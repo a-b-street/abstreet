@@ -440,7 +440,7 @@ impl PathConstraints {
     // Not bijective, but this is the best guess of user intent
     pub fn from_lt(lt: LaneType) -> PathConstraints {
         match lt {
-            LaneType::Sidewalk => PathConstraints::Pedestrian,
+            LaneType::Sidewalk | LaneType::Shoulder => PathConstraints::Pedestrian,
             LaneType::Driving => PathConstraints::Car,
             LaneType::Biking => PathConstraints::Bike,
             LaneType::Bus => PathConstraints::Bus,
@@ -452,7 +452,7 @@ impl PathConstraints {
     // TODO Handle private zones here?
     pub fn can_use(self, l: &Lane, map: &Map) -> bool {
         match self {
-            PathConstraints::Pedestrian => l.is_sidewalk(),
+            PathConstraints::Pedestrian => l.is_walkable(),
             PathConstraints::Car => l.is_driving(),
             PathConstraints::Bike => {
                 if l.is_biking() {

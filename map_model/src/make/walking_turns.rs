@@ -337,6 +337,7 @@ fn make_degenerate_crosswalks(
     )
 }
 
+// TODO This doesn't handle sidewalk/shoulder transitions
 fn make_shared_sidewalk_corner(
     driving_side: DrivingSide,
     i: &Intersection,
@@ -383,7 +384,7 @@ fn make_shared_sidewalk_corner(
 
             pts_between.extend(
                 driving_side
-                    .right_shift(PolyLine::must_new(deduped), l1.width / 2.0)
+                    .right_shift(PolyLine::must_new(deduped), l1.width.min(l2.width) / 2.0)
                     .points(),
             );
         }
@@ -434,7 +435,7 @@ fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
 
 fn get_sidewalk<'a>(lanes: &'a Vec<Lane>, children: &Vec<(LaneID, LaneType)>) -> Option<&'a Lane> {
     for (id, lt) in children {
-        if *lt == LaneType::Sidewalk {
+        if *lt == LaneType::Sidewalk || *lt == LaneType::Shoulder {
             return Some(&lanes[id.0]);
         }
     }

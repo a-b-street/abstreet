@@ -87,7 +87,7 @@ impl Zone {
         for r in &self.members {
             for l in map.get_r(*r).all_lanes() {
                 let l = map.get_l(l);
-                if l.is_sidewalk() {
+                if l.is_walkable() {
                     let cost = walking_cost(l.length());
                     let n1 = WalkingNode::SidewalkEndpoint(l.id, true);
                     let n2 = WalkingNode::SidewalkEndpoint(l.id, false);

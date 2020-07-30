@@ -107,6 +107,12 @@ impl DebugWarp {
                     Line("oute"),
                 ])
                 .draw(ctx),
+                Text::from_all(vec![
+                    Line("Or "),
+                    Line("j").fg(c),
+                    Line("ump to the previous position"),
+                ])
+                .draw(ctx),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
                 Btn::text_fg("Go!").build_def(ctx, hotkey(Key::Enter)),
             ]))
@@ -149,7 +155,6 @@ fn warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
     if line.is_empty() {
         return None;
     }
-    // TODO Weird magic shortcut to go to last spot. What should this be?
     if line == "j" {
         if let Some((pt, zoom)) = app.primary.last_warped_from {
             return Some(Transition::Replace(Warping::new(

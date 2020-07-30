@@ -70,6 +70,8 @@ fn lane(lane: &Lane) -> Option<serde_json::Map<String, serde_json::value::Value>
             LaneType::Driving => "drive_lane".into(),
             LaneType::Parking => "parking".into(),
             LaneType::Sidewalk => "sidewalk".into(),
+            // TODO Nope
+            LaneType::Shoulder => "sidewalk".into(),
             LaneType::Biking => "bike_lane".into(),
             LaneType::Bus => "bus_lane".into(),
             LaneType::SharedLeftTurn => "turn_lane".into(),

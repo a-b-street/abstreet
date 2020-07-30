@@ -32,7 +32,7 @@ pub fn make_all_buildings(
         map.get_bounds(),
         query,
         map.all_lanes(),
-        |l| l.is_sidewalk(),
+        |l| l.is_walkable(),
         // Don't put connections too close to intersections
         sidewalk_buffer,
         // Try not to skip any buildings, but more than 1km from a sidewalk is a little much

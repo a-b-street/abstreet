@@ -47,6 +47,7 @@ pub fn draw_signal_phase(
             let yellow = Color::YELLOW;
             for g in &phase.protected_groups {
                 if !g.crosswalk {
+                    // TODO Maybe less if shoulders meet
                     let slice_start = if crossed_roads.contains(&(g.from.id, g.parent)) {
                         SIDEWALK_THICKNESS
                     } else {

@@ -533,7 +533,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                     map,
                 );
             }
-        } else if lane.is_sidewalk() {
+        } else if lane.is_walkable() {
             for _ in 0..5 {
                 spawner.schedule_trip(
                     sim.random_person(Scenario::rand_ped_speed(&mut rng), Vec::new()),
