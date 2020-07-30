@@ -1,14 +1,64 @@
-use crate::{osm, LaneType};
+use crate::{osm, LaneType, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 use abstutil::Tags;
+use geom::Distance;
 use serde::{Deserialize, Serialize};
 use std::{fmt, iter};
 
+pub struct LaneSpec {
+    pub lane_type: LaneType,
+    pub reverse_pts: bool,
+    pub width: Distance,
+}
+
+impl LaneSpec {
+    pub fn fwds(lane_type: LaneType) -> LaneSpec {
+        LaneSpec {
+            lane_type,
+            reverse_pts: false,
+            width: if lane_type == LaneType::Sidewalk {
+                SIDEWALK_THICKNESS
+            } else {
+                NORMAL_LANE_THICKNESS
+            },
+        }
+    }
+
+    pub fn back(lane_type: LaneType) -> LaneSpec {
+        LaneSpec {
+            lane_type,
+            reverse_pts: true,
+            width: if lane_type == LaneType::Sidewalk {
+                SIDEWALK_THICKNESS
+            } else {
+                NORMAL_LANE_THICKNESS
+            },
+        }
+    }
+
+    fn normal(fwd: Vec<LaneType>, back: Vec<LaneType>) -> Vec<LaneSpec> {
+        let mut specs: Vec<LaneSpec> = Vec::new();
+        for lt in fwd {
+            specs.push(LaneSpec::fwds(lt));
+        }
+        for lt in back {
+            specs.push(LaneSpec::back(lt));
+        }
+        assert!(!specs.is_empty());
+        specs
+    }
+}
+
+// All the forwards from center->outer, then all the backwards from center->outer
+//
+// TODO Eventually this should just be all the lanes from left->right. Need to handle things like
+// two-way cycleways on one side of a two-way driving road -- there's not always one line where the
+// direction flips.
+//
 // TODO This is ripe for unit testing.
-// (original direction, reversed direction)
-pub fn get_lane_types(tags: &Tags) -> (Vec<LaneType>, Vec<LaneType>) {
+pub fn get_lane_specs(tags: &Tags) -> Vec<LaneSpec> {
     if let Some(s) = tags.get(osm::SYNTHETIC_LANES) {
         if let Some(spec) = RoadSpec::parse(s.to_string()) {
-            return (spec.fwd, spec.back);
+            return LaneSpec::normal(spec.fwd, spec.back);
         } else {
             panic!("Bad {} RoadSpec: {}", osm::SYNTHETIC_LANES, s);
         }
@@ -16,10 +66,10 @@ pub fn get_lane_types(tags: &Tags) -> (Vec<LaneType>, Vec<LaneType>) {
 
     // Easy special cases first.
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
-        return (vec![LaneType::LightRail], Vec::new());
+        return LaneSpec::normal(vec![LaneType::LightRail], Vec::new());
     }
     if tags.is(osm::HIGHWAY, "footway") {
-        return (vec![LaneType::Sidewalk], Vec::new());
+        return LaneSpec::normal(vec![LaneType::Sidewalk], Vec::new());
     }
 
     // TODO Reversible roads should be handled differently?
@@ -94,7 +144,7 @@ pub fn get_lane_types(tags: &Tags) -> (Vec<LaneType>, Vec<LaneType>) {
     }
 
     if driving_lane == LaneType::Construction {
-        return (fwd_side, back_side);
+        return LaneSpec::normal(fwd_side, back_side);
     }
 
     let fwd_bus_spec = if let Some(s) = tags.get("bus:lanes:forward") {
@@ -194,7 +244,7 @@ pub fn get_lane_types(tags: &Tags) -> (Vec<LaneType>, Vec<LaneType>) {
         back_side.push(LaneType::Sidewalk);
     }
 
-    (fwd_side, back_side)
+    LaneSpec::normal(fwd_side, back_side)
 }
 
 // This is a convenient way for map_editor to plumb instructions here.

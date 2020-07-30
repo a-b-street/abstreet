@@ -143,7 +143,7 @@ impl Map {
             let mut total_back_width = Distance::ZERO;
             for lane in &r.lane_specs {
                 if lane.reverse_pts {
-                    total_back_width += lane.width();
+                    total_back_width += lane.width;
                 }
             }
             // TODO Maybe easier to use the road's "yellow center line" and shift left/right from
@@ -167,23 +167,23 @@ impl Map {
                 let lane_center_pts = if !lane.reverse_pts {
                     let pl = map.right_shift(
                         road_left_pts.clone(),
-                        total_back_width + fwd_width_so_far + (lane.width() / 2.0),
+                        total_back_width + fwd_width_so_far + (lane.width / 2.0),
                     );
-                    fwd_width_so_far += lane.width();
+                    fwd_width_so_far += lane.width;
                     pl
                 } else {
                     let pl = map.right_shift(
                         road_left_pts.clone(),
-                        total_back_width - back_width_so_far - (lane.width() / 2.0),
+                        total_back_width - back_width_so_far - (lane.width / 2.0),
                     );
-                    back_width_so_far += lane.width();
+                    back_width_so_far += lane.width;
                     pl.reversed()
                 };
 
                 map.lanes.push(Lane {
                     id,
                     lane_center_pts,
-                    width: lane.width(),
+                    width: lane.width,
                     src_i,
                     dst_i,
                     lane_type: lane.lane_type,

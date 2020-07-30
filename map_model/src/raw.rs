@@ -1,4 +1,4 @@
-use crate::make::initial::lane_specs::get_lane_types;
+use crate::make::initial::lane_specs::get_lane_specs;
 use crate::{osm, AreaType, IntersectionType, MapConfig, RoadSpec};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring};
@@ -336,7 +336,15 @@ pub struct RawRoad {
 
 impl RawRoad {
     pub fn get_spec(&self) -> RoadSpec {
-        let (fwd, back) = get_lane_types(&self.osm_tags);
+        let mut fwd = Vec::new();
+        let mut back = Vec::new();
+        for spec in get_lane_specs(&self.osm_tags) {
+            if spec.reverse_pts {
+                back.push(spec.lane_type);
+            } else {
+                fwd.push(spec.lane_type);
+            }
+        }
         RoadSpec { fwd, back }
     }
 
