@@ -9,7 +9,7 @@ use ezgui::{
 use geom::Time;
 use map_model::{BuildingID, Map, ParkingLotID, RoadID};
 use sim::{ParkingSpot, VehicleType};
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 pub struct Occupancy {
     time: Time,
@@ -99,7 +99,7 @@ impl Occupancy {
     ) -> Occupancy {
         let mut filled_spots = Counter::new();
         let mut avail_spots = Counter::new();
-        let mut keys = HashSet::new();
+        let mut keys = BTreeSet::new();
 
         let mut public_filled = 0;
         let mut public_avail = 0;
@@ -249,7 +249,7 @@ impl Occupancy {
     }
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 enum Loc {
     Road(RoadID),
     Bldg(BuildingID),

@@ -244,8 +244,6 @@ pub fn get_lane_specs(tags: &Tags) -> Vec<LaneSpec> {
         back_side.push(LaneType::Sidewalk);
     }
 
-    // TODO Replicating some of the work from the "no sidewalks" layer. Actually, I guess that one
-    // can change to just look for shoulders.
     let mut need_fwd_shoulder = fwd_side
         .last()
         .map(|lt| *lt != LaneType::Sidewalk)
