@@ -1,5 +1,7 @@
+use crate::widgets::button::BtnBuilder;
 use crate::{
-    svg, Color, DeferDraw, Drawable, EventCtx, FancyColor, GfxCtx, Prerender, ScreenDims, Widget,
+    svg, Btn, Color, DeferDraw, Drawable, EventCtx, FancyColor, GfxCtx, Prerender, ScreenDims,
+    Widget,
 };
 use geom::{Angle, Bounds, Polygon, Pt2D};
 
@@ -76,6 +78,15 @@ impl GeomBatch {
     /// Wrap in a Widget for layouting, so this batch can become part of a larger one.
     pub fn batch(self) -> Widget {
         DeferDraw::new(self)
+    }
+
+    /// Turn this batch into a button.
+    pub fn to_btn(self, ctx: &EventCtx) -> BtnBuilder {
+        let hovered = self
+            .clone()
+            .color(RewriteColor::ChangeAll(ctx.style().hovering_color));
+        let hitbox = self.get_bounds().get_rectangle();
+        Btn::custom(self, hovered, hitbox)
     }
 
     /// Compute the bounds of all polygons in this batch.

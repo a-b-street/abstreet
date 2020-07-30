@@ -116,7 +116,6 @@ impl Btn {
     pub fn svg<I: Into<String>>(path: I, rewrite_hover: RewriteColor) -> BtnBuilder {
         BtnBuilder::SVG {
             path: path.into(),
-            rewrite_normal: RewriteColor::NoOp,
             rewrite_hover,
             maybe_tooltip: None,
             pad: 0,
@@ -125,7 +124,6 @@ impl Btn {
     pub fn svg_def<I: Into<String>>(path: I) -> BtnBuilder {
         BtnBuilder::SVG {
             path: path.into(),
-            rewrite_normal: RewriteColor::NoOp,
             rewrite_hover: RewriteColor::ChangeAll(Color::ORANGE),
             maybe_tooltip: None,
             pad: 0,
@@ -203,7 +201,6 @@ impl Btn {
 pub enum BtnBuilder {
     SVG {
         path: String,
-        rewrite_normal: RewriteColor,
         rewrite_hover: RewriteColor,
         maybe_tooltip: Option<Text>,
         pad: usize,
@@ -253,23 +250,6 @@ impl BtnBuilder {
         self
     }
 
-    pub fn normal_color(mut self, rewrite: RewriteColor) -> BtnBuilder {
-        match self {
-            BtnBuilder::SVG {
-                ref mut rewrite_normal,
-                ..
-            } => {
-                match rewrite_normal {
-                    RewriteColor::NoOp => {}
-                    _ => unreachable!(),
-                }
-                *rewrite_normal = rewrite;
-                self
-            }
-            _ => unreachable!(),
-        }
-    }
-
     pub fn pad(mut self, new_pad: usize) -> BtnBuilder {
         match self {
             BtnBuilder::SVG { ref mut pad, .. } => {
@@ -293,7 +273,6 @@ impl BtnBuilder {
         match self {
             BtnBuilder::SVG {
                 path,
-                rewrite_normal,
                 rewrite_hover,
                 maybe_tooltip,
                 pad,
@@ -307,7 +286,7 @@ impl BtnBuilder {
                 let geom =
                     Polygon::rectangle(bounds.width() + 2.0 * pad, bounds.height() + 2.0 * pad);
 
-                let normal = orig.clone().translate(pad, pad).color(rewrite_normal);
+                let normal = orig.clone().translate(pad, pad);
                 let hovered = orig.translate(pad, pad).color(rewrite_hover);
 
                 Button::new(

@@ -66,15 +66,16 @@ impl SpeedControls {
                     txt.extend(Text::tooltip(ctx, hotkey(Key::LeftArrow), "slow down"));
                     txt.extend(Text::tooltip(ctx, hotkey(Key::RightArrow), "speed up"));
 
-                    Btn::svg_def("system/assets/speed/triangle.svg")
-                        .normal_color(if setting >= s {
+                    GeomBatch::screenspace_svg(ctx.prerender, "system/assets/speed/triangle.svg")
+                        .color(if setting >= s {
                             RewriteColor::NoOp
                         } else {
                             RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
                         })
-                        .pad(3)
+                        .to_btn(ctx)
                         .tooltip(txt)
                         .build(ctx, label, None)
+                        .margin_right(6)
                 })
                 .collect(),
             )

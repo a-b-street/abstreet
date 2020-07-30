@@ -459,8 +459,9 @@ pub fn parked_car(
                 )
             } else {
                 // TODO Blink
-                Btn::svg_def("system/assets/tools/location.svg")
-                    .normal_color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
+                GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/location.svg")
+                    .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
+                    .to_btn(ctx)
                     .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))
             },
             Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
@@ -570,8 +571,9 @@ fn header(
                 )
             } else {
                 // TODO Blink
-                Btn::svg_def("system/assets/tools/location.svg")
-                    .normal_color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
+                GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/location.svg")
+                    .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
+                    .to_btn(ctx)
                     .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))
             },
             Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
