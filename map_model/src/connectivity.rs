@@ -98,13 +98,13 @@ fn bidi_flood(map: &Map, start: LaneID, largest_group: &HashSet<LaneID>) -> Opti
 // TODO Different cost function
 pub fn all_costs_from(map: &Map, start: BuildingID) -> HashMap<BuildingID, Distance> {
     let mut results = HashMap::new();
-    let start = map.get_b(start).front_path.sidewalk;
+    let start = map.get_b(start).sidewalk_pos;
     // TODO This is SO inefficient. Flood out and mark off buildings as we go. Granularity of lane
     // makes more sense.
     for b in map.all_buildings() {
         if let Some(path) = map.pathfind(PathRequest {
             start,
-            end: b.front_path.sidewalk,
+            end: b.sidewalk_pos,
             constraints: PathConstraints::Pedestrian,
         }) {
             // TODO Distance isn't an interesting thing to show at all, we want the path cost

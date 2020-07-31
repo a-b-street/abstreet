@@ -211,13 +211,11 @@ impl DrawPedCrowd {
                     map.right_shift(pl_slice, SIDEWALK_THICKNESS / 4.0)
                 }
             }
-            PedCrowdLocation::BldgFrontPath(b) => map
+            PedCrowdLocation::BldgDriveway(b) => map
                 .get_b(b)
-                .front_path
-                .line
-                .to_polyline()
+                .driveway_geom
                 .exact_slice(input.low, input.high),
-            PedCrowdLocation::LotFrontPath(pl) => map
+            PedCrowdLocation::LotDriveway(pl) => map
                 .get_pl(pl)
                 .sidewalk_line
                 .to_polyline()
@@ -239,8 +237,8 @@ impl DrawPedCrowd {
             blob,
             zorder: match input.location {
                 PedCrowdLocation::Sidewalk(on, _) => on.get_zorder(map),
-                PedCrowdLocation::BldgFrontPath(_) => 0,
-                PedCrowdLocation::LotFrontPath(_) => 0,
+                PedCrowdLocation::BldgDriveway(_) => 0,
+                PedCrowdLocation::LotDriveway(_) => 0,
             },
             draw_default: prerender.upload(batch),
         }

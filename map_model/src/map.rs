@@ -2,8 +2,8 @@ use crate::raw::{DrivingSide, RawMap};
 use crate::{
     Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop, BusStopID,
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID, LaneType,
-    Map, MapEdits, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, Position, Road,
-    RoadID, Turn, TurnGroupID, TurnID, TurnType,
+    Map, MapEdits, OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest,
+    Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType,
 };
 use abstutil::Timer;
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring};
@@ -657,19 +657,15 @@ impl Map {
     // TODO Sort of a temporary hack
     pub fn hack_override_offstreet_spots(&mut self, spots_per_bldg: usize) {
         for b in &mut self.buildings {
-            if let Some(ref mut p) = b.parking {
-                if p.public_garage_name.is_none() {
-                    p.num_spots = spots_per_bldg;
-                }
+            if let OffstreetParking::Private(ref mut num_spots) = b.parking {
+                *num_spots = spots_per_bldg;
             }
         }
     }
     pub fn hack_override_offstreet_spots_individ(&mut self, b: BuildingID, spots: usize) {
         let b = &mut self.buildings[b.0];
-        if let Some(ref mut p) = b.parking {
-            if p.public_garage_name.is_none() {
-                p.num_spots = spots;
-            }
+        if let OffstreetParking::Private(ref mut num_spots) = b.parking {
+            *num_spots = spots;
         }
     }
 

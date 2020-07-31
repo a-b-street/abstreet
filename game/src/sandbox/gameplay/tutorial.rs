@@ -1087,7 +1087,7 @@ impl TutorialState {
                         )],
                     });
                     // Will definitely get there first
-                    for i in 0..map.get_b(goal_bldg).parking.as_ref().unwrap().num_spots {
+                    for i in 0..map.get_b(goal_bldg).num_parking_spots() {
                         scenario.people.push(PersonSpec {
                             id: PersonID(i + 1),
                             orig_id: None,

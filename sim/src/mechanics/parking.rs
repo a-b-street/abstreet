@@ -5,8 +5,8 @@ use abstutil::{
 };
 use geom::{Distance, PolyLine, Pt2D};
 use map_model::{
-    BuildingID, Lane, LaneID, LaneType, Map, ParkingLotID, PathConstraints, PathStep, Position,
-    Traversable, TurnID,
+    BuildingID, Lane, LaneID, LaneType, Map, OffstreetParking, ParkingLotID, PathConstraints,
+    PathStep, Position, Traversable, TurnID,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
@@ -36,11 +36,12 @@ pub struct ParkingSimState {
 
     // Off-street
     num_spots_per_offstreet: BTreeMap<BuildingID, usize>,
+    // Cache dist_along
     #[serde(
         serialize_with = "serialize_multimap",
         deserialize_with = "deserialize_multimap"
     )]
-    driving_to_offstreet: MultiMap<LaneID, BuildingID>,
+    driving_to_offstreet: MultiMap<LaneID, (BuildingID, Distance)>,
 
     // Parking lots
     num_spots_per_lot: BTreeMap<ParkingLotID, usize>,
@@ -78,10 +79,14 @@ impl ParkingSimState {
             }
         }
         for b in map.all_buildings() {
-            if let Some(ref p) = b.parking {
-                if map.get_l(p.driving_pos.lane()).parking_blackhole.is_none() {
-                    sim.num_spots_per_offstreet.insert(b.id, p.num_spots);
-                    sim.driving_to_offstreet.insert(p.driving_pos.lane(), b.id);
+            if let Some((pos, _)) = b.driving_connection(map) {
+                if map.get_l(pos.lane()).parking_blackhole.is_none() {
+                    let num_spots = b.num_parking_spots();
+                    if num_spots > 0 {
+                        sim.num_spots_per_offstreet.insert(b.id, num_spots);
+                        sim.driving_to_offstreet
+                            .insert(pos.lane(), (b.id, pos.dist_along()));
+                    }
                 }
             }
         }
@@ -293,13 +298,13 @@ impl ParkingSimState {
             }
         }
 
-        for b in self.driving_to_offstreet.get(driving_pos.lane()) {
-            let parking = map.get_b(*b).parking.as_ref().unwrap();
-            if parking.public_garage_name.is_none() && target != *b {
-                continue;
+        for (b, bldg_dist) in self.driving_to_offstreet.get(driving_pos.lane()) {
+            if let OffstreetParking::Private(_) = map.get_b(*b).parking {
+                if target != *b {
+                    continue;
+                }
             }
-            let bldg_dist = parking.driving_pos.dist_along();
-            if driving_pos.dist_along() < bldg_dist {
+            if driving_pos.dist_along() < *bldg_dist {
                 for idx in 0..self.num_spots_per_offstreet[b] {
                     let spot = ParkingSpot::Offstreet(*b, idx);
                     if self.is_free(spot) {
@@ -337,7 +342,7 @@ impl ParkingSimState {
                     map,
                 )
             }
-            ParkingSpot::Offstreet(b, _) => map.get_b(b).parking.as_ref().unwrap().driving_pos,
+            ParkingSpot::Offstreet(b, _) => map.get_b(b).driving_connection(map).unwrap().0,
             ParkingSpot::Lot(pl, _) => map.get_pl(pl).driving_pos,
         }
     }
@@ -353,7 +358,7 @@ impl ParkingSimState {
                 )
                 .equiv_pos(lane.sidewalk, Distance::ZERO, map)
             }
-            ParkingSpot::Offstreet(b, _) => map.get_b(b).front_path.sidewalk,
+            ParkingSpot::Offstreet(b, _) => map.get_b(b).sidewalk_pos,
             ParkingSpot::Lot(pl, _) => map.get_pl(pl).sidewalk_pos,
         }
     }

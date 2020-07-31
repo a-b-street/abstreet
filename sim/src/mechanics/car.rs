@@ -149,9 +149,9 @@ impl Car {
                     _ => {
                         let driveway = match spot {
                             ParkingSpot::Offstreet(b, _) => {
-                                &map.get_b(*b).parking.as_ref().unwrap().driveway_line
+                                map.get_b(*b).driving_connection(map).unwrap().1
                             }
-                            ParkingSpot::Lot(pl, _) => &map.get_pl(*pl).driveway_line,
+                            ParkingSpot::Lot(pl, _) => map.get_pl(*pl).driveway_line.clone(),
                             _ => unreachable!(),
                         };
 

@@ -188,7 +188,6 @@ impl Map {
                     dst_i,
                     lane_type: lane.lane_type,
                     parent: road_id,
-                    building_paths: Vec::new(),
                     bus_stops: BTreeSet::new(),
                     parking_blackhole: None,
                 });
@@ -268,15 +267,6 @@ impl Map {
         timer.stop("find parking blackholes");
 
         map.buildings = buildings::make_all_buildings(&raw.buildings, &map, timer);
-        for b in &map.buildings {
-            let lane = b.sidewalk();
-
-            // TODO Could be more performant and cleanly written
-            let mut bldgs = map.lanes[lane.0].building_paths.clone();
-            bldgs.push(b.id);
-            bldgs.sort_by_key(|b| map.buildings[b.0].front_path.sidewalk.dist_along());
-            map.lanes[lane.0].building_paths = bldgs;
-        }
 
         map.parking_lots = parking_lots::make_all_parking_lots(
             &raw.parking_lots,

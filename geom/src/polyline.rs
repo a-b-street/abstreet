@@ -150,6 +150,10 @@ impl PolyLine {
     pub fn must_extend(self, other: PolyLine) -> PolyLine {
         self.extend(other).unwrap()
     }
+    pub fn must_push(self, pt: Pt2D) -> PolyLine {
+        let new = PolyLine::must_new(vec![self.last_pt(), pt]);
+        self.must_extend(new)
+    }
 
     // One or both args might be empty.
     pub fn append(first: Vec<Pt2D>, second: Vec<Pt2D>) -> Result<Vec<Pt2D>, Box<dyn Error>> {

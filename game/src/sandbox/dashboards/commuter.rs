@@ -578,6 +578,11 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
     let mut todo_bldgs: BTreeSet<BuildingID> = map.all_buildings().iter().map(|b| b.id).collect();
     let mut remainder = HashSet::new();
 
+    let mut sidewalk_to_bldgs = MultiMap::new();
+    for b in map.all_buildings() {
+        sidewalk_to_bldgs.insert(b.sidewalk(), b.id);
+    }
+
     while !todo_bldgs.is_empty() {
         let mut sidewalks = HashSet::new();
         let mut bldgs = HashSet::new();
@@ -586,7 +591,7 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
 
         let ok = loop {
             sidewalks.insert(current_l);
-            for b in &map.get_l(current_l).building_paths {
+            for b in sidewalk_to_bldgs.get(current_l) {
                 bldgs.insert(*b);
                 // TODO I wanted to assert that we haven't assigned this one yet, but...
                 todo_bldgs.remove(b);

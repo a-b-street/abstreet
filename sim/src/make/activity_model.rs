@@ -47,8 +47,8 @@ impl ScenarioGenerator {
                 let work = *workplaces.choose(rng).unwrap();
                 // Decide mode based on walking distance.
                 let dist = if let Some(path) = map.pathfind(PathRequest {
-                    start: map.get_b(home).front_path.sidewalk,
-                    end: map.get_b(work).front_path.sidewalk,
+                    start: map.get_b(home).sidewalk_pos,
+                    end: map.get_b(work).sidewalk_pos,
                     constraints: PathConstraints::Pedestrian,
                 }) {
                     path.total_length()

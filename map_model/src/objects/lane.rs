@@ -1,7 +1,6 @@
 use crate::pathfind;
 use crate::{
-    osm, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Map, PathConstraints, Road, RoadID,
-    TurnType,
+    osm, BusStopID, DirectedRoadID, IntersectionID, Map, PathConstraints, Road, RoadID, TurnType,
 };
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Line, PolyLine, Pt2D};
@@ -112,8 +111,6 @@ pub struct Lane {
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
 
-    // Sorted by distance of the front path
-    pub building_paths: Vec<BuildingID>,
     // Meaningless order
     pub bus_stops: BTreeSet<BusStopID>,
 

@@ -7,7 +7,7 @@ use ezgui::{
     Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::Time;
-use map_model::{BuildingID, Map, ParkingLotID, RoadID};
+use map_model::{BuildingID, Map, OffstreetParking, ParkingLotID, RoadID};
 use sim::{ParkingSpot, VehicleType};
 use std::collections::BTreeSet;
 
@@ -131,15 +131,8 @@ impl Occupancy {
                         *public_counter += 1;
                     }
                     ParkingSpot::Offstreet(b, _) => {
-                        if app
-                            .primary
-                            .map
-                            .get_b(b)
-                            .parking
-                            .as_ref()
-                            .unwrap()
-                            .public_garage_name
-                            .is_some()
+                        if let OffstreetParking::PublicGarage(_, _) =
+                            app.primary.map.get_b(b).parking
                         {
                             if !garages {
                                 continue;

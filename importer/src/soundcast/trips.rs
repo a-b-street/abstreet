@@ -71,14 +71,20 @@ fn endpoints(
         if let (Some(b1), Some(b2)) = (maybe_b1, maybe_b2) {
             // TODO Super rough...
             let start = if constraints == PathConstraints::Pedestrian {
-                Some(huge_map.get_b(b1).front_path.sidewalk)
+                Some(huge_map.get_b(b1).sidewalk_pos)
             } else {
-                huge_map.get_b(b1).parking.as_ref().map(|p| p.driving_pos)
+                huge_map
+                    .get_b(b1)
+                    .driving_connection(huge_map)
+                    .map(|(pos, _)| pos)
             };
             let end = if constraints == PathConstraints::Pedestrian {
-                Some(huge_map.get_b(b2).front_path.sidewalk)
+                Some(huge_map.get_b(b2).sidewalk_pos)
             } else {
-                huge_map.get_b(b2).parking.as_ref().map(|p| p.driving_pos)
+                huge_map
+                    .get_b(b2)
+                    .driving_connection(huge_map)
+                    .map(|(pos, _)| pos)
             };
             if let Some(path) = start.and_then(|start| {
                 end.and_then(|end| {

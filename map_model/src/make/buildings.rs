@@ -1,10 +1,8 @@
 use crate::make::match_points_to_lanes;
 use crate::raw::{OriginalBuilding, RawBuilding};
-use crate::{
-    osm, Building, BuildingID, BuildingType, FrontPath, LaneID, LaneType, Map, OffstreetParking,
-};
+use crate::{osm, Building, BuildingID, BuildingType, LaneID, Map, OffstreetParking};
 use abstutil::{Tags, Timer};
-use geom::{Distance, HashablePt2D, Line, PolyLine, Polygon};
+use geom::{Distance, HashablePt2D, Line, Polygon};
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -27,7 +25,6 @@ pub fn make_all_buildings(
 
     // equiv_pos could be a little closer, so use two buffers
     let sidewalk_buffer = Distance::meters(7.5);
-    let driveway_buffer = Distance::meters(7.0);
     let sidewalk_pts = match_points_to_lanes(
         map.get_bounds(),
         query,
@@ -41,7 +38,7 @@ pub fn make_all_buildings(
     );
 
     let mut results = Vec::new();
-    timer.start_iter("create building front paths", center_per_bldg.len());
+    timer.start_iter("match buildings to sidewalks", center_per_bldg.len());
     for (orig_id, bldg_center) in center_per_bldg {
         timer.next();
         if let Some(sidewalk_pos) = sidewalk_pts.get(&bldg_center) {
@@ -59,61 +56,24 @@ pub fn make_all_buildings(
 
             let id = BuildingID(results.len());
             let mut rng = XorShiftRng::seed_from_u64(orig_id.osm_way_id as u64);
-            let mut bldg = Building {
+            results.push(Building {
                 id,
                 polygon: b.polygon.clone(),
                 address: get_address(&b.osm_tags, sidewalk_pos.lane(), map),
                 name: b.osm_tags.get(osm::NAME).cloned(),
                 osm_way_id: orig_id.osm_way_id,
-                front_path: FrontPath {
-                    sidewalk: *sidewalk_pos,
-                    line: sidewalk_line.clone(),
-                },
-                amenities: b.amenities.clone(),
-                parking: None,
                 label_center: b.polygon.polylabel(),
-                bldg_type: classify_bldg(
-                    b.osm_tags.clone(),
-                    &b.amenities,
-                    b.polygon.area(),
-                    &mut rng,
-                ),
-            };
+                amenities: b.amenities.clone(),
+                bldg_type: classify_bldg(&b.osm_tags, &b.amenities, b.polygon.area(), &mut rng),
+                parking: if let Some(n) = b.public_garage_name.clone() {
+                    OffstreetParking::PublicGarage(n, b.num_parking_spots)
+                } else {
+                    OffstreetParking::Private(b.num_parking_spots)
+                },
 
-            // Can this building have a driveway? If it's not next to a driving lane, then no.
-            let sidewalk_lane = sidewalk_pos.lane();
-            if let Ok(driving_lane) = map
-                .get_parent(sidewalk_lane)
-                .find_closest_lane(sidewalk_lane, vec![LaneType::Driving])
-            {
-                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, map);
-
-                // This shouldn't fail much anymore, unless equiv_pos winds up being pretty
-                // different
-                if driving_pos.dist_along() > driveway_buffer
-                    && map.get_l(driving_lane).length() - driving_pos.dist_along() > driveway_buffer
-                {
-                    let driveway_line = PolyLine::must_new(vec![
-                        sidewalk_line.pt1(),
-                        sidewalk_line.pt2(),
-                        driving_pos.pt(map),
-                    ]);
-                    bldg.parking = Some(OffstreetParking {
-                        public_garage_name: b.public_garage_name.clone(),
-                        num_spots: b.num_parking_spots,
-                        driveway_line,
-                        driving_pos,
-                    });
-                }
-            }
-            if bldg.parking.is_none() {
-                timer.warn(format!(
-                    "{} can't have a driveway. Forfeiting {} parking spots",
-                    bldg.id, b.num_parking_spots
-                ));
-            }
-
-            results.push(bldg);
+                sidewalk_pos: *sidewalk_pos,
+                driveway_geom: sidewalk_line.to_polyline(),
+            });
         }
     }
 
@@ -150,7 +110,7 @@ fn get_address(tags: &Tags, sidewalk: LaneID, map: &Map) -> String {
 }
 
 fn classify_bldg(
-    tags: Tags,
+    tags: &Tags,
     amenities: &BTreeSet<(String, String)>,
     area_sq_meters: f64,
     rng: &mut XorShiftRng,

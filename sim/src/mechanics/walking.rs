@@ -72,7 +72,7 @@ impl WalkingSimState {
             SidewalkPOI::Building(b) | SidewalkPOI::ParkingSpot(ParkingSpot::Offstreet(b, _)) => {
                 PedState::LeavingBuilding(
                     b,
-                    TimeInterval::new(now, now + map.get_b(b).front_path.line.length() / ped.speed),
+                    TimeInterval::new(now, now + map.get_b(b).driveway_geom.length() / ped.speed),
                 )
             }
             SidewalkPOI::ParkingSpot(ParkingSpot::Lot(pl, _)) => PedState::LeavingParkingLot(
@@ -158,7 +158,7 @@ impl WalkingSimState {
                                 b,
                                 TimeInterval::new(
                                     now,
-                                    now + map.get_b(b).front_path.line.length() / ped.speed,
+                                    now + map.get_b(b).driveway_geom.length() / ped.speed,
                                 ),
                             );
                             scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
@@ -247,8 +247,7 @@ impl WalkingSimState {
                 }
             }
             PedState::LeavingBuilding(b, _) => {
-                ped.state =
-                    ped.crossing_state(map.get_b(b).front_path.sidewalk.dist_along(), now, map);
+                ped.state = ped.crossing_state(map.get_b(b).sidewalk_pos.dist_along(), now, map);
                 scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
             }
             PedState::EnteringBuilding(bldg, _) => {
@@ -396,11 +395,11 @@ impl WalkingSimState {
         on: Traversable,
         map: &Map,
     ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
-        // Classify into direction-based groups or by building/parking lot front path.
+        // Classify into direction-based groups or by building/parking lot driveway.
         let mut forwards: Vec<(PedestrianID, Distance)> = Vec::new();
         let mut backwards: Vec<(PedestrianID, Distance)> = Vec::new();
-        let mut bldg_front_path: MultiMap<BuildingID, (PedestrianID, Distance)> = MultiMap::new();
-        let mut lot_front_path: MultiMap<ParkingLotID, (PedestrianID, Distance)> = MultiMap::new();
+        let mut bldg_driveway: MultiMap<BuildingID, (PedestrianID, Distance)> = MultiMap::new();
+        let mut lot_driveway: MultiMap<ParkingLotID, (PedestrianID, Distance)> = MultiMap::new();
 
         for id in self.peds_per_traversable.get(on) {
             let ped = &self.peds[id];
@@ -422,20 +421,20 @@ impl WalkingSimState {
                     }
                 }
                 PedState::LeavingBuilding(b, ref int) => {
-                    let len = map.get_b(b).front_path.line.length();
-                    bldg_front_path.insert(b, (*id, int.percent(now) * len));
+                    let len = map.get_b(b).driveway_geom.length();
+                    bldg_driveway.insert(b, (*id, int.percent(now) * len));
                 }
                 PedState::EnteringBuilding(b, ref int) => {
-                    let len = map.get_b(b).front_path.line.length();
-                    bldg_front_path.insert(b, (*id, (1.0 - int.percent(now)) * len));
+                    let len = map.get_b(b).driveway_geom.length();
+                    bldg_driveway.insert(b, (*id, (1.0 - int.percent(now)) * len));
                 }
                 PedState::LeavingParkingLot(pl, ref int) => {
                     let len = map.get_pl(pl).sidewalk_line.length();
-                    lot_front_path.insert(pl, (*id, int.percent(now) * len));
+                    lot_driveway.insert(pl, (*id, int.percent(now) * len));
                 }
                 PedState::EnteringParkingLot(pl, ref int) => {
                     let len = map.get_pl(pl).sidewalk_line.length();
-                    lot_front_path.insert(pl, (*id, (1.0 - int.percent(now)) * len));
+                    lot_driveway.insert(pl, (*id, (1.0 - int.percent(now)) * len));
                 }
                 PedState::StartingToBike(_, _, _)
                 | PedState::FinishingBiking(_, _, _)
@@ -463,17 +462,17 @@ impl WalkingSimState {
             ),
         ]
         .into_iter()
-        .chain(bldg_front_path.consume().into_iter().map(|(b, set)| {
+        .chain(bldg_driveway.consume().into_iter().map(|(b, set)| {
             (
                 set.into_iter().collect::<Vec<_>>(),
-                PedCrowdLocation::BldgFrontPath(b),
-                map.get_b(b).front_path.line.length(),
+                PedCrowdLocation::BldgDriveway(b),
+                map.get_b(b).driveway_geom.length(),
             )
         }))
-        .chain(lot_front_path.consume().into_iter().map(|(pl, set)| {
+        .chain(lot_driveway.consume().into_iter().map(|(pl, set)| {
             (
                 set.into_iter().collect::<Vec<_>>(),
-                PedCrowdLocation::LotFrontPath(pl),
+                PedCrowdLocation::LotDriveway(pl),
                 map.get_pl(pl).sidewalk_line.length(),
             )
         })) {
@@ -542,7 +541,7 @@ impl Pedestrian {
             PedState::Crossing(ref dist_int, ref time_int) => dist_int.lerp(time_int.percent(now)),
             PedState::WaitingToTurn(dist, _) => dist,
             PedState::LeavingBuilding(b, _) | PedState::EnteringBuilding(b, _) => {
-                map.get_b(b).front_path.sidewalk.dist_along()
+                map.get_b(b).sidewalk_pos.dist_along()
             }
             PedState::LeavingParkingLot(pl, _) | PedState::EnteringParkingLot(pl, _) => {
                 map.get_pl(pl).sidewalk_pos.dist_along()
@@ -592,24 +591,24 @@ impl Pedestrian {
                     facing,
                 )
             }
-            // If we're on some tiny line and percent_along fails, just fall back to to some point
-            // on the line instead of crashing.
             PedState::LeavingBuilding(b, ref time_int) => {
-                let line = &map.get_b(b).front_path.line;
-                (
-                    line.percent_along(time_int.percent(now))
-                        .unwrap_or(line.pt1()),
-                    line.angle(),
-                )
+                let pl = &map.get_b(b).driveway_geom;
+                // If we're on some tiny line and percent_along fails, just fall back to to some
+                // point on the line instead of crashing.
+                if let Ok(pair) = pl.dist_along(time_int.percent(now) * pl.length()) {
+                    pair
+                } else {
+                    (pl.first_pt(), pl.first_line().angle())
+                }
             }
             PedState::EnteringBuilding(b, ref time_int) => {
-                let line = &map.get_b(b).front_path.line;
-                (
-                    line.reverse()
-                        .percent_along(time_int.percent(now))
-                        .unwrap_or(line.pt1()),
-                    line.angle().opposite(),
-                )
+                let pl = &map.get_b(b).driveway_geom;
+                if let Ok((pt, angle)) = pl.dist_along((1.0 - time_int.percent(now)) * pl.length())
+                {
+                    (pt, angle.opposite())
+                } else {
+                    (pl.first_pt(), pl.first_line().angle().opposite())
+                }
             }
             PedState::LeavingParkingLot(pl, ref time_int) => {
                 let line = &map.get_pl(pl).sidewalk_line;

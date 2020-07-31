@@ -415,11 +415,10 @@ impl SidewalkSpot {
         }
     }
 
-    pub fn building(bldg: BuildingID, map: &Map) -> SidewalkSpot {
-        let front_path = &map.get_b(bldg).front_path;
+    pub fn building(b: BuildingID, map: &Map) -> SidewalkSpot {
         SidewalkSpot {
-            connection: SidewalkPOI::Building(bldg),
-            sidewalk_pos: front_path.sidewalk,
+            connection: SidewalkPOI::Building(b),
+            sidewalk_pos: map.get_b(b).sidewalk_pos,
         }
     }
 

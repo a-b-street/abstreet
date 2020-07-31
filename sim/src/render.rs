@@ -25,8 +25,8 @@ pub struct DrawPedCrowdInput {
 pub enum PedCrowdLocation {
     // bool is contraflow
     Sidewalk(Traversable, bool),
-    BldgFrontPath(BuildingID),
-    LotFrontPath(ParkingLotID),
+    BldgDriveway(BuildingID),
+    LotDriveway(ParkingLotID),
 }
 
 #[derive(Clone)]

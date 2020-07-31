@@ -553,6 +553,8 @@ fn generate_osmc(
 fn find_divided_highways(app: &App) -> HashSet<RoadID> {
     let map = &app.primary.map;
     let mut closest: FindClosest<RoadID> = FindClosest::new(map.get_bounds());
+    // TODO Consider not even filtering by oneway. I keep finding mistakes where people split a
+    // road, but didn't mark one side oneway!
     let mut oneways = Vec::new();
     for r in map.all_roads() {
         if r.osm_tags.contains_key("oneway") {
@@ -564,19 +566,25 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
     let mut found = HashSet::new();
     for r1 in oneways {
         let r1 = map.get_r(r1);
-        let (middle, angle) = r1.center_pts.must_dist_along(r1.center_pts.length() / 2.0);
-        for (r2, _, _) in closest.all_close_pts(middle, Distance::meters(250.0)) {
-            if r1.id != r2
-                && PolyLine::must_new(vec![
-                    middle.project_away(Distance::meters(100.0), angle.rotate_degs(90.0)),
-                    middle.project_away(Distance::meters(100.0), angle.rotate_degs(-90.0)),
-                ])
-                .intersection(&map.get_r(r2).center_pts)
-                .is_some()
-                && r1.get_name() == map.get_r(r2).get_name()
-            {
-                found.insert(r1.id);
-                found.insert(r2);
+        for dist in vec![
+            Distance::ZERO,
+            r1.center_pts.length() / 2.0,
+            r1.center_pts.length(),
+        ] {
+            let (pt, angle) = r1.center_pts.must_dist_along(dist);
+            for (r2, _, _) in closest.all_close_pts(pt, Distance::meters(250.0)) {
+                if r1.id != r2
+                    && PolyLine::must_new(vec![
+                        pt.project_away(Distance::meters(100.0), angle.rotate_degs(90.0)),
+                        pt.project_away(Distance::meters(100.0), angle.rotate_degs(-90.0)),
+                    ])
+                    .intersection(&map.get_r(r2).center_pts)
+                    .is_some()
+                    && r1.get_name() == map.get_r(r2).get_name()
+                {
+                    found.insert(r1.id);
+                    found.insert(r2);
+                }
             }
         }
     }

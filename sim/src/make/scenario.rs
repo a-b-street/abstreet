@@ -6,7 +6,8 @@ use crate::{
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, LonLat, Speed, Time, EPSILON_DIST};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, DirectedRoadID, Map, PathConstraints, Position, RoadID,
+    BuildingID, BusRouteID, BusStopID, DirectedRoadID, Map, OffstreetParking, PathConstraints,
+    Position, RoadID,
 };
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
@@ -269,17 +270,9 @@ fn seed_parked_cars(
             ParkingSpot::Onstreet(l, _) => (map.get_l(l).parent, None),
             ParkingSpot::Offstreet(b, _) => (
                 map.get_l(map.get_b(b).sidewalk()).parent,
-                if map
-                    .get_b(b)
-                    .parking
-                    .as_ref()
-                    .unwrap()
-                    .public_garage_name
-                    .is_some()
-                {
-                    None
-                } else {
-                    Some(b)
+                match map.get_b(b).parking {
+                    OffstreetParking::PublicGarage(_, _) => None,
+                    OffstreetParking::Private(_) => Some(b),
                 },
             ),
             ParkingSpot::Lot(pl, _) => (map.get_l(map.get_pl(pl).driving_pos.lane()).parent, None),

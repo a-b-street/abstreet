@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS};
+use map_model::{Building, BuildingID, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
 use std::cell::RefCell;
 
 pub struct DrawBuilding {
@@ -22,35 +22,28 @@ impl DrawBuilding {
         outlines_batch: &mut GeomBatch,
         prerender: &Prerender,
     ) -> DrawBuilding {
-        // Trim the front path line away from the sidewalk's center line, so that it doesn't
-        // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
-        let orig_line = &bldg.front_path.line;
-        let front_path_line = orig_line
+        // Trim the driveway away from the sidewalk's center line, so that it doesn't overlap. For
+        // now, this cleanup is visual; it doesn't belong in the map_model layer.
+        let orig_pl = &bldg.driveway_geom;
+        let driveway = orig_pl
             .slice(
                 Distance::ZERO,
-                orig_line.length() - map.get_l(bldg.sidewalk()).width / 2.0,
+                orig_pl.length() - map.get_l(bldg.sidewalk()).width / 2.0,
             )
-            .unwrap_or_else(|| orig_line.clone());
+            .map(|(pl, _)| pl)
+            .unwrap_or_else(|_| orig_pl.clone());
 
         if bldg.amenities.is_empty() {
             bldg_batch.push(cs.residential_building, bldg.polygon.clone());
         } else {
             bldg_batch.push(cs.commerical_building, bldg.polygon.clone());
         }
-        paths_batch.push(
-            cs.sidewalk,
-            front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
-        );
+        paths_batch.push(cs.sidewalk, driveway.make_polygons(NORMAL_LANE_THICKNESS));
         if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.1)) {
             outlines_batch.push(cs.building_outline, p);
         }
 
-        if bldg
-            .parking
-            .as_ref()
-            .map(|p| p.public_garage_name.is_some())
-            .unwrap_or(false)
-        {
+        if let OffstreetParking::PublicGarage(_, _) = bldg.parking {
             // Might need to scale down more for some buildings, but so far, this works everywhere.
             bldg_batch.append(
                 GeomBatch::mapspace_svg(prerender, "system/assets/map/parking.svg")

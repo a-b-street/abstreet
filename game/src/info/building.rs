@@ -3,7 +3,7 @@ use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
 use crate::render::DrawPedestrian;
 use ezgui::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
 use geom::{Angle, Circle, Distance, Speed, Time};
-use map_model::{BuildingID, LaneID, Traversable, SIDEWALK_THICKNESS};
+use map_model::{BuildingID, LaneID, OffstreetParking, Traversable, SIDEWALK_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripMode, TripResult};
 use std::collections::BTreeMap;
 
@@ -21,20 +21,18 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         kv.push(("OSM ID", format!("{}", b.osm_way_id)));
     }
 
-    if let Some(ref p) = b.parking {
+    let num_spots = b.num_parking_spots();
+    if num_spots > 0 {
         let free = app.primary.sim.get_free_offstreet_spots(b.id).len();
-        if let Some(ref n) = p.public_garage_name {
+        if let OffstreetParking::PublicGarage(ref n, _) = b.parking {
             kv.push((
                 "Parking",
-                format!(
-                    "{} / {} public spots available via {}",
-                    free, p.num_spots, n
-                ),
+                format!("{} / {} public spots available via {}", free, num_spots, n),
             ));
         } else {
             kv.push((
                 "Parking",
-                format!("{} / {} private spots available", free, p.num_spots),
+                format!("{} / {} private spots available", free, num_spots),
             ));
         }
     } else {

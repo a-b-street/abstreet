@@ -399,7 +399,7 @@ impl TripSpec {
                 constraints: PathConstraints::Pedestrian,
             }),
             TripSpec::UsingBike { start, .. } => Some(PathRequest {
-                start: map.get_b(*start).front_path.sidewalk,
+                start: map.get_b(*start).sidewalk_pos,
                 end: SidewalkSpot::bike_from_bike_rack(map.get_b(*start).sidewalk(), map)
                     .unwrap()
                     .sidewalk_pos,
