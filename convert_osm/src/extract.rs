@@ -422,7 +422,9 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
             tags.insert(osm::SIDEWALK, "none");
         } else if tags.is("oneway", "yes") {
             tags.insert(osm::SIDEWALK, "right");
-            if tags.is_any(osm::HIGHWAY, vec!["residential", "living_street"]) {
+            if tags.is_any(osm::HIGHWAY, vec!["residential", "living_street"])
+                && !tags.is("dual_carriageway", "yes")
+            {
                 tags.insert(osm::SIDEWALK, "both");
             }
         } else {

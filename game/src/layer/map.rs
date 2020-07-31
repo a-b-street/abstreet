@@ -304,4 +304,27 @@ impl Static {
             Widget::nothing(),
         )
     }
+
+    pub fn parking_blackholes(ctx: &mut EventCtx, app: &App) -> Static {
+        let mut colorer = ColorDiscrete::new(
+            app,
+            vec![
+                ("parking blackhole", Color::RED),
+                ("redirect", Color::GREEN),
+            ],
+        );
+        for l in app.primary.map.all_lanes() {
+            if let Some(redirect) = l.parking_blackhole {
+                colorer.add_l(l.id, "parking blackhole");
+                colorer.add_l(redirect, "redirect");
+            }
+        }
+        Static::new(
+            ctx,
+            colorer,
+            "parking blackholes",
+            "Parking blackholes".to_string(),
+            Widget::nothing(),
+        )
+    }
 }

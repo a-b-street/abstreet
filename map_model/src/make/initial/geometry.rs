@@ -127,7 +127,11 @@ fn generalized_trim_back(
             };
 
             if use_pl1 == use_pl2 {
-                panic!("{} and {} wind up with the same polyline", r1, r2);
+                panic!(
+                    "{} and {} have overlapping segments. You likely need to fix OSM and make the \
+                     two ways meet at exactly one node.",
+                    r1, r2
+                );
             }
 
             if let Some((hit, angle)) = use_pl1.intersection(&use_pl2) {

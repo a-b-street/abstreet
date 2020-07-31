@@ -17,10 +17,14 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
         OnstreetParking::SomeAdditionalWhereNoData { pct } => {
             let pct = pct as i64;
             for (id, r) in map.roads.iter_mut() {
+                // The 20m minimum is a heuristic. PARKING_SPOT_LENGTH is only 8m, but we haven't
+                // trimmed roads between intersections yet.
                 if r.osm_tags.contains_key(osm::INFERRED_PARKING)
                     && r.osm_tags
                         .is_any(osm::HIGHWAY, vec!["residential", "tertiary"])
                     && id.osm_way_id % 100 <= pct
+                    && PolyLine::unchecked_new(r.center_points.clone()).length()
+                        >= Distance::meters(20.0)
                 {
                     if r.osm_tags.is("oneway", "yes") {
                         r.osm_tags.remove(osm::PARKING_BOTH);

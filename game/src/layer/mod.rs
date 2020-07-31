@@ -124,6 +124,11 @@ impl PickLayer {
             btn("amenities", Key::A),
             btn("backpressure", Key::Z),
             btn("elevation", Key::V),
+            if app.opts.dev {
+                btn("parking blackholes", Key::L)
+            } else {
+                Widget::nothing()
+            },
         ]);
         if app.primary.sim.get_pandemic_model().is_some() {
             col.push(btn("pandemic model", Key::Y));
@@ -145,19 +150,8 @@ impl State for PickLayer {
                 "None" => {
                     app.layer = None;
                 }
-                "parking occupancy" => {
-                    app.layer = Some(Box::new(parking::Occupancy::new(
-                        ctx, app, true, true, true, false,
-                    )));
-                }
-                "delay" => {
-                    app.layer = Some(Box::new(traffic::Delay::new(ctx, app, false)));
-                }
-                "traffic jams" => {
-                    app.layer = Some(Box::new(traffic::TrafficJams::new(ctx, app)));
-                }
-                "throughput" => {
-                    app.layer = Some(Box::new(traffic::Throughput::new(ctx, app, false)));
+                "amenities" => {
+                    app.layer = Some(Box::new(map::Static::amenities(ctx, app)));
                 }
                 "backpressure" => {
                     app.layer = Some(Box::new(traffic::Backpressure::new(ctx, app)));
@@ -165,22 +159,35 @@ impl State for PickLayer {
                 "bike network" => {
                     app.layer = Some(Box::new(map::BikeNetwork::new(ctx, app)));
                 }
-                "transit network" => {
-                    app.layer = Some(Box::new(transit::TransitNetwork::new(
-                        ctx, app, false, true, true,
-                    )));
+                "delay" => {
+                    app.layer = Some(Box::new(traffic::Delay::new(ctx, app, false)));
                 }
                 "elevation" => {
                     app.layer = Some(Box::new(elevation::Elevation::new(ctx, app)));
                 }
-                "no sidewalks" => {
-                    app.layer = Some(Box::new(map::Static::no_sidewalks(ctx, app)));
-                }
                 "map edits" => {
                     app.layer = Some(Box::new(map::Static::edits(ctx, app)));
                 }
-                "amenities" => {
-                    app.layer = Some(Box::new(map::Static::amenities(ctx, app)));
+                "no sidewalks" => {
+                    app.layer = Some(Box::new(map::Static::no_sidewalks(ctx, app)));
+                }
+                "pandemic model" => {
+                    app.layer = Some(Box::new(pandemic::Pandemic::new(
+                        ctx,
+                        app,
+                        pandemic::Options {
+                            heatmap: Some(HeatmapOptions::new()),
+                            state: pandemic::SEIR::Infected,
+                        },
+                    )));
+                }
+                "parking blackholes" => {
+                    app.layer = Some(Box::new(map::Static::parking_blackholes(ctx, app)));
+                }
+                "parking occupancy" => {
+                    app.layer = Some(Box::new(parking::Occupancy::new(
+                        ctx, app, true, true, true, false,
+                    )));
                 }
                 "population map" => {
                     app.layer = Some(Box::new(population::PopulationMap::new(
@@ -191,14 +198,15 @@ impl State for PickLayer {
                         },
                     )));
                 }
-                "pandemic model" => {
-                    app.layer = Some(Box::new(pandemic::Pandemic::new(
-                        ctx,
-                        app,
-                        pandemic::Options {
-                            heatmap: Some(HeatmapOptions::new()),
-                            state: pandemic::SEIR::Infected,
-                        },
+                "throughput" => {
+                    app.layer = Some(Box::new(traffic::Throughput::new(ctx, app, false)));
+                }
+                "traffic jams" => {
+                    app.layer = Some(Box::new(traffic::TrafficJams::new(ctx, app)));
+                }
+                "transit network" => {
+                    app.layer = Some(Box::new(transit::TransitNetwork::new(
+                        ctx, app, false, true, true,
                     )));
                 }
                 _ => unreachable!(),
