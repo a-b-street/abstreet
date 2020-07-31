@@ -12,7 +12,7 @@ pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 pub use self::validate::{
-    check_parking_blackholes, check_sidewalk_connectivity, try_change_lt, try_reverse,
+    check_blackholes, check_sidewalk_connectivity, try_change_lt, try_reverse,
 };
 use crate::app::{App, ShowEverything};
 use crate::common::{tool_panel, CommonState, Warping};

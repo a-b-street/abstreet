@@ -307,6 +307,11 @@ impl State for AgentSpawner {
                         .draw_text(ctx)
                         .named("instructions"),
                 );
+                self.composite.replace(
+                    ctx,
+                    "Confirm",
+                    Btn::text_fg("Confirm").inactive(ctx).named("Confirm"),
+                );
             }
         }
 

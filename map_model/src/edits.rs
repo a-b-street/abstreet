@@ -883,15 +883,19 @@ impl Map {
         pathfinder.apply_edits(self, timer);
         self.pathfinder = Some(pathfinder);
 
-        // Also recompute parking blackholes. This is cheap enough to do from scratch.
-        timer.start("recompute parking blackholes");
+        // Also recompute blackholes. This is cheap enough to do from scratch.
+        timer.start("recompute blackholes");
         for l in self.lanes.iter_mut() {
-            l.parking_blackhole = None;
+            l.driving_blackhole = false;
+            l.biking_blackhole = false;
         }
-        for (l, redirect) in connectivity::redirect_parking_blackholes(self, timer) {
-            self.lanes[l.0].parking_blackhole = Some(redirect);
+        for l in connectivity::find_scc(self, PathConstraints::Car).1 {
+            self.lanes[l.0].driving_blackhole = true;
         }
-        timer.stop("recompute parking blackholes");
+        for l in connectivity::find_scc(self, PathConstraints::Bike).1 {
+            self.lanes[l.0].biking_blackhole = true;
+        }
+        timer.stop("recompute blackholes");
 
         self.pathfinder_dirty = false;
     }

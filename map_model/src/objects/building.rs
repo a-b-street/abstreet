@@ -144,12 +144,11 @@ impl Building {
     }
 }
 
-// TODO Maybe we should also handle blackhole (but to be very careful, in a biking graph)
 fn sidewalk_to_bike(sidewalk_pos: Position, map: &Map) -> Option<(Position, Position)> {
     let lane = map.get_parent(sidewalk_pos.lane()).find_closest_lane_v2(
         sidewalk_pos.lane(),
         true,
-        |l| PathConstraints::Bike.can_use(l, map),
+        |l| !l.biking_blackhole && PathConstraints::Bike.can_use(l, map),
         map,
     )?;
     // No buffer needed

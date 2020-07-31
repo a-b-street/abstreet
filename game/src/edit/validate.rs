@@ -58,17 +58,16 @@ pub fn check_sidewalk_connectivity(
 
 #[allow(unused)]
 // Could be caused by closing intersections, changing lane types, or reversing lanes
-pub fn check_parking_blackholes(
-    ctx: &mut EventCtx,
-    app: &mut App,
-    cmd: EditCmd,
-) -> Option<Box<dyn State>> {
+pub fn check_blackholes(ctx: &mut EventCtx, app: &mut App, cmd: EditCmd) -> Option<Box<dyn State>> {
     let orig_edits = app.primary.map.get_edits().clone();
-    let mut ok_originally = BTreeSet::new();
+    let mut driving_ok_originally = BTreeSet::new();
+    let mut biking_ok_originally = BTreeSet::new();
     for l in app.primary.map.all_lanes() {
-        if l.parking_blackhole.is_none() {
-            ok_originally.insert(l.id);
-            // TODO Only matters if there's any parking here anyways
+        if !l.driving_blackhole {
+            driving_ok_originally.insert(l.id);
+        }
+        if !l.biking_blackhole {
+            biking_ok_originally.insert(l.id);
         }
     }
 
@@ -78,12 +77,15 @@ pub fn check_parking_blackholes(
         .map
         .try_apply_edits(edits, &mut Timer::throwaway());
 
-    let mut newly_disconnected = Vec::new();
-    for (l, _) in
-        connectivity::redirect_parking_blackholes(&app.primary.map, &mut Timer::throwaway())
-    {
-        if ok_originally.contains(&l) {
-            newly_disconnected.push(l);
+    let mut newly_disconnected = BTreeSet::new();
+    for l in connectivity::find_scc(&app.primary.map, PathConstraints::Car).1 {
+        if driving_ok_originally.contains(&l) {
+            newly_disconnected.insert(l);
+        }
+    }
+    for l in connectivity::find_scc(&app.primary.map, PathConstraints::Bike).1 {
+        if biking_ok_originally.contains(&l) {
+            newly_disconnected.insert(l);
         }
     }
     app.primary
@@ -97,14 +99,14 @@ pub fn check_parking_blackholes(
     let mut err_state = msg(
         "Error",
         vec![format!(
-            "{} lanes have parking disconnected",
+            "{} lanes have been disconnected",
             newly_disconnected.len()
         )],
     );
 
-    let mut c = ColorDiscrete::new(app, vec![("parking disconnected", Color::RED)]);
+    let mut c = ColorDiscrete::new(app, vec![("disconnected", Color::RED)]);
     for l in newly_disconnected {
-        c.add_l(l, "parking disconnected");
+        c.add_l(l, "disconnected");
     }
 
     let (unzoomed, zoomed, _) = c.build(ctx);

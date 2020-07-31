@@ -189,7 +189,8 @@ impl Map {
                     lane_type: lane.lane_type,
                     parent: road_id,
                     bus_stops: BTreeSet::new(),
-                    parking_blackhole: None,
+                    driving_blackhole: false,
+                    biking_blackhole: false,
                 });
             }
             if road.get_name() == "???" {
@@ -260,11 +261,14 @@ impl Map {
             }
         }
 
-        timer.start("find parking blackholes");
-        for (l, redirect) in connectivity::redirect_parking_blackholes(&map, timer) {
-            map.lanes[l.0].parking_blackhole = Some(redirect);
+        timer.start("find blackholes");
+        for l in connectivity::find_scc(&map, PathConstraints::Car).1 {
+            map.lanes[l.0].driving_blackhole = true;
         }
-        timer.stop("find parking blackholes");
+        for l in connectivity::find_scc(&map, PathConstraints::Bike).1 {
+            map.lanes[l.0].biking_blackhole = true;
+        }
+        timer.stop("find blackholes");
 
         map.buildings = buildings::make_all_buildings(&raw.buildings, &map, timer);
 

@@ -114,9 +114,10 @@ pub struct Lane {
     // Meaningless order
     pub bus_stops: BTreeSet<BusStopID>,
 
-    // If set, cars trying to park near here should actually start their search at this other lane.
-    // Only populated for driving lanes inevitably leading to borders.
-    pub parking_blackhole: Option<LaneID>,
+    // {Cars, bikes} trying to start or end here might not be able to reach most lanes in the
+    // graph, because this is near a border.
+    pub driving_blackhole: bool,
+    pub biking_blackhole: bool,
 }
 
 impl Lane {

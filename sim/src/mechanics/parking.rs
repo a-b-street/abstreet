@@ -80,7 +80,7 @@ impl ParkingSimState {
         }
         for b in map.all_buildings() {
             if let Some((pos, _)) = b.driving_connection(map) {
-                if map.get_l(pos.lane()).parking_blackhole.is_none() {
+                if !map.get_l(pos.lane()).driving_blackhole {
                     let num_spots = b.num_parking_spots();
                     if num_spots > 0 {
                         sim.num_spots_per_offstreet.insert(b.id, num_spots);
@@ -95,7 +95,7 @@ impl ParkingSimState {
             if pl.spots.is_empty() {
                 continue;
             }
-            if map.get_l(pl.driving_pos.lane()).parking_blackhole.is_none() {
+            if !map.get_l(pl.driving_pos.lane()).driving_blackhole {
                 sim.num_spots_per_lot.insert(pl.id, pl.spots.len());
                 sim.driving_to_lots.insert(pl.driving_pos.lane(), pl.id);
             }
@@ -484,7 +484,7 @@ impl ParkingLane {
             // Serious enough to blow up loudly.
             panic!("Parking lane {} has no driving lane!", lane.id);
         };
-        if map.get_l(driving_lane).parking_blackhole.is_some() {
+        if map.get_l(driving_lane).driving_blackhole {
             return None;
         }
         let sidewalk = if let Ok(l) =

@@ -466,9 +466,12 @@ impl Map {
     // start their search. Some parking lanes are connected to driving lanes that're "parking
     // blackholes" -- if there are no free spots on that lane, then the roads force cars to a
     // border.
+    // TODO Making driving_connection do this.
     pub fn find_driving_lane_near_building(&self, b: BuildingID) -> LaneID {
         if let Ok(l) = self.find_closest_lane(self.get_b(b).sidewalk(), vec![LaneType::Driving]) {
-            return self.get_l(l).parking_blackhole.unwrap_or(l);
+            if !self.get_l(l).driving_blackhole {
+                return l;
+            }
         }
 
         let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
@@ -496,7 +499,9 @@ impl Map {
                 .chain(r.children_backwards.iter())
             {
                 if *lane_type == LaneType::Driving {
-                    return self.get_l(*lane).parking_blackhole.unwrap_or(*lane);
+                    if !self.get_l(*lane).driving_blackhole {
+                        return *lane;
+                    }
                 }
             }
 

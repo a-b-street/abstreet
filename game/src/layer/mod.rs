@@ -125,7 +125,7 @@ impl PickLayer {
             btn("backpressure", Key::Z),
             btn("elevation", Key::V),
             if app.opts.dev {
-                btn("parking blackholes", Key::L)
+                btn("blackholes", Key::L)
             } else {
                 Widget::nothing()
             },
@@ -181,8 +181,8 @@ impl State for PickLayer {
                         },
                     )));
                 }
-                "parking blackholes" => {
-                    app.layer = Some(Box::new(map::Static::parking_blackholes(ctx, app)));
+                "blackholes" => {
+                    app.layer = Some(Box::new(map::Static::blackholes(ctx, app)));
                 }
                 "parking occupancy" => {
                     app.layer = Some(Box::new(parking::Occupancy::new(

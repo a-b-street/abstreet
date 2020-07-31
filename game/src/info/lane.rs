@@ -86,10 +86,14 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     kv.push(("Parent".to_string(), r.id.to_string()));
 
-    if l.is_driving() {
+    if l.lane_type.is_for_moving_vehicles() {
         kv.push((
-            "Parking blackhole redirect".to_string(),
-            format!("{:?}", l.parking_blackhole),
+            "Driving blackhole".to_string(),
+            l.driving_blackhole.to_string(),
+        ));
+        kv.push((
+            "Biking blackhole".to_string(),
+            l.biking_blackhole.to_string(),
         ));
     }
 
