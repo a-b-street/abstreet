@@ -296,9 +296,7 @@ impl TripManager {
             return;
         };
 
-        let router = drive_to
-            .make_router(parked_car.vehicle.id, path, map)
-            .unwrap();
+        let router = drive_to.make_router(parked_car.vehicle.id, path, map);
         scheduler.push(
             now,
             Command::SpawnCar(
@@ -350,7 +348,7 @@ impl TripManager {
         };
         if let Some(router) = map
             .pathfind(req.clone())
-            .and_then(|path| drive_to.make_router(bike, path, map))
+            .map(|path| drive_to.make_router(bike, path, map))
         {
             scheduler.push(
                 now,
@@ -1026,8 +1024,7 @@ impl TripManager {
                 let vehicle = person.get_vehicle(use_vehicle);
                 assert!(parking.lookup_parked_car(vehicle.id).is_none());
                 let req = maybe_req.unwrap();
-                if let Some(router) =
-                    maybe_path.and_then(|path| goal.make_router(vehicle.id, path, map))
+                if let Some(router) = maybe_path.map(|path| goal.make_router(vehicle.id, path, map))
                 {
                     scheduler.push(
                         now,
@@ -1042,8 +1039,7 @@ impl TripManager {
                     self.events.push(Event::Alert(
                         AlertLocation::Person(person.id),
                         format!(
-                            "VehicleAppearing trip couldn't find the first path (or no \
-                             bike->sidewalk connection at the end): {}",
+                            "VehicleAppearing trip couldn't find the first path: {}",
                             req
                         ),
                     ));
@@ -1181,8 +1177,7 @@ impl TripManager {
                 assert_eq!(person.state, PersonState::Inside(start));
                 person.state = PersonState::Trip(trip);
 
-                let walk_to =
-                    SidewalkSpot::bike_from_bike_rack(map.get_b(start).sidewalk(), map).unwrap();
+                let walk_to = SidewalkSpot::bike_rack(start, map);
                 let req = maybe_req.unwrap();
                 if let Some(path) = maybe_path {
                     scheduler.push(

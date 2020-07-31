@@ -114,58 +114,16 @@ impl TripSpawner {
                 }
             }
             TripSpec::UsingBike { start, goal, .. } => {
-                // TODO Might not be possible to walk to the same border if there's no sidewalk
-                let backup_plan = match goal {
-                    DrivingGoal::ParkNear(b) => Some(TripSpec::JustWalking {
-                        start: SidewalkSpot::building(*start, map),
-                        goal: SidewalkSpot::building(*b, map),
-                    }),
-                    DrivingGoal::Border(i, _, off_map) => {
-                        SidewalkSpot::end_at_border(*i, off_map.clone(), map).map(|goal| {
-                            TripSpec::JustWalking {
-                                start: SidewalkSpot::building(*start, map),
-                                goal,
-                            }
-                        })
-                    }
-                };
-
-                if SidewalkSpot::bike_from_bike_rack(map.get_b(*start).sidewalk(), map).is_none() {
-                    if backup_plan.is_some() {
-                        println!(
-                            "Can't start biking from {}; no biking or driving lane nearby? \
-                             Walking instead",
-                            start
-                        );
-                        spec = backup_plan.unwrap();
-                    } else {
-                        panic!(
-                            "Can't start biking from {}; no biking or driving lane nearby? Can't \
-                             walk instead, goal is {:?}",
-                            start, goal
-                        );
-                    }
-                } else if let DrivingGoal::ParkNear(b) = goal {
-                    let last_lane = goal.goal_pos(PathConstraints::Bike, map).lane();
-                    // If bike_to_sidewalk works, then SidewalkSpot::bike_rack should too.
-                    if map
-                        .get_parent(last_lane)
-                        .bike_to_sidewalk(last_lane)
-                        .is_none()
-                    {
-                        println!(
-                            "Can't fulfill {:?} for a bike trip; no sidewalk near {}. Walking \
-                             instead.",
-                            goal, last_lane
-                        );
-                        spec = backup_plan.unwrap();
-                    } else if map.get_b(*start).sidewalk() == map.get_b(*b).sidewalk() {
-                        // A bike trip going from one lane to the same lane should... just walk.
+                if let DrivingGoal::ParkNear(b) = goal {
+                    if map.get_b(*start).sidewalk() == map.get_b(*b).sidewalk() {
                         println!(
                             "Bike trip from {} to {:?} will just walk; it's the same sidewalk!",
                             start, goal
                         );
-                        spec = backup_plan.unwrap();
+                        spec = TripSpec::JustWalking {
+                            start: SidewalkSpot::building(*start, map),
+                            goal: SidewalkSpot::building(*b, map),
+                        };
                     }
                 }
             }
@@ -294,9 +252,7 @@ impl TripSpawner {
                     map,
                 ),
                 TripSpec::UsingBike { bike, start, goal } => {
-                    let walk_to =
-                        SidewalkSpot::bike_from_bike_rack(map.get_b(start).sidewalk(), map)
-                            .unwrap();
+                    let walk_to = SidewalkSpot::bike_rack(start, map);
                     let mut legs = vec![
                         TripLeg::Walk(walk_to.clone()),
                         TripLeg::Drive(bike, goal.clone()),
@@ -400,9 +356,7 @@ impl TripSpec {
             }),
             TripSpec::UsingBike { start, .. } => Some(PathRequest {
                 start: map.get_b(*start).sidewalk_pos,
-                end: SidewalkSpot::bike_from_bike_rack(map.get_b(*start).sidewalk(), map)
-                    .unwrap()
-                    .sidewalk_pos,
+                end: map.get_b(*start).biking_connection(map).1,
                 constraints: PathConstraints::Pedestrian,
             }),
             TripSpec::UsingTransit { start, stop1, .. } => Some(PathRequest {

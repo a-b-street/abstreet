@@ -1,8 +1,8 @@
-use crate::{LaneID, LaneType, Map, Position};
+use crate::{LaneID, LaneType, Map, PathConstraints, Position};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashSet, VecDeque};
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -84,6 +84,7 @@ impl Building {
     }
 
     // The polyline goes from the building to the driving position
+    // TODO Make this handle parking_blackhole
     pub fn driving_connection(&self, map: &Map) -> Option<(Position, PolyLine)> {
         // Is there even a driving lane on the same side as our sidewalk?
         // TODO Handle offside
@@ -101,10 +102,59 @@ impl Building {
         Some((pos, self.driveway_geom.clone().must_push(pos.pt(map))))
     }
 
+    // Returns (biking position, sidewalk position)
+    pub fn biking_connection(&self, map: &Map) -> (Position, Position) {
+        // Easy case: the building is directly next to a usable lane
+        if let Some(pair) = sidewalk_to_bike(self.sidewalk_pos, map) {
+            return pair;
+        }
+
+        // Floodfill the sidewalk graph until we find a sidewalk<->bike connection.
+        let mut queue: VecDeque<LaneID> = VecDeque::new();
+        let mut visited: HashSet<LaneID> = HashSet::new();
+        queue.push_back(self.sidewalk());
+
+        loop {
+            if queue.is_empty() {
+                panic!("Giving up looking for a biking_connection near {}", self.id);
+            }
+            let l = queue.pop_front().unwrap();
+            if visited.contains(&l) {
+                continue;
+            }
+            visited.insert(l);
+            // TODO Could search by sidewalk endpoint
+            if let Some(pair) = sidewalk_to_bike(Position::new(l, map.get_l(l).length() / 2.0), map)
+            {
+                return pair;
+            }
+            for t in map.get_turns_from_lane(l) {
+                if !visited.contains(&t.id.dst) {
+                    queue.push_back(t.id.dst);
+                }
+            }
+        }
+    }
+
     pub fn num_parking_spots(&self) -> usize {
         match self.parking {
             OffstreetParking::PublicGarage(_, n) => n,
             OffstreetParking::Private(n) => n,
         }
     }
+}
+
+// TODO Maybe we should also handle blackhole (but to be very careful, in a biking graph)
+fn sidewalk_to_bike(sidewalk_pos: Position, map: &Map) -> Option<(Position, Position)> {
+    let lane = map.get_parent(sidewalk_pos.lane()).find_closest_lane_v2(
+        sidewalk_pos.lane(),
+        true,
+        |l| PathConstraints::Bike.can_use(l, map),
+        map,
+    )?;
+    // No buffer needed
+    Some((
+        sidewalk_pos.equiv_pos(lane, Distance::ZERO, map),
+        sidewalk_pos,
+    ))
 }

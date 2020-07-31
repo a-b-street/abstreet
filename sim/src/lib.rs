@@ -332,10 +332,7 @@ impl DrivingGoal {
         match self {
             DrivingGoal::ParkNear(b) => match constraints {
                 PathConstraints::Car => Position::start(map.find_driving_lane_near_building(*b)),
-                PathConstraints::Bike => {
-                    let l = map.find_biking_lane_near_building(*b);
-                    Position::new(l, map.get_l(l).length() / 2.0)
-                }
+                PathConstraints::Bike => map.get_b(*b).biking_connection(map).0,
                 PathConstraints::Bus | PathConstraints::Train | PathConstraints::Pedestrian => {
                     unreachable!()
                 }
@@ -344,24 +341,18 @@ impl DrivingGoal {
         }
     }
 
-    // Only possible failure is if there's not a way to go bike->sidewalk at the end
-    pub(crate) fn make_router(&self, owner: CarID, path: Path, map: &Map) -> Option<Router> {
+    pub(crate) fn make_router(&self, owner: CarID, path: Path, map: &Map) -> Router {
         match self {
             DrivingGoal::ParkNear(b) => {
                 if owner.1 == VehicleType::Bike {
-                    // TODO Stop closer to the building?
-                    let end = path.last_step().as_lane();
-                    Router::bike_then_stop(owner, path, map.get_l(end).length() / 2.0, map)
+                    Router::bike_then_stop(owner, path, SidewalkSpot::bike_rack(*b, map))
                 } else {
-                    Some(Router::park_near(owner, path, *b))
+                    Router::park_near(owner, path, *b)
                 }
             }
-            DrivingGoal::Border(i, last_lane, _) => Some(Router::end_at_border(
-                owner,
-                path,
-                map.get_l(*last_lane).length(),
-                *i,
-            )),
+            DrivingGoal::Border(i, last_lane, _) => {
+                Router::end_at_border(owner, path, map.get_l(*last_lane).length(), *i)
+            }
         }
     }
 
@@ -389,7 +380,7 @@ pub enum SidewalkPOI {
     Building(BuildingID),
     BusStop(BusStopID),
     Border(IntersectionID, Option<OffMapLocation>),
-    // The equivalent position on the nearest driving/bike lane
+    // The bikeable position
     BikeRack(Position),
     SuddenlyAppear,
 }
@@ -422,38 +413,13 @@ impl SidewalkSpot {
         }
     }
 
-    pub fn bike_rack(sidewalk: LaneID, map: &Map) -> Option<SidewalkSpot> {
-        assert!(map.get_l(sidewalk).is_walkable());
-        let driving_lane = map.get_parent(sidewalk).sidewalk_to_bike(sidewalk)?;
-        // TODO Arbitrary, but safe
-        let sidewalk_pos = Position::new(sidewalk, map.get_l(sidewalk).length() / 2.0);
-        let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, map);
-        Some(SidewalkSpot {
-            connection: SidewalkPOI::BikeRack(driving_pos),
+    // TODO For the case when we have to start/stop biking somewhere else, this won't match up with
+    // a building though!
+    pub fn bike_rack(b: BuildingID, map: &Map) -> SidewalkSpot {
+        let (bike_pos, sidewalk_pos) = map.get_b(b).biking_connection(map);
+        SidewalkSpot {
+            connection: SidewalkPOI::BikeRack(bike_pos),
             sidewalk_pos,
-        })
-    }
-
-    pub fn bike_from_bike_rack(sidewalk: LaneID, map: &Map) -> Option<SidewalkSpot> {
-        assert!(map.get_l(sidewalk).is_walkable());
-        let driving_lane = map.get_parent(sidewalk).sidewalk_to_bike(sidewalk)?;
-        // Don't start biking on a blackhole!
-        // TODO Maybe compute a separate blackhole graph that includes bike lanes.
-        if let Some(redirect) = map.get_l(driving_lane).parking_blackhole {
-            // Make sure the driving lane is at least long enough to spawn on. Bikes spawn in the
-            // middle, so it needs to be double.
-            if map.get_l(redirect).length() < 2.0 * BIKE_LENGTH {
-                return None;
-            }
-
-            let new_sidewalk = map.get_parent(redirect).bike_to_sidewalk(redirect)?;
-            SidewalkSpot::bike_rack(new_sidewalk, map)
-        } else {
-            if map.get_l(driving_lane).length() < 2.0 * BIKE_LENGTH {
-                return None;
-            }
-
-            SidewalkSpot::bike_rack(sidewalk, map)
         }
     }
 

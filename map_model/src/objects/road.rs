@@ -1,5 +1,5 @@
 use crate::raw::{OriginalRoad, RestrictionType};
-use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints, Zone};
+use crate::{osm, BusStopID, IntersectionID, Lane, LaneID, LaneType, Map, PathConstraints, Zone};
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use enumset::EnumSet;
 use geom::{Distance, PolyLine, Polygon, Speed};
@@ -170,28 +170,6 @@ impl Road {
             .map(|(id, _)| *id)
     }
 
-    pub fn sidewalk_to_bike(&self, sidewalk: LaneID) -> Option<LaneID> {
-        // TODO Crossing bus lanes means higher layers of sim should know to block these off
-        // Oneways mean we might need to consider the other side of the road.
-        let (fwds, idx) = self.dir_and_offset(sidewalk);
-        self.children(fwds)[0..idx]
-            .iter()
-            .rev()
-            .chain(self.children(!fwds).iter())
-            // TODO Bug, bus lanes OK. use PathConstraints::Bike.
-            .find(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Biking)
-            .map(|(id, _)| *id)
-    }
-
-    pub fn bike_to_sidewalk(&self, bike: LaneID) -> Option<LaneID> {
-        // TODO Crossing bus lanes means higher layers of sim should know to block these off
-        let (fwds, idx) = self.dir_and_offset(bike);
-        self.children(fwds)[idx..]
-            .iter()
-            .find(|(_, lt)| *lt == LaneType::Sidewalk || *lt == LaneType::Shoulder)
-            .map(|(id, _)| *id)
-    }
-
     pub(crate) fn speed_limit_from_osm(&self) -> Speed {
         if let Some(limit) = self.osm_tags.get(osm::MAXSPEED) {
             if let Ok(kmph) = limit.parse::<f64>() {
@@ -269,6 +247,42 @@ impl Road {
         } else {
             Err(format!("{} isn't near a {:?} lane", from, lane_types).into())
         }
+    }
+
+    // TODO Migrate and rip out all the old stuff
+    pub(crate) fn find_closest_lane_v2<F: Fn(&Lane) -> bool>(
+        &self,
+        from: LaneID,
+        include_offside: bool,
+        filter: F,
+        map: &Map,
+    ) -> Option<LaneID> {
+        // (lane, direction) from left to right over the whole road. I suspect children will
+        // eventually just be this.
+        let mut all: Vec<(LaneID, bool)> = Vec::new();
+        for (l, _) in self.children_backwards.iter().rev() {
+            all.push((*l, false));
+        }
+        for (l, _) in &self.children_forwards {
+            all.push((*l, true));
+        }
+        let our_idx = all.iter().position(|(l, _)| *l == from).unwrap() as isize;
+
+        let (fwd, _) = self.dir_and_offset(from);
+        all.into_iter()
+            .enumerate()
+            .filter_map(|(idx, (l, dir))| {
+                if (idx as isize) != our_idx
+                    && (dir == fwd || include_offside)
+                    && filter(map.get_l(l))
+                {
+                    Some((idx, l))
+                } else {
+                    None
+                }
+            })
+            .min_by_key(|(idx, _)| (our_idx - (*idx as isize)).abs())
+            .map(|(_, l)| l)
     }
 
     pub fn all_lanes(&self) -> Vec<LaneID> {

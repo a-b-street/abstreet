@@ -509,57 +509,6 @@ impl Map {
         }
     }
 
-    // TODO Refactor and also use a different blackhole measure
-    pub fn find_biking_lane_near_building(&self, b: BuildingID) -> LaneID {
-        if let Ok(l) = self.find_closest_lane(self.get_b(b).sidewalk(), vec![LaneType::Biking]) {
-            return self.get_l(l).parking_blackhole.unwrap_or(l);
-        }
-        if let Ok(l) = self.find_closest_lane(self.get_b(b).sidewalk(), vec![LaneType::Driving]) {
-            return self.get_l(l).parking_blackhole.unwrap_or(l);
-        }
-
-        let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
-        let mut visited: HashSet<RoadID> = HashSet::new();
-        {
-            let start = self.building_to_road(b).id;
-            roads_queue.push_back(start);
-            visited.insert(start);
-        }
-
-        loop {
-            if roads_queue.is_empty() {
-                panic!(
-                    "Giving up looking for a biking or driving lane near {}, searched {} roads: \
-                     {:?}",
-                    b,
-                    visited.len(),
-                    visited
-                );
-            }
-            let r = self.get_r(roads_queue.pop_front().unwrap());
-
-            for (lane, lane_type) in r
-                .children_forwards
-                .iter()
-                .chain(r.children_backwards.iter())
-            {
-                if *lane_type == LaneType::Biking {
-                    return self.get_l(*lane).parking_blackhole.unwrap_or(*lane);
-                }
-                if *lane_type == LaneType::Driving {
-                    return self.get_l(*lane).parking_blackhole.unwrap_or(*lane);
-                }
-            }
-
-            for next_r in self.get_next_roads(r.id).into_iter() {
-                if !visited.contains(&next_r) {
-                    roads_queue.push_back(next_r);
-                    visited.insert(next_r);
-                }
-            }
-        }
-    }
-
     pub fn get_boundary_polygon(&self) -> &Polygon {
         &self.boundary_polygon
     }

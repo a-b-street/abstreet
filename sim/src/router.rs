@@ -45,7 +45,7 @@ enum Goal {
         i: IntersectionID,
     },
     BikeThenStop {
-        end_dist: Distance,
+        goal: SidewalkSpot,
     },
     FollowBusRoute {
         end_dist: Distance,
@@ -90,26 +90,11 @@ impl Router {
         }
     }
 
-    pub fn bike_then_stop(
-        owner: CarID,
-        path: Path,
-        end_dist: Distance,
-        map: &Map,
-    ) -> Option<Router> {
-        let last_lane = path.get_steps().iter().last().unwrap().as_lane();
-        if map
-            .get_parent(last_lane)
-            .bike_to_sidewalk(last_lane)
-            .is_some()
-        {
-            Some(Router {
-                path,
-                goal: Goal::BikeThenStop { end_dist },
-                owner,
-            })
-        } else {
-            println!("{} is the end of a bike route, with no sidewalk", last_lane);
-            None
+    pub fn bike_then_stop(owner: CarID, path: Path, goal: SidewalkSpot) -> Router {
+        Router {
+            goal: Goal::BikeThenStop { goal },
+            path,
+            owner,
         }
     }
 
@@ -151,7 +136,7 @@ impl Router {
                 stuck_end_dist,
                 ..
             } => stuck_end_dist.unwrap_or_else(|| spot.unwrap().1),
-            Goal::BikeThenStop { end_dist } => end_dist,
+            Goal::BikeThenStop { ref goal } => goal.sidewalk_pos.dist_along(),
             Goal::FollowBusRoute { end_dist } => end_dist,
         }
     }
@@ -317,17 +302,9 @@ impl Router {
                     None
                 }
             }
-            Goal::BikeThenStop { end_dist } => {
-                if end_dist == front {
-                    // Checked up-front that this exists
-                    let last_lane = self.head().as_lane();
-                    let sidewalk = map
-                        .get_parent(last_lane)
-                        .bike_to_sidewalk(last_lane)
-                        .unwrap();
-                    Some(ActionAtEnd::StopBiking(
-                        SidewalkSpot::bike_rack(sidewalk, map).unwrap(),
-                    ))
+            Goal::BikeThenStop { ref goal } => {
+                if goal.sidewalk_pos.dist_along() == front {
+                    Some(ActionAtEnd::StopBiking(goal.clone()))
                 } else {
                     None
                 }
