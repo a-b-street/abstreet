@@ -478,7 +478,8 @@ impl ParkingLane {
             return None;
         }
 
-        let driving_lane = if let Some(l) = map.get_parent(lane.id).parking_to_driving(lane.id) {
+        let driving_lane = if let Some(l) = map.get_parent(lane.id).parking_to_driving(lane.id, map)
+        {
             l
         } else {
             // Serious enough to blow up loudly.
@@ -487,8 +488,9 @@ impl ParkingLane {
         if map.get_l(driving_lane).driving_blackhole {
             return None;
         }
-        let sidewalk = if let Ok(l) =
-            map.find_closest_lane(lane.id, vec![LaneType::Sidewalk, LaneType::Shoulder])
+        let sidewalk = if let Some(l) =
+            map.get_parent(lane.id)
+                .find_closest_lane_v2(lane.id, true, |l| l.is_walkable(), map)
         {
             l
         } else {

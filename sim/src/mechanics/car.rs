@@ -124,18 +124,14 @@ impl Car {
                 };
                 match spot {
                     ParkingSpot::Onstreet(parking_l, _) => {
-                        let width = map.get_l(*parking_l).width * percent_time;
-                        let driving_l = self.router.head().as_lane();
-                        let parent = map.get_parent(driving_l);
-                        // Is the parking lane to the left or right of the driving lane?
-                        let shift = if parent.dir_and_offset(driving_l).0
-                            == parent.dir_and_offset(*parking_l).0
-                        {
-                            width
-                        } else {
-                            -width
-                        };
-                        match raw_body.shift_right(shift) {
+                        let r = map.get_parent(*parking_l);
+                        let driving_offset = r.offset_from_left(self.router.head().as_lane());
+                        let parking_offset = r.offset_from_left(*parking_l);
+                        let diff = (parking_offset as isize) - (driving_offset as isize);
+                        // TODO Sum widths in between, don't assume they're all the same as the
+                        // parking lane width!
+                        let width = map.get_l(*parking_l).width * (diff as f64) * percent_time;
+                        match raw_body.shift_right(width) {
                             Ok(pl) => pl,
                             Err(err) => {
                                 println!(

@@ -133,19 +133,7 @@ pub fn try_change_lt(
     let mut errors = Vec::new();
     let r = map.get_parent(l);
 
-    // Only one parking lane per side.
-    if r.children(r.is_forwards(l))
-        .iter()
-        .filter(|(_, lt)| *lt == LaneType::Parking)
-        .count()
-        > 1
-    {
-        // TODO Actually, we just don't want two adjacent parking lanes
-        // (What about dppd though?)
-        errors.push(format!(
-            "You can only have one parking lane on the same side of the road"
-        ));
-    }
+    // TODO Ban two adjacent parking lanes (What about dppd though?)
 
     // A parking lane must have a driving lane somewhere on the road.
     let (fwd, back) = r.get_lane_types();
@@ -176,12 +164,7 @@ pub fn try_change_lt(
 
 pub fn try_reverse(map: &Map, l: LaneID) -> Result<EditCmd, Box<dyn State>> {
     let lane = map.get_l(l);
-    if !lane.lane_type.is_for_moving_vehicles() {
-        Err(msg(
-            "Error",
-            vec![format!("You can't reverse a {:?} lane", lane.lane_type)],
-        ))
-    } else if map.get_r(lane.parent).dir_and_offset(l).1 != 0 {
+    if map.get_r(lane.parent).dir_and_offset(l).1 != 0 {
         Err(msg(
             "Error",
             vec!["You can only reverse the lanes next to the road's yellow center line"],

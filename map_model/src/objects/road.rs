@@ -158,16 +158,8 @@ impl Road {
         panic!("{} doesn't contain {}", self.id, lane);
     }
 
-    pub fn parking_to_driving(&self, parking: LaneID) -> Option<LaneID> {
-        // TODO Crossing bike/bus lanes means higher layers of sim should know to block these off
-        // when parking/unparking
-        let (fwds, idx) = self.dir_and_offset(parking);
-        self.children(fwds)[0..idx]
-            .iter()
-            .rev()
-            .chain(self.children(!fwds).iter())
-            .find(|(_, lt)| *lt == LaneType::Driving)
-            .map(|(id, _)| *id)
+    pub fn parking_to_driving(&self, parking: LaneID, map: &Map) -> Option<LaneID> {
+        self.find_closest_lane_v2(parking, true, |l| l.is_driving(), map)
     }
 
     pub(crate) fn speed_limit_from_osm(&self) -> Speed {
@@ -249,8 +241,17 @@ impl Road {
         }
     }
 
+    pub fn offset_from_left(&self, lane: LaneID) -> usize {
+        self.children_backwards
+            .iter()
+            .rev()
+            .chain(self.children_forwards.iter())
+            .position(|(l, _)| *l == lane)
+            .unwrap()
+    }
+
     // TODO Migrate and rip out all the old stuff
-    pub(crate) fn find_closest_lane_v2<F: Fn(&Lane) -> bool>(
+    pub fn find_closest_lane_v2<F: Fn(&Lane) -> bool>(
         &self,
         from: LaneID,
         include_offside: bool,
