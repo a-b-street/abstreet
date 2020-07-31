@@ -22,6 +22,7 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
                 if r.osm_tags.contains_key(osm::INFERRED_PARKING)
                     && r.osm_tags
                         .is_any(osm::HIGHWAY, vec!["residential", "tertiary"])
+                    && !r.osm_tags.is("foot", "no")
                     && id.osm_way_id % 100 <= pct
                     && PolyLine::unchecked_new(r.center_points.clone()).length()
                         >= Distance::meters(20.0)
