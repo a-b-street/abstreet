@@ -286,22 +286,10 @@ impl ParkingSimState {
         let mut candidates = Vec::new();
 
         for l in self.driving_to_parking_lanes.get(driving_pos.lane()) {
-            let parking_dist = driving_pos
-                .equiv_pos(*l, driving_pos.dist_along(), map)
-                .dist_along();
-            let parent = map.get_parent(*l);
-            let same_side = parent.is_forwards(driving_pos.lane()) == parent.is_forwards(*l);
-            let lane = &self.onstreet_lanes[l];
-            // Bit hacky to enumerate here to conveniently get idx.
-            for (idx, spot) in lane.spots().into_iter().enumerate() {
-                if !self.is_free(spot) {
-                    continue;
-                }
-                // If the parking lane is off-side, have to flip the comparison
-                // TODO This is crashing, so disabled
-                let spot_dist = lane.dist_along_for_car(idx, vehicle);
-                if (same_side && parking_dist < spot_dist)
-                    || (false && !same_side && parking_dist > spot_dist)
+            for spot in self.onstreet_lanes[l].spots() {
+                if self.is_free(spot)
+                    && driving_pos.dist_along()
+                        < self.spot_to_driving_pos(spot, vehicle, map).dist_along()
                 {
                     candidates.push(spot);
                 }

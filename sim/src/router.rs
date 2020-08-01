@@ -261,15 +261,18 @@ impl Router {
                                 TripPhaseType::Parking,
                             ));
                         }
+                        assert_eq!(new_pos.lane(), current_lane);
+                        assert!(new_pos.dist_along() >= front);
                         *spot = Some((new_spot, new_pos.dist_along()));
                     } else {
                         if let Some((new_path_steps, new_spot, new_pos)) =
                             parking.path_to_free_parking_spot(current_lane, vehicle, target, map)
                         {
-                            *spot = Some((new_spot, new_pos.dist_along()));
+                            assert!(!new_path_steps.is_empty());
                             for step in new_path_steps {
                                 self.path.add(step, map);
                             }
+                            *spot = Some((new_spot, new_pos.dist_along()));
                             events.push(Event::PathAmended(self.path.clone()));
                             // TODO This path might not be the same as the one found here...
                             if let Some((t, p)) = trip_and_person {
