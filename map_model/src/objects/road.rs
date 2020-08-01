@@ -241,6 +241,7 @@ impl Road {
         }
     }
 
+    // "Left" depends on the road, so if the lane !is_forwards(), keep that in mind
     pub fn offset_from_left(&self, lane: LaneID) -> usize {
         self.children_backwards
             .iter()

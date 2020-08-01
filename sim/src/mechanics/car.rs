@@ -127,7 +127,10 @@ impl Car {
                         let r = map.get_parent(*parking_l);
                         let driving_offset = r.offset_from_left(self.router.head().as_lane());
                         let parking_offset = r.offset_from_left(*parking_l);
-                        let diff = (parking_offset as isize) - (driving_offset as isize);
+                        let mut diff = (parking_offset as isize) - (driving_offset as isize);
+                        if !r.is_forwards(self.router.head().as_lane()) {
+                            diff *= -1;
+                        }
                         // TODO Sum widths in between, don't assume they're all the same as the
                         // parking lane width!
                         let width = map.get_l(*parking_l).width * (diff as f64) * percent_time;
