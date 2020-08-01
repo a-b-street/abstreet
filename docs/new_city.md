@@ -58,7 +58,7 @@ use it as well.
     [polygon filter file](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
     in that directory using the coordinates from geojson.io. It's easiest to
     start with an existing file from another directory; I recommend
-    `data/input/krakow/polygons/huge_krakow.poly` as a guide. You can use
+    `data/input/krakow/polygons/krakow_center.poly` as a guide. You can use
     `data/geojson_to_osmosis.py` to help format the coordinates.
 
 5.  Create a new module in `importer/src/` for your city, copying

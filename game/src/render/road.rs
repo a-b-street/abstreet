@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
 use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{LaneType, Map, Road, RoadID};
+use map_model::{Map, Road, RoadID};
 use std::cell::RefCell;
 
 pub struct DrawRoad {
@@ -18,32 +18,26 @@ pub struct DrawRoad {
 impl DrawRoad {
     pub fn new(r: &Road, map: &Map, cs: &ColorScheme, prerender: &Prerender) -> DrawRoad {
         let mut draw = GeomBatch::new();
-        let center = r.get_current_center(map);
-        let width = Distance::meters(0.25);
-        let color = if r.is_private() {
-            cs.road_center_line.lerp(cs.private_road, 0.5)
-        } else {
-            cs.road_center_line
-        };
-        // No center line at all if there's a shared left turn lane, it's light rail, or it's a
-        // footway
-        if r.is_light_rail()
-            || (!r.children_forwards.is_empty()
-                && r.children_forwards[0].1 == LaneType::SharedLeftTurn)
-            || r.is_footway()
+
+        // Only draw a center line if it straddles two driving/bike/bus lanes of opposite
+        // directions
+        if let (Some((_, lt1)), Some((_, lt2))) =
+            (r.children_forwards.get(0), r.children_backwards.get(0))
         {
-        } else {
-            // If the road is a one-way (only parking and sidewalk on the off-side), draw a solid
-            // line
-            if r.children_backwards
-                .iter()
-                .all(|(_, lt)| *lt == LaneType::Parking || *lt == LaneType::Sidewalk)
-            {
-                draw.push(color, center.make_polygons(width));
-            } else {
+            if lt1.is_for_moving_vehicles() && lt2.is_for_moving_vehicles() {
+                let width = Distance::meters(0.25);
+                let color = if r.is_private() {
+                    cs.road_center_line.lerp(cs.private_road, 0.5)
+                } else {
+                    cs.road_center_line
+                };
                 draw.extend(
                     color,
-                    center.dashed_lines(width, Distance::meters(2.0), Distance::meters(1.0)),
+                    r.get_current_center(map).dashed_lines(
+                        width,
+                        Distance::meters(2.0),
+                        Distance::meters(1.0),
+                    ),
                 );
             }
         }
