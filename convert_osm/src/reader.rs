@@ -83,6 +83,15 @@ pub fn read(
                 ));
             }
             "node" => {
+                if doc.gps_bounds == GPSBounds::new() {
+                    timer.warn(
+                        "No clipping polygon provided and the .osm is missing a <bounds> element, \
+                         so figuring out the bounds manually."
+                            .to_string(),
+                    );
+                    doc.gps_bounds = scrape_bounds(&tree);
+                }
+
                 let id = NodeID(obj.attribute("id").unwrap().parse::<i64>().unwrap());
                 if doc.nodes.contains_key(&id) {
                     return Err(format!("Duplicate {}, your .osm is corrupt", id).into());
@@ -189,6 +198,19 @@ fn read_tags(obj: roxmltree::Node) -> Tags {
         }
     }
     tags
+}
+
+fn scrape_bounds(doc: &roxmltree::Document) -> GPSBounds {
+    let mut b = GPSBounds::new();
+    for obj in doc.descendants() {
+        if obj.is_element() && obj.tag_name().name() == "node" {
+            b.update(LonLat::new(
+                obj.attribute("lon").unwrap().parse::<f64>().unwrap(),
+                obj.attribute("lat").unwrap().parse::<f64>().unwrap(),
+            ));
+        }
+    }
+    b
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
