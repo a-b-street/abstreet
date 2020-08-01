@@ -13,6 +13,7 @@ cpuprofiler = { version = "0.0.3", optional = true }
 instant = "0.1.2"
 itertools = "0.9.0"
 lazy_static = "1.4.0"
+log = { version = "0.4", features=["std"] }
 num_cpus = "1.10.0"
 rand = "0.7.0"
 rand_xorshift = "0.2.0"

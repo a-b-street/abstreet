@@ -1,4 +1,7 @@
+use crate::elapsed_seconds;
+use instant::Instant;
 use std::collections::{HashMap, HashSet};
+use std::sync::RwLock;
 
 pub struct CmdArgs {
     kv: HashMap<String, String>,
@@ -10,6 +13,13 @@ pub struct CmdArgs {
 
 impl CmdArgs {
     pub fn new() -> CmdArgs {
+        // TODO Hijacking this to also initialize logging!
+        log::set_boxed_logger(Box::new(Logger {
+            last_fp_note: RwLock::new(None),
+        }))
+        .unwrap();
+        log::set_max_level(log::LevelFilter::Trace);
+
         let mut args = CmdArgs {
             kv: HashMap::new(),
             bits: HashSet::new(),
@@ -112,4 +122,36 @@ impl CmdArgs {
             panic!("Unused free arguments: {:?}", self.free);
         }
     }
+}
+
+// TODO Tie this to a Timer
+struct Logger {
+    last_fp_note: RwLock<Option<Instant>>,
+}
+
+impl log::Log for Logger {
+    fn enabled(&self, _: &log::Metadata) -> bool {
+        true
+    }
+    fn log(&self, record: &log::Record) {
+        let target = if record.target().len() > 0 {
+            record.target()
+        } else {
+            record.module_path().unwrap_or_default()
+        };
+
+        if target == "fast_paths::fast_graph_builder" {
+            // Throttle these
+            let mut last = self.last_fp_note.write().unwrap();
+            if last
+                .map(|start| elapsed_seconds(start) < 1.0)
+                .unwrap_or(false)
+            {
+                return;
+            }
+            *last = Some(Instant::now());
+        }
+        println!("[{}] {}: {}", record.level(), target, record.args());
+    }
+    fn flush(&self) {}
 }
