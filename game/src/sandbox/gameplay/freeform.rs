@@ -453,8 +453,12 @@ fn pos(endpt: TripEndpoint, mode: TripMode, from: bool, map: &Map) -> Option<Pos
     match endpt {
         TripEndpoint::Bldg(b) => match mode {
             TripMode::Walk | TripMode::Transit => Some(map.get_b(b).sidewalk_pos),
-            TripMode::Bike => Some(DrivingGoal::ParkNear(b).goal_pos(PathConstraints::Bike, map)),
-            TripMode::Drive => Some(DrivingGoal::ParkNear(b).goal_pos(PathConstraints::Car, map)),
+            TripMode::Bike => Some(DrivingGoal::ParkNear(b).goal_pos(PathConstraints::Bike, map)?),
+            TripMode::Drive => Some(
+                DrivingGoal::ParkNear(b)
+                    .goal_pos(PathConstraints::Car, map)
+                    .unwrap(),
+            ),
         },
         TripEndpoint::Border(i, _) => match mode {
             TripMode::Walk | TripMode::Transit => if from {

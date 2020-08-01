@@ -102,11 +102,12 @@ impl Building {
         Some((pos, self.driveway_geom.clone().must_push(pos.pt(map))))
     }
 
-    // Returns (biking position, sidewalk position)
-    pub fn biking_connection(&self, map: &Map) -> (Position, Position) {
+    // Returns (biking position, sidewalk position). Could fail if the biking graph is
+    // disconnected.
+    pub fn biking_connection(&self, map: &Map) -> Option<(Position, Position)> {
         // Easy case: the building is directly next to a usable lane
         if let Some(pair) = sidewalk_to_bike(self.sidewalk_pos, map) {
-            return pair;
+            return Some(pair);
         }
 
         // Floodfill the sidewalk graph until we find a sidewalk<->bike connection.
@@ -116,7 +117,7 @@ impl Building {
 
         loop {
             if queue.is_empty() {
-                panic!("Giving up looking for a biking_connection near {}", self.id);
+                return None;
             }
             let l = queue.pop_front().unwrap();
             if visited.contains(&l) {
@@ -126,7 +127,7 @@ impl Building {
             // TODO Could search by sidewalk endpoint
             if let Some(pair) = sidewalk_to_bike(Position::new(l, map.get_l(l).length() / 2.0), map)
             {
-                return pair;
+                return Some(pair);
             }
             for t in map.get_turns_from_lane(l) {
                 if !visited.contains(&t.id.dst) {

@@ -273,7 +273,7 @@ impl TripManager {
                 start = Position::new(start.lane(), start.dist_along() + parked_car.vehicle.length);
             }
         }
-        let end = drive_to.goal_pos(PathConstraints::Car, map);
+        let end = drive_to.goal_pos(PathConstraints::Car, map).unwrap();
         let req = PathRequest {
             start,
             end,
@@ -340,7 +340,20 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        let end = drive_to.goal_pos(PathConstraints::Bike, map);
+        let end = if let Some(end) = drive_to.goal_pos(PathConstraints::Bike, map) {
+            end
+        } else {
+            self.events.push(Event::Alert(
+                AlertLocation::Person(trip.person),
+                format!(
+                    "Aborting {} because no bike connection at {:?}",
+                    trip.id, drive_to
+                ),
+            ));
+            let trip = trip.id;
+            self.abort_trip(now, trip, None, parking, scheduler, map);
+            return;
+        };
         let req = PathRequest {
             start: driving_pos,
             end,
@@ -1177,26 +1190,36 @@ impl TripManager {
                 assert_eq!(person.state, PersonState::Inside(start));
                 person.state = PersonState::Trip(trip);
 
-                let walk_to = SidewalkSpot::bike_rack(start, map);
-                let req = maybe_req.unwrap();
-                if let Some(path) = maybe_path {
-                    scheduler.push(
-                        now,
-                        Command::SpawnPed(CreatePedestrian {
-                            id: person.ped,
-                            speed: person.ped_speed,
-                            start: SidewalkSpot::building(start, map),
-                            goal: walk_to,
-                            path,
-                            req,
-                            trip,
-                            person: person.id,
-                        }),
-                    );
+                if let Some(walk_to) = SidewalkSpot::bike_rack(start, map) {
+                    let req = maybe_req.unwrap();
+                    if let Some(path) = maybe_path {
+                        scheduler.push(
+                            now,
+                            Command::SpawnPed(CreatePedestrian {
+                                id: person.ped,
+                                speed: person.ped_speed,
+                                start: SidewalkSpot::building(start, map),
+                                goal: walk_to,
+                                path,
+                                req,
+                                trip,
+                                person: person.id,
+                            }),
+                        );
+                    } else {
+                        self.events.push(Event::Alert(
+                            AlertLocation::Person(person.id),
+                            format!("UsingBike trip couldn't find the first path {}", req),
+                        ));
+                        self.abort_trip(now, trip, None, parking, scheduler, map);
+                    }
                 } else {
                     self.events.push(Event::Alert(
                         AlertLocation::Person(person.id),
-                        format!("UsingBike trip couldn't find the first path {}", req),
+                        format!(
+                            "UsingBike trip couldn't find a way to start biking from {}",
+                            start
+                        ),
                     ));
                     self.abort_trip(now, trip, None, parking, scheduler, map);
                 }

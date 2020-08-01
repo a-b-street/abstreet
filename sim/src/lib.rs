@@ -328,16 +328,18 @@ impl DrivingGoal {
         }
     }
 
-    pub fn goal_pos(&self, constraints: PathConstraints, map: &Map) -> Position {
+    pub fn goal_pos(&self, constraints: PathConstraints, map: &Map) -> Option<Position> {
         match self {
             DrivingGoal::ParkNear(b) => match constraints {
-                PathConstraints::Car => Position::start(map.find_driving_lane_near_building(*b)),
-                PathConstraints::Bike => map.get_b(*b).biking_connection(map).0,
+                PathConstraints::Car => {
+                    Some(Position::start(map.find_driving_lane_near_building(*b)))
+                }
+                PathConstraints::Bike => Some(map.get_b(*b).biking_connection(map)?.0),
                 PathConstraints::Bus | PathConstraints::Train | PathConstraints::Pedestrian => {
                     unreachable!()
                 }
             },
-            DrivingGoal::Border(_, l, _) => Position::end(*l, map),
+            DrivingGoal::Border(_, l, _) => Some(Position::end(*l, map)),
         }
     }
 
@@ -345,7 +347,7 @@ impl DrivingGoal {
         match self {
             DrivingGoal::ParkNear(b) => {
                 if owner.1 == VehicleType::Bike {
-                    Router::bike_then_stop(owner, path, SidewalkSpot::bike_rack(*b, map))
+                    Router::bike_then_stop(owner, path, SidewalkSpot::bike_rack(*b, map).unwrap())
                 } else {
                     Router::park_near(owner, path, *b)
                 }
@@ -415,12 +417,12 @@ impl SidewalkSpot {
 
     // TODO For the case when we have to start/stop biking somewhere else, this won't match up with
     // a building though!
-    pub fn bike_rack(b: BuildingID, map: &Map) -> SidewalkSpot {
-        let (bike_pos, sidewalk_pos) = map.get_b(b).biking_connection(map);
-        SidewalkSpot {
+    pub fn bike_rack(b: BuildingID, map: &Map) -> Option<SidewalkSpot> {
+        let (bike_pos, sidewalk_pos) = map.get_b(b).biking_connection(map)?;
+        Some(SidewalkSpot {
             connection: SidewalkPOI::BikeRack(bike_pos),
             sidewalk_pos,
-        }
+        })
     }
 
     pub fn bus_stop(stop: BusStopID, map: &Map) -> SidewalkSpot {
