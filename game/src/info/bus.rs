@@ -22,10 +22,10 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
 
     let all_arrivals = &sim.get_analytics().bus_arrivals;
     for r in app.primary.map.get_routes_serving_stop(id) {
-        rows.push(Btn::text_fg(format!("Route {}", r.short_name)).build(ctx, &r.full_name, None));
-        details
-            .hyperlinks
-            .insert(r.full_name.clone(), Tab::BusRoute(r.id));
+        // Full names can overlap, so include the ID
+        let label = format!("{} ({})", r.full_name, r.id);
+        rows.push(Btn::text_fg(format!("Route {}", r.short_name)).build(ctx, &label, None));
+        details.hyperlinks.insert(label, Tab::BusRoute(r.id));
 
         let arrivals: Vec<(Time, CarID)> = all_arrivals
             .iter()

@@ -845,7 +845,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "fast_paths"
 version = "0.1.1-SNAPSHOT"
-source = "git+https://github.com/dabreegster/fast_paths#b6e8a5a5e2bddcc3f69f3f9c259c9aefedbb8d02"
+source = "git+https://github.com/easbar/fast_paths#c6a9c492a67a90ddb013b5b754400bbac8870066"
 dependencies = [
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "priority-queue 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1825,7 +1825,7 @@ dependencies = [
  "aabb-quadtree 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "abstutil 0.1.0",
  "enumset 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "fast_paths 0.1.1-SNAPSHOT (git+https://github.com/dabreegster/fast_paths)",
+ "fast_paths 0.1.1-SNAPSHOT (git+https://github.com/easbar/fast_paths)",
  "geom 0.1.0",
  "nbez 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "petgraph 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3990,7 +3990,7 @@ dependencies = [
 "checksum failure 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "b8529c2421efa3066a5cbd8063d2244603824daccb6936b079010bb2aa89464b"
 "checksum failure_derive 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "030a733c8287d6213886dd487564ff5c8f6aae10278b3588ed177f9d18f8d231"
 "checksum fake-simd 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e88a8acf291dafb59c2d96e8f59828f3838bb1a70398823ade51a84de6a6deed"
-"checksum fast_paths 0.1.1-SNAPSHOT (git+https://github.com/dabreegster/fast_paths)" = "<none>"
+"checksum fast_paths 0.1.1-SNAPSHOT (git+https://github.com/easbar/fast_paths)" = "<none>"
 "checksum fixedbitset 0.1.9 (registry+https://github.com/rust-lang/crates.io-index)" = "86d4de0081402f5e88cdac65c8dcdcc73118c1a7a465e2a05f0da05843a8ea33"
 "checksum fixedbitset 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "37ab347416e802de484e4d03c7316c48f1ecb56574dfd4a46a80f173ce1de04d"
 "checksum flate2 1.0.14 (registry+https://github.com/rust-lang/crates.io-index)" = "2cfff41391129e0a856d6d822600b8d71179d46879e310417eb9c762eb178b42"
