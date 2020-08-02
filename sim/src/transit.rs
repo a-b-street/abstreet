@@ -21,7 +21,7 @@ struct Stop {
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
 struct Route {
     stops: Vec<Stop>,
-    start_from_border: Option<(PathRequest, Path)>,
+    start: (PathRequest, Path),
     end_at_border: Option<(PathRequest, Path)>,
     active_vehicles: BTreeSet<CarID>,
 }
@@ -84,78 +84,75 @@ impl TransitSimState {
 
     // Returns the path for the first leg.
     pub fn create_empty_route(&mut self, bus_route: &BusRoute, map: &Map) -> (PathRequest, Path) {
-        assert!(bus_route.stops.len() > 1);
-
-        let mut stops = Vec::new();
-        for (idx, stop1_id) in bus_route.stops.iter().enumerate() {
-            let stop1 = map.get_bs(*stop1_id);
-            if idx == bus_route.stops.len() - 1 {
-                stops.push(Stop {
-                    id: stop1.id,
-                    driving_pos: stop1.driving_pos,
-                    next_stop: None,
-                });
-                continue;
-            }
-            let req = PathRequest {
-                start: stop1.driving_pos,
-                end: map.get_bs(bus_route.stops[idx + 1]).driving_pos,
-                constraints: bus_route.route_type,
-            };
-            if let Some(path) = map.pathfind(req.clone()) {
-                if path.is_empty() {
-                    panic!("Empty path between stops?! {}", req);
+        if !self.routes.contains_key(&bus_route.id) {
+            assert!(bus_route.stops.len() > 1);
+            let mut stops = Vec::new();
+            for (idx, stop1_id) in bus_route.stops.iter().enumerate() {
+                let stop1 = map.get_bs(*stop1_id);
+                if idx == bus_route.stops.len() - 1 {
+                    stops.push(Stop {
+                        id: stop1.id,
+                        driving_pos: stop1.driving_pos,
+                        next_stop: None,
+                    });
+                    continue;
                 }
-                stops.push(Stop {
-                    id: stop1.id,
-                    driving_pos: stop1.driving_pos,
-                    next_stop: Some((req, path)),
-                });
-            } else {
-                panic!("No route between stops: {}", req);
+                let req = PathRequest {
+                    start: stop1.driving_pos,
+                    end: map.get_bs(bus_route.stops[idx + 1]).driving_pos,
+                    constraints: bus_route.route_type,
+                };
+                if let Some(path) = map.pathfind(req.clone()) {
+                    if path.is_empty() {
+                        panic!("Empty path between stops?! {}", req);
+                    }
+                    stops.push(Stop {
+                        id: stop1.id,
+                        driving_pos: stop1.driving_pos,
+                        next_stop: Some((req, path)),
+                    });
+                } else {
+                    panic!("No route between stops: {}", req);
+                }
             }
-        }
-        let start_from_border = if let Some(l) = bus_route.start_border {
-            let req = PathRequest {
-                start: Position::start(l),
+            let start_req = PathRequest {
+                start: Position::start(
+                    bus_route
+                        .start_border
+                        .unwrap_or(stops[0].driving_pos.lane()),
+                ),
                 end: map.get_bs(bus_route.stops[0]).driving_pos,
                 constraints: bus_route.route_type,
             };
-            let path = map
-                .pathfind(req.clone())
-                .expect("no route from border to first stop");
-            Some((req, path))
-        } else {
-            None
-        };
-        let end_at_border = if let Some(l) = bus_route.end_border {
-            let req = PathRequest {
-                start: map.get_bs(*bus_route.stops.last().unwrap()).driving_pos,
-                end: Position::end(l, map),
-                constraints: bus_route.route_type,
+            let start = (
+                start_req.clone(),
+                map.pathfind(start_req).expect("no route to first stop"),
+            );
+            let end_at_border = if let Some(l) = bus_route.end_border {
+                let req = PathRequest {
+                    start: map.get_bs(*bus_route.stops.last().unwrap()).driving_pos,
+                    end: Position::end(l, map),
+                    constraints: bus_route.route_type,
+                };
+                let path = map
+                    .pathfind(req.clone())
+                    .expect("no route from last stop to border");
+                Some((req, path))
+            } else {
+                None
             };
-            let path = map
-                .pathfind(req.clone())
-                .expect("no route from last stop to border");
-            Some((req, path))
-        } else {
-            None
-        };
+            self.routes.insert(
+                bus_route.id,
+                Route {
+                    active_vehicles: BTreeSet::new(),
+                    stops,
+                    start,
+                    end_at_border,
+                },
+            );
+        }
 
-        let first_step = start_from_border
-            .clone()
-            .or(stops[0].next_stop.clone())
-            .unwrap();
-        self.routes.insert(
-            bus_route.id,
-            Route {
-                active_vehicles: BTreeSet::new(),
-                stops,
-                start_from_border,
-                end_at_border,
-            },
-        );
-        first_step
+        self.routes[&bus_route.id].start.clone()
     }
 
     pub fn bus_created(&mut self, bus: CarID, r: BusRouteID) {
@@ -167,11 +164,7 @@ impl TransitSimState {
                 car: bus,
                 route: r,
                 passengers: Vec::new(),
-                state: if route.start_from_border.is_some() {
-                    BusState::DrivingToStop(0)
-                } else {
-                    BusState::DrivingToStop(1)
-                },
+                state: BusState::DrivingToStop(0),
             },
         );
     }

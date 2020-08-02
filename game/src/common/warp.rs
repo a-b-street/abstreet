@@ -102,7 +102,7 @@ impl DebugWarp {
                     Line("t").fg(c),
                     Line("rip, "),
                     Line("P").fg(c),
-                    Line("erson"),
+                    Line("erson, "),
                     Line("R").fg(c),
                     Line("oute"),
                 ])

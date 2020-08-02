@@ -965,13 +965,15 @@ impl TripManager {
             return;
         }
         let (trip, spec, maybe_req, maybe_path) = person.delayed_trips.remove(0);
-        self.events.push(Event::Alert(
-            AlertLocation::Person(person.id),
-            format!(
-                "{} just freed up, so starting delayed trip {}",
-                person.id, trip
-            ),
-        ));
+        if false {
+            self.events.push(Event::Alert(
+                AlertLocation::Person(person.id),
+                format!(
+                    "{} just freed up, so starting delayed trip {}",
+                    person.id, trip
+                ),
+            ));
+        }
         self.start_trip(
             now, trip, spec, maybe_req, maybe_path, parking, scheduler, map,
         );
@@ -997,13 +999,15 @@ impl TripManager {
         let person = &mut self.people[self.trips[trip.0].person.0];
         if let PersonState::Trip(_) = person.state {
             // Previous trip isn't done. Defer this one!
-            self.events.push(Event::Alert(
-                AlertLocation::Person(person.id),
-                format!(
-                    "{} is still doing a trip, so not starting {} yet",
-                    person.id, trip
-                ),
-            ));
+            if false {
+                self.events.push(Event::Alert(
+                    AlertLocation::Person(person.id),
+                    format!(
+                        "{} is still doing a trip, so not starting {} yet",
+                        person.id, trip
+                    ),
+                ));
+            }
             person
                 .delayed_trips
                 .push((trip, spec, maybe_req, maybe_path));
