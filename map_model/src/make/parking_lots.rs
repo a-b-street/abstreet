@@ -1,7 +1,7 @@
 use crate::make::match_points_to_lanes;
 use crate::raw::RawParkingLot;
 use crate::{
-    LaneType, Map, ParkingLot, ParkingLotID, Position, NORMAL_LANE_THICKNESS,
+    Map, ParkingLot, ParkingLotID, PathConstraints, Position, NORMAL_LANE_THICKNESS,
     PARKING_LOT_SPOT_LENGTH,
 };
 use abstutil::Timer;
@@ -55,24 +55,28 @@ pub fn make_all_parking_lots(
             // Can this lot have a driveway? If it's not next to a driving lane, then no.
             let mut driveway: Option<(PolyLine, Position)> = None;
             let sidewalk_lane = sidewalk_pos.lane();
-            if let Ok(driving_lane) = map
+            if let Some(driving_pos) = map
                 .get_parent(sidewalk_lane)
-                .find_closest_lane(sidewalk_lane, vec![LaneType::Driving])
+                .find_closest_lane_v2(
+                    sidewalk_lane,
+                    true,
+                    |l| PathConstraints::Car.can_use(l, map),
+                    map,
+                )
+                .and_then(|l| {
+                    sidewalk_pos
+                        .equiv_pos(l, map)
+                        .buffer_dist(driveway_buffer, map)
+                })
             {
-                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, map);
-
-                if driving_pos.dist_along() > driveway_buffer
-                    && map.get_l(driving_lane).length() - driving_pos.dist_along() > driveway_buffer
-                {
-                    driveway = Some((
-                        PolyLine::must_new(vec![
-                            sidewalk_line.pt1(),
-                            sidewalk_line.pt2(),
-                            driving_pos.pt(map),
-                        ]),
-                        driving_pos,
-                    ));
-                }
+                driveway = Some((
+                    PolyLine::must_new(vec![
+                        sidewalk_line.pt1(),
+                        sidewalk_line.pt2(),
+                        driving_pos.pt(map),
+                    ]),
+                    driving_pos,
+                ));
             }
             if let Some((driveway_line, driving_pos)) = driveway {
                 let id = ParkingLotID(results.len());
@@ -91,8 +95,10 @@ pub fn make_all_parking_lots(
             } else {
                 // TODO Plumb WayID forward
                 timer.warn(format!(
-                    "Parking lot from https://www.openstreetmap.org/way/{} can't have a driveway.",
-                    orig.osm_id
+                    "Parking lot from https://www.openstreetmap.org/way/{}, near sidewalk {}, \
+                     can't have a driveway.",
+                    orig.osm_id,
+                    sidewalk_pos.lane()
                 ));
             }
         }

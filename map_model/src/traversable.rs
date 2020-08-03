@@ -104,6 +104,14 @@ impl Position {
         self.dist_along = dist_along;
         Some(self)
     }
+    pub fn buffer_dist(mut self, buffer: Distance, map: &Map) -> Option<Position> {
+        let len = map.get_l(self.lane).length();
+        if len <= buffer * 2.0 {
+            return None;
+        }
+        self.dist_along = self.dist_along.max(buffer).min(len - buffer);
+        Some(self)
+    }
 }
 
 // TODO also building paths?
