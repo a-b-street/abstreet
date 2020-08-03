@@ -9,3 +9,4 @@ rm -fv data/system/maps/huge_seattle.bin data/input/raw_maps/huge_seattle.bin da
 ./import.sh --raw --map --city=krakow
 
 cargo run --release --bin game -- --prebake
+cargo run --release --bin game -- --smoketest

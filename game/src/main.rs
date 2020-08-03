@@ -17,7 +17,8 @@ mod render;
 mod sandbox;
 
 use crate::app::Flags;
-use abstutil::CmdArgs;
+use abstutil::{CmdArgs, Timer};
+use geom::Duration;
 use sim::SimFlags;
 
 fn main() {
@@ -25,6 +26,10 @@ fn main() {
 
     if args.enabled("--prebake") {
         challenges::prebake_all();
+        return;
+    }
+    if args.enabled("--smoketest") {
+        smoke_test();
         return;
     }
 
@@ -114,4 +119,25 @@ fn main() {
     ezgui::run(settings, |ctx| {
         game::Game::new(flags, opts, start_with_edits, mode, ctx)
     });
+}
+
+fn smoke_test() {
+    let mut timer = Timer::new("run a smoke-test for all maps");
+    for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
+        let map = map_model::Map::new(abstutil::path_map(&name), &mut timer);
+        let scenario = if map.get_city_name() == "seattle" {
+            abstutil::read_binary(abstutil::path_scenario(&name, "weekday"), &mut timer)
+        } else {
+            let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
+            sim::ScenarioGenerator::proletariat_robot(&map, &mut rng, &mut timer)
+        };
+
+        let mut opts = sim::SimOptions::new("smoke_test");
+        opts.alerts = sim::AlertHandler::Silence;
+        let mut sim = sim::Sim::new(&map, opts, &mut timer);
+        // Bit of an abuse of this, but just need to fix the rng seed.
+        let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
+        scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
+        sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
+    }
 }
