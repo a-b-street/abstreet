@@ -437,6 +437,16 @@ pub enum PathConstraints {
 }
 
 impl PathConstraints {
+    pub fn all() -> Vec<PathConstraints> {
+        vec![
+            PathConstraints::Pedestrian,
+            PathConstraints::Car,
+            PathConstraints::Bike,
+            PathConstraints::Bus,
+            PathConstraints::Train,
+        ]
+    }
+
     // Not bijective, but this is the best guess of user intent
     pub fn from_lt(lt: LaneType) -> PathConstraints {
         match lt {

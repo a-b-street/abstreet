@@ -188,6 +188,8 @@ calling out milestones. "UI churn" is pretty much constantly happening.
   importing Krakow and Berlin, smarter lane-changing, walkable shoulders for
   roads without sidewalks
   - [KING 5 Evening](https://www.youtube.com/watch?v=Pk8V-egsUxU) interview
+- August: ...
+  - [Silicon Valley Bike Summit](https://bikesiliconvalley.org/2020/07/poster_dustin-carlino/)
 
 ## Retrospective
 
