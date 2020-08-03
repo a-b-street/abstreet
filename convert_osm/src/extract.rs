@@ -16,8 +16,8 @@ pub struct OsmExtract {
     // Traffic signals to the direction they apply (or just true if unspecified)
     pub traffic_signals: HashMap<HashablePt2D, bool>,
     pub osm_node_ids: HashMap<HashablePt2D, NodeID>,
-    // (relation ID, restriction type, from way ID, via node ID, to way ID)
-    pub simple_turn_restrictions: Vec<(RelationID, RestrictionType, WayID, NodeID, WayID)>,
+    // (ID, restriction type, from way ID, via node ID, to way ID)
+    pub simple_turn_restrictions: Vec<(RestrictionType, WayID, NodeID, WayID)>,
     // (relation ID, from way ID, via way ID, to way ID)
     pub complicated_turn_restrictions: Vec<(RelationID, WayID, WayID, WayID)>,
     // (location, name, amenity type)
@@ -204,7 +204,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 if let Some(rt) = RestrictionType::new(restriction) {
                     if let (Some(from), Some(via), Some(to)) = (from_way_id, via_node_id, to_way_id)
                     {
-                        out.simple_turn_restrictions.push((id, rt, from, via, to));
+                        out.simple_turn_restrictions.push((rt, from, via, to));
                     } else if let (Some(from), Some(via), Some(to)) =
                         (from_way_id, via_way_id, to_way_id)
                     {
@@ -619,7 +619,7 @@ fn extract_route(
         "bus" => true,
         "light_rail" => false,
         x => {
-            if x != "road" && x != "bicycle" {
+            if x != "road" && x != "bicycle" && x != "foot" && x != "railway" {
                 // TODO Handle these at some point
                 println!(
                     "Skipping route {} of unknown type {}: {}",

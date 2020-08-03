@@ -201,7 +201,8 @@ impl Map {
                         .get(osm::HIGHWAY)
                         .map(|x| x.ends_with("_link"))
                         .unwrap_or(false)
-                    || road.osm_tags.is("railway", "rail"))
+                    || road.osm_tags.is_any("railway", vec!["rail", "light_rail"])
+                    || road.osm_tags.is("junction", "roundabout"))
                 {
                     timer.warn(format!(
                         "{} has no name. Tags: {:?}",
@@ -330,19 +331,6 @@ impl Map {
             pathfinder.setup_walking_with_transit(&map);
             map.pathfinder = Some(pathfinder);
             timer.stop("setup rest of Pathfinder (walking with transit)");
-        }
-
-        let (_, disconnected) = connectivity::find_scc(&map, PathConstraints::Pedestrian);
-        if !disconnected.is_empty() {
-            timer.warn(format!(
-                "{} sidewalks are disconnected!",
-                disconnected.len()
-            ));
-            for l in disconnected {
-                // Best response is to use map_editor to delete them. Hard to do automatically
-                // because maybe there are bus stops nearby -- force myself to look at it manually.
-                timer.warn(format!("- Sidewalk {} is disconnected", l));
-            }
         }
 
         map

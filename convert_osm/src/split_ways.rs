@@ -93,23 +93,17 @@ pub fn split_up_roads(
 
     // Resolve simple turn restrictions (via a node)
     let mut restrictions = Vec::new();
-    for (rel_osm, restriction, from_osm, via_osm, to_osm) in input.simple_turn_restrictions {
+    for (restriction, from_osm, via_osm, to_osm) in input.simple_turn_restrictions {
         let roads = map.roads_per_intersection(OriginalIntersection {
             osm_node_id: via_osm.0,
         });
-        match (
+        // If some of the roads are missing, they were likely filtered out -- usually service
+        // roads.
+        if let (Some(from), Some(to)) = (
             roads.iter().find(|r| r.osm_way_id == from_osm.0),
             roads.iter().find(|r| r.osm_way_id == to_osm.0),
         ) {
-            (Some(from), Some(to)) => {
-                restrictions.push((*from, restriction, *to));
-            }
-            _ => {
-                timer.warn(format!(
-                    "Couldn't resolve {:?} from way {} to way {} via node {}: see {}",
-                    restriction, from_osm, to_osm, via_osm, rel_osm
-                ));
-            }
+            restrictions.push((*from, restriction, *to));
         }
     }
     for (from, rt, to) in restrictions {
