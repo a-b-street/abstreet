@@ -334,7 +334,7 @@ impl ParkingSimState {
         match spot {
             ParkingSpot::Onstreet(l, idx) => {
                 let lane = &self.onstreet_lanes[&l];
-                Position::new(l, lane.dist_along_for_car(idx, vehicle)).equiv_pos(
+                Position::new(l, lane.dist_along_for_car(idx, vehicle)).equiv_pos_for_long_object(
                     lane.driving_lane,
                     vehicle.length,
                     map,
@@ -354,7 +354,7 @@ impl ParkingSimState {
                     l,
                     lane.spot_dist_along[idx] - (map_model::PARKING_SPOT_LENGTH / 2.0),
                 )
-                .equiv_pos(lane.sidewalk, Distance::ZERO, map)
+                .equiv_pos(lane.sidewalk, map)
             }
             ParkingSpot::Offstreet(b, _) => map.get_b(b).sidewalk_pos,
             ParkingSpot::Lot(pl, _) => map.get_pl(pl).sidewalk_pos,

@@ -132,8 +132,12 @@ impl DrivingSimState {
                     // makes sense.
                     if car.router.last_step() && params.start_dist > car.router.get_end_dist() {
                         println!(
-                            "WARNING: {} wants to spawn past their end on a one-step path",
-                            car.vehicle.id
+                            "WARNING: {} wants to spawn at {}, which is past their end of {} on a \
+                             one-step path {}",
+                            car.vehicle.id,
+                            params.start_dist,
+                            car.router.get_end_dist(),
+                            first_lane
                         );
                         return false;
                     }

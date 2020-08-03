@@ -66,7 +66,15 @@ impl Position {
         }
     }
 
-    pub fn equiv_pos(&self, lane: LaneID, our_len: Distance, map: &Map) -> Position {
+    pub fn equiv_pos(&self, lane: LaneID, map: &Map) -> Position {
+        self.equiv_pos_for_long_object(lane, Distance::ZERO, map)
+    }
+    pub fn equiv_pos_for_long_object(
+        &self,
+        lane: LaneID,
+        our_len: Distance,
+        map: &Map,
+    ) -> Position {
         let r = map.get_parent(lane);
         assert_eq!(map.get_l(self.lane).parent, r.id);
 
@@ -79,11 +87,22 @@ impl Position {
         } else {
             Position::new(
                 lane,
+                // TODO I don't understand what this is doing anymore in the one case, revisit
                 (len - self.dist_along + our_len)
                     .max(Distance::ZERO)
                     .min(len),
             )
         }
+    }
+    pub fn min_dist(mut self, dist_along: Distance, map: &Map) -> Option<Position> {
+        if self.dist_along >= dist_along {
+            return Some(self);
+        }
+        if map.get_l(self.lane).length() < dist_along {
+            return None;
+        }
+        self.dist_along = dist_along;
+        Some(self)
     }
 }
 

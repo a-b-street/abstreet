@@ -59,7 +59,7 @@ pub fn make_all_parking_lots(
                 .get_parent(sidewalk_lane)
                 .find_closest_lane(sidewalk_lane, vec![LaneType::Driving])
             {
-                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, map);
+                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, map);
 
                 if driving_pos.dist_along() > driveway_buffer
                     && map.get_l(driving_lane).length() - driving_pos.dist_along() > driveway_buffer

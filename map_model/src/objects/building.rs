@@ -92,7 +92,7 @@ impl Building {
             .get_parent(self.sidewalk())
             .find_closest_lane(self.sidewalk(), vec![LaneType::Driving])
             .ok()?;
-        let pos = self.sidewalk_pos.equiv_pos(lane, Distance::ZERO, map);
+        let pos = self.sidewalk_pos.equiv_pos(lane, map);
 
         // TODO Do we need to insist on this buffer, now that we can make cars gradually appear?
         let buffer = Distance::meters(7.0);
@@ -153,8 +153,5 @@ fn sidewalk_to_bike(sidewalk_pos: Position, map: &Map) -> Option<(Position, Posi
         map,
     )?;
     // No buffer needed
-    Some((
-        sidewalk_pos.equiv_pos(lane, Distance::ZERO, map),
-        sidewalk_pos,
-    ))
+    Some((sidewalk_pos.equiv_pos(lane, map), sidewalk_pos))
 }

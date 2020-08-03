@@ -199,7 +199,6 @@ impl Matcher {
             lookup_bus_pts,
             map.all_lanes(),
             |l| l.is_bus() || l.is_driving(),
-            // TODO Buffer?
             Distance::ZERO,
             Distance::meters(10.0),
             timer,
@@ -209,7 +208,6 @@ impl Matcher {
             lookup_light_rail_pts,
             map.all_lanes(),
             |l| l.lane_type == LaneType::LightRail,
-            // TODO Buffer?
             Distance::ZERO,
             Distance::meters(10.0),
             timer,
@@ -229,6 +227,9 @@ impl Matcher {
         stop: &RawBusStop,
         map: &Map,
     ) -> Result<(Position, Position), Box<dyn Error>> {
+        // Buses are spawned at 0.01m along a lane; make sure a potential first stop is past that.
+        let buffer = Distance::meters(0.1);
+
         if !is_bus {
             // Light rail needs explicit platforms.
             let sidewalk_pt = stop.ped_pos.ok_or("light rail missing platform")?;
@@ -256,8 +257,13 @@ impl Matcher {
             let lane = map
                 .get_parent(sidewalk_pos.lane())
                 .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Bus, LaneType::Driving])?;
-            let driving_pos = sidewalk_pos.equiv_pos(lane, Distance::ZERO, map);
-            return Ok((sidewalk_pos, driving_pos));
+            return if let Some(driving_pos) =
+                sidewalk_pos.equiv_pos(lane, map).min_dist(buffer, map)
+            {
+                Ok((sidewalk_pos, driving_pos))
+            } else {
+                Err(format!("Driving position {} is too short", lane).into())
+            };
         }
 
         // We only have the vehicle position. First find the sidewalk, then snap it to the
@@ -270,12 +276,15 @@ impl Matcher {
             orig_driving_pos.lane(),
             vec![LaneType::Sidewalk, LaneType::Shoulder],
         )?;
-        let sidewalk_pos = orig_driving_pos.equiv_pos(sidewalk, Distance::ZERO, map);
+        let sidewalk_pos = orig_driving_pos.equiv_pos(sidewalk, map);
         let lane = map
             .get_parent(sidewalk_pos.lane())
             .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Bus, LaneType::Driving])?;
-        let driving_pos = sidewalk_pos.equiv_pos(lane, Distance::ZERO, map);
-        Ok((sidewalk_pos, driving_pos))
+        if let Some(driving_pos) = sidewalk_pos.equiv_pos(lane, map).min_dist(buffer, map) {
+            Ok((sidewalk_pos, driving_pos))
+        } else {
+            Err(format!("Driving position {} is too short", lane).into())
+        }
     }
 }
 

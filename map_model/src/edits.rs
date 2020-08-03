@@ -5,7 +5,7 @@ use crate::{
 };
 use abstutil::{deserialize_btreemap, retain_btreemap, retain_btreeset, serialize_btreemap, Timer};
 use enumset::EnumSet;
-use geom::{Distance, Speed};
+use geom::Speed;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -847,7 +847,7 @@ impl Map {
                             vec![LaneType::Driving, LaneType::Bus],
                         )
                         .unwrap();
-                    let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, self);
+                    let driving_pos = sidewalk_pos.equiv_pos(driving_lane, self);
                     self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
                 }
             }
