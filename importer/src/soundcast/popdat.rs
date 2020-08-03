@@ -113,7 +113,7 @@ fn import_trips(huge_map: &Map, timer: &mut Timer) -> Vec<OrigTrip> {
 fn import_parcels(
     huge_map: &Map,
     timer: &mut Timer,
-) -> (HashMap<usize, Endpoint>, HashMap<usize, ExtraShape>) {
+) -> (HashMap<usize, Endpoint>, BTreeMap<usize, ExtraShape>) {
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
     // line-string stuff right now, which'll be weird for the last->first pt line and stuff.
     let mut closest_bldg: FindClosest<i64> = FindClosest::new(huge_map.get_bounds());
@@ -165,7 +165,7 @@ fn import_parcels(
     let bounds = huge_map.get_gps_bounds();
     let boundary = huge_map.get_boundary_polygon();
     let mut result = HashMap::new();
-    let mut shapes = HashMap::new();
+    let mut shapes = BTreeMap::new();
     timer.start_iter("finalize parcel output", parcel_metadata.len());
     for ((x, y), (id, num_households, offstreet_parking_spaces)) in x_coords
         .into_iter()

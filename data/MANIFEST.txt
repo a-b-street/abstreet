@@ -34,7 +34,7 @@ data/input/seattle/osm/south_seattle.osm,1107f8b545b09731c4619fde63bdbaed,https:
 data/input/seattle/osm/udistrict.osm,ed26f2405c07c63161e902bcb5049fab,https://www.dropbox.com/s/ozqk7lb5nn0wace/udistrict.osm.zip?dl=0
 data/input/seattle/osm/washington-latest.osm.pbf,332c0bbd80621a52e3765381718f3454,https://www.dropbox.com/s/iitat4cnhj5dop8/washington-latest.osm.pbf.zip?dl=0
 data/input/seattle/osm/west_seattle.osm,f829d6a1c87e782fafbc1552acc5a523,https://www.dropbox.com/s/3vlyve59lfo9s99/west_seattle.osm.zip?dl=0
-data/input/seattle/parcels.bin,f30df790f1f3d00ad92f255045958920,https://www.dropbox.com/s/rdmtdcfntflgi31/parcels.bin.zip?dl=0
+data/input/seattle/parcels.bin,1b3df6d2ceaf6fcfd5be8cc72eb4e442,https://www.dropbox.com/s/l4gbhma2e646819/parcels.bin.zip?dl=0
 data/input/seattle/parcels_urbansim.txt,db63d7d606e8702d12f9399e87e6a00f,https://www.dropbox.com/s/6g8rbsf200dssj3/parcels_urbansim.txt.zip?dl=0
 data/input/seattle/popdat.bin,0fd10698d2c6bf41da3d57804c617d15,https://www.dropbox.com/s/iboctakleznvslq/popdat.bin.zip?dl=0
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
