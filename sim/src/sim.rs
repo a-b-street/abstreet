@@ -6,11 +6,11 @@ use crate::{
     PedestrianID, Person, PersonID, PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot,
     TransitSimState, TripID, TripInfo, TripManager, TripPhaseType, TripResult, TripSpawner,
     UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
-    LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
+    LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
 use abstutil::{Counter, Parallelism, Timer};
 use derivative::Derivative;
-use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time, EPSILON_DIST};
+use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};
 use instant::Instant;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, ParkingLotID,
@@ -247,7 +247,7 @@ impl Sim {
         .make(CarID(self.trips.new_car_id(), vehicle_type), None);
         let start_lane = map.get_l(path.current_step().as_lane());
         let start_dist = if map.get_i(start_lane.src_i).is_incoming_border() {
-            EPSILON_DIST
+            SPAWN_DIST
         } else {
             assert!(start_lane.length() > vehicle.length);
             vehicle.length

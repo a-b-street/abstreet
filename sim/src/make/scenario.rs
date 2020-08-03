@@ -1,10 +1,10 @@
 use crate::{
     CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim,
     TripEndpoint, TripMode, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
-    MAX_CAR_LENGTH, MIN_CAR_LENGTH,
+    MAX_CAR_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
 use abstutil::{prettyprint_usize, Counter, Timer};
-use geom::{Distance, Duration, LonLat, Speed, Time, EPSILON_DIST};
+use geom::{Distance, Duration, LonLat, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, DirectedRoadID, Map, OffstreetParking, PathConstraints,
     Position, RoadID,
@@ -385,7 +385,7 @@ impl SpawnTrip {
                 };
                 if let Some(l) = dr.lanes(constraints, map).choose(rng) {
                     TripSpec::VehicleAppearing {
-                        start_pos: Position::new(*l, EPSILON_DIST),
+                        start_pos: Position::new(*l, SPAWN_DIST),
                         goal,
                         use_vehicle: use_vehicle.unwrap(),
                         retry_if_no_room: true,
