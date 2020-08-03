@@ -200,7 +200,8 @@ impl Map {
                         .osm_tags
                         .get(osm::HIGHWAY)
                         .map(|x| x.ends_with("_link"))
-                        .unwrap_or(false))
+                        .unwrap_or(false)
+                    || road.osm_tags.is("railway", "rail"))
                 {
                     timer.warn(format!(
                         "{} has no name. Tags: {:?}",

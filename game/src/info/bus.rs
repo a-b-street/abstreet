@@ -231,8 +231,8 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     );
 
     rows.push(format!("{} stops", route.stops.len()).draw_text(ctx));
-    if let Some(l) = route.start_border {
-        let i = map.get_i(map.get_l(l).src_i);
+    {
+        let i = map.get_i(map.get_l(route.start).src_i);
         let name = format!("Starts at {}", i.name(map));
         rows.push(Widget::row(vec![
             Btn::svg(

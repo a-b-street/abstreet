@@ -245,12 +245,19 @@ impl Sim {
             max_speed: None,
         }
         .make(CarID(self.trips.new_car_id(), vehicle_type), None);
+        let start_lane = map.get_l(path.current_step().as_lane());
+        let start_dist = if map.get_i(start_lane.src_i).is_incoming_border() {
+            EPSILON_DIST
+        } else {
+            assert!(start_lane.length() > vehicle.length);
+            vehicle.length
+        };
 
         self.scheduler.push(
             self.time,
             Command::SpawnCar(
                 CreateCar {
-                    start_dist: EPSILON_DIST,
+                    start_dist,
                     router: Router::follow_bus_route(
                         vehicle.id,
                         path.clone(),

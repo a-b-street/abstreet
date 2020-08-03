@@ -116,11 +116,7 @@ impl TransitSimState {
                 }
             }
             let start_req = PathRequest {
-                start: Position::start(
-                    bus_route
-                        .start_border
-                        .unwrap_or(stops[0].driving_pos.lane()),
-                ),
+                start: Position::start(bus_route.start),
                 end: map.get_bs(bus_route.stops[0]).driving_pos,
                 constraints: bus_route.route_type,
             };

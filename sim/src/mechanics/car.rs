@@ -104,8 +104,11 @@ impl Car {
 
             if result.len() < 2 {
                 panic!(
-                    "{} at {} has front at {}. Didn't even wind up with two points",
-                    self.vehicle.id, now, front
+                    "{} at {} has front at {} of {:?}. Didn't even wind up with two points",
+                    self.vehicle.id,
+                    now,
+                    front,
+                    self.router.head()
                 );
             }
             match PolyLine::new(result) {

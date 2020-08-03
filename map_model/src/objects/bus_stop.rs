@@ -49,7 +49,8 @@ pub struct BusRoute {
     pub full_name: String,
     pub short_name: String,
     pub stops: Vec<BusStopID>,
-    pub start_border: Option<LaneID>,
+    // May be a border or not. If not, is long enough for buses to spawn fully.
+    pub start: LaneID,
     pub end_border: Option<LaneID>,
     pub route_type: PathConstraints,
 }
@@ -57,13 +58,11 @@ pub struct BusRoute {
 impl BusRoute {
     pub fn all_steps(&self, map: &Map) -> Vec<PathRequest> {
         let mut steps = Vec::new();
-        if let Some(start) = self.start_border {
-            steps.push(PathRequest {
-                start: Position::start(start),
-                end: map.get_bs(self.stops[0]).driving_pos,
-                constraints: self.route_type,
-            });
-        }
+        steps.push(PathRequest {
+            start: Position::start(self.start),
+            end: map.get_bs(self.stops[0]).driving_pos,
+            constraints: self.route_type,
+        });
         for pair in self.stops.windows(2) {
             steps.push(PathRequest {
                 start: map.get_bs(pair[0]).driving_pos,

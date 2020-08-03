@@ -1,9 +1,11 @@
 use crate::make::match_points_to_lanes;
 use crate::raw::{RawBusRoute, RawBusStop};
-use crate::{BusRoute, BusRouteID, BusStop, BusStopID, LaneType, Map, PathConstraints, Position};
+use crate::{
+    BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathConstraints, Position,
+};
 use abstutil::Timer;
 use geom::{Distance, HashablePt2D};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use std::error::Error;
 
 pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer: &mut Timer) {
@@ -85,26 +87,28 @@ fn make_route(
     };
 
     // Start or end at a border?
-    let mut start_border = None;
     let mut end_border = None;
-    if let Some(i) = r.border_start {
+    let start = if let Some(i) = r.border_start {
         let i = map.get_i(map.find_i_by_osm_id(i.osm_node_id).unwrap());
         if !i.is_border() {
             panic!("Route starts at {}, but isn't a border?", i.orig_id);
         }
         if let Some(l) = i.get_outgoing_lanes(map, route_type).get(0) {
-            start_border = Some(*l);
+            *l
         } else {
-            // TODO Should panic
-            println!(
+            return Err(format!(
                 "Route {} starts at {} ({}), but no starting lane for a {:?}?",
                 rel_url(r.osm_rel_id),
                 i.id,
                 i.orig_id,
                 route_type
-            );
+            )
+            .into());
         }
-    }
+    } else {
+        // Not starting at a border. Find a lane at or before the first stop that's at least 13m.
+        pick_start_lane(map.get_bs(stops[0]).driving_pos, route_type, map)?
+    };
     if let Some(i) = r.border_end {
         let i = map.get_i(map.find_i_by_osm_id(i.osm_node_id).unwrap());
         if !i.is_border() {
@@ -130,7 +134,7 @@ fn make_route(
         short_name: r.short_name.clone(),
         stops,
         route_type,
-        start_border,
+        start,
         end_border,
     };
 
@@ -227,9 +231,6 @@ impl Matcher {
         stop: &RawBusStop,
         map: &Map,
     ) -> Result<(Position, Position), Box<dyn Error>> {
-        // Buses are spawned at 0.01m along a lane; make sure a potential first stop is past that.
-        let buffer = Distance::meters(0.1);
-
         if !is_bus {
             // Light rail needs explicit platforms.
             let sidewalk_pt = stop.ped_pos.ok_or("light rail missing platform")?;
@@ -249,45 +250,76 @@ impl Matcher {
         // Because the stop is usually mapped on the road center-line, the matched side-of-the-road
         // is often wrong. If we have the bus stop, actually use that and get the equivalent
         // position on the closest driving/bus lane.
-        if let Some(pt) = stop.ped_pos {
-            let sidewalk_pos = *self
+        let sidewalk_pos = if let Some(pt) = stop.ped_pos {
+            *self
                 .sidewalk_pts
                 .get(&pt.to_hashable())
-                .ok_or("sidewalk didnt match")?;
-            let lane = map
-                .get_parent(sidewalk_pos.lane())
-                .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Bus, LaneType::Driving])?;
-            return if let Some(driving_pos) =
-                sidewalk_pos.equiv_pos(lane, map).min_dist(buffer, map)
-            {
-                Ok((sidewalk_pos, driving_pos))
-            } else {
-                Err(format!("Driving position {} is too short", lane).into())
-            };
-        }
-
-        // We only have the vehicle position. First find the sidewalk, then snap it to the
-        // rightmost driving/bus lane.
-        let orig_driving_pos = *self
-            .bus_pts
-            .get(&stop.vehicle_pos.to_hashable())
-            .ok_or("vehicle for bus didnt match")?;
-        let sidewalk = map.get_parent(orig_driving_pos.lane()).find_closest_lane(
-            orig_driving_pos.lane(),
-            vec![LaneType::Sidewalk, LaneType::Shoulder],
-        )?;
-        let sidewalk_pos = orig_driving_pos.equiv_pos(sidewalk, map);
+                .ok_or("sidewalk didnt match")?
+        } else {
+            // We only have the vehicle position. First find the sidewalk, then snap it to the
+            // rightmost driving/bus lane.
+            let orig_driving_pos = *self
+                .bus_pts
+                .get(&stop.vehicle_pos.to_hashable())
+                .ok_or("vehicle for bus didnt match")?;
+            let sidewalk = map.get_parent(orig_driving_pos.lane()).find_closest_lane(
+                orig_driving_pos.lane(),
+                vec![LaneType::Sidewalk, LaneType::Shoulder],
+            )?;
+            orig_driving_pos.equiv_pos(sidewalk, map)
+        };
         let lane = map
             .get_parent(sidewalk_pos.lane())
             .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Bus, LaneType::Driving])?;
-        if let Some(driving_pos) = sidewalk_pos.equiv_pos(lane, map).min_dist(buffer, map) {
-            Ok((sidewalk_pos, driving_pos))
-        } else {
-            Err(format!("Driving position {} is too short", lane).into())
+        let mut driving_pos = sidewalk_pos.equiv_pos(lane, map);
+        // If we're a stop right at an incoming border, make sure to be at least past where the bus
+        // will spawn from the border. pick_start_lane() can't do anything for borders.
+        if map
+            .get_i(map.get_l(driving_pos.lane()).src_i)
+            .is_incoming_border()
+        {
+            if let Some(pos) = driving_pos.min_dist(Distance::meters(1.0), map) {
+                driving_pos = pos;
+            } else {
+                return Err(
+                    format!("too close to start of a border {}", driving_pos.lane()).into(),
+                );
+            }
         }
+        Ok((sidewalk_pos, driving_pos))
     }
 }
 
 fn rel_url(id: i64) -> String {
     format!("https://www.openstreetmap.org/relation/{}", id)
+}
+
+fn pick_start_lane(
+    first_stop: Position,
+    constraints: PathConstraints,
+    map: &Map,
+) -> Result<LaneID, String> {
+    let min_len = Distance::meters(13.0);
+    if first_stop.dist_along() >= min_len {
+        return Ok(first_stop.lane());
+    }
+
+    // Flood backwards until we find a long enough lane
+    let mut queue = VecDeque::new();
+    queue.push_back(first_stop.lane());
+    while !queue.is_empty() {
+        let current = queue.pop_front().unwrap();
+        if current != first_stop.lane() && map.get_l(current).length() >= min_len {
+            return Ok(current);
+        }
+        for t in map.get_turns_to_lane(current) {
+            if constraints.can_use(map.get_l(t.id.src), map) {
+                queue.push_back(t.id.src);
+            }
+        }
+    }
+    Err(format!(
+        "couldn't find any lanes leading to {} that're long enough for a bus to spawn",
+        first_stop.lane()
+    ))
 }
