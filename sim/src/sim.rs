@@ -228,7 +228,13 @@ impl Sim {
         self.parking.add_parked_car(ParkedCar { vehicle, spot });
     }
 
-    pub(crate) fn seed_bus_route(&mut self, route: &BusRoute, map: &Map) {
+    pub(crate) fn seed_bus_route(&mut self, route: &BusRoute) {
+        for t in &route.spawn_times {
+            self.scheduler.push(*t, Command::StartBus(route.id, *t));
+        }
+    }
+
+    fn start_bus(&mut self, route: &BusRoute, map: &Map) {
         // Spawn one bus for the first leg.
         let (req, path) = self.transit.create_empty_route(route, map);
 
@@ -272,10 +278,6 @@ impl Sim {
                 true,
             ),
         );
-
-        // TODO Change the rate of spawning based on a schedule from GTFS or player's choice
-        self.scheduler
-            .push(self.time + Duration::hours(1), Command::SeedBus(route.id));
     }
 
     pub fn set_name(&mut self, name: String) {
@@ -571,8 +573,8 @@ impl Sim {
                     &mut self.scheduler,
                 );
             }
-            Command::SeedBus(r) => {
-                self.seed_bus_route(map.get_br(r), map);
+            Command::StartBus(r, _) => {
+                self.start_bus(map.get_br(r), map);
             }
         }
 

@@ -1,5 +1,6 @@
 use crate::{LaneID, Map, PathConstraints, PathRequest, Position};
 use abstutil::{deserialize_usize, serialize_usize};
+use geom::Time;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -53,6 +54,8 @@ pub struct BusRoute {
     pub start: LaneID,
     pub end_border: Option<LaneID>,
     pub route_type: PathConstraints,
+    // Non-empty, times in order for one day when a vehicle should begin at start.
+    pub spawn_times: Vec<Time>,
 }
 
 impl BusRoute {
@@ -78,5 +81,13 @@ impl BusRoute {
             });
         }
         steps
+    }
+
+    pub fn plural_noun(&self) -> &'static str {
+        if self.route_type == PathConstraints::Bus {
+            "buses"
+        } else {
+            "trains"
+        }
     }
 }

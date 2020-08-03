@@ -5,7 +5,7 @@ use crate::info::{header_btns, make_tabs, Details, Tab};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Btn, Color, EventCtx, Line, RewriteColor, Text, TextExt, Widget};
 use geom::{Circle, Distance, Time};
-use map_model::{BusRouteID, BusStopID, PathConstraints, PathStep};
+use map_model::{BusRoute, BusRouteID, BusStopID, PathStep};
 use sim::{AgentID, CarID};
 
 pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
@@ -175,11 +175,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     let buses = app.primary.sim.status_of_buses(id, map);
     let mut bus_locations = Vec::new();
     if buses.is_empty() {
-        if route.route_type == PathConstraints::Bus {
-            rows.push("No buses running".draw_text(ctx));
-        } else {
-            rows.push("No trains running".draw_text(ctx));
-        }
+        rows.push(format!("No {} running", route.plural_noun()).draw_text(ctx));
     } else {
         for (bus, _, _, pt) in buses {
             rows.push(Btn::text_fg(bus.to_string()).build_def(ctx, None));
@@ -281,6 +277,11 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         details.warpers.insert(name, ID::Intersection(i.id));
     }
 
+    // TODO Soon it'll be time to split into tabs
+    {
+        rows.push(describe_schedule(route).draw(ctx));
+    }
+
     // Draw the route, label stops, and show location of buses
     {
         let mut colorer = ColorNetwork::new(app);
@@ -324,4 +325,48 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     }
 
     rows
+}
+
+// TODO Unit test
+fn describe_schedule(route: &BusRoute) -> Text {
+    let mut txt = Text::new();
+    txt.add(Line(format!(
+        "{} {}s run this route daily",
+        route.spawn_times.len(),
+        route.plural_noun()
+    )));
+
+    // Compress the times
+    let mut start = route.spawn_times[0];
+    let mut last = None;
+    let mut dt = None;
+    for t in route.spawn_times.iter().skip(1) {
+        if let Some(l) = last {
+            let new_dt = *t - l;
+            if Some(new_dt) == dt {
+                last = Some(*t);
+            } else {
+                txt.add(Line(format!(
+                    "Every {} from {} to {}",
+                    dt.unwrap(),
+                    start.ampm_tostring(),
+                    l.ampm_tostring()
+                )));
+                start = l;
+                last = Some(*t);
+                dt = Some(new_dt);
+            }
+        } else {
+            last = Some(*t);
+            dt = Some(*t - start);
+        }
+    }
+    // Handle end
+    txt.add(Line(format!(
+        "Every {} from {} to {}",
+        dt.unwrap(),
+        start.ampm_tostring(),
+        last.unwrap().ampm_tostring()
+    )));
+    txt
 }

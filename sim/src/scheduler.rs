@@ -23,7 +23,8 @@ pub enum Command {
     Callback(Duration),
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),
-    SeedBus(BusRouteID),
+    // The Time is redundant, just used to dedupe commands
+    StartBus(BusRouteID, Time),
 }
 
 impl Command {
@@ -47,7 +48,7 @@ impl Command {
             Command::Callback(_) => CommandType::Callback,
             Command::Pandemic(ref p) => CommandType::Pandemic(p.clone()),
             Command::FinishRemoteTrip(t) => CommandType::FinishRemoteTrip(*t),
-            Command::SeedBus(r) => CommandType::SeedBus(*r),
+            Command::StartBus(r, t) => CommandType::StartBus(*r, *t),
         }
     }
 }
@@ -64,7 +65,7 @@ pub enum CommandType {
     Callback,
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),
-    SeedBus(BusRouteID),
+    StartBus(BusRouteID, Time),
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]
