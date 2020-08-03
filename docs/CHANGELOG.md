@@ -530,3 +530,12 @@ changes here.
 - UI: better autocomplete, commuter pattern improvements by Michael, toggles instead of checkboxes, contours for heatmaps, edit mode loader revamp
 - internal refactors: turn creation, osm tags, osm parsing
 - import living streets from OSM as restricted-access zones, and other importer tweaks for berlin, krakow, san jose, sydney
+
+0.2.6
+
+- many roads without sidewalks now have a tiny shoulder lane, still enabling pedestrian movement, but with a penalty
+- bike trips will stop/start at a better position along the sidewalk now
+- support parking lanes on the off-side of a one-way
+- UI: search by building names, commuter patterns shows borders better
+- transit: make people ride off-map, spawn buses on short roads
+- internal cleanups for buttons
