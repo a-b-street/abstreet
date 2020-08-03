@@ -48,7 +48,7 @@ impl GameplayState for PlayScenario {
         app.primary.has_modified_trips = !self.modifiers.is_empty();
 
         match self.top_center.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "change map" => {
                     let scenario = self.scenario_name.clone();
                     Some(Transition::Push(CityPicker::new(
@@ -90,7 +90,7 @@ impl GameplayState for PlayScenario {
                 ))),
                 _ => unreachable!(),
             },
-            None => None,
+            _ => None,
         }
     }
 
@@ -214,7 +214,7 @@ impl EditScenarioModifiers {
 impl State for EditScenarioModifiers {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Discard changes" => {
                     return Transition::Pop;
                 }
@@ -256,7 +256,7 @@ impl State for EditScenarioModifiers {
                     }
                 }
             },
-            None => {}
+            _ => {}
         }
 
         Transition::Keep
@@ -357,7 +357,7 @@ impl ChangeMode {
 impl State for ChangeMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Discard changes" => Transition::Pop,
                 "Apply" => {
                     let to_mode = self.composite.dropdown_value::<TripMode>("to_mode");
@@ -404,7 +404,7 @@ impl State for ChangeMode {
                 }
                 _ => unreachable!(),
             },
-            None => Transition::Keep,
+            _ => Transition::Keep,
         }
     }
 

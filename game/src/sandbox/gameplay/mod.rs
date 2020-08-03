@@ -355,7 +355,7 @@ impl FinalScore {
 impl State for FinalScore {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Keep simulating" => {
                     return Transition::Pop;
                 }
@@ -392,7 +392,7 @@ impl State for FinalScore {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         if self.chose_next || self.chose_back_to_challenges {

@@ -87,7 +87,7 @@ impl ScenarioManager {
 impl State for ScenarioManager {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -96,7 +96,7 @@ impl State for ScenarioManager {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         ctx.canvas_movement();

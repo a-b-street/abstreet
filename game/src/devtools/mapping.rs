@@ -384,7 +384,7 @@ impl State for ParkingMapper {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     app.opts.min_zoom_for_detail =
                         crate::options::Options::default().min_zoom_for_detail;
@@ -428,7 +428,7 @@ impl State for ParkingMapper {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         let show = self.composite.dropdown_value("Show");
         if show != self.show {

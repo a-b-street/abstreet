@@ -144,7 +144,7 @@ impl SpeedControls {
         maybe_mode: Option<&GameplayMode>,
     ) -> Option<Transition> {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "real-time speed" => {
                     self.setting = SpeedSetting::Realtime;
                     self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
@@ -212,7 +212,7 @@ impl SpeedControls {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         // Just kind of constantly scrape this
         app.opts.time_increment = self.composite.persistent_split_value("step forwards");
@@ -420,7 +420,7 @@ impl JumpToTime {
 impl State for JumpToTime {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -450,7 +450,7 @@ impl State for JumpToTime {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         app.opts.dont_draw_time_warp = self.composite.is_checked("don't draw");
         let target = app
@@ -612,13 +612,13 @@ impl State for TimeWarpScreen {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "stop now" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         if self.composite.clicked_outside(ctx) {
             return Transition::Pop;

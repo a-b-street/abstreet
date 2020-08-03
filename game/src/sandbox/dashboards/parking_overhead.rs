@@ -77,7 +77,7 @@ impl ParkingOverhead {
 impl State for ParkingOverhead {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Total duration" => {
                     self.opts.change(SortBy::TotalDuration);
                     self.recalc(ctx, app);
@@ -124,7 +124,7 @@ impl State for ParkingOverhead {
                     return DashTab::ParkingOverhead.transition(ctx, app, x);
                 }
             },
-            None => {
+            _ => {
                 let off_map_starts = self.composite.is_checked("starting off-map");
                 let off_map_ends = self.composite.is_checked("ending off-map");
                 if self.opts.off_map_starts != off_map_starts

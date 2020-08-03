@@ -112,7 +112,7 @@ impl State for DebugMode {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -213,7 +213,7 @@ impl State for DebugMode {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         // TODO We should really recalculate current_selection when these change. Meh.
         self.layers.show_buildings = self.composite.is_checked("show buildings");

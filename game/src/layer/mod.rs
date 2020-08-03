@@ -37,11 +37,11 @@ impl dyn Layer {
     ) -> Option<LayerOutcome> {
         composite.align_above(ctx, minimap);
         match composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Some(LayerOutcome::Close),
                 _ => unreachable!(),
             },
-            None => None,
+            _ => None,
         }
     }
 }
@@ -145,7 +145,7 @@ impl PickLayer {
 impl State for PickLayer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {}
                 "None" => {
                     app.layer = None;
@@ -211,7 +211,7 @@ impl State for PickLayer {
                 }
                 _ => unreachable!(),
             },
-            None => {
+            _ => {
                 if self.composite.clicked_outside(ctx) {
                     return Transition::Pop;
                 }

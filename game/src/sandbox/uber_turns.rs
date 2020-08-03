@@ -65,7 +65,7 @@ impl State for UberTurnPicker {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -105,7 +105,7 @@ impl State for UberTurnPicker {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         Transition::Keep
@@ -214,7 +214,7 @@ impl State for UberTurnViewer {
         ctx.canvas_movement();
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -238,7 +238,7 @@ impl State for UberTurnViewer {
                 }
                 _ => unreachable!(),
             },
-            None => {
+            _ => {
                 if self.composite.is_checked("legal / illegal movements") != self.legal_turns {
                     return Transition::Replace(UberTurnViewer::new(
                         ctx,

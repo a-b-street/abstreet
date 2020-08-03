@@ -59,7 +59,7 @@ impl State for PolygonDebugger {
         ctx.canvas_movement();
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -83,7 +83,7 @@ impl State for PolygonDebugger {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         // TODO Could be more efficient here
         let idx = (self.composite.slider("slider").get_percent() * (self.items.len() - 1) as f64)

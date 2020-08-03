@@ -104,7 +104,7 @@ impl Wizard {
         }
 
         match self.tb_comp.as_mut().unwrap().event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "quit" => {
                     self.alive = false;
                     self.tb_comp = None;
@@ -129,7 +129,7 @@ impl Wizard {
                 }
                 _ => unreachable!(),
             },
-            None => None,
+            _ => None,
         }
     }
 }
@@ -220,14 +220,14 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         // wizard
         if self.wizard.ack.is_some() {
             match self.wizard.ack.as_mut().unwrap().event(self.ctx) {
-                Some(Outcome::Clicked(x)) => match x.as_ref() {
+                Outcome::Clicked(x) => match x.as_ref() {
                     "OK" => {
                         self.wizard.ack = None;
                         self.wizard.alive = false;
                     }
                     _ => unreachable!(),
                 },
-                None => {
+                _ => {
                     return None;
                 }
             }
@@ -280,7 +280,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         }
 
         match self.wizard.menu_comp.as_mut().unwrap().event(self.ctx) {
-            Some(Outcome::Clicked(x)) if x == "quit" => {
+            Outcome::Clicked(x) if x == "quit" => {
                 self.wizard.alive = false;
                 self.wizard.menu_comp = None;
                 return None;
@@ -367,7 +367,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             self.setup_ack(txt);
         }
         match self.wizard.ack.as_mut().unwrap().event(self.ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "OK" => {
                     self.wizard.confirmed_state.push(Box::new(()));
                     self.wizard.ack = None;
@@ -375,7 +375,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                 }
                 _ => unreachable!(),
             },
-            None => None,
+            _ => None,
         }
     }
 

@@ -104,7 +104,7 @@ impl State for ShowTrafficSignal {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -112,7 +112,7 @@ impl State for ShowTrafficSignal {
                     self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, ctx, app);
                 }
             },
-            None => {}
+            _ => {}
         }
 
         Transition::Keep
@@ -164,7 +164,7 @@ impl State for TurnExplorer {
         ctx.canvas_movement();
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -178,7 +178,7 @@ impl State for TurnExplorer {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         Transition::Keep

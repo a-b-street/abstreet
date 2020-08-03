@@ -126,13 +126,13 @@ impl Layer for Throughput {
 
         self.composite.align_above(ctx, minimap);
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Some(LayerOutcome::Close);
                 }
                 _ => unreachable!(),
             },
-            None => {
+            _ => {
                 let new_compare = self
                     .composite
                     .maybe_is_checked("Compare before edits")
@@ -307,13 +307,13 @@ impl Layer for Delay {
 
         self.composite.align_above(ctx, minimap);
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Some(LayerOutcome::Close);
                 }
                 _ => unreachable!(),
             },
-            None => {
+            _ => {
                 let new_compare = self
                     .composite
                     .maybe_is_checked("Compare before edits")

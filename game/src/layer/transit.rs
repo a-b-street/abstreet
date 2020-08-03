@@ -28,13 +28,13 @@ impl Layer for TransitNetwork {
     ) -> Option<LayerOutcome> {
         self.composite.align_above(ctx, minimap);
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Some(LayerOutcome::Close);
                 }
                 _ => unreachable!(),
             },
-            None => {
+            _ => {
                 let new_show_all_routes = self.composite.is_checked("show all routes");
                 let new_show_buses = self.composite.is_checked("show buses");
                 let new_show_trains = self.composite.is_checked("show trains");

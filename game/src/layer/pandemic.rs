@@ -37,13 +37,13 @@ impl Layer for Pandemic {
 
         self.composite.align_above(ctx, minimap);
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Some(LayerOutcome::Close);
                 }
                 _ => unreachable!(),
             },
-            None => {
+            _ => {
                 let new_opts = self.options();
                 if self.opts != new_opts {
                     *self = Pandemic::new(ctx, app, new_opts);

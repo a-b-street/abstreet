@@ -43,7 +43,7 @@ impl GameplayState for Freeform {
         _: &mut SandboxControls,
     ) -> Option<Transition> {
         match self.top_center.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "change map" => {
                     Some(Transition::Push(CityPicker::new(
                         ctx,
@@ -71,7 +71,7 @@ impl GameplayState for Freeform {
                 "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, None))),
                 _ => unreachable!(),
             },
-            None => None,
+            _ => None,
         }
     }
 
@@ -242,7 +242,7 @@ impl State for AgentSpawner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         let old_mode: TripMode = self.composite.dropdown_value("mode");
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -278,7 +278,7 @@ impl State for AgentSpawner {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         // We need to recalculate the path to see if this is sane. Otherwise we could trick a
         // pedestrian into wandering on/off a highway border.

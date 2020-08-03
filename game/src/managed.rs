@@ -36,7 +36,7 @@ impl WrappedComposite {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<WrappedOutcome> {
-        match self.inner.event(ctx)? {
+        match self.inner.event(ctx) {
             Outcome::Clicked(x) => {
                 if let Some(ref cb) = self.callbacks.get(&x) {
                     let t = (cb)(ctx, app)?;
@@ -45,6 +45,7 @@ impl WrappedComposite {
                     Some(WrappedOutcome::Clicked(x))
                 }
             }
+            _ => None,
         }
     }
 

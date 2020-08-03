@@ -128,7 +128,7 @@ impl State for StoryMapEditor {
             Mode::Editing(idx, ref mut composite) => {
                 ctx.canvas_movement();
                 match composite.event(ctx) {
-                    Some(Outcome::Clicked(x)) => match x.as_ref() {
+                    Outcome::Clicked(x) => match x.as_ref() {
                         "close" => {
                             self.mode = Mode::View;
                             self.redo_panel(ctx);
@@ -152,7 +152,7 @@ impl State for StoryMapEditor {
                         }
                         _ => unreachable!(),
                     },
-                    None => {}
+                    _ => {}
                 }
             }
             Mode::Freehand(None) => {
@@ -176,7 +176,7 @@ impl State for StoryMapEditor {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     // TODO autosave
                     return Transition::Pop;
@@ -264,7 +264,7 @@ impl State for StoryMapEditor {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         Transition::Keep

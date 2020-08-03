@@ -49,8 +49,8 @@ impl ActiveTraffic {
 impl State for ActiveTraffic {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => DashTab::TripSummaries.transition(ctx, app, &x),
-            None => Transition::Keep,
+            Outcome::Clicked(x) => DashTab::TripSummaries.transition(ctx, app, &x),
+            _ => Transition::Keep,
         }
     }
 
@@ -155,14 +155,14 @@ impl TransitRoutes {
 impl State for TransitRoutes {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         let route = match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => {
+            Outcome::Clicked(x) => {
                 if let Some(x) = x.strip_prefix("BusRoute #") {
                     BusRouteID(x.parse::<usize>().unwrap())
                 } else {
                     return DashTab::TransitRoutes.transition(ctx, app, &x);
                 }
             }
-            None => {
+            _ => {
                 if let Some(routes) = self.composite.autocomplete_done("search") {
                     if !routes.is_empty() {
                         routes[0]

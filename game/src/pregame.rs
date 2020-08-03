@@ -59,13 +59,13 @@ impl TitleScreen {
 impl State for TitleScreen {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "start game" => {
                     return Transition::Replace(MainMenu::new(ctx, app));
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         self.screensaver.update(&mut self.rng, ctx, app);
@@ -169,7 +169,7 @@ impl MainMenu {
 impl State for MainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "quit" => {
                     // TODO before_quit?
                     std::process::exit(0);
@@ -226,7 +226,7 @@ impl State for MainMenu {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         Transition::Keep
@@ -297,7 +297,7 @@ impl About {
 impl State for About {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "back" => {
                     return Transition::Pop;
                 }
@@ -310,7 +310,7 @@ impl State for About {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         Transition::Keep
@@ -409,7 +409,7 @@ impl Proposals {
 impl State for Proposals {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "back" => {
                     return Transition::Pop;
                 }
@@ -462,7 +462,7 @@ impl State for Proposals {
                     return Transition::Replace(Proposals::new(ctx, app, Some(x.to_string())));
                 }
             },
-            None => {}
+            _ => {}
         }
 
         Transition::Keep

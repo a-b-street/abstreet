@@ -124,7 +124,7 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
                     if rect.contains(pt) && choice.active {
                         // TODO Two ways of communicating results, based on use in wizards or a
                         // larger composite.
-                        output.outcome = Some(Outcome::Clicked(choice.label.clone()));
+                        output.outcome = Outcome::Clicked(choice.label.clone());
                         self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
                         return;
                     }
@@ -146,7 +146,7 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             if let Some(ref hotkey) = choice.hotkey {
                 if ctx.input.new_was_pressed(hotkey) {
                     self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
-                    output.outcome = Some(Outcome::Clicked(choice.label.clone()));
+                    output.outcome = Outcome::Clicked(choice.label.clone());
                     return;
                 }
             }
@@ -157,7 +157,7 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             let choice = &self.choices[self.current_idx];
             if choice.active {
                 self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
-                output.outcome = Some(Outcome::Clicked(choice.label.clone()));
+                output.outcome = Outcome::Clicked(choice.label.clone());
                 return;
             } else {
                 return;

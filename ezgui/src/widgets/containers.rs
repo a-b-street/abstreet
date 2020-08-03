@@ -1,4 +1,4 @@
-use crate::{EventCtx, GfxCtx, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput};
+use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput};
 
 pub struct Nothing {}
 
@@ -49,7 +49,7 @@ impl WidgetImpl for Container {
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         for w in &mut self.members {
             w.widget.event(ctx, output);
-            if output.outcome.is_some() {
+            if output.outcome != Outcome::Nothing {
                 return;
             }
         }

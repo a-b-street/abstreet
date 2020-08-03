@@ -105,7 +105,7 @@ impl State for TrafficSignalEditor {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Edit entire signal" => {
                     return Transition::Push(edit_entire_signal(
                         app,
@@ -178,7 +178,7 @@ impl State for TrafficSignalEditor {
                     unreachable!()
                 }
             },
-            None => {}
+            _ => {}
         }
 
         if ctx.redo_mouseover() {
@@ -237,7 +237,7 @@ impl State for TrafficSignalEditor {
         }
 
         match self.top_panel.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Finish" => {
                     if let Some(orig) = self.command_stack.get(0) {
                         return check_for_missing_groups(ctx, app, &mut self.composite, orig);
@@ -281,7 +281,7 @@ impl State for TrafficSignalEditor {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         Transition::Keep
@@ -814,14 +814,14 @@ impl State for PreviewTrafficSignal {
         ctx.canvas_movement();
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "back to editing" => {
                     app.primary.clear_sim();
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         self.time_panel.event(ctx, app);

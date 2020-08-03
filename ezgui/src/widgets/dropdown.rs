@@ -1,6 +1,6 @@
 use crate::{
-    Btn, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, InputResult, Menu, ScreenDims,
-    ScreenPt, ScreenRectangle, WidgetImpl, WidgetOutput,
+    Btn, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, InputResult, Menu, Outcome,
+    ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl, WidgetOutput,
 };
 use geom::{Distance, Polygon, Pt2D};
 
@@ -113,7 +113,8 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
             }
         } else {
             self.btn.event(ctx, output);
-            if output.outcome.take().is_some() {
+            if let Outcome::Clicked(_) = output.outcome {
+                output.outcome = Outcome::Nothing;
                 self.open_menu(ctx);
             }
         }

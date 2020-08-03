@@ -742,7 +742,7 @@ impl Composite {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx) -> Option<Outcome> {
+    pub fn event(&mut self, ctx: &mut EventCtx) -> Outcome {
         if (self.scrollable_x || self.scrollable_y)
             && ctx
                 .canvas
@@ -834,7 +834,7 @@ impl Composite {
         self.top_level.restore(ctx, &prev);
 
         // Since we just moved things around, let all widgets respond to the mouse being somewhere
-        ctx.no_op_event(true, |ctx| assert!(self.event(ctx).is_none()));
+        ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));
     }
 
     pub fn scroll_to_member(&mut self, ctx: &EventCtx, name: String) {
@@ -934,14 +934,14 @@ impl Composite {
         self.recompute_layout(ctx, false);
 
         // Since we just moved things around, let all widgets respond to the mouse being somewhere
-        ctx.no_op_event(true, |ctx| assert!(self.event(ctx).is_none()));
+        ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));
     }
     pub fn align_below(&mut self, ctx: &mut EventCtx, other: &Composite, pad: f64) {
         self.vert = VerticalAlignment::Below(other.top_level.rect.y2 + pad);
         self.recompute_layout(ctx, false);
 
         // Since we just moved things around, let all widgets respond to the mouse being somewhere
-        ctx.no_op_event(true, |ctx| assert!(self.event(ctx).is_none()));
+        ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));
     }
 
     // All margins/padding/etc from the previous widget are retained.
@@ -1045,7 +1045,7 @@ impl CompositeBuilder {
         // Just trigger error if a button is double-defined
         c.get_all_click_actions();
         // Let all widgets initially respond to the mouse being somewhere
-        ctx.no_op_event(true, |ctx| assert!(c.event(ctx).is_none()));
+        ctx.no_op_event(true, |ctx| assert_eq!(c.event(ctx), Outcome::Nothing));
         c
     }
 

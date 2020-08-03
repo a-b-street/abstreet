@@ -140,7 +140,7 @@ impl State for LaneEditor {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Change access restrictions" => {
                     return Transition::Push(ZoneEditor::new(
                         ctx,
@@ -197,7 +197,7 @@ impl State for LaneEditor {
                     }
                 }
             },
-            None => {
+            _ => {
                 let parent = app.primary.map.get_parent(self.l);
                 let new = self.composite.dropdown_value("speed limit");
                 let old = parent.speed_limit;

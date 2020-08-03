@@ -116,7 +116,7 @@ impl State for StopSignEditor {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Finish" => {
                     return Transition::Pop;
                 }
@@ -178,7 +178,7 @@ impl State for StopSignEditor {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         Transition::Keep
     }

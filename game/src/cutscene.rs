@@ -85,7 +85,7 @@ struct CutscenePlayer {
 impl State for CutscenePlayer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "quit" => {
                     // TODO Should SandboxMode use on_destroy for this?
                     app.primary.clear_sim();
@@ -130,7 +130,7 @@ impl State for CutscenePlayer {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         // TODO Should the Composite for text widgets with wrapping do this instead?
         if ctx.input.is_window_resized() {
@@ -317,11 +317,11 @@ impl FYI {
 impl State for FYI {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Okay" => Transition::Pop,
                 _ => unreachable!(),
             },
-            None => Transition::Keep,
+            _ => Transition::Keep,
         }
     }
 

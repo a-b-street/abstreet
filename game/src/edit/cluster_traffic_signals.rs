@@ -36,13 +36,13 @@ impl ClusterTrafficSignalEditor {
 impl State for ClusterTrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Finish" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         ctx.canvas_movement();

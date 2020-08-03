@@ -461,7 +461,7 @@ impl InfoPanel {
 
         let maybe_id = self.tab.to_id(app);
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(action)) => {
+            Outcome::Clicked(action) => {
                 if let Some(new_tab) = self.hyperlinks.get(&action).cloned() {
                     let mut new = InfoPanel::new(ctx, app, new_tab, ctx_actions);
                     // TODO Most cases use changed_settings, but one doesn't. Detect that
@@ -560,7 +560,7 @@ impl InfoPanel {
                     (close_panel, Some(t))
                 }
             }
-            None => {
+            _ => {
                 // Maybe a non-click action should change the tab. Aka, checkboxes/dropdowns/etc on
                 // a tab.
                 if let Some(new_tab) = self.tab.changed_settings(&self.composite) {

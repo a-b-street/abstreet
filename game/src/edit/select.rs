@@ -106,7 +106,7 @@ impl RoadSelector {
         self.preview = Some(ctx.upload(batch));
     }
 
-    // Pass it Outcome::Clicked. Returns true if anything changed.
+    // Pass None. Returns true if anything changed.
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App, clicked: Option<&str>) -> bool {
         if ctx.redo_mouseover() {
             app.primary.current_selection = app.calculate_current_selection(

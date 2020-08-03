@@ -250,7 +250,7 @@ impl GUI for UI {
                     }
                     None => {
                         match self.composite.event(ctx) {
-                            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                            Outcome::Clicked(x) => match x.as_ref() {
                                 "quit" => {
                                     self.before_quit(ctx.canvas);
                                     std::process::exit(0);
@@ -285,7 +285,7 @@ impl GUI for UI {
                                 }
                                 _ => unreachable!(),
                             },
-                            None => {
+                            _ => {
                                 if ctx.input.key_pressed(Key::I, "create intersection") {
                                     if let Some(pt) = cursor {
                                         self.model.create_i(pt, ctx.prerender);

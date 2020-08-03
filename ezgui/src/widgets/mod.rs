@@ -42,8 +42,14 @@ pub trait WidgetImpl: downcast_rs::Downcast {
     }
 }
 
+#[derive(Debug, PartialEq)]
 pub enum Outcome {
+    /// An action was done
     Clicked(String),
+    /// A dropdown or checkbox changed values
+    Changed(String),
+    /// Nothing happened
+    Nothing,
 }
 
 pub struct WidgetOutput {
@@ -51,14 +57,14 @@ pub struct WidgetOutput {
     pub redo_layout: bool,
     /// This widget produced an Outcome, and event handling should immediately stop. Most widgets
     /// shouldn't set this.
-    pub outcome: Option<Outcome>,
+    pub outcome: Outcome,
 }
 
 impl WidgetOutput {
     pub fn new() -> WidgetOutput {
         WidgetOutput {
             redo_layout: false,
-            outcome: None,
+            outcome: Outcome::Nothing,
         }
     }
 }

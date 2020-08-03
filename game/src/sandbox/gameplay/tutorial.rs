@@ -103,7 +103,7 @@ impl Tutorial {
         }
 
         match self.top_center.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Quit" => {
                     return Some(maybe_exit_sandbox());
                 }
@@ -128,12 +128,12 @@ impl Tutorial {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         if let Some(ref mut msg) = self.msg_panel {
             match msg.event(ctx) {
-                Some(Outcome::Clicked(x)) => match x.as_ref() {
+                Outcome::Clicked(x) => match x.as_ref() {
                     "previous message" => {
                         tut.prev();
                         return Some(transition(ctx, app, tut));
@@ -144,7 +144,7 @@ impl Tutorial {
                     }
                     _ => unreachable!(),
                 },
-                None => {
+                _ => {
                     // Don't allow other interactions
                     return Some(Transition::Keep);
                 }

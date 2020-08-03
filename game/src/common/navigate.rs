@@ -44,7 +44,7 @@ impl Navigator {
 impl State for Navigator {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -53,7 +53,7 @@ impl State for Navigator {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         if let Some(roads) = self.composite.autocomplete_done("street") {
             if roads.is_empty() {
@@ -137,7 +137,7 @@ impl State for CrossStreet {
         let map = &app.primary.map;
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     // Just warp to somewhere on the first road
                     let road = map.get_r(self.first[0]);
@@ -151,7 +151,7 @@ impl State for CrossStreet {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         if let Some(roads) = self.composite.autocomplete_done("street") {
             // Find the best match
@@ -240,7 +240,7 @@ impl SearchBuildings {
 impl State for SearchBuildings {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -249,7 +249,7 @@ impl State for SearchBuildings {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         if let Some(bldgs) = self.composite.autocomplete_done("bldg") {
             if bldgs.is_empty() {

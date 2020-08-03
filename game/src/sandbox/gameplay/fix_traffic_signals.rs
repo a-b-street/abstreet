@@ -191,7 +191,7 @@ impl GameplayState for FixTrafficSignals {
         }
 
         match self.top_center.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "edit map" => {
                     return Some(Transition::Push(Box::new(EditMode::new(
                         ctx,
@@ -228,10 +228,10 @@ impl GameplayState for FixTrafficSignals {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         match self.meter.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "go to slowest intersection" => {
                     let i = app
                         .primary
@@ -268,7 +268,7 @@ impl GameplayState for FixTrafficSignals {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         None

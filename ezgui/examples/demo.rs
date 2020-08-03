@@ -121,7 +121,7 @@ impl GUI for App {
 
         // This dispatches event handling to all of the widgets inside.
         match self.controls.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 // These outcomes should probably be a custom enum per Composite, to be more
                 // typesafe.
                 "reset the stopwatch" => {
@@ -140,7 +140,7 @@ impl GUI for App {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         // An update event means that no keyboard/mouse input happened, but time has passed.
@@ -176,8 +176,8 @@ impl GUI for App {
         if let Some((_, ref mut p)) = self.timeseries_panel {
             match p.event(ctx) {
                 // No buttons in there
-                Some(Outcome::Clicked(_)) => unreachable!(),
-                None => {}
+                Outcome::Clicked(_) => unreachable!(),
+                _ => {}
             }
         }
 

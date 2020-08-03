@@ -84,7 +84,7 @@ impl TripTable {
 impl State for TripTable {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Departure" => {
                     self.opts.change(SortBy::Departure);
                     self.recalc(ctx, app);
@@ -135,7 +135,7 @@ impl State for TripTable {
                     return DashTab::TripTable.transition(ctx, app, x);
                 }
             },
-            None => {
+            _ => {
                 let mut modes = BTreeSet::new();
                 for m in TripMode::all() {
                     if self.composite.is_checked(m.ongoing_verb()) {

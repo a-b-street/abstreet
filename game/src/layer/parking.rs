@@ -45,13 +45,13 @@ impl Layer for Occupancy {
 
         self.composite.align_above(ctx, minimap);
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Some(LayerOutcome::Close);
                 }
                 _ => unreachable!(),
             },
-            None => {
+            _ => {
                 let new_onstreet = self.composite.is_checked("On-street spots");
                 let new_garages = self.composite.is_checked("Public garages");
                 let new_lots = self.composite.is_checked("Parking lots");

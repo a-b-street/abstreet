@@ -74,7 +74,7 @@ impl ZoneEditor {
 impl State for ZoneEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Apply" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     for r in self.orig_members.difference(&self.selector.roads) {
@@ -123,7 +123,7 @@ impl State for ZoneEditor {
                     }
                 }
             },
-            None => {
+            _ => {
                 if self.selector.event(ctx, app, None) {
                     let new_controls = self.selector.make_controls(ctx).named("selector");
                     self.composite.replace(ctx, "selector", new_controls);

@@ -1,6 +1,6 @@
 use crate::{
-    text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle,
-    Text, Widget, WidgetImpl, WidgetOutput,
+    text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::{Polygon, Pt2D};
 
@@ -69,7 +69,8 @@ impl WidgetImpl for Spinner {
 
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         self.up.event(ctx, output);
-        if output.outcome.take().is_some() {
+        if let Outcome::Clicked(_) = output.outcome {
+            output.outcome = Outcome::Nothing;
             if self.current != self.high {
                 self.current += 1;
             }
@@ -78,7 +79,8 @@ impl WidgetImpl for Spinner {
         }
 
         self.down.event(ctx, output);
-        if output.outcome.take().is_some() {
+        if let Outcome::Clicked(_) = output.outcome {
+            output.outcome = Outcome::Nothing;
             if self.current != self.low {
                 self.current -= 1;
             }

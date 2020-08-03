@@ -54,8 +54,8 @@ impl TripSummaries {
 impl State for TripSummaries {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => DashTab::TripSummaries.transition(ctx, app, &x),
-            None => {
+            Outcome::Clicked(x) => DashTab::TripSummaries.transition(ctx, app, &x),
+            _ => {
                 let mut filter = Filter {
                     changes_pct: self.composite.dropdown_value("filter"),
                     modes: BTreeSet::new(),

@@ -373,13 +373,13 @@ impl AgentMeter {
             return self.event(ctx, app);
         }
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "more data" => {
                     return Some(Transition::Push(dashboards::TripTable::new(ctx, app)));
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         None

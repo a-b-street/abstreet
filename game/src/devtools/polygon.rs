@@ -65,7 +65,7 @@ impl State for PolygonEditor {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -76,7 +76,7 @@ impl State for PolygonEditor {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {

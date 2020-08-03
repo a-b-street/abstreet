@@ -151,13 +151,13 @@ impl State for ViewKML {
         }
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         let query: String = self.composite.dropdown_value("query");

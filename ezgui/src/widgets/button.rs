@@ -81,14 +81,14 @@ impl WidgetImpl for Button {
         }
         if self.hovering && ctx.normal_left_click() {
             self.hovering = false;
-            output.outcome = Some(Outcome::Clicked(self.action.clone()));
+            output.outcome = Outcome::Clicked(self.action.clone());
             return;
         }
 
         if let Some(ref hotkey) = self.hotkey {
             if ctx.input.new_was_pressed(hotkey) {
                 self.hovering = false;
-                output.outcome = Some(Outcome::Clicked(self.action.clone()));
+                output.outcome = Outcome::Clicked(self.action.clone());
                 return;
             }
         }

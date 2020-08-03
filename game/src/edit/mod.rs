@@ -159,7 +159,7 @@ impl State for EditMode {
         }
 
         match self.top_center.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "bulk edit" => {
                     return Transition::Push(bulk::BulkSelect::new(ctx, app));
                 }
@@ -168,10 +168,10 @@ impl State for EditMode {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         match self.changelist.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "load edits" => {
                     if app.primary.map.unsaved_edits() {
                         return Transition::PushTwice(
@@ -224,7 +224,7 @@ impl State for EditMode {
                     ));
                 }
             },
-            None => {}
+            _ => {}
         }
         // Just kind of constantly scrape this
         app.opts.resume_after_edit = self.top_center.persistent_split_value("finish editing");
@@ -347,7 +347,7 @@ impl SaveEdits {
 impl State for SaveEdits {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Save" | "Overwrite existing edits" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     edits.edits_name = self.current_name.clone();
@@ -369,7 +369,7 @@ impl State for SaveEdits {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
         let name = self.composite.text_box("filename");
         if name != self.current_name {
@@ -442,7 +442,7 @@ impl LoadEdits {
 impl State for LoadEdits {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
                 "Start over with blank edits" => {
                     apply_map_edits(ctx, app, MapEdits::new());
@@ -489,7 +489,7 @@ impl State for LoadEdits {
                     }
                 }
             },
-            None => Transition::Keep,
+            _ => Transition::Keep,
         }
     }
 

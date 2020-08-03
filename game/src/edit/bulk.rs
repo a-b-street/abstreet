@@ -60,7 +60,7 @@ fn make_select_composite(ctx: &mut EventCtx, app: &App, selector: &RoadSelector)
 impl State for BulkSelect {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Cancel" => {
                     return Transition::Pop;
                 }
@@ -83,7 +83,7 @@ impl State for BulkSelect {
                     }
                 }
             },
-            None => {
+            _ => {
                 if self.selector.event(ctx, app, None) {
                     self.composite = make_select_composite(ctx, app, &self.selector);
                 }
@@ -164,7 +164,7 @@ impl State for BulkEdit {
         ctx.canvas_movement();
 
         match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Quit" => {
                     return Transition::Pop;
                 }
@@ -192,7 +192,7 @@ impl State for BulkEdit {
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            _ => {}
         }
 
         Transition::Keep

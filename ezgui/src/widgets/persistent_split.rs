@@ -1,5 +1,5 @@
 use crate::{
-    Btn, Button, Choice, Color, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey,
+    Btn, Button, Choice, Color, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey, Outcome,
     ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::Polygon;
@@ -71,7 +71,7 @@ impl<T: 'static + Clone + PartialEq> WidgetImpl for PersistentSplit<T> {
 
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         self.btn.event(ctx, output);
-        if output.outcome.is_some() {
+        if let Outcome::Clicked(_) = output.outcome {
             return;
         }
 
