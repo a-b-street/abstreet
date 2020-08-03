@@ -114,6 +114,32 @@ impl InitialMap {
                 .insert(*id, Road::new(*id, r, raw.config.driving_side));
         }
 
+        // Detect all overlapping geometry upfront
+        timer.start_iter("detect overlapping roads", m.intersections.len());
+        let mut problems = BTreeSet::new();
+        for i in m.intersections.values() {
+            timer.next();
+            for r1 in &i.roads {
+                for r2 in &i.roads {
+                    if r1 >= r2 {
+                        continue;
+                    }
+                    if m.roads[r1].trimmed_center_pts == m.roads[r2].trimmed_center_pts {
+                        problems.insert(format!("{} and {} overlap", r1.way_url(), r2.way_url()));
+                    }
+                }
+            }
+        }
+        if !problems.is_empty() {
+            for x in problems {
+                println!("- {}", x);
+            }
+            panic!(
+                "Some roads have overlapping segments in OSM. You likely need to fix OSM and make \
+                 the two ways meet at exactly one node."
+            );
+        }
+
         timer.start_iter("find each intersection polygon", m.intersections.len());
         for i in m.intersections.values_mut() {
             timer.next();

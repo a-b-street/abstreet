@@ -48,6 +48,11 @@ pub struct OriginalRoad {
     pub i1: OriginalIntersection,
     pub i2: OriginalIntersection,
 }
+impl OriginalRoad {
+    pub fn way_url(self) -> String {
+        format!("https://www.openstreetmap.org/way/{}", self.osm_way_id)
+    }
+}
 
 // A way to refer to intersections across many maps.
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

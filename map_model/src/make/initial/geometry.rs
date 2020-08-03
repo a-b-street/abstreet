@@ -344,6 +344,7 @@ fn deadend(
         endpts.push(driving_side.right_shift(trimmed, r.half_width).first_pt());
     }
 
+    endpts.dedup();
     (close_off_polygon(endpts), Vec::new())
 }
 
