@@ -188,19 +188,17 @@ impl Minimap {
                 }
                 _ => unreachable!(),
             },
+            Outcome::Changed => {
+                app.unzoomed_agents.cars = self.composite.is_checked("Car");
+                app.unzoomed_agents.bikes = self.composite.is_checked("Bike");
+                app.unzoomed_agents.buses_and_trains = self.composite.is_checked("Bus");
+                app.unzoomed_agents.peds = self.composite.is_checked("Pedestrian");
+                self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
+            }
             _ => {}
         }
         if self.composite.has_widget("zorder") {
             app.primary.show_zorder = self.composite.spinner("zorder");
-        }
-        // TODO an outcome for a checkbox flipping state could be useful
-        let before = app.unzoomed_agents.summarize();
-        app.unzoomed_agents.cars = self.composite.is_checked("Car");
-        app.unzoomed_agents.bikes = self.composite.is_checked("Bike");
-        app.unzoomed_agents.buses_and_trains = self.composite.is_checked("Bus");
-        app.unzoomed_agents.peds = self.composite.is_checked("Pedestrian");
-        if before != app.unzoomed_agents.summarize() {
-            self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
         }
 
         if self.zoomed {

@@ -51,27 +51,18 @@ impl Layer for Occupancy {
                 }
                 _ => unreachable!(),
             },
-            _ => {
-                let new_onstreet = self.composite.is_checked("On-street spots");
-                let new_garages = self.composite.is_checked("Public garages");
-                let new_lots = self.composite.is_checked("Parking lots");
-                let new_private_bldgs = self.composite.is_checked("Private buildings");
-                if self.onstreet != new_onstreet
-                    || self.garages != new_garages
-                    || self.lots != new_lots
-                    || self.private_bldgs != new_private_bldgs
-                {
-                    *self = Occupancy::new(
-                        ctx,
-                        app,
-                        new_onstreet,
-                        new_garages,
-                        new_lots,
-                        new_private_bldgs,
-                    );
-                    self.composite.align_above(ctx, minimap);
-                }
+            Outcome::Changed => {
+                *self = Occupancy::new(
+                    ctx,
+                    app,
+                    self.composite.is_checked("On-street spots"),
+                    self.composite.is_checked("Public garages"),
+                    self.composite.is_checked("Parking lots"),
+                    self.composite.is_checked("Private buildings"),
+                );
+                self.composite.align_above(ctx, minimap);
             }
+            _ => {}
         }
         None
     }

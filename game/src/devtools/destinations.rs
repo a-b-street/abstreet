@@ -13,7 +13,6 @@ use sim::{DontDrawAgents, Scenario, TripEndpoint};
 pub struct PopularDestinations {
     per_bldg: Counter<BuildingID>,
     composite: Composite,
-    opts: Option<HeatmapOptions>,
     draw: Drawable,
 }
 
@@ -104,7 +103,6 @@ impl PopularDestinations {
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
-            opts,
         })
     }
 }
@@ -134,21 +132,19 @@ impl State for PopularDestinations {
                 }
                 _ => unreachable!(),
             },
+            Outcome::Changed => {
+                return Transition::Replace(PopularDestinations::make(
+                    ctx,
+                    app,
+                    self.per_bldg.clone(),
+                    if self.composite.is_checked("Show heatmap") {
+                        Some(HeatmapOptions::from_controls(&self.composite))
+                    } else {
+                        None
+                    },
+                ));
+            }
             _ => {}
-        }
-
-        let opts = if self.composite.is_checked("Show heatmap") {
-            Some(HeatmapOptions::from_controls(&self.composite))
-        } else {
-            None
-        };
-        if self.opts != opts {
-            return Transition::Replace(PopularDestinations::make(
-                ctx,
-                app,
-                self.per_bldg.clone(),
-                opts,
-            ));
         }
 
         Transition::Keep

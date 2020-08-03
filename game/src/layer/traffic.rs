@@ -132,16 +132,17 @@ impl Layer for Throughput {
                 }
                 _ => unreachable!(),
             },
-            _ => {
-                let new_compare = self
-                    .composite
-                    .maybe_is_checked("Compare before edits")
-                    .unwrap_or(false);
-                if new_compare != self.compare {
-                    *self = Throughput::new(ctx, app, new_compare);
-                    self.composite.align_above(ctx, minimap);
-                }
+            Outcome::Changed => {
+                *self = Throughput::new(
+                    ctx,
+                    app,
+                    self.composite
+                        .maybe_is_checked("Compare before edits")
+                        .unwrap_or(false),
+                );
+                self.composite.align_above(ctx, minimap);
             }
+            _ => {}
         }
         None
     }
@@ -313,16 +314,17 @@ impl Layer for Delay {
                 }
                 _ => unreachable!(),
             },
-            _ => {
-                let new_compare = self
-                    .composite
-                    .maybe_is_checked("Compare before edits")
-                    .unwrap_or(false);
-                if new_compare != self.compare {
-                    *self = Delay::new(ctx, app, new_compare);
-                    self.composite.align_above(ctx, minimap);
-                }
+            Outcome::Changed => {
+                *self = Delay::new(
+                    ctx,
+                    app,
+                    self.composite
+                        .maybe_is_checked("Compare before edits")
+                        .unwrap_or(false),
+                );
+                self.composite.align_above(ctx, minimap);
             }
+            _ => {}
         }
         None
     }

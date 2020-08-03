@@ -450,9 +450,11 @@ impl State for JumpToTime {
                 }
                 _ => unreachable!(),
             },
+            Outcome::Changed => {
+                app.opts.dont_draw_time_warp = self.composite.is_checked("don't draw");
+            }
             _ => {}
         }
-        app.opts.dont_draw_time_warp = self.composite.is_checked("don't draw");
         let target = app
             .primary
             .sim

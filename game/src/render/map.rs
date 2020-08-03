@@ -478,10 +478,6 @@ impl UnzoomedAgents {
         }
     }
 
-    pub fn summarize(&self) -> (bool, bool, bool, bool) {
-        (self.cars, self.bikes, self.buses_and_trains, self.peds)
-    }
-
     fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
         match agent.vehicle_type {
             Some(VehicleType::Car) => {

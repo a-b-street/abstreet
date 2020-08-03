@@ -46,8 +46,9 @@ pub trait WidgetImpl: downcast_rs::Downcast {
 pub enum Outcome {
     /// An action was done
     Clicked(String),
-    /// A dropdown or checkbox changed values
-    Changed(String),
+    /// A dropdown, checkbox, spinner, etc changed values. Usually this triggers a refresh of
+    /// everything, so not useful to plumb along what changed.
+    Changed,
     /// Nothing happened
     Nothing,
 }

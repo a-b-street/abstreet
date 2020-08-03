@@ -123,6 +123,17 @@ impl State for ZoneEditor {
                     }
                 }
             },
+            Outcome::Changed => {
+                let mut new_allow_through_traffic = BTreeSet::new();
+                for m in TripMode::all() {
+                    if self.composite.is_checked(m.ongoing_verb()) {
+                        new_allow_through_traffic.insert(m);
+                    }
+                }
+                let instructions = make_instructions(ctx, &new_allow_through_traffic);
+                self.composite.replace(ctx, "instructions", instructions);
+                self.allow_through_traffic = new_allow_through_traffic;
+            }
             _ => {
                 if self.selector.event(ctx, app, None) {
                     let new_controls = self.selector.make_controls(ctx).named("selector");
@@ -132,18 +143,6 @@ impl State for ZoneEditor {
                     self.zoomed = zoomed;
                 }
             }
-        }
-
-        let mut new_allow_through_traffic = BTreeSet::new();
-        for m in TripMode::all() {
-            if self.composite.is_checked(m.ongoing_verb()) {
-                new_allow_through_traffic.insert(m);
-            }
-        }
-        if self.allow_through_traffic != new_allow_through_traffic {
-            let instructions = make_instructions(ctx, &new_allow_through_traffic);
-            self.composite.replace(ctx, "instructions", instructions);
-            self.allow_through_traffic = new_allow_through_traffic;
         }
 
         Transition::Keep

@@ -238,17 +238,16 @@ impl State for UberTurnViewer {
                 }
                 _ => unreachable!(),
             },
-            _ => {
-                if self.composite.is_checked("legal / illegal movements") != self.legal_turns {
-                    return Transition::Replace(UberTurnViewer::new(
-                        ctx,
-                        app,
-                        self.ic.members.clone(),
-                        0,
-                        !self.legal_turns,
-                    ));
-                }
+            Outcome::Changed => {
+                return Transition::Replace(UberTurnViewer::new(
+                    ctx,
+                    app,
+                    self.ic.members.clone(),
+                    0,
+                    !self.composite.is_checked("legal / illegal movements"),
+                ));
             }
+            _ => {}
         }
 
         Transition::Keep

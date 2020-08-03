@@ -11,9 +11,6 @@ pub struct TransitNetwork {
     composite: Composite,
     unzoomed: Drawable,
     zoomed: Drawable,
-    show_all_routes: bool,
-    show_buses: bool,
-    show_trains: bool,
 }
 
 impl Layer for TransitNetwork {
@@ -34,23 +31,17 @@ impl Layer for TransitNetwork {
                 }
                 _ => unreachable!(),
             },
-            _ => {
-                let new_show_all_routes = self.composite.is_checked("show all routes");
-                let new_show_buses = self.composite.is_checked("show buses");
-                let new_show_trains = self.composite.is_checked("show trains");
-                if (new_show_all_routes, new_show_buses, new_show_trains)
-                    != (self.show_all_routes, self.show_buses, self.show_trains)
-                {
-                    *self = TransitNetwork::new(
-                        ctx,
-                        app,
-                        new_show_all_routes,
-                        new_show_buses,
-                        new_show_trains,
-                    );
-                    self.composite.align_above(ctx, minimap);
-                }
+            Outcome::Changed => {
+                *self = TransitNetwork::new(
+                    ctx,
+                    app,
+                    self.composite.is_checked("show all routes"),
+                    self.composite.is_checked("show buses"),
+                    self.composite.is_checked("show trains"),
+                );
+                self.composite.align_above(ctx, minimap);
             }
+            _ => {}
         }
         None
     }
@@ -142,9 +133,6 @@ impl TransitNetwork {
             composite,
             unzoomed,
             zoomed,
-            show_all_routes,
-            show_buses,
-            show_trains,
         }
     }
 }

@@ -19,7 +19,6 @@ pub struct ViewKML {
 
     selected: Option<usize>,
     quadtree: QuadTree<usize>,
-    query: String,
     draw_query: Drawable,
 }
 
@@ -124,7 +123,6 @@ impl ViewKML {
                 objects,
                 quadtree,
                 selected: None,
-                query: "None".to_string(),
                 draw_query: ctx.upload(GeomBatch::new()),
             })
         })
@@ -157,21 +155,19 @@ impl State for ViewKML {
                 }
                 _ => unreachable!(),
             },
+            Outcome::Changed => {
+                let query: String = self.composite.dropdown_value("query");
+                let (batch, cnt) = make_query(app, &self.objects, &query);
+                self.draw_query = ctx.upload(batch);
+                self.composite.replace(
+                    ctx,
+                    "matches",
+                    format!("Query matches {} objects", cnt)
+                        .draw_text(ctx)
+                        .named("matches"),
+                );
+            }
             _ => {}
-        }
-
-        let query: String = self.composite.dropdown_value("query");
-        if query != self.query {
-            let (batch, cnt) = make_query(app, &self.objects, &query);
-            self.draw_query = ctx.upload(batch);
-            self.query = query;
-            self.composite.replace(
-                ctx,
-                "matches",
-                format!("Query matches {} objects", cnt)
-                    .draw_text(ctx)
-                    .named("matches"),
-            );
         }
 
         Transition::Keep

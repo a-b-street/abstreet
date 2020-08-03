@@ -240,7 +240,6 @@ impl AgentSpawner {
 
 impl State for AgentSpawner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let old_mode: TripMode = self.composite.dropdown_value("mode");
         match self.composite.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -278,41 +277,43 @@ impl State for AgentSpawner {
                 }
                 _ => unreachable!(),
             },
-            _ => {}
-        }
-        // We need to recalculate the path to see if this is sane. Otherwise we could trick a
-        // pedestrian into wandering on/off a highway border.
-        if old_mode != self.composite.dropdown_value("mode") && self.goal.is_some() {
-            let to = self.goal.as_ref().unwrap().0.clone();
-            if let Some(path) = path_request(
-                self.source.clone().unwrap(),
-                to.clone(),
-                self.composite.dropdown_value("mode"),
-                &app.primary.map,
-            )
-            .and_then(|req| app.primary.map.pathfind(req))
-            {
-                self.goal = Some((
-                    to,
-                    path.trace(&app.primary.map, Distance::ZERO, None)
-                        .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS)),
-                ));
-            } else {
-                self.goal = None;
-                self.confirmed = false;
-                self.composite.replace(
-                    ctx,
-                    "instructions",
-                    "Click a building or border to specify end"
-                        .draw_text(ctx)
-                        .named("instructions"),
-                );
-                self.composite.replace(
-                    ctx,
-                    "Confirm",
-                    Btn::text_fg("Confirm").inactive(ctx).named("Confirm"),
-                );
+            Outcome::Changed => {
+                // We need to recalculate the path to see if this is sane. Otherwise we could trick
+                // a pedestrian into wandering on/off a highway border.
+                if self.goal.is_some() {
+                    let to = self.goal.as_ref().unwrap().0.clone();
+                    if let Some(path) = path_request(
+                        self.source.clone().unwrap(),
+                        to.clone(),
+                        self.composite.dropdown_value("mode"),
+                        &app.primary.map,
+                    )
+                    .and_then(|req| app.primary.map.pathfind(req))
+                    {
+                        self.goal = Some((
+                            to,
+                            path.trace(&app.primary.map, Distance::ZERO, None)
+                                .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS)),
+                        ));
+                    } else {
+                        self.goal = None;
+                        self.confirmed = false;
+                        self.composite.replace(
+                            ctx,
+                            "instructions",
+                            "Click a building or border to specify end"
+                                .draw_text(ctx)
+                                .named("instructions"),
+                        );
+                        self.composite.replace(
+                            ctx,
+                            "Confirm",
+                            Btn::text_fg("Confirm").inactive(ctx).named("Confirm"),
+                        );
+                    }
+                }
             }
+            _ => {}
         }
 
         ctx.canvas_movement();

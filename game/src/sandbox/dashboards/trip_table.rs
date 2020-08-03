@@ -135,42 +135,28 @@ impl State for TripTable {
                     return DashTab::TripTable.transition(ctx, app, x);
                 }
             },
-            _ => {
-                let mut modes = BTreeSet::new();
+            Outcome::Changed => {
+                self.opts.modes = BTreeSet::new();
                 for m in TripMode::all() {
                     if self.composite.is_checked(m.ongoing_verb()) {
-                        modes.insert(m);
+                        self.opts.modes.insert(m);
                     }
                 }
-                if modes != self.opts.modes {
-                    self.opts.skip = 0;
-                    self.opts.modes = modes;
-                    self.recalc(ctx, app);
-                }
-                let off_map_starts = self.composite.is_checked("starting off-map");
-                let off_map_ends = self.composite.is_checked("ending off-map");
-                let unmodified_trips = self
+                self.opts.skip = 0;
+                self.opts.off_map_starts = self.composite.is_checked("starting off-map");
+                self.opts.off_map_ends = self.composite.is_checked("ending off-map");
+                self.opts.unmodified_trips = self
                     .composite
                     .maybe_is_checked("trips unmodified by experiment")
                     .unwrap_or(true);
-                let modified_trips = self
+                self.opts.modified_trips = self
                     .composite
                     .maybe_is_checked("trips modified by experiment")
                     .unwrap_or(true);
-                if self.opts.off_map_starts != off_map_starts
-                    || self.opts.off_map_ends != off_map_ends
-                    || self.opts.unmodified_trips != unmodified_trips
-                    || self.opts.modified_trips != modified_trips
-                {
-                    self.opts.off_map_starts = off_map_starts;
-                    self.opts.off_map_ends = off_map_ends;
-                    self.opts.unmodified_trips = unmodified_trips;
-                    self.opts.modified_trips = modified_trips;
-                    self.opts.skip = 0;
-                    self.recalc(ctx, app);
-                }
+                self.recalc(ctx, app);
             }
-        };
+            _ => {}
+        }
 
         Transition::Keep
     }

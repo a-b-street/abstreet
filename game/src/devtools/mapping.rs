@@ -428,11 +428,15 @@ impl State for ParkingMapper {
                 }
                 _ => unreachable!(),
             },
+            Outcome::Changed => {
+                return Transition::Replace(ParkingMapper::make(
+                    ctx,
+                    app,
+                    self.composite.dropdown_value("Show"),
+                    self.data.clone(),
+                ));
+            }
             _ => {}
-        }
-        let show = self.composite.dropdown_value("Show");
-        if show != self.show {
-            return Transition::Replace(ParkingMapper::make(ctx, app, show, self.data.clone()));
         }
 
         Transition::Keep

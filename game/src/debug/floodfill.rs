@@ -13,7 +13,6 @@ pub struct Floodfiller {
     unzoomed: Drawable,
     zoomed: Drawable,
     source: Source,
-    constraints: PathConstraints,
 }
 
 impl Floodfiller {
@@ -75,7 +74,6 @@ impl Floodfiller {
             unzoomed,
             zoomed,
             source,
-            constraints,
         })
     }
 }
@@ -94,17 +92,15 @@ impl State for Floodfiller {
                 }
                 _ => unreachable!(),
             },
+            Outcome::Changed => {
+                return Transition::Replace(Floodfiller::new(
+                    ctx,
+                    app,
+                    self.source.clone(),
+                    self.composite.dropdown_value("constraints"),
+                ));
+            }
             _ => {}
-        }
-
-        let constraints = self.composite.dropdown_value("constraints");
-        if constraints != self.constraints {
-            return Transition::Replace(Floodfiller::new(
-                ctx,
-                app,
-                self.source.clone(),
-                constraints,
-            ));
         }
 
         Transition::Keep

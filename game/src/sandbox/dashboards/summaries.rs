@@ -13,7 +13,6 @@ use std::collections::BTreeSet;
 
 pub struct TripSummaries {
     composite: Composite,
-    filter: Filter,
 }
 
 impl TripSummaries {
@@ -46,7 +45,6 @@ impl TripSummaries {
             ]))
             .exact_size_percent(90, 90)
             .build(ctx),
-            filter,
         })
     }
 }
@@ -55,7 +53,7 @@ impl State for TripSummaries {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Outcome::Clicked(x) => DashTab::TripSummaries.transition(ctx, app, &x),
-            _ => {
+            Outcome::Changed => {
                 let mut filter = Filter {
                     changes_pct: self.composite.dropdown_value("filter"),
                     modes: BTreeSet::new(),
@@ -65,12 +63,9 @@ impl State for TripSummaries {
                         filter.modes.insert(m);
                     }
                 }
-                if filter != self.filter {
-                    Transition::Replace(TripSummaries::new(ctx, app, filter))
-                } else {
-                    Transition::Keep
-                }
+                Transition::Replace(TripSummaries::new(ctx, app, filter))
             }
+            _ => Transition::Keep,
         }
     }
 
@@ -315,7 +310,6 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         .padding(10)
 }
 
-#[derive(PartialEq)]
 pub struct Filter {
     changes_pct: Option<f64>,
     modes: BTreeSet<TripMode>,

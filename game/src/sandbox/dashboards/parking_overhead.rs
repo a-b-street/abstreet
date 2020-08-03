@@ -124,18 +124,13 @@ impl State for ParkingOverhead {
                     return DashTab::ParkingOverhead.transition(ctx, app, x);
                 }
             },
-            _ => {
-                let off_map_starts = self.composite.is_checked("starting off-map");
-                let off_map_ends = self.composite.is_checked("ending off-map");
-                if self.opts.off_map_starts != off_map_starts
-                    || self.opts.off_map_ends != off_map_ends
-                {
-                    self.opts.off_map_starts = off_map_starts;
-                    self.opts.off_map_ends = off_map_ends;
-                    self.opts.skip = 0;
-                    self.recalc(ctx, app);
-                }
+            Outcome::Changed => {
+                self.opts.off_map_starts = self.composite.is_checked("starting off-map");
+                self.opts.off_map_ends = self.composite.is_checked("ending off-map");
+                self.opts.skip = 0;
+                self.recalc(ctx, app);
             }
+            _ => {}
         };
 
         Transition::Keep

@@ -100,6 +100,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                 InputResult::Done(_, idx) => {
                     self.menu = None;
                     self.current_idx = idx;
+                    output.outcome = Outcome::Changed;
                     let top_left = self.btn.top_left;
                     self.btn = make_btn(
                         ctx,

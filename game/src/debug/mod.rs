@@ -213,24 +213,26 @@ impl State for DebugMode {
                 }
                 _ => unreachable!(),
             },
+            Outcome::Changed => {
+                // TODO We should really recalculate current_selection when these change. Meh.
+                self.layers.show_buildings = self.composite.is_checked("show buildings");
+                self.layers.show_intersections = self.composite.is_checked("show intersections");
+                self.layers.show_lanes = self.composite.is_checked("show lanes");
+                self.layers.show_areas = self.composite.is_checked("show areas");
+                self.layers.show_labels = self.composite.is_checked("show labels");
+                if self.composite.is_checked("show route for all agents") {
+                    if self.all_routes.is_none() {
+                        self.all_routes = Some(calc_all_routes(ctx, app));
+                        self.reset_info(ctx);
+                    }
+                } else {
+                    if self.all_routes.is_some() {
+                        self.all_routes = None;
+                        self.reset_info(ctx);
+                    }
+                }
+            }
             _ => {}
-        }
-        // TODO We should really recalculate current_selection when these change. Meh.
-        self.layers.show_buildings = self.composite.is_checked("show buildings");
-        self.layers.show_intersections = self.composite.is_checked("show intersections");
-        self.layers.show_lanes = self.composite.is_checked("show lanes");
-        self.layers.show_areas = self.composite.is_checked("show areas");
-        self.layers.show_labels = self.composite.is_checked("show labels");
-        if self.composite.is_checked("show route for all agents") {
-            if self.all_routes.is_none() {
-                self.all_routes = Some(calc_all_routes(ctx, app));
-                self.reset_info(ctx);
-            }
-        } else {
-            if self.all_routes.is_some() {
-                self.all_routes = None;
-                self.reset_info(ctx);
-            }
         }
 
         match app.primary.current_selection {
