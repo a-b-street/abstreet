@@ -454,21 +454,18 @@ impl Map {
         abstutil::write_binary(abstutil::path_map(&self.name), self);
     }
 
-    pub fn find_closest_lane(
-        &self,
-        from: LaneID,
-        types: Vec<LaneType>,
-    ) -> Result<LaneID, Box<dyn std::error::Error>> {
-        self.get_parent(from).find_closest_lane(from, types)
-    }
-
     // Cars trying to park near this building should head for the driving lane returned here, then
     // start their search. Some parking lanes are connected to driving lanes that're "parking
     // blackholes" -- if there are no free spots on that lane, then the roads force cars to a
     // border.
     // TODO Making driving_connection do this.
     pub fn find_driving_lane_near_building(&self, b: BuildingID) -> LaneID {
-        if let Ok(l) = self.find_closest_lane(self.get_b(b).sidewalk(), vec![LaneType::Driving]) {
+        let sidewalk = self.get_b(b).sidewalk();
+        if let Some(l) = self.get_parent(sidewalk).find_closest_lane(
+            sidewalk,
+            |l| PathConstraints::Car.can_use(l, self),
+            self,
+        ) {
             if !self.get_l(l).driving_blackhole {
                 return l;
             }

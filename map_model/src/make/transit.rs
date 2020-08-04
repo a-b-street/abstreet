@@ -46,9 +46,15 @@ fn make_route(
     pt_to_stop: &mut BTreeMap<(Position, Position), BusStopID>,
     matcher: &Matcher,
 ) -> Result<(), Box<dyn Error>> {
+    let route_type = if r.is_bus {
+        PathConstraints::Bus
+    } else {
+        PathConstraints::Train
+    };
+
     let mut stops = Vec::new();
     for stop in &r.stops {
-        match matcher.lookup(r.is_bus, stop, map) {
+        match matcher.lookup(route_type, stop, map) {
             Ok((sidewalk_pos, driving_pos)) => {
                 // Create a new bus stop if needed.
                 let stop_id = if let Some(id) = pt_to_stop.get(&(sidewalk_pos, driving_pos)) {
@@ -79,12 +85,6 @@ fn make_route(
             }
         }
     }
-
-    let route_type = if r.is_bus {
-        PathConstraints::Bus
-    } else {
-        PathConstraints::Train
-    };
 
     // Start or end at a border?
     let mut end_border = None;
@@ -228,11 +228,11 @@ impl Matcher {
     // returns (sidewalk, driving)
     fn lookup(
         &self,
-        is_bus: bool,
+        route_type: PathConstraints,
         stop: &RawBusStop,
         map: &Map,
     ) -> Result<(Position, Position), Box<dyn Error>> {
-        if !is_bus {
+        if route_type == PathConstraints::Train {
             // Light rail needs explicit platforms.
             let sidewalk_pt = stop.ped_pos.ok_or("light rail missing platform")?;
             let sidewalk_pos = *self
@@ -263,15 +263,20 @@ impl Matcher {
                 .bus_pts
                 .get(&stop.vehicle_pos.to_hashable())
                 .ok_or("vehicle for bus didnt match")?;
-            let sidewalk = map.get_parent(orig_driving_pos.lane()).find_closest_lane(
-                orig_driving_pos.lane(),
-                vec![LaneType::Sidewalk, LaneType::Shoulder],
-            )?;
+            let sidewalk = map
+                .get_parent(orig_driving_pos.lane())
+                .find_closest_lane(
+                    orig_driving_pos.lane(),
+                    |l| PathConstraints::Pedestrian.can_use(l, map),
+                    map,
+                )
+                .ok_or_else(|| format!("driving {} to sidewalk failed", orig_driving_pos.lane()))?;
             orig_driving_pos.equiv_pos(sidewalk, map)
         };
         let lane = map
             .get_parent(sidewalk_pos.lane())
-            .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Bus, LaneType::Driving])?;
+            .find_closest_lane(sidewalk_pos.lane(), |l| route_type.can_use(l, map), map)
+            .ok_or_else(|| format!("sidewalk {} to driving failed", sidewalk_pos.lane()))?;
         let mut driving_pos = sidewalk_pos.equiv_pos(lane, map);
         // If we're a stop right at an incoming border, make sure to be at least past where the bus
         // will spawn from the border. pick_start_lane() can't do anything for borders.

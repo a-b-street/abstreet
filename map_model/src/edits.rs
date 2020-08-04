@@ -844,7 +844,8 @@ impl Map {
                         .get_r(*id)
                         .find_closest_lane(
                             sidewalk_pos.lane(),
-                            vec![LaneType::Driving, LaneType::Bus],
+                            |l| PathConstraints::Bus.can_use(l, self),
+                            self,
                         )
                         .unwrap();
                     let driving_pos = sidewalk_pos.equiv_pos(driving_lane, self);

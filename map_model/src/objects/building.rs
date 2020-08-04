@@ -1,4 +1,4 @@
-use crate::{LaneID, LaneType, Map, PathConstraints, Position};
+use crate::{LaneID, Map, PathConstraints, Position};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
@@ -86,19 +86,16 @@ impl Building {
     // The polyline goes from the building to the driving position
     // TODO Make this handle parking_blackhole
     pub fn driving_connection(&self, map: &Map) -> Option<(Position, PolyLine)> {
-        // Is there even a driving lane on the same side as our sidewalk?
-        // TODO Handle offside
-        let lane = map
-            .get_parent(self.sidewalk())
-            .find_closest_lane(self.sidewalk(), vec![LaneType::Driving])
-            .ok()?;
-        let pos = self.sidewalk_pos.equiv_pos(lane, map);
-
+        let lane = map.get_parent(self.sidewalk()).find_closest_lane(
+            self.sidewalk(),
+            |l| PathConstraints::Car.can_use(l, map),
+            map,
+        )?;
         // TODO Do we need to insist on this buffer, now that we can make cars gradually appear?
-        let buffer = Distance::meters(7.0);
-        if pos.dist_along() <= buffer || map.get_l(lane).length() - pos.dist_along() <= buffer {
-            return None;
-        }
+        let pos = self
+            .sidewalk_pos
+            .equiv_pos(lane, map)
+            .buffer_dist(Distance::meters(7.0), map)?;
         Some((pos, self.driveway_geom.clone().must_push(pos.pt(map))))
     }
 
@@ -146,9 +143,8 @@ impl Building {
 }
 
 fn sidewalk_to_bike(sidewalk_pos: Position, map: &Map) -> Option<(Position, Position)> {
-    let lane = map.get_parent(sidewalk_pos.lane()).find_closest_lane_v2(
+    let lane = map.get_parent(sidewalk_pos.lane()).find_closest_lane(
         sidewalk_pos.lane(),
-        true,
         |l| !l.biking_blackhole && PathConstraints::Bike.can_use(l, map),
         map,
     )?;

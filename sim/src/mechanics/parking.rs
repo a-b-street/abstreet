@@ -488,7 +488,7 @@ impl ParkingLane {
         }
         let sidewalk = if let Some(l) =
             map.get_parent(lane.id)
-                .find_closest_lane_v2(lane.id, true, |l| l.is_walkable(), map)
+                .find_closest_lane(lane.id, |l| l.is_walkable(), map)
         {
             l
         } else {

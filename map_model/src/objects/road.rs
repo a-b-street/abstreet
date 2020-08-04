@@ -4,7 +4,6 @@ use abstutil::{deserialize_usize, serialize_usize, Tags};
 use enumset::EnumSet;
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -159,7 +158,7 @@ impl Road {
     }
 
     pub fn parking_to_driving(&self, parking: LaneID, map: &Map) -> Option<LaneID> {
-        self.find_closest_lane_v2(parking, true, |l| l.is_driving(), map)
+        self.find_closest_lane(parking, |l| l.is_driving(), map)
     }
 
     pub(crate) fn speed_limit_from_osm(&self) -> Speed {
@@ -212,35 +211,6 @@ impl Road {
         }
     }
 
-    // If 'from' is a sidewalk, we'll also consider lanes on the other side of the road, if needed.
-    // TODO But reusing dist_along will break loudly in that case! Really need a perpendicular
-    // projection-and-collision method to find equivalent dist_along's.
-    pub(crate) fn find_closest_lane(
-        &self,
-        from: LaneID,
-        types: Vec<LaneType>,
-    ) -> Result<LaneID, Box<dyn std::error::Error>> {
-        let lane_types: HashSet<LaneType> = types.into_iter().collect();
-        let (dir, from_idx) = self.dir_and_offset(from);
-        let mut list = self.children(dir);
-        // Deal with one-ways and sidewalks on both sides
-        if list.len() == 1 && (list[0].1 == LaneType::Sidewalk || list[0].1 == LaneType::Shoulder) {
-            list = self.children(!dir);
-        }
-
-        if let Some((_, lane)) = list
-            .iter()
-            .enumerate()
-            .filter(|(_, (lane, lt))| *lane != from && lane_types.contains(lt))
-            .map(|(idx, (lane, _))| (((from_idx as isize) - (idx as isize)).abs(), *lane))
-            .min_by_key(|(offset, _)| *offset)
-        {
-            Ok(lane)
-        } else {
-            Err(format!("{} isn't near a {:?} lane", from, lane_types).into())
-        }
-    }
-
     // "Left" depends on the road, so if the lane !is_forwards(), keep that in mind
     pub fn offset_from_left(&self, lane: LaneID) -> usize {
         self.children_backwards
@@ -251,33 +221,29 @@ impl Road {
             .unwrap()
     }
 
-    // TODO Migrate and rip out all the old stuff
-    pub fn find_closest_lane_v2<F: Fn(&Lane) -> bool>(
+    // Includes off-side
+    // TODO Specialize a variant for PathConstraints.can_use. Only one caller needs something
+    // fancier.
+    pub fn find_closest_lane<F: Fn(&Lane) -> bool>(
         &self,
         from: LaneID,
-        include_offside: bool,
         filter: F,
         map: &Map,
     ) -> Option<LaneID> {
-        // (lane, direction) from left to right over the whole road. I suspect children will
-        // eventually just be this.
-        let mut all: Vec<(LaneID, bool)> = Vec::new();
+        // Lanes from left to right over the whole road
+        let mut all = Vec::new();
         for (l, _) in self.children_backwards.iter().rev() {
-            all.push((*l, false));
+            all.push(*l);
         }
         for (l, _) in &self.children_forwards {
-            all.push((*l, true));
+            all.push(*l);
         }
-        let our_idx = all.iter().position(|(l, _)| *l == from).unwrap() as isize;
+        let our_idx = all.iter().position(|l| *l == from).unwrap() as isize;
 
-        let (fwd, _) = self.dir_and_offset(from);
         all.into_iter()
             .enumerate()
-            .filter_map(|(idx, (l, dir))| {
-                if (idx as isize) != our_idx
-                    && (dir == fwd || include_offside)
-                    && filter(map.get_l(l))
-                {
+            .filter_map(|(idx, l)| {
+                if (idx as isize) != our_idx && filter(map.get_l(l)) {
                     Some((idx, l))
                 } else {
                     None

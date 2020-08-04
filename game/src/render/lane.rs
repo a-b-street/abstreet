@@ -282,9 +282,12 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
     let mut results = Vec::new();
 
     // Are there multiple driving lanes on this side of the road?
-    if map
-        .find_closest_lane(lane.id, vec![LaneType::Driving])
-        .is_err()
+    let r = map.get_parent(lane.id);
+    if r.children(r.dir_and_offset(lane.id).0)
+        .iter()
+        .filter(|(_, lt)| *lt == LaneType::Driving)
+        .count()
+        <= 1
     {
         return results;
     }
