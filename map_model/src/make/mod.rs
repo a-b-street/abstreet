@@ -95,15 +95,8 @@ impl Map {
                     .turn_restrictions
                     .iter()
                     .filter_map(|(rt, to)| {
-                        if let Some(to) = road_id_mapping.get(to) {
-                            Some((*rt, *to))
-                        } else {
-                            timer.warn(format!(
-                                "Turn restriction from {} points to invalid dst {}",
-                                r.id, to
-                            ));
-                            None
-                        }
+                        // Missing roads are filtered (like service roads) or clipped out
+                        road_id_mapping.get(to).map(|to| (*rt, *to))
                     })
                     .collect(),
                 complicated_turn_restrictions: raw.roads[&r.id]
