@@ -4,7 +4,6 @@ mod heatmap;
 mod isochrone;
 mod minimap;
 mod navigate;
-mod panels;
 mod warp;
 
 pub use self::city_picker::CityPicker;
@@ -12,7 +11,6 @@ pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, Div
 pub use self::heatmap::{make_heatmap, HeatmapOptions};
 pub use self::isochrone::IsochroneViewer;
 pub use self::minimap::Minimap;
-pub use self::panels::tool_panel;
 pub use self::warp::Warping;
 use crate::app::App;
 use crate::game::Transition;
@@ -20,8 +18,8 @@ use crate::helpers::{list_names, ID};
 use crate::info::InfoPanel;
 pub use crate::info::{ContextualActions, Tab};
 use ezgui::{
-    lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
-    Text,
+    hotkey, lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, ScreenDims, ScreenPt, ScreenRectangle, Text, VerticalAlignment, Widget,
 };
 use geom::Polygon;
 use std::collections::BTreeSet;
@@ -293,4 +291,14 @@ impl CommonState {
     pub fn info_panel_open(&self, app: &App) -> Option<ID> {
         self.info_panel.as_ref().and_then(|i| i.active_id(app))
     }
+}
+
+// TODO Kinda misnomer
+pub fn tool_panel(ctx: &mut EventCtx) -> Composite {
+    Composite::new(Widget::row(vec![
+        Btn::svg_def("system/assets/tools/home.svg").build(ctx, "back", hotkey(Key::Escape)),
+        Btn::svg_def("system/assets/tools/settings.svg").build(ctx, "settings", None),
+    ]))
+    .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)
+    .build(ctx)
 }

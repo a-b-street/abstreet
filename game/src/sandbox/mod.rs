@@ -15,7 +15,7 @@ use crate::edit::{
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::layer::PickLayer;
-use crate::managed::{WrappedComposite, WrappedOutcome};
+use crate::options::OptionsPanel;
 use crate::pregame::MainMenu;
 use crate::render::UnzoomedAgents;
 use ezgui::{
@@ -39,7 +39,7 @@ pub struct SandboxMode {
 pub struct SandboxControls {
     pub common: Option<CommonState>,
     route_preview: Option<RoutePreview>,
-    tool_panel: Option<WrappedComposite>,
+    tool_panel: Option<Composite>,
     time_panel: Option<TimePanel>,
     speed: Option<SpeedControls>,
     pub agent_meter: Option<AgentMeter>,
@@ -164,17 +164,17 @@ impl State for SandboxMode {
         }
 
         if let Some(ref mut tp) = self.controls.tool_panel {
-            match tp.event(ctx, app) {
-                Some(WrappedOutcome::Transition(t)) => {
-                    return t;
-                }
-                Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
+            match tp.event(ctx) {
+                Outcome::Clicked(x) => match x.as_ref() {
                     "back" => {
                         return maybe_exit_sandbox();
                     }
+                    "settings" => {
+                        return Transition::Push(OptionsPanel::new(ctx, app));
+                    }
                     _ => unreachable!(),
                 },
-                None => {}
+                _ => {}
             }
         }
         if let Some(ref mut am) = self.controls.agent_meter {

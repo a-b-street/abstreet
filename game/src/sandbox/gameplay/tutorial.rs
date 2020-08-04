@@ -923,7 +923,7 @@ impl TutorialState {
                 )
                 .msg(
                     vec!["If the controls feel wrong, try adjusting the settings."],
-                    arrow(tool_panel.inner.center_of("settings")),
+                    arrow(tool_panel.center_of("settings")),
                 )
                 .msg(
                     vec![

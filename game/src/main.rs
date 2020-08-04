@@ -10,7 +10,6 @@ mod game;
 mod helpers;
 mod info;
 mod layer;
-mod managed;
 mod options;
 mod pregame;
 mod render;

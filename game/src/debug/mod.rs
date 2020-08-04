@@ -7,7 +7,7 @@ use crate::app::{App, ShowLayers, ShowObject};
 use crate::common::{tool_panel, CommonState, ContextualActions};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::managed::{WrappedComposite, WrappedOutcome};
+use crate::options::OptionsPanel;
 use crate::render::{calculate_corners, DrawOptions};
 use abstutil::{Parallelism, Tags, Timer};
 use ezgui::{
@@ -22,7 +22,7 @@ use std::collections::HashSet;
 pub struct DebugMode {
     composite: Composite,
     common: CommonState,
-    tool_panel: WrappedComposite,
+    tool_panel: Composite,
     objects: objects::ObjectDebugger,
     hidden: HashSet<ID>,
     layers: ShowLayers,
@@ -288,13 +288,13 @@ impl State for DebugMode {
         if let Some(t) = self.common.event(ctx, app, &mut Actions {}) {
             return t;
         }
-        match self.tool_panel.event(ctx, app) {
-            Some(WrappedOutcome::Transition(t)) => t,
-            Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
+        match self.tool_panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "back" => Transition::Pop,
+                "settings" => Transition::Push(OptionsPanel::new(ctx, app)),
                 _ => unreachable!(),
             },
-            None => Transition::Keep,
+            _ => Transition::Keep,
         }
     }
 

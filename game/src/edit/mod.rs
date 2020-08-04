@@ -19,7 +19,7 @@ use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
-use crate::managed::{WrappedComposite, WrappedOutcome};
+use crate::options::OptionsPanel;
 use crate::render::{DrawIntersection, DrawMap, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
@@ -34,7 +34,7 @@ use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 
 pub struct EditMode {
-    tool_panel: WrappedComposite,
+    tool_panel: Composite,
     top_center: Composite,
     changelist: Composite,
     orig_edits: MapEdits,
@@ -259,13 +259,13 @@ impl State for EditMode {
             }
         }
 
-        match self.tool_panel.event(ctx, app) {
-            Some(WrappedOutcome::Transition(t)) => t,
-            Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
+        match self.tool_panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "back" => self.quit(ctx, app),
+                "settings" => Transition::Push(OptionsPanel::new(ctx, app)),
                 _ => unreachable!(),
             },
-            None => Transition::Keep,
+            _ => Transition::Keep,
         }
     }
 

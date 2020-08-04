@@ -57,8 +57,8 @@ pub struct OptionsPanel {
 }
 
 impl OptionsPanel {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> OptionsPanel {
-        OptionsPanel {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        Box::new(OptionsPanel {
             composite: Composite::new(Widget::col(vec![
                 Widget::custom_row(vec![
                     Line("Settings").small_heading().draw(ctx),
@@ -207,7 +207,7 @@ impl OptionsPanel {
                     .centered_horiz(),
             ]))
             .build(ctx),
-        }
+        })
     }
 }
 
