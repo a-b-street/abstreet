@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::challenges::challenges_picker;
+use crate::challenges::ChallengesPicker;
 use crate::devtools::DevToolsMode;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, DrawBaselayer, State, Transition};
@@ -201,7 +201,7 @@ impl State for MainMenu {
                     )));
                 }
                 "Challenges" => {
-                    return Transition::Push(challenges_picker(ctx, app));
+                    return Transition::Push(ChallengesPicker::new(ctx, app));
                 }
                 "About" => {
                     return Transition::Push(About::new(ctx, app));

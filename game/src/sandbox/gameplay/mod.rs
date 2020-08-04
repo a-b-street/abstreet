@@ -8,7 +8,7 @@ mod tutorial;
 pub use self::freeform::spawn_agents_around;
 pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
-use crate::challenges::{challenges_picker, Challenge};
+use crate::challenges::{Challenge, ChallengesPicker};
 use crate::common::ContextualActions;
 use crate::edit::{apply_map_edits, SaveEdits};
 use crate::game::{State, Transition};
@@ -419,7 +419,10 @@ impl State for FinalScore {
             ]);
         }
         if self.chose_back_to_challenges {
-            return Transition::Clear(vec![MainMenu::new(ctx, app), challenges_picker(ctx, app)]);
+            return Transition::Clear(vec![
+                MainMenu::new(ctx, app),
+                ChallengesPicker::new(ctx, app),
+            ]);
         }
 
         Transition::Keep

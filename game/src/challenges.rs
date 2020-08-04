@@ -1,10 +1,11 @@
 use crate::app::App;
-use crate::game::{State, Transition};
-use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
+use crate::game::{DrawBaselayer, State, Transition};
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
 use abstutil::{prettyprint_usize, Timer};
-use ezgui::{hotkey, Btn, Color, Composite, EventCtx, Key, Line, Text, TextExt, Widget};
+use ezgui::{
+    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, TextExt, Widget,
+};
 use geom::{Duration, Time};
 use map_model::Map;
 use sim::{AlertHandler, OrigPersonID, Scenario, Sim, SimFlags, SimOptions};
@@ -109,63 +110,53 @@ impl Challenge {
     }
 }
 
-pub fn challenges_picker(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
-    Tab::NothingChosen.make(ctx, app)
+pub struct ChallengesPicker {
+    composite: Composite,
+    links: BTreeMap<String, (String, usize)>,
+    challenge: Option<Challenge>,
 }
 
-enum Tab {
-    NothingChosen,
-    ChallengeStage(String, usize),
-}
+impl ChallengesPicker {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        ChallengesPicker::make(ctx, app, None)
+    }
 
-impl Tab {
-    fn make(self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
-        let mut master_col = Vec::new();
-        let mut cbs: Vec<(String, Callback)> = Vec::new();
-
-        master_col.push(
+    fn make(
+        ctx: &mut EventCtx,
+        app: &App,
+        challenge_and_stage: Option<(String, usize)>,
+    ) -> Box<dyn State> {
+        let mut links = BTreeMap::new();
+        let mut master_col = vec![
             Btn::svg_def("system/assets/pregame/back.svg")
                 .build(ctx, "back", hotkey(Key::Escape))
                 .align_left(),
-        );
-        master_col.push({
-            let mut txt = Text::from(Line("A/B STREET").display_title());
-            txt.add(Line("CHALLENGES").big_heading_styled());
-            txt.draw(ctx).centered_horiz()
-        });
-        master_col.push(
+            Text::from_multiline(vec![
+                Line("A/B STREET").display_title(),
+                Line("CHALLENGES").big_heading_styled(),
+            ])
+            .draw(ctx)
+            .centered_horiz(),
             Btn::text_bg2("Introduction and tutorial")
                 .build_def(ctx, None)
                 .centered_horiz()
                 .bg(app.cs.panel_bg)
                 .padding(16)
                 .outline(2.0, Color::BLACK),
-        );
-        // Slightly inconsistent: pushes twice and leaves this challenge picker open
-        cbs.push((
-            "Introduction and tutorial".to_string(),
-            Box::new(|ctx, app| Some(Tutorial::start(ctx, app))),
-        ));
+        ];
 
         // First list challenges
         let mut flex_row = Vec::new();
         for (idx, (name, _)) in Challenge::all().into_iter().enumerate() {
-            let current = match self {
-                Tab::NothingChosen => false,
-                Tab::ChallengeStage(ref n, _) => &name == n,
-            };
-            if current {
+            if challenge_and_stage
+                .as_ref()
+                .map(|(n, _)| n == &name)
+                .unwrap_or(false)
+            {
                 flex_row.push(Btn::text_bg2(&name).inactive(ctx));
             } else {
                 flex_row.push(Btn::text_bg2(&name).build_def(ctx, hotkey(Key::NUM_KEYS[idx])));
-                cbs.push((
-                    name.clone(),
-                    Box::new(move |ctx, app| {
-                        Some(Transition::Replace(
-                            Tab::ChallengeStage(name.clone(), 0).make(ctx, app),
-                        ))
-                    }),
-                ));
+                links.insert(name.clone(), (name, 0));
             }
         }
         master_col.push(
@@ -179,7 +170,7 @@ impl Tab {
         let mut main_row = Vec::new();
 
         // List stages
-        if let Tab::ChallengeStage(ref name, current) = self {
+        if let Some((ref name, current)) = challenge_and_stage {
             let mut col = Vec::new();
             for (idx, stage) in Challenge::all()
                 .remove(name)
@@ -191,15 +182,7 @@ impl Tab {
                     col.push(Btn::text_fg(&stage.title).inactive(ctx));
                 } else {
                     col.push(Btn::text_fg(&stage.title).build_def(ctx, None));
-                    let name = name.to_string();
-                    cbs.push((
-                        stage.title,
-                        Box::new(move |ctx, app| {
-                            Some(Transition::Replace(
-                                Tab::ChallengeStage(name.clone(), idx).make(ctx, app),
-                            ))
-                        }),
-                    ));
+                    links.insert(stage.title, (name.to_string(), idx));
                 }
             }
             main_row.push(
@@ -211,7 +194,8 @@ impl Tab {
         }
 
         // Describe the specific stage
-        if let Tab::ChallengeStage(ref name, current) = self {
+        let mut current_challenge = None;
+        if let Some((ref name, current)) = challenge_and_stage {
             let challenge = Challenge::all().remove(name).unwrap().remove(current);
             let mut txt = Text::new();
             for l in &challenge.description {
@@ -245,34 +229,63 @@ impl Tab {
                     .padding(16)
                     .outline(2.0, Color::BLACK),
             );
-            cbs.push((
-                "Start!".to_string(),
-                Box::new(move |ctx, app| {
-                    let sandbox = Box::new(SandboxMode::new(ctx, app, challenge.gameplay.clone()));
-                    if let Some(cutscene) = challenge.cutscene {
-                        Some(Transition::ReplaceThenPush(
-                            sandbox,
-                            cutscene(ctx, app, &challenge.gameplay),
-                        ))
-                    } else {
-                        Some(Transition::Replace(sandbox))
-                    }
-                }),
-            ));
+            current_challenge = Some(challenge);
         }
 
         master_col.push(Widget::row(main_row));
 
-        let mut c = WrappedComposite::new(
-            Composite::new(Widget::col(master_col))
+        Box::new(ChallengesPicker {
+            composite: Composite::new(Widget::col(master_col))
                 .exact_size_percent(90, 85)
                 .build_custom(ctx),
-        )
-        .cb("back", Box::new(|_, _| Some(Transition::Pop)));
-        for (name, cb) in cbs {
-            c = c.cb(&name, cb);
+            links,
+            challenge: current_challenge,
+        })
+    }
+}
+
+impl State for ChallengesPicker {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "back" => {
+                    return Transition::Pop;
+                }
+                "Introduction and tutorial" => {
+                    // Slightly inconsistent: pushes twice and leaves this challenge picker open
+                    return Tutorial::start(ctx, app);
+                }
+                "Start!" => {
+                    let challenge = self.challenge.take().unwrap();
+                    let sandbox = Box::new(SandboxMode::new(ctx, app, challenge.gameplay.clone()));
+                    if let Some(cutscene) = challenge.cutscene {
+                        Transition::ReplaceThenPush(
+                            sandbox,
+                            cutscene(ctx, app, &challenge.gameplay),
+                        )
+                    } else {
+                        Transition::Replace(sandbox)
+                    }
+                }
+                x => {
+                    return Transition::Replace(ChallengesPicker::make(
+                        ctx,
+                        app,
+                        self.links.remove(x),
+                    ));
+                }
+            },
+            _ => Transition::Keep,
         }
-        ManagedGUIState::fullscreen(c)
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        g.clear(app.cs.grass);
+        self.composite.draw(g);
     }
 }
 

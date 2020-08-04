@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::Transition;
 use ezgui::{Composite, EventCtx, GfxCtx, Outcome};
 use std::collections::HashMap;
 
@@ -51,41 +51,5 @@ impl WrappedComposite {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.inner.draw(g);
-    }
-}
-
-pub struct ManagedGUIState {
-    composite: WrappedComposite,
-}
-
-impl ManagedGUIState {
-    pub fn fullscreen(composite: WrappedComposite) -> Box<dyn State> {
-        Box::new(ManagedGUIState { composite })
-    }
-}
-
-impl State for ManagedGUIState {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx, app) {
-            Some(WrappedOutcome::Transition(t)) => {
-                return t;
-            }
-            Some(WrappedOutcome::Clicked(x)) => panic!(
-                "Can't have a button {} without a callback in ManagedGUIState",
-                x
-            ),
-            None => {}
-        }
-        Transition::Keep
-    }
-
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        // Happens to be a nice background color too ;)
-        g.clear(app.cs.grass);
-        self.composite.draw(g);
     }
 }
