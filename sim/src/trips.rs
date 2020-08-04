@@ -824,9 +824,11 @@ impl TripManager {
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()
     }
-
     pub fn get_active_trips(&self) -> Vec<TripID> {
         self.active_trip_mode.values().cloned().collect()
+    }
+    pub fn num_active_agents(&self) -> usize {
+        self.active_trip_mode.len()
     }
 
     pub fn trip_to_agent(&self, id: TripID) -> TripResult<AgentID> {

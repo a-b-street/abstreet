@@ -735,11 +735,18 @@ impl PolyLine {
             return self.clone();
         }
         let line = self.last_line();
-        let extension = PolyLine::must_new(vec![
+        // We might be extending a very tiny amount
+        if let Ok(extension) = PolyLine::new(vec![
             line.pt2(),
             line.pt2().project_away(need_len, line.angle()),
-        ]);
-        self.clone().must_extend(extension)
+        ]) {
+            self.clone().must_extend(extension)
+        } else {
+            let mut pts = self.clone().into_points();
+            pts.pop();
+            pts.push(line.pt2().project_away(need_len, line.angle()));
+            PolyLine::must_new(pts)
+        }
     }
 }
 

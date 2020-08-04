@@ -8,7 +8,7 @@ use crate::{
     UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
     LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
-use abstutil::{Counter, Parallelism, Timer};
+use abstutil::{prettyprint_usize, serialized_size_bytes, Counter, Parallelism, Timer};
 use derivative::Derivative;
 use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};
 use instant::Instant;
@@ -637,9 +637,10 @@ impl Sim {
             if Duration::realtime_elapsed(last_update) >= Duration::seconds(1.0) {
                 // TODO Not timer?
                 println!(
-                    "- After {}, the sim is at {}",
+                    "- After {}, the sim is at {}. {} live agents",
                     Duration::realtime_elapsed(start),
-                    self.time
+                    self.time,
+                    prettyprint_usize(self.trips.num_active_agents()),
                 );
                 last_update = Instant::now();
             }
@@ -736,8 +737,8 @@ impl Sim {
                 println!(
                     "{}: {} trips finished, {} unfinished, speed = {:.2}x, {}",
                     self.time(),
-                    abstutil::prettyprint_usize(finished),
-                    abstutil::prettyprint_usize(unfinished),
+                    prettyprint_usize(finished),
+                    prettyprint_usize(unfinished),
                     (self.time() - last_sim_time) / dt_real,
                     self.scheduler.describe_stats()
                 );
@@ -786,31 +787,31 @@ impl Sim {
             println!("sim savestate breakdown:");
             println!(
                 "- driving: {} bytes",
-                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.driving))
+                prettyprint_usize(serialized_size_bytes(&self.driving))
             );
             println!(
                 "- parking: {} bytes",
-                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.parking))
+                prettyprint_usize(serialized_size_bytes(&self.parking))
             );
             println!(
                 "- walking: {} bytes",
-                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.walking))
+                prettyprint_usize(serialized_size_bytes(&self.walking))
             );
             println!(
                 "- intersections: {} bytes",
-                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.intersections))
+                prettyprint_usize(serialized_size_bytes(&self.intersections))
             );
             println!(
                 "- transit: {} bytes",
-                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.transit))
+                prettyprint_usize(serialized_size_bytes(&self.transit))
             );
             println!(
                 "- trips: {} bytes",
-                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.trips))
+                prettyprint_usize(serialized_size_bytes(&self.trips))
             );
             println!(
                 "- scheduler: {} bytes",
-                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.scheduler))
+                prettyprint_usize(serialized_size_bytes(&self.scheduler))
             );
         }
 

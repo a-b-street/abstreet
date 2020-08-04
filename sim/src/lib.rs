@@ -56,7 +56,7 @@ pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
 // When spawning at borders, start the front of the vehicle this far along and gradually appear.
 // Getting too close to EPSILON_DIST can lead to get_draw_car having no geometry at all.
-pub const SPAWN_DIST: Distance = Distance::const_meters(0.1);
+pub const SPAWN_DIST: Distance = Distance::const_meters(0.05);
 
 // The numeric ID must be globally unique, without considering VehicleType. VehicleType is bundled
 // for convenient debugging.
