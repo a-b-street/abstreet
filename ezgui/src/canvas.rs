@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{hotkey, Key, ScreenDims, ScreenPt, ScreenRectangle, UpdateType, UserInput};
+use crate::{Key, ScreenDims, ScreenPt, ScreenRectangle, UpdateType, UserInput};
 use abstutil::Timer;
 use geom::{Bounds, Pt2D};
 use serde::{Deserialize, Serialize};
@@ -109,22 +109,22 @@ impl Canvas {
             }
 
             if self.keys_to_pan {
-                if input.new_was_pressed(&hotkey(Key::LeftArrow).unwrap()) {
+                if input.key_pressed(Key::LeftArrow) {
                     self.cam_x -= PAN_SPEED;
                 }
-                if input.new_was_pressed(&hotkey(Key::RightArrow).unwrap()) {
+                if input.key_pressed(Key::RightArrow) {
                     self.cam_x += PAN_SPEED;
                 }
-                if input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
+                if input.key_pressed(Key::UpArrow) {
                     self.cam_y -= PAN_SPEED;
                 }
-                if input.new_was_pressed(&hotkey(Key::DownArrow).unwrap()) {
+                if input.key_pressed(Key::DownArrow) {
                     self.cam_y += PAN_SPEED;
                 }
-                if input.new_was_pressed(&hotkey(Key::Q).unwrap()) {
+                if input.key_pressed(Key::Q) {
                     self.zoom(1.0, (self.window_width / 2.0, self.window_height / 2.0));
                 }
-                if input.new_was_pressed(&hotkey(Key::W).unwrap()) {
+                if input.key_pressed(Key::W) {
                     self.zoom(-1.0, (self.window_width / 2.0, self.window_height / 2.0));
                 }
             }

@@ -67,6 +67,12 @@ impl DebugMode {
                     .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
                     .collect(),
                 ),
+                Text::from_all(vec![
+                    Line("Hold "),
+                    Line(Key::LeftControl.describe()).fg(ctx.style().hotkey_color),
+                    Line(" to show position"),
+                ])
+                .draw(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),

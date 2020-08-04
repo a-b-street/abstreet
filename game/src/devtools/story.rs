@@ -71,10 +71,7 @@ impl State for StoryMapEditor {
                     }
                 }
                 if let Some(idx) = self.hovering {
-                    if ctx
-                        .input
-                        .key_pressed(Key::LeftControl, "hold to move this marker")
-                    {
+                    if ctx.input.key_pressed(Key::LeftControl) {
                         self.mode =
                             Mode::Dragging(ctx.canvas.get_cursor_in_map_space().unwrap(), idx);
                     } else if app.per_obj.left_click(ctx, "edit marker") {

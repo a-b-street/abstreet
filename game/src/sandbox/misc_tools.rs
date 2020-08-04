@@ -93,12 +93,12 @@ impl State for ShowTrafficSignal {
         ctx.canvas_movement();
 
         // TODO Buttons for these...
-        if self.current_phase != 0 && ctx.input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
+        if self.current_phase != 0 && ctx.input.key_pressed(Key::UpArrow) {
             self.change_phase(self.current_phase - 1, ctx, app);
         }
 
         if self.current_phase != app.primary.map.get_traffic_signal(self.i).phases.len() - 1
-            && ctx.input.new_was_pressed(&hotkey(Key::DownArrow).unwrap())
+            && ctx.input.key_pressed(Key::DownArrow)
         {
             self.change_phase(self.current_phase + 1, ctx, app);
         }

@@ -217,7 +217,7 @@ impl SpeedControls {
         // Just kind of constantly scrape this
         app.opts.time_increment = self.composite.persistent_split_value("step forwards");
 
-        if ctx.input.new_was_pressed(&hotkey(Key::LeftArrow).unwrap()) {
+        if ctx.input.key_pressed(Key::LeftArrow) {
             match self.setting {
                 SpeedSetting::Realtime => self.pause(ctx, app),
                 SpeedSetting::Fast => {
@@ -234,7 +234,7 @@ impl SpeedControls {
                 }
             }
         }
-        if ctx.input.new_was_pressed(&hotkey(Key::RightArrow).unwrap()) {
+        if ctx.input.key_pressed(Key::RightArrow) {
             match self.setting {
                 SpeedSetting::Realtime => {
                     if self.paused {

@@ -1,4 +1,4 @@
-use crate::{Canvas, Event, Key, MultiKey, ScreenPt};
+use crate::{hotkey, Canvas, Event, Key, MultiKey, ScreenPt};
 use geom::Duration;
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -19,19 +19,35 @@ impl UserInput {
         }
     }
 
-    pub fn key_pressed(&mut self, key: Key, _action: &str) -> bool {
+    pub fn key_pressed(&mut self, key: Key) -> bool {
+        self.pressed(hotkey(key))
+    }
+
+    pub fn pressed(&mut self, multikey: Option<MultiKey>) -> bool {
+        let mk = if let Some(mk) = multikey {
+            mk
+        } else {
+            return false;
+        };
         if self.event_consumed {
             return false;
         }
 
-        if self.event == Event::KeyPress(key) {
-            self.consume_event();
-            return true;
+        if let Event::KeyPress(pressed) = self.event {
+            let same = match mk {
+                MultiKey::Normal(key) => pressed == key && !self.lctrl_held,
+                MultiKey::LCtrl(key) => pressed == key && self.lctrl_held,
+                MultiKey::Any(keys) => !self.lctrl_held && keys.contains(&pressed),
+            };
+            if same {
+                self.consume_event();
+                return true;
+            }
         }
         false
     }
 
-    pub fn any_key_pressed(&mut self) -> Option<Key> {
+    pub(crate) fn any_key_pressed(&mut self) -> Option<Key> {
         if self.event_consumed {
             return None;
         }
@@ -41,37 +57,6 @@ impl UserInput {
             return Some(key);
         }
         None
-    }
-
-    pub fn unimportant_key_pressed(&mut self, key: Key, _action: &str) -> bool {
-        if self.event_consumed {
-            return false;
-        }
-
-        if self.event == Event::KeyPress(key) {
-            self.consume_event();
-            return true;
-        }
-        false
-    }
-
-    pub fn new_was_pressed(&mut self, multikey: &MultiKey) -> bool {
-        if self.event_consumed {
-            return false;
-        }
-
-        if let Event::KeyPress(pressed) = self.event {
-            let same = match multikey {
-                MultiKey::Normal(key) => pressed == *key && !self.lctrl_held,
-                MultiKey::LCtrl(key) => pressed == *key && self.lctrl_held,
-                MultiKey::Any(ref keys) => !self.lctrl_held && keys.contains(&pressed),
-            };
-            if same {
-                self.consume_event();
-                return true;
-            }
-        }
-        false
     }
 
     pub fn key_released(&mut self, key: Key) -> bool {
@@ -137,17 +122,6 @@ impl UserInput {
         match self.event {
             Event::Update(_) => {}
             _ => panic!("Not an update event"),
-        }
-    }
-
-    pub fn nonblocking_is_keypress_event(&mut self) -> bool {
-        if self.event_consumed {
-            return false;
-        }
-
-        match self.event {
-            Event::KeyPress(_) => true,
-            _ => false,
         }
     }
 

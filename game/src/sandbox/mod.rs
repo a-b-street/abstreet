@@ -125,7 +125,7 @@ impl State for SandboxMode {
         }
 
         // Order here is pretty arbitrary
-        if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
+        if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
         }
 

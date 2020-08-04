@@ -92,10 +92,7 @@ impl State for PolygonEditor {
         }
         // TODO maybe click-and-drag is more intuitive
         if self.mouseover_pt.is_some() {
-            if ctx
-                .input
-                .key_pressed(Key::LeftControl, "hold to move this point")
-            {
+            if ctx.input.key_pressed(Key::LeftControl) {
                 self.moving_pt = true;
             }
         } else if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {

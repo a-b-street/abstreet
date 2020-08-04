@@ -343,7 +343,7 @@ impl State for ParkingMapper {
             self.hide_layer = true;
             return Transition::Push(self.make_wizard(ctx, app));
         }
-        if self.selected.is_some() && ctx.input.new_was_pressed(&hotkey(Key::N).unwrap()) {
+        if self.selected.is_some() && ctx.input.key_pressed(Key::N) {
             let osm_way_id = app
                 .primary
                 .map
@@ -354,7 +354,7 @@ impl State for ParkingMapper {
             new_data.insert(osm_way_id, Value::NoStopping);
             return Transition::Replace(ParkingMapper::make(ctx, app, self.show, new_data));
         }
-        if self.selected.is_some() && ctx.input.new_was_pressed(&hotkey(Key::S).unwrap()) {
+        if self.selected.is_some() && ctx.input.key_pressed(Key::S) {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 let gps = pt.to_gps(app.primary.map.get_gps_bounds());
                 #[cfg(not(target_arch = "wasm32"))]
@@ -368,7 +368,7 @@ impl State for ParkingMapper {
             }
         }
         if let Some((ref roads, _)) = self.selected {
-            if ctx.input.new_was_pressed(&hotkey(Key::O).unwrap()) {
+            if ctx.input.key_pressed(Key::O) {
                 #[cfg(not(target_arch = "wasm32"))]
                 {
                     let _ = webbrowser::open(&format!(

@@ -1,5 +1,5 @@
 use crate::{
-    hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, Outcome, ScreenDims, ScreenPt,
+    text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, Outcome, ScreenDims, ScreenPt,
     ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::Pt2D;
@@ -143,17 +143,15 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             if !choice.active {
                 continue;
             }
-            if let Some(ref hotkey) = choice.hotkey {
-                if ctx.input.new_was_pressed(hotkey) {
-                    self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
-                    output.outcome = Outcome::Clicked(choice.label.clone());
-                    return;
-                }
+            if ctx.input.pressed(choice.hotkey.clone()) {
+                self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
+                output.outcome = Outcome::Clicked(choice.label.clone());
+                return;
             }
         }
 
         // Handle nav keys
-        if ctx.input.new_was_pressed(&hotkey(Key::Enter).unwrap()) {
+        if ctx.input.key_pressed(Key::Enter) {
             let choice = &self.choices[self.current_idx];
             if choice.active {
                 self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
@@ -162,11 +160,11 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             } else {
                 return;
             }
-        } else if ctx.input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
+        } else if ctx.input.key_pressed(Key::UpArrow) {
             if self.current_idx > 0 {
                 self.current_idx -= 1;
             }
-        } else if ctx.input.new_was_pressed(&hotkey(Key::DownArrow).unwrap()) {
+        } else if ctx.input.key_pressed(Key::DownArrow) {
             if self.current_idx < self.choices.len() - 1 {
                 self.current_idx += 1;
             }

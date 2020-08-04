@@ -20,8 +20,8 @@ use crate::helpers::{list_names, ID};
 use crate::info::InfoPanel;
 pub use crate::info::{ContextualActions, Tab};
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt,
-    ScreenRectangle, Text,
+    lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
+    Text,
 };
 use geom::Polygon;
 use std::collections::BTreeSet;
@@ -48,10 +48,10 @@ impl CommonState {
         app: &mut App,
         ctx_actions: &mut dyn ContextualActions,
     ) -> Option<Transition> {
-        if ctx.input.new_was_pressed(&lctrl(Key::S).unwrap()) {
+        if ctx.input.pressed(lctrl(Key::S)) {
             app.opts.dev = !app.opts.dev;
         }
-        if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::J).unwrap()) {
+        if app.opts.dev && ctx.input.pressed(lctrl(Key::J)) {
             return Some(Transition::Push(warp::DebugWarp::new(ctx)));
         }
 
@@ -79,7 +79,7 @@ impl CommonState {
             if let Some(id) = app.primary.current_selection.clone() {
                 // Allow hotkeys to work without opening the panel.
                 for (k, action) in ctx_actions.actions(app, id.clone()) {
-                    if ctx.input.new_was_pressed(&hotkey(k).unwrap()) {
+                    if ctx.input.key_pressed(k) {
                         return Some(ctx_actions.execute(ctx, app, id, action, &mut false));
                     }
                     self.cached_actions.push(k);

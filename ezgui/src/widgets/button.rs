@@ -85,12 +85,10 @@ impl WidgetImpl for Button {
             return;
         }
 
-        if let Some(ref hotkey) = self.hotkey {
-            if ctx.input.new_was_pressed(hotkey) {
-                self.hovering = false;
-                output.outcome = Outcome::Clicked(self.action.clone());
-                return;
-            }
+        if ctx.input.pressed(self.hotkey.clone()) {
+            self.hovering = false;
+            output.outcome = Outcome::Clicked(self.action.clone());
+            return;
         }
 
         if self.hovering {

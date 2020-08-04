@@ -19,9 +19,7 @@ impl ObjectDebugger {
         if self.debug_tooltip_key_held {
             self.debug_tooltip_key_held = !ctx.input.key_released(Key::LeftControl);
         } else {
-            self.debug_tooltip_key_held = ctx
-                .input
-                .unimportant_key_pressed(Key::LeftControl, "hold to show debug tooltips");
+            self.debug_tooltip_key_held = ctx.input.key_pressed(Key::LeftControl);
         }
     }
 
