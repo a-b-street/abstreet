@@ -14,7 +14,7 @@ use ezgui::{
     hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget, Wizard,
 };
-use geom::Pt2D;
+use geom::{Distance, Pt2D};
 use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
 use std::collections::HashSet;
@@ -61,6 +61,7 @@ impl DebugMode {
                         (None, "pick a savestate to load"),
                         (None, "find bad traffic signals"),
                         (None, "find degenerate roads"),
+                        (None, "find large intersections"),
                     ]
                     .into_iter()
                     .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
@@ -210,6 +211,9 @@ impl State for DebugMode {
                 }
                 "find degenerate roads" => {
                     find_degenerate_roads(app);
+                }
+                "find large intersections" => {
+                    find_large_intersections(app);
                 }
                 _ => unreachable!(),
             },
@@ -692,6 +696,16 @@ fn diff_tags(t1: &Tags, t2: &Tags) {
     for (k, v2) in t2.inner() {
         if !t1.contains_key(k) {
             println!("- {} = \"\" vs \"{}\"", k, v2);
+        }
+    }
+}
+
+fn find_large_intersections(app: &App) {
+    let mut seen = HashSet::new();
+    for t in app.primary.map.all_turns().values() {
+        if !seen.contains(&t.id.parent) && t.geom.length() > Distance::meters(50.0) {
+            println!("{} has a long turn", t.id.parent);
+            seen.insert(t.id.parent);
         }
     }
 }
