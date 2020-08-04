@@ -363,10 +363,10 @@ impl InfoPanel {
             app.primary
                 .draw_map
                 .get_obj(
+                    ctx,
                     id.clone(),
                     app,
                     &mut app.primary.draw_map.agents.borrow_mut(),
-                    ctx.prerender,
                 )
                 .map(|obj| (id, obj.get_outline(&app.primary.map)))
         }) {

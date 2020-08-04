@@ -1,6 +1,6 @@
 use crate::world::{Object, ObjectID, World};
 use abstutil::{Tags, Timer};
-use ezgui::{Color, Line, Prerender, Text};
+use ezgui::{Color, EventCtx, Line, Text};
 use geom::{
     ArrowCap, Bounds, Circle, Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D,
 };
@@ -46,7 +46,7 @@ impl Model {
         path: String,
         include_bldgs: bool,
         intersection_geom: bool,
-        prerender: &Prerender,
+        ctx: &EventCtx,
     ) -> Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
@@ -61,7 +61,7 @@ impl Model {
 
         if model.include_bldgs {
             for id in model.map.buildings.keys().cloned().collect::<Vec<_>>() {
-                model.bldg_added(id, prerender);
+                model.bldg_added(id, ctx);
             }
         }
         timer.start_iter(
@@ -70,12 +70,12 @@ impl Model {
         );
         for id in model.map.intersections.keys().cloned().collect::<Vec<_>>() {
             timer.next();
-            model.intersection_added(id, prerender);
+            model.intersection_added(id, ctx);
         }
         timer.start_iter("fill out world with roads", model.map.roads.len());
         for id in model.map.roads.keys().cloned().collect::<Vec<_>>() {
             timer.next();
-            model.road_added(id, prerender);
+            model.road_added(id, ctx);
         }
 
         model
@@ -237,7 +237,7 @@ impl Model {
 
 // Intersections
 impl Model {
-    fn intersection_added(&mut self, id: OriginalIntersection, prerender: &Prerender) {
+    fn intersection_added(&mut self, id: OriginalIntersection, ctx: &EventCtx) {
         let i = &self.map.intersections[&id];
         let color = match i.intersection_type {
             IntersectionType::TrafficSignal => Color::GREEN,
@@ -254,10 +254,10 @@ impl Model {
         };
 
         self.world
-            .add(prerender, Object::new(ID::Intersection(id), color, poly));
+            .add(ctx, Object::new(ID::Intersection(id), color, poly));
     }
 
-    pub fn create_i(&mut self, point: Pt2D, prerender: &Prerender) {
+    pub fn create_i(&mut self, point: Pt2D, ctx: &EventCtx) {
         let id = OriginalIntersection {
             osm_node_id: self.map.new_osm_node_id(time_to_id()),
         };
@@ -271,19 +271,19 @@ impl Model {
                 elevation: Distance::ZERO,
             },
         );
-        self.intersection_added(id, prerender);
+        self.intersection_added(id, ctx);
     }
 
-    pub fn move_i(&mut self, id: OriginalIntersection, point: Pt2D, prerender: &Prerender) {
+    pub fn move_i(&mut self, id: OriginalIntersection, point: Pt2D, ctx: &EventCtx) {
         self.world.delete(ID::Intersection(id));
         for r in self.map.move_intersection(id, point).unwrap() {
             self.road_deleted(r);
-            self.road_added(r, prerender);
+            self.road_added(r, ctx);
         }
-        self.intersection_added(id, prerender);
+        self.intersection_added(id, ctx);
     }
 
-    pub fn toggle_i_type(&mut self, id: OriginalIntersection, prerender: &Prerender) {
+    pub fn toggle_i_type(&mut self, id: OriginalIntersection, ctx: &EventCtx) {
         self.world.delete(ID::Intersection(id));
         let it = match self.map.intersections[&id].intersection_type {
             IntersectionType::StopSign => IntersectionType::TrafficSignal,
@@ -303,7 +303,7 @@ impl Model {
             .get_mut(&id)
             .unwrap()
             .intersection_type = it;
-        self.intersection_added(id, prerender);
+        self.intersection_added(id, ctx);
     }
 
     pub fn delete_i(&mut self, id: OriginalIntersection) {
@@ -318,9 +318,9 @@ impl Model {
 
 // Roads
 impl Model {
-    fn road_added(&mut self, id: OriginalRoad, prerender: &Prerender) {
+    fn road_added(&mut self, id: OriginalRoad, ctx: &EventCtx) {
         for obj in self.road_objects(id) {
-            self.world.add(prerender, obj);
+            self.world.add(ctx, obj);
         }
     }
 
@@ -330,12 +330,7 @@ impl Model {
         }
     }
 
-    pub fn create_r(
-        &mut self,
-        i1: OriginalIntersection,
-        i2: OriginalIntersection,
-        prerender: &Prerender,
-    ) {
+    pub fn create_r(&mut self, i1: OriginalIntersection, i2: OriginalIntersection, ctx: &EventCtx) {
         // Ban cul-de-sacs, since they get stripped out later anyway.
         if self
             .map
@@ -381,10 +376,10 @@ impl Model {
                 complicated_turn_restrictions: Vec::new(),
             },
         );
-        self.road_added(id, prerender);
+        self.road_added(id, ctx);
     }
 
-    pub fn edit_lanes(&mut self, id: OriginalRoad, spec: String, prerender: &Prerender) {
+    pub fn edit_lanes(&mut self, id: OriginalRoad, spec: String, ctx: &EventCtx) {
         self.road_deleted(id);
 
         if let Some(s) = RoadSpec::parse(spec.clone()) {
@@ -398,10 +393,10 @@ impl Model {
             println!("Bad RoadSpec: {}", spec);
         }
 
-        self.road_added(id, prerender);
+        self.road_added(id, ctx);
     }
 
-    pub fn swap_lanes(&mut self, id: OriginalRoad, prerender: &Prerender) {
+    pub fn swap_lanes(&mut self, id: OriginalRoad, ctx: &EventCtx) {
         self.road_deleted(id);
 
         let (mut lanes, osm_tags) = {
@@ -411,7 +406,7 @@ impl Model {
         mem::swap(&mut lanes.fwd, &mut lanes.back);
         osm_tags.insert(osm::SYNTHETIC_LANES, lanes.to_string());
 
-        self.road_added(id, prerender);
+        self.road_added(id, ctx);
     }
 
     pub fn set_r_name_and_speed(
@@ -420,7 +415,7 @@ impl Model {
         name: String,
         speed: String,
         highway: String,
-        prerender: &Prerender,
+        ctx: &EventCtx,
     ) {
         self.road_deleted(id);
 
@@ -429,10 +424,10 @@ impl Model {
         osm_tags.insert(osm::MAXSPEED, speed);
         osm_tags.insert(osm::HIGHWAY, highway);
 
-        self.road_added(id, prerender);
+        self.road_added(id, ctx);
     }
 
-    pub fn toggle_r_sidewalks(&mut self, some_id: OriginalRoad, prerender: &Prerender) {
+    pub fn toggle_r_sidewalks(&mut self, some_id: OriginalRoad, ctx: &EventCtx) {
         // Update every road belonging to the way.
         let osm_id = self.map.roads[&some_id]
             .osm_tags
@@ -481,7 +476,7 @@ impl Model {
                 osm_tags.insert(osm::SIDEWALK, "both");
             }
 
-            self.road_added(id, prerender);
+            self.road_added(id, ctx);
         }
     }
 
@@ -596,7 +591,7 @@ impl Model {
         }
     }
 
-    pub fn show_r_points(&mut self, id: OriginalRoad, prerender: &Prerender) {
+    pub fn show_r_points(&mut self, id: OriginalRoad, ctx: &EventCtx) {
         if self.showing_pts == Some(id) {
             return;
         }
@@ -610,7 +605,7 @@ impl Model {
             // Don't show handles for the intersections
             if idx != 0 && idx != r.center_points.len() - 1 {
                 self.world.add(
-                    prerender,
+                    ctx,
                     Object::new(
                         ID::RoadPoint(id, idx),
                         Color::GREEN,
@@ -632,7 +627,7 @@ impl Model {
         }
     }
 
-    pub fn move_r_pt(&mut self, id: OriginalRoad, idx: usize, point: Pt2D, prerender: &Prerender) {
+    pub fn move_r_pt(&mut self, id: OriginalRoad, idx: usize, point: Pt2D, ctx: &EventCtx) {
         assert_eq!(self.showing_pts, Some(id));
 
         self.stop_showing_pts(id);
@@ -643,13 +638,13 @@ impl Model {
         let pts = &mut self.map.roads.get_mut(&id).unwrap().center_points;
         pts[idx] = point;
 
-        self.road_added(id, prerender);
-        self.intersection_added(id.i1, prerender);
-        self.intersection_added(id.i2, prerender);
-        self.show_r_points(id, prerender);
+        self.road_added(id, ctx);
+        self.intersection_added(id.i1, ctx);
+        self.intersection_added(id.i2, ctx);
+        self.show_r_points(id, ctx);
     }
 
-    pub fn delete_r_pt(&mut self, id: OriginalRoad, idx: usize, prerender: &Prerender) {
+    pub fn delete_r_pt(&mut self, id: OriginalRoad, idx: usize, ctx: &EventCtx) {
         assert_eq!(self.showing_pts, Some(id));
 
         self.stop_showing_pts(id);
@@ -660,13 +655,13 @@ impl Model {
         let pts = &mut self.map.roads.get_mut(&id).unwrap().center_points;
         pts.remove(idx);
 
-        self.road_added(id, prerender);
-        self.intersection_added(id.i1, prerender);
-        self.intersection_added(id.i2, prerender);
-        self.show_r_points(id, prerender);
+        self.road_added(id, ctx);
+        self.intersection_added(id.i1, ctx);
+        self.intersection_added(id.i2, ctx);
+        self.show_r_points(id, ctx);
     }
 
-    pub fn insert_r_pt(&mut self, id: OriginalRoad, pt: Pt2D, prerender: &Prerender) -> Option<ID> {
+    pub fn insert_r_pt(&mut self, id: OriginalRoad, pt: Pt2D, ctx: &EventCtx) -> Option<ID> {
         assert_eq!(self.showing_pts, Some(id));
 
         self.stop_showing_pts(id);
@@ -687,15 +682,15 @@ impl Model {
             None
         };
 
-        self.road_added(id, prerender);
-        self.intersection_added(id.i1, prerender);
-        self.intersection_added(id.i2, prerender);
-        self.show_r_points(id, prerender);
+        self.road_added(id, ctx);
+        self.intersection_added(id.i1, ctx);
+        self.intersection_added(id.i2, ctx);
+        self.show_r_points(id, ctx);
 
         new_id
     }
 
-    pub fn clear_r_pts(&mut self, id: OriginalRoad, prerender: &Prerender) {
+    pub fn clear_r_pts(&mut self, id: OriginalRoad, ctx: &EventCtx) {
         assert_eq!(self.showing_pts, Some(id));
 
         self.stop_showing_pts(id);
@@ -706,10 +701,10 @@ impl Model {
         let r = &mut self.map.roads.get_mut(&id).unwrap();
         r.center_points = vec![r.center_points[0], *r.center_points.last().unwrap()];
 
-        self.road_added(id, prerender);
-        self.intersection_added(id.i1, prerender);
-        self.intersection_added(id.i2, prerender);
-        self.show_r_points(id, prerender);
+        self.road_added(id, ctx);
+        self.intersection_added(id.i1, ctx);
+        self.intersection_added(id.i2, ctx);
+        self.show_r_points(id, ctx);
     }
 
     pub fn get_r_center(&self, id: OriginalRoad) -> Pt2D {
@@ -724,7 +719,7 @@ impl Model {
         from: OriginalRoad,
         restriction: RestrictionType,
         to: OriginalRoad,
-        prerender: &Prerender,
+        ctx: &EventCtx,
     ) {
         self.road_deleted(from);
 
@@ -737,7 +732,7 @@ impl Model {
             .turn_restrictions
             .push((restriction, to));
 
-        self.road_added(from, prerender);
+        self.road_added(from, ctx);
     }
 
     pub fn delete_tr(&mut self, tr: TurnRestriction) {
@@ -748,15 +743,15 @@ impl Model {
 
 // Buildings
 impl Model {
-    fn bldg_added(&mut self, id: OriginalBuilding, prerender: &Prerender) {
+    fn bldg_added(&mut self, id: OriginalBuilding, ctx: &EventCtx) {
         let b = &self.map.buildings[&id];
         self.world.add(
-            prerender,
+            ctx,
             Object::new(ID::Building(id), Color::BLUE, b.polygon.clone()),
         );
     }
 
-    pub fn create_b(&mut self, center: Pt2D, prerender: &Prerender) -> ID {
+    pub fn create_b(&mut self, center: Pt2D, ctx: &EventCtx) -> ID {
         let id = OriginalBuilding {
             osm_way_id: self.map.new_osm_way_id(time_to_id()),
         };
@@ -770,11 +765,11 @@ impl Model {
                 amenities: BTreeSet::new(),
             },
         );
-        self.bldg_added(id, prerender);
+        self.bldg_added(id, ctx);
         ID::Building(id)
     }
 
-    pub fn move_b(&mut self, id: OriginalBuilding, new_center: Pt2D, prerender: &Prerender) {
+    pub fn move_b(&mut self, id: OriginalBuilding, new_center: Pt2D, ctx: &EventCtx) {
         self.world.delete(ID::Building(id));
 
         let b = self.map.buildings.get_mut(&id).unwrap();
@@ -784,7 +779,7 @@ impl Model {
             new_center.y() - old_center.y(),
         );
 
-        self.bldg_added(id, prerender);
+        self.bldg_added(id, ctx);
     }
 
     pub fn delete_b(&mut self, id: OriginalBuilding) {

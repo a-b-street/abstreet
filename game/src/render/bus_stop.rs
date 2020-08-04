@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Drawable, EventCtx, GeomBatch, GfxCtx};
 use geom::{Angle, Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BusStop, BusStopID, Map};
 
@@ -17,7 +17,7 @@ pub struct DrawBusStop {
 }
 
 impl DrawBusStop {
-    pub fn new(stop: &BusStop, map: &Map, cs: &ColorScheme, prerender: &Prerender) -> DrawBusStop {
+    pub fn new(ctx: &EventCtx, stop: &BusStop, map: &Map, cs: &ColorScheme) -> DrawBusStop {
         let (pt, angle) = stop.sidewalk_pos.pt_and_angle(map);
         let center = pt.project_away(
             map.get_l(stop.sidewalk_pos.lane()).width / 2.0,
@@ -27,7 +27,7 @@ impl DrawBusStop {
         let mut icon = GeomBatch::new();
         icon.append(
             GeomBatch::mapspace_svg(
-                prerender,
+                ctx.prerender,
                 if stop.is_train_stop {
                     "system/assets/map/light_rail.svg"
                 } else {
@@ -57,7 +57,7 @@ impl DrawBusStop {
             id: stop.id,
             center,
             zorder: map.get_parent(stop.sidewalk_pos.lane()).zorder,
-            draw_default: prerender.upload(batch),
+            draw_default: ctx.upload(batch),
         }
     }
 }

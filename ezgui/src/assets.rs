@@ -9,7 +9,6 @@ use usvg::{fontdb, Options};
 // TODO We don't need refcell maybe? Can we take &mut Assets?
 pub struct Assets {
     pub default_line_height: RefCell<f64>,
-    pub default_font_size: RefCell<usize>,
     pub scale_factor: RefCell<f64>,
     text_cache: RefCell<LruCache<String, GeomBatch>>,
     line_height_cache: RefCell<HashMap<(Font, usize), f64>>,
@@ -21,10 +20,9 @@ pub struct Assets {
 }
 
 impl Assets {
-    pub fn new(default_font_size: usize, font_dir: String, scale_factor: f64) -> Assets {
+    pub fn new(font_dir: String, scale_factor: f64) -> Assets {
         let mut a = Assets {
             default_line_height: RefCell::new(0.0),
-            default_font_size: RefCell::new(default_font_size),
             scale_factor: RefCell::new(scale_factor),
             text_cache: RefCell::new(LruCache::new(500)),
             line_height_cache: RefCell::new(HashMap::new()),
@@ -60,7 +58,7 @@ impl Assets {
             );
         }
         *a.default_line_height.borrow_mut() =
-            a.line_height(text::DEFAULT_FONT, *a.default_font_size.borrow());
+            a.line_height(text::DEFAULT_FONT, text::DEFAULT_FONT_SIZE);
         a
     }
 
@@ -127,7 +125,7 @@ impl Assets {
         self.text_cache.borrow_mut().clear();
         self.line_height_cache.borrow_mut().clear();
         *self.default_line_height.borrow_mut() =
-            self.line_height(text::DEFAULT_FONT, *self.default_font_size.borrow());
+            self.line_height(text::DEFAULT_FONT, text::DEFAULT_FONT_SIZE);
     }
 }
 

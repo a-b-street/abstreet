@@ -549,8 +549,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
 
     for r in roads_changed {
         let road = app.primary.map.get_r(r);
-        app.primary.draw_map.roads[r.0] =
-            DrawRoad::new(road, &app.primary.map, &app.cs, ctx.prerender);
+        app.primary.draw_map.roads[r.0] = DrawRoad::new(ctx, road, &app.primary.map, &app.cs);
 
         // An edit to one lane potentially affects markings in all lanes in the same road, because
         // of one-way markings, driving lines, etc.
@@ -570,12 +569,8 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     }
 
     for i in modified_intersections {
-        app.primary.draw_map.intersections[i.0] = DrawIntersection::new(
-            app.primary.map.get_i(i),
-            &app.primary.map,
-            &app.cs,
-            ctx.prerender,
-        );
+        app.primary.draw_map.intersections[i.0] =
+            DrawIntersection::new(ctx, app.primary.map.get_i(i), &app.primary.map, &app.cs);
     }
 
     if app.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {

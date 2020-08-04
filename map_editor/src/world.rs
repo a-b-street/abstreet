@@ -1,5 +1,5 @@
 use aabb_quadtree::{ItemId, QuadTree};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -126,7 +126,7 @@ impl<ID: ObjectID> World<ID> {
     }
 
     // TODO This and delete assume the original bounds passed to the quadtree are still valid.
-    pub fn add(&mut self, prerender: &Prerender, obj: Object<ID>) {
+    pub fn add(&mut self, ctx: &EventCtx, obj: Object<ID>) {
         let unioned_polygon =
             Polygon::union_all(obj.geometry.iter().map(|(_, p)| p.clone()).collect());
 
@@ -139,7 +139,7 @@ impl<ID: ObjectID> World<ID> {
             );
         }
         let quadtree_id = self.quadtree.insert_with_box(obj.id, bounds.as_bbox());
-        let draw = prerender.upload(GeomBatch::from(obj.geometry));
+        let draw = ctx.upload(GeomBatch::from(obj.geometry));
         self.objects.insert(
             obj.id,
             WorldObject {

@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
 use std::cell::RefCell;
@@ -14,13 +14,13 @@ pub struct DrawBuilding {
 
 impl DrawBuilding {
     pub fn new(
+        ctx: &EventCtx,
         bldg: &Building,
         map: &Map,
         cs: &ColorScheme,
         bldg_batch: &mut GeomBatch,
         paths_batch: &mut GeomBatch,
         outlines_batch: &mut GeomBatch,
-        prerender: &Prerender,
     ) -> DrawBuilding {
         // Trim the driveway away from the sidewalk's center line, so that it doesn't overlap. For
         // now, this cleanup is visual; it doesn't belong in the map_model layer.
@@ -46,7 +46,7 @@ impl DrawBuilding {
         if let OffstreetParking::PublicGarage(_, _) = bldg.parking {
             // Might need to scale down more for some buildings, but so far, this works everywhere.
             bldg_batch.append(
-                GeomBatch::mapspace_svg(prerender, "system/assets/map/parking.svg")
+                GeomBatch::mapspace_svg(ctx.prerender, "system/assets/map/parking.svg")
                     .scale(0.1)
                     .centered_on(bldg.label_center),
             );

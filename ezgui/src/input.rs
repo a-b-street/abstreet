@@ -1,15 +1,11 @@
 use crate::{Canvas, Event, Key, MultiKey, ScreenPt};
 use geom::Duration;
-use std::collections::HashMap;
 
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.
 pub struct UserInput {
     pub(crate) event: Event,
     pub(crate) event_consumed: bool,
-    pub(crate) important_actions: Vec<(Key, String)>,
-    // If two different callers both expect the same key, there's likely an unintentional conflict.
-    reserved_keys: HashMap<Key, String>,
 
     lctrl_held: bool,
 }
@@ -19,17 +15,11 @@ impl UserInput {
         UserInput {
             event,
             event_consumed: false,
-            important_actions: Vec::new(),
-            reserved_keys: HashMap::new(),
             lctrl_held: canvas.lctrl_held,
         }
     }
 
-    pub fn key_pressed(&mut self, key: Key, action: &str) -> bool {
-        self.reserve_key(key, action);
-
-        self.important_actions.push((key, action.to_string()));
-
+    pub fn key_pressed(&mut self, key: Key, _action: &str) -> bool {
         if self.event_consumed {
             return false;
         }
@@ -53,9 +43,7 @@ impl UserInput {
         None
     }
 
-    pub fn unimportant_key_pressed(&mut self, key: Key, action: &str) -> bool {
-        self.reserve_key(key, action);
-
+    pub fn unimportant_key_pressed(&mut self, key: Key, _action: &str) -> bool {
         if self.event_consumed {
             return false;
         }
@@ -68,8 +56,6 @@ impl UserInput {
     }
 
     pub fn new_was_pressed(&mut self, multikey: &MultiKey) -> bool {
-        // TODO Reserve?
-
         if self.event_consumed {
             return false;
         }
@@ -177,12 +163,5 @@ impl UserInput {
     // Just for Wizard
     pub(crate) fn has_been_consumed(&self) -> bool {
         self.event_consumed
-    }
-
-    fn reserve_key(&mut self, key: Key, action: &str) {
-        if let Some(prev_action) = self.reserved_keys.get(&key) {
-            println!("both {} and {} read key {:?}", prev_action, action, key);
-        }
-        self.reserved_keys.insert(key, action.to_string());
     }
 }

@@ -50,7 +50,7 @@ impl DrawMap {
         timer.start_iter("make DrawRoads", map.all_roads().len());
         for r in map.all_roads() {
             timer.next();
-            roads.push(DrawRoad::new(r, map, cs, ctx.prerender));
+            roads.push(DrawRoad::new(ctx, r, map, cs));
         }
 
         let mut lanes: Vec<DrawLane> = Vec::new();
@@ -64,7 +64,7 @@ impl DrawMap {
         timer.start_iter("make DrawIntersections", map.all_intersections().len());
         for i in map.all_intersections() {
             timer.next();
-            intersections.push(DrawIntersection::new(i, map, cs, ctx.prerender));
+            intersections.push(DrawIntersection::new(ctx, i, map, cs));
         }
 
         let draw_all_unzoomed_roads_and_intersections =
@@ -78,13 +78,13 @@ impl DrawMap {
         for b in map.all_buildings() {
             timer.next();
             buildings.push(DrawBuilding::new(
+                ctx,
                 b,
                 map,
                 cs,
                 &mut all_buildings,
                 &mut all_building_paths,
                 &mut all_building_outlines,
-                ctx.prerender,
             ));
         }
         timer.start("upload all buildings");
@@ -98,11 +98,11 @@ impl DrawMap {
         let mut all_unzoomed_parking_lots = GeomBatch::new();
         for pl in map.all_parking_lots() {
             parking_lots.push(DrawParkingLot::new(
+                ctx,
                 pl,
                 map,
                 cs,
                 &mut all_unzoomed_parking_lots,
-                ctx.prerender,
             ));
         }
         let draw_all_unzoomed_parking_lots = all_unzoomed_parking_lots.upload(ctx);
@@ -112,7 +112,7 @@ impl DrawMap {
         let mut bus_stops: HashMap<BusStopID, DrawBusStop> = HashMap::new();
         for s in map.all_bus_stops().values() {
             timer.next();
-            bus_stops.insert(s.id, DrawBusStop::new(s, map, cs, ctx.prerender));
+            bus_stops.insert(s.id, DrawBusStop::new(ctx, s, map, cs));
         }
 
         let mut areas: Vec<DrawArea> = Vec::new();
@@ -126,7 +126,7 @@ impl DrawMap {
         let draw_all_areas = all_areas.upload(ctx);
         timer.stop("upload all areas");
 
-        let boundary_polygon = ctx.prerender.upload(GeomBatch::from(vec![(
+        let boundary_polygon = ctx.upload(GeomBatch::from(vec![(
             cs.map_background,
             map.get_boundary_polygon().clone(),
         )]));
@@ -265,10 +265,10 @@ impl DrawMap {
 
     pub fn get_obj<'a>(
         &'a self,
+        ctx: &EventCtx,
         id: ID,
         app: &App,
         agents: &'a mut AgentCache,
-        prerender: &Prerender,
     ) -> Option<&'a dyn Renderable> {
         let on = match id {
             ID::Road(id) => {
@@ -312,7 +312,13 @@ impl DrawMap {
             }
         };
 
-        agents.populate_if_needed(on, &app.primary.map, &app.primary.sim, &app.cs, prerender);
+        agents.populate_if_needed(
+            on,
+            &app.primary.map,
+            &app.primary.sim,
+            &app.cs,
+            ctx.prerender,
+        );
 
         // Why might this fail? Pedestrians merge into crowds, and crowds dissipate into
         // individuals

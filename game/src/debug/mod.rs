@@ -256,10 +256,10 @@ impl State for DebugMode {
                     };
                     for a in agents {
                         if let Some(obj) = app.primary.draw_map.get_obj(
+                            ctx,
                             ID::from_agent(a),
                             app,
                             &mut app.primary.draw_map.agents.borrow_mut(),
-                            ctx.prerender,
                         ) {
                             batch.push(Color::PURPLE, obj.get_outline(&app.primary.map));
                         } else {

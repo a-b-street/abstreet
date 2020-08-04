@@ -5,7 +5,7 @@ use crate::options::TrafficSignalStyle;
 use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
     Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
@@ -23,12 +23,7 @@ pub struct DrawIntersection {
 }
 
 impl DrawIntersection {
-    pub fn new(
-        i: &Intersection,
-        map: &Map,
-        cs: &ColorScheme,
-        prerender: &Prerender,
-    ) -> DrawIntersection {
+    pub fn new(ctx: &EventCtx, i: &Intersection, map: &Map, cs: &ColorScheme) -> DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
         default_geom.push(cs.normal_intersection, i.polygon.clone());
@@ -65,9 +60,12 @@ impl DrawIntersection {
             IntersectionType::Construction => {
                 // TODO Centering seems weird
                 default_geom.append(
-                    GeomBatch::mapspace_svg(prerender, "system/assets/map/under_construction.svg")
-                        .scale(0.08)
-                        .centered_on(i.polygon.center()),
+                    GeomBatch::mapspace_svg(
+                        ctx.prerender,
+                        "system/assets/map/under_construction.svg",
+                    )
+                    .scale(0.08)
+                    .centered_on(i.polygon.center()),
                 );
             }
             IntersectionType::TrafficSignal => {}
@@ -82,7 +80,7 @@ impl DrawIntersection {
             id: i.id,
             intersection_type: i.intersection_type,
             zorder,
-            draw_default: prerender.upload(default_geom),
+            draw_default: ctx.upload(default_geom),
             draw_traffic_signal: RefCell::new(None),
         }
     }

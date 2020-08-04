@@ -59,7 +59,7 @@ impl UI {
         args.done();
 
         let model = if let Some(path) = load {
-            Model::import(path, include_bldgs, intersection_geom, ctx.prerender)
+            Model::import(path, include_bldgs, intersection_geom, ctx)
         } else {
             Model::blank()
         };
@@ -141,7 +141,7 @@ impl GUI for UI {
                             self.model.stop_showing_pts(id);
                         }
                         if let Some(r) = after {
-                            self.model.show_r_points(r, ctx.prerender);
+                            self.model.show_r_points(r, ctx);
                             self.model.world.handle_mouseover(ctx);
                         }
                     }
@@ -157,7 +157,7 @@ impl GUI for UI {
                             self.model.delete_i(i);
                             self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::T, "toggle intersection type") {
-                            self.model.toggle_i_type(i, ctx.prerender);
+                            self.model.toggle_i_type(i, ctx);
                         } else if !self.model.intersection_geom
                             && ctx
                                 .input
@@ -189,10 +189,10 @@ impl GUI for UI {
                         } else if ctx.input.key_pressed(Key::N, "edit name/speed") {
                             self.state = State::EditingRoadAttribs(r, Wizard::new());
                         } else if could_swap && ctx.input.key_pressed(Key::S, "swap lanes") {
-                            self.model.swap_lanes(r, ctx.prerender);
+                            self.model.swap_lanes(r, ctx);
                             self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::F, "toggle sidewalks") {
-                            self.model.toggle_r_sidewalks(r, ctx.prerender);
+                            self.model.toggle_r_sidewalks(r, ctx);
                             self.model.world.handle_mouseover(ctx);
                         } else if ctx
                             .input
@@ -222,20 +222,18 @@ impl GUI for UI {
                         } else if cursor.is_some()
                             && ctx.input.key_pressed(Key::P, "create new point")
                         {
-                            if let Some(id) =
-                                self.model.insert_r_pt(r, cursor.unwrap(), ctx.prerender)
-                            {
+                            if let Some(id) = self.model.insert_r_pt(r, cursor.unwrap(), ctx) {
                                 self.model.world.force_set_selection(id);
                             }
                         } else if ctx.input.key_pressed(Key::X, "clear interior points") {
-                            self.model.clear_r_pts(r, ctx.prerender);
+                            self.model.clear_r_pts(r, ctx);
                         }
                     }
                     Some(ID::RoadPoint(r, idx)) => {
                         if ctx.input.key_pressed(Key::LeftControl, "move point") {
                             self.state = State::MovingRoadPoint(r, idx);
                         } else if ctx.input.key_pressed(Key::Backspace, "delete point") {
-                            self.model.delete_r_pt(r, idx, ctx.prerender);
+                            self.model.delete_r_pt(r, idx, ctx);
                             self.model.world.handle_mouseover(ctx);
                         }
                     }
@@ -288,7 +286,7 @@ impl GUI for UI {
                             _ => {
                                 if ctx.input.key_pressed(Key::I, "create intersection") {
                                     if let Some(pt) = cursor {
-                                        self.model.create_i(pt, ctx.prerender);
+                                        self.model.create_i(pt, ctx);
                                         self.model.world.handle_mouseover(ctx);
                                     }
                                 // TODO Silly bug: Mouseover doesn't actually work! I think the
@@ -296,7 +294,7 @@ impl GUI for UI {
                                 // up the precomputed triangles.
                                 } else if ctx.input.key_pressed(Key::B, "create building") {
                                     if let Some(pt) = cursor {
-                                        let id = self.model.create_b(pt, ctx.prerender);
+                                        let id = self.model.create_b(pt, ctx);
                                         self.model.world.force_set_selection(id);
                                     }
                                 } else if ctx.input.key_pressed(Key::LeftShift, "select area") {
@@ -311,7 +309,7 @@ impl GUI for UI {
             }
             State::MovingIntersection(id) => {
                 if let Some(pt) = cursor {
-                    self.model.move_i(id, pt, ctx.prerender);
+                    self.model.move_i(id, pt, ctx);
                     if ctx.input.key_released(Key::LeftControl) {
                         self.state = State::viewing();
                     }
@@ -319,7 +317,7 @@ impl GUI for UI {
             }
             State::MovingBuilding(id) => {
                 if let Some(pt) = cursor {
-                    self.model.move_b(id, pt, ctx.prerender);
+                    self.model.move_b(id, pt, ctx);
                     if ctx.input.key_released(Key::LeftControl) {
                         self.state = State::viewing();
                     }
@@ -327,7 +325,7 @@ impl GUI for UI {
             }
             State::MovingRoadPoint(r, idx) => {
                 if let Some(pt) = cursor {
-                    self.model.move_r_pt(r, idx, pt, ctx.prerender);
+                    self.model.move_r_pt(r, idx, pt, ctx);
                     if ctx.input.key_released(Key::LeftControl) {
                         self.state = State::viewing();
                     }
@@ -339,7 +337,7 @@ impl GUI for UI {
                     self.model.world.handle_mouseover(ctx);
                 } else if let Some(ID::Intersection(i2)) = self.model.world.get_selection() {
                     if i1 != i2 && ctx.input.key_pressed(Key::R, "finalize road") {
-                        self.model.create_r(i1, i2, ctx.prerender);
+                        self.model.create_r(i1, i2, ctx);
                         self.state = State::viewing();
                         self.model.world.handle_mouseover(ctx);
                     }
@@ -350,7 +348,7 @@ impl GUI for UI {
                     "Specify the lanes",
                     self.model.map.roads[&id].get_spec().to_string(),
                 ) {
-                    self.model.edit_lanes(id, s, ctx.prerender);
+                    self.model.edit_lanes(id, s, ctx);
                     self.state = State::viewing();
                     self.model.world.handle_mouseover(ctx);
                 } else if wizard.aborted() {
@@ -382,7 +380,7 @@ impl GUI for UI {
                                 vec!["motorway", "primary", "residential"]
                             })
                         {
-                            self.model.set_r_name_and_speed(id, n, s, h, ctx.prerender);
+                            self.model.set_r_name_and_speed(id, n, s, h, ctx);
                             done = true;
                         }
                     }
@@ -458,7 +456,7 @@ impl GUI for UI {
                         ]
                     })
                 {
-                    self.model.add_tr(from, restriction, to, ctx.prerender);
+                    self.model.add_tr(from, restriction, to, ctx);
                     self.state = State::viewing();
                     self.model.world.handle_mouseover(ctx);
                 } else if wizard.aborted() {
@@ -523,10 +521,9 @@ impl GUI for UI {
                             name.to_string(),
                             speed.to_string(),
                             highway.to_string(),
-                            ctx.prerender,
+                            ctx,
                         );
-                        self.model
-                            .edit_lanes(id, lanespec.to_string(), ctx.prerender);
+                        self.model.edit_lanes(id, lanespec.to_string(), ctx);
                     }
                 }
             }
@@ -535,9 +532,8 @@ impl GUI for UI {
         self.popup = None;
         if self.info_key_held {
             if let Some(id) = self.model.world.get_selection() {
-                let mut txt = self.model.describe_obj(id);
-                txt.add(Line(""));
-                ctx.populate_osd(&mut txt);
+                let txt = self.model.describe_obj(id);
+                // TODO We used to display actions and hotkeys here
                 self.popup = Some(ctx.upload(txt.render_to_batch(ctx.prerender)));
             }
         }

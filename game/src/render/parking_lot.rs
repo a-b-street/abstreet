@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Drawable, EventCtx, GeomBatch, GfxCtx};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH};
 
@@ -13,11 +13,11 @@ pub struct DrawParkingLot {
 
 impl DrawParkingLot {
     pub fn new(
+        ctx: &EventCtx,
         lot: &ParkingLot,
         map: &Map,
         cs: &ColorScheme,
         unzoomed_batch: &mut GeomBatch,
-        prerender: &Prerender,
     ) -> DrawParkingLot {
         unzoomed_batch.push(cs.parking_lot, lot.polygon.clone());
         for aisle in &lot.aisles {
@@ -28,7 +28,7 @@ impl DrawParkingLot {
             );
         }
         unzoomed_batch.append(
-            GeomBatch::mapspace_svg(prerender, "system/assets/map/parking.svg")
+            GeomBatch::mapspace_svg(ctx.prerender, "system/assets/map/parking.svg")
                 .scale(0.05)
                 .centered_on(lot.polygon.polylabel()),
         );
@@ -78,7 +78,7 @@ impl DrawParkingLot {
 
         DrawParkingLot {
             id: lot.id,
-            draw: prerender.upload(batch),
+            draw: ctx.upload(batch),
         }
     }
 }

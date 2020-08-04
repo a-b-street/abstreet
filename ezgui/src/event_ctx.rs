@@ -138,17 +138,6 @@ impl<'a> EventCtx<'a> {
     pub fn set_style(&mut self, style: Style) {
         *self.style = style;
     }
-
-    pub fn populate_osd(&mut self, txt: &mut Text) {
-        let color = self.style().hotkey_color;
-        for (key, a) in self.input.important_actions.drain(..) {
-            txt.add_appended(vec![
-                Line("Press "),
-                Line(key.describe()).fg(color),
-                Line(format!(" to {}", a)),
-            ]);
-        }
-    }
 }
 
 pub struct LoadingScreen<'a> {

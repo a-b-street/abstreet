@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{Map, Road, RoadID};
 use std::cell::RefCell;
@@ -16,7 +16,7 @@ pub struct DrawRoad {
 }
 
 impl DrawRoad {
-    pub fn new(r: &Road, map: &Map, cs: &ColorScheme, prerender: &Prerender) -> DrawRoad {
+    pub fn new(ctx: &EventCtx, r: &Road, map: &Map, cs: &ColorScheme) -> DrawRoad {
         let mut draw = GeomBatch::new();
 
         // Only draw a center line if it straddles two driving/bike/bus lanes of opposite
@@ -45,7 +45,7 @@ impl DrawRoad {
         DrawRoad {
             id: r.id,
             zorder: r.zorder,
-            draw_center_line: prerender.upload(draw),
+            draw_center_line: ctx.upload(draw),
             label: RefCell::new(None),
         }
     }

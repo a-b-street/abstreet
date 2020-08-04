@@ -1,6 +1,6 @@
 use crate::assets::Assets;
 use crate::tools::screenshot::screenshot_everything;
-use crate::{text, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, UpdateType, UserInput};
+use crate::{Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, UpdateType, UserInput};
 use geom::Duration;
 use image::{GenericImageView, Pixel};
 use instant::Instant;
@@ -161,7 +161,6 @@ impl<G: GUI> State<G> {
 pub struct Settings {
     window_title: String,
     profiling_enabled: bool,
-    default_font_size: usize,
     dump_raw_events: bool,
     scale_factor: Option<f64>,
     window_icon: Option<String>,
@@ -172,7 +171,6 @@ impl Settings {
         Settings {
             window_title: window_title.to_string(),
             profiling_enabled: false,
-            default_font_size: text::DEFAULT_FONT_SIZE,
             dump_raw_events: false,
             scale_factor: None,
             window_icon: None,
@@ -187,10 +185,6 @@ impl Settings {
     pub fn dump_raw_events(&mut self) {
         assert!(!self.dump_raw_events);
         self.dump_raw_events = true;
-    }
-
-    pub fn default_font_size(&mut self, size: usize) {
-        self.default_font_size = size;
     }
 
     pub fn scale_factor(&mut self, scale_factor: f64) {
@@ -220,7 +214,6 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
     }
     let prerender = Prerender {
         assets: Assets::new(
-            settings.default_font_size,
             abstutil::path("system/fonts"),
             settings
                 .scale_factor

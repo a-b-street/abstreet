@@ -70,9 +70,6 @@ fn main() {
     if args.enabled("--dump_raw_events") {
         settings.dump_raw_events();
     }
-    if let Some(n) = args.optional_parse("--font_size", |s| s.parse::<usize>()) {
-        settings.default_font_size(n);
-    }
     if let Some(s) = args.optional_parse("--scale_factor", |s| s.parse::<f64>()) {
         settings.scale_factor(s);
     }

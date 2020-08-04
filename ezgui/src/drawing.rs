@@ -48,8 +48,8 @@ pub struct GfxCtx<'a> {
     pub prerender: &'a Prerender,
     style: &'a Style,
 
-    pub num_draw_calls: usize,
-    pub num_forks: usize,
+    pub(crate) num_draw_calls: usize,
+    pub(crate) num_forks: usize,
 }
 
 impl<'a> GfxCtx<'a> {
