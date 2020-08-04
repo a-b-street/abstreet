@@ -244,7 +244,7 @@ impl State for UberTurnViewer {
                     app,
                     self.ic.members.clone(),
                     0,
-                    !self.composite.is_checked("legal / illegal movements"),
+                    self.composite.is_checked("legal / illegal movements"),
                 ));
             }
             _ => {}
