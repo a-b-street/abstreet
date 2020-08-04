@@ -3,7 +3,7 @@ use crate::common::ColorNetwork;
 use crate::helpers::ID;
 use crate::info::{header_btns, make_tabs, Details, Tab};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{Btn, Color, EventCtx, Line, RewriteColor, Text, TextExt, Widget};
+use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
 use geom::{Circle, Distance, Time};
 use map_model::{BusRoute, BusRouteID, BusStopID, PathStep};
 use sim::{AgentID, CarID};
@@ -279,6 +279,11 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
 
     // TODO Soon it'll be time to split into tabs
     {
+        rows.push(Btn::text_fg("Edit schedule").build(
+            ctx,
+            format!("edit {}", route.id),
+            hotkey(Key::E),
+        ));
         rows.push(describe_schedule(route).draw(ctx));
     }
 

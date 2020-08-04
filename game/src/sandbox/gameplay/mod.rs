@@ -174,6 +174,7 @@ impl GameplayMode {
                     }
                     _ => {}
                 },
+                EditCmd::ChangeRouteSchedule { .. } => {}
             }
         }
         true

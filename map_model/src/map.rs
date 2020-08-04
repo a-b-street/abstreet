@@ -585,6 +585,16 @@ impl Map {
         None
     }
 
+    // TODO Should store the OSM relation ID instead.
+    pub fn find_br(&self, id: BusRouteID, full_name: &str) -> Option<BusRouteID> {
+        for br in self.all_bus_routes() {
+            if br.id == id && br.full_name == full_name {
+                return Some(br.id);
+            }
+        }
+        None
+    }
+
     pub fn right_shift(&self, pl: PolyLine, width: Distance) -> PolyLine {
         self.config.driving_side.right_shift(pl, width)
     }

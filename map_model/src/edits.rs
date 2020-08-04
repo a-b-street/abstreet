@@ -1,11 +1,11 @@
 use crate::raw::{OriginalIntersection, OriginalRoad};
 use crate::{
-    connectivity, ControlStopSign, ControlTrafficSignal, IntersectionID, IntersectionType, LaneID,
-    LaneType, Map, PathConstraints, RoadID, TurnID, Zone,
+    connectivity, BusRoute, BusRouteID, ControlStopSign, ControlTrafficSignal, IntersectionID,
+    IntersectionType, LaneID, LaneType, Map, PathConstraints, RoadID, TurnID, Zone,
 };
 use abstutil::{deserialize_btreemap, retain_btreemap, retain_btreeset, serialize_btreemap, Timer};
 use enumset::EnumSet;
-use geom::Speed;
+use geom::{Speed, Time};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -20,6 +20,7 @@ pub struct MapEdits {
     pub original_intersections: BTreeMap<IntersectionID, EditIntersection>,
     pub changed_speed_limits: BTreeSet<RoadID>,
     pub changed_access_restrictions: BTreeSet<RoadID>,
+    pub changed_routes: BTreeSet<BusRouteID>,
 
     // Edits without these are player generated.
     pub proposal_description: Vec<String>,
@@ -64,6 +65,11 @@ pub enum EditCmd {
         new_allow_through_traffic: EnumSet<PathConstraints>,
         old_allow_through_traffic: EnumSet<PathConstraints>,
     },
+    ChangeRouteSchedule {
+        id: BusRouteID,
+        old: Vec<Time>,
+        new: Vec<Time>,
+    },
 }
 
 pub struct EditEffects {
@@ -87,6 +93,7 @@ impl MapEdits {
             original_intersections: BTreeMap::new(),
             changed_speed_limits: BTreeSet::new(),
             changed_access_restrictions: BTreeSet::new(),
+            changed_routes: BTreeSet::new(),
         }
     }
 
@@ -116,6 +123,7 @@ impl MapEdits {
         let mut orig_intersections: BTreeMap<IntersectionID, EditIntersection> = BTreeMap::new();
         let mut changed_speed_limits = BTreeSet::new();
         let mut changed_access_restrictions = BTreeSet::new();
+        let mut changed_routes = BTreeSet::new();
 
         for cmd in &self.commands {
             match cmd {
@@ -142,6 +150,9 @@ impl MapEdits {
                 EditCmd::ChangeAccessRestrictions { id, .. } => {
                     changed_access_restrictions.insert(*id);
                 }
+                EditCmd::ChangeRouteSchedule { id, .. } => {
+                    changed_routes.insert(*id);
+                }
             }
         }
 
@@ -156,12 +167,16 @@ impl MapEdits {
             let r = map.get_r(*r);
             r.access_restrictions_from_osm() != r.allow_through_traffic
         });
+        retain_btreeset(&mut changed_routes, |br| {
+            map.get_br(*br).spawn_times != BusRoute::default_spawn_times()
+        });
 
         self.original_lts = orig_lts;
         self.reversed_lanes = reversed_lanes;
         self.original_intersections = orig_intersections;
         self.changed_speed_limits = changed_speed_limits;
         self.changed_access_restrictions = changed_access_restrictions;
+        self.changed_routes = changed_routes;
     }
 
     // Assumes update_derived has been called.
@@ -285,6 +300,11 @@ enum PermanentEditCmd {
         new_allow_through_traffic: EnumSet<PathConstraints>,
         old_allow_through_traffic: EnumSet<PathConstraints>,
     },
+    ChangeRouteSchedule {
+        id: (BusRouteID, String),
+        old: Vec<Time>,
+        new: Vec<Time>,
+    },
 }
 
 impl PermanentMapEdits {
@@ -332,6 +352,13 @@ impl PermanentMapEdits {
                         new_allow_through_traffic: *new_allow_through_traffic,
                         old_allow_through_traffic: *old_allow_through_traffic,
                     },
+                    EditCmd::ChangeRouteSchedule { id, old, new } => {
+                        PermanentEditCmd::ChangeRouteSchedule {
+                            id: (*id, map.get_br(*id).full_name.clone()),
+                            old: old.clone(),
+                            new: new.clone(),
+                        }
+                    }
                 })
                 .collect(),
         }
@@ -398,6 +425,12 @@ impl PermanentMapEdits {
                             old_allow_through_traffic,
                         })
                     }
+                    PermanentEditCmd::ChangeRouteSchedule { id, old, new } => {
+                        let id = map
+                            .find_br(id.0, &id.1)
+                            .ok_or(format!("can't find {} with full name {}", id.0, id.1))?;
+                        Ok(EditCmd::ChangeRouteSchedule { id, old, new })
+                    }
                 })
                 .collect::<Result<Vec<EditCmd>, String>>()?,
 
@@ -406,6 +439,7 @@ impl PermanentMapEdits {
             original_intersections: BTreeMap::new(),
             changed_speed_limits: BTreeSet::new(),
             changed_access_restrictions: BTreeSet::new(),
+            changed_routes: BTreeSet::new(),
         };
         edits.update_derived(map);
         Ok(edits)
@@ -508,6 +542,7 @@ impl EditCmd {
             EditCmd::ChangeAccessRestrictions { id, .. } => {
                 format!("access restrictions for {}", id)
             }
+            EditCmd::ChangeRouteSchedule { id, .. } => format!("reschedule route #{}", id.0),
         }
     }
 
@@ -632,6 +667,10 @@ impl EditCmd {
                 effects.changed_intersections.insert(r.dst_i);
                 true
             }
+            EditCmd::ChangeRouteSchedule { id, new, .. } => {
+                map.bus_routes[id.0].spawn_times = new.clone();
+                true
+            }
         }
     }
 
@@ -684,6 +723,12 @@ impl EditCmd {
                 id: *id,
                 old_allow_through_traffic: *new_allow_through_traffic,
                 new_allow_through_traffic: *old_allow_through_traffic,
+            }
+            .apply(effects, map, timer),
+            EditCmd::ChangeRouteSchedule { id, old, new } => EditCmd::ChangeRouteSchedule {
+                id: *id,
+                old: new.clone(),
+                new: old.clone(),
             }
             .apply(effects, map, timer),
         }

@@ -1,6 +1,7 @@
 mod bulk;
 mod cluster_traffic_signals;
 mod lanes;
+mod routes;
 mod select;
 mod stop_signs;
 mod traffic_signals;
@@ -9,6 +10,7 @@ mod zones;
 
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
 pub use self::lanes::LaneEditor;
+pub use self::routes::RouteEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 pub use self::validate::{
@@ -199,29 +201,32 @@ impl State for EditMode {
                 }
                 "undo" => {
                     let mut edits = app.primary.map.get_edits().clone();
-                    let id = cmd_to_id(&edits.commands.pop().unwrap());
+                    let maybe_id = cmd_to_id(&edits.commands.pop().unwrap());
                     apply_map_edits(ctx, app, edits);
-                    return Transition::Push(Warping::new(
-                        ctx,
-                        id.canonical_point(&app.primary).unwrap(),
-                        Some(10.0),
-                        Some(id),
-                        &mut app.primary,
-                    ));
+                    if let Some(id) = maybe_id {
+                        return Transition::Push(Warping::new(
+                            ctx,
+                            id.canonical_point(&app.primary).unwrap(),
+                            Some(10.0),
+                            Some(id),
+                            &mut app.primary,
+                        ));
+                    }
                 }
                 x => {
                     let idx = x["most recent change #".len()..].parse::<usize>().unwrap();
-                    let id = cmd_to_id(
+                    if let Some(id) = cmd_to_id(
                         &app.primary.map.get_edits().commands
                             [app.primary.map.get_edits().commands.len() - idx],
-                    );
-                    return Transition::Push(Warping::new(
-                        ctx,
-                        id.canonical_point(&app.primary).unwrap(),
-                        Some(10.0),
-                        Some(id),
-                        &mut app.primary,
-                    ));
+                    ) {
+                        return Transition::Push(Warping::new(
+                            ctx,
+                            id.canonical_point(&app.primary).unwrap(),
+                            Some(10.0),
+                            Some(id),
+                            &mut app.primary,
+                        ));
+                    }
                 }
             },
             _ => {}
@@ -732,12 +737,14 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
         .build(ctx)
 }
 
-fn cmd_to_id(cmd: &EditCmd) -> ID {
+// TODO Ideally a Tab.
+fn cmd_to_id(cmd: &EditCmd) -> Option<ID> {
     match cmd {
-        EditCmd::ChangeLaneType { id, .. } => ID::Lane(*id),
-        EditCmd::ReverseLane { l, .. } => ID::Lane(*l),
-        EditCmd::ChangeSpeedLimit { id, .. } => ID::Road(*id),
-        EditCmd::ChangeIntersection { i, .. } => ID::Intersection(*i),
-        EditCmd::ChangeAccessRestrictions { id, .. } => ID::Road(*id),
+        EditCmd::ChangeLaneType { id, .. } => Some(ID::Lane(*id)),
+        EditCmd::ReverseLane { l, .. } => Some(ID::Lane(*l)),
+        EditCmd::ChangeSpeedLimit { id, .. } => Some(ID::Road(*id)),
+        EditCmd::ChangeIntersection { i, .. } => Some(ID::Intersection(*i)),
+        EditCmd::ChangeAccessRestrictions { id, .. } => Some(ID::Road(*id)),
+        EditCmd::ChangeRouteSchedule { .. } => None,
     }
 }

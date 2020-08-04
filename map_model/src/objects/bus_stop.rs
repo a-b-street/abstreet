@@ -1,6 +1,6 @@
 use crate::{LaneID, Map, PathConstraints, PathRequest, Position};
 use abstutil::{deserialize_usize, serialize_usize};
-use geom::Time;
+use geom::{Duration, Time};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -89,5 +89,18 @@ impl BusRoute {
         } else {
             "trains"
         }
+    }
+
+    pub fn default_spawn_times() -> Vec<Time> {
+        // Hourly spawning from midnight to 7, then every 30 minutes till 7, then hourly again
+        let mut times = Vec::new();
+        for i in 0..24 {
+            let hour = Time::START_OF_DAY + Duration::hours(i);
+            times.push(hour);
+            if i >= 7 && i <= 19 {
+                times.push(hour + Duration::minutes(30));
+            }
+        }
+        times
     }
 }
