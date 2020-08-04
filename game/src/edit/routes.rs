@@ -67,15 +67,6 @@ impl State for RouteEditor {
                     });
                     apply_map_edits(ctx, app, edits);
 
-                    // TODO Hacks because we don't have an EditMode underneath us yet
-                    app.primary.dirty_from_edits = true;
-                    ctx.loading_screen("apply edits", |_, mut timer| {
-                        app.primary
-                            .map
-                            .recalculate_pathfinding_after_edits(&mut timer);
-                    });
-                    // TODO Ah and actually we need to reset the sim and everything.
-
                     return Transition::Pop;
                 }
                 _ => unreachable!(),

@@ -53,13 +53,13 @@ pub struct EditMode {
 }
 
 impl EditMode {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> EditMode {
+    pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> Box<dyn State> {
         let orig_dirty = app.primary.dirty_from_edits;
         assert!(app.suspended_sim.is_none());
         app.suspended_sim = Some(app.primary.clear_sim());
         let edits = app.primary.map.get_edits();
         let layer = crate::layer::map::Static::edits(ctx, app);
-        EditMode {
+        Box::new(EditMode {
             tool_panel: tool_panel(ctx),
             top_center: make_topcenter(ctx, app, &mode),
             changelist: make_changelist(ctx, app),
@@ -69,7 +69,7 @@ impl EditMode {
             changelist_key: (edits.edits_name.clone(), edits.commands.len()),
             unzoomed: layer.unzoomed,
             zoomed: layer.zoomed,
-        }
+        })
     }
 
     fn quit(&self, ctx: &mut EventCtx, app: &mut App) -> Transition {

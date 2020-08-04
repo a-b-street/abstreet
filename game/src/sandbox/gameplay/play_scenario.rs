@@ -74,7 +74,7 @@ impl GameplayState for PlayScenario {
                     self.top_center.rect_of("change traffic").clone(),
                     self.scenario_name.clone(),
                 ))),
-                "edit map" => Some(Transition::Push(Box::new(EditMode::new(
+                "edit map" => Some(Transition::Push(EditMode::new(
                     ctx,
                     app,
                     GameplayMode::PlayScenario(
@@ -82,7 +82,7 @@ impl GameplayState for PlayScenario {
                         self.scenario_name.clone(),
                         self.modifiers.clone(),
                     ),
-                )))),
+                ))),
                 "edit traffic patterns" => Some(Transition::Push(EditScenarioModifiers::new(
                     ctx,
                     self.scenario_name.clone(),

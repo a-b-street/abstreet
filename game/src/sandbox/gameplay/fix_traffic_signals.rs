@@ -193,11 +193,7 @@ impl GameplayState for FixTrafficSignals {
         match self.top_center.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "edit map" => {
-                    return Some(Transition::Push(Box::new(EditMode::new(
-                        ctx,
-                        app,
-                        self.mode.clone(),
-                    ))));
+                    return Some(Transition::Push(EditMode::new(ctx, app, self.mode.clone())));
                 }
                 "instructions" => {
                     let contents = cutscene_pt1_task(ctx);

@@ -63,11 +63,11 @@ impl GameplayState for Freeform {
                     self.top_center.rect_of("change traffic").clone(),
                     "none".to_string(),
                 ))),
-                "edit map" => Some(Transition::Push(Box::new(EditMode::new(
+                "edit map" => Some(Transition::Push(EditMode::new(
                     ctx,
                     app,
                     GameplayMode::Freeform(abstutil::path_map(app.primary.map.get_name())),
-                )))),
+                ))),
                 "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, None))),
                 _ => unreachable!(),
             },

@@ -447,11 +447,11 @@ impl ContextualActions for Actions {
                 Transition::Push(ShowTrafficSignal::new(ctx, app, i))
             }
             (ID::Intersection(i), "edit traffic signal") => Transition::PushTwice(
-                Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
+                EditMode::new(ctx, app, self.gameplay.clone()),
                 Box::new(TrafficSignalEditor::new(ctx, app, i, self.gameplay.clone())),
             ),
             (ID::Intersection(i), "edit stop sign") => Transition::PushTwice(
-                Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
+                EditMode::new(ctx, app, self.gameplay.clone()),
                 Box::new(StopSignEditor::new(ctx, app, i, self.gameplay.clone())),
             ),
             (ID::Intersection(i), "explore uber-turns") => {
@@ -461,7 +461,7 @@ impl ContextualActions for Actions {
                 Transition::Push(TurnExplorer::new(ctx, app, l))
             }
             (ID::Lane(l), "edit lane") => Transition::PushTwice(
-                Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
+                EditMode::new(ctx, app, self.gameplay.clone()),
                 Box::new(LaneEditor::new(ctx, app, l, self.gameplay.clone())),
             ),
             (ID::Building(b), "explore isochrone from here") => {
@@ -490,8 +490,10 @@ impl ContextualActions for Actions {
                 .execute(ctx, app, id, action.to_string(), close_panel),
         }
     }
-
     fn is_paused(&self) -> bool {
         self.is_paused
+    }
+    fn gameplay_mode(&self) -> GameplayMode {
+        self.gameplay.clone()
     }
 }

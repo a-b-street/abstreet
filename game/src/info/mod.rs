@@ -9,10 +9,10 @@ mod trip;
 
 use crate::app::App;
 use crate::common::Warping;
-use crate::edit::RouteEditor;
+use crate::edit::{EditMode, RouteEditor};
 use crate::game::Transition;
 use crate::helpers::{color_for_agent_type, copy_to_clipboard, hotkey_btn, ID};
-use crate::sandbox::{SandboxMode, TimeWarpScreen};
+use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, TextExt,
@@ -555,14 +555,12 @@ impl InfoPanel {
                     }
                     return (false, None);
                 } else if let Some(x) = action.strip_prefix("edit BusRoute #") {
-                    // TODO Push EditMode too for consistency, but how to get at GameplayMode?
                     return (
                         false,
-                        Some(Transition::Push(RouteEditor::new(
-                            ctx,
-                            app,
-                            BusRouteID(x.parse::<usize>().unwrap()),
-                        ))),
+                        Some(Transition::PushTwice(
+                            EditMode::new(ctx, app, ctx_actions.gameplay_mode()),
+                            RouteEditor::new(ctx, app, BusRouteID(x.parse::<usize>().unwrap())),
+                        )),
                     );
                 } else {
                     let mut close_panel = true;
@@ -700,6 +698,9 @@ pub trait ContextualActions {
 
     // Slightly weird way to plumb in extra info, but...
     fn is_paused(&self) -> bool;
+    fn gameplay_mode(&self) -> GameplayMode {
+        unreachable!()
+    }
 }
 
 #[derive(Clone, PartialEq)]

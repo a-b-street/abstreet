@@ -123,7 +123,7 @@ impl Tutorial {
                     // TODO Ideally this would be an inactive button in message states
                     if self.msg_panel.is_none() {
                         let mode = GameplayMode::Tutorial(tut.current);
-                        return Some(Transition::Push(Box::new(EditMode::new(ctx, app, mode))));
+                        return Some(Transition::Push(EditMode::new(ctx, app, mode)));
                     }
                 }
                 _ => unreachable!(),
