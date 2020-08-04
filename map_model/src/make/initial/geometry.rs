@@ -48,7 +48,9 @@ pub fn intersection_polygon(
         l.pt1().angle_to(intersection_center).normalized_degrees() as i64
     });
 
-    if lines.len() == 1 {
+    if i.id.osm_node_id == 29484936 {
+        on_off_ramp(driving_side, roads, i.id, lines)
+    } else if lines.len() == 1 {
         deadend(driving_side, roads, i.id, &lines)
     } else {
         generalized_trim_back(driving_side, roads, i.id, &lines, timer)
@@ -354,4 +356,191 @@ fn close_off_polygon(mut pts: Vec<Pt2D>) -> Vec<Pt2D> {
     }
     pts.push(pts[0]);
     pts
+}
+
+// The lines all end at the intersection
+struct Piece {
+    id: OriginalRoad,
+    left: PolyLine,
+    center: PolyLine,
+    right: PolyLine,
+}
+
+fn on_off_ramp(
+    driving_side: DrivingSide,
+    roads: &mut BTreeMap<OriginalRoad, Road>,
+    i: OriginalIntersection,
+    lines: Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
+) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
+    let mut debug = Vec::new();
+
+    let mut pieces = Vec::new();
+    // TODO Use this abstraction for all the code here?
+    for (id, _, right, left) in lines {
+        let r = &roads[&id];
+        let center = if r.dst_i == i {
+            r.trimmed_center_pts.clone()
+        } else {
+            r.trimmed_center_pts.reversed()
+        };
+        pieces.push(Piece {
+            id,
+            left,
+            center,
+            right,
+        });
+    }
+
+    assert_eq!(pieces.len(), 3);
+    pieces.sort_by_key(|r| roads[&r.id].half_width);
+    let thick1 = pieces.pop().unwrap();
+    let thick2 = pieces.pop().unwrap();
+    let thin = pieces.pop().unwrap();
+
+    // Find where the thin hits the thick farthest along.
+    // (trimmed thin center, trimmed thick center, the thick road we hit)
+    let mut best_hit: Option<(PolyLine, PolyLine, OriginalRoad)> = None;
+    for thin_pl in vec![&thin.left, &thin.right] {
+        for thick in vec![&thick1, &thick2] {
+            for thick_pl in vec![&thick.left, &thick.right] {
+                if let Some((hit, angle)) = thin_pl.intersection(thick_pl) {
+                    // Find where the perpendicular hits the original road line
+                    // TODO Refactor something to go from a hit+angle on a left/right to a trimmed
+                    // center.
+                    let perp = Line::must_new(
+                        hit,
+                        hit.project_away(Distance::meters(1.0), angle.rotate_degs(90.0)),
+                    )
+                    .infinite();
+                    let trimmed_thin = thin
+                        .center
+                        .reversed()
+                        .intersection_infinite(&perp)
+                        .and_then(|trim_to| thin.center.get_slice_ending_at(trim_to))
+                        .unwrap();
+
+                    // Do the same for the thick road
+                    let (_, angle) = thick_pl.dist_along_of_point(hit).unwrap();
+                    let perp = Line::must_new(
+                        hit,
+                        hit.project_away(Distance::meters(1.0), angle.rotate_degs(90.0)),
+                    )
+                    .infinite();
+                    let trimmed_thick = thick
+                        .center
+                        .reversed()
+                        .intersection_infinite(&perp)
+                        .and_then(|trim_to| thick.center.get_slice_ending_at(trim_to))
+                        .unwrap();
+
+                    if false {
+                        debug.push((
+                            format!("1"),
+                            geom::Circle::new(hit, Distance::meters(3.0)).to_polygon(),
+                        ));
+                        debug.push((
+                            format!("2"),
+                            geom::Circle::new(trimmed_thin.last_pt(), Distance::meters(3.0))
+                                .to_polygon(),
+                        ));
+                        debug.push((
+                            format!("3"),
+                            geom::Circle::new(trimmed_thick.last_pt(), Distance::meters(3.0))
+                                .to_polygon(),
+                        ));
+                    }
+                    if best_hit
+                        .as_ref()
+                        .map(|(pl, _, _)| trimmed_thin.length() < pl.length())
+                        .unwrap_or(true)
+                    {
+                        best_hit = Some((trimmed_thin, trimmed_thick, thick.id));
+                    }
+                }
+            }
+        }
+    }
+
+    {
+        // Trim the thin
+        let (mut trimmed_thin, mut trimmed_thick, thick_id) = best_hit.unwrap();
+        if roads[&thin.id].dst_i != i {
+            trimmed_thin = trimmed_thin.reversed();
+        }
+        roads.get_mut(&thin.id).unwrap().trimmed_center_pts = trimmed_thin;
+
+        // Trim the thick
+        // extra ends at the intersection
+        let extra = if roads[&thick_id].dst_i == i {
+            roads[&thick_id]
+                .trimmed_center_pts
+                .get_slice_starting_at(trimmed_thick.last_pt())
+                .unwrap()
+        } else {
+            trimmed_thick = trimmed_thick.reversed();
+            roads[&thick_id]
+                .trimmed_center_pts
+                .get_slice_ending_at(trimmed_thick.first_pt())
+                .unwrap()
+                .reversed()
+        };
+        roads.get_mut(&thick_id).unwrap().trimmed_center_pts = trimmed_thick;
+        // Give the merge point some length
+        let extra = extra.exact_slice(2.0 * DEGENERATE_INTERSECTION_HALF_LENGTH, extra.length());
+
+        // Now the crazy part -- take the other thick, and LENGTHEN it
+        let other = roads
+            .get_mut(if thick1.id == thick_id {
+                &thick2.id
+            } else {
+                &thick1.id
+            })
+            .unwrap();
+        if other.dst_i == i {
+            other.trimmed_center_pts = other
+                .trimmed_center_pts
+                .clone()
+                .must_extend(extra.reversed());
+        } else {
+            other.trimmed_center_pts = extra.must_extend(other.trimmed_center_pts.clone());
+        }
+    }
+
+    // Now build the actual polygon
+    let mut endpoints = Vec::new();
+    for id in vec![thin.id, thick1.id, thick2.id] {
+        let r = &roads[&id];
+        // Shift those final centers out again to find the main endpoints for the polygon.
+        if r.dst_i == i {
+            endpoints.push(
+                driving_side
+                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .last_pt(),
+            );
+            endpoints.push(
+                driving_side
+                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .last_pt(),
+            );
+        } else {
+            endpoints.push(
+                driving_side
+                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .first_pt(),
+            );
+            endpoints.push(
+                driving_side
+                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .first_pt(),
+            );
+        }
+    }
+    endpoints.sort_by_key(|pt| pt.to_hashable());
+    endpoints.dedup();
+    let center = Pt2D::center(&endpoints);
+    endpoints.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
+    (close_off_polygon(endpoints), debug)
+
+    //let dummy = geom::Circle::new(orig_lines[0].3.last_pt(), Distance::meters(3.0)).to_polygon();
+    //(close_off_polygon(dummy.into_points()), debug)
 }

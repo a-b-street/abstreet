@@ -180,7 +180,7 @@ impl Road {
         // These're half reasonable guesses. Better to explicitly tag in OSM.
         if self
             .osm_tags
-            .is_any(osm::HIGHWAY, vec!["primary", "secondary"])
+            .is_any(osm::HIGHWAY, vec!["primary", "secondary", "motorway_link"])
         {
             return Speed::miles_per_hour(40.0);
         }
