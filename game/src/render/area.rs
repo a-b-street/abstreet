@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use ezgui::{Color, GeomBatch, GfxCtx};
+use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Line, Text};
 use geom::Polygon;
 use map_model::{Area, AreaID, AreaType, Map};
 
@@ -11,8 +11,27 @@ pub struct DrawArea {
 }
 
 impl DrawArea {
-    pub fn new(area: &Area, cs: &ColorScheme, all_areas: &mut GeomBatch) -> DrawArea {
+    pub fn new(
+        ctx: &EventCtx,
+        area: &Area,
+        cs: &ColorScheme,
+        all_areas: &mut GeomBatch,
+    ) -> DrawArea {
         all_areas.push(DrawArea::color(area.area_type, cs), area.polygon.clone());
+        if false {
+            // TODO Z-order needs to be on top of everything
+            // TODO Need to auto-size better -- ensure it's completely contained in the polygon,
+            // probably
+            if let Some(name) = area.osm_tags.get("name") {
+                all_areas.append(
+                    Text::from(Line(name).fg(Color::BLACK))
+                        .render_to_batch(ctx.prerender)
+                        .scale(1.0)
+                        .centered_on(area.polygon.polylabel()),
+                );
+            }
+        }
+
         DrawArea { id: area.id }
     }
 
