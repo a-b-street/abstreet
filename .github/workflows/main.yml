@@ -1,3 +1,6 @@
+# TODO
+# https://github.com/Uriopass/Egregoria/blob/master/.github/workflows/release.yml
+# has stuff for automating releases
 name: Build
 on: [push]
 jobs:

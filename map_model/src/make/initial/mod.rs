@@ -4,7 +4,7 @@ pub mod lane_specs;
 pub use self::geometry::intersection_polygon;
 use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad, RawMap, RawRoad};
 use crate::IntersectionType;
-use abstutil::Timer;
+use abstutil::{Tags, Timer};
 use geom::{Bounds, Distance, PolyLine, Pt2D};
 use lane_specs::LaneSpec;
 use std::collections::{BTreeMap, BTreeSet};
@@ -25,6 +25,7 @@ pub struct Road {
     pub trimmed_center_pts: PolyLine,
     pub half_width: Distance,
     pub lane_specs: Vec<LaneSpec>,
+    pub osm_tags: Tags,
 }
 
 impl Road {
@@ -39,6 +40,7 @@ impl Road {
             trimmed_center_pts,
             half_width: total_width / 2.0,
             lane_specs,
+            osm_tags: r.osm_tags.clone(),
         }
     }
 }

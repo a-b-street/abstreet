@@ -49,7 +49,7 @@ impl DrawCar {
             );
         }
 
-        let body_polygon = if input.body.length() < Distance::meters(1.0) {
+        let body_polygon = if input.body.length() < Distance::meters(1.1) {
             // Simpler shape while appearing from a border
             input.body.make_polygons(CAR_WIDTH)
         } else {

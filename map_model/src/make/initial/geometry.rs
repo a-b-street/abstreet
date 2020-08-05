@@ -1,4 +1,5 @@
 use crate::make::initial::{Intersection, Road};
+use crate::osm;
 use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad};
 use abstutil::{wraparound_get, Timer};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
@@ -48,14 +49,19 @@ pub fn intersection_polygon(
         l.pt1().angle_to(intersection_center).normalized_degrees() as i64
     });
 
-    if i.id.osm_node_id == 29484936
-        || i.id.osm_node_id == 29545445
-        || i.id.osm_node_id == 1864943558
-    {
-        on_off_ramp(driving_side, roads, i.id, lines)
-    } else if lines.len() == 1 {
-        deadend(driving_side, roads, i.id, &lines)
+    if lines.len() == 1 {
+        return deadend(driving_side, roads, i.id, &lines);
+    }
+    let rollback = lines
+        .iter()
+        .map(|(r, _, _, _)| (*r, roads[r].trimmed_center_pts.clone()))
+        .collect::<Vec<_>>();
+    if let Some(result) = on_off_ramp(driving_side, roads, i.id, lines.clone()) {
+        result
     } else {
+        for (r, trimmed_center_pts) in rollback {
+            roads.get_mut(&r).unwrap().trimmed_center_pts = trimmed_center_pts;
+        }
         generalized_trim_back(driving_side, roads, i.id, &lines, timer)
     }
 }
@@ -369,12 +375,41 @@ struct Piece {
     right: PolyLine,
 }
 
+// Try to apply to any 3-way. Might fail for many reasons.
 fn on_off_ramp(
     driving_side: DrivingSide,
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: OriginalIntersection,
     lines: Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
-) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
+) -> Option<(Vec<Pt2D>, Vec<(String, Polygon)>)> {
+    if lines.len() != 3 {
+        return None;
+    }
+    // TODO Really this should apply based on some geometric consideration (one of the endpoints
+    // totally inside the other thick road's polygon), but for the moment, this is an OK filter.
+    //
+    // Example candidate: https://www.openstreetmap.org/node/32177767
+    let mut ok = false;
+    for (r, _, _, _) in &lines {
+        if roads[r].osm_tags.is_any(
+            osm::HIGHWAY,
+            vec![
+                "motorway",
+                "motorway_link",
+                "primary_link",
+                "secondary_link",
+                "tertiary_link",
+                "trunk_link",
+            ],
+        ) {
+            ok = true;
+            break;
+        }
+    }
+    if !ok {
+        return None;
+    }
+
     let mut debug = Vec::new();
 
     let mut pieces = Vec::new();
@@ -394,7 +429,6 @@ fn on_off_ramp(
         });
     }
 
-    assert_eq!(pieces.len(), 3);
     pieces.sort_by_key(|r| roads[&r.id].half_width);
     let thick1 = pieces.pop().unwrap();
     let thick2 = pieces.pop().unwrap();
@@ -419,8 +453,7 @@ fn on_off_ramp(
                         .center
                         .reversed()
                         .intersection_infinite(&perp)
-                        .and_then(|trim_to| thin.center.get_slice_ending_at(trim_to))
-                        .unwrap();
+                        .and_then(|trim_to| thin.center.get_slice_ending_at(trim_to))?;
 
                     // Do the same for the thick road
                     let (_, angle) = thick_pl.dist_along_of_point(hit).unwrap();
@@ -466,7 +499,7 @@ fn on_off_ramp(
 
     {
         // Trim the thin
-        let (mut trimmed_thin, mut trimmed_thick, thick_id) = best_hit.unwrap();
+        let (mut trimmed_thin, mut trimmed_thick, thick_id) = best_hit?;
         if roads[&thin.id].dst_i != i {
             trimmed_thin = trimmed_thin.reversed();
         }
@@ -477,18 +510,19 @@ fn on_off_ramp(
         let extra = if roads[&thick_id].dst_i == i {
             roads[&thick_id]
                 .trimmed_center_pts
-                .get_slice_starting_at(trimmed_thick.last_pt())
-                .unwrap()
+                .get_slice_starting_at(trimmed_thick.last_pt())?
         } else {
             trimmed_thick = trimmed_thick.reversed();
             roads[&thick_id]
                 .trimmed_center_pts
-                .get_slice_ending_at(trimmed_thick.first_pt())
-                .unwrap()
+                .get_slice_ending_at(trimmed_thick.first_pt())?
                 .reversed()
         };
         roads.get_mut(&thick_id).unwrap().trimmed_center_pts = trimmed_thick;
         // Give the merge point some length
+        if extra.length() <= 2.0 * DEGENERATE_INTERSECTION_HALF_LENGTH {
+            return None;
+        }
         let extra = extra.exact_slice(2.0 * DEGENERATE_INTERSECTION_HALF_LENGTH, extra.length());
 
         // Now the crazy part -- take the other thick, and LENGTHEN it
@@ -503,9 +537,10 @@ fn on_off_ramp(
             other.trimmed_center_pts = other
                 .trimmed_center_pts
                 .clone()
-                .must_extend(extra.reversed());
+                .extend(extra.reversed())
+                .ok()?;
         } else {
-            other.trimmed_center_pts = extra.must_extend(other.trimmed_center_pts.clone());
+            other.trimmed_center_pts = extra.extend(other.trimmed_center_pts.clone()).ok()?;
         }
     }
 
@@ -542,8 +577,8 @@ fn on_off_ramp(
     endpoints.dedup();
     let center = Pt2D::center(&endpoints);
     endpoints.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
-    (close_off_polygon(endpoints), debug)
+    Some((close_off_polygon(endpoints), debug))
 
     //let dummy = geom::Circle::new(orig_lines[0].3.last_pt(), Distance::meters(3.0)).to_polygon();
-    //(close_off_polygon(dummy.into_points()), debug)
+    //Some((close_off_polygon(dummy.into_points()), debug))
 }
