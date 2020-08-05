@@ -22,21 +22,6 @@ impl<ID: ObjectID> Object<ID> {
             geometry: vec![(color, poly)],
         }
     }
-
-    pub fn blank(id: ID) -> Object<ID> {
-        Object {
-            id,
-            geometry: Vec::new(),
-        }
-    }
-
-    pub fn get_id(&self) -> ID {
-        self.id
-    }
-
-    pub fn push(&mut self, color: Color, poly: Polygon) {
-        self.geometry.push((color, poly));
-    }
 }
 
 struct WorldObject {
@@ -153,9 +138,5 @@ impl<ID: ObjectID> World<ID> {
     pub fn delete(&mut self, id: ID) {
         let obj = self.objects.remove(&id).unwrap();
         self.quadtree.remove(obj.quadtree_id).unwrap();
-    }
-
-    pub fn get_unioned_polygon(&self, id: ID) -> Option<&Polygon> {
-        Some(&self.objects.get(&id)?.unioned_polygon)
     }
 }

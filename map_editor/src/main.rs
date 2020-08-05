@@ -3,15 +3,12 @@ mod world;
 
 use abstutil::{CmdArgs, Timer};
 use ezgui::{
-    hotkey, Btn, Canvas, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, ScreenPt, Text, VerticalAlignment, Widget, Wizard,
-    GUI,
+    hotkey, Btn, Canvas, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, ScreenPt, Text, VerticalAlignment, Widget, GUI,
 };
-use geom::{ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad, RestrictionType};
-use map_model::{osm, NORMAL_LANE_THICKNESS};
+use geom::{Distance, Line, Polygon};
+use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad};
 use model::{Model, ID};
-use std::collections::HashSet;
 
 struct UI {
     model: Model,
@@ -24,30 +21,13 @@ struct UI {
 }
 
 enum State {
-    Viewing { short_roads: HashSet<OriginalRoad> },
+    Viewing,
     MovingIntersection(OriginalIntersection),
     MovingBuilding(OriginalBuilding),
     MovingRoadPoint(OriginalRoad, usize),
     CreatingRoad(OriginalIntersection),
-    EditingLanes(OriginalRoad, Wizard),
-    EditingRoadAttribs(OriginalRoad, Wizard),
-    SavingModel(Wizard),
-    // bool is if key is down
-    SelectingRectangle(Pt2D, Pt2D, bool),
-    CreatingTurnRestrictionPt1(OriginalRoad),
-    CreatingTurnRestrictionPt2(OriginalRoad, OriginalRoad, Wizard),
     // bool is show_tooltip
     PreviewIntersection(Drawable, bool),
-    EnteringWarp(Wizard),
-    StampingRoads(String, String, String, String),
-}
-
-impl State {
-    fn viewing() -> State {
-        State::Viewing {
-            short_roads: HashSet::new(),
-        }
-    }
 }
 
 impl UI {
@@ -70,7 +50,7 @@ impl UI {
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
         UI {
             model,
-            state: State::viewing(),
+            state: State::Viewing,
             composite: Composite::new(Widget::col(vec![
                 Line("Map Editor").small_heading().draw(ctx),
                 Text::new().draw(ctx).named("current info"),
@@ -78,10 +58,7 @@ impl UI {
                     vec![
                         (hotkey(Key::Escape), "quit"),
                         (None, "save raw map"),
-                        (hotkey(Key::J), "warp to something"),
                         (hotkey(Key::G), "preview all intersections"),
-                        (None, "find overlapping intersections"),
-                        (hotkey(Key::Z), "find/clear short roads"),
                     ]
                     .into_iter()
                     .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
@@ -122,9 +99,7 @@ impl GUI for UI {
         }
 
         match self.state {
-            State::Viewing {
-                ref mut short_roads,
-            } => {
+            State::Viewing => {
                 {
                     let before = match self.last_id {
                         Some(ID::Road(r)) | Some(ID::RoadPoint(r, _)) => Some(r),
@@ -154,8 +129,6 @@ impl GUI for UI {
                         } else if ctx.input.key_pressed(Key::Backspace) {
                             self.model.delete_i(i);
                             self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::T) {
-                            self.model.toggle_i_type(i, ctx);
                         } else if !self.model.intersection_geom && ctx.input.key_pressed(Key::P) {
                             let draw = preview_intersection(i, &self.model, ctx);
                             self.state = State::PreviewIntersection(draw, false);
@@ -170,43 +143,9 @@ impl GUI for UI {
                         }
                     }
                     Some(ID::Road(r)) => {
-                        let could_swap = {
-                            let lanes = self.model.map.roads[&r].get_spec();
-                            lanes.fwd != lanes.back
-                        };
-
                         if ctx.input.key_pressed(Key::Backspace) {
                             self.model.delete_r(r);
                             self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::E) {
-                            self.state = State::EditingLanes(r, Wizard::new());
-                        } else if ctx.input.key_pressed(Key::N) {
-                            self.state = State::EditingRoadAttribs(r, Wizard::new());
-                        } else if could_swap && ctx.input.key_pressed(Key::S) {
-                            self.model.swap_lanes(r, ctx);
-                            self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::F) {
-                            self.model.toggle_r_sidewalks(r, ctx);
-                            self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::R) {
-                            self.state = State::CreatingTurnRestrictionPt1(r);
-                        } else if ctx.input.key_pressed(Key::C) {
-                            let road = &self.model.map.roads[&r];
-                            self.state = State::StampingRoads(
-                                road.get_spec().to_string(),
-                                road.osm_tags
-                                    .get(osm::NAME)
-                                    .cloned()
-                                    .unwrap_or_else(|| "Unnamed street".to_string()),
-                                road.osm_tags
-                                    .get(osm::MAXSPEED)
-                                    .cloned()
-                                    .unwrap_or_else(|| "25 mph".to_string()),
-                                road.osm_tags
-                                    .get(osm::HIGHWAY)
-                                    .cloned()
-                                    .unwrap_or_else(|| "residential".to_string()),
-                            );
                         } else if cursor.is_some() && ctx.input.key_pressed(Key::P) {
                             if let Some(id) = self.model.insert_r_pt(r, cursor.unwrap(), ctx) {
                                 self.model.world.force_set_selection(id);
@@ -223,12 +162,6 @@ impl GUI for UI {
                             self.model.world.handle_mouseover(ctx);
                         }
                     }
-                    Some(ID::TurnRestriction(tr)) => {
-                        if ctx.input.key_pressed(Key::Backspace) {
-                            self.model.delete_tr(tr);
-                            self.model.world.handle_mouseover(ctx);
-                        }
-                    }
                     None => {
                         match self.composite.event(ctx) {
                             Outcome::Clicked(x) => match x.as_ref() {
@@ -238,30 +171,12 @@ impl GUI for UI {
                                 }
                                 "save raw map" => {
                                     // TODO Only do this for synthetic maps
-                                    if self.model.map.name != "" {
-                                        self.model.export();
-                                    } else {
-                                        self.state = State::SavingModel(Wizard::new());
-                                    }
-                                }
-                                "warp to something" => {
-                                    self.state = State::EnteringWarp(Wizard::new());
+                                    self.model.export();
                                 }
                                 "preview all intersections" => {
                                     if !self.model.intersection_geom {
                                         let draw = preview_all_intersections(&self.model, ctx);
                                         self.state = State::PreviewIntersection(draw, false);
-                                    }
-                                }
-                                "find overlapping intersections" => {
-                                    let draw = find_overlapping_intersections(&self.model, ctx);
-                                    self.state = State::PreviewIntersection(draw, false);
-                                }
-                                "find/clear short roads" => {
-                                    if short_roads.is_empty() {
-                                        *short_roads = find_short_roads(&self.model);
-                                    } else {
-                                        short_roads.clear();
                                     }
                                 }
                                 _ => unreachable!(),
@@ -280,10 +195,6 @@ impl GUI for UI {
                                         let id = self.model.create_b(pt, ctx);
                                         self.model.world.force_set_selection(id);
                                     }
-                                } else if ctx.input.key_pressed(Key::LeftShift) {
-                                    if let Some(pt) = cursor {
-                                        self.state = State::SelectingRectangle(pt, pt, true);
-                                    }
                                 }
                             }
                         }
@@ -294,7 +205,7 @@ impl GUI for UI {
                 if let Some(pt) = cursor {
                     self.model.move_i(id, pt, ctx);
                     if ctx.input.key_released(Key::LeftControl) {
-                        self.state = State::viewing();
+                        self.state = State::Viewing;
                     }
                 }
             }
@@ -302,7 +213,7 @@ impl GUI for UI {
                 if let Some(pt) = cursor {
                     self.model.move_b(id, pt, ctx);
                     if ctx.input.key_released(Key::LeftControl) {
-                        self.state = State::viewing();
+                        self.state = State::Viewing;
                     }
                 }
             }
@@ -310,132 +221,20 @@ impl GUI for UI {
                 if let Some(pt) = cursor {
                     self.model.move_r_pt(r, idx, pt, ctx);
                     if ctx.input.key_released(Key::LeftControl) {
-                        self.state = State::viewing();
+                        self.state = State::Viewing;
                     }
                 }
             }
             State::CreatingRoad(i1) => {
                 if ctx.input.key_pressed(Key::Escape) {
-                    self.state = State::viewing();
+                    self.state = State::Viewing;
                     self.model.world.handle_mouseover(ctx);
                 } else if let Some(ID::Intersection(i2)) = self.model.world.get_selection() {
                     if i1 != i2 && ctx.input.key_pressed(Key::R) {
                         self.model.create_r(i1, i2, ctx);
-                        self.state = State::viewing();
+                        self.state = State::Viewing;
                         self.model.world.handle_mouseover(ctx);
                     }
-                }
-            }
-            State::EditingLanes(id, ref mut wizard) => {
-                if let Some(s) = wizard.wrap(ctx).input_string_prefilled(
-                    "Specify the lanes",
-                    self.model.map.roads[&id].get_spec().to_string(),
-                ) {
-                    self.model.edit_lanes(id, s, ctx);
-                    self.state = State::viewing();
-                    self.model.world.handle_mouseover(ctx);
-                } else if wizard.aborted() {
-                    self.state = State::viewing();
-                    self.model.world.handle_mouseover(ctx);
-                }
-            }
-            State::EditingRoadAttribs(id, ref mut wizard) => {
-                let (orig_name, orig_speed) = {
-                    let r = &self.model.map.roads[&id];
-                    (
-                        r.osm_tags
-                            .get(osm::NAME)
-                            .cloned()
-                            .unwrap_or_else(String::new),
-                        r.osm_tags
-                            .get(osm::MAXSPEED)
-                            .cloned()
-                            .unwrap_or_else(String::new),
-                    )
-                };
-
-                let mut wiz = wizard.wrap(ctx);
-                let mut done = false;
-                if let Some(n) = wiz.input_string_prefilled("Name the road", orig_name) {
-                    if let Some(s) = wiz.input_string_prefilled("What speed limit?", orig_speed) {
-                        if let Some(h) = wiz
-                            .choose_string("What highway type (for coloring)?", || {
-                                vec!["motorway", "primary", "residential"]
-                            })
-                        {
-                            self.model.set_r_name_and_speed(id, n, s, h, ctx);
-                            done = true;
-                        }
-                    }
-                }
-                if done || wizard.aborted() {
-                    self.state = State::viewing();
-                    self.model.world.handle_mouseover(ctx);
-                }
-            }
-            State::SavingModel(ref mut wizard) => {
-                if let Some(name) = wizard.wrap(ctx).input_string("Name the synthetic map") {
-                    self.model.map.name = name;
-                    self.model.export();
-                    self.state = State::viewing();
-                } else if wizard.aborted() {
-                    self.state = State::viewing();
-                }
-            }
-            State::SelectingRectangle(pt1, ref mut pt2, ref mut keydown) => {
-                if ctx.input.key_pressed(Key::LeftShift) {
-                    *keydown = true;
-                } else if ctx.input.key_released(Key::LeftShift) {
-                    *keydown = false;
-                }
-
-                if *keydown {
-                    if let Some(pt) = cursor {
-                        *pt2 = pt;
-                    }
-                }
-                if ctx.input.key_pressed(Key::Escape) {
-                    self.state = State::viewing();
-                } else if ctx.input.key_pressed(Key::Backspace) {
-                    if let Some(rect) = Polygon::rectangle_two_corners(pt1, *pt2) {
-                        self.model.delete_everything_inside(rect);
-                        self.model.world.handle_mouseover(ctx);
-                    }
-                    self.state = State::viewing();
-                }
-            }
-            State::CreatingTurnRestrictionPt1(from) => {
-                if ctx.input.key_pressed(Key::Escape) {
-                    self.state = State::viewing();
-                    self.model.world.handle_mouseover(ctx);
-                } else if let Some(ID::Road(to)) = self.model.world.get_selection() {
-                    if ctx.input.key_pressed(Key::R) {
-                        if self.model.map.can_add_turn_restriction(from, to) {
-                            self.state = State::CreatingTurnRestrictionPt2(from, to, Wizard::new());
-                        } else {
-                            println!("These roads aren't connected");
-                        }
-                    }
-                }
-            }
-            State::CreatingTurnRestrictionPt2(from, to, ref mut wizard) => {
-                if let Some((_, restriction)) =
-                    wizard.wrap(ctx).choose("What turn restriction?", || {
-                        vec![
-                            Choice::new("ban turns between", RestrictionType::BanTurns),
-                            Choice::new(
-                                "only allow turns between",
-                                RestrictionType::OnlyAllowTurns,
-                            ),
-                        ]
-                    })
-                {
-                    self.model.add_tr(from, restriction, to, ctx);
-                    self.state = State::viewing();
-                    self.model.world.handle_mouseover(ctx);
-                } else if wizard.aborted() {
-                    self.state = State::viewing();
-                    self.model.world.handle_mouseover(ctx);
                 }
             }
             State::PreviewIntersection(_, ref mut show_tooltip) => {
@@ -447,46 +246,8 @@ impl GUI for UI {
 
                 // TODO Woops, not communicating this kind of thing anymore
                 if ctx.input.key_pressed(Key::P) {
-                    self.state = State::viewing();
+                    self.state = State::Viewing;
                     self.model.world.handle_mouseover(ctx);
-                }
-            }
-            State::EnteringWarp(ref mut wizard) => {
-                if let Some(line) = wizard.wrap(ctx).input_string("Warp to what?") {
-                    let mut ok = false;
-                    if let Ok(num) = i64::from_str_radix(&line[1..line.len()], 10) {
-                        if &line[0..=0] == "i" {
-                            let id = OriginalIntersection { osm_node_id: num };
-                            ctx.canvas
-                                .center_on_map_pt(self.model.map.intersections[&id].point);
-                            ok = true;
-                        }
-                    }
-                    if !ok {
-                        println!("Sorry, don't understand {}", line);
-                    }
-                    self.state = State::viewing();
-                    self.model.world.handle_mouseover(ctx);
-                } else if wizard.aborted() {
-                    self.state = State::viewing();
-                    self.model.world.handle_mouseover(ctx);
-                }
-            }
-            State::StampingRoads(ref lanespec, ref name, ref speed, ref highway) => {
-                if ctx.input.key_pressed(Key::Escape) {
-                    self.state = State::viewing();
-                    self.model.world.handle_mouseover(ctx);
-                } else if let Some(ID::Road(id)) = self.model.world.get_selection() {
-                    if ctx.input.key_pressed(Key::C) {
-                        self.model.set_r_name_and_speed(
-                            id,
-                            name.to_string(),
-                            speed.to_string(),
-                            highway.to_string(),
-                            ctx,
-                        );
-                        self.model.edit_lanes(id, lanespec.to_string(), ctx);
-                    }
                 }
             }
         }
@@ -530,50 +291,10 @@ impl GUI for UI {
                     }
                 }
             }
-            State::EditingLanes(_, ref wizard)
-            | State::EditingRoadAttribs(_, ref wizard)
-            | State::SavingModel(ref wizard)
-            | State::EnteringWarp(ref wizard) => {
-                wizard.draw(g);
-            }
-            State::Viewing { ref short_roads } => {
-                for r in short_roads {
-                    if let Some(p) = self.model.world.get_unioned_polygon(ID::Road(*r)) {
-                        g.draw_polygon(Color::CYAN, p.clone());
-                    }
-                }
-            }
-            State::MovingIntersection(_)
+            State::Viewing
+            | State::MovingIntersection(_)
             | State::MovingBuilding(_)
-            | State::MovingRoadPoint(_, _)
-            | State::StampingRoads(_, _, _, _) => {}
-            State::SelectingRectangle(pt1, pt2, _) => {
-                if let Some(rect) = Polygon::rectangle_two_corners(pt1, pt2) {
-                    g.draw_polygon(Color::BLUE.alpha(0.5), rect);
-                }
-            }
-            State::CreatingTurnRestrictionPt1(from) => {
-                if let Some(cursor) = g.get_cursor_in_map_space() {
-                    if let Ok(l) = PolyLine::new(vec![self.model.get_r_center(from), cursor]) {
-                        g.draw_polygon(
-                            Color::PURPLE,
-                            l.make_arrow(NORMAL_LANE_THICKNESS, ArrowCap::Triangle),
-                        );
-                    }
-                }
-            }
-            State::CreatingTurnRestrictionPt2(from, to, ref wizard) => {
-                if let Ok(l) = PolyLine::new(vec![
-                    self.model.get_r_center(from),
-                    self.model.get_r_center(to),
-                ]) {
-                    g.draw_polygon(
-                        Color::PURPLE,
-                        l.make_arrow(NORMAL_LANE_THICKNESS, ArrowCap::Triangle),
-                    );
-                }
-                wizard.draw(g);
-            }
+            | State::MovingRoadPoint(_, _) => {}
             State::PreviewIntersection(ref draw, show_tooltip) => {
                 g.redraw(draw);
 
@@ -641,61 +362,6 @@ fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
         batch.push(Color::ORANGE.alpha(0.5), intersection);
     }
     batch.upload(ctx)
-}
-
-fn find_overlapping_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
-    let mut timer = Timer::new("find overlapping intersections");
-    let mut polygons = Vec::new();
-    for i in model.map.intersections.keys() {
-        if model.map.roads_per_intersection(*i).is_empty() {
-            continue;
-        }
-        let (intersection, _, _) = model.map.preview_intersection(*i, &mut timer);
-        polygons.push((*i, intersection));
-    }
-
-    let mut overlap = Vec::new();
-    timer.start_iter(
-        "terrible quadratic intersection check",
-        polygons.len().pow(2),
-    );
-    for (i1, poly1) in &polygons {
-        for (i2, poly2) in &polygons {
-            timer.next();
-            if i1 >= i2 {
-                continue;
-            }
-            let hits = poly1.intersection(poly2);
-            if !hits.is_empty() {
-                overlap.extend(hits);
-                timer.warn(format!("{} hits {}", i1, i2));
-            }
-        }
-    }
-
-    let mut batch = GeomBatch::new();
-    batch.extend(Color::RED.alpha(0.5), overlap);
-    batch.upload(ctx)
-}
-
-// TODO OriginalRoad is dangerous, as this map changes. :\
-fn find_short_roads(model: &Model) -> HashSet<OriginalRoad> {
-    // Assume the full map has been built. We really care about short lanes there.
-    let map: map_model::Map =
-        abstutil::read_binary(abstutil::path_map(&model.map.name), &mut Timer::throwaway());
-    // Buses are 12.5
-    let threshold = Distance::meters(13.0);
-    let mut roads: HashSet<OriginalRoad> = HashSet::new();
-    for l in map.all_lanes() {
-        if l.length() < threshold {
-            roads.insert(map.get_r(l.parent).orig_id);
-        }
-    }
-    println!("{} short roads", roads.len());
-    for r in &roads {
-        println!("- {}", r);
-    }
-    roads
 }
 
 fn main() {

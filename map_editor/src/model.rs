@@ -1,22 +1,16 @@
 use crate::world::{Object, ObjectID, World};
 use abstutil::{Tags, Timer};
 use ezgui::{Color, EventCtx, Line, Text};
-use geom::{
-    ArrowCap, Bounds, Circle, Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D,
-};
+use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw::{
     OriginalBuilding, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap,
-    RawRoad, RestrictionType, TurnRestriction,
+    RawRoad,
 };
-use map_model::{
-    osm, IntersectionType, LaneType, RoadSpec, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
-};
+use map_model::{osm, IntersectionType};
 use std::collections::{BTreeMap, BTreeSet};
-use std::mem;
 
 const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
 const BUILDING_LENGTH: Distance = Distance::const_meters(30.0);
-const CENTER_LINE_THICKNESS: Distance = Distance::const_meters(0.5);
 
 pub struct Model {
     // map and world are pub. The main crate should use them directly for simple stuff, to avoid
@@ -86,7 +80,9 @@ impl Model {
 impl Model {
     // TODO Only for truly synthetic maps...
     pub fn export(&mut self) {
-        assert!(self.map.name != "");
+        if self.map.name == "" {
+            self.map.name = "new_synthetic_map".to_string();
+        }
 
         // Shift the map to start at (0, 0)
         let bounds = self.compute_bounds();
@@ -140,32 +136,6 @@ impl Model {
         bounds
     }
 
-    pub fn delete_everything_inside(&mut self, area: Polygon) {
-        if self.include_bldgs {
-            for id in self.map.buildings.keys().cloned().collect::<Vec<_>>() {
-                if area.contains_pt(self.map.buildings[&id].polygon.center()) {
-                    self.delete_b(id);
-                }
-            }
-        }
-
-        for id in self.map.roads.keys().cloned().collect::<Vec<_>>() {
-            if self.map.roads[&id]
-                .center_points
-                .iter()
-                .any(|pt| area.contains_pt(*pt))
-            {
-                self.delete_r(id);
-            }
-        }
-
-        for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
-            if area.contains_pt(self.map.intersections[&id].point) {
-                self.delete_i(id);
-            }
-        }
-    }
-
     pub fn describe_obj(&self, id: ID) -> Text {
         let mut txt = Text::new().with_bg();
         match id {
@@ -204,14 +174,6 @@ impl Model {
                         Line(v).fg(Color::CYAN),
                     ]);
                 }
-                for (restriction, dst) in &road.turn_restrictions {
-                    txt.add_appended(vec![
-                        Line("Restriction: "),
-                        Line(format!("{:?}", restriction)).fg(Color::RED),
-                        Line(" to "),
-                        Line(format!("way {}", dst)).fg(Color::CYAN),
-                    ]);
-                }
 
                 // (MAX_CAR_LENGTH + sim::FOLLOWING_DISTANCE) from sim, but without the dependency
                 txt.add(Line(format!(
@@ -224,11 +186,6 @@ impl Model {
             ID::RoadPoint(r, idx) => {
                 txt.add_highlighted(Line(format!("Point {}", idx)), Color::BLUE);
                 txt.add(Line(format!("of {}", r)));
-            }
-            ID::TurnRestriction(TurnRestriction(from, restriction, to)) => {
-                txt.add_highlighted(Line(format!("{:?}", restriction)), Color::BLUE);
-                txt.add(Line(format!("from {}", from)));
-                txt.add(Line(format!("to {}", to)));
             }
         }
         txt
@@ -283,29 +240,6 @@ impl Model {
         self.intersection_added(id, ctx);
     }
 
-    pub fn toggle_i_type(&mut self, id: OriginalIntersection, ctx: &EventCtx) {
-        self.world.delete(ID::Intersection(id));
-        let it = match self.map.intersections[&id].intersection_type {
-            IntersectionType::StopSign => IntersectionType::TrafficSignal,
-            IntersectionType::TrafficSignal => {
-                if self.map.roads_per_intersection(id).len() == 1 {
-                    IntersectionType::Border
-                } else {
-                    IntersectionType::StopSign
-                }
-            }
-            IntersectionType::Border => IntersectionType::StopSign,
-            // These shouldn't exist in a basemap!
-            IntersectionType::Construction => unreachable!(),
-        };
-        self.map
-            .intersections
-            .get_mut(&id)
-            .unwrap()
-            .intersection_type = it;
-        self.intersection_added(id, ctx);
-    }
-
     pub fn delete_i(&mut self, id: OriginalIntersection) {
         if !self.map.can_delete_intersection(id) {
             println!("Can't delete intersection used by roads");
@@ -319,15 +253,11 @@ impl Model {
 // Roads
 impl Model {
     fn road_added(&mut self, id: OriginalRoad, ctx: &EventCtx) {
-        for obj in self.road_objects(id) {
-            self.world.add(ctx, obj);
-        }
+        self.world.add(ctx, self.road_object(id));
     }
 
     fn road_deleted(&mut self, id: OriginalRoad) {
-        for obj in self.road_objects(id) {
-            self.world.delete(obj.get_id());
-        }
+        self.world.delete(ID::Road(id));
     }
 
     pub fn create_r(&mut self, i1: OriginalIntersection, i2: OriginalIntersection, ctx: &EventCtx) {
@@ -348,15 +278,10 @@ impl Model {
             i2,
         };
         let mut osm_tags = Tags::new(BTreeMap::new());
-        osm_tags.insert(osm::SYNTHETIC, "true");
-        osm_tags.insert(
-            osm::SYNTHETIC_LANES,
-            RoadSpec {
-                fwd: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
-                back: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
-            }
-            .to_string(),
-        );
+        osm_tags.insert(osm::HIGHWAY, "residential");
+        osm_tags.insert(osm::PARKING_BOTH, "parallel");
+        osm_tags.insert(osm::SIDEWALK, "both");
+        osm_tags.insert("lanes", "2");
         osm_tags.insert(osm::ENDPT_FWD, "true");
         osm_tags.insert(osm::ENDPT_BACK, "true");
         osm_tags.insert(osm::OSM_WAY_ID, id.osm_way_id.to_string());
@@ -379,216 +304,20 @@ impl Model {
         self.road_added(id, ctx);
     }
 
-    pub fn edit_lanes(&mut self, id: OriginalRoad, spec: String, ctx: &EventCtx) {
-        self.road_deleted(id);
-
-        if let Some(s) = RoadSpec::parse(spec.clone()) {
-            self.map
-                .roads
-                .get_mut(&id)
-                .unwrap()
-                .osm_tags
-                .insert(osm::SYNTHETIC_LANES, s.to_string());
-        } else {
-            println!("Bad RoadSpec: {}", spec);
-        }
-
-        self.road_added(id, ctx);
-    }
-
-    pub fn swap_lanes(&mut self, id: OriginalRoad, ctx: &EventCtx) {
-        self.road_deleted(id);
-
-        let (mut lanes, osm_tags) = {
-            let r = self.map.roads.get_mut(&id).unwrap();
-            (r.get_spec(), &mut r.osm_tags)
-        };
-        mem::swap(&mut lanes.fwd, &mut lanes.back);
-        osm_tags.insert(osm::SYNTHETIC_LANES, lanes.to_string());
-
-        self.road_added(id, ctx);
-    }
-
-    pub fn set_r_name_and_speed(
-        &mut self,
-        id: OriginalRoad,
-        name: String,
-        speed: String,
-        highway: String,
-        ctx: &EventCtx,
-    ) {
-        self.road_deleted(id);
-
-        let osm_tags = &mut self.map.roads.get_mut(&id).unwrap().osm_tags;
-        osm_tags.insert(osm::NAME, name);
-        osm_tags.insert(osm::MAXSPEED, speed);
-        osm_tags.insert(osm::HIGHWAY, highway);
-
-        self.road_added(id, ctx);
-    }
-
-    pub fn toggle_r_sidewalks(&mut self, some_id: OriginalRoad, ctx: &EventCtx) {
-        // Update every road belonging to the way.
-        let osm_id = self.map.roads[&some_id]
-            .osm_tags
-            .get(osm::OSM_WAY_ID)
-            .unwrap();
-        let matching_roads = self
-            .map
-            .roads
-            .iter()
-            .filter_map(|(k, v)| {
-                if v.osm_tags.is(osm::OSM_WAY_ID, osm_id) {
-                    Some(*k)
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>();
-
-        // Verify every road has the same sidewalk tags. Hints might've applied to just some parts.
-        // If this is really true, then the way has to be split.
-        let value = self.map.roads[&some_id]
-            .osm_tags
-            .get(osm::SIDEWALK)
-            .cloned();
-        for r in &matching_roads {
-            if self.map.roads[r].osm_tags.get(osm::SIDEWALK) != value.as_ref() {
-                println!(
-                    "WARNING: {} and {} belong to same way, but have different sidewalk tags!",
-                    some_id, r
-                );
-            }
-        }
-
-        for id in matching_roads {
-            self.road_deleted(id);
-
-            let osm_tags = &mut self.map.roads.get_mut(&id).unwrap().osm_tags;
-            osm_tags.remove(osm::INFERRED_SIDEWALKS);
-            if value == Some("both".to_string()) {
-                osm_tags.insert(osm::SIDEWALK, "right");
-            } else if value == Some("right".to_string()) {
-                osm_tags.insert(osm::SIDEWALK, "left");
-            } else if value == Some("left".to_string()) {
-                osm_tags.insert(osm::SIDEWALK, "none");
-            } else if value == Some("none".to_string()) {
-                osm_tags.insert(osm::SIDEWALK, "both");
-            }
-
-            self.road_added(id, ctx);
-        }
-    }
-
     pub fn delete_r(&mut self, id: OriginalRoad) {
         self.stop_showing_pts(id);
         self.road_deleted(id);
-        for tr in self.map.delete_road(id) {
-            // We got these cases above in road_deleted
-            if tr.0 != id {
-                self.world.delete(ID::TurnRestriction(tr));
-            }
-        }
+        self.map.roads.remove(&id).unwrap();
     }
 
-    fn road_objects(&self, id: OriginalRoad) -> Vec<Object<ID>> {
-        let r = &self.map.roads[&id];
-        let unset = r.synthetic() && r.osm_tags.is(osm::NAME, "Streety McStreetFace");
-        let lanes_unknown = r.osm_tags.contains_key(osm::INFERRED_SIDEWALKS);
-        let spec = r.get_spec();
-        let center_pts = PolyLine::must_new(r.center_points.clone());
-
-        let mut obj = Object::blank(ID::Road(id));
-
-        let mut offset = Distance::ZERO;
-        for (idx, lt) in spec.fwd.iter().enumerate() {
-            let width = if *lt == LaneType::Sidewalk {
-                SIDEWALK_THICKNESS
-            } else {
-                NORMAL_LANE_THICKNESS
-            };
-            obj.push(
-                Model::lt_to_color(*lt, unset, lanes_unknown),
-                self.map
-                    .config
-                    .driving_side
-                    .right_shift(center_pts.clone(), offset + width / 2.0)
-                    .make_polygons(width),
-            );
-            offset += width;
-            if idx == 0 {
-                obj.push(
-                    Color::YELLOW,
-                    center_pts.make_polygons(CENTER_LINE_THICKNESS),
-                );
-            }
-        }
-        offset = Distance::ZERO;
-        for lt in &spec.back {
-            let width = if *lt == LaneType::Sidewalk {
-                SIDEWALK_THICKNESS
-            } else {
-                NORMAL_LANE_THICKNESS
-            };
-            obj.push(
-                Model::lt_to_color(*lt, unset, lanes_unknown),
-                self.map
-                    .config
-                    .driving_side
-                    .right_shift(center_pts.reversed(), offset + width / 2.0)
-                    .make_polygons(width),
-            );
-            offset += width;
-        }
-
-        let mut result = vec![obj];
-        for (restriction, to) in &r.turn_restrictions {
-            let polygon = if id == *to {
-                // TODO Ideally a hollow circle with an arrow
-                Circle::new(
-                    PolyLine::must_new(self.map.roads[&id].center_points.clone()).middle(),
-                    NORMAL_LANE_THICKNESS,
-                )
-                .to_polygon()
-            } else {
-                if !self.map.roads.contains_key(to) {
-                    // TODO Fix. When roads are clipped, need to update IDS.
-                    println!("Turn restriction to spot is missing!{}->{}", id, to);
-                    continue;
-                }
-                PolyLine::must_new(vec![self.get_r_center(id), self.get_r_center(*to)])
-                    .make_arrow(NORMAL_LANE_THICKNESS, ArrowCap::Triangle)
-            };
-
-            result.push(Object::new(
-                ID::TurnRestriction(TurnRestriction(id, *restriction, *to)),
-                Color::PURPLE,
-                polygon,
-            ));
-        }
-
-        result
-    }
-
-    // Copied from render/lane.rs. :(
-    fn lt_to_color(lt: LaneType, unset: bool, lanes_unknown: bool) -> Color {
-        let color = match lt {
-            LaneType::Driving => Color::BLACK,
-            LaneType::Bus => Color::rgb(190, 74, 76),
-            LaneType::Parking => Color::grey(0.2),
-            LaneType::Sidewalk | LaneType::Shoulder => Color::grey(0.8),
-            LaneType::Biking => Color::rgb(15, 125, 75),
-            LaneType::SharedLeftTurn => Color::YELLOW,
-            LaneType::Construction => Color::rgb(255, 109, 0),
-            LaneType::LightRail => Color::hex("#844204"),
-        };
-        if unset {
-            Color::rgba_f(0.9, color.g, color.b, 0.5)
-        } else if lanes_unknown {
-            Color::rgba_f(color.r, color.g, 0.9, 0.5)
-        } else {
-            color
-        }
+    fn road_object(&self, id: OriginalRoad) -> Object<ID> {
+        let (center, total_width) =
+            self.map.roads[&id].get_geometry(id, self.map.config.driving_side);
+        Object::new(
+            ID::Road(id),
+            Color::grey(0.8),
+            center.make_polygons(total_width),
+        )
     }
 
     pub fn show_r_points(&mut self, id: OriginalRoad, ctx: &EventCtx) {
@@ -706,39 +435,6 @@ impl Model {
         self.intersection_added(id.i2, ctx);
         self.show_r_points(id, ctx);
     }
-
-    pub fn get_r_center(&self, id: OriginalRoad) -> Pt2D {
-        PolyLine::must_new(self.map.roads[&id].center_points.clone()).middle()
-    }
-}
-
-// Turn restrictions
-impl Model {
-    pub fn add_tr(
-        &mut self,
-        from: OriginalRoad,
-        restriction: RestrictionType,
-        to: OriginalRoad,
-        ctx: &EventCtx,
-    ) {
-        self.road_deleted(from);
-
-        assert!(self.map.can_add_turn_restriction(from, to));
-        // TODO Worry about dupes
-        self.map
-            .roads
-            .get_mut(&from)
-            .unwrap()
-            .turn_restrictions
-            .push((restriction, to));
-
-        self.road_added(from, ctx);
-    }
-
-    pub fn delete_tr(&mut self, tr: TurnRestriction) {
-        self.map.delete_turn_restriction(tr);
-        self.world.delete(ID::TurnRestriction(tr));
-    }
 }
 
 // Buildings
@@ -794,7 +490,6 @@ pub enum ID {
     Intersection(OriginalIntersection),
     Road(OriginalRoad),
     RoadPoint(OriginalRoad, usize),
-    TurnRestriction(TurnRestriction),
 }
 
 impl ObjectID for ID {
@@ -804,7 +499,6 @@ impl ObjectID for ID {
             ID::Intersection(_) => 1,
             ID::Building(_) => 2,
             ID::RoadPoint(_, _) => 3,
-            ID::TurnRestriction(_) => 4,
         }
     }
 }

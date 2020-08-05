@@ -1,8 +1,7 @@
 use crate::{osm, LaneType, NORMAL_LANE_THICKNESS, SHOULDER_THICKNESS, SIDEWALK_THICKNESS};
 use abstutil::Tags;
 use geom::Distance;
-use serde::{Deserialize, Serialize};
-use std::{fmt, iter};
+use std::iter;
 
 pub struct LaneSpec {
     pub lane_type: LaneType,
@@ -56,14 +55,6 @@ impl LaneSpec {
 //
 // TODO This is ripe for unit testing.
 pub fn get_lane_specs(tags: &Tags) -> Vec<LaneSpec> {
-    if let Some(s) = tags.get(osm::SYNTHETIC_LANES) {
-        if let Some(spec) = RoadSpec::parse(s.to_string()) {
-            return LaneSpec::normal(spec.fwd, spec.back);
-        } else {
-            panic!("Bad {} RoadSpec: {}", osm::SYNTHETIC_LANES, s);
-        }
-    }
-
     // Easy special cases first.
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return LaneSpec::normal(vec![LaneType::LightRail], Vec::new());
@@ -292,79 +283,4 @@ pub fn get_lane_specs(tags: &Tags) -> Vec<LaneSpec> {
     }
 
     specs
-}
-
-// This is a convenient way for map_editor to plumb instructions here.
-#[derive(Serialize, Deserialize)]
-pub struct RoadSpec {
-    pub fwd: Vec<LaneType>,
-    pub back: Vec<LaneType>,
-}
-
-impl fmt::Display for RoadSpec {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for lt in &self.fwd {
-            write!(f, "{}", RoadSpec::lt_to_char(*lt))?;
-        }
-        write!(f, "/")?;
-        for lt in &self.back {
-            write!(f, "{}", RoadSpec::lt_to_char(*lt))?;
-        }
-        Ok(())
-    }
-}
-
-impl RoadSpec {
-    pub fn parse(s: String) -> Option<RoadSpec> {
-        let mut fwd: Vec<LaneType> = Vec::new();
-        let mut back: Vec<LaneType> = Vec::new();
-        let mut seen_slash = false;
-        for c in s.chars() {
-            if !seen_slash && c == '/' {
-                seen_slash = true;
-            } else if let Some(lt) = RoadSpec::char_to_lt(c) {
-                if seen_slash {
-                    back.push(lt);
-                } else {
-                    fwd.push(lt);
-                }
-            } else {
-                return None;
-            }
-        }
-        if seen_slash && (fwd.len() + back.len()) > 0 {
-            Some(RoadSpec { fwd, back })
-        } else {
-            None
-        }
-    }
-
-    fn lt_to_char(lt: LaneType) -> char {
-        match lt {
-            LaneType::Driving => 'd',
-            LaneType::Parking => 'p',
-            LaneType::Sidewalk => 's',
-            LaneType::Shoulder => 'S',
-            LaneType::Biking => 'b',
-            LaneType::Bus => 'u',
-            LaneType::SharedLeftTurn => 'l',
-            LaneType::Construction => 'c',
-            LaneType::LightRail => 'r',
-        }
-    }
-
-    fn char_to_lt(c: char) -> Option<LaneType> {
-        match c {
-            'd' => Some(LaneType::Driving),
-            'p' => Some(LaneType::Parking),
-            's' => Some(LaneType::Sidewalk),
-            'S' => Some(LaneType::Shoulder),
-            'b' => Some(LaneType::Biking),
-            'u' => Some(LaneType::Bus),
-            'l' => Some(LaneType::SharedLeftTurn),
-            'c' => Some(LaneType::Construction),
-            'r' => Some(LaneType::LightRail),
-            _ => None,
-        }
-    }
 }

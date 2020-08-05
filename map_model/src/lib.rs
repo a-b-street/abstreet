@@ -13,7 +13,6 @@ pub use crate::city::City;
 pub use crate::edits::{
     EditCmd, EditEffects, EditIntersection, MapEdits, OriginalLane, PermanentMapEdits,
 };
-pub use crate::make::initial::lane_specs::RoadSpec;
 pub use crate::map::MapConfig;
 pub use crate::objects::area::{Area, AreaID, AreaType};
 pub use crate::objects::building::{Building, BuildingID, BuildingType, OffstreetParking};

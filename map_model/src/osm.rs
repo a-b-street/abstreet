@@ -21,10 +21,6 @@ pub const OSM_REL_ID: &str = "abst:osm_rel_id";
 pub const ENDPT_FWD: &str = "abst:endpt_fwd";
 pub const ENDPT_BACK: &str = "abst:endpt_back";
 
-// Synthetic roads have (some of) these.
-pub const SYNTHETIC: &str = "abst:synthetic";
-pub const SYNTHETIC_LANES: &str = "abst:synthetic_lanes";
-
 // Any roads might have these.
 pub const INFERRED_PARKING: &str = "abst:parking_inferred";
 pub const INFERRED_SIDEWALKS: &str = "abst:sidewalks_inferred";

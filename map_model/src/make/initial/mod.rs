@@ -3,7 +3,7 @@ pub mod lane_specs;
 
 pub use self::geometry::intersection_polygon;
 use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad, RawMap, RawRoad};
-use crate::{IntersectionType, LaneType};
+use crate::IntersectionType;
 use abstutil::Timer;
 use geom::{Bounds, Distance, PolyLine, Pt2D};
 use lane_specs::LaneSpec;
@@ -30,31 +30,7 @@ pub struct Road {
 impl Road {
     pub fn new(id: OriginalRoad, r: &RawRoad, driving_side: DrivingSide) -> Road {
         let lane_specs = lane_specs::get_lane_specs(&r.osm_tags);
-        let mut total_width = Distance::ZERO;
-        let mut sidewalk_right = None;
-        let mut sidewalk_left = None;
-        for l in &lane_specs {
-            total_width += l.width;
-            if l.lane_type == LaneType::Sidewalk || l.lane_type == LaneType::Shoulder {
-                if l.reverse_pts {
-                    sidewalk_left = Some(l.width);
-                } else {
-                    sidewalk_right = Some(l.width);
-                }
-            }
-        }
-
-        // If there's a sidewalk on only one side, adjust the true center of the road.
-        let mut trimmed_center_pts = PolyLine::new(r.center_points.clone()).expect(&id.to_string());
-        match (sidewalk_right, sidewalk_left) {
-            (Some(w), None) => {
-                trimmed_center_pts = driving_side.right_shift(trimmed_center_pts, w / 2.0);
-            }
-            (None, Some(w)) => {
-                trimmed_center_pts = driving_side.left_shift(trimmed_center_pts, w / 2.0);
-            }
-            _ => {}
-        }
+        let (trimmed_center_pts, total_width) = r.get_geometry(id, driving_side);
 
         Road {
             id,

@@ -1,5 +1,5 @@
 use crate::make::initial::lane_specs::get_lane_specs;
-use crate::{osm, AreaType, IntersectionType, MapConfig, RoadSpec};
+use crate::{osm, AreaType, IntersectionType, LaneType, MapConfig};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring};
 use petgraph::graphmap::DiGraphMap;
@@ -217,21 +217,6 @@ impl RawMap {
 
 // Mutations and supporting queries
 impl RawMap {
-    // Return a list of turn restrictions deleted along the way.
-    pub fn delete_road(&mut self, r: OriginalRoad) -> BTreeSet<TurnRestriction> {
-        // First delete and warn about turn restrictions
-        let restrictions = self.turn_restrictions_involving(r);
-        for tr in &restrictions {
-            println!(
-                "Deleting {}, but first deleting turn restriction {:?} {}->{}",
-                r, tr.1, tr.0, tr.2
-            );
-            self.delete_turn_restriction(*tr);
-        }
-        self.roads.remove(&r).unwrap();
-        restrictions
-    }
-
     pub fn can_delete_intersection(&self, i: OriginalIntersection) -> bool {
         self.roads_per_intersection(i).is_empty()
     }
@@ -244,35 +229,6 @@ impl RawMap {
             );
         }
         self.intersections.remove(&id).unwrap();
-    }
-
-    pub fn can_add_turn_restriction(&self, from: OriginalRoad, to: OriginalRoad) -> bool {
-        let (i1, i2) = (from.i1, from.i2);
-        let (i3, i4) = (to.i1, to.i2);
-        i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4
-    }
-
-    fn turn_restrictions_involving(&self, r: OriginalRoad) -> BTreeSet<TurnRestriction> {
-        let mut results = BTreeSet::new();
-        for (tr, to) in &self.roads[&r].turn_restrictions {
-            results.insert(TurnRestriction(r, *tr, *to));
-        }
-        for (src, road) in &self.roads {
-            for (tr, to) in &road.turn_restrictions {
-                if r == *to {
-                    results.insert(TurnRestriction(*src, *tr, *to));
-                }
-            }
-        }
-        results
-    }
-
-    pub fn delete_turn_restriction(&mut self, tr: TurnRestriction) {
-        self.roads
-            .get_mut(&tr.0)
-            .unwrap()
-            .turn_restrictions
-            .retain(|(rt, to)| tr.1 != *rt || tr.2 != *to);
     }
 
     pub fn move_intersection(
@@ -340,21 +296,40 @@ pub struct RawRoad {
 }
 
 impl RawRoad {
-    pub fn get_spec(&self) -> RoadSpec {
-        let mut fwd = Vec::new();
-        let mut back = Vec::new();
-        for spec in get_lane_specs(&self.osm_tags) {
-            if spec.reverse_pts {
-                back.push(spec.lane_type);
-            } else {
-                fwd.push(spec.lane_type);
+    // Returns the corrected center and half width
+    pub fn get_geometry(
+        &self,
+        id: OriginalRoad,
+        driving_side: DrivingSide,
+    ) -> (PolyLine, Distance) {
+        let lane_specs = get_lane_specs(&self.osm_tags);
+        let mut total_width = Distance::ZERO;
+        let mut sidewalk_right = None;
+        let mut sidewalk_left = None;
+        for l in &lane_specs {
+            total_width += l.width;
+            if l.lane_type == LaneType::Sidewalk || l.lane_type == LaneType::Shoulder {
+                if l.reverse_pts {
+                    sidewalk_left = Some(l.width);
+                } else {
+                    sidewalk_right = Some(l.width);
+                }
             }
         }
-        RoadSpec { fwd, back }
-    }
 
-    pub fn synthetic(&self) -> bool {
-        self.osm_tags.is(osm::SYNTHETIC, "true")
+        // If there's a sidewalk on only one side, adjust the true center of the road.
+        let mut true_center = PolyLine::new(self.center_points.clone()).expect(&id.to_string());
+        match (sidewalk_right, sidewalk_left) {
+            (Some(w), None) => {
+                true_center = driving_side.right_shift(true_center, w / 2.0);
+            }
+            (None, Some(w)) => {
+                true_center = driving_side.left_shift(true_center, w / 2.0);
+            }
+            _ => {}
+        }
+
+        (true_center, total_width)
     }
 
     // TODO For the moment, treating all rail things as light rail
