@@ -4,7 +4,7 @@ use crate::{
     BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathConstraints, Position,
 };
 use abstutil::Timer;
-use geom::{Distance, HashablePt2D};
+use geom::{Distance, Duration, HashablePt2D, Time};
 use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use std::error::Error;
 
@@ -132,11 +132,14 @@ fn make_route(
         id: BusRouteID(map.bus_routes.len()),
         full_name: r.full_name.clone(),
         short_name: r.short_name.clone(),
+        osm_rel_id: r.osm_rel_id,
+        gtfs_trip_marker: r.gtfs_trip_marker.clone(),
         stops,
         route_type,
         start,
         end_border,
-        spawn_times: BusRoute::default_spawn_times(),
+        spawn_times: default_spawn_times(),
+        orig_spawn_times: default_spawn_times(),
     };
 
     // Make sure the route is connected
@@ -328,4 +331,17 @@ fn pick_start_lane(
         "couldn't find any lanes leading to {} that're long enough for a bus to spawn",
         first_stop.lane()
     ))
+}
+
+fn default_spawn_times() -> Vec<Time> {
+    // Hourly spawning from midnight to 7, then every 30 minutes till 7, then hourly again
+    let mut times = Vec::new();
+    for i in 0..24 {
+        let hour = Time::START_OF_DAY + Duration::hours(i);
+        times.push(hour);
+        if i >= 7 && i <= 19 {
+            times.push(hour + Duration::minutes(30));
+        }
+    }
+    times
 }

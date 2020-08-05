@@ -719,6 +719,7 @@ fn extract_route(
         short_name,
         is_bus,
         osm_rel_id: rel_id.0,
+        gtfs_trip_marker: rel.tags.get("gtfs:trip_marker").cloned(),
         stops: keep_stops,
         border_start: None,
         border_end: None,

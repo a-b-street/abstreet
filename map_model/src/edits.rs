@@ -1,6 +1,6 @@
 use crate::raw::{OriginalIntersection, OriginalRoad};
 use crate::{
-    connectivity, BusRoute, BusRouteID, ControlStopSign, ControlTrafficSignal, IntersectionID,
+    connectivity, BusRouteID, ControlStopSign, ControlTrafficSignal, IntersectionID,
     IntersectionType, LaneID, LaneType, Map, PathConstraints, RoadID, TurnID, Zone,
 };
 use abstutil::{deserialize_btreemap, retain_btreemap, retain_btreeset, serialize_btreemap, Timer};
@@ -168,7 +168,8 @@ impl MapEdits {
             r.access_restrictions_from_osm() != r.allow_through_traffic
         });
         retain_btreeset(&mut changed_routes, |br| {
-            map.get_br(*br).spawn_times != BusRoute::default_spawn_times()
+            let r = map.get_br(*br);
+            r.spawn_times != r.orig_spawn_times
         });
 
         self.original_lts = orig_lts;
@@ -213,6 +214,14 @@ impl MapEdits {
                 id: *r,
                 new_allow_through_traffic: map.get_r(*r).allow_through_traffic,
                 old_allow_through_traffic: map.get_r(*r).access_restrictions_from_osm(),
+            });
+        }
+        for r in &self.changed_routes {
+            let r = map.get_br(*r);
+            self.commands.push(EditCmd::ChangeRouteSchedule {
+                id: r.id,
+                new: r.spawn_times.clone(),
+                old: r.orig_spawn_times.clone(),
             });
         }
     }
@@ -301,7 +310,7 @@ enum PermanentEditCmd {
         old_allow_through_traffic: EnumSet<PathConstraints>,
     },
     ChangeRouteSchedule {
-        id: (BusRouteID, String),
+        osm_rel_id: i64,
         old: Vec<Time>,
         new: Vec<Time>,
     },
@@ -354,7 +363,7 @@ impl PermanentMapEdits {
                     },
                     EditCmd::ChangeRouteSchedule { id, old, new } => {
                         PermanentEditCmd::ChangeRouteSchedule {
-                            id: (*id, map.get_br(*id).full_name.clone()),
+                            osm_rel_id: map.get_br(*id).osm_rel_id,
                             old: old.clone(),
                             new: new.clone(),
                         }
@@ -425,10 +434,15 @@ impl PermanentMapEdits {
                             old_allow_through_traffic,
                         })
                     }
-                    PermanentEditCmd::ChangeRouteSchedule { id, old, new } => {
-                        let id = map
-                            .find_br(id.0, &id.1)
-                            .ok_or(format!("can't find {} with full name {}", id.0, id.1))?;
+                    PermanentEditCmd::ChangeRouteSchedule {
+                        osm_rel_id,
+                        old,
+                        new,
+                    } => {
+                        let id = map.find_br(osm_rel_id).ok_or(format!(
+                            "can't find https://www.openstreetmap.org/relation/{}",
+                            osm_rel_id
+                        ))?;
                         Ok(EditCmd::ChangeRouteSchedule { id, old, new })
                     }
                 })
@@ -528,7 +542,7 @@ impl OriginalLane {
 }
 
 impl EditCmd {
-    pub fn short_name(&self) -> String {
+    pub fn short_name(&self, map: &Map) -> String {
         match self {
             EditCmd::ChangeLaneType { lt, id, .. } => format!("{} on #{}", lt.short_name(), id.0),
             EditCmd::ReverseLane { l, .. } => format!("reverse {}", l),
@@ -542,7 +556,9 @@ impl EditCmd {
             EditCmd::ChangeAccessRestrictions { id, .. } => {
                 format!("access restrictions for {}", id)
             }
-            EditCmd::ChangeRouteSchedule { id, .. } => format!("reschedule route #{}", id.0),
+            EditCmd::ChangeRouteSchedule { id, .. } => {
+                format!("reschedule route {}", map.get_br(*id).short_name)
+            }
         }
     }
 

@@ -721,7 +721,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
 
     for (idx, cmd) in edits.commands.iter().rev().take(5).enumerate() {
         col.push(
-            Btn::plaintext(format!("{}) {}", idx + 1, cmd.short_name())).build(
+            Btn::plaintext(format!("{}) {}", idx + 1, cmd.short_name(&app.primary.map))).build(
                 ctx,
                 format!("most recent change #{}", idx + 1),
                 None,

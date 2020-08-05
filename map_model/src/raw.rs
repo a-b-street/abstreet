@@ -455,6 +455,7 @@ pub struct RawBusRoute {
     pub full_name: String,
     pub short_name: String,
     pub osm_rel_id: i64,
+    pub gtfs_trip_marker: Option<String>,
     // If not, light rail
     pub is_bus: bool,
     pub stops: Vec<RawBusStop>,

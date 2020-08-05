@@ -172,6 +172,17 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
             .draw(ctx),
     );
 
+    if app.opts.dev {
+        rows.push(Btn::text_bg1("Open OSM relation").build(
+            ctx,
+            format!(
+                "open https://www.openstreetmap.org/relation/{}",
+                route.osm_rel_id
+            ),
+            None,
+        ));
+    }
+
     let buses = app.primary.sim.status_of_buses(id, map);
     let mut bus_locations = Vec::new();
     if buses.is_empty() {
@@ -341,37 +352,44 @@ fn describe_schedule(route: &BusRoute) -> Text {
         route.plural_noun()
     )));
 
-    // Compress the times
-    let mut start = route.spawn_times[0];
-    let mut last = None;
-    let mut dt = None;
-    for t in route.spawn_times.iter().skip(1) {
-        if let Some(l) = last {
-            let new_dt = *t - l;
-            if Some(new_dt) == dt {
-                last = Some(*t);
+    if false {
+        // Compress the times
+        let mut start = route.spawn_times[0];
+        let mut last = None;
+        let mut dt = None;
+        for t in route.spawn_times.iter().skip(1) {
+            if let Some(l) = last {
+                let new_dt = *t - l;
+                if Some(new_dt) == dt {
+                    last = Some(*t);
+                } else {
+                    txt.add(Line(format!(
+                        "Every {} from {} to {}",
+                        dt.unwrap(),
+                        start.ampm_tostring(),
+                        l.ampm_tostring()
+                    )));
+                    start = l;
+                    last = Some(*t);
+                    dt = Some(new_dt);
+                }
             } else {
-                txt.add(Line(format!(
-                    "Every {} from {} to {}",
-                    dt.unwrap(),
-                    start.ampm_tostring(),
-                    l.ampm_tostring()
-                )));
-                start = l;
                 last = Some(*t);
-                dt = Some(new_dt);
+                dt = Some(*t - start);
             }
-        } else {
-            last = Some(*t);
-            dt = Some(*t - start);
+        }
+        // Handle end
+        txt.add(Line(format!(
+            "Every {} from {} to {}",
+            dt.unwrap(),
+            start.ampm_tostring(),
+            last.unwrap().ampm_tostring()
+        )));
+    } else {
+        // Just list the times
+        for t in &route.spawn_times {
+            txt.add(Line(t.ampm_tostring()));
         }
     }
-    // Handle end
-    txt.add(Line(format!(
-        "Every {} from {} to {}",
-        dt.unwrap(),
-        start.ampm_tostring(),
-        last.unwrap().ampm_tostring()
-    )));
     txt
 }

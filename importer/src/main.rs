@@ -123,6 +123,10 @@ fn main() {
                     "distribute residents from planning areas for {}",
                     name
                 ));
+            } else if job.city == "seattle" {
+                timer.start(format!("add GTFS schedules for {}", name));
+                seattle::add_gtfs_schedules(&mut map);
+                timer.stop(format!("add GTFS schedules for {}", name));
             }
 
             Some(map)

@@ -1,6 +1,6 @@
 use crate::{LaneID, Map, PathConstraints, PathRequest, Position};
 use abstutil::{deserialize_usize, serialize_usize};
-use geom::{Duration, Time};
+use geom::Time;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -49,6 +49,8 @@ pub struct BusRoute {
     pub id: BusRouteID,
     pub full_name: String,
     pub short_name: String,
+    pub gtfs_trip_marker: Option<String>,
+    pub osm_rel_id: i64,
     pub stops: Vec<BusStopID>,
     // May be a border or not. If not, is long enough for buses to spawn fully.
     pub start: LaneID,
@@ -56,6 +58,9 @@ pub struct BusRoute {
     pub route_type: PathConstraints,
     // Non-empty, times in order for one day when a vehicle should begin at start.
     pub spawn_times: Vec<Time>,
+    // Explicitly store whatever the original was, since this can't be reconstructed without side
+    // input.
+    pub orig_spawn_times: Vec<Time>,
 }
 
 impl BusRoute {
@@ -89,18 +94,5 @@ impl BusRoute {
         } else {
             "trains"
         }
-    }
-
-    pub fn default_spawn_times() -> Vec<Time> {
-        // Hourly spawning from midnight to 7, then every 30 minutes till 7, then hourly again
-        let mut times = Vec::new();
-        for i in 0..24 {
-            let hour = Time::START_OF_DAY + Duration::hours(i);
-            times.push(hour);
-            if i >= 7 && i <= 19 {
-                times.push(hour + Duration::minutes(30));
-            }
-        }
-        times
     }
 }

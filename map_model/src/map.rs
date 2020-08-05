@@ -6,7 +6,7 @@ use crate::{
     Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType,
 };
 use abstutil::Timer;
-use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring};
+use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring, Time};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
@@ -585,10 +585,9 @@ impl Map {
         None
     }
 
-    // TODO Should store the OSM relation ID instead.
-    pub fn find_br(&self, id: BusRouteID, full_name: &str) -> Option<BusRouteID> {
+    pub fn find_br(&self, osm_rel_id: i64) -> Option<BusRouteID> {
         for br in self.all_bus_routes() {
-            if br.id == id && br.full_name == full_name {
+            if br.osm_rel_id == osm_rel_id {
                 return Some(br.id);
             }
         }
@@ -632,5 +631,10 @@ impl Map {
 
     pub fn hack_override_bldg_type(&mut self, b: BuildingID, bldg_type: BuildingType) {
         self.buildings[b.0].bldg_type = bldg_type;
+    }
+
+    pub fn hack_override_orig_spawn_times(&mut self, br: BusRouteID, times: Vec<Time>) {
+        self.bus_routes[br.0].orig_spawn_times = times.clone();
+        self.bus_routes[br.0].spawn_times = times;
     }
 }
