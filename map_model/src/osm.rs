@@ -24,3 +24,23 @@ pub const ENDPT_BACK: &str = "abst:endpt_back";
 // Any roads might have these.
 pub const INFERRED_PARKING: &str = "abst:parking_inferred";
 pub const INFERRED_SIDEWALKS: &str = "abst:sidewalks_inferred";
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
+pub enum RoadRank {
+    Local,
+    Arterial,
+    Highway,
+}
+
+impl RoadRank {
+    pub fn from_highway(hwy: &str) -> RoadRank {
+        match hwy {
+            "motorway" | "motorway_link" => RoadRank::Highway,
+            "trunk" | "trunk_link" => RoadRank::Highway,
+            "primary" | "primary_link" => RoadRank::Arterial,
+            "secondary" | "secondary_link" => RoadRank::Arterial,
+            "tertiary" | "tertiary_link" => RoadRank::Arterial,
+            _ => RoadRank::Local,
+        }
+    }
+}

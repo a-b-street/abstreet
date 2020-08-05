@@ -10,7 +10,7 @@ use ezgui::{
     Widget,
 };
 use geom::{Distance, PolyLine, Polygon, Time};
-use map_model::{BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
+use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use maplit::hashset;
 use sim::{DontDrawAgents, TripEndpoint, TripInfo, TripMode};
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -638,7 +638,6 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
     // Merge adjacent residential blocks
     loop {
         // Find a pair of blocks that have at least one residential road in common.
-        // Rank comes from OSM highway type; < 6 means residential.
         let mut any = false;
         for mut idx1 in 0..groups.len() {
             for mut idx2 in 0..groups.len() {
@@ -653,7 +652,7 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
                     && groups[idx1]
                         .roads
                         .intersection(&groups[idx2].roads)
-                        .any(|r| map.get_r(*r).get_rank() < 6)
+                        .any(|r| map.get_r(*r).get_rank() == osm::RoadRank::Local)
                 {
                     // Indexing gets messed up, so remove the larger one
                     if idx1 > idx2 {

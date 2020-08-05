@@ -1,5 +1,5 @@
 use crate::raw::OriginalIntersection;
-use crate::{DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
+use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};
 use serde::{Deserialize, Serialize};
@@ -106,7 +106,7 @@ impl Intersection {
             .unwrap()
     }
 
-    pub fn get_rank(&self, map: &Map) -> usize {
+    pub fn get_rank(&self, map: &Map) -> osm::RoadRank {
         self.roads
             .iter()
             .map(|r| map.get_r(*r).get_rank())

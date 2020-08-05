@@ -13,8 +13,8 @@ use abstutil::Timer;
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Polygon, Pt2D, Time};
 use map_model::{
-    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, Traversable,
-    NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+    osm, AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID,
+    Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
@@ -203,7 +203,7 @@ impl DrawMap {
                 } else if r.is_private() {
                     cs.private_road
                 } else {
-                    osm_rank_to_color(cs, r.get_rank())
+                    rank_to_color(cs, r.get_rank())
                 },
             ));
         }
@@ -217,7 +217,7 @@ impl DrawMap {
                     } else if i.is_private(map) {
                         cs.private_road
                     } else {
-                        osm_rank_to_color(cs, i.get_rank(map))
+                        rank_to_color(cs, i.get_rank(map))
                     }
                 } else {
                     cs.unzoomed_interesting_intersection
@@ -522,12 +522,10 @@ impl UnzoomedAgents {
     }
 }
 
-fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
-    if rank >= 16 {
-        cs.unzoomed_highway
-    } else if rank >= 6 {
-        cs.unzoomed_arterial
-    } else {
-        cs.unzoomed_residential
+fn rank_to_color(cs: &ColorScheme, rank: osm::RoadRank) -> Color {
+    match rank {
+        osm::RoadRank::Highway => cs.unzoomed_highway,
+        osm::RoadRank::Arterial => cs.unzoomed_arterial,
+        osm::RoadRank::Local => cs.unzoomed_residential,
     }
 }

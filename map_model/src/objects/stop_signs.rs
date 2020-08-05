@@ -1,4 +1,4 @@
-use crate::{IntersectionID, LaneID, Map, RoadID, TurnID, TurnPriority, TurnType};
+use crate::{osm, IntersectionID, LaneID, Map, RoadID, TurnID, TurnPriority, TurnType};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
@@ -79,11 +79,11 @@ impl ControlStopSign {
         }
 
         // What's the rank of each road?
-        let mut rank: HashMap<RoadID, usize> = HashMap::new();
+        let mut rank: HashMap<RoadID, osm::RoadRank> = HashMap::new();
         for r in ss.roads.keys() {
             rank.insert(*r, map.get_r(*r).get_rank());
         }
-        let mut ranks: Vec<usize> = rank.values().cloned().collect();
+        let mut ranks: Vec<osm::RoadRank> = rank.values().cloned().collect();
         ranks.sort();
         ranks.dedup();
         // Highest rank is first
