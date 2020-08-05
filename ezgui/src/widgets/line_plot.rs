@@ -233,7 +233,7 @@ impl<T: Yvalue<T>> WidgetImpl for LinePlot<T> {
                 }
                 if !txt.is_empty() {
                     g.fork_screenspace();
-                    g.draw_circle(Color::RED, &Circle::new(cursor.to_pt(), radius));
+                    g.draw_polygon(Color::RED, Circle::new(cursor.to_pt(), radius).to_polygon());
                     g.draw_mouse_tooltip(txt);
                     g.unfork();
                 }

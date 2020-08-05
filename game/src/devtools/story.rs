@@ -572,8 +572,7 @@ impl Lasso {
     fn draw(&self, g: &mut GfxCtx) {
         g.draw_polygon(
             Color::RED.alpha(0.8),
-            &self
-                .pl
+            self.pl
                 .make_polygons(Distance::meters(5.0) / g.canvas.cam_zoom),
         );
     }

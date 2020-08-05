@@ -224,7 +224,7 @@ impl State for LaneEditor {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.draw_polygon(
             app.cs.perma_selected_object,
-            &app.primary
+            app.primary
                 .draw_map
                 .get_l(self.l)
                 .get_outline(&app.primary.map),

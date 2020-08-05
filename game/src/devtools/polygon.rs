@@ -108,14 +108,15 @@ impl State for PolygonEditor {
         let pts: Vec<Pt2D> = app.primary.map.get_gps_bounds().convert(&self.points);
 
         if pts.len() == 2 {
-            g.draw_line(
+            g.draw_polygon(
                 POINT_COLOR,
-                POINT_RADIUS / 2.0,
-                &geom::Line::must_new(pts[0], pts[1]),
+                geom::Line::must_new(pts[0], pts[1]).make_polygons(POINT_RADIUS / 2.0),
             );
         }
         if pts.len() >= 3 {
-            g.draw_polygon(POLYGON_COLOR, &Ring::must_new(pts.clone()).to_polygon());
+            let mut pts = pts.clone();
+            pts.push(pts[0]);
+            g.draw_polygon(POLYGON_COLOR, Ring::must_new(pts).to_polygon());
         }
         for (idx, pt) in pts.iter().enumerate() {
             let color = if Some(idx) == self.mouseover_pt {
@@ -125,7 +126,10 @@ impl State for PolygonEditor {
             } else {
                 POINT_COLOR
             };
-            g.draw_circle(color, &Circle::new(*pt, POINT_RADIUS / g.canvas.cam_zoom));
+            g.draw_polygon(
+                color,
+                Circle::new(*pt, POINT_RADIUS / g.canvas.cam_zoom).to_polygon(),
+            );
         }
 
         self.composite.draw(g);

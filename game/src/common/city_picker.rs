@@ -178,7 +178,7 @@ impl State for CityPicker {
                 1.0,
                 None,
             );
-            g.draw_polygon(color.alpha(0.5), poly);
+            g.draw_polygon(color.alpha(0.5), poly.clone());
             g.unfork();
 
             g.draw_mouse_tooltip(Text::from(Line(nice_map_name(name))));

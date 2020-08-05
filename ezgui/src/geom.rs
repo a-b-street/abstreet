@@ -60,12 +60,7 @@ impl GeomBatch {
 
     /// Draws the batch, consuming it. Only use this for drawing things once.
     pub fn draw(self, g: &mut GfxCtx) {
-        let refs = self
-            .list
-            .iter()
-            .map(|(color, p)| (color.clone(), p))
-            .collect();
-        let obj = g.prerender.upload_temporary(refs);
+        let obj = g.prerender.upload_temporary(self);
         g.redraw(&obj);
     }
 

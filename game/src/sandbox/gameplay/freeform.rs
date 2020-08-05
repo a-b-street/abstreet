@@ -412,8 +412,8 @@ impl State for AgentSpawner {
             g.draw_polygon(
                 Color::BLUE.alpha(0.8),
                 match endpt {
-                    TripEndpoint::Border(i, _) => &app.primary.map.get_i(*i).polygon,
-                    TripEndpoint::Bldg(b) => &app.primary.map.get_b(*b).polygon,
+                    TripEndpoint::Border(i, _) => app.primary.map.get_i(*i).polygon.clone(),
+                    TripEndpoint::Bldg(b) => app.primary.map.get_b(*b).polygon.clone(),
                 },
             );
         }
@@ -421,12 +421,12 @@ impl State for AgentSpawner {
             g.draw_polygon(
                 Color::GREEN.alpha(0.8),
                 match endpt {
-                    TripEndpoint::Border(i, _) => &app.primary.map.get_i(*i).polygon,
-                    TripEndpoint::Bldg(b) => &app.primary.map.get_b(*b).polygon,
+                    TripEndpoint::Border(i, _) => app.primary.map.get_i(*i).polygon.clone(),
+                    TripEndpoint::Bldg(b) => app.primary.map.get_b(*b).polygon.clone(),
                 },
             );
             if let Some(p) = poly {
-                g.draw_polygon(Color::PURPLE, p);
+                g.draw_polygon(Color::PURPLE, p.clone());
             }
         }
     }

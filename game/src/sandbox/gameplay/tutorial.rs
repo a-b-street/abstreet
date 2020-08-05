@@ -370,7 +370,7 @@ impl GameplayState for Tutorial {
                 ]) {
                     g.draw_polygon(
                         Color::RED,
-                        &pl.make_arrow(Distance::meters(20.0), ArrowCap::Triangle),
+                        pl.make_arrow(Distance::meters(20.0), ArrowCap::Triangle),
                     );
                 }
                 g.unfork();
@@ -383,7 +383,7 @@ impl GameplayState for Tutorial {
         if tut.interaction() == Task::Camera {
             g.draw_polygon(
                 Color::hex("#e25822"),
-                &app.primary.map.get_b(tut.fire_station).polygon,
+                app.primary.map.get_b(tut.fire_station).polygon.clone(),
             );
         }
     }

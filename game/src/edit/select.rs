@@ -312,7 +312,7 @@ impl RoadSelector {
         } = self.mode
         {
             if let Some(i) = i1 {
-                g.draw_polygon(Color::GREEN, &app.primary.map.get_i(*i).polygon);
+                g.draw_polygon(Color::GREEN, app.primary.map.get_i(*i).polygon.clone());
             }
             if let Some((_, _, ref p)) = preview_path {
                 g.redraw(p);

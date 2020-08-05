@@ -263,7 +263,7 @@ impl dyn State {
         // TODO - OSD height
         g.draw_polygon(
             app.cs.fade_map_dark,
-            &Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
+            Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
         );
         g.unfork();
     }

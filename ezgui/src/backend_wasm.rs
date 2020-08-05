@@ -1,6 +1,5 @@
 use crate::drawing::Uniforms;
-use crate::{Canvas, Color, FancyColor, ScreenDims, ScreenRectangle};
-use geom::Polygon;
+use crate::{Canvas, Color, GeomBatch, ScreenDims, ScreenRectangle};
 use glow::HasContext;
 use std::cell::Cell;
 use stdweb::traits::INode;
@@ -212,11 +211,11 @@ pub struct PrerenderInnards {
 }
 
 impl PrerenderInnards {
-    pub fn actually_upload(&self, permanent: bool, list: Vec<(FancyColor, &Polygon)>) -> Drawable {
+    pub fn actually_upload(&self, permanent: bool, batch: GeomBatch) -> Drawable {
         let mut vertices: Vec<[f32; 6]> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
 
-        for (color, poly) in list {
+        for (color, poly) in batch.consume() {
             let idx_offset = vertices.len();
             let (pts, raw_indices) = poly.raw_for_rendering();
             for pt in pts {

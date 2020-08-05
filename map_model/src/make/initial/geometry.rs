@@ -48,7 +48,10 @@ pub fn intersection_polygon(
         l.pt1().angle_to(intersection_center).normalized_degrees() as i64
     });
 
-    if i.id.osm_node_id == 29484936 {
+    if i.id.osm_node_id == 29484936
+        || i.id.osm_node_id == 29545445
+        || i.id.osm_node_id == 1864943558
+    {
         on_off_ramp(driving_side, roads, i.id, lines)
     } else if lines.len() == 1 {
         deadend(driving_side, roads, i.id, &lines)

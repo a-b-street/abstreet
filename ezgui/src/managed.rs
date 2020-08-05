@@ -790,7 +790,7 @@ impl Composite {
         // Debugging
         if false {
             g.fork_screenspace();
-            g.draw_polygon(Color::RED.alpha(0.5), &self.top_level.rect.to_polygon());
+            g.draw_polygon(Color::RED.alpha(0.5), self.top_level.rect.to_polygon());
 
             let top_left = g.canvas.align_window(
                 &g.prerender.assets,
@@ -800,7 +800,7 @@ impl Composite {
             );
             g.draw_polygon(
                 Color::BLUE.alpha(0.5),
-                &Polygon::rectangle(self.container_dims.width, self.container_dims.height)
+                Polygon::rectangle(self.container_dims.width, self.container_dims.height)
                     .translate(top_left.x, top_left.y),
             );
         }

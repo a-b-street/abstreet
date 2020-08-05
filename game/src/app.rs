@@ -197,8 +197,7 @@ impl App {
             if let Some(ID::Area(id)) = self.primary.current_selection {
                 g.draw_polygon(
                     self.cs.selected,
-                    &self
-                        .primary
+                    self.primary
                         .draw_map
                         .get_a(id)
                         .get_outline(&self.primary.map),
@@ -206,17 +205,16 @@ impl App {
             } else if let Some(ID::Road(id)) = self.primary.current_selection {
                 g.draw_polygon(
                     self.cs.selected,
-                    &self
-                        .primary
+                    self.primary
                         .draw_map
                         .get_r(id)
                         .get_outline(&self.primary.map),
                 );
             } else if let Some(ID::Intersection(id)) = self.primary.current_selection {
                 // Actually, don't use get_outline here! Full polygon is easier to see.
-                g.draw_polygon(self.cs.selected, &self.primary.map.get_i(id).polygon);
+                g.draw_polygon(self.cs.selected, self.primary.map.get_i(id).polygon.clone());
             } else if let Some(ID::Building(id)) = self.primary.current_selection {
-                g.draw_polygon(self.cs.selected, &self.primary.map.get_b(id).polygon);
+                g.draw_polygon(self.cs.selected, self.primary.map.get_b(id).polygon.clone());
             }
 
             let mut cache = self.primary.draw_map.agents.borrow_mut();
@@ -268,7 +266,7 @@ impl App {
                 };
 
                 if self.primary.current_selection == Some(obj.get_id()) {
-                    g.draw_polygon(self.cs.selected, &obj.get_outline(&self.primary.map));
+                    g.draw_polygon(self.cs.selected, obj.get_outline(&self.primary.map));
                 }
 
                 if g.is_screencap() && sample_intersection.is_none() {

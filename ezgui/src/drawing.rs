@@ -1,10 +1,9 @@
 use crate::assets::Assets;
 use crate::backend::{GfxCtxInnards, PrerenderInnards};
 use crate::{
-    Canvas, Color, Drawable, FancyColor, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle, Style,
-    Text,
+    Canvas, Color, Drawable, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle, Style, Text,
 };
-use geom::{ArrowCap, Bounds, Circle, Distance, Line, Polygon, Pt2D};
+use geom::{Bounds, Polygon, Pt2D};
 use std::cell::Cell;
 
 // Lower is more on top
@@ -115,47 +114,10 @@ impl<'a> GfxCtx<'a> {
         self.inner.clear(color);
     }
 
-    pub fn draw_line(&mut self, color: Color, thickness: Distance, line: &Line) {
-        self.draw_polygon(color, &line.make_polygons(thickness));
-    }
-
-    pub fn draw_rounded_line(&mut self, color: Color, thickness: Distance, line: &Line) {
-        self.draw_polygons(
-            color,
-            &vec![
-                line.make_polygons(thickness),
-                Circle::new(line.pt1(), thickness / 2.0).to_polygon(),
-                Circle::new(line.pt2(), thickness / 2.0).to_polygon(),
-            ],
-        );
-    }
-
-    pub fn draw_arrow(&mut self, color: Color, thickness: Distance, line: &Line) {
-        self.draw_polygon(
-            color,
-            &line.to_polyline().make_arrow(thickness, ArrowCap::Triangle),
-        );
-    }
-
-    pub fn draw_circle(&mut self, color: Color, circle: &Circle) {
-        self.draw_polygon(color, &circle.to_polygon());
-    }
-
-    pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
-        let obj = self
-            .prerender
-            .upload_temporary(vec![(FancyColor::RGBA(color), poly)]);
-        self.redraw(&obj);
-    }
-
-    pub fn draw_polygons(&mut self, color: Color, polygons: &Vec<Polygon>) {
-        let obj = self.prerender.upload_temporary(
-            polygons
-                .iter()
-                .map(|p| (FancyColor::RGBA(color), p))
-                .collect(),
-        );
-        self.redraw(&obj);
+    // Doesn't take &Polygon, because this is inherently inefficient. If performance matters,
+    // upload, cache, and redraw.
+    pub fn draw_polygon(&mut self, color: Color, poly: Polygon) {
+        GeomBatch::from(vec![(color, poly)]).draw(self);
     }
 
     pub fn redraw(&mut self, obj: &Drawable) {
@@ -231,7 +193,7 @@ impl<'a> GfxCtx<'a> {
         self.canvas.get_cursor_in_map_space()
     }
 
-    pub fn get_num_uploads(&self) -> usize {
+    pub(crate) fn get_num_uploads(&self) -> usize {
         self.prerender.num_uploads.get()
     }
 
@@ -269,25 +231,24 @@ pub struct Prerender {
 
 impl Prerender {
     pub fn upload(&self, batch: GeomBatch) -> Drawable {
-        let borrows = batch.list.iter().map(|(c, p)| (c.clone(), p)).collect();
-        self.actually_upload(true, borrows)
+        self.actually_upload(true, batch)
+    }
+
+    pub(crate) fn upload_temporary(&self, batch: GeomBatch) -> Drawable {
+        self.actually_upload(false, batch)
     }
 
     pub fn get_total_bytes_uploaded(&self) -> usize {
         self.inner.total_bytes_uploaded.get()
     }
 
-    pub(crate) fn upload_temporary(&self, list: Vec<(FancyColor, &Polygon)>) -> Drawable {
-        self.actually_upload(false, list)
-    }
-
-    fn actually_upload(&self, permanent: bool, list: Vec<(FancyColor, &Polygon)>) -> Drawable {
+    fn actually_upload(&self, permanent: bool, batch: GeomBatch) -> Drawable {
         // println!("{:?}", backtrace::Backtrace::new());
         self.num_uploads.set(self.num_uploads.get() + 1);
-        self.inner.actually_upload(permanent, list)
+        self.inner.actually_upload(permanent, batch)
     }
 
-    pub fn request_redraw(&self) {
+    pub(crate) fn request_redraw(&self) {
         self.inner.request_redraw()
     }
 }

@@ -201,8 +201,7 @@ impl State for TurnExplorer {
             for turn in &app.primary.map.get_turns_from_lane(self.l) {
                 g.draw_polygon(
                     color_turn_type(turn.turn_type).alpha(0.5),
-                    &turn
-                        .geom
+                    turn.geom
                         .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                 );
             }

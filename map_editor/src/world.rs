@@ -85,7 +85,7 @@ impl<ID: ObjectID> World<ID> {
 
         if let Some(id) = self.current_selection {
             let obj = &self.objects[&id];
-            g.draw_polygon(Color::CYAN.alpha(0.5), &obj.unioned_polygon);
+            g.draw_polygon(Color::CYAN.alpha(0.5), obj.unioned_polygon.clone());
         }
     }
 

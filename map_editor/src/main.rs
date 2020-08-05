@@ -7,7 +7,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, ScreenPt, Text, VerticalAlignment, Widget, Wizard,
     GUI,
 };
-use geom::{Distance, Line, Polygon, Pt2D};
+use geom::{ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad, RestrictionType};
 use map_model::{osm, NORMAL_LANE_THICKNESS};
 use model::{Model, ID};
@@ -507,10 +507,13 @@ impl GUI for UI {
         g.clear(Color::BLACK);
 
         // It's useful to see the origin.
-        g.draw_polygon(Color::WHITE, &Polygon::rectangle(100.0, 10.0));
-        g.draw_polygon(Color::WHITE, &Polygon::rectangle(10.0, 100.0));
+        g.draw_polygon(Color::WHITE, Polygon::rectangle(100.0, 10.0));
+        g.draw_polygon(Color::WHITE, Polygon::rectangle(10.0, 100.0));
 
-        g.draw_polygon(Color::rgb(242, 239, 233), &self.model.map.boundary_polygon);
+        g.draw_polygon(
+            Color::rgb(242, 239, 233),
+            self.model.map.boundary_polygon.clone(),
+        );
         match self.state {
             State::PreviewIntersection(_, _) => self.model.world.draw(g, |id| match id {
                 ID::Intersection(_) => false,
@@ -523,7 +526,7 @@ impl GUI for UI {
             State::CreatingRoad(i1) => {
                 if let Some(cursor) = g.get_cursor_in_map_space() {
                     if let Some(l) = Line::new(self.model.map.intersections[&i1].point, cursor) {
-                        g.draw_line(Color::GREEN, Distance::meters(5.0), &l);
+                        g.draw_polygon(Color::GREEN, l.make_polygons(Distance::meters(5.0)));
                     }
                 }
             }
@@ -536,7 +539,7 @@ impl GUI for UI {
             State::Viewing { ref short_roads } => {
                 for r in short_roads {
                     if let Some(p) = self.model.world.get_unioned_polygon(ID::Road(*r)) {
-                        g.draw_polygon(Color::CYAN, p);
+                        g.draw_polygon(Color::CYAN, p.clone());
                     }
                 }
             }
@@ -546,21 +549,28 @@ impl GUI for UI {
             | State::StampingRoads(_, _, _, _) => {}
             State::SelectingRectangle(pt1, pt2, _) => {
                 if let Some(rect) = Polygon::rectangle_two_corners(pt1, pt2) {
-                    g.draw_polygon(Color::BLUE.alpha(0.5), &rect);
+                    g.draw_polygon(Color::BLUE.alpha(0.5), rect);
                 }
             }
             State::CreatingTurnRestrictionPt1(from) => {
                 if let Some(cursor) = g.get_cursor_in_map_space() {
-                    if let Some(l) = Line::new(self.model.get_r_center(from), cursor) {
-                        g.draw_arrow(Color::PURPLE, NORMAL_LANE_THICKNESS, &l);
+                    if let Ok(l) = PolyLine::new(vec![self.model.get_r_center(from), cursor]) {
+                        g.draw_polygon(
+                            Color::PURPLE,
+                            l.make_arrow(NORMAL_LANE_THICKNESS, ArrowCap::Triangle),
+                        );
                     }
                 }
             }
             State::CreatingTurnRestrictionPt2(from, to, ref wizard) => {
-                if let Some(l) =
-                    Line::new(self.model.get_r_center(from), self.model.get_r_center(to))
-                {
-                    g.draw_arrow(Color::PURPLE, NORMAL_LANE_THICKNESS, &l);
+                if let Ok(l) = PolyLine::new(vec![
+                    self.model.get_r_center(from),
+                    self.model.get_r_center(to),
+                ]) {
+                    g.draw_polygon(
+                        Color::PURPLE,
+                        l.make_arrow(NORMAL_LANE_THICKNESS, ArrowCap::Triangle),
+                    );
                 }
                 wizard.draw(g);
             }

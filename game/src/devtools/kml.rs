@@ -181,7 +181,7 @@ impl State for ViewKML {
         if let Some(idx) = self.selected {
             let obj = &self.objects[idx];
 
-            g.draw_polygon(Color::BLUE, &obj.polygon);
+            g.draw_polygon(Color::BLUE, obj.polygon.clone());
             let mut txt = Text::new();
             for (k, v) in &obj.attribs {
                 txt.add(Line(format!("{} = {}", k, v)));
@@ -189,7 +189,7 @@ impl State for ViewKML {
             g.draw_mouse_tooltip(txt);
 
             if let Some(b) = obj.osm_bldg {
-                g.draw_polygon(Color::GREEN, &app.primary.map.get_b(b).polygon);
+                g.draw_polygon(Color::GREEN, app.primary.map.get_b(b).polygon.clone());
             }
         }
     }
