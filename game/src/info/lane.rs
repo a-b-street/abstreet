@@ -134,10 +134,14 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     rows.extend(make_table(ctx, kv.into_iter()));
 
-    rows.push(Widget::row(vec![
-        "Copy OriginalLane to clipboard: ".draw_text(ctx),
-        Btn::svg_def("system/assets/tools/clipboard.svg").build(ctx, "copy OriginalLane", None),
-    ]));
+    rows.push(Btn::text_bg1("Open OSM way").build(
+        ctx,
+        format!(
+            "open https://www.openstreetmap.org/way/{}",
+            r.orig_id.osm_way_id
+        ),
+        None,
+    ));
 
     let mut txt = Text::from(Line(""));
     txt.add(Line("Raw OpenStreetMap data"));

@@ -1,7 +1,7 @@
 use crate::app::{App, ShowEverything};
 use crate::common::{CityPicker, ColorLegend};
 use crate::game::{msg, State, Transition, WizardState};
-use crate::helpers::{nice_map_name, ID};
+use crate::helpers::{nice_map_name, open_browser, ID};
 use abstutil::{prettyprint_usize, Tags, Timer};
 use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -357,29 +357,23 @@ impl State for ParkingMapper {
         if self.selected.is_some() && ctx.input.key_pressed(Key::S) {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 let gps = pt.to_gps(app.primary.map.get_gps_bounds());
-                #[cfg(not(target_arch = "wasm32"))]
-                {
-                    let _ = webbrowser::open(&format!(
-                        "https://www.bing.com/maps?cp={}~{}&style=x",
-                        gps.y(),
-                        gps.x()
-                    ));
-                }
+                open_browser(format!(
+                    "https://www.bing.com/maps?cp={}~{}&style=x",
+                    gps.y(),
+                    gps.x()
+                ));
             }
         }
         if let Some((ref roads, _)) = self.selected {
             if ctx.input.key_pressed(Key::O) {
-                #[cfg(not(target_arch = "wasm32"))]
-                {
-                    let _ = webbrowser::open(&format!(
-                        "https://www.openstreetmap.org/way/{}",
-                        app.primary
-                            .map
-                            .get_r(*roads.iter().next().unwrap())
-                            .orig_id
-                            .osm_way_id
-                    ));
-                }
+                open_browser(format!(
+                    "https://www.openstreetmap.org/way/{}",
+                    app.primary
+                        .map
+                        .get_r(*roads.iter().next().unwrap())
+                        .orig_id
+                        .osm_way_id
+                ));
             }
         }
 

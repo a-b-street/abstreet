@@ -11,7 +11,7 @@ use crate::app::App;
 use crate::common::Warping;
 use crate::edit::{EditMode, RouteEditor};
 use crate::game::Transition;
-use crate::helpers::{color_for_agent_type, copy_to_clipboard, hotkey_btn, ID};
+use crate::helpers::{color_for_agent_type, hotkey_btn, open_browser, ID};
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -19,9 +19,7 @@ use ezgui::{
     VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Time};
-use map_model::{
-    AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, OriginalLane, ParkingLotID,
-};
+use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
 use sim::{
     AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID,
     VehicleType,
@@ -475,13 +473,13 @@ impl InfoPanel {
                         }
                     }
                     *self = new;
-                    return (false, None);
+                    (false, None)
                 } else if action == "close info" {
                     (true, None)
                 } else if action == "jump to object" {
                     // TODO Messy way of doing this
                     if let Some(id) = self.tab.to_id(app) {
-                        return (
+                        (
                             false,
                             Some(Transition::Push(Warping::new(
                                 ctx,
@@ -490,9 +488,9 @@ impl InfoPanel {
                                 Some(id),
                                 &mut app.primary,
                             ))),
-                        );
+                        )
                     } else {
-                        return (false, None);
+                        (false, None)
                     }
                 } else if action.starts_with("examine trip phase") {
                     // Don't do anything! Just using buttons for convenient tooltips.
@@ -537,31 +535,17 @@ impl InfoPanel {
                             },
                         ))),
                     )
-                } else if action == "copy OriginalLane" {
-                    // TODO Not happy about this :(
-                    if let Some(ID::Lane(l)) = maybe_id {
-                        copy_to_clipboard(format!(
-                            "{:?}",
-                            OriginalLane::to_permanent(l, &app.primary.map)
-                        ));
-                    }
-                    return (false, None);
-                } else if action == "copy OSM node ID" {
-                    if let Some(ID::Intersection(i)) = maybe_id {
-                        copy_to_clipboard(format!(
-                            "{}",
-                            app.primary.map.get_i(i).orig_id.osm_node_id
-                        ));
-                    }
-                    return (false, None);
+                } else if let Some(url) = action.strip_prefix("open ") {
+                    open_browser(url.to_string());
+                    (false, None)
                 } else if let Some(x) = action.strip_prefix("edit BusRoute #") {
-                    return (
+                    (
                         false,
                         Some(Transition::PushTwice(
                             EditMode::new(ctx, app, ctx_actions.gameplay_mode()),
                             RouteEditor::new(ctx, app, BusRouteID(x.parse::<usize>().unwrap())),
                         )),
-                    );
+                    )
                 } else {
                     let mut close_panel = true;
                     let t =

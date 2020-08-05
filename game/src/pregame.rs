@@ -3,6 +3,7 @@ use crate::challenges::ChallengesPicker;
 use crate::devtools::DevToolsMode;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, DrawBaselayer, State, Transition};
+use crate::helpers::open_browser;
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use abstutil::Timer;
@@ -207,11 +208,7 @@ impl State for MainMenu {
                     return Transition::Push(About::new(ctx, app));
                 }
                 "Feedback" => {
-                    // cargo fmt tries to remove this
-                    #[cfg(not(target_arch = "wasm32"))]
-                    {
-                        let _ = webbrowser::open("https://forms.gle/ocvbek1bTaZUr3k49");
-                    }
+                    open_browser("https://forms.gle/ocvbek1bTaZUr3k49".to_string());
                 }
                 "Community Proposals" => {
                     return Transition::Push(Proposals::new(ctx, app, None));
@@ -302,11 +299,7 @@ impl State for About {
                     return Transition::Pop;
                 }
                 "See full credits" => {
-                    // cargo fmt tries to remove this
-                    #[cfg(not(target_arch = "wasm32"))]
-                    {
-                        let _ = webbrowser::open("https://github.com/dabreegster/abstreet#credits");
-                    }
+                    open_browser("https://github.com/dabreegster/abstreet#credits".to_string());
                 }
                 _ => unreachable!(),
             },
@@ -449,14 +442,12 @@ impl State for Proposals {
                     }
                 }
                 "Read detailed write-up" => {
-                    let link = self.proposals[self.current.as_ref().unwrap()]
-                        .proposal_link
-                        .as_ref()
-                        .unwrap();
-                    #[cfg(not(target_arch = "wasm32"))]
-                    {
-                        let _ = webbrowser::open(link);
-                    }
+                    open_browser(
+                        self.proposals[self.current.as_ref().unwrap()]
+                            .proposal_link
+                            .clone()
+                            .unwrap(),
+                    );
                 }
                 x => {
                     return Transition::Replace(Proposals::new(ctx, app, Some(x.to_string())));
