@@ -2,6 +2,7 @@ use crate::reader::{Document, Member, NodeID, Relation, RelationID, WayID};
 use crate::Options;
 use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, PolyLine, Polygon, Pt2D, Ring};
+use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{
     OriginalBuilding, OriginalIntersection, RawArea, RawBuilding, RawBusRoute, RawBusStop, RawMap,
     RawParkingLot, RawRoad, RestrictionType,
@@ -73,6 +74,10 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         }
     }
 
+    // and cycleways
+    let mut extra_footways = ExtraShapes { shapes: Vec::new() };
+    let mut extra_service_roads = ExtraShapes { shapes: Vec::new() };
+
     let mut coastline_groups: Vec<(WayID, Vec<Pt2D>)> = Vec::new();
     let mut memorial_areas: Vec<Polygon> = Vec::new();
     timer.start_iter("processing OSM ways", doc.ways.len());
@@ -100,9 +105,22 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 },
             ));
             continue;
-        } else if way.tags.is("highway", "service") {
+        } else if way.tags.is(osm::HIGHWAY, "service") {
             // If we got here, is_road didn't interpret it as a normal road
             map.parking_aisles.push(way.pts.clone());
+
+            extra_service_roads.shapes.push(ExtraShape {
+                points: map.gps_bounds.convert_back(&way.pts),
+                attributes: way.tags.inner().clone(),
+            });
+        } else if way
+            .tags
+            .is_any(osm::HIGHWAY, vec!["cycleway", "footway", "path"])
+        {
+            extra_footways.shapes.push(ExtraShape {
+                points: map.gps_bounds.convert_back(&way.pts),
+                attributes: way.tags.inner().clone(),
+            });
         } else if way.tags.is("natural", "coastline") {
             coastline_groups.push((id, way.pts.clone()));
             continue;
@@ -144,6 +162,17 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         } else if way.tags.is("historic", "memorial") {
             memorial_areas.push(polygon);
         }
+    }
+
+    if (map.city_name == "seattle" && map.name == "huge_seattle") || map.city_name != "seattle" {
+        abstutil::write_binary(
+            abstutil::path(format!("input/{}/footways.bin", map.city_name)),
+            &extra_footways,
+        );
+        abstutil::write_binary(
+            abstutil::path(format!("input/{}/service_roads.bin", map.city_name)),
+            &extra_service_roads,
+        );
     }
 
     let boundary = map.boundary_polygon.clone().into_ring();
@@ -485,7 +514,7 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
         if tags.is("traffic_calming", "island") {
             return Some(AreaType::PedestrianIsland);
         }
-        if tags.is("highway", "pedestrian") && tags.is("area", "yes") {
+        if tags.is(osm::HIGHWAY, "pedestrian") && tags.is("area", "yes") {
             return Some(AreaType::PedestrianIsland);
         }
     }

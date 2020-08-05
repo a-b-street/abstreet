@@ -1,10 +1,14 @@
 data/input/berlin/EWR201812E_Matrix.csv,7966d3e37c45e7ffa4ee26bb6c8cec28,https://www.dropbox.com/s/38fl51jxp5iwuz3/EWR201812E_Matrix.csv.zip?dl=0
+data/input/berlin/footways.bin,19d6608e9bc85800706e004e4530a81b,https://www.dropbox.com/s/c36724ayytwwpz8/footways.bin.zip?dl=0
 data/input/berlin/osm/berlin-latest.osm.pbf,8e7f5ecf37631bb975f062593c5add99,https://www.dropbox.com/s/6lssl37uhbyo7gr/berlin-latest.osm.pbf.zip?dl=0
 data/input/berlin/osm/berlin_center.osm,7411c1f8e1e5ff792445a7cd575f5379,https://www.dropbox.com/s/erk27mw2aar4zft/berlin_center.osm.zip?dl=0
 data/input/berlin/planning_areas.bin,f1a3bd5118a0e4982b64c2307e01d82a,https://www.dropbox.com/s/pbovhfr6zw0s0ob/planning_areas.bin.zip?dl=0
 data/input/berlin/planning_areas.kml,1bfc2044f1f5f40acdcdded1a644ad22,https://www.dropbox.com/s/9bvbshrtjw14tm7/planning_areas.kml.zip?dl=0
+data/input/berlin/service_roads.bin,ac7817c9b0df7da5801f405f09600e6b,https://www.dropbox.com/s/p40petrc2fzzlm2/service_roads.bin.zip?dl=0
+data/input/krakow/footways.bin,017e85fd6da69b67a1a7a790506f52ff,https://www.dropbox.com/s/xxwivqmxev2ecl6/footways.bin.zip?dl=0
 data/input/krakow/osm/krakow_center.osm,b914bbcd42a7f769a40a90970cea35f2,https://www.dropbox.com/s/pf3avtszpw732jd/krakow_center.osm.zip?dl=0
 data/input/krakow/osm/malopolskie-latest.osm.pbf,9505917bbacc478177e36605e89b6d77,https://www.dropbox.com/s/vehjfvwx25v1qnd/malopolskie-latest.osm.pbf.zip?dl=0
+data/input/krakow/service_roads.bin,a6a5d22bb3dba66b5a4cad72f6842eb9,https://www.dropbox.com/s/is31c2ejl8nun28/service_roads.bin.zip?dl=0
 data/input/raw_maps/ballard.bin,47fb631292bfb447b8d42e5680548ff5,https://www.dropbox.com/s/z3035x2se5d2fg5/ballard.bin.zip?dl=0
 data/input/raw_maps/berlin_center.bin,55f7855f1be26430a46c8bbed74a6789,https://www.dropbox.com/s/g09clxwc5o8bqfk/berlin_center.bin.zip?dl=0
 data/input/raw_maps/downtown.bin,a3bd6494ca7691a60b072025c8289d1a,https://www.dropbox.com/s/oo89d0qtodmyitc/downtown.bin.zip?dl=0
@@ -23,6 +27,7 @@ data/input/screenshots/udistrict.zip,6faa69ab79f944c91b87f90e5444a5b1,https://ww
 data/input/seattle/N47W122.hgt,0db4e23e51f7680538b0bbbc72208e07,https://www.dropbox.com/s/mmb4mgutwotijdw/N47W122.hgt.zip?dl=0
 data/input/seattle/blockface.bin,add872bab9040ae911366328a230f8b5,https://www.dropbox.com/s/rxd2care60tbe75/blockface.bin.zip?dl=0
 data/input/seattle/blockface.kml,350bd9e59bf2af4e885a7c0741e6ee6b,https://www.dropbox.com/s/ukknmpjdvilncq9/blockface.kml.zip?dl=0
+data/input/seattle/footways.bin,9a8eee924ebda79f2aead8c1dd7e1a5c,https://www.dropbox.com/s/jm6kqb44mifjrts/footways.bin.zip?dl=0
 data/input/seattle/google_transit/agency.txt,75f564fcc06b1950b7b33acf9d61f696,https://www.dropbox.com/s/z0idqw556c8ouu0/agency.txt.zip?dl=0
 data/input/seattle/google_transit/block.txt,bc4926e7436fe46b2a48117e2d564c9c,https://www.dropbox.com/s/bemtme7l3sjmr8b/block.txt.zip?dl=0
 data/input/seattle/google_transit/block_trip.txt,8d3626586ddbb1a384931215580de078,https://www.dropbox.com/s/kuztkmujnt9pr1v/block_trip.txt.zip?dl=0
@@ -49,6 +54,7 @@ data/input/seattle/osm/west_seattle.osm,ae4f93815abc6e70db04dfbca9f25312,https:/
 data/input/seattle/parcels.bin,18bbd11b4424b30c5ba751295fa3b5e2,https://www.dropbox.com/s/5u6icqchhfhjdr9/parcels.bin.zip?dl=0
 data/input/seattle/parcels_urbansim.txt,db63d7d606e8702d12f9399e87e6a00f,https://www.dropbox.com/s/6g8rbsf200dssj3/parcels_urbansim.txt.zip?dl=0
 data/input/seattle/popdat.bin,b7e57a345ca118f305fc5a942264e65e,https://www.dropbox.com/s/9k8wwzghoi0o8z4/popdat.bin.zip?dl=0
+data/input/seattle/service_roads.bin,0d82356f76e87c2ec31528ded8265d7c,https://www.dropbox.com/s/ghpf2ngndddn7c7/service_roads.bin.zip?dl=0
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
 data/system/cities/seattle.bin,ed96e1b845a551d2335dabece281bc90,https://www.dropbox.com/s/b9c5v7jcxe3pu5t/seattle.bin.zip?dl=0
 data/system/maps/ballard.bin,5f0f1d2be5f4e4e58710b17b6774a200,https://www.dropbox.com/s/cmi7kb7edo10trz/ballard.bin.zip?dl=0
