@@ -1,11 +1,11 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use aabb_quadtree::QuadTree;
 use abstutil::{prettyprint_usize, Parallelism};
 use ezgui::{
-    hotkey, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget, Wizard,
 };
 use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::ExtraShapes;
@@ -34,16 +34,23 @@ const RADIUS: Distance = Distance::const_meters(5.0);
 const THICKNESS: Distance = Distance::const_meters(2.0);
 
 impl ViewKML {
-    pub fn new(ctx: &mut EventCtx, app: &App, path: String) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, path: Option<String>) -> Box<dyn State> {
         ctx.loading_screen("load kml", |ctx, mut timer| {
-            let raw_shapes = if path.ends_with(".kml") {
-                kml::load(&path, &app.primary.map.get_gps_bounds(), true, &mut timer).unwrap()
+            let raw_shapes = if let Some(ref path) = path {
+                if path.ends_with(".kml") {
+                    kml::load(&path, &app.primary.map.get_gps_bounds(), true, &mut timer).unwrap()
+                } else {
+                    abstutil::read_binary::<ExtraShapes>(path.to_string(), &mut timer)
+                }
             } else {
-                abstutil::read_binary::<ExtraShapes>(path.clone(), &mut timer)
+                ExtraShapes { shapes: Vec::new() }
             };
             let bounds = app.primary.map.get_gps_bounds();
             let boundary = app.primary.map.get_boundary_polygon();
-            let dataset_name = abstutil::basename(&path);
+            let dataset_name = path
+                .as_ref()
+                .map(|p| abstutil::basename(p))
+                .unwrap_or("no file".to_string());
             let bldg_lookup: HashMap<String, BuildingID> = app
                 .primary
                 .map
@@ -112,9 +119,14 @@ impl ViewKML {
                         prettyprint_usize(objects.len())
                     )
                     .draw_text(ctx),
+                    Btn::text_fg("load KML file").build_def(ctx, lctrl(Key::L)),
                     Widget::row(vec![
                         "Query:".draw_text(ctx),
                         Widget::dropdown(ctx, "query", "None".to_string(), choices),
+                    ]),
+                    Widget::row(vec![
+                        "Key=value filter:".draw_text(ctx),
+                        Widget::text_entry(ctx, String::new(), false).named("filter"),
                     ]),
                     "Query matches 0 objects".draw_text(ctx).named("matches"),
                 ]))
@@ -153,10 +165,17 @@ impl State for ViewKML {
                 "close" => {
                     return Transition::Pop;
                 }
+                "load KML file" => {
+                    return Transition::Push(WizardState::new(Box::new(choose_kml)));
+                }
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                let query: String = self.composite.dropdown_value("query");
+                let mut query: String = self.composite.dropdown_value("query");
+                let filter = self.composite.text_box("filter");
+                if query == "None" && !filter.is_empty() {
+                    query = filter;
+                }
                 let (batch, cnt) = make_query(app, &self.objects, &query);
                 self.draw_query = ctx.upload(batch);
                 self.composite.replace(
@@ -300,7 +319,29 @@ fn make_query(app: &App, objects: &Vec<Object>, query: &str) -> (GeomBatch, usiz
                 }
             }
         }
-        _ => unreachable!(),
+        x => {
+            for obj in objects {
+                for (k, v) in &obj.attribs {
+                    if format!("{}={}", k, v).contains(x) {
+                        batch.push(color, obj.polygon.clone());
+                        break;
+                    }
+                }
+            }
+        }
     }
     (batch, cnt)
+}
+
+fn choose_kml(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
+    let path = wiz.wrap(ctx).choose_string("View what KML dataset?", || {
+        abstutil::list_dir(std::path::Path::new(&abstutil::path(format!(
+            "input/{}/",
+            app.primary.map.get_city_name()
+        ))))
+        .into_iter()
+        .filter(|x| x.ends_with(".bin") && !x.ends_with("popdat.bin"))
+        .collect()
+    })?;
+    Some(Transition::Replace(ViewKML::new(ctx, app, Some(path))))
 }

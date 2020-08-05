@@ -62,6 +62,7 @@ impl State for TitleScreen {
         match self.composite.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "start game" => {
+                    app.primary.clear_sim();
                     return Transition::Replace(MainMenu::new(ctx, app));
                 }
                 _ => unreachable!(),

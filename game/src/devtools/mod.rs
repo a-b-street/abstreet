@@ -74,7 +74,7 @@ impl State for DevToolsMode {
                     return Transition::Push(WizardState::new(Box::new(load_scenario)));
                 }
                 "view KML" => {
-                    return Transition::Push(WizardState::new(Box::new(choose_kml)));
+                    return Transition::Push(kml::ViewKML::new(ctx, app, None));
                 }
                 "story maps" => {
                     return Transition::Push(story::StoryMapEditor::new(ctx));
@@ -137,17 +137,4 @@ fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, _: &mut App) -> Option<T
             Some(Transition::Pop)
         }
     }
-}
-
-fn choose_kml(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let path = wiz.wrap(ctx).choose_string("View what KML dataset?", || {
-        abstutil::list_dir(std::path::Path::new(&abstutil::path(format!(
-            "input/{}/",
-            app.primary.map.get_city_name()
-        ))))
-        .into_iter()
-        .filter(|x| x.ends_with(".bin") && !x.ends_with("popdat.bin"))
-        .collect()
-    })?;
-    Some(Transition::Replace(kml::ViewKML::new(ctx, app, path)))
 }
