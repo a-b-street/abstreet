@@ -189,7 +189,7 @@ calling out milestones. "UI churn" is pretty much constantly happening.
   roads without sidewalks
   - [KING 5 Evening](https://www.youtube.com/watch?v=Pk8V-egsUxU) interview
 - August: ...
-  - [Silicon Valley Bike Summit](https://bikesiliconvalley.org/2020/07/poster_dustin-carlino/)
+  - [Silicon Valley Bike Summit](https://bikesiliconvalley.org/2020/07/poster_dustin-carlino/), [Seattle PI](https://www.seattlepi.com/local/transportation/slideshow/solve-Seattles-traffic-problem-in-this-video-game-205839.php)
 
 ## Retrospective
 

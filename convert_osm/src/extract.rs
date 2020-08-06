@@ -164,7 +164,10 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         }
     }
 
-    if (map.city_name == "seattle" && map.name == "huge_seattle") || map.city_name != "seattle" {
+    if map.city_name != "oneshot"
+        && ((map.city_name == "seattle" && map.name == "huge_seattle")
+            || map.city_name != "seattle")
+    {
         abstutil::write_binary(
             abstutil::path(format!("input/{}/footways.bin", map.city_name)),
             &extra_footways,

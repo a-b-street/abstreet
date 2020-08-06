@@ -22,6 +22,8 @@
 //! * [`Spinner`] - numeric input with up/down buttons
 //! * [`TexBox`] - single line text entry
 
+//#![warn(missing_docs)]
+
 mod assets;
 #[cfg(feature = "glium-backend")]
 mod backend_glium;
