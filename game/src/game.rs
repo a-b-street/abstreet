@@ -3,7 +3,10 @@ use crate::options::Options;
 use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
-use ezgui::{Canvas, Drawable, EventCtx, GfxCtx, Wizard, GUI};
+use ezgui::{
+    hotkey, Btn, Canvas, Choice, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    Line, Menu, Outcome, ScreenRectangle, VerticalAlignment, Widget, Wizard, GUI,
+};
 use geom::Polygon;
 use map_model::PermanentMapEdits;
 
@@ -356,4 +359,83 @@ pub fn msg<S: Into<String>>(title: &'static str, lines: Vec<S>) -> Box<dyn State
         wiz.wrap(ctx).acknowledge(title, || str_lines.clone())?;
         Some(Transition::Pop)
     }))
+}
+
+pub struct ChooseSomething<T> {
+    composite: Composite,
+    cb: Box<dyn Fn(T, &mut EventCtx, &mut App) -> Transition>,
+}
+
+impl<T: 'static + Clone> ChooseSomething<T> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        query: &str,
+        choices: Vec<Choice<T>>,
+        cb: Box<dyn Fn(T, &mut EventCtx, &mut App) -> Transition>,
+    ) -> Box<dyn State> {
+        Box::new(ChooseSomething {
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line(query).small_heading().draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Menu::new(ctx, choices).named("menu"),
+            ]))
+            .build(ctx),
+            cb,
+        })
+    }
+
+    pub fn new_below(
+        ctx: &mut EventCtx,
+        rect: &ScreenRectangle,
+        choices: Vec<Choice<T>>,
+        cb: Box<dyn Fn(T, &mut EventCtx, &mut App) -> Transition>,
+    ) -> Box<dyn State> {
+        Box::new(ChooseSomething {
+            composite: Composite::new(Menu::new(ctx, choices).named("menu").container())
+                .aligned(
+                    HorizontalAlignment::Centered(rect.center().x),
+                    VerticalAlignment::Below(rect.y2 + 15.0),
+                )
+                .build(ctx),
+            cb,
+        })
+    }
+}
+
+impl<T: 'static + Clone> State for ChooseSomething<T> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => Transition::Pop,
+                _ => {
+                    // TODO We shouldn't need to clone everywhere
+                    let data = self.composite.menu::<T>("menu").current_choice().clone();
+                    (self.cb)(data, ctx, app)
+                }
+            },
+            _ => {
+                if ctx.normal_left_click() && ctx.canvas.get_cursor_in_screen_space().is_none() {
+                    return Transition::Pop;
+                }
+                // new_below doesn't make an X button
+                if ctx.input.key_pressed(Key::Escape) {
+                    return Transition::Pop;
+                }
+                Transition::Keep
+            }
+        }
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
+        self.composite.draw(g);
+    }
 }

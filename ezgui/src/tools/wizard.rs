@@ -464,4 +464,10 @@ impl Choice<String> {
     pub fn string(label: &str) -> Choice<String> {
         Choice::new(label.to_string(), label.to_string())
     }
+
+    pub fn strings(list: Vec<String>) -> Vec<Choice<String>> {
+        list.into_iter()
+            .map(|x| Choice::new(x.clone(), x))
+            .collect()
+    }
 }

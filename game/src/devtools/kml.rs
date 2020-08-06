@@ -1,11 +1,11 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{ChooseSomething, State, Transition};
 use aabb_quadtree::QuadTree;
 use abstutil::{prettyprint_usize, Parallelism};
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget, Wizard,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::ExtraShapes;
@@ -166,7 +166,22 @@ impl State for ViewKML {
                     return Transition::Pop;
                 }
                 "load KML file" => {
-                    return Transition::Push(WizardState::new(Box::new(choose_kml)));
+                    return Transition::Push(ChooseSomething::new(
+                        ctx,
+                        "Load file",
+                        Choice::strings(
+                            abstutil::list_dir(std::path::Path::new(&abstutil::path(format!(
+                                "input/{}/",
+                                app.primary.map.get_city_name()
+                            ))))
+                            .into_iter()
+                            .filter(|x| x.ends_with(".bin") && !x.ends_with("popdat.bin"))
+                            .collect(),
+                        ),
+                        Box::new(|path, ctx, app| {
+                            Transition::Replace(ViewKML::new(ctx, app, Some(path)))
+                        }),
+                    ));
                 }
                 _ => unreachable!(),
             },
@@ -331,17 +346,4 @@ fn make_query(app: &App, objects: &Vec<Object>, query: &str) -> (GeomBatch, usiz
         }
     }
     (batch, cnt)
-}
-
-fn choose_kml(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let path = wiz.wrap(ctx).choose_string("View what KML dataset?", || {
-        abstutil::list_dir(std::path::Path::new(&abstutil::path(format!(
-            "input/{}/",
-            app.primary.map.get_city_name()
-        ))))
-        .into_iter()
-        .filter(|x| x.ends_with(".bin") && !x.ends_with("popdat.bin"))
-        .collect()
-    })?;
-    Some(Transition::Replace(ViewKML::new(ctx, app, Some(path))))
 }

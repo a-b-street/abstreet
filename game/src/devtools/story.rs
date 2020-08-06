@@ -1,6 +1,6 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::game::{DrawBaselayer, State, Transition, WizardState};
+use crate::game::{ChooseSomething, DrawBaselayer, State, Transition, WizardState};
 use crate::render::DrawOptions;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -198,52 +198,46 @@ impl State for StoryMapEditor {
                 }
                 "load" => {
                     // TODO autosave
-                    let current = self.story.name.clone();
-                    let btn = self.composite.rect_of("load").clone();
-                    return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, app| {
-                        let (_, raw) = wiz.wrap(ctx).choose_exact(
-                            (
-                                HorizontalAlignment::Centered(btn.center().x),
-                                VerticalAlignment::Below(btn.y2 + 15.0),
-                            ),
-                            None,
-                            || {
-                                let mut list = Vec::new();
-                                for (name, story) in abstutil::load_all_objects::<RecordedStoryMap>(
-                                    abstutil::path("player/stories"),
-                                ) {
-                                    if story.name == current {
-                                        continue;
-                                    }
-                                    // TODO Argh, we can't make StoryMap cloneable, so redo some
-                                    // work
-                                    let gps_bounds = app.primary.map.get_gps_bounds();
-                                    if story
-                                        .markers
-                                        .iter()
-                                        .all(|(pts, _)| gps_bounds.try_convert(pts).is_some())
-                                    {
-                                        list.push(Choice::new(name, story));
-                                    }
-                                }
-                                list.push(Choice::new(
-                                    "new story",
-                                    RecordedStoryMap {
-                                        name: "new story".to_string(),
-                                        markers: Vec::new(),
-                                    },
-                                ));
-                                list
-                            },
-                        )?;
-                        let story = StoryMap::load(ctx, app, raw).unwrap();
-                        Some(Transition::PopWithData(Box::new(move |state, ctx, _| {
-                            let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
-                            editor.story = story;
-                            editor.dirty = false;
-                            editor.redo_panel(ctx);
-                        })))
-                    })));
+                    let mut choices = Vec::new();
+                    for (name, story) in abstutil::load_all_objects::<RecordedStoryMap>(
+                        abstutil::path("player/stories"),
+                    ) {
+                        if story.name == self.story.name {
+                            continue;
+                        }
+                        // TODO Argh, we can't make StoryMap cloneable, so redo some
+                        // work
+                        let gps_bounds = app.primary.map.get_gps_bounds();
+                        if story
+                            .markers
+                            .iter()
+                            .all(|(pts, _)| gps_bounds.try_convert(pts).is_some())
+                        {
+                            choices.push(Choice::new(name, story));
+                        }
+                    }
+                    choices.push(Choice::new(
+                        "new story",
+                        RecordedStoryMap {
+                            name: "new story".to_string(),
+                            markers: Vec::new(),
+                        },
+                    ));
+
+                    return Transition::Push(ChooseSomething::new_below(
+                        ctx,
+                        self.composite.rect_of("load"),
+                        choices,
+                        Box::new(|raw, ctx, app| {
+                            let story = StoryMap::load(ctx, app, raw).unwrap();
+                            Transition::PopWithData(Box::new(move |state, ctx, _| {
+                                let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
+                                editor.story = story;
+                                editor.dirty = false;
+                                editor.redo_panel(ctx);
+                            }))
+                        }),
+                    ));
                 }
                 "new marker" => {
                     self.hovering = None;
