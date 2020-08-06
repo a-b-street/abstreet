@@ -1,38 +1,28 @@
-use crate::raw::{DrivingSide, RestrictionType};
-use crate::{Intersection, Lane, LaneID, Road, RoadID, Turn, TurnID, TurnType};
+use crate::raw::RestrictionType;
+use crate::{Intersection, Lane, LaneID, Map, Turn, TurnID, TurnType};
 use abstutil::Timer;
 use geom::{Distance, PolyLine, Pt2D};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
-pub fn make_all_turns(
-    driving_side: DrivingSide,
-    i: &Intersection,
-    roads: &Vec<Road>,
-    lanes: &Vec<Lane>,
-    timer: &mut Timer,
-) -> Vec<Turn> {
+pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
     assert!(!i.is_border());
 
     let mut raw_turns: Vec<Turn> = Vec::new();
-    raw_turns.extend(make_vehicle_turns(i, lanes, timer));
+    raw_turns.extend(make_vehicle_turns(i, map, timer));
     raw_turns.extend(crate::make::walking_turns::make_walking_turns(
-        driving_side,
-        i,
-        roads,
-        lanes,
-        timer,
+        map, i, timer,
     ));
     let unique_turns = ensure_unique(raw_turns);
 
     let mut final_turns: Vec<Turn> = Vec::new();
     let mut filtered_turns: HashMap<LaneID, Vec<Turn>> = HashMap::new();
     for turn in unique_turns {
-        if !does_turn_pass_restrictions(&turn, &i.roads, roads, lanes) {
+        if !does_turn_pass_restrictions(&turn, i, map) {
             continue;
         }
 
-        if is_turn_allowed(&turn, roads, lanes) {
+        if is_turn_allowed(&turn, map) {
             final_turns.push(turn);
         } else {
             filtered_turns
@@ -46,28 +36,61 @@ pub fn make_all_turns(
     // turn leading to it.
     let mut incoming_missing: HashSet<LaneID> = HashSet::new();
     for l in &i.incoming_lanes {
-        if lanes[l.0].lane_type.supports_any_movement() {
+        if map.get_l(*l).lane_type.supports_any_movement() {
             incoming_missing.insert(*l);
         }
     }
     for t in &final_turns {
         incoming_missing.remove(&t.id.src);
     }
-    // Turn restrictions are buggy. If they orphan a lane, restore the filtered turns.
     for (l, turns) in filtered_turns {
+        // Do turn restrictions orphan a lane?
         if incoming_missing.contains(&l) {
-            timer.warn(format!(
-                "Turn restrictions broke {} outbound, so restoring turns",
-                l
-            ));
-            final_turns.extend(turns);
+            // Restrictions on turn lanes may sometimes actually be more like change:lanes
+            // (https://wiki.openstreetmap.org/wiki/Key:change). Try to interpret them that way
+            // here, choosing one turn from a bunch of options.
+
+            // If all the turns go to a single road, then ignore the turn type.
+            let dst_r = map.get_l(turns[0].id.dst).parent;
+            let single_group: Vec<Turn> =
+                if turns.iter().all(|t| map.get_l(t.id.dst).parent == dst_r) {
+                    turns.clone()
+                } else {
+                    // Fall back to preferring all the straight turns
+                    turns
+                        .iter()
+                        .filter(|t| t.turn_type == TurnType::Straight)
+                        .cloned()
+                        .collect()
+                };
+            if !single_group.is_empty() {
+                // Just pick one, with the lowest lane-changing cost. Not using Turn's penalty()
+                // here, because
+                // 1) We haven't populated turns yet, so from_idx won't work
+                // 2) It counts from the right, but I think we actually want to count from the left
+                let best = single_group
+                    .into_iter()
+                    .min_by_key(|t| lc_penalty(t, map))
+                    .unwrap();
+                final_turns.push(best);
+                timer.note(format!(
+                    "Restricted lane-changing on approach to turn lanes at {}",
+                    l
+                ));
+            } else {
+                timer.warn(format!(
+                    "Turn restrictions broke {} outbound, so restoring turns",
+                    l
+                ));
+                final_turns.extend(turns);
+            }
             incoming_missing.remove(&l);
         }
     }
 
     let mut outgoing_missing: HashSet<LaneID> = HashSet::new();
     for l in &i.outgoing_lanes {
-        if lanes[l.0].lane_type.supports_any_movement() {
+        if map.get_l(*l).lane_type.supports_any_movement() {
             outgoing_missing.insert(*l);
         }
     }
@@ -102,32 +125,28 @@ fn ensure_unique(turns: Vec<Turn>) -> Vec<Turn> {
     keep
 }
 
-fn is_turn_allowed(turn: &Turn, roads: &Vec<Road>, lanes: &Vec<Lane>) -> bool {
-    let l = &lanes[turn.id.src.0];
-    let r = &roads[l.parent.0];
-    if let Some(mut types) = l.get_turn_restrictions(r) {
+fn is_turn_allowed(turn: &Turn, map: &Map) -> bool {
+    if let Some(mut types) = map
+        .get_l(turn.id.src)
+        .get_turn_restrictions(map.get_parent(turn.id.src))
+    {
         types.any(|turn_type| turn_type == turn.turn_type)
     } else {
         true
     }
 }
 
-fn does_turn_pass_restrictions(
-    turn: &Turn,
-    intersection_roads: &BTreeSet<RoadID>,
-    roads: &Vec<Road>,
-    lanes: &Vec<Lane>,
-) -> bool {
+fn does_turn_pass_restrictions(turn: &Turn, i: &Intersection, map: &Map) -> bool {
     if turn.between_sidewalks() {
         return true;
     }
 
-    let src = lanes[turn.id.src.0].parent;
-    let dst = lanes[turn.id.dst.0].parent;
+    let src = map.get_parent(turn.id.src);
+    let dst = map.get_l(turn.id.dst).parent;
 
-    for (restriction, to) in &roads[src.0].turn_restrictions {
+    for (restriction, to) in &src.turn_restrictions {
         // The restriction only applies to one direction of the road.
-        if !intersection_roads.contains(to) {
+        if !i.roads.contains(to) {
             continue;
         }
         match restriction {
@@ -147,18 +166,18 @@ fn does_turn_pass_restrictions(
     true
 }
 
-fn make_vehicle_turns(i: &Intersection, lanes: &Vec<Lane>, timer: &mut Timer) -> Vec<Turn> {
+fn make_vehicle_turns(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<Turn> {
     let mut turns = Vec::new();
 
     // Just generate every possible combination of turns between incoming and outgoing lanes.
     let is_deadend = i.roads.len() == 1;
     for src in &i.incoming_lanes {
-        let src = &lanes[src.0];
+        let src = map.get_l(*src);
         if !src.lane_type.is_for_moving_vehicles() {
             continue;
         }
         for dst in &i.outgoing_lanes {
-            let dst = &lanes[dst.0];
+            let dst = map.get_l(*dst);
             if !dst.lane_type.is_for_moving_vehicles() {
                 continue;
             }
@@ -235,4 +254,41 @@ fn to_pt(pt: Pt2D) -> Point2d<f64> {
 
 fn from_pt(pt: Point2d<f64>) -> Pt2D {
     Pt2D::new(pt.x, pt.y)
+}
+
+fn lc_penalty(t: &Turn, map: &Map) -> isize {
+    let from = map.get_l(t.id.src);
+    let to = map.get_l(t.id.dst);
+
+    let from_idx = {
+        let mut cnt = 0;
+        let r = map.get_r(from.parent);
+        for (l, lt) in r.children(r.is_forwards(from.id)) {
+            if from.lane_type != *lt {
+                continue;
+            }
+            cnt += 1;
+            if from.id == *l {
+                break;
+            }
+        }
+        cnt
+    };
+
+    let to_idx = {
+        let mut cnt = 0;
+        let r = map.get_r(to.parent);
+        for (l, lt) in r.children(r.is_forwards(to.id)) {
+            if to.lane_type != *lt {
+                continue;
+            }
+            cnt += 1;
+            if to.id == *l {
+                break;
+            }
+        }
+        cnt
+    };
+
+    ((from_idx as isize) - (to_idx as isize)).abs()
 }

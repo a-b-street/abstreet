@@ -157,7 +157,7 @@ impl Turn {
 
         // TODO I thought about different cases where there are the same/more/less lanes going in
         // and out, but then actually, I think the reasonable thing in all cases is just to do
-        // this. If that holds true, simplify travel_lane_offset; don't need the count.
+        // this.
         let lc_cost = ((from_idx as isize) - (to_idx as isize)).abs() as usize;
 
         // Always prefer a dedicated bike or bus lane. This takes care of entering one from a

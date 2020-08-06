@@ -1,16 +1,16 @@
 use crate::raw::DrivingSide;
-use crate::{Intersection, IntersectionID, Lane, LaneID, LaneType, Road, Turn, TurnID, TurnType};
+use crate::{
+    Intersection, IntersectionID, Lane, LaneID, LaneType, Map, Road, Turn, TurnID, TurnType,
+};
 use abstutil::{wraparound_get, Timer};
 use geom::{Distance, Line, PolyLine, Pt2D, Ring};
 use std::collections::BTreeSet;
 
-pub fn make_walking_turns(
-    driving_side: DrivingSide,
-    i: &Intersection,
-    all_roads: &Vec<Road>,
-    lanes: &Vec<Lane>,
-    timer: &mut Timer,
-) -> Vec<Turn> {
+pub fn make_walking_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
+    let driving_side = map.config.driving_side;
+    let all_roads = map.all_roads();
+    let lanes = map.all_lanes();
+
     let roads: Vec<&Road> = i
         .get_roads_sorted_by_incoming_angle(all_roads)
         .into_iter()

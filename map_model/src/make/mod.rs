@@ -217,10 +217,6 @@ impl Map {
                         i.id, i.orig_id, i.roads
                     );
                 }
-                continue;
-            }
-            if i.is_closed() {
-                continue;
             }
             if i.intersection_type == IntersectionType::TrafficSignal {
                 let mut ok = false;
@@ -238,22 +234,27 @@ impl Map {
                     i.intersection_type = IntersectionType::StopSign;
                 }
             }
+        }
 
+        let mut all_turns = Vec::new();
+        for i in &map.intersections {
+            if i.is_border() || i.is_closed() {
+                continue;
+            }
             if i.incoming_lanes.is_empty() || i.outgoing_lanes.is_empty() {
                 timer.warn(format!("{} is orphaned!", i.orig_id));
                 continue;
             }
 
-            for t in
-                turns::make_all_turns(map.config.driving_side, i, &map.roads, &map.lanes, timer)
-            {
-                assert!(!map.turns.contains_key(&t.id));
-                i.turns.insert(t.id);
-                if t.geom.length() < geom::EPSILON_DIST {
-                    timer.warn(format!("{} is a very short turn", t.id));
-                }
-                map.turns.insert(t.id, t);
+            all_turns.extend(turns::make_all_turns(&map, i, timer));
+        }
+        for t in all_turns {
+            assert!(!map.turns.contains_key(&t.id));
+            map.intersections[t.id.parent.0].turns.insert(t.id);
+            if t.geom.length() < geom::EPSILON_DIST {
+                timer.warn(format!("{} is a very short turn", t.id));
             }
+            map.turns.insert(t.id, t);
         }
 
         timer.start("find blackholes");

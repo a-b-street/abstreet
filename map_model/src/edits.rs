@@ -777,13 +777,9 @@ fn recalculate_turns(
         return;
     }
 
-    for t in crate::make::turns::make_all_turns(
-        map.config.driving_side,
-        i,
-        &map.roads,
-        &map.lanes,
-        timer,
-    ) {
+    let turns = crate::make::turns::make_all_turns(map, map.get_i(id), timer);
+    let i = &mut map.intersections[id.0];
+    for t in turns {
         effects.added_turns.insert(t.id);
         i.turns.insert(t.id);
         if let Some(_existing_t) = old_turns.iter().find(|turn| turn.id == t.id) {
