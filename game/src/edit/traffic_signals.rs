@@ -1,7 +1,7 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
-use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
+use crate::game::{msg, ChooseSomething, DrawBaselayer, State, Transition, WizardState};
 use crate::render::{
     draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS,
 };
@@ -259,7 +259,7 @@ impl State for TrafficSignalEditor {
                         .map
                         .recalculate_pathfinding_after_edits(&mut Timer::throwaway());
 
-                    return Transition::Push(make_previewer(self.i, self.current_phase));
+                    return Transition::Push(make_previewer(ctx, app, self.i, self.current_phase));
                 }
                 "undo" => {
                     self.redo_stack.push(orig_signal.clone());
@@ -739,22 +739,24 @@ fn check_for_missing_groups(
 }
 
 // TODO I guess it's valid to preview without all turns possible. Some agents are just sad.
-fn make_previewer(i: IntersectionID, phase: usize) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, app| {
-        let random = "random agents around just this intersection".to_string();
-        let right_now = format!(
-            "change the traffic signal live at {}",
-            app.suspended_sim.as_ref().unwrap().time()
-        );
-        match wiz
-            .wrap(ctx)
-            .choose_string(
-                "Preview the traffic signal with what kind of traffic?",
-                || vec![random.clone(), right_now.clone()],
-            )?
-            .as_str()
-        {
-            x if x == random => {
+fn make_previewer(
+    ctx: &mut EventCtx,
+    app: &App,
+    i: IntersectionID,
+    phase: usize,
+) -> Box<dyn State> {
+    let random = "random agents around just this intersection".to_string();
+    let right_now = format!(
+        "change the traffic signal live at {}",
+        app.suspended_sim.as_ref().unwrap().time()
+    );
+
+    ChooseSomething::new(
+        ctx,
+        "Preview the traffic signal with what kind of traffic?",
+        Choice::strings(vec![random, right_now]),
+        Box::new(move |x, ctx, app| {
+            if x == "random agents around just this intersection" {
                 // Start at the current phase
                 let signal = app.primary.map.get_traffic_signal(i);
                 // TODO Use the offset correctly
@@ -771,19 +773,15 @@ fn make_previewer(i: IntersectionID, phase: usize) -> Box<dyn State> {
                 );
 
                 spawn_agents_around(i, app);
-            }
-            x if x == right_now => {
+            } else {
                 app.primary.sim = app.suspended_sim.as_ref().unwrap().clone();
                 app.primary
                     .sim
                     .handle_live_edited_traffic_signals(&app.primary.map);
             }
-            _ => unreachable!(),
-        };
-        Some(Transition::Replace(Box::new(PreviewTrafficSignal::new(
-            ctx, app,
-        ))))
-    }))
+            Transition::Replace(Box::new(PreviewTrafficSignal::new(ctx, app)))
+        }),
+    )
 }
 
 // TODO Show diagram, auto-sync the phase.

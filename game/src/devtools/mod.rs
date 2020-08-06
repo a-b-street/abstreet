@@ -7,12 +7,12 @@ mod story;
 
 use crate::app::App;
 use crate::common::CityPicker;
-use crate::game::{DrawBaselayer, State, Transition, WizardState};
+use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
 use crate::helpers::nice_map_name;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, TextExt,
-    VerticalAlignment, Widget, Wizard,
+    hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    TextExt, VerticalAlignment, Widget,
 };
 use geom::LonLat;
 
@@ -61,7 +61,28 @@ impl State for DevToolsMode {
                     return Transition::Pop;
                 }
                 "edit a polygon" => {
-                    return Transition::Push(WizardState::new(Box::new(choose_polygon)));
+                    // TODO Sorry, Seattle only right now
+                    return Transition::Push(ChooseSomething::new(
+                        ctx,
+                        "Choose a polygon",
+                        Choice::strings(abstutil::list_all_objects(abstutil::path(
+                            "input/seattle/polygons/",
+                        ))),
+                        Box::new(|name, ctx, _| {
+                            match LonLat::read_osmosis_polygon(abstutil::path(format!(
+                                "input/seattle/polygons/{}.poly",
+                                name
+                            ))) {
+                                Ok(pts) => {
+                                    Transition::Replace(polygon::PolygonEditor::new(ctx, name, pts))
+                                }
+                                Err(err) => {
+                                    println!("Bad polygon {}: {}", name, err);
+                                    Transition::Pop
+                                }
+                            }
+                        }),
+                    ));
                 }
                 "draw a polygon" => {
                     return Transition::Push(polygon::PolygonEditor::new(
@@ -71,7 +92,22 @@ impl State for DevToolsMode {
                     ));
                 }
                 "load scenario" => {
-                    return Transition::Push(WizardState::new(Box::new(load_scenario)));
+                    return Transition::Push(ChooseSomething::new(
+                        ctx,
+                        "Choose a scenario",
+                        Choice::strings(abstutil::list_all_objects(abstutil::path_all_scenarios(
+                            app.primary.map.get_name(),
+                        ))),
+                        Box::new(|s, ctx, app| {
+                            let scenario = abstutil::read_binary(
+                                abstutil::path_scenario(app.primary.map.get_name(), &s),
+                                &mut Timer::throwaway(),
+                            );
+                            Transition::Replace(Box::new(scenario::ScenarioManager::new(
+                                scenario, ctx, app,
+                            )))
+                        }),
+                    ));
                 }
                 "view KML" => {
                     return Transition::Push(kml::ViewKML::new(ctx, app, None));
@@ -103,38 +139,5 @@ impl State for DevToolsMode {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
         self.composite.draw(g);
-    }
-}
-
-fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let map_name = app.primary.map.get_name().to_string();
-    let s = wiz.wrap(ctx).choose_string("Load which scenario?", || {
-        abstutil::list_all_objects(abstutil::path_all_scenarios(&map_name))
-    })?;
-    let scenario = abstutil::read_binary(
-        abstutil::path_scenario(&map_name, &s),
-        &mut Timer::throwaway(),
-    );
-    Some(Transition::Replace(Box::new(
-        scenario::ScenarioManager::new(scenario, ctx, app),
-    )))
-}
-
-fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, _: &mut App) -> Option<Transition> {
-    // TODO Sorry, Seattle only right now
-    let name = wiz.wrap(ctx).choose_string("Edit which polygon?", || {
-        abstutil::list_all_objects(abstutil::path("input/seattle/polygons/"))
-    })?;
-    match LonLat::read_osmosis_polygon(abstutil::path(format!(
-        "input/seattle/polygons/{}.poly",
-        name
-    ))) {
-        Ok(pts) => Some(Transition::Replace(polygon::PolygonEditor::new(
-            ctx, name, pts,
-        ))),
-        Err(err) => {
-            println!("Bad polygon {}: {}", name, err);
-            Some(Transition::Pop)
-        }
     }
 }

@@ -1,6 +1,6 @@
 use crate::{
     text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
+    ScreenRectangle, Style, Text, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::Pt2D;
 
@@ -25,7 +25,7 @@ impl<T: 'static + Clone> Menu<T> {
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
         };
-        m.dims = m.calculate_txt().dims(&ctx.prerender.assets);
+        m.dims = m.calculate_txt(ctx.style()).dims(&ctx.prerender.assets);
         Widget::new(Box::new(m))
     }
 
@@ -33,14 +33,14 @@ impl<T: 'static + Clone> Menu<T> {
         &self.choices[self.current_idx].data
     }
 
-    fn calculate_txt(&self) -> Text {
+    fn calculate_txt(&self, style: &Style) -> Text {
         let mut txt = Text::new();
 
         for (idx, choice) in self.choices.iter().enumerate() {
             if choice.active {
                 if let Some(ref key) = choice.hotkey {
                     txt.add_appended(vec![
-                        Line(key.describe()),
+                        Line(key.describe()).fg(style.hotkey_color),
                         Line(format!(" - {}", choice.label)),
                     ]);
                 } else {
@@ -134,11 +134,12 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
         }
 
         // Handle hotkeys
-        for choice in &self.choices {
+        for (idx, choice) in self.choices.iter().enumerate() {
             if !choice.active {
                 continue;
             }
             if ctx.input.pressed(choice.hotkey.clone()) {
+                self.current_idx = idx;
                 self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
                 output.outcome = Outcome::Clicked(choice.label.clone());
                 return;
@@ -171,7 +172,7 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             return;
         }
 
-        let draw = g.upload(self.calculate_txt().render_g(g));
+        let draw = g.upload(self.calculate_txt(g.style()).render_g(g));
         // In between tooltip and normal screenspace
         g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0, Some(0.1));
         g.redraw(&draw);

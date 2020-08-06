@@ -71,6 +71,8 @@ impl GameplayState for PlayScenario {
                     )))
                 }
                 "change traffic" => Some(Transition::Push(make_change_traffic(
+                    ctx,
+                    app,
                     self.top_center.rect_of("change traffic").clone(),
                     self.scenario_name.clone(),
                 ))),

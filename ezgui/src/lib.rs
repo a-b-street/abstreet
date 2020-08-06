@@ -81,7 +81,9 @@ pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;
 pub use crate::widgets::{Outcome, WidgetImpl, WidgetOutput};
 
+// TODO Almost got rid of this
 pub(crate) enum InputResult<T: Clone> {
+    #[allow(dead_code)]
     Canceled,
     StillActive,
     Done(String, T),

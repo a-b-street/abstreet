@@ -12,7 +12,7 @@ use crate::edit::{
     apply_map_edits, can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor,
     TrafficSignalEditor,
 };
-use crate::game::{State, Transition, WizardState};
+use crate::game::{ChooseSomething, State, Transition};
 use crate::helpers::ID;
 use crate::layer::PickLayer;
 use crate::options::OptionsPanel;
@@ -20,7 +20,7 @@ use crate::pregame::MainMenu;
 use crate::render::UnzoomedAgents;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, Text, TextExt, UpdateType, VerticalAlignment, Widget, Wizard,
+    Key, Line, Outcome, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use geom::{Polygon, Time};
@@ -167,7 +167,7 @@ impl State for SandboxMode {
             match tp.event(ctx) {
                 Outcome::Clicked(x) => match x.as_ref() {
                     "back" => {
-                        return maybe_exit_sandbox();
+                        return maybe_exit_sandbox(ctx);
                     }
                     "settings" => {
                         return Transition::Push(OptionsPanel::new(ctx, app));
@@ -236,37 +236,35 @@ impl State for SandboxMode {
     }
 }
 
-pub fn maybe_exit_sandbox() -> Transition {
-    Transition::Push(WizardState::new(Box::new(exit_sandbox)))
-}
+pub fn maybe_exit_sandbox(ctx: &mut EventCtx) -> Transition {
+    Transition::Push(ChooseSomething::new(
+        ctx,
+        "Are you ready to leave this mode?",
+        vec![
+            Choice::string("keep playing"),
+            Choice::string("quit to main screen").key(Key::Q),
+        ],
+        Box::new(|resp, ctx, app| {
+            if resp == "keep playing" {
+                return Transition::Pop;
+            }
 
-fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let (resp, _) = wiz
-        .wrap(ctx)
-        .choose("Are you ready to leave this mode?", || {
-            vec![
-                Choice::new("keep playing", ()),
-                Choice::new("quit to main screen", ()).key(Key::Q),
-            ]
-        })?;
-    if resp == "keep playing" {
-        return Some(Transition::Pop);
-    }
-
-    ctx.canvas.save_camera_state(app.primary.map.get_name());
-    if app.primary.map.unsaved_edits() {
-        return Some(Transition::PushTwice(
-            Box::new(BackToMainMenu),
-            SaveEdits::new(
-                ctx,
-                app,
-                "Do you want to save your edits first?",
-                true,
-                None,
-            ),
-        ));
-    }
-    Some(Transition::Replace(Box::new(BackToMainMenu)))
+            ctx.canvas.save_camera_state(app.primary.map.get_name());
+            if app.primary.map.unsaved_edits() {
+                return Transition::PushTwice(
+                    Box::new(BackToMainMenu),
+                    SaveEdits::new(
+                        ctx,
+                        app,
+                        "Do you want to save your edits first?",
+                        true,
+                        None,
+                    ),
+                );
+            }
+            Transition::Replace(Box::new(BackToMainMenu))
+        }),
+    ))
 }
 
 struct BackToMainMenu;

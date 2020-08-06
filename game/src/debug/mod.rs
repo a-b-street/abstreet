@@ -5,13 +5,13 @@ pub mod shared_row;
 
 use crate::app::{App, ShowLayers, ShowObject};
 use crate::common::{tool_panel, CommonState, ContextualActions};
-use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
+use crate::game::{msg, ChooseSomething, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::options::OptionsPanel;
 use crate::render::{calculate_corners, DrawOptions};
 use abstutil::{Parallelism, Tags, Timer};
 use ezgui::{
-    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    hotkey, lctrl, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget, Wizard,
 };
 use geom::{Distance, Pt2D};
@@ -180,7 +180,23 @@ impl State for DebugMode {
                     }
                 }
                 "pick a savestate to load" => {
-                    return Transition::Push(WizardState::new(Box::new(load_savestate)));
+                    return Transition::Push(ChooseSomething::new(
+                        ctx,
+                        "Load which savestate?",
+                        Choice::strings(abstutil::list_all_objects(app.primary.sim.save_dir())),
+                        Box::new(|ss, ctx, app| {
+                            // TODO Oh no, we have to do path construction here :(
+                            let ss_path = format!("{}/{}.bin", app.primary.sim.save_dir(), ss);
+
+                            ctx.loading_screen("load savestate", |ctx, mut timer| {
+                                app.primary.sim =
+                                    Sim::load_savestate(ss_path, &app.primary.map, &mut timer)
+                                        .expect("Can't load savestate");
+                                app.recalculate_current_selection(ctx);
+                            });
+                            Transition::Pop
+                        }),
+                    ));
                 }
                 "unhide everything" => {
                     self.hidden.clear();
@@ -393,21 +409,6 @@ struct SearchResults {
     query: String,
     num_matches: usize,
     draw: Drawable,
-}
-
-fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let ss = wiz.wrap(ctx).choose_string("Load which savestate?", || {
-        abstutil::list_all_objects(app.primary.sim.save_dir())
-    })?;
-    // TODO Oh no, we have to do path construction here :(
-    let ss_path = format!("{}/{}.bin", app.primary.sim.save_dir(), ss);
-
-    ctx.loading_screen("load savestate", |ctx, mut timer| {
-        app.primary.sim = Sim::load_savestate(ss_path, &app.primary.map, &mut timer)
-            .expect("Can't load savestate");
-        app.recalculate_current_selection(ctx);
-    });
-    Some(Transition::Pop)
 }
 
 fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {

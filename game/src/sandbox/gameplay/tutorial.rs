@@ -105,7 +105,7 @@ impl Tutorial {
         match self.top_center.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Quit" => {
-                    return Some(maybe_exit_sandbox());
+                    return Some(maybe_exit_sandbox(ctx));
                 }
                 "previous tutorial" => {
                     tut.current = TutorialPointer::new(tut.current.stage - 1, 0);
@@ -317,7 +317,7 @@ impl Tutorial {
         } else if tut.interaction() == Task::Done {
             // If the player chooses to stay here, at least go back to the message panel.
             tut.prev();
-            return Some(maybe_exit_sandbox());
+            return Some(maybe_exit_sandbox(ctx));
         }
 
         None

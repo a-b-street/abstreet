@@ -1,7 +1,7 @@
 use crate::app::{App, ShowEverything};
 use crate::common::{CityPicker, CommonState};
 use crate::edit::EditMode;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{ChooseSomething, State, Transition};
 use crate::helpers::{nice_map_name, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
@@ -60,6 +60,8 @@ impl GameplayState for Freeform {
                     )))
                 }
                 "change traffic" => Some(Transition::Push(make_change_traffic(
+                    ctx,
+                    app,
                     self.top_center.rect_of("change traffic").clone(),
                     "none".to_string(),
                 ))),
@@ -115,69 +117,68 @@ fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
         .build(ctx)
 }
 
-pub fn make_change_traffic(btn: ScreenRectangle, current: String) -> Box<dyn State> {
-    let current = current.to_string();
-    WizardState::new(Box::new(move |wiz, ctx, app| {
-        let (_, scenario_name) = wiz.wrap(ctx).choose_exact(
-            (
-                HorizontalAlignment::Centered(btn.center().x),
-                VerticalAlignment::Below(btn.y2 + 15.0),
-            ),
-            None,
-            || {
-                let mut list = Vec::new();
-                for name in abstutil::list_all_objects(abstutil::path_all_scenarios(
-                    app.primary.map.get_name(),
-                )) {
-                    if name == "weekday" {
-                        list.push(Choice::new("realistic weekday traffic", name).tooltip(
-                            "Trips will begin throughout the entire day. Midnight is usually \
-                             quiet, so you may need to fast-forward to morning rush hour. Data \
-                             comes from Puget Sound Regional Council's Soundcast model.",
-                        ));
-                    } else {
-                        list.push(Choice::new(name.clone(), name));
-                    }
-                }
-                list.push(
-                    Choice::new("trips between home and work", "home_to_work".to_string()).tooltip(
-                        "Randomized people will leave homes in the morning, go to work, then \
-                         return in the afternoon. It'll be very quiet before 7am and between 10am \
-                         to 5pm.",
-                    ),
-                );
-                list.push(
-                    Choice::new("random unrealistic trips", "random".to_string()).tooltip(
-                        "Lots of trips will start at midnight, but not constantly appear through \
-                         the day.",
-                    ),
-                );
-                list.push(Choice::new(
-                    "none, except for buses -- you manually spawn traffic",
-                    "none".to_string(),
-                ));
-                list.into_iter()
-                    .map(|c| {
-                        if c.data == current {
-                            c.active(false)
-                        } else {
-                            c
-                        }
-                    })
-                    .collect()
-            },
-        )?;
-        let map_path = abstutil::path_map(app.primary.map.get_name());
-        Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
-            ctx,
-            app,
-            if scenario_name == "none" {
-                GameplayMode::Freeform(map_path)
+pub fn make_change_traffic(
+    ctx: &mut EventCtx,
+    app: &App,
+    btn: ScreenRectangle,
+    current: String,
+) -> Box<dyn State> {
+    let mut choices = Vec::new();
+    for name in abstutil::list_all_objects(abstutil::path_all_scenarios(app.primary.map.get_name()))
+    {
+        if name == "weekday" {
+            choices.push(Choice::new("realistic weekday traffic", name).tooltip(
+                "Trips will begin throughout the entire day. Midnight is usually quiet, so you \
+                 may need to fast-forward to morning rush hour. Data comes from Puget Sound \
+                 Regional Council's Soundcast model.",
+            ));
+        } else {
+            choices.push(Choice::new(name.clone(), name));
+        }
+    }
+    choices.push(
+        Choice::new("trips between home and work", "home_to_work".to_string()).tooltip(
+            "Randomized people will leave homes in the morning, go to work, then return in the \
+             afternoon. It'll be very quiet before 7am and between 10am to 5pm.",
+        ),
+    );
+    choices.push(
+        Choice::new("random unrealistic trips", "random".to_string()).tooltip(
+            "Lots of trips will start at midnight, but not constantly appear through the day.",
+        ),
+    );
+    choices.push(Choice::new(
+        "none, except for buses -- you manually spawn traffic",
+        "none".to_string(),
+    ));
+    let choices = choices
+        .into_iter()
+        .map(|c| {
+            if c.data == current {
+                c.active(false)
             } else {
-                GameplayMode::PlayScenario(map_path, scenario_name, Vec::new())
-            },
-        ))))
-    }))
+                c
+            }
+        })
+        .collect();
+
+    ChooseSomething::new_below(
+        ctx,
+        &btn,
+        choices,
+        Box::new(|scenario_name, ctx, app| {
+            let map_path = abstutil::path_map(app.primary.map.get_name());
+            Transition::PopThenReplace(Box::new(SandboxMode::new(
+                ctx,
+                app,
+                if scenario_name == "none" {
+                    GameplayMode::Freeform(map_path)
+                } else {
+                    GameplayMode::PlayScenario(map_path, scenario_name, Vec::new())
+                },
+            )))
+        }),
+    )
 }
 
 struct AgentSpawner {
