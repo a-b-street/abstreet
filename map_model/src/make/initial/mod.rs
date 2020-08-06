@@ -155,6 +155,34 @@ impl InitialMap {
             }
         }
 
+        // Some roads near borders get completely squished. Stretch them out here. Attempting to do
+        // this in the convert_osm layer doesn't work, because predicting how much roads will be
+        // trimmed is impossible.
+        let min_len = Distance::meters(5.0);
+        for i in m.intersections.values_mut() {
+            if i.intersection_type != IntersectionType::Border {
+                continue;
+            }
+            let r = m.roads.get_mut(i.roads.iter().next().unwrap()).unwrap();
+            if r.trimmed_center_pts.length() >= min_len {
+                continue;
+            }
+            if r.dst_i == i.id {
+                r.trimmed_center_pts = r.trimmed_center_pts.extend_to_length(min_len);
+            } else {
+                r.trimmed_center_pts = r
+                    .trimmed_center_pts
+                    .reversed()
+                    .extend_to_length(min_len)
+                    .reversed();
+            }
+            i.polygon = intersection_polygon(raw.config.driving_side, i, &mut m.roads, timer).0;
+            timer.note(format!(
+                "Shifted border {} out a bit to make the road a reasonable length",
+                i.id
+            ));
+        }
+
         m
     }
 }
