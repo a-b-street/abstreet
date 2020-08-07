@@ -1,11 +1,11 @@
 use crate::app::{App, ShowEverything};
 use crate::common::{CityPicker, ColorLegend};
-use crate::game::{msg, State, Transition, WizardState};
+use crate::game::{msg, State, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
 use abstutil::{prettyprint_usize, Tags, Timer};
 use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Menu, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Distance, FindClosest, PolyLine, Polygon};
 use map_model::{osm, RoadID};
@@ -20,7 +20,6 @@ pub struct ParkingMapper {
     draw_layer: Drawable,
     show: Show,
     selected: Option<(HashSet<RoadID>, Drawable)>,
-    hide_layer: bool,
 
     data: BTreeMap<i64, Value>,
 }
@@ -182,74 +181,8 @@ impl ParkingMapper {
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             selected: None,
-            hide_layer: false,
             data,
         })
-    }
-
-    fn make_wizard(&self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
-        let show = self.show;
-        let osm_way_id = app
-            .primary
-            .map
-            .get_r(*self.selected.as_ref().unwrap().0.iter().next().unwrap())
-            .orig_id
-            .osm_way_id;
-        let data = self.data.clone();
-
-        let mut state = WizardState::new(Box::new(move |wiz, ctx, app| {
-            let mut wizard = wiz.wrap(ctx);
-            let (_, value) = wizard.choose("What kind of parking does this road have?", || {
-                vec![
-                    Choice::new("none -- no stopping or parking", Value::NoStopping),
-                    Choice::new("both sides", Value::BothSides),
-                    Choice::new("just on the green side", Value::RightOnly),
-                    Choice::new("just on the blue side", Value::LeftOnly),
-                    Choice::new(
-                        "it changes at some point along the road",
-                        Value::Complicated,
-                    ),
-                    Choice::new("loading zone on one or both sides", Value::Complicated),
-                ]
-            })?;
-            if value == Value::Complicated {
-                wizard.acknowledge("Complicated road", || {
-                    vec![
-                        "You'll have to manually split the way in ID or JOSM and apply the \
-                         appropriate parking tags to each section.",
-                    ]
-                })?;
-            }
-
-            let mut new_data = data.clone();
-            new_data.insert(osm_way_id, value);
-            Some(Transition::PopThenReplace(ParkingMapper::make(
-                ctx, app, show, new_data,
-            )))
-        }));
-        state.downcast_mut::<WizardState>().unwrap().custom_pop = Some(Transition::PopThenReplace(
-            ParkingMapper::make(ctx, app, self.show, self.data.clone()),
-        ));
-
-        let mut batch = GeomBatch::new();
-        let map = &app.primary.map;
-        let thickness = Distance::meters(2.0);
-        for id in &self.selected.as_ref().unwrap().0 {
-            let r = map.get_r(*id);
-            batch.push(
-                Color::GREEN,
-                map.right_shift(r.center_pts.clone(), r.get_half_width(map))
-                    .make_polygons(thickness),
-            );
-            batch.push(
-                Color::BLUE,
-                map.left_shift(r.center_pts.clone(), r.get_half_width(map))
-                    .make_polygons(thickness),
-            );
-        }
-        state.downcast_mut::<WizardState>().unwrap().also_draw =
-            Some((ctx.upload(batch.clone()), ctx.upload(batch)));
-        state
     }
 }
 
@@ -340,8 +273,13 @@ impl State for ParkingMapper {
             }
         }
         if self.selected.is_some() && app.per_obj.left_click(ctx, "map parking") {
-            self.hide_layer = true;
-            return Transition::Push(self.make_wizard(ctx, app));
+            return Transition::Push(ChangeWay::new(
+                ctx,
+                app,
+                &self.selected.as_ref().unwrap().0,
+                self.show,
+                self.data.clone(),
+            ));
         }
         if self.selected.is_some() && ctx.input.key_pressed(Key::N) {
             let osm_way_id = app
@@ -437,12 +375,129 @@ impl State for ParkingMapper {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        if !self.hide_layer {
-            g.redraw(&self.draw_layer);
-        }
+        g.redraw(&self.draw_layer);
         if let Some((_, ref roads)) = self.selected {
             g.redraw(roads);
         }
+        self.composite.draw(g);
+    }
+}
+
+struct ChangeWay {
+    composite: Composite,
+    draw: Drawable,
+    osm_way_id: i64,
+    data: BTreeMap<i64, Value>,
+    show: Show,
+}
+
+impl ChangeWay {
+    fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        selected: &HashSet<RoadID>,
+        show: Show,
+        data: BTreeMap<i64, Value>,
+    ) -> Box<dyn State> {
+        let map = &app.primary.map;
+        let osm_way_id = map
+            .get_r(*selected.iter().next().unwrap())
+            .orig_id
+            .osm_way_id;
+
+        let mut batch = GeomBatch::new();
+        let thickness = Distance::meters(2.0);
+        for id in selected {
+            let r = map.get_r(*id);
+            batch.push(
+                Color::GREEN,
+                map.right_shift(r.center_pts.clone(), r.get_half_width(map))
+                    .make_polygons(thickness),
+            );
+            batch.push(
+                Color::BLUE,
+                map.left_shift(r.center_pts.clone(), r.get_half_width(map))
+                    .make_polygons(thickness),
+            );
+        }
+
+        Box::new(ChangeWay {
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("What kind of parking does this road have?")
+                        .small_heading()
+                        .draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Menu::new(
+                    ctx,
+                    vec![
+                        Choice::new("none -- no stopping or parking", Value::NoStopping),
+                        Choice::new("both sides", Value::BothSides),
+                        Choice::new("just on the green side", Value::RightOnly),
+                        Choice::new("just on the blue side", Value::LeftOnly),
+                        Choice::new(
+                            "it changes at some point along the road",
+                            Value::Complicated,
+                        ),
+                        Choice::new("loading zone on one or both sides", Value::Complicated),
+                    ],
+                )
+                .named("menu"),
+            ]))
+            .build(ctx),
+            draw: ctx.upload(batch),
+            osm_way_id,
+            data,
+            show,
+        })
+    }
+}
+
+impl State for ChangeWay {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.canvas_movement();
+        match self.composite.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => Transition::Pop,
+                _ => {
+                    let value = self
+                        .composite
+                        .menu::<Value>("menu")
+                        .current_choice()
+                        .clone();
+                    if value == Value::Complicated {
+                        Transition::Replace(msg(
+                            "Complicated road",
+                            vec![
+                                "You'll have to manually split the way in ID or JOSM and apply \
+                                 the appropriate parking tags to each section.",
+                            ],
+                        ))
+                    } else {
+                        self.data.insert(self.osm_way_id, value);
+                        Transition::PopThenReplace(ParkingMapper::make(
+                            ctx,
+                            app,
+                            self.show,
+                            self.data.clone(),
+                        ))
+                    }
+                }
+            },
+            _ => {
+                if ctx.normal_left_click() && ctx.canvas.get_cursor_in_screen_space().is_none() {
+                    return Transition::Pop;
+                }
+                Transition::Keep
+            }
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        g.redraw(&self.draw);
         self.composite.draw(g);
     }
 }

@@ -4,7 +4,7 @@ use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
 use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line, Prerender,
-    RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+    RewriteColor, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, PhaseType, TurnPriority, SIDEWALK_THICKNESS};
@@ -455,6 +455,10 @@ pub fn make_signal_diagram(
         );
 
         col.push(Btn::text_fg("Add new phase").build_def(ctx, None));
+        col.push(Widget::row(vec![
+            Spinner::new(ctx, (0, 300), signal.offset.inner_seconds() as isize).named("offset"),
+            Btn::text_fg("Change signal offset").build_def(ctx, None),
+        ]));
     }
 
     Composite::new(Widget::col(col))

@@ -1,6 +1,6 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::game::{ChooseSomething, DrawBaselayer, State, Transition, WizardState};
+use crate::game::{ChooseSomething, DrawBaselayer, PromptInput, State, Transition};
 use crate::render::DrawOptions;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -180,16 +180,19 @@ impl State for StoryMapEditor {
                 }
                 "save" => {
                     if self.story.name == "new story" {
-                        return Transition::Push(WizardState::new(Box::new(|wiz, ctx, _| {
-                            let name = wiz.wrap(ctx).input_string("Name this story map")?;
-                            Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
-                                let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
-                                editor.story.name = name;
-                                editor.story.save(app);
-                                editor.dirty = false;
-                                editor.redo_panel(ctx);
-                            })))
-                        })));
+                        return Transition::Push(PromptInput::new(
+                            ctx,
+                            "Name this story map",
+                            Box::new(|name, _, _| {
+                                Transition::PopWithData(Box::new(move |state, ctx, app| {
+                                    let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
+                                    editor.story.name = name;
+                                    editor.story.save(app);
+                                    editor.dirty = false;
+                                    editor.redo_panel(ctx);
+                                }))
+                            }),
+                        ));
                     } else {
                         self.story.save(app);
                         self.dirty = false;

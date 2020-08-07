@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::common::CityPicker;
 use crate::edit::EditMode;
-use crate::game::{msg, State, Transition, WizardState};
+use crate::game::{msg, State, Transition};
 use crate::helpers::{checkbox_per_mode, nice_map_name};
 use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
@@ -191,9 +191,14 @@ impl EditScenarioModifiers {
                 .outline(2.0, Color::WHITE),
             );
         }
+        rows.push(Btn::text_bg2("Change trip mode").build_def(ctx, None));
         rows.push(Widget::row(vec![
-            Btn::text_bg2("New modification").build_def(ctx, None),
-            Btn::text_bg2("Change trip mode").build_def(ctx, None),
+            Spinner::new(ctx, (2, 14), 2).named("repeat_days"),
+            Btn::text_bg2("Repeat schedule multiple days").build_def(ctx, None),
+        ]));
+        rows.push(Widget::row(vec![
+            Spinner::new(ctx, (1, 100), 1).named("cancel_pct"),
+            Btn::text_bg2("Cancel all trips for some percent of people").build_def(ctx, None),
         ]));
         rows.push(
             Widget::row(vec![
@@ -231,16 +236,30 @@ impl State for EditScenarioModifiers {
                         ),
                     )));
                 }
-                "New modification" => {
-                    return Transition::Push(new_modifier(
-                        self.scenario_name.clone(),
-                        self.modifiers.clone(),
-                    ));
-                }
                 "Change trip mode" => {
                     return Transition::Push(ChangeMode::new(
                         ctx,
                         app,
+                        self.scenario_name.clone(),
+                        self.modifiers.clone(),
+                    ));
+                }
+                "Repeat schedule multiple days" => {
+                    self.modifiers.push(ScenarioModifier::RepeatDays(
+                        self.composite.spinner("repeat_days") as usize,
+                    ));
+                    return Transition::Replace(EditScenarioModifiers::new(
+                        ctx,
+                        self.scenario_name.clone(),
+                        self.modifiers.clone(),
+                    ));
+                }
+                "Cancel all trips for some percent of people" => {
+                    self.modifiers.push(ScenarioModifier::CancelPeople(
+                        self.composite.spinner("cancel_pct") as usize,
+                    ));
+                    return Transition::Replace(EditScenarioModifiers::new(
+                        ctx,
                         self.scenario_name.clone(),
                         self.modifiers.clone(),
                     ));
@@ -268,34 +287,6 @@ impl State for EditScenarioModifiers {
         State::grey_out_map(g, app);
         self.composite.draw(g);
     }
-}
-
-// TODO Wizard isn't the right UI for this
-fn new_modifier(scenario_name: String, modifiers: Vec<ScenarioModifier>) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, _| {
-        let mut wizard = wiz.wrap(ctx);
-        let new_mod = match wizard
-            .choose_string("", || {
-                vec!["repeat days", "cancel all trips for some people"]
-            })?
-            .as_str()
-        {
-            x if x == "repeat days" => ScenarioModifier::RepeatDays(
-                wizard.input_usize("Repeat everyone's schedule how many days?")?,
-            ),
-            x if x == "cancel all trips for some people" => ScenarioModifier::CancelPeople(
-                wizard.input_percent("What percent of people should cancel trips? (0 to 100)")?,
-            ),
-            _ => unreachable!(),
-        };
-        let mut mods = modifiers.clone();
-        mods.push(new_mod);
-        Some(Transition::PopThenReplace(EditScenarioModifiers::new(
-            ctx,
-            scenario_name.clone(),
-            mods,
-        )))
-    }))
 }
 
 struct ChangeMode {

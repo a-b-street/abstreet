@@ -5,14 +5,14 @@ pub mod shared_row;
 
 use crate::app::{App, ShowLayers, ShowObject};
 use crate::common::{tool_panel, CommonState, ContextualActions};
-use crate::game::{msg, ChooseSomething, DrawBaselayer, State, Transition, WizardState};
+use crate::game::{msg, ChooseSomething, DrawBaselayer, PromptInput, State, Transition};
 use crate::helpers::ID;
 use crate::options::OptionsPanel;
 use crate::render::{calculate_corners, DrawOptions};
 use abstutil::{Parallelism, Tags, Timer};
 use ezgui::{
     hotkey, lctrl, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget, Wizard,
+    HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget,
 };
 use geom::{Distance, Pt2D};
 use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
@@ -211,7 +211,11 @@ impl State for DebugMode {
                     self.reset_info(ctx);
                 }
                 "search OSM metadata" => {
-                    return Transition::Push(WizardState::new(Box::new(search_osm)));
+                    return Transition::Push(PromptInput::new(
+                        ctx,
+                        "Search for what?",
+                        Box::new(search_osm),
+                    ));
                 }
                 "clear OSM search results" => {
                     self.search_results = None;
@@ -363,8 +367,7 @@ impl ShowObject for DebugMode {
     }
 }
 
-fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let filter = wiz.wrap(ctx).input_string("Search for what?")?;
+fn search_osm(filter: String, ctx: &mut EventCtx, app: &mut App) -> Transition {
     let mut num_matches = 0;
     let mut batch = GeomBatch::new();
 
@@ -398,11 +401,11 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Tra
         draw: batch.upload(ctx),
     };
 
-    Some(Transition::PopWithData(Box::new(|state, ctx, _| {
+    Transition::PopWithData(Box::new(|state, ctx, _| {
         let mut mode = state.downcast_mut::<DebugMode>().unwrap();
         mode.search_results = Some(results);
         mode.reset_info(ctx);
-    })))
+    }))
 }
 
 struct SearchResults {

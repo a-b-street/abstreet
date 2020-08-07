@@ -439,3 +439,61 @@ impl<T: 'static + Clone> State for ChooseSomething<T> {
         self.composite.draw(g);
     }
 }
+
+pub struct PromptInput {
+    composite: Composite,
+    cb: Box<dyn Fn(String, &mut EventCtx, &mut App) -> Transition>,
+}
+
+impl PromptInput {
+    pub fn new(
+        ctx: &mut EventCtx,
+        query: &str,
+        cb: Box<dyn Fn(String, &mut EventCtx, &mut App) -> Transition>,
+    ) -> Box<dyn State> {
+        Box::new(PromptInput {
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line(query).small_heading().draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Widget::text_entry(ctx, String::new(), true).named("input"),
+                Btn::text_fg("confirm").build_def(ctx, hotkey(Key::Enter)),
+            ]))
+            .build(ctx),
+            cb,
+        })
+    }
+}
+
+impl State for PromptInput {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => Transition::Pop,
+                "confirm" => {
+                    let data = self.composite.text_box("input");
+                    (self.cb)(data, ctx, app)
+                }
+                _ => unreachable!(),
+            },
+            _ => {
+                if ctx.normal_left_click() && ctx.canvas.get_cursor_in_screen_space().is_none() {
+                    return Transition::Pop;
+                }
+                Transition::Keep
+            }
+        }
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
+        self.composite.draw(g);
+    }
+}
