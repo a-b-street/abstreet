@@ -4,7 +4,9 @@ use geom::Bounds;
 use lru::LruCache;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use usvg::{fontdb, Options};
+#[cfg(not(feature = "wasm-backend"))]
+use usvg::fontdb;
+use usvg::Options;
 
 // TODO We don't need refcell maybe? Can we take &mut Assets?
 pub struct Assets {
@@ -15,6 +17,7 @@ pub struct Assets {
     // Keyed by filename, then scale factor mangled into a hashable form. Tuple doesn't work
     // because of borrowing.
     svg_cache: RefCell<HashMap<String, HashMap<usize, (GeomBatch, Bounds)>>>,
+    #[cfg(not(feature = "wasm-backend"))]
     font_to_id: HashMap<Font, fontdb::ID>,
     pub text_opts: Options,
 }
@@ -27,38 +30,42 @@ impl Assets {
             text_cache: RefCell::new(LruCache::new(500)),
             line_height_cache: RefCell::new(HashMap::new()),
             svg_cache: RefCell::new(HashMap::new()),
+            #[cfg(not(feature = "wasm-backend"))]
             font_to_id: HashMap::new(),
             text_opts: Options::default(),
         };
-        a.text_opts.fontdb = fontdb::Database::new();
-        a.text_opts.fontdb.load_fonts_dir(font_dir);
-        for font in vec![
-            Font::BungeeInlineRegular,
-            Font::BungeeRegular,
-            Font::OverpassBold,
-            Font::OverpassRegular,
-            Font::OverpassSemiBold,
-            Font::OverpassMonoBold,
-        ] {
-            a.font_to_id.insert(
-                font,
-                a.text_opts
-                    .fontdb
-                    .query(&fontdb::Query {
-                        families: &vec![fontdb::Family::Name(font.family())],
-                        weight: match font {
-                            Font::OverpassBold | Font::OverpassMonoBold => fontdb::Weight::BOLD,
-                            Font::OverpassSemiBold => fontdb::Weight::SEMIBOLD,
-                            _ => fontdb::Weight::NORMAL,
-                        },
-                        stretch: fontdb::Stretch::Normal,
-                        style: fontdb::Style::Normal,
-                    })
-                    .unwrap(),
-            );
+        #[cfg(not(feature = "wasm-backend"))]
+        {
+            a.text_opts.fontdb = fontdb::Database::new();
+            a.text_opts.fontdb.load_fonts_dir(font_dir);
+            for font in vec![
+                Font::BungeeInlineRegular,
+                Font::BungeeRegular,
+                Font::OverpassBold,
+                Font::OverpassRegular,
+                Font::OverpassSemiBold,
+                Font::OverpassMonoBold,
+            ] {
+                a.font_to_id.insert(
+                    font,
+                    a.text_opts
+                        .fontdb
+                        .query(&fontdb::Query {
+                            families: &vec![fontdb::Family::Name(font.family())],
+                            weight: match font {
+                                Font::OverpassBold | Font::OverpassMonoBold => fontdb::Weight::BOLD,
+                                Font::OverpassSemiBold => fontdb::Weight::SEMIBOLD,
+                                _ => fontdb::Weight::NORMAL,
+                            },
+                            stretch: fontdb::Stretch::Normal,
+                            style: fontdb::Style::Normal,
+                        })
+                        .unwrap(),
+                );
+            }
+            *a.default_line_height.borrow_mut() =
+                a.line_height(text::DEFAULT_FONT, text::DEFAULT_FONT_SIZE);
         }
-        *a.default_line_height.borrow_mut() =
-            a.line_height(text::DEFAULT_FONT, text::DEFAULT_FONT_SIZE);
         a
     }
 
