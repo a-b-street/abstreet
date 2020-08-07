@@ -265,7 +265,7 @@ impl State for ParkingMapper {
                     self.composite
                         .replace(ctx, "info", txt.draw(ctx).named("info"));
                 }
-            } else {
+            } else if self.selected.is_some() {
                 self.selected = None;
                 self.composite
                     .replace(ctx, "info", "Select a road".draw_text(ctx).named("info"));
