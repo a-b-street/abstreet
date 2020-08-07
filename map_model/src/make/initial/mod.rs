@@ -5,7 +5,7 @@ pub use self::geometry::intersection_polygon;
 use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad, RawMap, RawRoad};
 use crate::IntersectionType;
 use abstutil::{Tags, Timer};
-use geom::{Bounds, Circle, Distance, PolyLine, Pt2D};
+use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use lane_specs::LaneSpec;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -48,7 +48,7 @@ impl Road {
 pub struct Intersection {
     // Redundant but useful to embed
     pub id: OriginalIntersection,
-    pub polygon: Vec<Pt2D>,
+    pub polygon: Polygon,
     pub roads: BTreeSet<OriginalRoad>,
     pub intersection_type: IntersectionType,
     pub elevation: Distance,
@@ -67,7 +67,8 @@ impl InitialMap {
                 *id,
                 Intersection {
                     id: *id,
-                    polygon: Vec::new(),
+                    // Dummy thing to start with
+                    polygon: Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(1.0)).to_polygon(),
                     roads: BTreeSet::new(),
                     intersection_type: i.intersection_type,
                     elevation: i.elevation,
@@ -142,11 +143,7 @@ impl InitialMap {
                 } else {
                     r.trimmed_center_pts.last_pt()
                 };
-                let mut pts = Circle::new(pt, Distance::meters(3.0))
-                    .to_polygon()
-                    .into_points();
-                pts.push(pts[0]);
-                i.polygon = pts;
+                i.polygon = Circle::new(pt, Distance::meters(3.0)).to_polygon();
 
                 // Also don't attempt to make TurnGroups later!
                 i.intersection_type = IntersectionType::StopSign;

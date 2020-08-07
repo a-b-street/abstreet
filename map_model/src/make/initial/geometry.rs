@@ -2,7 +2,7 @@ use crate::make::initial::{Intersection, Road};
 use crate::osm;
 use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad};
 use abstutil::{wraparound_get, Timer};
-use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
+use geom::{Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
 use std::collections::BTreeMap;
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5);
@@ -15,7 +15,7 @@ pub fn intersection_polygon(
     i: &Intersection,
     roads: &mut BTreeMap<OriginalRoad, Road>,
     timer: &mut Timer,
-) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
+) -> (Polygon, Vec<(String, Polygon)>) {
     if i.roads.is_empty() {
         panic!("{} has no roads", i.id);
     }
@@ -72,7 +72,7 @@ fn generalized_trim_back(
     i: OriginalIntersection,
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
     timer: &mut Timer,
-) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
+) -> (Polygon, Vec<(String, Polygon)>) {
     let mut debug = Vec::new();
 
     let mut road_lines: Vec<(OriginalRoad, PolyLine)> = Vec::new();
@@ -104,16 +104,15 @@ fn generalized_trim_back(
         };
 
         // Always trim back a minimum amount, if possible.
-        let mut shortest_center = if road_center.length()
-            >= DEGENERATE_INTERSECTION_HALF_LENGTH + 3.0 * geom::EPSILON_DIST
-        {
-            road_center.exact_slice(
-                Distance::ZERO,
-                road_center.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
-            )
-        } else {
-            road_center.clone()
-        };
+        let mut shortest_center =
+            if road_center.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH + 3.0 * EPSILON_DIST {
+                road_center.exact_slice(
+                    Distance::ZERO,
+                    road_center.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
+                )
+            } else {
+                road_center.clone()
+            };
 
         for (r2, pl2) in &road_lines {
             if r1 == r2 {
@@ -204,9 +203,7 @@ fn generalized_trim_back(
         // Include collisions between polylines of adjacent roads, so the polygon doesn't cover area
         // not originally covered by the thick road bands.
         // It's apparently safe to always take the second_half here.
-        if fwd_pl.length() >= geom::EPSILON_DIST * 3.0
-            && adj_fwd_pl.length() >= geom::EPSILON_DIST * 3.0
-        {
+        if fwd_pl.length() >= EPSILON_DIST * 3.0 && adj_fwd_pl.length() >= EPSILON_DIST * 3.0 {
             if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
                 endpoints.push(hit);
             }
@@ -243,9 +240,7 @@ fn generalized_trim_back(
             );
         }
 
-        if back_pl.length() >= geom::EPSILON_DIST * 3.0
-            && adj_back_pl.length() >= geom::EPSILON_DIST * 3.0
-        {
+        if back_pl.length() >= EPSILON_DIST * 3.0 && adj_back_pl.length() >= EPSILON_DIST * 3.0 {
             if let Some((hit, _)) = back_pl
                 .second_half()
                 .intersection(&adj_back_pl.second_half())
@@ -274,13 +269,13 @@ fn generalized_trim_back(
     deduped = Pt2D::approx_dedupe(deduped, Distance::meters(0.1));
     deduped = close_off_polygon(deduped);
     if main_result.len() == deduped.len() {
-        (main_result, debug)
+        (Ring::must_new(main_result).to_polygon(), debug)
     } else {
         timer.warn(format!(
             "{}'s polygon has weird repeats, forcibly removing points",
             i
         ));
-        (deduped, debug)
+        (Ring::must_new(deduped).to_polygon(), debug)
     }
 
     // TODO Or always sort points? Helps some cases, hurts other for downtown Seattle.
@@ -296,7 +291,7 @@ fn deadend(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: OriginalIntersection,
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
-) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
+) -> (Polygon, Vec<(String, Polygon)>) {
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
 
     let (id, _, mut pl_a, mut pl_b) = lines[0].clone();
@@ -308,7 +303,7 @@ fn deadend(
     pl_b = pl_b.extend_to_length(len + 1.5 * DEGENERATE_INTERSECTION_HALF_LENGTH);
 
     let r = roads.get_mut(&id).unwrap();
-    let len_with_buffer = len + 3.0 * geom::EPSILON_DIST;
+    let len_with_buffer = len + 3.0 * EPSILON_DIST;
     let trimmed = if r.trimmed_center_pts.length() >= len_with_buffer {
         if r.src_i == i {
             r.trimmed_center_pts = r
@@ -356,7 +351,10 @@ fn deadend(
     }
 
     endpts.dedup();
-    (close_off_polygon(endpts), Vec::new())
+    (
+        Ring::must_new(close_off_polygon(endpts)).to_polygon(),
+        Vec::new(),
+    )
 }
 
 fn close_off_polygon(mut pts: Vec<Pt2D>) -> Vec<Pt2D> {
@@ -381,7 +379,7 @@ fn on_off_ramp(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: OriginalIntersection,
     lines: Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
-) -> Option<(Vec<Pt2D>, Vec<(String, Polygon)>)> {
+) -> Option<(Polygon, Vec<(String, Polygon)>)> {
     if lines.len() != 3 {
         return None;
     }
@@ -520,7 +518,7 @@ fn on_off_ramp(
         };
         roads.get_mut(&thick_id).unwrap().trimmed_center_pts = trimmed_thick;
         // Give the merge point some length
-        if extra.length() <= 2.0 * DEGENERATE_INTERSECTION_HALF_LENGTH {
+        if extra.length() <= 2.0 * DEGENERATE_INTERSECTION_HALF_LENGTH + 3.0 * EPSILON_DIST {
             return None;
         }
         let extra = extra.exact_slice(2.0 * DEGENERATE_INTERSECTION_HALF_LENGTH, extra.length());
@@ -577,7 +575,11 @@ fn on_off_ramp(
     endpoints.dedup();
     let center = Pt2D::center(&endpoints);
     endpoints.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
-    Some((close_off_polygon(endpoints), debug))
+    endpoints.dedup();
+    Some((
+        Ring::must_new(close_off_polygon(endpoints)).to_polygon(),
+        debug,
+    ))
 
     //let dummy = geom::Circle::new(orig_lines[0].3.last_pt(), Distance::meters(3.0)).to_polygon();
     //Some((close_off_polygon(dummy.into_points()), debug))

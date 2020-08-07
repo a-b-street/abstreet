@@ -68,10 +68,13 @@ impl IntersectionCluster {
                 continue;
             }
 
-            panic!(
+            // TODO Saw this is New Orleans
+            println!(
                 "Need a cluster containing {:?} for turn restrictions, but there's more than one \
-                 existing cluster that partly covers it. Union them?"
+                 existing cluster that partly covers it. Union them?",
+                members
             );
+            return Vec::new();
         }
 
         clusters

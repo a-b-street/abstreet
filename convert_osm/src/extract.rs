@@ -266,7 +266,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                         },
                     );
                 }
-                Err(err) => println!("Skipping building: {}", err),
+                Err(err) => println!("Skipping building {}: {}", id, err),
             }
         } else if rel.tags.is("type", "route") {
             map.bus_routes
@@ -423,7 +423,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
 
     // Service roads can represent lots of things, most of which we don't want to keep yet. What's
     // allowed here is just based on what's been encountered so far in Seattle and Kraków.
-    if highway == "service" && !tags.is("psv", "yes") && !tags.is("bus", "yes") {
+    if highway == "service" && !tags.is_any("psv", vec!["yes", "bus"]) && !tags.is("bus", "yes") {
         return false;
     }
 
@@ -601,6 +601,9 @@ fn glue_multipolygon(
     if let Ok(ring) = Ring::new(result.clone()) {
         polygons.push(ring.to_polygon());
         return polygons;
+    }
+    if result.len() < 2 {
+        return Vec::new();
     }
     if let Some(poly) = glue_to_boundary(PolyLine::must_new(result.clone()), boundary) {
         polygons.push(poly);
@@ -802,9 +805,13 @@ fn multipoly_geometry(
             Ok(Polygon::buggy_new(outer.remove(0)))
         }
     } else {
+        let mut inner_rings = Vec::new();
+        for pts in inner {
+            inner_rings.push(Ring::new(pts)?);
+        }
         Ok(Polygon::with_holes(
-            Ring::must_new(outer.pop().unwrap()),
-            inner.into_iter().map(Ring::must_new).collect(),
+            Ring::new(outer.pop().unwrap())?,
+            inner_rings,
         ))
     }
 }

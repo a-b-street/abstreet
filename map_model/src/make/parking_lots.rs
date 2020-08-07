@@ -117,25 +117,27 @@ pub fn make_all_parking_lots(
             .map(|(id, _, _)| id)
             .collect();
 
-        let (polylines, rings) = Ring::split_points(pts).unwrap();
-        'PL: for pl in polylines {
-            for id in &candidates {
-                let lot = &mut results[id.0];
-                for segment in lot.polygon.clip_polyline(&pl) {
-                    lot.aisles.push(segment);
-                    continue 'PL;
+        if let Ok((polylines, rings)) = Ring::split_points(pts) {
+            'PL: for pl in polylines {
+                for id in &candidates {
+                    let lot = &mut results[id.0];
+                    for segment in lot.polygon.clip_polyline(&pl) {
+                        lot.aisles.push(segment);
+                        continue 'PL;
+                    }
+                }
+            }
+            'RING: for ring in rings {
+                for id in &candidates {
+                    let lot = &mut results[id.0];
+                    for segment in lot.polygon.clip_ring(&ring) {
+                        lot.aisles.push(segment);
+                        continue 'RING;
+                    }
                 }
             }
         }
-        'RING: for ring in rings {
-            for id in &candidates {
-                let lot = &mut results[id.0];
-                for segment in lot.polygon.clip_ring(&ring) {
-                    lot.aisles.push(segment);
-                    continue 'RING;
-                }
-            }
-        }
+        // TODO Should plumb along the OSM ID too and warn here
     }
 
     timer.start_iter("generate parking lot spots", results.len());
@@ -192,18 +194,19 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Ang
             for pair in lines.windows(2) {
                 let l1 = &pair[0];
                 let l2 = &pair[1];
-                let back = Line::must_new(l1.pt2(), l2.pt2());
-                if l1.intersection(&l2).is_none()
-                    && l1.angle().approx_eq(l2.angle(), 5.0)
-                    && line_valid(lot_polygon, aisles, l1, &finalized_lines)
-                    && line_valid(lot_polygon, aisles, l2, &finalized_lines)
-                    && line_valid(lot_polygon, aisles, &back, &finalized_lines)
-                {
-                    let avg_angle = (l1.angle() + l2.angle()) / 2.0;
-                    spots.push((back.middle().unwrap(), avg_angle.opposite()));
-                    finalized_lines.push(l1.clone());
-                    finalized_lines.push(l2.clone());
-                    finalized_lines.push(back);
+                if let Some(back) = Line::new(l1.pt2(), l2.pt2()) {
+                    if l1.intersection(&l2).is_none()
+                        && l1.angle().approx_eq(l2.angle(), 5.0)
+                        && line_valid(lot_polygon, aisles, l1, &finalized_lines)
+                        && line_valid(lot_polygon, aisles, l2, &finalized_lines)
+                        && line_valid(lot_polygon, aisles, &back, &finalized_lines)
+                    {
+                        let avg_angle = (l1.angle() + l2.angle()) / 2.0;
+                        spots.push((back.middle().unwrap(), avg_angle.opposite()));
+                        finalized_lines.push(l1.clone());
+                        finalized_lines.push(l2.clone());
+                        finalized_lines.push(back);
+                    }
                 }
             }
         }

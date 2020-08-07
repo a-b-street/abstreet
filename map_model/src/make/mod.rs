@@ -17,7 +17,7 @@ use crate::{
 };
 use abstutil::{Parallelism, Timer};
 use enumset::EnumSet;
-use geom::{Bounds, Distance, FindClosest, HashablePt2D, Ring, Speed, EPSILON_DIST};
+use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 impl Map {
@@ -67,7 +67,7 @@ impl Map {
             let id = IntersectionID(idx);
             map.intersections.push(Intersection {
                 id,
-                polygon: Ring::must_new(i.polygon.clone()).to_polygon(),
+                polygon: i.polygon.clone(),
                 turns: BTreeSet::new(),
                 elevation: i.elevation,
                 // Might change later
