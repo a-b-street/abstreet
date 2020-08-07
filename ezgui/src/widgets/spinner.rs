@@ -85,6 +85,7 @@ impl WidgetImpl for Spinner {
                 self.current -= 1;
             }
             ctx.no_op_event(true, |ctx| self.down.event(ctx, output));
+            return;
         }
 
         if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
@@ -92,9 +93,11 @@ impl WidgetImpl for Spinner {
                 if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
                     if dy > 0.0 && self.current != self.high {
                         self.current += 1;
+                        output.outcome = Outcome::Changed;
                     }
                     if dy < 0.0 && self.current != self.low {
                         self.current -= 1;
+                        output.outcome = Outcome::Changed;
                     }
                 }
             }
