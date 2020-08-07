@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::edit::select::RoadSelector;
 use crate::edit::{apply_map_edits, change_speed_limit, try_change_lt};
-use crate::game::{msg, State, Transition};
+use crate::game::{PopupMsg, State, Transition};
 use ezgui::{
     hotkey, Btn, Choice, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, TextExt, VerticalAlignment, Widget,
@@ -219,7 +219,7 @@ fn change_lane_types(
             timer.next();
             for l in app.primary.map.get_r(*r).all_lanes() {
                 if app.primary.map.get_l(l).lane_type == from {
-                    match try_change_lt(&mut app.primary.map, l, to) {
+                    match try_change_lt(ctx, &mut app.primary.map, l, to) {
                         Ok(cmd) => {
                             let mut edits = app.primary.map.get_edits().clone();
                             edits.commands.push(cmd);
@@ -239,7 +239,8 @@ fn change_lane_types(
 
     // TODO Need to express the errors in some form that we can union here.
 
-    msg(
+    PopupMsg::new(
+        ctx,
         "Changed lane types",
         vec![format!(
             "Changed {} {:?} lanes to {:?} lanes. {} errors",

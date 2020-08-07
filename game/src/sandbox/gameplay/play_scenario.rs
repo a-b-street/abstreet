@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::common::CityPicker;
 use crate::edit::EditMode;
-use crate::game::{msg, State, Transition};
+use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::{checkbox_per_mode, nice_map_name};
 use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
@@ -370,13 +370,15 @@ impl State for ChangeMode {
                     from_modes.remove(&to_mode);
 
                     if from_modes.is_empty() {
-                        return Transition::Push(msg(
+                        return Transition::Push(PopupMsg::new(
+                            ctx,
                             "Error",
                             vec!["You have to select at least one mode to convert from"],
                         ));
                     }
                     if p1 >= p2 {
-                        return Transition::Push(msg(
+                        return Transition::Push(PopupMsg::new(
+                            ctx,
                             "Error",
                             vec!["Your time range is backwards"],
                         ));

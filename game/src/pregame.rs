@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::challenges::ChallengesPicker;
 use crate::devtools::DevToolsMode;
 use crate::edit::apply_map_edits;
-use crate::game::{msg, DrawBaselayer, State, Transition};
+use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::open_browser;
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode};
@@ -428,7 +428,11 @@ impl State for Proposals {
                         }
                     });
                     if let Some(err) = maybe_err {
-                        return Transition::Push(msg("Can't load proposal", vec![err]));
+                        return Transition::Push(PopupMsg::new(
+                            ctx,
+                            "Can't load proposal",
+                            vec![err],
+                        ));
                     } else {
                         app.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
                         return Transition::Push(Box::new(SandboxMode::new(

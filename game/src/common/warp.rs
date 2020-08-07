@@ -1,6 +1,6 @@
 use crate::app::{App, PerMap};
 use crate::common::Tab;
-use crate::game::{msg, State, Transition};
+use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::info::OpenTrip;
 use crate::sandbox::SandboxMode;
@@ -133,7 +133,8 @@ impl State for DebugWarp {
                     if let Some(t) = warp_to_id(ctx, app, &input) {
                         t
                     } else {
-                        Transition::Replace(msg(
+                        Transition::Replace(PopupMsg::new(
+                            ctx,
                             "Bad warp ID",
                             vec![format!("{} isn't a valid ID", input)],
                         ))

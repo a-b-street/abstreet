@@ -1,7 +1,7 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::edit::ClusterTrafficSignalEditor;
-use crate::game::{msg, DrawBaselayer, State, Transition};
+use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use ezgui::{
@@ -71,7 +71,8 @@ impl State for UberTurnPicker {
                 }
                 "View uber-turns" => {
                     if self.members.len() < 2 {
-                        return Transition::Push(msg(
+                        return Transition::Push(PopupMsg::new(
+                            ctx,
                             "Error",
                             vec!["Select at least two intersections"],
                         ));
@@ -86,7 +87,8 @@ impl State for UberTurnPicker {
                 }
                 "Edit" => {
                     if self.members.len() < 2 {
-                        return Transition::Push(msg(
+                        return Transition::Push(PopupMsg::new(
+                            ctx,
                             "Error",
                             vec!["Select at least two intersections"],
                         ));

@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::common::ColorDiscrete;
-use crate::game::{msg, State, WizardState};
+use crate::game::{PopupMsg, State};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx};
 use map_model::{connectivity, EditCmd, LaneID, LaneType, Map, PathConstraints};
@@ -38,22 +38,23 @@ pub fn check_sidewalk_connectivity(
         return None;
     }
 
-    let mut err_state = msg(
-        "Error",
-        vec![format!(
-            "Can't close this intersection; {} sidewalks disconnected",
-            newly_disconnected.len()
-        )],
-    );
-
     let mut c = ColorDiscrete::new(app, vec![("disconnected", Color::RED)]);
+    let num = newly_disconnected.len();
     for l in newly_disconnected {
         c.add_l(*l, "disconnected");
     }
-
     let (unzoomed, zoomed, _) = c.build(ctx);
-    err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some((unzoomed, zoomed));
-    Some(err_state)
+
+    Some(PopupMsg::also_draw(
+        ctx,
+        "Error",
+        vec![format!(
+            "Can't close this intersection; {} sidewalks disconnected",
+            num
+        )],
+        unzoomed,
+        zoomed,
+    ))
 }
 
 #[allow(unused)]
@@ -96,25 +97,24 @@ pub fn check_blackholes(ctx: &mut EventCtx, app: &mut App, cmd: EditCmd) -> Opti
         return None;
     }
 
-    let mut err_state = msg(
-        "Error",
-        vec![format!(
-            "{} lanes have been disconnected",
-            newly_disconnected.len()
-        )],
-    );
-
     let mut c = ColorDiscrete::new(app, vec![("disconnected", Color::RED)]);
+    let num = newly_disconnected.len();
     for l in newly_disconnected {
         c.add_l(l, "disconnected");
     }
-
     let (unzoomed, zoomed, _) = c.build(ctx);
-    err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some((unzoomed, zoomed));
-    Some(err_state)
+
+    Some(PopupMsg::also_draw(
+        ctx,
+        "Error",
+        vec![format!("{} lanes have been disconnected", num)],
+        unzoomed,
+        zoomed,
+    ))
 }
 
 pub fn try_change_lt(
+    ctx: &mut EventCtx,
     map: &mut Map,
     l: LaneID,
     new_lt: LaneType,
@@ -158,14 +158,15 @@ pub fn try_change_lt(
     if errors.is_empty() {
         Ok(cmd)
     } else {
-        Err(msg("Error", errors))
+        Err(PopupMsg::new(ctx, "Error", errors))
     }
 }
 
-pub fn try_reverse(map: &Map, l: LaneID) -> Result<EditCmd, Box<dyn State>> {
+pub fn try_reverse(ctx: &mut EventCtx, map: &Map, l: LaneID) -> Result<EditCmd, Box<dyn State>> {
     let lane = map.get_l(l);
     if map.get_r(lane.parent).dir_and_offset(l).1 != 0 {
-        Err(msg(
+        Err(PopupMsg::new(
+            ctx,
             "Error",
             vec!["You can only reverse the lanes next to the road's yellow center line"],
         ))

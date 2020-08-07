@@ -5,7 +5,7 @@ pub mod shared_row;
 
 use crate::app::{App, ShowLayers, ShowObject};
 use crate::common::{tool_panel, CommonState, ContextualActions};
-use crate::game::{msg, ChooseSomething, DrawBaselayer, PromptInput, State, Transition};
+use crate::game::{ChooseSomething, DrawBaselayer, PopupMsg, PromptInput, State, Transition};
 use crate::helpers::ID;
 use crate::options::OptionsPanel;
 use crate::render::{calculate_corners, DrawOptions};
@@ -145,7 +145,8 @@ impl State for DebugMode {
                                     app.recalculate_current_selection(ctx);
                                     None
                                 }
-                                None => Some(Transition::Push(msg(
+                                None => Some(Transition::Push(PopupMsg::new(
+                                    ctx,
                                     "Error",
                                     vec![format!(
                                         "Couldn't load previous savestate {:?}",
@@ -170,7 +171,8 @@ impl State for DebugMode {
                                 app.recalculate_current_selection(ctx);
                                 None
                             }
-                            None => Some(Transition::Push(msg(
+                            None => Some(Transition::Push(PopupMsg::new(
+                                ctx,
                                 "Error",
                                 vec![format!("Couldn't load next savestate {:?}", next_state)],
                             ))),
@@ -507,7 +509,8 @@ impl ContextualActions for Actions {
                 app.primary.current_selection = None;
                 Transition::Keep
             }
-            (ID::Car(c), "find front of blockage") => Transition::Push(msg(
+            (ID::Car(c), "find front of blockage") => Transition::Push(PopupMsg::new(
+                ctx,
                 "Blockage results",
                 vec![format!(
                     "{} is ultimately blocked by {}",

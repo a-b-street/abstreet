@@ -19,7 +19,7 @@ pub use self::validate::{
 use crate::app::{App, ShowEverything};
 use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
-use crate::game::{msg, State, Transition};
+use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::options::OptionsPanel;
 use crate::render::{DrawIntersection, DrawMap, DrawRoad};
@@ -489,7 +489,11 @@ impl State for LoadEdits {
                             LoadEdits::new(ctx, app, self.mode.clone()),
                             // TODO Menu draws at a weird Z-order to deal with tooltips, so now the
                             // menu underneath bleeds through
-                            msg("Error", vec![format!("Can't load {}", path), err.clone()]),
+                            PopupMsg::new(
+                                ctx,
+                                "Error",
+                                vec![format!("Can't load {}", path), err.clone()],
+                            ),
                         ),
                     }
                 }

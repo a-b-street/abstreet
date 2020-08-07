@@ -4,8 +4,9 @@ use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
-    hotkey, Btn, Canvas, Choice, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Line, Menu, Outcome, ScreenRectangle, VerticalAlignment, Widget, Wizard, GUI,
+    hotkey, hotkeys, Btn, Canvas, Choice, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Menu, Outcome, ScreenRectangle, Text, VerticalAlignment,
+    Widget, Wizard, GUI,
 };
 use geom::Polygon;
 use map_model::PermanentMapEdits;
@@ -352,15 +353,6 @@ impl State for WizardState {
     }
 }
 
-// TODO Word wrap
-pub fn msg<S: Into<String>>(title: &'static str, lines: Vec<S>) -> Box<dyn State> {
-    let str_lines: Vec<String> = lines.into_iter().map(|l| l.into()).collect();
-    WizardState::new(Box::new(move |wiz, ctx, _| {
-        wiz.wrap(ctx).acknowledge(title, || str_lines.clone())?;
-        Some(Transition::Pop)
-    }))
-}
-
 pub struct ChooseSomething<T> {
     composite: Composite,
     cb: Box<dyn Fn(T, &mut EventCtx, &mut App) -> Transition>,
@@ -495,5 +487,77 @@ impl State for PromptInput {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
         self.composite.draw(g);
+    }
+}
+
+pub struct PopupMsg {
+    composite: Composite,
+    unzoomed: Drawable,
+    zoomed: Drawable,
+}
+
+impl PopupMsg {
+    pub fn new<I: Into<String>>(ctx: &mut EventCtx, title: &str, lines: Vec<I>) -> Box<dyn State> {
+        PopupMsg::also_draw(
+            ctx,
+            title,
+            lines,
+            ctx.upload(GeomBatch::new()),
+            ctx.upload(GeomBatch::new()),
+        )
+    }
+
+    pub fn also_draw<I: Into<String>>(
+        ctx: &mut EventCtx,
+        title: &str,
+        lines: Vec<I>,
+        unzoomed: Drawable,
+        zoomed: Drawable,
+    ) -> Box<dyn State> {
+        let mut txt = Text::new();
+        txt.add(Line(title).small_heading());
+        for l in lines {
+            txt.add(Line(l));
+        }
+        Box::new(PopupMsg {
+            composite: Composite::new(Widget::col(vec![
+                txt.draw(ctx),
+                Btn::text_bg2("OK").build_def(ctx, hotkeys(vec![Key::Enter, Key::Escape])),
+            ]))
+            .build(ctx),
+            unzoomed,
+            zoomed,
+        })
+    }
+}
+
+impl State for PopupMsg {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "OK" => Transition::Pop,
+                _ => unreachable!(),
+            },
+            _ => {
+                if ctx.normal_left_click() && ctx.canvas.get_cursor_in_screen_space().is_none() {
+                    return Transition::Pop;
+                }
+                Transition::Keep
+            }
+        }
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
+        self.composite.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
     }
 }

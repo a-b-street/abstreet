@@ -1,7 +1,7 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
-use crate::game::{msg, ChooseSomething, DrawBaselayer, State, Transition};
+use crate::game::{ChooseSomething, DrawBaselayer, PopupMsg, State, Transition};
 use crate::render::{
     draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS,
 };
@@ -767,7 +767,8 @@ fn check_for_missing_groups(
     app.primary.map.incremental_edit_traffic_signal(new_signal);
     *composite = make_signal_diagram(ctx, app, id, 0, true);
 
-    Transition::Push(msg(
+    Transition::Push(PopupMsg::new(
+        ctx,
         "Error: missing turns",
         vec![
             format!("{} turns are missing from this traffic signal", num_missing),

@@ -1,6 +1,6 @@
 use crate::app::{App, ShowEverything};
 use crate::common::{CityPicker, ColorLegend};
-use crate::game::{msg, State, Transition};
+use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
 use abstutil::{prettyprint_usize, Tags, Timer};
 use ezgui::{
@@ -324,7 +324,8 @@ impl State for ParkingMapper {
                 }
                 "Generate OsmChange file" => {
                     if self.data.is_empty() {
-                        return Transition::Push(msg(
+                        return Transition::Push(PopupMsg::new(
+                            ctx,
                             "No changes yet",
                             vec!["Map some parking first"],
                         ));
@@ -337,11 +338,14 @@ impl State for ParkingMapper {
                             timer,
                         )
                     }) {
-                        Ok(()) => Transition::Push(msg(
+                        Ok(()) => Transition::Push(PopupMsg::new(
+                            ctx,
                             "Diff generated",
                             vec!["diff.osc created. Load it in JOSM, verify, and upload!"],
                         )),
-                        Err(err) => Transition::Push(msg("Error", vec![format!("{}", err)])),
+                        Err(err) => {
+                            Transition::Push(PopupMsg::new(ctx, "Error", vec![format!("{}", err)]))
+                        }
                     };
                 }
                 "change map" => {
@@ -469,7 +473,8 @@ impl State for ChangeWay {
                         .current_choice()
                         .clone();
                     if value == Value::Complicated {
-                        Transition::Replace(msg(
+                        Transition::Replace(PopupMsg::new(
+                            ctx,
                             "Complicated road",
                             vec![
                                 "You'll have to manually split the way in ID or JOSM and apply \

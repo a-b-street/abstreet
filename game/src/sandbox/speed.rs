@@ -1,6 +1,6 @@
 use crate::app::{App, FindDelayedIntersections, ShowEverything};
 use crate::common::Warping;
-use crate::game::{msg, DrawBaselayer, State, Transition};
+use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
@@ -181,7 +181,8 @@ impl SpeedControls {
                             mode.clone(),
                         ))));
                     } else {
-                        return Some(Transition::Push(msg(
+                        return Some(Transition::Push(PopupMsg::new(
+                            ctx,
                             "Error",
                             vec!["Sorry, you can't go rewind time from this mode."],
                         )));
@@ -284,7 +285,11 @@ impl SpeedControls {
         // TODO Need to do this anywhere that steps the sim, like TimeWarpScreen.
         let alerts = app.primary.sim.clear_alerts();
         if !alerts.is_empty() {
-            let popup = msg("Alerts", alerts.iter().map(|(_, _, msg)| msg).collect());
+            let popup = PopupMsg::new(
+                ctx,
+                "Alerts",
+                alerts.iter().map(|(_, _, msg)| msg).collect(),
+            );
             let maybe_id = match alerts[0].1 {
                 AlertLocation::Nil => None,
                 AlertLocation::Intersection(i) => Some(ID::Intersection(i)),
@@ -432,7 +437,8 @@ impl State for JumpToTime {
                                 TimeWarpScreen::new(ctx, app, self.target, false),
                             );
                         } else {
-                            return Transition::Replace(msg(
+                            return Transition::Replace(PopupMsg::new(
+                                ctx,
                                 "Error",
                                 vec!["Sorry, you can't go rewind time from this mode."],
                             ));
@@ -541,7 +547,8 @@ impl State for TimeWarpScreen {
             );
             for (t, maybe_i, alert) in app.primary.sim.clear_alerts() {
                 // TODO Just the first :(
-                return Transition::Replace(msg(
+                return Transition::Replace(PopupMsg::new(
+                    ctx,
                     "Alert",
                     vec![format!("At {}, near {:?}, {}", t, maybe_i, alert)],
                 ));

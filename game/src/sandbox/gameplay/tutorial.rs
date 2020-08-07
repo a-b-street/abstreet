@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::common::{tool_panel, Minimap, Warping};
 use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
-use crate::game::{msg, State, Transition};
+use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
@@ -265,7 +265,8 @@ impl Tutorial {
                 if !tut.score_delivered {
                     tut.score_delivered = true;
                     if before == after {
-                        return Some(Transition::Push(msg(
+                        return Some(Transition::Push(PopupMsg::new(
+                            ctx,
                             "All trips completed",
                             vec![
                                 "Your changes didn't affect anything!",
@@ -274,7 +275,8 @@ impl Tutorial {
                         )));
                     }
                     if after > before {
-                        return Some(Transition::Push(msg(
+                        return Some(Transition::Push(PopupMsg::new(
+                            ctx,
                             "All trips completed",
                             vec![
                                 "Your changes made things worse!".to_string(),
@@ -288,7 +290,8 @@ impl Tutorial {
                         )));
                     }
                     if before - after < CAR_BIKE_CONTENTION_GOAL {
-                        return Some(Transition::Push(msg(
+                        return Some(Transition::Push(PopupMsg::new(
+                            ctx,
                             "All trips completed",
                             vec![
                                 "Nice, you helped things a bit!".to_string(),
@@ -301,7 +304,8 @@ impl Tutorial {
                             ],
                         )));
                     }
-                    return Some(Transition::Push(msg(
+                    return Some(Transition::Push(PopupMsg::new(
+                        ctx,
                         "All trips completed",
                         vec![format!(
                             "Awesome! All trips originally took {}, but now they only took {}",
@@ -1329,7 +1333,7 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
     }
 }
 
-pub fn execute(_: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
     let mut tut = app.session.tutorial.as_mut().unwrap();
     let response = match (id, action.as_ref()) {
         (ID::Car(c), "draw WASH ME") => {
@@ -1341,12 +1345,14 @@ pub fn execute(_: &mut EventCtx, app: &mut App, id: ID, action: String) -> Trans
             if c == ESCORT {
                 if is_parked {
                     tut.prank_done = true;
-                    msg(
+                    PopupMsg::new(
+                        ctx,
                         "Prank in progress",
                         vec!["You quickly scribble on the window..."],
                     )
                 } else {
-                    msg(
+                    PopupMsg::new(
+                        ctx,
                         "Not yet!",
                         vec![
                             "You're going to run up to an occupied car and draw on their windows?",
@@ -1356,7 +1362,8 @@ pub fn execute(_: &mut EventCtx, app: &mut App, id: ID, action: String) -> Trans
                     )
                 }
             } else if c.1 == VehicleType::Bike {
-                msg(
+                PopupMsg::new(
+                    ctx,
                     "That's a bike",
                     vec![
                         "Achievement unlocked: You attempted to draw WASH ME on a cyclist.",
@@ -1366,7 +1373,8 @@ pub fn execute(_: &mut EventCtx, app: &mut App, id: ID, action: String) -> Trans
                     ],
                 )
             } else {
-                msg(
+                PopupMsg::new(
+                    ctx,
                     "Wrong car",
                     vec![
                         "You're looking at the wrong car.",
@@ -1382,7 +1390,8 @@ pub fn execute(_: &mut EventCtx, app: &mut App, id: ID, action: String) -> Trans
                 let percent = (app.primary.sim.get_free_onstreet_spots(l).len() as f64)
                     / (lane.number_parking_spots() as f64);
                 if percent > 0.1 {
-                    msg(
+                    PopupMsg::new(
+                        ctx,
                         "Not quite",
                         vec![
                             format!("This lane has {:.0}% spots free", percent * 100.0),
@@ -1392,10 +1401,14 @@ pub fn execute(_: &mut EventCtx, app: &mut App, id: ID, action: String) -> Trans
                     )
                 } else {
                     tut.parking_found = true;
-                    msg("Noice", vec!["Yup, parallel parking would be tough here!"])
+                    PopupMsg::new(
+                        ctx,
+                        "Noice",
+                        vec!["Yup, parallel parking would be tough here!"],
+                    )
                 }
             } else {
-                msg("Uhh..", vec!["That's not even a parking lane"])
+                PopupMsg::new(ctx, "Uhh..", vec!["That's not even a parking lane"])
             }
         }
         _ => unreachable!(),

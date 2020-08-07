@@ -157,24 +157,26 @@ impl State for LaneEditor {
                         "Revert" => {
                             // TODO It's hard to revert both changes at once.
                             if let Some(lt) = map.get_edits().original_lts.get(&self.l).cloned() {
-                                try_change_lt(map, self.l, lt)
+                                try_change_lt(ctx, map, self.l, lt)
                             } else {
-                                try_reverse(map, self.l)
+                                try_reverse(ctx, map, self.l)
                             }
                         }
-                        "reverse lane direction" => try_reverse(map, self.l),
+                        "reverse lane direction" => try_reverse(ctx, map, self.l),
                         "convert to a driving lane" => {
-                            try_change_lt(map, self.l, LaneType::Driving)
+                            try_change_lt(ctx, map, self.l, LaneType::Driving)
                         }
                         "convert to a protected bike lane" => {
-                            try_change_lt(map, self.l, LaneType::Biking)
+                            try_change_lt(ctx, map, self.l, LaneType::Biking)
                         }
-                        "convert to a bus-only lane" => try_change_lt(map, self.l, LaneType::Bus),
+                        "convert to a bus-only lane" => {
+                            try_change_lt(ctx, map, self.l, LaneType::Bus)
+                        }
                         "convert to an on-street parking lane" => {
-                            try_change_lt(map, self.l, LaneType::Parking)
+                            try_change_lt(ctx, map, self.l, LaneType::Parking)
                         }
                         "close for construction" => {
-                            try_change_lt(map, self.l, LaneType::Construction)
+                            try_change_lt(ctx, map, self.l, LaneType::Construction)
                         }
                         _ => unreachable!(),
                     };
