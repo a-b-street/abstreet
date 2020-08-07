@@ -121,7 +121,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 points: map.gps_bounds.convert_back(&way.pts),
                 attributes: way.tags.inner().clone(),
             });
-        } else if way.tags.is("natural", "coastline") {
+        } else if way.tags.is("natural", "coastline") && !way.tags.is("place", "island") {
             coastline_groups.push((id, way.pts.clone()));
             continue;
         }
