@@ -6,7 +6,7 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
     hotkey, hotkeys, Btn, Canvas, Choice, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Menu, Outcome, ScreenRectangle, Text, VerticalAlignment,
-    Widget, Wizard, GUI,
+    Widget, GUI,
 };
 use geom::Polygon;
 use map_model::PermanentMapEdits;
@@ -293,64 +293,6 @@ pub enum Transition {
     PopThenReplaceThenPush(Box<dyn State>, Box<dyn State>),
     Clear(Vec<Box<dyn State>>),
     PushTwice(Box<dyn State>, Box<dyn State>),
-}
-
-pub struct WizardState {
-    wizard: Wizard,
-    // Returning None means stay in this WizardState
-    cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut App) -> Option<Transition>>,
-    // (unzoomed, zoomed)
-    pub also_draw: Option<(Drawable, Drawable)>,
-    pub custom_pop: Option<Transition>,
-}
-
-impl WizardState {
-    pub fn new(
-        cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut App) -> Option<Transition>>,
-    ) -> Box<dyn State> {
-        Box::new(WizardState {
-            wizard: Wizard::new(),
-            cb,
-            also_draw: None,
-            custom_pop: None,
-        })
-    }
-}
-
-impl State for WizardState {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if self.also_draw.is_some() {
-            // TODO This should really be a separate option
-            ctx.canvas_movement();
-        }
-        if let Some(t) = (self.cb)(&mut self.wizard, ctx, app) {
-            return t;
-        } else if self.wizard.aborted() {
-            if let Some(t) = self.custom_pop.take() {
-                return t;
-            }
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::PreviousState
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if let Some((ref unzoomed, ref zoomed)) = self.also_draw {
-            if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-                g.redraw(unzoomed);
-            } else {
-                g.redraw(zoomed);
-            }
-        } else {
-            State::grey_out_map(g, app);
-        }
-
-        self.wizard.draw(g);
-    }
 }
 
 pub struct ChooseSomething<T> {

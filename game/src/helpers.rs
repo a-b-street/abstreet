@@ -20,8 +20,6 @@ pub enum ID {
     Area(AreaID),
 }
 
-impl abstutil::Cloneable for ID {}
-
 impl ID {
     pub fn from_agent(id: AgentID) -> ID {
         match id {

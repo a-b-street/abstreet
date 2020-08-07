@@ -32,7 +32,7 @@ pub use crate::render::{
     CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents,
     PedCrowdLocation, UnzoomedAgent,
 };
-use abstutil::{deserialize_usize, serialize_usize, Cloneable};
+use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Pt2D, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID,
@@ -627,10 +627,3 @@ impl CreateCar {
         }
     }
 }
-
-// We have to do this in the crate where these types are defined. Bit annoying, since it's really
-// kind of an ezgui concept.
-impl Cloneable for CarID {}
-impl Cloneable for Scenario {}
-impl Cloneable for TripID {}
-impl Cloneable for TripMode {}

@@ -134,7 +134,6 @@ impl UserInput {
         self.event_consumed = false;
     }
 
-    // Just for Wizard
     pub(crate) fn has_been_consumed(&self) -> bool {
         self.event_consumed
     }

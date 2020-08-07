@@ -31,7 +31,6 @@ pub use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn, UberTurnGro
 use crate::pathfind::Pathfinder;
 pub use crate::pathfind::{Path, PathConstraints, PathRequest, PathStep};
 pub use crate::traversable::{Position, Traversable};
-use abstutil::Cloneable;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Bounds, Distance, GPSBounds, Polygon};
 use serde::{Deserialize, Serialize};
@@ -41,14 +40,6 @@ use std::collections::BTreeMap;
 pub const NORMAL_LANE_THICKNESS: Distance = Distance::const_meters(2.5);
 pub const SIDEWALK_THICKNESS: Distance = Distance::const_meters(1.5);
 pub(crate) const SHOULDER_THICKNESS: Distance = Distance::const_meters(0.5);
-
-impl Cloneable for BusRouteID {}
-impl Cloneable for ControlTrafficSignal {}
-impl Cloneable for IntersectionID {}
-impl Cloneable for LaneType {}
-impl Cloneable for MapEdits {}
-impl Cloneable for PermanentMapEdits {}
-impl Cloneable for raw::RestrictionType {}
 
 #[derive(Serialize, Deserialize)]
 pub struct Map {

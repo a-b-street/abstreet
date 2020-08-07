@@ -1,12 +1,10 @@
 mod cli;
-mod clone;
 mod collections;
 mod io;
 mod random;
 mod time;
 
 pub use crate::cli::CmdArgs;
-pub use crate::clone::Cloneable;
 pub use crate::collections::{
     contains_duplicates, retain_btreemap, retain_btreeset, wraparound_get, Counter, MultiMap, Tags,
     VecMap,

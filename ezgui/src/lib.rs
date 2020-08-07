@@ -47,6 +47,17 @@ mod text;
 mod tools;
 mod widgets;
 
+mod backend {
+    #[cfg(feature = "glium-backend")]
+    pub use crate::backend_glium::*;
+
+    #[cfg(feature = "glow-backend")]
+    pub use crate::backend_glow::*;
+
+    #[cfg(feature = "wasm-backend")]
+    pub use crate::backend_wasm::*;
+}
+
 pub use crate::backend::Drawable;
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::{Color, FancyColor, LinearGradient};
@@ -61,7 +72,6 @@ pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::style::Style;
 pub use crate::text::{Line, Text, TextExt, TextSpan};
 pub use crate::tools::warper::Warper;
-pub use crate::tools::wizard::{Choice, Wizard, WrappedWizard};
 pub use crate::widgets::autocomplete::Autocomplete;
 pub use crate::widgets::button::Btn;
 pub(crate) use crate::widgets::button::Button;
@@ -89,13 +99,75 @@ pub(crate) enum InputResult<T: Clone> {
     Done(String, T),
 }
 
-mod backend {
-    #[cfg(feature = "glium-backend")]
-    pub use crate::backend_glium::*;
+pub struct Choice<T> {
+    pub label: String,
+    pub data: T,
+    pub(crate) hotkey: Option<MultiKey>,
+    pub(crate) active: bool,
+    pub(crate) tooltip: Option<String>,
+}
 
-    #[cfg(feature = "glow-backend")]
-    pub use crate::backend_glow::*;
+impl<T> Choice<T> {
+    pub fn new<S: Into<String>>(label: S, data: T) -> Choice<T> {
+        Choice {
+            label: label.into(),
+            data,
+            hotkey: None,
+            active: true,
+            tooltip: None,
+        }
+    }
 
-    #[cfg(feature = "wasm-backend")]
-    pub use crate::backend_wasm::*;
+    pub fn from(tuples: Vec<(String, T)>) -> Vec<Choice<T>> {
+        tuples
+            .into_iter()
+            .map(|(label, data)| Choice::new(label, data))
+            .collect()
+    }
+
+    pub fn key(mut self, key: Key) -> Choice<T> {
+        assert_eq!(self.hotkey, None);
+        self.hotkey = hotkey(key);
+        self
+    }
+
+    pub fn multikey(mut self, mk: Option<MultiKey>) -> Choice<T> {
+        self.hotkey = mk;
+        self
+    }
+
+    pub fn active(mut self, active: bool) -> Choice<T> {
+        self.active = active;
+        self
+    }
+
+    pub fn tooltip<I: Into<String>>(mut self, info: I) -> Choice<T> {
+        self.tooltip = Some(info.into());
+        self
+    }
+
+    pub(crate) fn with_value<X>(&self, data: X) -> Choice<X> {
+        Choice {
+            label: self.label.clone(),
+            data,
+            hotkey: self.hotkey.clone(),
+            active: self.active,
+            tooltip: self.tooltip.clone(),
+        }
+    }
+}
+
+impl Choice<String> {
+    pub fn string(label: &str) -> Choice<String> {
+        Choice::new(label.to_string(), label.to_string())
+    }
+
+    pub fn strings<I: Into<String>>(list: Vec<I>) -> Vec<Choice<String>> {
+        list.into_iter()
+            .map(|x| {
+                let x = x.into();
+                Choice::new(x.clone(), x)
+            })
+            .collect()
+    }
 }

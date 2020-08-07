@@ -40,7 +40,6 @@ pub enum Value {
     LeftOnly,
     Complicated,
 }
-impl abstutil::Cloneable for Value {}
 
 impl ParkingMapper {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {

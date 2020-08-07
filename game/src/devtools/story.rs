@@ -378,7 +378,6 @@ struct RecordedStoryMap {
     name: String,
     markers: Vec<(Vec<LonLat>, String)>,
 }
-impl abstutil::Cloneable for RecordedStoryMap {}
 
 struct StoryMap {
     name: String,
