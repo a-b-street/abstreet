@@ -464,8 +464,7 @@ fn on_off_ramp(
                         .center
                         .reversed()
                         .intersection_infinite(&perp)
-                        .and_then(|trim_to| thick.center.get_slice_ending_at(trim_to))
-                        .unwrap();
+                        .and_then(|trim_to| thick.center.get_slice_ending_at(trim_to))?;
 
                     if false {
                         debug.push((

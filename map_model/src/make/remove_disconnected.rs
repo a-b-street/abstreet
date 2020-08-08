@@ -43,10 +43,12 @@ pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
 
     partitions.sort_by_key(|roads| roads.len());
     partitions.reverse();
-    println!("Main partition has {} roads", partitions[0].len());
     for p in partitions.iter().skip(1) {
-        println!("Removing disconnected partition with {} roads", p.len());
         for id in p {
+            timer.note(format!(
+                "Removing {} because it's disconnected from most roads",
+                id
+            ));
             map.roads.remove(id).unwrap();
             next_roads.remove(id.i1, *id);
             next_roads.remove(id.i2, *id);
