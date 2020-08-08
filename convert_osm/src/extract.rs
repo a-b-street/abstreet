@@ -1,11 +1,11 @@
 use crate::reader::{Document, Relation};
+use crate::transit;
 use crate::Options;
 use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, PolyLine, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{
-    OriginalBuilding, OriginalIntersection, RawArea, RawBuilding, RawBusRoute, RawBusStop, RawMap,
-    RawParkingLot, RawRoad, RestrictionType,
+    OriginalBuilding, RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType,
 };
 use map_model::{osm, AreaType};
 use osm::{NodeID, OsmID, RelationID, WayID};
@@ -274,8 +274,13 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 Err(err) => println!("Skipping building {}: {}", id, err),
             }
         } else if rel.tags.is("type", "route") {
-            map.bus_routes
-                .extend(extract_route(id, rel, &doc, &map.boundary_polygon));
+            map.bus_routes.extend(transit::extract_route(
+                id,
+                rel,
+                &doc,
+                &map.boundary_polygon,
+                timer,
+            ));
         } else if rel.tags.is("type", "multipolygon") && rel.tags.contains_key("amenity") {
             let name = rel
                 .tags
@@ -646,130 +651,6 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
         trimmed_pts.extend(boundary_glue.reversed().into_points());
     }
     Some(Ring::must_new(trimmed_pts).to_polygon())
-}
-
-fn extract_route(
-    rel_id: RelationID,
-    rel: &Relation,
-    doc: &Document,
-    boundary: &Polygon,
-) -> Option<RawBusRoute> {
-    let full_name = rel.tags.get("name")?.clone();
-    let short_name = rel
-        .tags
-        .get("ref")
-        .cloned()
-        .unwrap_or_else(|| full_name.clone());
-    let is_bus = match rel.tags.get("route")?.as_ref() {
-        "bus" => true,
-        "light_rail" => false,
-        x => {
-            if x != "road" && x != "bicycle" && x != "foot" && x != "railway" {
-                // TODO Handle these at some point
-                println!(
-                    "Skipping route {} of unknown type {}: {}",
-                    full_name, x, rel_id
-                );
-            }
-            return None;
-        }
-    };
-
-    // Gather stops in order. Platforms may exist or not; match them up by name.
-    let mut stops = Vec::new();
-    let mut platforms = HashMap::new();
-    let mut all_pts = Vec::new();
-    for (role, member) in &rel.members {
-        if role == "stop" {
-            if let OsmID::Node(n) = member {
-                let node = &doc.nodes[n];
-                stops.push(RawBusStop {
-                    name: node
-                        .tags
-                        .get("name")
-                        .cloned()
-                        .unwrap_or_else(|| format!("stop #{}", stops.len() + 1)),
-                    vehicle_pos: node.pt,
-                    ped_pos: None,
-                });
-            }
-        } else if role == "platform" {
-            let (platform_name, pt) = match member {
-                OsmID::Node(n) => {
-                    let node = &doc.nodes[n];
-                    (
-                        node.tags
-                            .get("name")
-                            .cloned()
-                            .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
-                        node.pt,
-                    )
-                }
-                OsmID::Way(w) => {
-                    let way = &doc.ways[w];
-                    (
-                        way.tags
-                            .get("name")
-                            .cloned()
-                            .unwrap_or_else(|| format!("stop #{}", platforms.len() + 1)),
-                        Pt2D::center(&way.pts),
-                    )
-                }
-                _ => continue,
-            };
-            platforms.insert(platform_name, pt);
-        } else if let OsmID::Way(w) = member {
-            // The order of nodes might be wrong, doesn't matter
-            for n in &doc.ways[w].nodes {
-                all_pts.push(OriginalIntersection { osm_node_id: *n });
-            }
-        }
-    }
-    for stop in &mut stops {
-        if let Some(pt) = platforms.remove(&stop.name) {
-            stop.ped_pos = Some(pt);
-        }
-    }
-
-    // Remove stops that're out of bounds. Once we find the first in-bound point, keep all in-bound
-    // stops and halt as soon as we go out of bounds again. If a route happens to dip in and out of
-    // the boundary, we don't want to leave gaps.
-    let mut keep_stops = Vec::new();
-    let orig_num = stops.len();
-    for stop in stops {
-        if boundary.contains_pt(stop.vehicle_pos) {
-            keep_stops.push(stop);
-        } else {
-            if !keep_stops.is_empty() {
-                // That's the end of them
-                break;
-            }
-        }
-    }
-    println!(
-        "Kept {} / {} contiguous stops from route {}",
-        keep_stops.len(),
-        orig_num,
-        rel_id
-    );
-
-    if keep_stops.len() < 2 {
-        // Routes with only 1 stop are pretty much useless, and it makes border matching quite
-        // confusing.
-        return None;
-    }
-
-    Some(RawBusRoute {
-        full_name,
-        short_name,
-        is_bus,
-        osm_rel_id: rel_id,
-        gtfs_trip_marker: rel.tags.get("gtfs:trip_marker").cloned(),
-        stops: keep_stops,
-        border_start: None,
-        border_end: None,
-        all_pts,
-    })
 }
 
 fn multipoly_geometry(

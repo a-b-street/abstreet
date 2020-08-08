@@ -4,6 +4,7 @@ mod parking;
 mod reader;
 mod split_ways;
 mod srtm;
+mod transit;
 
 use abstutil::Timer;
 use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
