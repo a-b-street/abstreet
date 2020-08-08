@@ -1,7 +1,7 @@
 use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
 use abstutil::{prettyprint_usize, MultiMap, Parallelism, Timer};
 use geom::LonLat;
-use map_model::{BuildingID, IntersectionID, Map, PathConstraints, PathRequest, PathStep};
+use map_model::{osm, BuildingID, IntersectionID, Map, PathConstraints, PathRequest, PathStep};
 use sim::{
     IndividTrip, OffMapLocation, OrigPersonID, PersonID, PersonSpec, Scenario, SpawnTrip,
     TripEndpoint, TripMode,
@@ -20,13 +20,13 @@ fn endpoints(
     from: &Endpoint,
     to: &Endpoint,
     map: &Map,
-    osm_id_to_bldg: &HashMap<i64, BuildingID>,
+    osm_id_to_bldg: &HashMap<osm::OsmID, BuildingID>,
     (in_borders, out_borders): (
         &Vec<(IntersectionID, LonLat)>,
         &Vec<(IntersectionID, LonLat)>,
     ),
     constraints: PathConstraints,
-    maybe_huge_map: Option<&(&Map, HashMap<i64, BuildingID>)>,
+    maybe_huge_map: Option<&(&Map, HashMap<osm::OsmID, BuildingID>)>,
 ) -> Option<(TripEndpoint, TripEndpoint)> {
     let from_bldg = from
         .osm_building
@@ -147,14 +147,14 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
     } else {
         let mut huge_osm_id_to_bldg = HashMap::new();
         for b in huge_map.all_buildings() {
-            huge_osm_id_to_bldg.insert(b.osm_way_id, b.id);
+            huge_osm_id_to_bldg.insert(b.orig_id.osm_id, b.id);
         }
         Some((huge_map, huge_osm_id_to_bldg))
     };
 
     let mut osm_id_to_bldg = HashMap::new();
     for b in map.all_buildings() {
-        osm_id_to_bldg.insert(b.osm_way_id, b.id);
+        osm_id_to_bldg.insert(b.orig_id.osm_id, b.id);
     }
     let bounds = map.get_gps_bounds();
     let incoming_borders_walking: Vec<(IntersectionID, LonLat)> = map

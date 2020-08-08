@@ -175,10 +175,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     if app.opts.dev {
         rows.push(Btn::text_bg1("Open OSM relation").build(
             ctx,
-            format!(
-                "open https://www.openstreetmap.org/relation/{}",
-                route.osm_rel_id
-            ),
+            format!("open {}", route.osm_rel_id),
             None,
         ));
     }

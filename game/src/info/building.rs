@@ -18,7 +18,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         kv.push(("Name", name.clone()));
     }
     if app.opts.dev {
-        kv.push(("OSM ID", format!("{}", b.osm_way_id)));
+        kv.push(("OSM ID", format!("{}", b.orig_id.osm_id.inner())));
     }
 
     let num_spots = b.num_parking_spots();

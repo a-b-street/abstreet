@@ -9,6 +9,7 @@ use ezgui::{
 };
 use geom::{Distance, FindClosest, PolyLine, Polygon};
 use map_model::{osm, RoadID};
+use osm::WayID;
 use sim::DontDrawAgents;
 use std::collections::{BTreeMap, HashSet};
 use std::error::Error;
@@ -21,7 +22,7 @@ pub struct ParkingMapper {
     show: Show,
     selected: Option<(HashSet<RoadID>, Drawable)>,
 
-    data: BTreeMap<i64, Value>,
+    data: BTreeMap<WayID, Value>,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -51,7 +52,7 @@ impl ParkingMapper {
         ctx: &mut EventCtx,
         app: &mut App,
         show: Show,
-        data: BTreeMap<i64, Value>,
+        data: BTreeMap<WayID, Value>,
     ) -> Box<dyn State> {
         app.opts.min_zoom_for_detail = 2.0;
 
@@ -304,7 +305,7 @@ impl State for ParkingMapper {
         if let Some((ref roads, _)) = self.selected {
             if ctx.input.key_pressed(Key::O) {
                 open_browser(format!(
-                    "https://www.openstreetmap.org/way/{}",
+                    "{}",
                     app.primary
                         .map
                         .get_r(*roads.iter().next().unwrap())
@@ -389,8 +390,8 @@ impl State for ParkingMapper {
 struct ChangeWay {
     composite: Composite,
     draw: Drawable,
-    osm_way_id: i64,
-    data: BTreeMap<i64, Value>,
+    osm_way_id: WayID,
+    data: BTreeMap<WayID, Value>,
     show: Show,
 }
 
@@ -400,7 +401,7 @@ impl ChangeWay {
         app: &App,
         selected: &HashSet<RoadID>,
         show: Show,
-        data: BTreeMap<i64, Value>,
+        data: BTreeMap<WayID, Value>,
     ) -> Box<dyn State> {
         let map = &app.primary.map;
         let osm_way_id = map
@@ -507,7 +508,7 @@ impl State for ChangeWay {
 }
 
 #[cfg(target_arch = "wasm32")]
-fn generate_osmc(_: &BTreeMap<i64, Value>, _: bool, _: &mut Timer) -> Result<(), Box<dyn Error>> {
+fn generate_osmc(_: &BTreeMap<WayID, Value>, _: bool, _: &mut Timer) -> Result<(), Box<dyn Error>> {
     Err("Woops, mapping mode isn't supported on the web yet"
         .to_string()
         .into())
@@ -515,7 +516,7 @@ fn generate_osmc(_: &BTreeMap<i64, Value>, _: bool, _: &mut Timer) -> Result<(),
 
 #[cfg(not(target_arch = "wasm32"))]
 fn generate_osmc(
-    data: &BTreeMap<i64, Value>,
+    data: &BTreeMap<WayID, Value>,
     in_seattle: bool,
     timer: &mut Timer,
 ) -> Result<(), Box<dyn Error>> {
@@ -527,7 +528,7 @@ fn generate_osmc(
             continue;
         }
 
-        let url = format!("https://api.openstreetmap.org/api/0.6/way/{}", way);
+        let url = format!("https://api.openstreetmap.org/api/0.6/way/{}", way.0);
         timer.note(format!("Fetching {}", url));
         let resp = reqwest::blocking::get(&url)?.text()?;
         let mut tree = xmltree::Element::parse(resp.as_bytes())?

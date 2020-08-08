@@ -44,33 +44,28 @@ pub struct RawMap {
 // (https://github.com/opentraffic/architecture/issues/1).
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OriginalRoad {
-    pub osm_way_id: i64,
+    pub osm_way_id: osm::WayID,
     pub i1: OriginalIntersection,
     pub i2: OriginalIntersection,
-}
-impl OriginalRoad {
-    pub fn way_url(self) -> String {
-        format!("https://www.openstreetmap.org/way/{}", self.osm_way_id)
-    }
 }
 
 // A way to refer to intersections across many maps.
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OriginalIntersection {
-    pub osm_node_id: i64,
+    pub osm_node_id: osm::NodeID,
 }
 
 // A way to refer to buildings across many maps.
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OriginalBuilding {
-    pub osm_way_id: i64,
+    pub osm_id: osm::OsmID,
 }
 
 impl fmt::Display for OriginalRoad {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "OriginalRoad(https://www.openstreetmap.org/way/{} from https://www.openstreetmap.org/node/{} to https://www.openstreetmap.org/node/{})",
+            "OriginalRoad({} from {} to {}",
             self.osm_way_id, self.i1.osm_node_id, self.i2.osm_node_id
         )
     }
@@ -83,11 +78,7 @@ impl fmt::Debug for OriginalRoad {
 
 impl fmt::Display for OriginalIntersection {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "OriginalIntersection(https://www.openstreetmap.org/node/{})",
-            self.osm_node_id
-        )
+        write!(f, "OriginalIntersection({})", self.osm_node_id)
     }
 }
 impl fmt::Debug for OriginalIntersection {
@@ -98,16 +89,29 @@ impl fmt::Debug for OriginalIntersection {
 
 impl fmt::Display for OriginalBuilding {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "OriginalBuilding(https://www.openstreetmap.org/way/{})",
-            self.osm_way_id
-        )
+        write!(f, "OriginalBuilding({}", self.osm_id)
     }
 }
 impl fmt::Debug for OriginalBuilding {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)
+    }
+}
+
+impl OriginalIntersection {
+    pub fn new(id: i64) -> OriginalIntersection {
+        OriginalIntersection {
+            osm_node_id: osm::NodeID(id),
+        }
+    }
+}
+impl OriginalRoad {
+    pub fn new(way: i64, (i1, i2): (i64, i64)) -> OriginalRoad {
+        OriginalRoad {
+            osm_way_id: osm::WayID(way),
+            i1: OriginalIntersection::new(i1),
+            i2: OriginalIntersection::new(i2),
+        }
     }
 }
 
@@ -144,7 +148,7 @@ impl RawMap {
         results
     }
 
-    pub fn new_osm_node_id(&self, start: i64) -> i64 {
+    pub fn new_osm_node_id(&self, start: i64) -> osm::NodeID {
         assert!(start < 0);
         // Slow, but deterministic.
         let mut osm_node_id = start;
@@ -152,29 +156,27 @@ impl RawMap {
             if self
                 .intersections
                 .keys()
-                .any(|i| i.osm_node_id == osm_node_id)
+                .any(|i| i.osm_node_id.0 == osm_node_id)
             {
                 osm_node_id -= 1;
             } else {
-                return osm_node_id;
+                return osm::NodeID(osm_node_id);
             }
         }
     }
 
     // TODO Almost gone...
-    pub fn new_osm_way_id(&self, start: i64) -> i64 {
+    pub fn new_osm_way_id(&self, start: i64) -> osm::WayID {
         assert!(start < 0);
         // Slow, but deterministic.
         let mut osm_way_id = start;
         loop {
-            if self.roads.keys().any(|r| r.osm_way_id == osm_way_id)
-                || self.buildings.keys().any(|b| b.osm_way_id == osm_way_id)
-                || self.areas.iter().any(|a| a.osm_id == osm_way_id)
-                || self.parking_lots.iter().any(|a| a.osm_id == osm_way_id)
-            {
+            // TODO Only checks roads, doesn't handle collisions with buildings, areas, parking
+            // lots
+            if self.roads.keys().any(|r| r.osm_way_id.0 == osm_way_id) {
                 osm_way_id -= 1;
             } else {
-                return osm_way_id;
+                return osm::WayID(osm_way_id);
             }
         }
     }
@@ -366,13 +368,13 @@ pub struct RawArea {
     pub area_type: AreaType,
     pub polygon: Polygon,
     pub osm_tags: Tags,
-    pub osm_id: i64,
+    pub osm_id: osm::OsmID,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RawParkingLot {
     pub polygon: Polygon,
-    pub osm_id: i64,
+    pub osm_id: osm::OsmID,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -454,7 +456,7 @@ impl DrivingSide {
 pub struct RawBusRoute {
     pub full_name: String,
     pub short_name: String,
-    pub osm_rel_id: i64,
+    pub osm_rel_id: osm::RelationID,
     pub gtfs_trip_marker: Option<String>,
     // If not, light rail
     pub is_bus: bool,

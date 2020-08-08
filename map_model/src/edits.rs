@@ -1,6 +1,6 @@
 use crate::raw::{OriginalIntersection, OriginalRoad};
 use crate::{
-    connectivity, BusRouteID, ControlStopSign, ControlTrafficSignal, IntersectionID,
+    connectivity, osm, BusRouteID, ControlStopSign, ControlTrafficSignal, IntersectionID,
     IntersectionType, LaneID, LaneType, Map, PathConstraints, RoadID, TurnID, Zone,
 };
 use abstutil::{deserialize_btreemap, retain_btreemap, retain_btreeset, serialize_btreemap, Timer};
@@ -310,7 +310,7 @@ enum PermanentEditCmd {
         old_allow_through_traffic: EnumSet<PathConstraints>,
     },
     ChangeRouteSchedule {
-        osm_rel_id: i64,
+        osm_rel_id: osm::RelationID,
         old: Vec<Time>,
         new: Vec<Time>,
     },
@@ -397,18 +397,15 @@ impl PermanentMapEdits {
                     }
                     PermanentEditCmd::ReverseLane { l, dst_i } => {
                         let l = l.from_permanent(map)?;
-                        let dst_i = map.find_i_by_osm_id(dst_i.osm_node_id)?;
+                        let dst_i = map.find_i_by_osm_id(dst_i)?;
                         Ok(EditCmd::ReverseLane { l, dst_i })
                     }
                     PermanentEditCmd::ChangeSpeedLimit { id, new, old } => {
-                        let id = map.find_r_by_osm_id(
-                            id.osm_way_id,
-                            (id.i1.osm_node_id, id.i2.osm_node_id),
-                        )?;
+                        let id = map.find_r_by_osm_id(id)?;
                         Ok(EditCmd::ChangeSpeedLimit { id, new, old })
                     }
                     PermanentEditCmd::ChangeIntersection { i, new, old } => {
-                        let id = map.find_i_by_osm_id(i.osm_node_id)?;
+                        let id = map.find_i_by_osm_id(i)?;
                         Ok(EditCmd::ChangeIntersection {
                             i: id,
                             new: new
@@ -424,10 +421,7 @@ impl PermanentMapEdits {
                         new_allow_through_traffic,
                         old_allow_through_traffic,
                     } => {
-                        let id = map.find_r_by_osm_id(
-                            id.osm_way_id,
-                            (id.i1.osm_node_id, id.i2.osm_node_id),
-                        )?;
+                        let id = map.find_r_by_osm_id(id)?;
                         Ok(EditCmd::ChangeAccessRestrictions {
                             id,
                             new_allow_through_traffic,
@@ -439,10 +433,9 @@ impl PermanentMapEdits {
                         old,
                         new,
                     } => {
-                        let id = map.find_br(osm_rel_id).ok_or(format!(
-                            "can't find https://www.openstreetmap.org/relation/{}",
-                            osm_rel_id
-                        ))?;
+                        let id = map
+                            .find_br(osm_rel_id)
+                            .ok_or(format!("can't find {}", osm_rel_id))?;
                         Ok(EditCmd::ChangeRouteSchedule { id, old, new })
                     }
                 })
@@ -484,11 +477,7 @@ impl PermanentEditIntersection {
             PermanentEditIntersection::StopSign { must_stop } => {
                 let mut translated_must_stop = BTreeMap::new();
                 for (r, stop) in must_stop {
-                    translated_must_stop.insert(
-                        map.find_r_by_osm_id(r.osm_way_id, (r.i1.osm_node_id, r.i2.osm_node_id))
-                            .ok()?,
-                        stop,
-                    );
+                    translated_must_stop.insert(map.find_r_by_osm_id(r).ok()?, stop);
                 }
 
                 // Make sure the roads exactly match up
@@ -529,10 +518,7 @@ impl OriginalLane {
     // - Some validation happens in the lane editor, not even here.
     // - Is it inevitable? Maybe we need to apply edits as we convert.
     pub fn from_permanent(self, map: &Map) -> Result<LaneID, String> {
-        let r = map.get_r(map.find_r_by_osm_id(
-            self.parent.osm_way_id,
-            (self.parent.i1.osm_node_id, self.parent.i2.osm_node_id),
-        )?);
+        let r = map.get_r(map.find_r_by_osm_id(self.parent)?);
         if r.children_forwards.len() != self.num_fwd || r.children_backwards.len() != self.num_back
         {
             return Err(format!("number of lanes has changed in {:?}", self));

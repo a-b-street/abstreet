@@ -18,9 +18,7 @@ pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer
         if let Err(err) = make_route(map, r, &mut pt_to_stop, &matcher) {
             timer.warn(format!(
                 "Skipping route {} ({}): {}",
-                r.full_name,
-                rel_url(r.osm_rel_id),
-                err
+                r.full_name, r.osm_rel_id, err
             ));
         }
     }
@@ -89,7 +87,7 @@ fn make_route(
     // Start or end at a border?
     let mut end_border = None;
     let start = if let Some(i) = r.border_start {
-        let i = map.get_i(map.find_i_by_osm_id(i.osm_node_id).unwrap());
+        let i = map.get_i(map.find_i_by_osm_id(i).unwrap());
         if !i.is_border() {
             panic!("Route starts at {}, but isn't a border?", i.orig_id);
         }
@@ -98,10 +96,7 @@ fn make_route(
         } else {
             return Err(format!(
                 "Route {} starts at {} ({}), but no starting lane for a {:?}?",
-                rel_url(r.osm_rel_id),
-                i.id,
-                i.orig_id,
-                route_type
+                r.osm_rel_id, i.id, i.orig_id, route_type
             )
             .into());
         }
@@ -110,7 +105,7 @@ fn make_route(
         pick_start_lane(map.get_bs(stops[0]).driving_pos, route_type, map)?
     };
     if let Some(i) = r.border_end {
-        let i = map.get_i(map.find_i_by_osm_id(i.osm_node_id).unwrap());
+        let i = map.get_i(map.find_i_by_osm_id(i).unwrap());
         if !i.is_border() {
             panic!("Route ends at {}, but isn't a border?", i.orig_id);
         }
@@ -125,10 +120,7 @@ fn make_route(
             // TODO Should panic
             println!(
                 "Route {} ends at {} ({}), but no ending lane for a {:?}?",
-                rel_url(r.osm_rel_id),
-                i.id,
-                i.orig_id,
-                route_type
+                r.osm_rel_id, i.id, i.orig_id, route_type
             );
         }
     }
@@ -319,10 +311,6 @@ impl Matcher {
         }
         Ok((sidewalk_pos, driving_pos))
     }
-}
-
-fn rel_url(id: i64) -> String {
-    format!("https://www.openstreetmap.org/relation/{}", id)
 }
 
 fn pick_start_lane(

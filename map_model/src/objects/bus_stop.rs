@@ -1,4 +1,4 @@
-use crate::{LaneID, Map, PathConstraints, PathRequest, Position};
+use crate::{osm, LaneID, Map, PathConstraints, PathRequest, Position};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::Time;
 use serde::{Deserialize, Serialize};
@@ -50,7 +50,7 @@ pub struct BusRoute {
     pub full_name: String,
     pub short_name: String,
     pub gtfs_trip_marker: Option<String>,
-    pub osm_rel_id: i64,
+    pub osm_rel_id: osm::RelationID,
     pub stops: Vec<BusStopID>,
     // May be a border or not. If not, is long enough for buses to spawn fully.
     pub start: LaneID,

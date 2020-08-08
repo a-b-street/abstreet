@@ -115,7 +115,7 @@ impl InitialMap {
                         m.roads[r2].trimmed_center_pts.reversed()
                     };
                     if pl1 == pl2 {
-                        problems.insert(format!("{} and {} overlap", r1.way_url(), r2.way_url()));
+                        problems.insert(format!("{} and {} overlap", r1.osm_way_id, r2.osm_way_id));
                         bad_intersections.insert(i.id);
                     }
                 }

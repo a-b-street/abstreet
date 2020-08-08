@@ -131,15 +131,17 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
             l.length()
         ),
     ));
+    let pair = r.dir_and_offset(l.id);
+    kv.push((
+        "Dir and offset".to_string(),
+        format!("fwd={}, {}", pair.0, pair.1),
+    ));
 
     rows.extend(make_table(ctx, kv.into_iter()));
 
     rows.push(Btn::text_bg1("Open OSM way").build(
         ctx,
-        format!(
-            "open https://www.openstreetmap.org/way/{}",
-            r.orig_id.osm_way_id
-        ),
+        format!("open {}", r.orig_id.osm_way_id),
         None,
     ));
 

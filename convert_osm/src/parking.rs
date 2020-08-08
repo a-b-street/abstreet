@@ -23,7 +23,7 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
                     && r.osm_tags
                         .is_any(osm::HIGHWAY, vec!["residential", "tertiary"])
                     && !r.osm_tags.is("foot", "no")
-                    && id.osm_way_id % 100 <= pct
+                    && id.osm_way_id.0 % 100 <= pct
                     && PolyLine::unchecked_new(r.center_points.clone()).length()
                         >= Distance::meters(20.0)
                 {

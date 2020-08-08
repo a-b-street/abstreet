@@ -1,9 +1,9 @@
-use crate::raw::{DrivingSide, RawMap};
+use crate::raw::{DrivingSide, OriginalBuilding, OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
-    Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop, BusStopID,
-    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID, LaneType,
-    Map, MapEdits, OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest,
-    Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType,
+    osm, Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
+    BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID,
+    LaneType, Map, MapEdits, OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints,
+    PathRequest, Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType,
 };
 use abstutil::Timer;
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring, Time};
@@ -547,47 +547,36 @@ impl Map {
         None
     }
 
-    pub fn find_r_by_osm_id(
-        &self,
-        osm_way_id: i64,
-        osm_node_ids: (i64, i64),
-    ) -> Result<RoadID, String> {
+    pub fn find_r_by_osm_id(&self, id: OriginalRoad) -> Result<RoadID, String> {
         for r in self.all_roads() {
-            if r.orig_id.osm_way_id == osm_way_id
-                && r.orig_id.i1.osm_node_id == osm_node_ids.0
-                && r.orig_id.i2.osm_node_id == osm_node_ids.1
-            {
+            if r.orig_id == id {
                 return Ok(r.id);
             }
         }
-        Err(format!(
-            "Can't find osm_way_id {} between nodes {} and {}",
-            osm_way_id, osm_node_ids.0, osm_node_ids.1
-        ))
+        Err(format!("Can't find {}", id))
     }
 
-    // TODO Take OriginalIntersection
-    pub fn find_i_by_osm_id(&self, osm_node_id: i64) -> Result<IntersectionID, String> {
+    pub fn find_i_by_osm_id(&self, id: OriginalIntersection) -> Result<IntersectionID, String> {
         for i in self.all_intersections() {
-            if i.orig_id.osm_node_id == osm_node_id {
+            if i.orig_id == id {
                 return Ok(i.id);
             }
         }
-        Err(format!("Can't find osm_node_id {}", osm_node_id))
+        Err(format!("Can't find {}", id))
     }
 
-    pub fn find_b_by_osm_id(&self, osm_way_id: i64) -> Option<BuildingID> {
+    pub fn find_b_by_osm_id(&self, id: OriginalBuilding) -> Option<BuildingID> {
         for b in self.all_buildings() {
-            if b.osm_way_id == osm_way_id {
+            if b.orig_id == id {
                 return Some(b.id);
             }
         }
         None
     }
 
-    pub fn find_br(&self, osm_rel_id: i64) -> Option<BusRouteID> {
+    pub fn find_br(&self, id: osm::RelationID) -> Option<BusRouteID> {
         for br in self.all_bus_routes() {
-            if br.osm_rel_id == osm_rel_id {
+            if br.osm_rel_id == id {
                 return Some(br.id);
             }
         }

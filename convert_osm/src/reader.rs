@@ -1,8 +1,8 @@
 use abstutil::{prettyprint_usize, slurp_file, Tags, Timer};
 use geom::{GPSBounds, LonLat, Pt2D};
+use map_model::osm::{NodeID, OsmID, RelationID, WayID};
 use std::collections::BTreeMap;
 use std::error::Error;
-use std::fmt;
 
 // References to missing objects are just filtered out.
 // Per https://wiki.openstreetmap.org/wiki/OSM_XML#Certainties_and_Uncertainties, we assume
@@ -10,7 +10,7 @@ use std::fmt;
 //
 // TODO Filter out visible=false
 // TODO NodeID, WayID, RelationID are nice. Plumb forward through map_model.
-// TODO Replicate IDs in each object, and change Member to just hold a reference to the object
+// TODO Replicate IDs in each object, and change members to just hold a reference to the object
 // (which is guaranteed to exist).
 
 pub struct Document {
@@ -35,13 +35,7 @@ pub struct Way {
 pub struct Relation {
     pub tags: Tags,
     // Role, member
-    pub members: Vec<(String, Member)>,
-}
-
-pub enum Member {
-    Node(NodeID),
-    Way(WayID),
-    Relation(RelationID),
+    pub members: Vec<(String, OsmID)>,
 }
 
 pub fn read(
@@ -145,7 +139,7 @@ pub fn read(
                                 if !doc.nodes.contains_key(&n) {
                                     continue;
                                 }
-                                Member::Node(n)
+                                OsmID::Node(n)
                             }
                             "way" => {
                                 let w =
@@ -153,7 +147,7 @@ pub fn read(
                                 if !doc.ways.contains_key(&w) {
                                     continue;
                                 }
-                                Member::Way(w)
+                                OsmID::Way(w)
                             }
                             "relation" => {
                                 let r = RelationID(
@@ -162,7 +156,7 @@ pub fn read(
                                 if !doc.relations.contains_key(&r) {
                                     continue;
                                 }
-                                Member::Relation(r)
+                                OsmID::Relation(r)
                             }
                             _ => continue,
                         };
@@ -211,27 +205,4 @@ fn scrape_bounds(doc: &roxmltree::Document) -> GPSBounds {
         }
     }
     b
-}
-
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct NodeID(pub i64);
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct WayID(pub i64);
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct RelationID(pub i64);
-
-impl fmt::Display for NodeID {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "https://www.openstreetmap.org/node/{}", self.0)
-    }
-}
-impl fmt::Display for WayID {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "https://www.openstreetmap.org/way/{}", self.0)
-    }
-}
-impl fmt::Display for RelationID {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "https://www.openstreetmap.org/relation/{}", self.0)
-    }
 }

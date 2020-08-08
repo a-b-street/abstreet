@@ -1,4 +1,4 @@
-use crate::reader::{Document, Member, NodeID, Relation, RelationID, WayID};
+use crate::reader::{Document, Relation};
 use crate::Options;
 use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, PolyLine, Polygon, Pt2D, Ring};
@@ -8,6 +8,7 @@ use map_model::raw::{
     RawParkingLot, RawRoad, RestrictionType,
 };
 use map_model::{osm, AreaType};
+use osm::{NodeID, OsmID, RelationID, WayID};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::error::Error;
 
@@ -137,7 +138,9 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
         if is_bldg(&way.tags) {
             map.buildings.insert(
-                OriginalBuilding { osm_way_id: id.0 },
+                OriginalBuilding {
+                    osm_id: OsmID::Way(id),
+                },
                 RawBuilding {
                     polygon,
                     public_garage_name: None,
@@ -149,7 +152,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         } else if let Some(at) = get_area_type(&way.tags) {
             map.areas.push(RawArea {
                 area_type: at,
-                osm_id: id.0,
+                osm_id: OsmID::Way(id),
                 polygon,
                 osm_tags: way.tags.clone(),
             });
@@ -157,7 +160,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
             // TODO Verify parking = surface or handle other cases?
             map.parking_lots.push(RawParkingLot {
                 polygon,
-                osm_id: id.0,
+                osm_id: OsmID::Way(id),
             });
         } else if way.tags.is("historic", "memorial") {
             memorial_areas.push(polygon);
@@ -202,7 +205,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 {
                     map.areas.push(RawArea {
                         area_type,
-                        osm_id: id.0,
+                        osm_id: OsmID::Relation(id),
                         polygon,
                         osm_tags: rel.tags.clone(),
                     });
@@ -215,7 +218,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
             let mut to_way_id: Option<WayID> = None;
             for (role, member) in &rel.members {
                 match member {
-                    Member::Way(w) => {
+                    OsmID::Way(w) => {
                         if role == "from" {
                             from_way_id = Some(*w);
                         } else if role == "to" {
@@ -224,7 +227,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                             via_way_id = Some(*w);
                         }
                     }
-                    Member::Node(n) => {
+                    OsmID::Node(n) => {
                         if role == "via" {
                             via_node_id = Some(*n);
                         }
@@ -256,7 +259,9 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
             match multipoly_geometry(id, rel, &doc) {
                 Ok(polygon) => {
                     map.buildings.insert(
-                        OriginalBuilding { osm_way_id: id.0 },
+                        OriginalBuilding {
+                            osm_id: OsmID::Relation(id),
+                        },
                         RawBuilding {
                             polygon,
                             public_garage_name: None,
@@ -282,7 +287,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 if role != "outer" {
                     continue;
                 }
-                if let Member::Way(w) = member {
+                if let OsmID::Way(w) = member {
                     if let Ok(ring) = Ring::new(doc.ways[w].pts.clone()) {
                         amenity_areas.push((name.clone(), amenity.clone(), ring.to_polygon()));
                     }
@@ -292,14 +297,14 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
             let mut stops = Vec::new();
             let mut platform: Option<Pt2D> = None;
             for (role, member) in &rel.members {
-                if let Member::Node(n) = member {
+                if let OsmID::Node(n) = member {
                     let pt = doc.nodes[n].pt;
                     if role == "stop" {
                         stops.push(pt);
                     } else if role == "platform" {
                         platform = Some(pt);
                     }
-                } else if let Member::Way(w) = member {
+                } else if let OsmID::Way(w) = member {
                     if role == "platform" {
                         platform = Some(Pt2D::center(&doc.ways[w].pts));
                     }
@@ -323,7 +328,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
             0,
             RawArea {
                 area_type: AreaType::Water,
-                osm_id: -1,
+                osm_id: OsmID::Relation(RelationID(-1)),
                 polygon,
                 osm_tags,
             },
@@ -537,7 +542,7 @@ fn get_multipolygon_members(
 ) -> Vec<(WayID, Vec<Pt2D>)> {
     let mut pts_per_way = Vec::new();
     for (role, member) in &rel.members {
-        if let Member::Way(w) = member {
+        if let OsmID::Way(w) = member {
             if role == "outer" {
                 pts_per_way.push((*w, doc.ways[w].pts.clone()));
             } else {
@@ -676,7 +681,7 @@ fn extract_route(
     let mut all_pts = Vec::new();
     for (role, member) in &rel.members {
         if role == "stop" {
-            if let Member::Node(n) = member {
+            if let OsmID::Node(n) = member {
                 let node = &doc.nodes[n];
                 stops.push(RawBusStop {
                     name: node
@@ -690,7 +695,7 @@ fn extract_route(
             }
         } else if role == "platform" {
             let (platform_name, pt) = match member {
-                Member::Node(n) => {
+                OsmID::Node(n) => {
                     let node = &doc.nodes[n];
                     (
                         node.tags
@@ -700,7 +705,7 @@ fn extract_route(
                         node.pt,
                     )
                 }
-                Member::Way(w) => {
+                OsmID::Way(w) => {
                     let way = &doc.ways[w];
                     (
                         way.tags
@@ -713,10 +718,10 @@ fn extract_route(
                 _ => continue,
             };
             platforms.insert(platform_name, pt);
-        } else if let Member::Way(w) = member {
+        } else if let OsmID::Way(w) = member {
             // The order of nodes might be wrong, doesn't matter
             for n in &doc.ways[w].nodes {
-                all_pts.push(OriginalIntersection { osm_node_id: n.0 });
+                all_pts.push(OriginalIntersection { osm_node_id: *n });
             }
         }
     }
@@ -758,7 +763,7 @@ fn extract_route(
         full_name,
         short_name,
         is_bus,
-        osm_rel_id: rel_id.0,
+        osm_rel_id: rel_id,
         gtfs_trip_marker: rel.tags.get("gtfs:trip_marker").cloned(),
         stops: keep_stops,
         border_start: None,
@@ -775,7 +780,7 @@ fn multipoly_geometry(
     let mut outer: Vec<Vec<Pt2D>> = Vec::new();
     let mut inner: Vec<Vec<Pt2D>> = Vec::new();
     for (role, member) in &rel.members {
-        if let Member::Way(w) = member {
+        if let OsmID::Way(w) = member {
             let mut deduped = doc.ways[w].pts.clone();
             deduped.dedup();
             if deduped.len() < 3 {

@@ -1,3 +1,4 @@
+use crate::osm;
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::Polygon;
 use serde::{Deserialize, Serialize};
@@ -32,5 +33,5 @@ pub struct Area {
     pub area_type: AreaType,
     pub polygon: Polygon,
     pub osm_tags: Tags,
-    pub osm_id: i64,
+    pub osm_id: osm::OsmID,
 }

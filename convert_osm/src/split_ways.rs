@@ -24,7 +24,7 @@ pub fn split_up_roads(
             if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
                 if !pt_to_intersection.contains_key(&pt) {
                     let id = OriginalIntersection {
-                        osm_node_id: input.osm_node_ids[&pt].0,
+                        osm_node_id: input.osm_node_ids[&pt],
                     };
                     pt_to_intersection.insert(pt, id);
                 }
@@ -76,7 +76,7 @@ pub fn split_up_roads(
                 // Start a new road
                 map.roads.insert(
                     OriginalRoad {
-                        osm_way_id: osm_way_id.0,
+                        osm_way_id: *osm_way_id,
                         i1,
                         i2: *i2,
                     },
@@ -95,13 +95,13 @@ pub fn split_up_roads(
     let mut restrictions = Vec::new();
     for (restriction, from_osm, via_osm, to_osm) in input.simple_turn_restrictions {
         let roads = map.roads_per_intersection(OriginalIntersection {
-            osm_node_id: via_osm.0,
+            osm_node_id: via_osm,
         });
         // If some of the roads are missing, they were likely filtered out -- usually service
         // roads.
         if let (Some(from), Some(to)) = (
-            roads.iter().find(|r| r.osm_way_id == from_osm.0),
-            roads.iter().find(|r| r.osm_way_id == to_osm.0),
+            roads.iter().find(|r| r.osm_way_id == from_osm),
+            roads.iter().find(|r| r.osm_way_id == to_osm),
         ) {
             restrictions.push((*from, restriction, *to));
         }
@@ -121,7 +121,7 @@ pub fn split_up_roads(
         let via_candidates: Vec<OriginalRoad> = map
             .roads
             .keys()
-            .filter(|r| r.osm_way_id == via_osm.0)
+            .filter(|r| r.osm_way_id == via_osm)
             .cloned()
             .collect();
         if via_candidates.len() != 1 {
@@ -138,12 +138,12 @@ pub fn split_up_roads(
             .roads_per_intersection(via.i1)
             .into_iter()
             .chain(map.roads_per_intersection(via.i2).into_iter())
-            .find(|r| r.osm_way_id == from_osm.0);
+            .find(|r| r.osm_way_id == from_osm);
         let maybe_to = map
             .roads_per_intersection(via.i1)
             .into_iter()
             .chain(map.roads_per_intersection(via.i2).into_iter())
-            .find(|r| r.osm_way_id == to_osm.0);
+            .find(|r| r.osm_way_id == to_osm);
         match (maybe_from, maybe_to) {
             (Some(from), Some(to)) => {
                 complicated_restrictions.push((from, via, to));

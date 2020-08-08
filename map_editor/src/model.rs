@@ -449,7 +449,7 @@ impl Model {
 
     pub fn create_b(&mut self, center: Pt2D, ctx: &EventCtx) -> ID {
         let id = OriginalBuilding {
-            osm_way_id: self.map.new_osm_way_id(time_to_id()),
+            osm_id: osm::OsmID::Way(self.map.new_osm_way_id(time_to_id())),
         };
         self.map.buildings.insert(
             id,

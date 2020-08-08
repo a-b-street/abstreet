@@ -17,7 +17,7 @@ pub fn get_possible_policies(
     // independently.
     if let Some(raw) = seattle_traffic_signals::load_all_data()
         .unwrap()
-        .remove(&map.get_i(id).orig_id.osm_node_id)
+        .remove(&map.get_i(id).orig_id.osm_node_id.0)
     {
         if let Ok(ts) = ControlTrafficSignal::import(raw, id, map) {
             results.push(("hand-mapped current real settings".to_string(), ts));
@@ -557,7 +557,7 @@ pub fn synchronize(map: &mut Map) {
     for i in map.all_intersections() {
         if !i.is_traffic_signal()
             || seen.contains(&i.id)
-            || handmapped.contains_key(&i.orig_id.osm_node_id)
+            || handmapped.contains_key(&i.orig_id.osm_node_id.0)
         {
             continue;
         }

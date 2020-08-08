@@ -355,7 +355,7 @@ impl IntersectionSimState {
             if !queue.try_to_reserve_entry(
                 car,
                 !self.dont_block_the_box
-                    || allow_block_the_box(map.get_i(turn.parent).orig_id.osm_node_id)
+                    || allow_block_the_box(map.get_i(turn.parent).orig_id.osm_node_id.0)
                     || inside_ut,
             ) {
                 if self.break_turn_conflict_cycles {

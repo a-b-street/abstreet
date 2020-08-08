@@ -111,7 +111,9 @@ impl TransitRoutes {
 
         let col = vec![
             DashTab::TransitRoutes.picker(ctx, app),
-            Line("Transit routes").small_heading().draw(ctx),
+            Line(format!("{} Transit routes", routes.len()))
+                .small_heading()
+                .draw(ctx),
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/search.svg"),
                 Autocomplete::new(

@@ -16,8 +16,8 @@ use ezgui::{
     VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D, Time};
-use map_model::raw::{OriginalIntersection, OriginalRoad};
-use map_model::{BuildingID, Map, OriginalLane, Position};
+use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad};
+use map_model::{osm, BuildingID, Map, OriginalLane, Position};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
     PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, VehicleType,
@@ -646,10 +646,10 @@ fn make_bike_lane_scenario(map: &Map) -> ScenarioGenerator {
         start_time: Time::START_OF_DAY,
         stop_time: Time::START_OF_DAY + Duration::seconds(10.0),
         start_from_border: map
-            .find_r_by_osm_id(263665925, (2499826475, 53096959))
+            .find_r_by_osm_id(OriginalRoad::new(263665925, (2499826475, 53096959)))
             .unwrap()
             .backwards(),
-        goal: OriginDestination::GotoBldg(map.find_b_by_osm_id(217699501).unwrap()),
+        goal: OriginDestination::GotoBldg(map.find_b_by_osm_id(bldg(217699501)).unwrap()),
     });
     s
 }
@@ -895,7 +895,7 @@ impl TutorialState {
             parking_found: false,
             score_delivered: false,
 
-            fire_station: app.primary.map.find_b_by_osm_id(731238736).unwrap(),
+            fire_station: app.primary.map.find_b_by_osm_id(bldg(731238736)).unwrap(),
         };
 
         let tool_panel = tool_panel(ctx);
@@ -913,7 +913,10 @@ impl TutorialState {
         state.stages.push(
             Stage::new(Task::Camera)
                 .warp_to(
-                    ID::Intersection(map.find_i_by_osm_id(53096945).unwrap()),
+                    ID::Intersection(
+                        map.find_i_by_osm_id(OriginalIntersection::new(53096945))
+                            .unwrap(),
+                    ),
                     None,
                 )
                 .msg(
@@ -971,7 +974,10 @@ impl TutorialState {
         state.stages.push(
             Stage::new(Task::TimeControls)
                 .warp_to(
-                    ID::Intersection(map.find_i_by_osm_id(53096945).unwrap()),
+                    ID::Intersection(
+                        map.find_i_by_osm_id(OriginalIntersection::new(53096945))
+                            .unwrap(),
+                    ),
                     Some(6.5),
                 )
                 .msg(
@@ -1031,24 +1037,16 @@ impl TutorialState {
             Stage::new(Task::Escort)
                 // Don't center on where the agents are, be a little offset
                 .warp_to(
-                    ID::Building(map.find_b_by_osm_id(217699780).unwrap()),
+                    ID::Building(map.find_b_by_osm_id(bldg(217699780)).unwrap()),
                     Some(10.0),
                 )
                 .spawn(Box::new(move |app| {
                     // Seed a specific target car, and fill up the target building's private
                     // parking to force the target to park on-street.
                     let map = &app.primary.map;
-                    let goal_bldg = map.find_b_by_osm_id(217701875).unwrap();
+                    let goal_bldg = map.find_b_by_osm_id(bldg(217701875)).unwrap();
                     let start_lane = OriginalLane {
-                        parent: OriginalRoad {
-                            osm_way_id: 158782224,
-                            i1: OriginalIntersection {
-                                osm_node_id: 1709145066,
-                            },
-                            i2: OriginalIntersection {
-                                osm_node_id: 53128052,
-                            },
-                        },
+                        parent: OriginalRoad::new(158782224, (1709145066, 53128052)),
                         num_fwd: 3,
                         num_back: 3,
                         fwd: false,
@@ -1057,15 +1055,7 @@ impl TutorialState {
                     .from_permanent(map)
                     .unwrap();
                     let lane_near_bldg = OriginalLane {
-                        parent: OriginalRoad {
-                            osm_way_id: 6484869,
-                            i1: OriginalIntersection {
-                                osm_node_id: 53163501,
-                            },
-                            i2: OriginalIntersection {
-                                osm_node_id: 53069236,
-                            },
-                        },
+                        parent: OriginalRoad::new(6484869, (53163501, 53069236)),
                         num_fwd: 3,
                         num_back: 3,
                         fwd: true,
@@ -1118,7 +1108,13 @@ impl TutorialState {
                     app.primary.sim.tiny_step(map, &mut app.primary.sim_cb);
 
                     // And add some noise
-                    spawn_agents_around(app.primary.map.find_i_by_osm_id(1709145066).unwrap(), app);
+                    spawn_agents_around(
+                        app.primary
+                            .map
+                            .find_i_by_osm_id(OriginalIntersection::new(1709145066))
+                            .unwrap(),
+                        app,
+                    );
                 }))
                 .msg(
                     vec!["Alright alright, no need to wear out your spacebar."],
@@ -1222,7 +1218,7 @@ impl TutorialState {
         );
 
         let bike_lane_scenario = make_bike_lane_scenario(map);
-        let bike_lane_focus_pt = map.find_b_by_osm_id(217699496).unwrap();
+        let bike_lane_focus_pt = map.find_b_by_osm_id(bldg(217699496)).unwrap();
 
         state.stages.push(
             Stage::new(Task::WatchBikes)
@@ -1455,4 +1451,11 @@ fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                     .draw(ctx)
             }),
         )
+}
+
+// Assumes ways
+fn bldg(id: i64) -> OriginalBuilding {
+    OriginalBuilding {
+        osm_id: osm::OsmID::Way(osm::WayID(id)),
+    }
 }

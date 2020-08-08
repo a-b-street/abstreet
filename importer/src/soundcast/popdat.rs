@@ -1,7 +1,7 @@
 use abstutil::{prettyprint_usize, Counter, FileWithProgress, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
 use kml::{ExtraShape, ExtraShapes};
-use map_model::Map;
+use map_model::{osm, Map};
 use serde::{Deserialize, Serialize};
 use sim::{OrigPersonID, TripMode};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -116,9 +116,9 @@ fn import_parcels(
 ) -> (HashMap<usize, Endpoint>, BTreeMap<usize, ExtraShape>) {
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
     // line-string stuff right now, which'll be weird for the last->first pt line and stuff.
-    let mut closest_bldg: FindClosest<i64> = FindClosest::new(huge_map.get_bounds());
+    let mut closest_bldg: FindClosest<osm::OsmID> = FindClosest::new(huge_map.get_bounds());
     for b in huge_map.all_buildings() {
-        closest_bldg.add(b.osm_way_id, b.polygon.points());
+        closest_bldg.add(b.orig_id.osm_id, b.polygon.points());
     }
 
     let mut x_coords: Vec<f64> = Vec::new();
@@ -201,7 +201,7 @@ fn import_parcels(
                 attributes.insert("parking".to_string(), offstreet_parking_spaces.to_string());
             }
             if let Some(b) = osm_building {
-                attributes.insert("osm_bldg".to_string(), b.to_string());
+                attributes.insert("osm_bldg".to_string(), b.inner().to_string());
             }
             shapes.insert(
                 id,
@@ -298,7 +298,7 @@ pub struct OrigTrip {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Endpoint {
     pub pos: LonLat,
-    pub osm_building: Option<i64>,
+    pub osm_building: Option<osm::OsmID>,
     pub parcel_id: usize,
 }
 

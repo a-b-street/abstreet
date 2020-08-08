@@ -88,10 +88,8 @@ pub fn make_all_parking_lots(
                     sidewalk_pos: *sidewalk_pos,
                 });
             } else {
-                // TODO Plumb WayID forward
                 timer.warn(format!(
-                    "Parking lot from https://www.openstreetmap.org/way/{}, near sidewalk {}, \
-                     can't have a driveway.",
+                    "Parking lot from {}, near sidewalk {}, can't have a driveway.",
                     orig.osm_id,
                     sidewalk_pos.lane()
                 ));

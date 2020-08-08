@@ -55,13 +55,13 @@ pub fn make_all_buildings(
             };
 
             let id = BuildingID(results.len());
-            let mut rng = XorShiftRng::seed_from_u64(orig_id.osm_way_id as u64);
+            let mut rng = XorShiftRng::seed_from_u64(orig_id.osm_id.inner() as u64);
             results.push(Building {
                 id,
                 polygon: b.polygon.clone(),
                 address: get_address(&b.osm_tags, sidewalk_pos.lane(), map),
                 name: b.osm_tags.get(osm::NAME).cloned(),
-                osm_way_id: orig_id.osm_way_id,
+                orig_id,
                 label_center: b.polygon.polylabel(),
                 amenities: b.amenities.clone(),
                 bldg_type: classify_bldg(&b.osm_tags, &b.amenities, b.polygon.area(), &mut rng),

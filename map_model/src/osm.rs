@@ -1,3 +1,6 @@
+use serde::{Deserialize, Serialize};
+use std::fmt;
+
 // These are common OSM keys. Keys used in just one or two places don't really need to be defined
 // here.
 
@@ -41,6 +44,54 @@ impl RoadRank {
             "secondary" | "secondary_link" => RoadRank::Arterial,
             "tertiary" | "tertiary_link" => RoadRank::Arterial,
             _ => RoadRank::Local,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct NodeID(pub i64);
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct WayID(pub i64);
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct RelationID(pub i64);
+
+impl fmt::Display for NodeID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "https://www.openstreetmap.org/node/{}", self.0)
+    }
+}
+impl fmt::Display for WayID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "https://www.openstreetmap.org/way/{}", self.0)
+    }
+}
+impl fmt::Display for RelationID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "https://www.openstreetmap.org/relation/{}", self.0)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum OsmID {
+    Node(NodeID),
+    Way(WayID),
+    Relation(RelationID),
+}
+impl fmt::Display for OsmID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            OsmID::Node(n) => write!(f, "{}", n),
+            OsmID::Way(w) => write!(f, "{}", w),
+            OsmID::Relation(r) => write!(f, "{}", r),
+        }
+    }
+}
+impl OsmID {
+    pub fn inner(self) -> i64 {
+        match self {
+            OsmID::Node(n) => n.0,
+            OsmID::Way(w) => w.0,
+            OsmID::Relation(r) => r.0,
         }
     }
 }

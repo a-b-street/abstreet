@@ -1,4 +1,4 @@
-use crate::Position;
+use crate::{osm, Position};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Angle, Line, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
@@ -33,7 +33,7 @@ pub struct ParkingLot {
     pub id: ParkingLotID,
     pub polygon: Polygon,
     pub aisles: Vec<Vec<Pt2D>>,
-    pub osm_id: i64,
+    pub osm_id: osm::OsmID,
     // The middle of the "T", pointing towards the parking aisle
     pub spots: Vec<(Pt2D, Angle)>,
 
