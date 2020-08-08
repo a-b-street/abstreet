@@ -62,6 +62,8 @@ lazy_static::lazy_static! {
         // location: ABST_DATA_DIR=/some/path cargo build ...
         if let Some(dir) = option_env!("ABST_DATA_DIR") {
             dir.trim_end_matches('/').to_string()
+        } else if cfg!(target_arch = "wasm32") {
+            "../data".to_string()
         } else if file_exists("data/".to_string()) {
             "data".to_string()
         } else if file_exists("../data/".to_string()) {
@@ -79,6 +81,8 @@ lazy_static::lazy_static! {
                 Ok(dir) => format!("{}/.abstreet", dir.trim_end_matches('/')),
                 Err(err) => panic!("This build of A/B Street stores player data in $HOME/.abstreet, but $HOME isn't set: {}", err),
             }
+        } else if cfg!(target_arch = "wasm32") {
+            "../data".to_string()
         } else if file_exists("data/".to_string()) {
             "data".to_string()
         } else if file_exists("../data/".to_string()) {

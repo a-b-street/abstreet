@@ -225,7 +225,11 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
             .rotate(Angle::new_degs(-30.0)),
     );
 
-    let mut rng = XorShiftRng::from_entropy();
+    let mut rng = if cfg!(target_arch = "wasm32") {
+        XorShiftRng::from_seed([0; 16])
+    } else {
+        XorShiftRng::from_entropy()
+    };
     for i in 0..10 {
         let mut svg_data = Vec::new();
         svg_face::generate_face(&mut svg_data, &mut rng).unwrap();

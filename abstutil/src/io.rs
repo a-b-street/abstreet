@@ -13,7 +13,6 @@ use std::fs::File;
 use std::io::{stdout, BufReader, BufWriter, Error, ErrorKind, Read, Write};
 use std::path::Path;
 
-// TODO Need to update the relative data/ directory stuff for wasm
 #[cfg(target_arch = "wasm32")]
 static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!("../data/system");
 
@@ -434,6 +433,14 @@ pub fn basename(path: &str) -> String {
         .unwrap()
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 pub fn file_exists(path: String) -> bool {
     Path::new(&path).exists()
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn file_exists(path: String) -> bool {
+    SYSTEM_DATA
+        .get_file(path.trim_start_matches("../data/system/"))
+        .is_some()
 }

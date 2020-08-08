@@ -11,6 +11,9 @@ considering cleaning up the API surface and making it a proper standalone crate.
 git clone https://github.com/dabreegster/abstreet.git
 cd abstreet/ezgui
 cargo run --example demo
+
+# Or for web
+cargo web start --target wasm32-unknown-unknown --no-default-features --features wasm-backend --example demo
 ```
 
 ![demo](demo.gif)

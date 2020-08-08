@@ -203,14 +203,16 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
     let mut canvas = Canvas::new(window_size.width, window_size.height);
     prerender_innards.window_resized(canvas.window_width, canvas.window_height);
     if let Some(ref path) = settings.window_icon {
-        let image = image::open(path).unwrap();
-        let (width, height) = image.dimensions();
-        let mut rgba = Vec::with_capacity((width * height) as usize * 4);
-        for (_, _, pixel) in image.pixels() {
-            rgba.extend_from_slice(&pixel.to_rgba().0);
+        if !cfg!(target_arch = "wasm32") {
+            let image = image::open(path).unwrap();
+            let (width, height) = image.dimensions();
+            let mut rgba = Vec::with_capacity((width * height) as usize * 4);
+            for (_, _, pixel) in image.pixels() {
+                rgba.extend_from_slice(&pixel.to_rgba().0);
+            }
+            let icon = Icon::from_rgba(rgba, width, height).unwrap();
+            prerender_innards.set_window_icon(icon);
         }
-        let icon = Icon::from_rgba(rgba, width, height).unwrap();
-        prerender_innards.set_window_icon(icon);
     }
     let prerender = Prerender {
         assets: Assets::new(
