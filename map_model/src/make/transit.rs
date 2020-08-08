@@ -114,7 +114,12 @@ fn make_route(
         if !i.is_border() {
             panic!("Route ends at {}, but isn't a border?", i.orig_id);
         }
-        if let Some(l) = i.get_incoming_lanes(map, route_type).next() {
+        // If the last stop is on a lane leading to the border, don't try to lane-change last
+        // minute
+        let last_stop_l = map.get_bs(*stops.last().unwrap()).driving_pos.lane();
+        if map.get_l(last_stop_l).dst_i == i.id {
+            end_border = Some(last_stop_l);
+        } else if let Some(l) = i.get_incoming_lanes(map, route_type).next() {
             end_border = Some(l);
         } else {
             // TODO Should panic
@@ -142,6 +147,22 @@ fn make_route(
         orig_spawn_times: default_spawn_times(),
     };
 
+    let mut debug_route = format!("All parts of the route:");
+    debug_route = format!("{}\nStart at {}", debug_route, route.start);
+    for (idx, bs) in route.stops.iter().enumerate() {
+        let stop = map.get_bs(*bs);
+        debug_route = format!(
+            "{}\nStop {} ({}): {}",
+            debug_route,
+            idx + 1,
+            stop.name,
+            stop.driving_pos
+        );
+    }
+    if let Some(l) = route.end_border {
+        debug_route = format!("{}\nEnd at {}", debug_route, l);
+    }
+
     // Make sure the route is connected
     for req in route.all_steps(map) {
         if req.start.lane() == req.end.lane() && req.start.dist_along() > req.end.dist_along() {
@@ -154,10 +175,11 @@ fn make_route(
 
         if map.pathfind(req.clone()).is_none() {
             return Err(format!(
-                "No path between stop on {} and {}. {}",
+                "No path between stop on {} and {}: {}. {}",
                 map.get_parent(req.start.lane()).orig_id,
                 map.get_parent(req.end.lane()).orig_id,
-                req
+                req,
+                debug_route
             )
             .into());
         }
