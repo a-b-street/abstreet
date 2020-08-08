@@ -255,6 +255,7 @@ impl ControlTrafficSignal {
                     },
                 })
                 .collect(),
+            offset_seconds: self.offset.inner_seconds() as usize,
         }
     }
 
@@ -300,7 +301,7 @@ impl ControlTrafficSignal {
         ControlTrafficSignal {
             id,
             phases,
-            offset: Duration::ZERO,
+            offset: Duration::seconds(raw.offset_seconds as f64),
             turn_groups: TurnGroup::for_i(id, map),
         }
         .validate()
