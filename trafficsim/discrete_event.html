@@ -1,0 +1,367 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Discrete event simulation - A/B Street</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../map/index.html"><strong aria-hidden="true">2.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/index.html"><strong aria-hidden="true">2.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/convert_osm.html"><strong aria-hidden="true">2.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="../map/importing/geometry.html"><strong aria-hidden="true">2.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="../map/importing/rest.html"><strong aria-hidden="true">2.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="../map/edits.html"><strong aria-hidden="true">2.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../map/misc.html"><strong aria-hidden="true">2.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="../trafficsim/index.html"><strong aria-hidden="true">3.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trafficsim/discrete_event.html" class="active"><strong aria-hidden="true">3.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="../trafficsim/travel_demand.html"><strong aria-hidden="true">3.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="../trafficsim/gridlock.html"><strong aria-hidden="true">3.3.</strong> Gridlock</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">A/B Street</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#discrete-event-simulation" id="discrete-event-simulation">Discrete-event simulation</a></h1>
+<p>The traffic simulation models different agents (cars, bikes, buses, pedestrians,
+and intersections) over time. Agents don't constantly sense and react to the
+world every second; instead, they remain in some state until something
+interesting happens. This is a discrete-event architecture -- events are
+scheduled for some time in the future, and handling them changes the state of
+some agents. The core simulation loop simply processes events in order -- see
+<code>scheduler.rs</code> and the <code>step</code> method in <code>sim.rs</code>.</p>
+<h2><a class="header" href="#cars" id="cars">Cars</a></h2>
+<p>(Note: Cars, bikes, and buses are all modeled the same way -- bikes just have a
+max speed, and buses/bikes can use restricted lanes.)</p>
+<p>Cars move through a sequence of lanes and turns (movements through an
+intersection). They queue and can't over-take a slow lead vehicle. The main
+simplifying assumption in A/B Street is that cars can instantly accelerate and
+decelerate. This wouldn't model highway driving at all, where things like jam
+waves are important, but it's reasonable for in-city driving. The essence of
+scarcity is the capacity on lanes and the contention at intersections. What
+happens in between isn't vital to get exactly right.</p>
+<p>A car has a few states (<code>mechanics/car.rs</code>):</p>
+<ul>
+<li><strong>Crossing</strong> some distance of a lane/turn over some time interval</li>
+<li><strong>Queued</strong> behind another car on a lane/turn</li>
+<li><strong>WaitingToAdvance</strong> at the end of a lane, blocked on an intersection</li>
+<li>A few states where the car stays in one place: <strong>Parking</strong>, <strong>Unparking</strong>, and
+<strong>Idling</strong> (for buses at a stop)</li>
+</ul>
+<p>State transitions happen in <code>mechanics/driving.rs</code>. This is best explained by an
+example sequence:</p>
+<ul>
+<li>A car enters the Unparking state, taking a fixed 30s to exit a parking spot
+and enter the adjacent driving lane. The driving lane is blocked during this
+time, to mimic somebody pulling out from a parallel parking spot.</li>
+<li>The car is now fully somewhere on the driving lane. It enters the Crossing
+state, covering the remaining distance to the end of the road. The time
+interval is calculated assuming the car travels at the max speed limit of the
+road.</li>
+<li>After that time, the car checks if there's anybody in the queue before it.
+Nope? Then it attempts to initiate a turn through the intersection, but the
+stop sign says no, so the car enters the WaitingToAdvance state.</li>
+<li>Some time later, the stop sign wakes up the car. The car starts the turn,
+entering the Crossing state again.</li>
+<li>After finishing the turn, the car starts Crossing the next lane. When it's
+finished, it turns out there are a few cars ahead of it, so it enters the
+Queued state.</li>
+<li>When the lead vehicle directly in front of the car exits the lane, it wakes up
+the car, putting it in the Crossing state, starting at the appropriate
+following distance behind the lead vehicle. This prevents the car from
+immediately warping to the end of the lane when the lead vehicle is out of the
+way.</li>
+<li>And so on...</li>
+</ul>
+<h3><a class="header" href="#exact-positions" id="exact-positions">Exact positions</a></h3>
+<p>For a discrete-event simulation, we don't usually care exactly where on a lane a
+car is at some time. But we do need to know for drawing and for a few cases
+during simulation, such as determining when a bus is lined up with a bus stop in
+the middle of a lane. <code>mechanics/queue.rs</code> handles this, computing the distance
+of every car in a lane. For cars in the <code>Crossing</code> state, we linearly
+interpolate distance based on the current time. Of course, cars have to remain
+in order, so Queued cars are limited by the lead vehicle's position + the lead
+vehicle's length + a fixed following distance of 1m.</p>
+<p>Another case where we need to know exact positions of cars is to prevent the
+first vehicle on a lane from hitting the back of a car who just left the lane.
+All vehicles have length, and position is tracked by the front of the car. When
+a car's front leaves a lane, its back is still partly in the lane. Logically,
+the new lead car in the lane still needs to act like it's Queued. So each lane
+keeps a &quot;laggy head&quot;, pointing to the car with its back partly in the lane.
+After the laggy head has made it sufficient distance along its new turn or lane,
+the laggy head on the old lane can be erased, unblocking the lead vehicle. This
+requires calculating exact distances and some occasionally expensive cases where
+we have to schedule frequent events to check when a laggy head is clear.</p>
+<h2><a class="header" href="#lane-changing" id="lane-changing">Lane-changing</a></h2>
+<p>Lane-changing (LCing) deserves special mention. A/B Street cheats by not
+allowing it on lanes themselves. Instead, at intersections, cars can perform
+turns that shift them over any number of lanes. These LCing turns conflict with
+other turns appropriately, so the contention is still modeled. Why do it this
+way? In a
+<a href="http://apps.cs.utexas.edu/tech_reports/reports/tr/TR-2157.pdf">previous project</a>,
+I tried opportunistic LCing. If a car had room to warp to the equivalent
+distance on the adjacent lane without causing a crash, it would start LCing,
+then take a fixed time to slide over, blocking both lanes throughout. This meant
+cars often failed to LC when they needed to, forcing them to reroute, botching
+their trip times. In many cases the cars would be permanently stuck, because
+pathfinding would return paths requiring LCing that couldn't be pulled off in
+practice due to really short roads. Why not try making the car slow down if
+needed? Eventually it might have to stop, which could lead to unrealistic
+gridlock. This LCing model was using a detailed discrete-time model with cars
+accelerating properly; maybe it's easier with A/B Street's simplified movement
+model.</p>
+<p>Currently in A/B Street, cars will pick the least backed-up lane when there's a
+choice. They make this decision once when they reach the front of a queue; look
+for <code>opportunistically_lanechange</code> in <code>router.rs</code>. The decision could be
+improved.</p>
+<h2><a class="header" href="#pedestrians" id="pedestrians">Pedestrians</a></h2>
+<p>Pedestrian modeling -- in <code>mechanics/walking.rs</code> is way simpler. Pedestrians
+don't need to queue on sidewalks; they can &quot;ghost&quot; through each other. In
+Seattle, there aren't huge crowds of people walking and slowing down, except for
+niche cases like Pike Place Market. So in A/B Street, the only scarce resource
+modeled is the time spent waiting to cross intersections.</p>
+<h2><a class="header" href="#intersections" id="intersections">Intersections</a></h2>
+<p>I need to flesh this section out. See <code>mechanics/intersections.rs</code> for how stop
+signs and traffic signals work. Two things I need to fix before making this
+section interesting:</p>
+<ul>
+<li>Only wake up relevant agents when a previous agent finishes a turn.</li>
+<li>Don't let an agent start a low-priority turn (like an unprotected left) if
+it'll force a high-priority vehicle approaching to wait. The approaching
+vehicle is still in the Crossing state, so we need to notify intersections
+ahead of time of intended turns and an ETA.</li>
+</ul>
+<p>One contributor to permanent gridlock is cars and bikes being stuck in an
+intersection, preventing conflicting turns from being performed. To help avoid
+this, one of the last checks that stop signs and traffic signals perform before
+accepting a new turn request is that the target lane has enough space for the
+new vehicle. This is &quot;reserved&quot; space, not necessarily currently occupied by
+vehicles in that lane. This accounts for other vehicles performing a turn bound
+for that lane. See <code>try_to_reserve_entry</code> in <code>mechanics/queue.rs</code>. When a car
+completely leaves a lane (determined by the &quot;laggy head&quot; described above), this
+space is freed, and blocked cars are woken up.</p>
+<h2><a class="header" href="#appendix-discrete-time-simulation" id="appendix-discrete-time-simulation">Appendix: discrete-time simulation</a></h2>
+<p>A/B Street's first traffic model was discrete-time, meaning that every agent
+reacted to the world every 0.1s. Cars had a more realistic kinematics model,
+accelerating to change speed and gradually come to a halt. Cars did a worst-case
+estimation of how far ahead they need to lookahead in order to satisfy different
+constraints:</p>
+<ul>
+<li>Don't exceed any speed limits</li>
+<li>Don't hit the lead vehicle (which might suddenly slam on its brakes)</li>
+<li>Stop at the end of a lane, unless the intersection says to go</li>
+</ul>
+<p>After fighting with this approach for a long time, I eventually scrapped it in
+favor of the simpler discrete-event model because:</p>
+<ul>
+<li>It's fundamentally slow; there's lots of busy work where cars in freeflow with
+nothing blocking them or stopped in a long queue constantly check to see if
+anything has changed.</li>
+<li>Figuring out the acceleration to apply for the next 0.1s in order to satisfy
+all of the constraints is really complicated. Floating point inaccuracies
+cause ugly edge cases with speeds that wind up slightly negative and with cars
+coming to a complete stop slightly past the end of a lane. I wound up storing
+the &quot;intent&quot; of an action to auto-correct these errors.</li>
+<li>The realism of having cars accelerate smoothly didn't add value to the core
+idea in A/B Street, which is to model points of contention like parking
+capacity and intersections. (This is the same reason why I don't model bike
+racks for parking bikes -- in Seattle, it's never hard to find something to
+lock to -- this would be very different if Copenhagen was the target.)
+Additionally, the kinematics model made silly assumptions about driving anyway
+-- cars would smash on their accelerators and brakes as hard as possible
+within all of the constraints.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../trafficsim/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../trafficsim/travel_demand.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../trafficsim/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../trafficsim/travel_demand.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

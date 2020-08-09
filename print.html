@@ -1,0 +1,1020 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>A/B Street</title>
+        
+        <meta name="robots" content="noindex" />
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="map/index.html"><strong aria-hidden="true">2.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="map/importing/index.html"><strong aria-hidden="true">2.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="map/importing/convert_osm.html"><strong aria-hidden="true">2.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="map/importing/geometry.html"><strong aria-hidden="true">2.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="map/importing/rest.html"><strong aria-hidden="true">2.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="map/edits.html"><strong aria-hidden="true">2.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="map/misc.html"><strong aria-hidden="true">2.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="trafficsim/index.html"><strong aria-hidden="true">3.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="trafficsim/discrete_event.html"><strong aria-hidden="true">3.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="trafficsim/travel_demand.html"><strong aria-hidden="true">3.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="trafficsim/gridlock.html"><strong aria-hidden="true">3.3.</strong> Gridlock</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">A/B Street</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#ab-street" id="ab-street">A/B Street</a></h1>
+<p>I'm consolidating documentation here.</p>
+<h1><a class="header" href="#map-model" id="map-model">Map model</a></h1>
+<p>A/B Street builds a rich representation of a city map using OpenStreetMap (OSM) and other sources. This chapter describes how.</p>
+<p>TODO: Integrate pictures from
+<a href="https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing">these slides</a>.</p>
+<p><a href="https://youtu.be/chYd5I-5oyc?t=439">This recorded presentation</a> covers some of
+this.</p>
+<h2><a class="header" href="#the-map" id="the-map">The map</a></h2>
+<p>A single city is broken down into different pieces...</p>
+<p>A/B Street comes with a few maps, each defined by a bounding/clipping polygon
+for some portion of Seattle. Each map has these objects:</p>
+<ul>
+<li><strong>Roads</strong>: A single road connects two intersections, carrying OSM metadata and
+containing some child lanes.</li>
+<li><strong>Lanes</strong>: An individual lane of traffic. Driving (any vehicle), bus-only, and
+bike-only lanes have a direction. On-street parking lanes don't allow any
+movement, and they have some number of parking spots. Sidewalks are
+bidirectional.</li>
+<li><strong>Intersections</strong>: An intersection has references to all of the incoming and
+outgoing lanes. Most intersections have a stop sign or traffic signal policy
+controlling movement through it.
+<ul>
+<li><strong>Border</strong> intersections on the edge of the map are special places where
+agents may appear or disappear.</li>
+</ul>
+</li>
+<li><strong>Turns</strong>: A turn connects one lane to another, via some intersection.
+(Sidewalks are bidirectional, so specifying the intersection is necessary to
+distinguish crosswalks at each end of a sidewalk.)</li>
+<li><strong>Buildings</strong>: A building has a position, OSM metadata, and a <strong>front path</strong>
+connecting the edge of the building to the nearest sidewalk. Most trips in A/B
+Street begin and end at buildings. Some buildings also contain a number of
+off-street parking spots.</li>
+<li><strong>Area</strong>: An area has geometry and OSM metadata and represents a body of
+water, forest, park, etc. They're just used for drawing.</li>
+<li><strong>Bus stop</strong>: A bus stop is placed some distance along a sidewalk, with a
+pointer to the position on the adjacent driving or bus lane where a bus stops
+for pick-up.</li>
+<li><strong>Bus route</strong>: A bus route has a name and a list of stops that buses will
+cycle between. In the future, they'll include information about the
+frequency/schedule of the route.</li>
+<li><strong>Parking lot</strong>: A parking lot is connected to a road, has a shape, and has
+some internal driving &quot;aisles.&quot; The number and position of individual parking
+spots is auto-generated.</li>
+</ul>
+<h2><a class="header" href="#coordinate-system" id="coordinate-system">Coordinate system</a></h2>
+<p>A/B Street converts (longitude, latitude) coordinates into a simpler form.</p>
+<ul>
+<li>An (x, y) point starts with the top-left of the bounding polygon as the
+origin. Note this is screen drawing order, not a Cartesian plane (with Y
+increasing upwards) -- so angle calculations account for this.</li>
+<li>The (x, y) values are f64's trimmed to a few decimal places, with way more
+precision than is really needed. These might become actual fixed-point
+integers later, but for now, a <code>Pt2D</code> skirts around Rust's limits on f64's by
+guaranteeing no NaN's or infinities and thus providing the full <code>Eq</code> trait.</li>
+<li>A few places in map conversion compare points using different thresholds,
+usually below 1 meter. Ideally these epsilon comparisons could be eliminated
+in favor of a fixed-point integer representation, but for now, explicit
+thresholds are useful.</li>
+</ul>
+<h2><a class="header" href="#invariants" id="invariants">Invariants</a></h2>
+<p>Ideally, the finalized maps would satisfy a list of invariants, simplifying the
+traffic simulation and drawing code built on top. But the input data is quite
+messy and for now, most of these aren't quite guaranteed to be true.</p>
+<ul>
+<li>Some minimum length for lanes and turns. Very small lanes can't be drawn, tend
+to break intersection polygons, and may lead to gridlocked traffic.</li>
+<li>Some guarantees that positions along adjacent lanes actually match up, even
+though different lanes on the same road may have different lengths. Examples
+include the position of a bus stop on the sidewalk and bus lane matching up.
+<ul>
+<li>Additionally, parking lanes without an adjacent driving lane or bus stops
+without any driving or bus lanes make no sense and should never occur.</li>
+</ul>
+</li>
+<li>Connectivity -- any sidewalk should be reachable from any other, and most
+driving lanes should be accessible from any others. There are exceptions due
+to border intersections -- if a car spawns on a highway along the border of
+the map, it may be forced to disappear on the opposite border of the map, if
+the highway happens to not have any exits within the map boundary.</li>
+</ul>
+<h2><a class="header" href="#connectivity" id="connectivity">Connectivity</a></h2>
+<p>For a single mode, each lane is connected to two intersections. Turns connect
+two lanes. There are no turns between sidewalks and driving/bike/bus lanes.</p>
+<p>All buildings and parking lots have driveways. This must connect to a sidewalk,
+allowing pedestrians to enter/exit that object. The driveway OPTIONALLY
+connects to the nearest driveable lane. This allows cars to enter/exit that
+object for parking.</p>
+<p>Public transit stops are located somewhere on a sidewalk. They're associated
+with a driveable position where the bus or train stops. In the future, this
+will need to account for dedicated surface-level platforms and for underground
+transit stations, likely associated with a building.</p>
+<p>There's a concept of &quot;parking blackholes.&quot; If you treat every road as
+bidirectional without access restrictions, then the graph is connected. But the
+more detailed view has to factor in one-way roads and things near the map
+border. These blackholes influence where cars will try to look for parking
+(since we don't want them entering a blackhole and getting stuck) and also, for
+temporary/unintentional reasons, where pedestrian&lt;-&gt;bicycle transitions will
+happen.</p>
+<h1><a class="header" href="#importing" id="importing">Importing</a></h1>
+<p>Overview of the process. The importer tool.</p>
+<p>Don't be afraid of how complicated this seems. It started simple -- just bring
+in OSM roads, chop into pieces, generate turns.</p>
+<h1><a class="header" href="#from-osm-to-rawmap-convert_osm-crate" id="from-osm-to-rawmap-convert_osm-crate">From OSM to RawMap (<code>convert_osm</code> crate)</a></h1>
+<p>The first phase of map building reads in data from OSM files and a few others,
+producing a serialized <code>RawMap</code>. Importing all maps (one for each pre-defined
+bounding polygon) takes a few minutes. Players don't see this cost; it only
+takes a few seconds to load a serialized map.</p>
+<ul>
+<li><code>osm.rs</code>: Read .osm, extracting the points for road-like ways, buildings, and
+areas
+<ul>
+<li>Areas usually come from a relation of multiple ways, with the points out of
+order. Gluing all the points together fails when the .osm has some ways
+clipped out. In that case, try to trace along the map boundary if the
+partial area intersects the boundary in a clear way. Otherwise, just use a
+straight line to try to close off the polygon.</li>
+<li>Also read traffic signal locations and turn restrictions between OSM ways</li>
+</ul>
+</li>
+<li><code>split_ways.rs</code>: Split OSM ways into road segments
+<ul>
+<li>OSM ways cross many intersections, so treat points with multiple ways and
+the points at the beginning and end of a way as intersections, then split
+the way into road segments between two intersections.</li>
+<li>This phase remembers which road segment is the beginning and end of the OSM
+way, for per-lane turn restrictions later</li>
+<li>Apply turn restrictions between roads here. Since OSM ways cross many
+intersections, the turn restrictions only apply to one particular road
+segment that gets created from the way. Make sure the destination of the
+restriction is actually incident to a particular source road.</li>
+</ul>
+</li>
+<li><code>clip.rs</code>: Clip the map to the boundary polygon
+<ul>
+<li>Osmosis options in <code>import.sh</code> preserve ways that cross the boundary</li>
+<li>Trim roads that cross the boundary. There may be cases where a road dips out
+of bounds, then immediately comes back in. Disconnecting it isn't ideal, but
+it's better to manually tune the boundary polygon when this happens than try
+to preserve lots of out-of-bounds geometry.</li>
+<li>Area polygons are intersected with the boundary polygon using the <code>clipping</code>
+crate</li>
+</ul>
+</li>
+<li><code>lib.rs</code>: Remove cul-de-sacs (roads that begin and end at the same
+intersection), because they mess up parking hints and pathfinding.</li>
+<li><code>lib.rs</code>: Apply parking hints from a King County GIS blockface dataset
+<ul>
+<li>Match each blockface to the nearest edge of a road</li>
+<li>Interpret the metadata to assign on-street parking there or not</li>
+</ul>
+</li>
+<li><code>lib.rs</code>: Apply offstreet parking hints from a King County GIS dataset
+<ul>
+<li>Match each point to the building containing it, plumbing through the number
+of spots</li>
+</ul>
+</li>
+<li><code>lib.rs</code>: <strong>Disabled</strong>: Apply sidewalk presence hints from a King County GIS
+dataset
+<ul>
+<li>Match each sidewalk line to the nearest edge of a road</li>
+<li>Update the road to have a sidewalk on none, one, or both sides</li>
+</ul>
+</li>
+<li><code>lib.rs</code> using the <code>srtm</code> module: Load (extremely poor quality) elevation data</li>
+</ul>
+<h1><a class="header" href="#roadintersection-geometry-rawmap-to-initialmap" id="roadintersection-geometry-rawmap-to-initialmap">Road/intersection geometry: RawMap to InitialMap</a></h1>
+<p>The remainder of map construction is done in the <code>map_model</code> crate. There's one
+intermediate structure between <code>RawMap</code> and <code>Map</code>, called <code>InitialMap</code>.</p>
+<ul>
+<li><code>make/remove_disconnected.rs</code>: Remove disconnected roads
+<ul>
+<li>Just floodfill from some road, assuming all roads are bidirectional, to get
+different partitions.</li>
+<li>Remove roads from all but the largest partition</li>
+</ul>
+</li>
+<li><code>make/initial/mod.rs</code> and <code>make/initial/lane_specs.rs</code>: Interpret OSM tags to
+figure out what lanes are on each side of each road, also figuring out the
+total width of the road.</li>
+<li><code>make/initial/geometry.rs</code>: Figure out the polygon for each intersection, and
+trim back road center-lines to end at a face of the polygon.
+<ul>
+<li>For every road touching the intersection, get the polyline of each side,
+based on the road's width
+<ul>
+<li>See appendix for how to shift polylines</li>
+</ul>
+</li>
+<li>Sort all the polylines by the angle to the intersection's shared point</li>
+<li>Intersect every polyline with every other polyline
+<ul>
+<li>More specifically -- the second half of each polyline, to get the correct
+collision point</li>
+<li>Look at the perpendicular infinite line to the collision point on the
+shifted polyline, then find where it hits the original center line. Trim
+back the center line by the max distance from these collisions.</li>
+</ul>
+</li>
+<li>Compute the intersection's polygon by considering collisions between
+adjacent roads' polylines</li>
+<li>Deal with short roads and floating point issues by deduping any adjacent
+points closer than 0.1m</li>
+</ul>
+</li>
+</ul>
+<h1><a class="header" href="#initialmap-to-map" id="initialmap-to-map">InitialMap to Map</a></h1>
+<p>Still in the <code>map_model</code> crate.</p>
+<ul>
+<li><code>map.rs</code>'s <code>make_half_map</code>: Expand roads to lanes, using the list of lane
+types from before</li>
+<li><code>make/turns.rs</code>: Generate turns for every intersection.
+<ul>
+<li>Vehicle turns (for cars, bikes, buses)
+<ul>
+<li>Consider every pair of roads in the intersection. Try to match up lane
+types -- if there's a bike lane on both roads, don't add a turn from
+driving-&gt;bike or bike-&gt;driving. If there's not, then fallback to
+transitions between different lane types.</li>
+<li>Classify the turn based on the difference between the angle of the
+incoming lane's last line and the outgoing lane's first line
+<ul>
+<li>For straight turns, use the Cartesian product to link every incoming
+with every outgoing lane. If the indices dont match up, the turn becomes
+a <code>LaneChangeLeft</code> or <code>LaneChangeRight</code> turn. This is used later for
+intersection policies to prioritize turns appropriately.</li>
+<li>Right and left turns only originate from the one lane on the appropriate
+side</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Walking turns for pedestrians
+<ul>
+<li>Consider pairs of adjacent roads around the intersection
+<ul>
+<li>Make a crosswalk to the other side of the road, assuming there's a
+sidewalk on both sides</li>
+<li>Make a shared sidewalk corner over to the adjacent road</li>
+<li>If the adjacent road doesn't have a sidewalk on the close side, then
+consider skipping that road and making a crosswalk over to the next
+road. An example of this is a crosswalk over a highway on/off ramp.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Verify all the turns so far are unique</li>
+<li>Filter by the OSM turn restrictions (&quot;only straight&quot; between road1 and
+road2)</li>
+<li>Try to apply the OSM per-lane restrictions (&quot;straight or left&quot; from lane 3)
+<ul>
+<li>The number of lanes in the OSM metadata might not match up with how many
+lanes created</li>
+<li>Some of these OSM tags are just completely wrong sometimes. If the filter
+makes an incoming lane lose all of its turns, then ignore that tag.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>make/parking_blackholes.rs</code>: Find well-connected roads near &quot;blackhole&quot;
+lanes.
+<ul>
+<li>Starting from most driving/biking lanes, most other lanes are reachable.
+Some aren't -- such as one-way highways inevitably leading from or to a
+border. These are &quot;blackholes&quot; -- pathfinding to or from here may fail.</li>
+<li>Find the largest strongly-connected component (SCC) in the driving graph.
+From every other lane (a blackhole), floodfill both forwards and backwards
+to find the nearest driving lane part of the main SCC.</li>
+<li>Later, if a car needs to park by a building on a blackhole road, it'll
+instead start searching for parking at the redirect. This prevents it from
+being forced to instead exit the map through a border.</li>
+</ul>
+</li>
+<li><code>make/buildings.rs</code>: Match buildings up with sidewalks
+<ul>
+<li>Find the closest sidewalk polyline to each building's center. Then draw a
+straight line for the front path between the edge of the building and the
+sidewalk point.</li>
+<li>Filter out buildings too far away from any sidewalk</li>
+<li>The front path might cross through other buildings; this is probably not
+worth fixing.</li>
+</ul>
+</li>
+<li><code>make/buildings.rs</code>: Same for parking lots
+<ul>
+<li>Similar process to match parking lots to nearest sidewalk and driving lane</li>
+<li>Try to place parking spots along both sides of parking aisles</li>
+<li>Filter out overlapping spots</li>
+</ul>
+</li>
+<li><code>make/bridges.rs</code>: Find what roads lie beneath bridges, and update their
+Z-order accordingly for later drawing.</li>
+<li><code>stop_signs.rs</code>: Instantiate default stop sign policies
+<ul>
+<li>Rank incoming roads by OSM priority (arterial beats residential)</li>
+<li>If there's only one rank, then make an all-way stop</li>
+<li>Otherwise, the highest rank gets priority and others stop
+<ul>
+<li>Check if there are any conflicts based on this. If so, then fall-back to
+an all way stop.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>traffic_signals.rs</code>: Instantiate default traffic signal policies
+<ul>
+<li>Apply the first predefined policy that works.
+<ul>
+<li>4-way 4 phase, 4-way 2 phase, 3-way 3-phase, degenerate policy for 2
+roads, 2-phase for 4 one-ways</li>
+<li>Fallback to a greedy assignment that just randomly starts a new phase,
+adds all compatible turns, and repeats until all turns are present
+priority in some phase.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>pathfind/mod.rs</code>: Prepare pathfinding
+<ul>
+<li>A/B Street uses contraction hierarchies (CH) for fast routing, using the
+<code>fast_paths</code> crate.</li>
+<li><code>pathfind/vehicle.rs</code>: For cars, bikes, buses
+<ul>
+<li>There's a separate CH for cars, buses, and bikes, since they can use
+slightly different sets of lanes.</li>
+<li>Building the CH for buses and bikes is much faster than the one for cars,
+because the algorithm can re-use the node ordering from the first CH.</li>
+<li>Every lane is a node in the graph, even if it's not an appropriate lane
+type -- it might change later, and reusing orderings is vital for speed.</li>
+<li>If two lanes are connected by a turn, then there's an edge in the graph.
+<ul>
+<li>The edge weight is the length of the lane and turn. Later this could
+take into account speed limit, penalize lane-changing and left turns,
+etc.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>pathfind/walking.rs</code>: For pedestrians
+<ul>
+<li>Only sidewalk lanes are nodes in the graph -- sidewalks can't ever be
+changed in A/B Street, so there's no concern about reusing node orderings.</li>
+<li>All turns between two sidewalks become edges, again using length</li>
+<li>When actually pathfinding, we get back a list of sidewalks. The actual
+paths used in the traffic simulation specify forwards or backwards on a
+sidewalk. Looking at adjacent pairs of sidewalks lets us easily stitch
+together exact directions.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>make/bus_stops.rs</code>: Match bus stops with a sidewalk
+<ul>
+<li>Also precompute the position where the bus stops on the adjacent driving or
+bus lane.</li>
+<li>This &quot;equivalent position on another lane&quot; process has a few weird cases,
+since two lanes on the same road might have different lengths. Right now,
+the same distance from the start of the lane is used, with clamping for
+shorter lanes. Ideally, the position would be found by projecting a
+perpendicular line out from one lane to the other.</li>
+</ul>
+</li>
+<li><code>make/bus_stops.rs</code>: Finalize the list of bus routes
+<ul>
+<li>Between each pair of adjacent bus stops, run pathfinding to verify there's
+actually a path for the bus to follow. If any are disconnected, remove the
+bus route</li>
+<li>Remove bus stops that have no routes serving them.</li>
+</ul>
+</li>
+<li><code>pathfind/walking.rs</code>: Precompute the CH for pedestrians who will use buses
+<ul>
+<li>Nodes in the graph are sidewalks and every bus stop</li>
+<li>There's an edge with weight 0 between a bus stop and its sidewalk</li>
+<li>There's also an edge with weight 0 between bus stops that're adjacent via
+some route. Ideally this weight would account for the time until the next
+bus and the time spent on the bus, etc.</li>
+<li>Later when figuring out which bus to use for a pedestrian, the resulting
+list of nodes is scanned for the first and last bus stop along the same
+route.</li>
+</ul>
+</li>
+</ul>
+<h1><a class="header" href="#live-edits" id="live-edits">Live edits</a></h1>
+<p>A key feature of A/B Street is the player editing the map and seeing how traffic
+responds. The possible edits include:</p>
+<ul>
+<li>Change lane types (driving, bus, bike, parking -- sidewalks are fixed)</li>
+<li>Change speed limits</li>
+<li>Reverse a lane</li>
+<li>Change a stop sign policy (which roads have a stop sign and which have
+priority)</li>
+<li>Change a traffic signal policy</li>
+</ul>
+<p>The map conversion process outlined above takes a few minutes, so reusing this
+process directly to compute a map with edits wouldn't work at all for real
+gameplay. Instead, the process for applying edits is incremental:</p>
+<ul>
+<li>Figure out the actual diff between edits and the current map
+<ul>
+<li>This is necessary for correctness, but also speeds up a sequence of edits
+made in the UI -- only one or two lanes or intersections actually changes
+each time. Of course when loading some saved edits, lots of things might
+change.</li>
+</ul>
+</li>
+<li>For any changed roads, make sure any bus stop on it have a good pointer to
+their equivalent driving position for the bus.</li>
+<li>For any modified intersections, recompute turns and the default intersection
+policies</li>
+<li>Recompute all the CHs for cars, buses, and bikes -- note sidewalks and bus
+stops never change
+<ul>
+<li>This is the slowest step. Critically, the <code>fast_paths</code> crate lets a previous
+node ordering be reused. If just a few edge weights change, then recomputing
+is much faster than starting from scratch.</li>
+<li>While making edits in the UI, we don't actually need to recompute the CH
+after every little tweak. When the player exits edit mode, only then do we
+recompute everything.</li>
+</ul>
+</li>
+</ul>
+<p>A list of lanes and intersections actually modified is then returned to the
+drawing layer, which uploads new geometry to the GPU accordingly.</p>
+<h1><a class="header" href="#development-tricks" id="development-tricks">Development tricks</a></h1>
+<ul>
+<li>Separate phases for fast incremental development
+<ul>
+<li>Don't reimport all data from OSM every time there's a change to part of the
+map construction code!</li>
+<li>For slow steps that don't change often, make them separate binaries -- hence
+<code>convert_osm</code> being separate from the rest.</li>
+</ul>
+</li>
+<li>Don't be afraid of manual intervention
+<ul>
+<li>The data isn't perfect. It's easy to spend lots of time fiddling with code
+to automatically handle all problems</li>
+<li>Instead of automatically resolving problems, prefer good tooling for finding
+and specifying fixes</li>
+<li>Be careful of derivative structures that could get out of sync with OSM.
+Prefer contributing real fixes to OSM.</li>
+</ul>
+</li>
+<li>Screenshot diff testing
+<ul>
+<li>When working on the code for intersection geometry, it's easy to check a few
+example cases get fixed by some change. But what if another part of the map
+regresses somehow?</li>
+<li>Take screenshots of the entire map, keep the checksums under version
+control, look at the diffs visually, and manually verify any changes.</li>
+<li>Implementation details: One huge gif or png is too slow to read and write,
+so take a bunch of tiled screenshots covering everything. Amusingly,
+rendering to a file with <code>glium</code> is slow unless compiling in release mode
+(which isn't an option for quick incremental development). So instead, pan
+to each section of the map, render it, call an external screenshot utility,
+and move on -- just don't wiggle the mouse during this process!</li>
+</ul>
+</li>
+<li>Different IDs for objects make sense during different phases
+<ul>
+<li>For the final product, lanes and such are just a contiguous array, indexed
+by numeric IDs.</li>
+<li>But sometimes, we need IDs that're the same between different boundary
+polygons of maps, so that player edits can be applied anywhere. Using
+(longitude, latitude) pairs hits floating-point serialization and comparison
+issues, so referring to roads as (OSM way ID, OSM node ID 1, OSM node ID 2)
+works instead.</li>
+</ul>
+</li>
+</ul>
+<h2><a class="header" href="#appendix-polylines" id="appendix-polylines">Appendix: PolyLines</a></h2>
+<p>Add some pictures here to demonstrate how polyline shifting works, the
+explode-to-infinity problem, and the bevel/miter fix.</p>
+<h1><a class="header" href="#ab-streets-traffic-simulation" id="ab-streets-traffic-simulation">A/B Street's Traffic Simulation</a></h1>
+<p>This article describes how cars, bikes, buses, and pedestrians are modeled in
+A/B Street. All code lives in the <code>sim</code> crate.</p>
+<p><a href="https://youtu.be/chYd5I-5oyc?t=1086">This recorded presentation</a> covers some of
+this.</p>
+<h1><a class="header" href="#discrete-event-simulation" id="discrete-event-simulation">Discrete-event simulation</a></h1>
+<p>The traffic simulation models different agents (cars, bikes, buses, pedestrians,
+and intersections) over time. Agents don't constantly sense and react to the
+world every second; instead, they remain in some state until something
+interesting happens. This is a discrete-event architecture -- events are
+scheduled for some time in the future, and handling them changes the state of
+some agents. The core simulation loop simply processes events in order -- see
+<code>scheduler.rs</code> and the <code>step</code> method in <code>sim.rs</code>.</p>
+<h2><a class="header" href="#cars" id="cars">Cars</a></h2>
+<p>(Note: Cars, bikes, and buses are all modeled the same way -- bikes just have a
+max speed, and buses/bikes can use restricted lanes.)</p>
+<p>Cars move through a sequence of lanes and turns (movements through an
+intersection). They queue and can't over-take a slow lead vehicle. The main
+simplifying assumption in A/B Street is that cars can instantly accelerate and
+decelerate. This wouldn't model highway driving at all, where things like jam
+waves are important, but it's reasonable for in-city driving. The essence of
+scarcity is the capacity on lanes and the contention at intersections. What
+happens in between isn't vital to get exactly right.</p>
+<p>A car has a few states (<code>mechanics/car.rs</code>):</p>
+<ul>
+<li><strong>Crossing</strong> some distance of a lane/turn over some time interval</li>
+<li><strong>Queued</strong> behind another car on a lane/turn</li>
+<li><strong>WaitingToAdvance</strong> at the end of a lane, blocked on an intersection</li>
+<li>A few states where the car stays in one place: <strong>Parking</strong>, <strong>Unparking</strong>, and
+<strong>Idling</strong> (for buses at a stop)</li>
+</ul>
+<p>State transitions happen in <code>mechanics/driving.rs</code>. This is best explained by an
+example sequence:</p>
+<ul>
+<li>A car enters the Unparking state, taking a fixed 30s to exit a parking spot
+and enter the adjacent driving lane. The driving lane is blocked during this
+time, to mimic somebody pulling out from a parallel parking spot.</li>
+<li>The car is now fully somewhere on the driving lane. It enters the Crossing
+state, covering the remaining distance to the end of the road. The time
+interval is calculated assuming the car travels at the max speed limit of the
+road.</li>
+<li>After that time, the car checks if there's anybody in the queue before it.
+Nope? Then it attempts to initiate a turn through the intersection, but the
+stop sign says no, so the car enters the WaitingToAdvance state.</li>
+<li>Some time later, the stop sign wakes up the car. The car starts the turn,
+entering the Crossing state again.</li>
+<li>After finishing the turn, the car starts Crossing the next lane. When it's
+finished, it turns out there are a few cars ahead of it, so it enters the
+Queued state.</li>
+<li>When the lead vehicle directly in front of the car exits the lane, it wakes up
+the car, putting it in the Crossing state, starting at the appropriate
+following distance behind the lead vehicle. This prevents the car from
+immediately warping to the end of the lane when the lead vehicle is out of the
+way.</li>
+<li>And so on...</li>
+</ul>
+<h3><a class="header" href="#exact-positions" id="exact-positions">Exact positions</a></h3>
+<p>For a discrete-event simulation, we don't usually care exactly where on a lane a
+car is at some time. But we do need to know for drawing and for a few cases
+during simulation, such as determining when a bus is lined up with a bus stop in
+the middle of a lane. <code>mechanics/queue.rs</code> handles this, computing the distance
+of every car in a lane. For cars in the <code>Crossing</code> state, we linearly
+interpolate distance based on the current time. Of course, cars have to remain
+in order, so Queued cars are limited by the lead vehicle's position + the lead
+vehicle's length + a fixed following distance of 1m.</p>
+<p>Another case where we need to know exact positions of cars is to prevent the
+first vehicle on a lane from hitting the back of a car who just left the lane.
+All vehicles have length, and position is tracked by the front of the car. When
+a car's front leaves a lane, its back is still partly in the lane. Logically,
+the new lead car in the lane still needs to act like it's Queued. So each lane
+keeps a &quot;laggy head&quot;, pointing to the car with its back partly in the lane.
+After the laggy head has made it sufficient distance along its new turn or lane,
+the laggy head on the old lane can be erased, unblocking the lead vehicle. This
+requires calculating exact distances and some occasionally expensive cases where
+we have to schedule frequent events to check when a laggy head is clear.</p>
+<h2><a class="header" href="#lane-changing" id="lane-changing">Lane-changing</a></h2>
+<p>Lane-changing (LCing) deserves special mention. A/B Street cheats by not
+allowing it on lanes themselves. Instead, at intersections, cars can perform
+turns that shift them over any number of lanes. These LCing turns conflict with
+other turns appropriately, so the contention is still modeled. Why do it this
+way? In a
+<a href="http://apps.cs.utexas.edu/tech_reports/reports/tr/TR-2157.pdf">previous project</a>,
+I tried opportunistic LCing. If a car had room to warp to the equivalent
+distance on the adjacent lane without causing a crash, it would start LCing,
+then take a fixed time to slide over, blocking both lanes throughout. This meant
+cars often failed to LC when they needed to, forcing them to reroute, botching
+their trip times. In many cases the cars would be permanently stuck, because
+pathfinding would return paths requiring LCing that couldn't be pulled off in
+practice due to really short roads. Why not try making the car slow down if
+needed? Eventually it might have to stop, which could lead to unrealistic
+gridlock. This LCing model was using a detailed discrete-time model with cars
+accelerating properly; maybe it's easier with A/B Street's simplified movement
+model.</p>
+<p>Currently in A/B Street, cars will pick the least backed-up lane when there's a
+choice. They make this decision once when they reach the front of a queue; look
+for <code>opportunistically_lanechange</code> in <code>router.rs</code>. The decision could be
+improved.</p>
+<h2><a class="header" href="#pedestrians" id="pedestrians">Pedestrians</a></h2>
+<p>Pedestrian modeling -- in <code>mechanics/walking.rs</code> is way simpler. Pedestrians
+don't need to queue on sidewalks; they can &quot;ghost&quot; through each other. In
+Seattle, there aren't huge crowds of people walking and slowing down, except for
+niche cases like Pike Place Market. So in A/B Street, the only scarce resource
+modeled is the time spent waiting to cross intersections.</p>
+<h2><a class="header" href="#intersections" id="intersections">Intersections</a></h2>
+<p>I need to flesh this section out. See <code>mechanics/intersections.rs</code> for how stop
+signs and traffic signals work. Two things I need to fix before making this
+section interesting:</p>
+<ul>
+<li>Only wake up relevant agents when a previous agent finishes a turn.</li>
+<li>Don't let an agent start a low-priority turn (like an unprotected left) if
+it'll force a high-priority vehicle approaching to wait. The approaching
+vehicle is still in the Crossing state, so we need to notify intersections
+ahead of time of intended turns and an ETA.</li>
+</ul>
+<p>One contributor to permanent gridlock is cars and bikes being stuck in an
+intersection, preventing conflicting turns from being performed. To help avoid
+this, one of the last checks that stop signs and traffic signals perform before
+accepting a new turn request is that the target lane has enough space for the
+new vehicle. This is &quot;reserved&quot; space, not necessarily currently occupied by
+vehicles in that lane. This accounts for other vehicles performing a turn bound
+for that lane. See <code>try_to_reserve_entry</code> in <code>mechanics/queue.rs</code>. When a car
+completely leaves a lane (determined by the &quot;laggy head&quot; described above), this
+space is freed, and blocked cars are woken up.</p>
+<h2><a class="header" href="#appendix-discrete-time-simulation" id="appendix-discrete-time-simulation">Appendix: discrete-time simulation</a></h2>
+<p>A/B Street's first traffic model was discrete-time, meaning that every agent
+reacted to the world every 0.1s. Cars had a more realistic kinematics model,
+accelerating to change speed and gradually come to a halt. Cars did a worst-case
+estimation of how far ahead they need to lookahead in order to satisfy different
+constraints:</p>
+<ul>
+<li>Don't exceed any speed limits</li>
+<li>Don't hit the lead vehicle (which might suddenly slam on its brakes)</li>
+<li>Stop at the end of a lane, unless the intersection says to go</li>
+</ul>
+<p>After fighting with this approach for a long time, I eventually scrapped it in
+favor of the simpler discrete-event model because:</p>
+<ul>
+<li>It's fundamentally slow; there's lots of busy work where cars in freeflow with
+nothing blocking them or stopped in a long queue constantly check to see if
+anything has changed.</li>
+<li>Figuring out the acceleration to apply for the next 0.1s in order to satisfy
+all of the constraints is really complicated. Floating point inaccuracies
+cause ugly edge cases with speeds that wind up slightly negative and with cars
+coming to a complete stop slightly past the end of a lane. I wound up storing
+the &quot;intent&quot; of an action to auto-correct these errors.</li>
+<li>The realism of having cars accelerate smoothly didn't add value to the core
+idea in A/B Street, which is to model points of contention like parking
+capacity and intersections. (This is the same reason why I don't model bike
+racks for parking bikes -- in Seattle, it's never hard to find something to
+lock to -- this would be very different if Copenhagen was the target.)
+Additionally, the kinematics model made silly assumptions about driving anyway
+-- cars would smash on their accelerators and brakes as hard as possible
+within all of the constraints.</li>
+</ul>
+<h1><a class="header" href="#travel-demand" id="travel-demand">Travel demand</a></h1>
+<p>A/B Street simulates people following a schedule of trips over a day. A single
+<em>trip</em> has a start and endpoint, a departure time, and a mode. Most trips go
+between buildings, but the start or endpoint may also be a border intersection
+to represent something outside the map boundaries. The mode specifies whether
+the person will walk, bike, drive, or use transit. Without a good set of people
+and trips, evaluating some changes to a map is hard -- what if the traffic
+patterns near the change aren't realistic to begin with? This chapter describes
+where the travel demand data comes from.</p>
+<h2><a class="header" href="#scenarios" id="scenarios">Scenarios</a></h2>
+<p>A <em>scenario</em> encodes the people and trips taken over a day. See the
+<a href="https://github.com/dabreegster/abstreet/blob/master/sim/src/make/scenario.rs">code</a>.</p>
+<p>TODO:</p>
+<ul>
+<li>talk about vehicle assignment / parked car seeding</li>
+</ul>
+<h2><a class="header" href="#data-sources" id="data-sources">Data sources</a></h2>
+<h3><a class="header" href="#seattle-soundcast" id="seattle-soundcast">Seattle: Soundcast</a></h3>
+<p>Seattle luckily has the Puget Sound Regional Council, which has produced the
+<a href="https://www.psrc.org/activity-based-travel-model-soundcast">Soundcast model</a>.
+They use census stats, land parcel records, observed vehicle counts, travel
+diaries, and lots of other things I don't understand to produce a detailed model
+of the region. We're currently using their 2014 model; the 2018 one should be
+available sometime in 2020. See the
+<a href="https://github.com/dabreegster/abstreet/tree/master/importer/src/soundcast">code</a>
+for importing their data.</p>
+<p>TODO:</p>
+<ul>
+<li>talk about how trips beginning/ending off-map are handled</li>
+</ul>
+<h3><a class="header" href="#berlin" id="berlin">Berlin</a></h3>
+<p>This work is <a href="https://github.com/dabreegster/abstreet/issues/119">ongoing</a>. See
+the
+<a href="https://github.com/dabreegster/abstreet/blob/master/importer/src/berlin.rs">code</a>.
+So far, we've found a population count per planning area and are randomly
+distributing the number of residents to all residential buildings in each area.</p>
+<h3><a class="header" href="#proletariat-robot" id="proletariat-robot">Proletariat robot</a></h3>
+<p>What if we just want to generate a reasonable model without any city-specific
+data? One of the simplest approaches is just to spawn people beginning at
+residential buildings, make them go to some workplace in the morning, then
+return in the evening. OpenStreetMap building tags can be used to roughly
+classify building types and distinguish small houses from large apartments. See
+the <code>proletariat_robot</code>
+<a href="https://github.com/dabreegster/abstreet/blob/master/sim/src/make/activity_model.rs">code</a>
+for an implementation of this.</p>
+<p>This is <a href="https://github.com/dabreegster/abstreet/issues/154">ongoing</a> work
+spearheaded by Mateusz. Some of the ideas for next steps are to generate
+different types of people (students, workers), give them a set of activities
+with durations (go to school for 7 hours, 1 hour lunch break), and then further
+pick specfic buildings to travel to using more OSM tags.</p>
+<h2><a class="header" href="#modifying-demand" id="modifying-demand">Modifying demand</a></h2>
+<p>The travel demand model is extremely fixed; the main effect of a different
+random number seed is currently to initially place parked cars in specific
+spots. When the player makes changes to the map, exactly the same people and
+trips are simulated, and we just measure how trip time changes. This is a very
+short-term prediction. If it becomes much more convenient to bike or bus
+somewhere, then more people will do it over time. How can we transform the
+original demand model to respond to these changes?</p>
+<p>Right now, there's very preliminary work in sandbox mode for Seattle weekday
+scenarios. You can cancel all trips for some people (simulating lockdown) or
+modify the mode for some people (change 50% of all driving trips between 7 and
+9am to use transit).</p>
+<h2><a class="header" href="#research" id="research">Research</a></h2>
+<ul>
+<li>https://github.com/replicahq/doppelganger</li>
+<li>https://github.com/stasmix/popsynth</li>
+<li>https://zephyrtransport.github.io/zephyr-directory/projects/</li>
+<li>https://activitysim.github.io</li>
+<li>https://github.com/BayAreaMetro/travel-model-one</li>
+<li>https://github.com/RSGInc/DaySim</li>
+</ul>
+<h1><a class="header" href="#gridlock" id="gridlock">Gridlock</a></h1>
+<p>Here &quot;gridlock&quot; refers to the general problem of trips getting permanently
+stuck, preventing the full simulation from completing. Most of the work is
+tracked <a href="https://github.com/dabreegster/abstreet/issues/114">here</a>.</p>
+<p>My general approach right now to get a map working is to cancel some percent of
+all trips, look for individual problems, fix them, and repeat. Once the full day
+works, cancel less trips. It's easier to isolate the root cause of problems when
+there are less of them erupting simultaneously.</p>
+<p>The general lesson is: you can't code your way around all edge cases. The data
+in OSM often needs manual fixes. It's often useful to spend coding effort on
+tools to detect and fix OSM problems.</p>
+<h2><a class="header" href="#problems" id="problems">Problems</a></h2>
+<p>The choices in the movement model matter. Some gridlock is inherent to any
+system with queueing and conflicting turns. But in reality, people wiggle around
+partly blocked turns. And some of this comes from the treatment of the
+front/back of vehicles.</p>
+<ul>
+<li>Short roads in OSM causing very weird geometry</li>
+<li>Intersection geometry being too large, requiring too much time to cross</li>
+<li>Unrealistic traffic patterns caused by everyone trying to park in one big
+garage (downtown) or take some alley (the UW soundcast issue)</li>
+<li>Too many people try to take an unprotected left turn (often at a stop sign)</li>
+<li>Bad individual traffic signals, usually at 5- or 6-ways</li>
+<li>Groups of traffic signals logically acting as a single intersection</li>
+<li>Separate traffic signals along a corridor being unsynchronized</li>
+<li>Vehicles performing illegal sequences of turns</li>
+<li>Vehicles are stuck with their plan and not reacting to traffic by changing
+route</li>
+<li>Real traffic would result in a gridlock without a deliberate actions to avoid
+it. Such actions range from individual decisions of drivers to police manually
+controlling traffic. Intelligent avoidance of gridlock is not simulated and is
+extremely hard to simulate.</li>
+<li>Vehicles will wait in lane filled with already waiting vehicles, even if there
+is a completely empty lane allowing travel in desired direction. It makes
+easier for entire lane between crossings to fill, contributing to gridlocks.
+Note that while this and other clearly stupid behaviors are clearly
+unrealistic, it is not trivial to implement more realistic and more efficient
+decisions.</li>
+<li>Issues caused by the unrealistic
+<a href="https://github.com/dabreegster/abstreet/blob/master/docs/articles/trafficsim/article.md#lane-changing">lane-changing model</a>
+<ul>
+<li>Two turns that go to the same lane (one going &quot;straight&quot;, the other often a
+lane-change) conflict. The conflict is coarse, at the granularity of the
+entire intersection. So if vehicles are piled up in two lanes trying to
+merge into one, then one group is likely to go through as expected, but the
+second group will wait for the first to completely clear the intersection.
+Until then, it looks like a conflicting turn is being done.</li>
+</ul>
+</li>
+</ul>
+<h2><a class="header" href="#solutions" id="solutions">Solutions</a></h2>
+<p>Divide into implemented or not.</p>
+<ul>
+<li>Synchronizing pairs of signals</li>
+<li>Uber-turns
+<ul>
+<li>for interpreting OSM turn restrictions</li>
+<li>for synchronizing a group of signals</li>
+<li>for locking turn sequences
+<ul>
+<li>Once a vehicle starts an uber-turn, prevent others from starting
+conflicting turns on nearby intersections. Until groups of traffic signals
+are configured as one, this is necessary to prevent somebody from making
+it halfway through a sequence then getting blocked.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Cycle detector</li>
+<li>block-the-box protection
+<ul>
+<li>the manual list of overrides</li>
+<li>likely shouldn't apply during uber-turns</li>
+<li>is it always fine to block the box at degenerate intersections?</li>
+</ul>
+</li>
+<li>hacks to allow conflicting turns at really broken intersections</li>
+<li>manually timing signals</li>
+<li>penalties for lane choice to make lane usage realistic</li>
+</ul>
+<h3><a class="header" href="#not-implemented" id="not-implemented">Not implemented</a></h3>
+<ul>
+<li>Dynamic rerouting</li>
+<li>Allow multiple vehicles through intersection at once if there is enough space
+on lane where given vehicle is going. Currrently vehicles travel through
+crossings one by one (or, with <code>--disable_block_the_box</code> enabled - will enter
+crossing even if leaving it will be impossible).</li>
+<li>Last resort: if someone's waiting on a turn &gt;5m, just go.</li>
+<li>Uber-turns
+<ul>
+<li>Group both stop sign and traffic signal intersections when looking for
+uber-turns. Even a single traffic signal surrounded by tiny roads with stop
+signs is causing problems.</li>
+</ul>
+</li>
+</ul>
+<h2><a class="header" href="#fixing-data-used-in-simulation" id="fixing-data-used-in-simulation">Fixing data used in simulation</a></h2>
+<p>Give more examples of changesets.</p>
+<ul>
+<li>upstreaming turn restrictions into OSM to prevent invalid U-turns and other
+crazy movements
+<ul>
+<li>ex: https://www.openstreetmap.org/changeset/87945050</li>
+</ul>
+</li>
+<li>upstreaming lane count fixes into OSM to improve geometry</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

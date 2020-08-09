@@ -1,0 +1,395 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The rest - A/B Street</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../../index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../../map/index.html"><strong aria-hidden="true">2.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../map/importing/index.html"><strong aria-hidden="true">2.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../map/importing/convert_osm.html"><strong aria-hidden="true">2.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="../../map/importing/geometry.html"><strong aria-hidden="true">2.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="../../map/importing/rest.html" class="active"><strong aria-hidden="true">2.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="../../map/edits.html"><strong aria-hidden="true">2.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../../map/misc.html"><strong aria-hidden="true">2.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="../../trafficsim/index.html"><strong aria-hidden="true">3.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../trafficsim/discrete_event.html"><strong aria-hidden="true">3.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="../../trafficsim/travel_demand.html"><strong aria-hidden="true">3.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="../../trafficsim/gridlock.html"><strong aria-hidden="true">3.3.</strong> Gridlock</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">A/B Street</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#initialmap-to-map" id="initialmap-to-map">InitialMap to Map</a></h1>
+<p>Still in the <code>map_model</code> crate.</p>
+<ul>
+<li><code>map.rs</code>'s <code>make_half_map</code>: Expand roads to lanes, using the list of lane
+types from before</li>
+<li><code>make/turns.rs</code>: Generate turns for every intersection.
+<ul>
+<li>Vehicle turns (for cars, bikes, buses)
+<ul>
+<li>Consider every pair of roads in the intersection. Try to match up lane
+types -- if there's a bike lane on both roads, don't add a turn from
+driving-&gt;bike or bike-&gt;driving. If there's not, then fallback to
+transitions between different lane types.</li>
+<li>Classify the turn based on the difference between the angle of the
+incoming lane's last line and the outgoing lane's first line
+<ul>
+<li>For straight turns, use the Cartesian product to link every incoming
+with every outgoing lane. If the indices dont match up, the turn becomes
+a <code>LaneChangeLeft</code> or <code>LaneChangeRight</code> turn. This is used later for
+intersection policies to prioritize turns appropriately.</li>
+<li>Right and left turns only originate from the one lane on the appropriate
+side</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Walking turns for pedestrians
+<ul>
+<li>Consider pairs of adjacent roads around the intersection
+<ul>
+<li>Make a crosswalk to the other side of the road, assuming there's a
+sidewalk on both sides</li>
+<li>Make a shared sidewalk corner over to the adjacent road</li>
+<li>If the adjacent road doesn't have a sidewalk on the close side, then
+consider skipping that road and making a crosswalk over to the next
+road. An example of this is a crosswalk over a highway on/off ramp.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Verify all the turns so far are unique</li>
+<li>Filter by the OSM turn restrictions (&quot;only straight&quot; between road1 and
+road2)</li>
+<li>Try to apply the OSM per-lane restrictions (&quot;straight or left&quot; from lane 3)
+<ul>
+<li>The number of lanes in the OSM metadata might not match up with how many
+lanes created</li>
+<li>Some of these OSM tags are just completely wrong sometimes. If the filter
+makes an incoming lane lose all of its turns, then ignore that tag.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>make/parking_blackholes.rs</code>: Find well-connected roads near &quot;blackhole&quot;
+lanes.
+<ul>
+<li>Starting from most driving/biking lanes, most other lanes are reachable.
+Some aren't -- such as one-way highways inevitably leading from or to a
+border. These are &quot;blackholes&quot; -- pathfinding to or from here may fail.</li>
+<li>Find the largest strongly-connected component (SCC) in the driving graph.
+From every other lane (a blackhole), floodfill both forwards and backwards
+to find the nearest driving lane part of the main SCC.</li>
+<li>Later, if a car needs to park by a building on a blackhole road, it'll
+instead start searching for parking at the redirect. This prevents it from
+being forced to instead exit the map through a border.</li>
+</ul>
+</li>
+<li><code>make/buildings.rs</code>: Match buildings up with sidewalks
+<ul>
+<li>Find the closest sidewalk polyline to each building's center. Then draw a
+straight line for the front path between the edge of the building and the
+sidewalk point.</li>
+<li>Filter out buildings too far away from any sidewalk</li>
+<li>The front path might cross through other buildings; this is probably not
+worth fixing.</li>
+</ul>
+</li>
+<li><code>make/buildings.rs</code>: Same for parking lots
+<ul>
+<li>Similar process to match parking lots to nearest sidewalk and driving lane</li>
+<li>Try to place parking spots along both sides of parking aisles</li>
+<li>Filter out overlapping spots</li>
+</ul>
+</li>
+<li><code>make/bridges.rs</code>: Find what roads lie beneath bridges, and update their
+Z-order accordingly for later drawing.</li>
+<li><code>stop_signs.rs</code>: Instantiate default stop sign policies
+<ul>
+<li>Rank incoming roads by OSM priority (arterial beats residential)</li>
+<li>If there's only one rank, then make an all-way stop</li>
+<li>Otherwise, the highest rank gets priority and others stop
+<ul>
+<li>Check if there are any conflicts based on this. If so, then fall-back to
+an all way stop.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>traffic_signals.rs</code>: Instantiate default traffic signal policies
+<ul>
+<li>Apply the first predefined policy that works.
+<ul>
+<li>4-way 4 phase, 4-way 2 phase, 3-way 3-phase, degenerate policy for 2
+roads, 2-phase for 4 one-ways</li>
+<li>Fallback to a greedy assignment that just randomly starts a new phase,
+adds all compatible turns, and repeats until all turns are present
+priority in some phase.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>pathfind/mod.rs</code>: Prepare pathfinding
+<ul>
+<li>A/B Street uses contraction hierarchies (CH) for fast routing, using the
+<code>fast_paths</code> crate.</li>
+<li><code>pathfind/vehicle.rs</code>: For cars, bikes, buses
+<ul>
+<li>There's a separate CH for cars, buses, and bikes, since they can use
+slightly different sets of lanes.</li>
+<li>Building the CH for buses and bikes is much faster than the one for cars,
+because the algorithm can re-use the node ordering from the first CH.</li>
+<li>Every lane is a node in the graph, even if it's not an appropriate lane
+type -- it might change later, and reusing orderings is vital for speed.</li>
+<li>If two lanes are connected by a turn, then there's an edge in the graph.
+<ul>
+<li>The edge weight is the length of the lane and turn. Later this could
+take into account speed limit, penalize lane-changing and left turns,
+etc.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>pathfind/walking.rs</code>: For pedestrians
+<ul>
+<li>Only sidewalk lanes are nodes in the graph -- sidewalks can't ever be
+changed in A/B Street, so there's no concern about reusing node orderings.</li>
+<li>All turns between two sidewalks become edges, again using length</li>
+<li>When actually pathfinding, we get back a list of sidewalks. The actual
+paths used in the traffic simulation specify forwards or backwards on a
+sidewalk. Looking at adjacent pairs of sidewalks lets us easily stitch
+together exact directions.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>make/bus_stops.rs</code>: Match bus stops with a sidewalk
+<ul>
+<li>Also precompute the position where the bus stops on the adjacent driving or
+bus lane.</li>
+<li>This &quot;equivalent position on another lane&quot; process has a few weird cases,
+since two lanes on the same road might have different lengths. Right now,
+the same distance from the start of the lane is used, with clamping for
+shorter lanes. Ideally, the position would be found by projecting a
+perpendicular line out from one lane to the other.</li>
+</ul>
+</li>
+<li><code>make/bus_stops.rs</code>: Finalize the list of bus routes
+<ul>
+<li>Between each pair of adjacent bus stops, run pathfinding to verify there's
+actually a path for the bus to follow. If any are disconnected, remove the
+bus route</li>
+<li>Remove bus stops that have no routes serving them.</li>
+</ul>
+</li>
+<li><code>pathfind/walking.rs</code>: Precompute the CH for pedestrians who will use buses
+<ul>
+<li>Nodes in the graph are sidewalks and every bus stop</li>
+<li>There's an edge with weight 0 between a bus stop and its sidewalk</li>
+<li>There's also an edge with weight 0 between bus stops that're adjacent via
+some route. Ideally this weight would account for the time until the next
+bus and the time spent on the bus, etc.</li>
+<li>Later when figuring out which bus to use for a pedestrian, the resulting
+list of nodes is scanned for the first and last bus stop along the same
+route.</li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../../map/importing/geometry.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../../map/edits.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../../map/importing/geometry.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../../map/edits.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

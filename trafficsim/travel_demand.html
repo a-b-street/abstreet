@@ -1,0 +1,289 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Travel demand - A/B Street</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../map/index.html"><strong aria-hidden="true">2.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/index.html"><strong aria-hidden="true">2.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/convert_osm.html"><strong aria-hidden="true">2.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="../map/importing/geometry.html"><strong aria-hidden="true">2.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="../map/importing/rest.html"><strong aria-hidden="true">2.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="../map/edits.html"><strong aria-hidden="true">2.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../map/misc.html"><strong aria-hidden="true">2.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="../trafficsim/index.html"><strong aria-hidden="true">3.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trafficsim/discrete_event.html"><strong aria-hidden="true">3.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="../trafficsim/travel_demand.html" class="active"><strong aria-hidden="true">3.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="../trafficsim/gridlock.html"><strong aria-hidden="true">3.3.</strong> Gridlock</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">A/B Street</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#travel-demand" id="travel-demand">Travel demand</a></h1>
+<p>A/B Street simulates people following a schedule of trips over a day. A single
+<em>trip</em> has a start and endpoint, a departure time, and a mode. Most trips go
+between buildings, but the start or endpoint may also be a border intersection
+to represent something outside the map boundaries. The mode specifies whether
+the person will walk, bike, drive, or use transit. Without a good set of people
+and trips, evaluating some changes to a map is hard -- what if the traffic
+patterns near the change aren't realistic to begin with? This chapter describes
+where the travel demand data comes from.</p>
+<h2><a class="header" href="#scenarios" id="scenarios">Scenarios</a></h2>
+<p>A <em>scenario</em> encodes the people and trips taken over a day. See the
+<a href="https://github.com/dabreegster/abstreet/blob/master/sim/src/make/scenario.rs">code</a>.</p>
+<p>TODO:</p>
+<ul>
+<li>talk about vehicle assignment / parked car seeding</li>
+</ul>
+<h2><a class="header" href="#data-sources" id="data-sources">Data sources</a></h2>
+<h3><a class="header" href="#seattle-soundcast" id="seattle-soundcast">Seattle: Soundcast</a></h3>
+<p>Seattle luckily has the Puget Sound Regional Council, which has produced the
+<a href="https://www.psrc.org/activity-based-travel-model-soundcast">Soundcast model</a>.
+They use census stats, land parcel records, observed vehicle counts, travel
+diaries, and lots of other things I don't understand to produce a detailed model
+of the region. We're currently using their 2014 model; the 2018 one should be
+available sometime in 2020. See the
+<a href="https://github.com/dabreegster/abstreet/tree/master/importer/src/soundcast">code</a>
+for importing their data.</p>
+<p>TODO:</p>
+<ul>
+<li>talk about how trips beginning/ending off-map are handled</li>
+</ul>
+<h3><a class="header" href="#berlin" id="berlin">Berlin</a></h3>
+<p>This work is <a href="https://github.com/dabreegster/abstreet/issues/119">ongoing</a>. See
+the
+<a href="https://github.com/dabreegster/abstreet/blob/master/importer/src/berlin.rs">code</a>.
+So far, we've found a population count per planning area and are randomly
+distributing the number of residents to all residential buildings in each area.</p>
+<h3><a class="header" href="#proletariat-robot" id="proletariat-robot">Proletariat robot</a></h3>
+<p>What if we just want to generate a reasonable model without any city-specific
+data? One of the simplest approaches is just to spawn people beginning at
+residential buildings, make them go to some workplace in the morning, then
+return in the evening. OpenStreetMap building tags can be used to roughly
+classify building types and distinguish small houses from large apartments. See
+the <code>proletariat_robot</code>
+<a href="https://github.com/dabreegster/abstreet/blob/master/sim/src/make/activity_model.rs">code</a>
+for an implementation of this.</p>
+<p>This is <a href="https://github.com/dabreegster/abstreet/issues/154">ongoing</a> work
+spearheaded by Mateusz. Some of the ideas for next steps are to generate
+different types of people (students, workers), give them a set of activities
+with durations (go to school for 7 hours, 1 hour lunch break), and then further
+pick specfic buildings to travel to using more OSM tags.</p>
+<h2><a class="header" href="#modifying-demand" id="modifying-demand">Modifying demand</a></h2>
+<p>The travel demand model is extremely fixed; the main effect of a different
+random number seed is currently to initially place parked cars in specific
+spots. When the player makes changes to the map, exactly the same people and
+trips are simulated, and we just measure how trip time changes. This is a very
+short-term prediction. If it becomes much more convenient to bike or bus
+somewhere, then more people will do it over time. How can we transform the
+original demand model to respond to these changes?</p>
+<p>Right now, there's very preliminary work in sandbox mode for Seattle weekday
+scenarios. You can cancel all trips for some people (simulating lockdown) or
+modify the mode for some people (change 50% of all driving trips between 7 and
+9am to use transit).</p>
+<h2><a class="header" href="#research" id="research">Research</a></h2>
+<ul>
+<li>https://github.com/replicahq/doppelganger</li>
+<li>https://github.com/stasmix/popsynth</li>
+<li>https://zephyrtransport.github.io/zephyr-directory/projects/</li>
+<li>https://activitysim.github.io</li>
+<li>https://github.com/BayAreaMetro/travel-model-one</li>
+<li>https://github.com/RSGInc/DaySim</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../trafficsim/discrete_event.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../trafficsim/gridlock.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../trafficsim/discrete_event.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../trafficsim/gridlock.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
