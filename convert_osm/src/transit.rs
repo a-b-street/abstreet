@@ -88,12 +88,13 @@ pub fn extract_route(
         }
     }
 
-    let all_pts: Vec<(OriginalIntersection, Pt2D)> = match glue_route(all_ways, doc) {
+    let all_pts: Vec<(OriginalIntersection, WayID, Pt2D)> = match glue_route(all_ways, doc) {
         Ok(nodes) => nodes
             .into_iter()
-            .map(|osm_node_id| {
+            .map(|(osm_node_id, osm_way_id)| {
                 (
                     OriginalIntersection { osm_node_id },
+                    osm_way_id,
                     doc.nodes[&osm_node_id].pt,
                 )
             })
@@ -150,7 +151,7 @@ pub fn extract_route(
 
 // Figure out the actual order of nodes in the route. We assume the ways are at least listed in
 // order. Match them up by endpoints. There are gaps sometimes, though!
-fn glue_route(all_ways: Vec<WayID>, doc: &Document) -> Result<Vec<NodeID>, String> {
+fn glue_route(all_ways: Vec<WayID>, doc: &Document) -> Result<Vec<(NodeID, WayID)>, String> {
     if all_ways.len() == 1 {
         return Err(format!("route only has one way: {}", all_ways[0]));
     }
@@ -179,13 +180,18 @@ fn glue_route(all_ways: Vec<WayID>, doc: &Document) -> Result<Vec<NodeID>, Strin
         } else {
             return Err(format!("gap between {} and {}", pair[0], pair[1]));
         };
-        if let Some(n) = nodes.pop() {
-            if n != nodes1[0] {
+        let mut nodes1 = nodes1.into_iter().map(|n| (n, pair[0])).collect::<Vec<_>>();
+        let nodes2 = nodes2.into_iter().map(|n| (n, pair[0])).collect::<Vec<_>>();
+        // Keep the way before the intersection, so bus stops at intersections match to the road
+        // before.
+        if let Some((n, _)) = nodes.last() {
+            if *n != nodes1[0].0 {
                 return Err(format!(
                     "{} and {} match up, but last piece was {}",
                     pair[0], pair[1], n
                 ));
             }
+            nodes1.remove(0);
         }
         nodes.extend(nodes1);
         extra = nodes2;
@@ -194,7 +200,8 @@ fn glue_route(all_ways: Vec<WayID>, doc: &Document) -> Result<Vec<NodeID>, Strin
     if nodes.is_empty() {
         return Err(format!("empty? ways: {:?}", all_ways));
     }
-    assert_eq!(nodes.pop().unwrap(), extra[0]);
+    assert_eq!(nodes.last().unwrap().0, extra[0].0);
+    extra.remove(0);
     nodes.extend(extra);
     Ok(nodes)
 }
@@ -210,28 +217,47 @@ pub fn snap_bus_stops(
         let idx_in_route = route
             .all_pts
             .iter()
-            .position(|(node, _)| stop.vehicle_pos.0 == *node)
+            .position(|(node, _, _)| stop.vehicle_pos.0 == *node)
             .unwrap();
-
         let road = if raw.intersections.contains_key(&stop.vehicle_pos.0) {
-            // Prefer to match just before an intersection, instead of just after
-            let mut found = None;
-            for idx in (0..idx_in_route).rev() {
-                let (i, pt) = route.all_pts[idx];
-                if !raw.intersections.contains_key(&i) {
-                    found = Some(pt_to_road[&pt.to_hashable()]);
-                    break;
-                }
-            }
-            if let Some(r) = found {
-                r
-            } else {
+            // The stop is at an intersection. Which of the two connected roads do we use? We want
+            // the one just before the intersection.
+            let osm_way_id = route.all_pts[idx_in_route].1;
+            if idx_in_route == 0 {
                 return Err(format!(
-                    "stop {} right at an intersection near the beginning of the route",
+                    "Route begins with a stop that's also an intersection: {}",
                     stop.vehicle_pos.0.osm_node_id
                 ));
             }
+            let (prev_node, prev_way, prev_pt) = route.all_pts[idx_in_route - 1];
+            assert_eq!(osm_way_id, prev_way);
+            if raw.intersections.contains_key(&prev_node) {
+                let id1 = OriginalRoad {
+                    osm_way_id,
+                    i1: OriginalIntersection {
+                        osm_node_id: stop.vehicle_pos.0.osm_node_id,
+                    },
+                    i2: prev_node,
+                };
+                let id2 = OriginalRoad {
+                    osm_way_id,
+                    i2: OriginalIntersection {
+                        osm_node_id: stop.vehicle_pos.0.osm_node_id,
+                    },
+                    i1: prev_node,
+                };
+                if raw.roads.contains_key(&id1) {
+                    id1
+                } else if raw.roads.contains_key(&id2) {
+                    id2
+                } else {
+                    unreachable!()
+                }
+            } else {
+                pt_to_road[&prev_pt.to_hashable()]
+            }
         } else {
+            // The stop is in the middle of a road, thankfully
             pt_to_road[&stop.vehicle_pos.1.to_hashable()]
         };
 

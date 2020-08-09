@@ -472,6 +472,8 @@ impl<'a> std::ops::Drop for Timer<'a> {
         if std::thread::panicking() {
             self.println(String::new());
             self.println(String::new());
+            self.println(String::new());
+            self.println(String::new());
             self.println(
                 "!!! The program panicked, look above for the stack trace !!!".to_string(),
             );

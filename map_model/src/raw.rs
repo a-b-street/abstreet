@@ -465,7 +465,7 @@ pub struct RawBusRoute {
     pub border_end: Option<OriginalIntersection>,
     // This is guaranteed to be in order and contiguous. These're ALL nodes, not just
     // intersections.
-    pub all_pts: Vec<(OriginalIntersection, Pt2D)>,
+    pub all_pts: Vec<(OriginalIntersection, osm::WayID, Pt2D)>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
