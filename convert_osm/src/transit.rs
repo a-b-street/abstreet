@@ -1,6 +1,7 @@
 use crate::reader::{Document, Relation};
 use abstutil::Timer;
 use geom::{HashablePt2D, Polygon, Pt2D};
+use map_model::osm;
 use map_model::osm::{NodeID, OsmID, RelationID, WayID};
 use map_model::raw::{OriginalIntersection, OriginalRoad, RawBusRoute, RawBusStop, RawMap};
 use std::collections::HashMap;
@@ -195,16 +196,17 @@ fn glue_route(all_ways: Vec<WayID>, doc: &Document) -> Result<Vec<NodeID>, Strin
 
 pub fn snap_bus_stops(
     mut route: RawBusRoute,
-    raw: &RawMap,
+    raw: &mut RawMap,
     pt_to_road: &HashMap<HashablePt2D, OriginalRoad>,
+    timer: &mut Timer,
 ) -> Result<RawBusRoute, String> {
     // For every stop, figure out what road segment and direction it matches up to.
     for stop in &mut route.stops {
         // TODO Handle this, example https://www.openstreetmap.org/node/4560936658
         if raw.intersections.contains_key(&stop.vehicle_pos.0) {
             return Err(format!(
-                "{} has a stop {} right at an intersection, skipping",
-                route.osm_rel_id, stop.vehicle_pos.0.osm_node_id
+                "stop {} right at an intersection",
+                stop.vehicle_pos.0.osm_node_id
             ));
         }
 
@@ -256,6 +258,27 @@ pub fn snap_bus_stops(
                 "{} matched to {}, fwds={}",
                 stop.vehicle_pos.0.osm_node_id, road, fwds
             );
+        }
+
+        // If this road is missing a sidewalk (likely because it's a motorway), add one.
+        // https://www.openstreetmap.org/way/325148569 is a motivating example. When we understand
+        // bus platforms properly, won't need this hack.
+        let tags = &mut raw.roads.get_mut(&road).unwrap().osm_tags;
+        if tags.is(osm::INFERRED_SIDEWALKS, "true") {
+            let current = tags.get(osm::SIDEWALK).unwrap();
+            if current == "none" {
+                tags.insert(osm::SIDEWALK, if fwds { "right" } else { "left" });
+            } else if current == "right" && !fwds {
+                tags.insert(osm::SIDEWALK, "both");
+            } else if current == "left" && fwds {
+                tags.insert(osm::SIDEWALK, "both");
+            } else {
+                continue;
+            }
+            timer.note(format!(
+                "Inferring a sidewalk on {} for bus stop {}",
+                road, stop.vehicle_pos.0.osm_node_id
+            ));
         }
     }
     Ok(route)

@@ -83,7 +83,7 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     let mut routes = Vec::new();
     for route in all_routes {
         let name = format!("{} ({})", route.osm_rel_id, route.full_name);
-        match transit::snap_bus_stops(route, &map, &pt_to_road) {
+        match transit::snap_bus_stops(route, &mut map, &pt_to_road, timer) {
             Ok(r) => {
                 routes.push(r);
             }
