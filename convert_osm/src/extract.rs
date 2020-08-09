@@ -5,7 +5,8 @@ use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, PolyLine, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{
-    OriginalBuilding, RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType,
+    OriginalBuilding, OriginalIntersection, RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad,
+    RestrictionType,
 };
 use map_model::{osm, AreaType};
 use osm::{NodeID, OsmID, RelationID, WayID};
@@ -185,7 +186,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
     let mut amenity_areas: Vec<(String, String, Polygon)> = Vec::new();
     // Vehicle position (stop) -> pedestrian position (platform)
-    let mut stop_areas: Vec<(Pt2D, Pt2D)> = Vec::new();
+    let mut stop_areas: Vec<((OriginalIntersection, Pt2D), Pt2D)> = Vec::new();
 
     // TODO Fill this out in a separate loop to keep a mutable borrow short. Maybe do this in
     // reader, or stop doing this entirely.
@@ -305,7 +306,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 if let OsmID::Node(n) = member {
                     let pt = doc.nodes[n].pt;
                     if role == "stop" {
-                        stops.push(pt);
+                        stops.push((OriginalIntersection { osm_node_id: *n }, pt));
                     } else if role == "platform" {
                         platform = Some(pt);
                     }

@@ -1,8 +1,8 @@
 use crate::reader::{Document, Relation};
 use abstutil::Timer;
-use geom::{Polygon, Pt2D};
+use geom::{HashablePt2D, Polygon, Pt2D};
 use map_model::osm::{NodeID, OsmID, RelationID, WayID};
-use map_model::raw::{OriginalIntersection, RawBusRoute, RawBusStop};
+use map_model::raw::{OriginalIntersection, OriginalRoad, RawBusRoute, RawBusStop, RawMap};
 use std::collections::HashMap;
 
 pub fn extract_route(
@@ -47,7 +47,8 @@ pub fn extract_route(
                         .get("name")
                         .cloned()
                         .unwrap_or_else(|| format!("stop #{}", stops.len() + 1)),
-                    vehicle_pos: node.pt,
+                    vehicle_pos: (OriginalIntersection { osm_node_id: *n }, node.pt),
+                    matched_road: None,
                     ped_pos: None,
                 });
             }
@@ -89,7 +90,7 @@ pub fn extract_route(
     let all_pts: Vec<OriginalIntersection> = match glue_route(all_ways, doc) {
         Ok(nodes) => nodes
             .into_iter()
-            .map(|n| OriginalIntersection { osm_node_id: n })
+            .map(|osm_node_id| OriginalIntersection { osm_node_id })
             .collect(),
         Err(err) => {
             timer.error(format!(
@@ -106,7 +107,7 @@ pub fn extract_route(
     let mut keep_stops = Vec::new();
     let orig_num = stops.len();
     for stop in stops {
-        if boundary.contains_pt(stop.vehicle_pos) {
+        if boundary.contains_pt(stop.vehicle_pos.1) {
             keep_stops.push(stop);
         } else {
             if !keep_stops.is_empty() {
@@ -184,7 +185,78 @@ fn glue_route(all_ways: Vec<WayID>, doc: &Document) -> Result<Vec<NodeID>, Strin
         extra = nodes2;
     }
     // And the last lil bit
+    if nodes.is_empty() {
+        return Err(format!("empty? ways: {:?}", all_ways));
+    }
     assert_eq!(nodes.pop().unwrap(), extra[0]);
     nodes.extend(extra);
     Ok(nodes)
+}
+
+pub fn snap_bus_stops(
+    mut route: RawBusRoute,
+    raw: &RawMap,
+    pt_to_road: &HashMap<HashablePt2D, OriginalRoad>,
+) -> Result<RawBusRoute, String> {
+    // For every stop, figure out what road segment and direction it matches up to.
+    for stop in &mut route.stops {
+        // TODO Handle this, example https://www.openstreetmap.org/node/4560936658
+        if raw.intersections.contains_key(&stop.vehicle_pos.0) {
+            return Err(format!(
+                "{} has a stop {} right at an intersection, skipping",
+                route.osm_rel_id, stop.vehicle_pos.0.osm_node_id
+            ));
+        }
+
+        let idx_in_route = route
+            .all_pts
+            .iter()
+            .position(|pt| stop.vehicle_pos.0 == *pt)
+            .unwrap();
+        // Scan backwards and forwards in the route for the nearest intersections.
+        // TODO Express better with iterators
+        let mut i1 = None;
+        for idx in (0..=idx_in_route).rev() {
+            let i = route.all_pts[idx];
+            if raw.intersections.contains_key(&i) {
+                i1 = Some(i);
+                break;
+            }
+        }
+        let mut i2 = None;
+        for idx in idx_in_route..route.all_pts.len() {
+            let i = route.all_pts[idx];
+            if raw.intersections.contains_key(&i) {
+                i2 = Some(i);
+                break;
+            }
+        }
+
+        let road = pt_to_road[&stop.vehicle_pos.1.to_hashable()];
+        let i1 = i1.unwrap();
+        let i2 = i2.unwrap();
+        let fwds = if road.i1 == i1 && road.i2 == i2 {
+            true
+        } else if road.i1 == i2 && road.i2 == i1 {
+            false
+        } else {
+            return Err(format!(
+                "Can't figure out where {} is along route. {:?}, {:?}. {} of {}",
+                stop.vehicle_pos.0.osm_node_id,
+                i1,
+                i2,
+                idx_in_route,
+                route.all_pts.len()
+            ));
+        };
+
+        stop.matched_road = Some((road, fwds));
+        if false {
+            println!(
+                "{} matched to {}, fwds={}",
+                stop.vehicle_pos.0.osm_node_id, road, fwds
+            );
+        }
+    }
+    Ok(route)
 }

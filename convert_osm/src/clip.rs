@@ -177,20 +177,20 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         }
 
         let mut borders: Vec<OriginalIntersection> = Vec::new();
-        for pt in r.all_pts.drain(..) {
-            if let Some(i) = map.intersections.get(&pt) {
+        for pt in &r.all_pts {
+            if let Some(i) = map.intersections.get(pt) {
                 if i.intersection_type == IntersectionType::Border {
-                    borders.push(pt);
+                    borders.push(*pt);
                 }
             }
-            if let Some(i) = extra_borders.get(&pt) {
+            if let Some(i) = extra_borders.get(pt) {
                 borders.push(*i);
             }
         }
 
         // Guess which border is for the beginning and end of the route.
-        let start_i = map.closest_intersection(r.stops[0].vehicle_pos);
-        let end_i = map.closest_intersection(r.stops.last().unwrap().vehicle_pos);
+        let start_i = map.closest_intersection(r.stops[0].vehicle_pos.1);
+        let end_i = map.closest_intersection(r.stops.last().unwrap().vehicle_pos.1);
         let mut best_start: Option<(OriginalIntersection, Distance)> = None;
         let mut best_end: Option<(OriginalIntersection, Distance)> = None;
         for i in borders {

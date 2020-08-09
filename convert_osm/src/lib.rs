@@ -72,12 +72,27 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     }
 
     let extract = extract::extract_osm(&mut map, &opts, timer);
-    let amenities = split_ways::split_up_roads(&mut map, extract, timer);
+    let (amenities, pt_to_road) = split_ways::split_up_roads(&mut map, extract, timer);
     clip::clip_map(&mut map, timer);
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.
     abstutil::retain_btreemap(&mut map.roads, |r, _| r.i1 != r.i2);
+
+    let all_routes = map.bus_routes.drain(..).collect::<Vec<_>>();
+    let mut routes = Vec::new();
+    for route in all_routes {
+        let name = format!("{} ({})", route.osm_rel_id, route.full_name);
+        match transit::snap_bus_stops(route, &map, &pt_to_road) {
+            Ok(r) => {
+                routes.push(r);
+            }
+            Err(err) => {
+                timer.error(format!("Skipping {}: {}", name, err));
+            }
+        }
+    }
+    map.bus_routes = routes;
 
     use_amenities(&mut map, amenities, timer);
 

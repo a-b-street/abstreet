@@ -197,9 +197,9 @@ impl Matcher {
         for r in routes {
             for stop in &r.stops {
                 if r.is_bus {
-                    lookup_bus_pts.insert(stop.vehicle_pos.to_hashable());
+                    lookup_bus_pts.insert(stop.vehicle_pos.1.to_hashable());
                 } else {
-                    lookup_light_rail_pts.insert(stop.vehicle_pos.to_hashable());
+                    lookup_light_rail_pts.insert(stop.vehicle_pos.1.to_hashable());
                 }
                 if let Some(pt) = stop.ped_pos {
                     lookup_sidewalk_pts.insert(pt.to_hashable());
@@ -258,9 +258,9 @@ impl Matcher {
                 .ok_or_else(|| format!("sidewalk for light rail didnt match: {}", sidewalk_pt))?;
             let driving_pos = *self
                 .light_rail_pts
-                .get(&stop.vehicle_pos.to_hashable())
+                .get(&stop.vehicle_pos.1.to_hashable())
                 .ok_or_else(|| {
-                    format!("vehicle for light rail didnt match: {}", stop.vehicle_pos)
+                    format!("vehicle for light rail didnt match: {}", stop.vehicle_pos.0)
                 })?;
             return Ok((sidewalk_pos, driving_pos));
         }
@@ -278,8 +278,8 @@ impl Matcher {
             // rightmost driving/bus lane.
             let orig_driving_pos = *self
                 .bus_pts
-                .get(&stop.vehicle_pos.to_hashable())
-                .ok_or("vehicle for bus didnt match")?;
+                .get(&stop.vehicle_pos.1.to_hashable())
+                .ok_or_else(|| format!("vehicle for bus didnt match: {}", stop.vehicle_pos.0))?;
             let sidewalk = map
                 .get_parent(orig_driving_pos.lane())
                 .find_closest_lane(

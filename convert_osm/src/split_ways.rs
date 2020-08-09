@@ -5,12 +5,16 @@ use map_model::raw::{OriginalIntersection, OriginalRoad, RawIntersection, RawMap
 use map_model::{osm, IntersectionType};
 use std::collections::HashMap;
 
-// Returns amenities
+// Returns amenities and a mapping of all points to split road. (Some internal points on roads are
+// removed, so this mapping isn't redundant.)
 pub fn split_up_roads(
     map: &mut RawMap,
     mut input: OsmExtract,
     timer: &mut Timer,
-) -> Vec<(Pt2D, String, String)> {
+) -> (
+    Vec<(Pt2D, String, String)>,
+    HashMap<HashablePt2D, OriginalRoad>,
+) {
     timer.start("splitting up roads");
 
     let mut pt_to_intersection: HashMap<HashablePt2D, OriginalIntersection> = HashMap::new();
@@ -48,6 +52,8 @@ pub fn split_up_roads(
         );
     }
 
+    let mut pt_to_road: HashMap<HashablePt2D, OriginalRoad> = HashMap::new();
+
     // Now actually split up the roads based on the intersections
     timer.start_iter("split roads", input.roads.len());
     for (osm_way_id, orig_road) in &input.roads {
@@ -72,16 +78,18 @@ pub fn split_up_roads(
                     r.osm_tags
                         .insert(osm::ENDPT_FWD.to_string(), "true".to_string());
                 }
+                let id = OriginalRoad {
+                    osm_way_id: *osm_way_id,
+                    i1,
+                    i2: *i2,
+                };
+                for pt in &pts {
+                    pt_to_road.insert(pt.to_hashable(), id);
+                }
+
                 r.center_points = dedupe_angles(std::mem::replace(&mut pts, Vec::new()));
                 // Start a new road
-                map.roads.insert(
-                    OriginalRoad {
-                        osm_way_id: *osm_way_id,
-                        i1,
-                        i2: *i2,
-                    },
-                    r.clone(),
-                );
+                map.roads.insert(id, r.clone());
                 r.osm_tags.remove(osm::ENDPT_FWD);
                 r.osm_tags.remove(osm::ENDPT_BACK);
                 i1 = *i2;
@@ -188,7 +196,7 @@ pub fn split_up_roads(
     }
 
     timer.stop("splitting up roads");
-    input.amenities
+    (input.amenities, pt_to_road)
 }
 
 // TODO Consider doing this in PolyLine::new always. extend() there does this too.

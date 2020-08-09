@@ -463,14 +463,18 @@ pub struct RawBusRoute {
     pub stops: Vec<RawBusStop>,
     pub border_start: Option<OriginalIntersection>,
     pub border_end: Option<OriginalIntersection>,
-    // Temporarily plumbed along
+    // This is guaranteed to be in order and contiguous. These're ALL nodes, not just
+    // intersections.
     pub all_pts: Vec<OriginalIntersection>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawBusStop {
     pub name: String,
-    pub vehicle_pos: Pt2D,
+    // Probably not an intersection, but this type is more convenient.
+    pub vehicle_pos: (OriginalIntersection, Pt2D),
+    // Guaranteed to be filled out when RawMap is fully written. True for forwards.
+    pub matched_road: Option<(OriginalRoad, bool)>,
     // If it's not explicitly mapped, we'll do equiv_pos.
     pub ped_pos: Option<Pt2D>,
 }
