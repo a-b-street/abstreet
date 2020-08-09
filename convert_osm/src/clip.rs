@@ -177,13 +177,13 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         }
 
         let mut borders: Vec<OriginalIntersection> = Vec::new();
-        for pt in &r.all_pts {
-            if let Some(i) = map.intersections.get(pt) {
+        for (node, _) in &r.all_pts {
+            if let Some(i) = map.intersections.get(node) {
                 if i.intersection_type == IntersectionType::Border {
-                    borders.push(*pt);
+                    borders.push(*node);
                 }
             }
-            if let Some(i) = extra_borders.get(pt) {
+            if let Some(i) = extra_borders.get(node) {
                 borders.push(*i);
             }
         }

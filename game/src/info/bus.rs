@@ -319,16 +319,16 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
             );
         }
 
-        for bs in &route.stops {
+        for (idx, bs) in route.stops.iter().enumerate() {
             let bs = map.get_bs(*bs);
             details.unzoomed.append(
-                Text::from(Line(&bs.name))
+                Text::from(Line(format!("{}) {}", idx + 1, bs.name)))
                     .with_bg()
                     .render_to_batch(ctx.prerender)
                     .centered_on(bs.sidewalk_pos.pt(map)),
             );
             details.zoomed.append(
-                Text::from(Line(&bs.name))
+                Text::from(Line(format!("{}) {}", idx + 1, bs.name)))
                     .with_bg()
                     .render_to_batch(ctx.prerender)
                     .scale(0.1)

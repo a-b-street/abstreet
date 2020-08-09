@@ -88,10 +88,15 @@ pub fn extract_route(
         }
     }
 
-    let all_pts: Vec<OriginalIntersection> = match glue_route(all_ways, doc) {
+    let all_pts: Vec<(OriginalIntersection, Pt2D)> = match glue_route(all_ways, doc) {
         Ok(nodes) => nodes
             .into_iter()
-            .map(|osm_node_id| OriginalIntersection { osm_node_id })
+            .map(|osm_node_id| {
+                (
+                    OriginalIntersection { osm_node_id },
+                    doc.nodes[&osm_node_id].pt,
+                )
+            })
             .collect(),
         Err(err) => {
             timer.error(format!(
@@ -202,39 +207,55 @@ pub fn snap_bus_stops(
 ) -> Result<RawBusRoute, String> {
     // For every stop, figure out what road segment and direction it matches up to.
     for stop in &mut route.stops {
-        // TODO Handle this, example https://www.openstreetmap.org/node/4560936658
-        if raw.intersections.contains_key(&stop.vehicle_pos.0) {
-            return Err(format!(
-                "stop {} right at an intersection",
-                stop.vehicle_pos.0.osm_node_id
-            ));
-        }
-
         let idx_in_route = route
             .all_pts
             .iter()
-            .position(|pt| stop.vehicle_pos.0 == *pt)
+            .position(|(node, _)| stop.vehicle_pos.0 == *node)
             .unwrap();
+
+        let road = if raw.intersections.contains_key(&stop.vehicle_pos.0) {
+            // Prefer to match just before an intersection, instead of just after
+            let mut found = None;
+            for idx in (0..idx_in_route).rev() {
+                let (i, pt) = route.all_pts[idx];
+                if !raw.intersections.contains_key(&i) {
+                    found = Some(pt_to_road[&pt.to_hashable()]);
+                    break;
+                }
+            }
+            if let Some(r) = found {
+                r
+            } else {
+                return Err(format!(
+                    "stop {} right at an intersection near the beginning of the route",
+                    stop.vehicle_pos.0.osm_node_id
+                ));
+            }
+        } else {
+            pt_to_road[&stop.vehicle_pos.1.to_hashable()]
+        };
+
         // Scan backwards and forwards in the route for the nearest intersections.
         // TODO Express better with iterators
         let mut i1 = None;
-        for idx in (0..=idx_in_route).rev() {
-            let i = route.all_pts[idx];
+        for idx in (0..idx_in_route).rev() {
+            let i = route.all_pts[idx].0;
             if raw.intersections.contains_key(&i) {
                 i1 = Some(i);
                 break;
             }
         }
         let mut i2 = None;
+        // If we're at an intersection, i2 should be the intersection, because earlier we preferred
+        // a road starting before it.
         for idx in idx_in_route..route.all_pts.len() {
-            let i = route.all_pts[idx];
+            let i = route.all_pts[idx].0;
             if raw.intersections.contains_key(&i) {
                 i2 = Some(i);
                 break;
             }
         }
 
-        let road = pt_to_road[&stop.vehicle_pos.1.to_hashable()];
         let i1 = i1.unwrap();
         let i2 = i2.unwrap();
         let fwds = if road.i1 == i1 && road.i2 == i2 {
@@ -243,8 +264,9 @@ pub fn snap_bus_stops(
             false
         } else {
             return Err(format!(
-                "Can't figure out where {} is along route. {:?}, {:?}. {} of {}",
+                "Can't figure out where {} is along route. At {}, between {:?} and {:?}. {} of {}",
                 stop.vehicle_pos.0.osm_node_id,
+                road,
                 i1,
                 i2,
                 idx_in_route,
