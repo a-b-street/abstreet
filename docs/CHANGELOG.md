@@ -539,3 +539,12 @@ changes here.
 - UI: search by building names, commuter patterns shows borders better
 - transit: make people ride off-map, spawn buses on short roads
 - internal cleanups for buttons
+
+0.2.7
+
+- many intersections with on/off ramps have much better geometry
+- lane-changing banned on turn lanes
+- lots more work matching bus stops/routes to the map. some progress, also some regressions.
+- fixing spawning on tiny borders
+- bus spawn rates from GTFS for seattle. started an editor for the schedule.
+- internal ezgui refactorings

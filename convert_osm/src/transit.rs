@@ -205,13 +205,15 @@ pub fn snap_bus_stops(
     pt_to_road: &HashMap<HashablePt2D, OriginalRoad>,
     timer: &mut Timer,
 ) -> Result<RawBusRoute, String> {
+    // TODO RawBusStop should have an osm_node_id()
+
     // For every stop, figure out what road segment and direction it matches up to.
     for stop in &mut route.stops {
         let idx_in_route = route
             .all_pts
             .iter()
             .position(|(node, _)| stop.vehicle_pos.0 == *node)
-            .unwrap();
+            .ok_or(format!("{} missing from route?!", stop.vehicle_pos.0))?;
 
         let road = if raw.intersections.contains_key(&stop.vehicle_pos.0) {
             // Prefer to match just before an intersection, instead of just after
@@ -232,7 +234,12 @@ pub fn snap_bus_stops(
                 ));
             }
         } else {
-            pt_to_road[&stop.vehicle_pos.1.to_hashable()]
+            *pt_to_road
+                .get(&stop.vehicle_pos.1.to_hashable())
+                .ok_or(format!(
+                    "{} isn't on a road",
+                    stop.vehicle_pos.0.osm_node_id
+                ))?
         };
 
         // Scan backwards and forwards in the route for the nearest intersections.
