@@ -405,7 +405,6 @@ impl<'a> Timer<'a> {
 }
 
 impl<'a> std::ops::Drop for Timer<'a> {
-    // TODO This often hides a panic
     fn drop(&mut self) {
         if self.outermost_name == "throwaway" {
             return;
@@ -469,6 +468,14 @@ impl<'a> std::ops::Drop for Timer<'a> {
 
         // In case of lots of notes and warnings, repeat the overall timing.
         Timer::selfless_println(&mut self.sink, self.results[0].clone());
+
+        if std::thread::panicking() {
+            self.println(String::new());
+            self.println(String::new());
+            self.println(
+                "!!! The program panicked, look above for the stack trace !!!".to_string(),
+            );
+        }
     }
 }
 
