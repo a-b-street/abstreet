@@ -4,7 +4,7 @@ use crate::{
     BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathConstraints, Position,
 };
 use abstutil::Timer;
-use geom::{Distance, Duration, HashablePt2D, Time};
+use geom::{Distance, Duration, FindClosest, HashablePt2D, Time};
 use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use std::error::Error;
 
@@ -184,7 +184,6 @@ fn make_route(
 struct Matcher {
     // TODO Eventually, maybe also map to a station building too
     sidewalk_pts: HashMap<HashablePt2D, Position>,
-    bus_pts: HashMap<HashablePt2D, Position>,
     light_rail_pts: HashMap<HashablePt2D, Position>,
 }
 
@@ -192,13 +191,10 @@ impl Matcher {
     fn new(routes: &Vec<RawBusRoute>, map: &Map, timer: &mut Timer) -> Matcher {
         // Match all of the points to an exact position along a lane.
         let mut lookup_sidewalk_pts = HashSet::new();
-        let mut lookup_bus_pts = HashSet::new();
         let mut lookup_light_rail_pts = HashSet::new();
         for r in routes {
             for stop in &r.stops {
-                if r.is_bus {
-                    lookup_bus_pts.insert(stop.vehicle_pos.1.to_hashable());
-                } else {
+                if !r.is_bus {
                     lookup_light_rail_pts.insert(stop.vehicle_pos.1.to_hashable());
                 }
                 if let Some(pt) = stop.ped_pos {
@@ -216,15 +212,6 @@ impl Matcher {
             Distance::meters(50.0),
             timer,
         );
-        let bus_pts = match_points_to_lanes(
-            map.get_bounds(),
-            lookup_bus_pts,
-            map.all_lanes(),
-            |l| l.is_bus() || l.is_driving(),
-            Distance::ZERO,
-            Distance::meters(10.0),
-            timer,
-        );
         let light_rail_pts = match_points_to_lanes(
             map.get_bounds(),
             lookup_light_rail_pts,
@@ -237,7 +224,6 @@ impl Matcher {
 
         Matcher {
             sidewalk_pts,
-            bus_pts,
             light_rail_pts,
         }
     }
@@ -265,36 +251,51 @@ impl Matcher {
             return Ok((sidewalk_pos, driving_pos));
         }
 
-        // Because the stop is usually mapped on the road center-line, the matched side-of-the-road
-        // is often wrong. If we have the bus stop, actually use that and get the equivalent
-        // position on the closest driving/bus lane.
+        // We already figured out what side of the road we're on
+        let (r, fwds) = stop.matched_road.unwrap();
+        let r = map.get_r(map.find_r_by_osm_id(r)?);
+        // Prefer the rightmost match. DON'T use find_closest_lane here; we only want one side of
+        // the road.
+        let l = map.get_l(
+            r.children(fwds)
+                .iter()
+                .rev()
+                .find(|(l, _)| route_type.can_use(map.get_l(*l), map))
+                .ok_or_else(|| {
+                    format!(
+                        "{}, fwds={}, doesn't have a bus or driving lane",
+                        r.id, fwds
+                    )
+                })?
+                .0,
+        );
+
+        // Where exactly along this lane?
+        // TODO This should just be a method in PolyLine
+        let mut closest: FindClosest<()> = FindClosest::new(map.get_bounds());
+        closest.add((), l.lane_center_pts.points());
+        let (_, pt) = closest
+            .closest_pt(stop.vehicle_pos.1, Distance::meters(10.0))
+            .ok_or_else(|| format!("{} isn't near {}", stop.vehicle_pos.0, l.id))?;
+        let mut driving_pos = Position::new(l.id, l.dist_along_of_point(pt).unwrap());
+
         let sidewalk_pos = if let Some(pt) = stop.ped_pos {
             *self
                 .sidewalk_pts
                 .get(&pt.to_hashable())
                 .ok_or("sidewalk didnt match")?
         } else {
-            // We only have the vehicle position. First find the sidewalk, then snap it to the
-            // rightmost driving/bus lane.
-            let orig_driving_pos = *self
-                .bus_pts
-                .get(&stop.vehicle_pos.1.to_hashable())
-                .ok_or_else(|| format!("vehicle for bus didnt match: {}", stop.vehicle_pos.0))?;
             let sidewalk = map
-                .get_parent(orig_driving_pos.lane())
+                .get_parent(driving_pos.lane())
                 .find_closest_lane(
-                    orig_driving_pos.lane(),
+                    driving_pos.lane(),
                     |l| PathConstraints::Pedestrian.can_use(l, map),
                     map,
                 )
-                .ok_or_else(|| format!("driving {} to sidewalk failed", orig_driving_pos.lane()))?;
-            orig_driving_pos.equiv_pos(sidewalk, map)
+                .ok_or_else(|| format!("driving {} to sidewalk failed", driving_pos.lane()))?;
+            driving_pos.equiv_pos(sidewalk, map)
         };
-        let lane = map
-            .get_parent(sidewalk_pos.lane())
-            .find_closest_lane(sidewalk_pos.lane(), |l| route_type.can_use(l, map), map)
-            .ok_or_else(|| format!("sidewalk {} to driving failed", sidewalk_pos.lane()))?;
-        let mut driving_pos = sidewalk_pos.equiv_pos(lane, map);
+
         // If we're a stop right at an incoming border, make sure to be at least past where the bus
         // will spawn from the border. pick_start_lane() can't do anything for borders.
         if map
