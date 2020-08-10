@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="map/index.html"><strong aria-hidden="true">2.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="map/importing/index.html"><strong aria-hidden="true">2.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="map/importing/convert_osm.html"><strong aria-hidden="true">2.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="map/importing/geometry.html"><strong aria-hidden="true">2.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="map/importing/rest.html"><strong aria-hidden="true">2.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="map/edits.html"><strong aria-hidden="true">2.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="map/misc.html"><strong aria-hidden="true">2.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="trafficsim/index.html"><strong aria-hidden="true">3.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="trafficsim/discrete_event.html"><strong aria-hidden="true">3.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="trafficsim/travel_demand.html"><strong aria-hidden="true">3.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="trafficsim/gridlock.html"><strong aria-hidden="true">3.3.</strong> Gridlock</a></li></ol></li><li class="chapter-item expanded "><a href="project/index.html"><strong aria-hidden="true">4.</strong> Project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="project/roadmap.html"><strong aria-hidden="true">4.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="project/motivations.html"><strong aria-hidden="true">4.2.</strong> Motivations</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="map/index.html"><strong aria-hidden="true">2.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="map/importing/index.html"><strong aria-hidden="true">2.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="map/importing/convert_osm.html"><strong aria-hidden="true">2.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="map/importing/geometry.html"><strong aria-hidden="true">2.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="map/importing/rest.html"><strong aria-hidden="true">2.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="map/edits.html"><strong aria-hidden="true">2.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="map/misc.html"><strong aria-hidden="true">2.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="trafficsim/index.html"><strong aria-hidden="true">3.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="trafficsim/discrete_event.html"><strong aria-hidden="true">3.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="trafficsim/travel_demand.html"><strong aria-hidden="true">3.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="trafficsim/gridlock.html"><strong aria-hidden="true">3.3.</strong> Gridlock</a></li></ol></li><li class="chapter-item expanded "><a href="case_studies/index.html"><strong aria-hidden="true">4.</strong> Case studies</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="case_studies/lake_wash.html"><strong aria-hidden="true">4.1.</strong> Lake Washington Blvd Stay Healthy Street</a></li><li class="chapter-item expanded "><a href="case_studies/west_seattle.html"><strong aria-hidden="true">4.2.</strong> West Seattle mitigations</a></li></ol></li><li class="chapter-item expanded "><a href="project/index.html"><strong aria-hidden="true">5.</strong> Project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="project/roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="project/motivations.html"><strong aria-hidden="true">5.2.</strong> Motivations</a></li><li class="chapter-item expanded "><a href="project/history/index.html"><strong aria-hidden="true">5.3.</strong> History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="project/history/backstory.html"><strong aria-hidden="true">5.3.1.</strong> Backstory</a></li><li class="chapter-item expanded "><a href="project/history/year1.html"><strong aria-hidden="true">5.3.2.</strong> Year 1</a></li><li class="chapter-item expanded "><a href="project/history/year2.html"><strong aria-hidden="true">5.3.3.</strong> Year 2</a></li><li class="chapter-item expanded "><a href="project/history/year3.html"><strong aria-hidden="true">5.3.4.</strong> Year 3</a></li></ol></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -957,6 +957,204 @@ crazy movements
 </li>
 <li>upstreaming lane count fixes into OSM to improve geometry</li>
 </ul>
+<h1><a class="header" href="#case-studies" id="case-studies">Case studies</a></h1>
+<p>Note: Most of these still aren't started, because the baseline simulation in the
+relevant area isn't working. Unknown traffic signal timing, bad guesses at the
+amount of off-street parking, lanes tagged incorrectly in OpenStreetMap, and
+simulation bugs cause unrealistic gridlock. It's hard to evaluate a change
+without a realistic baseline.</p>
+<p>In progress:</p>
+<ul>
+<li><a href="case_studies/lake_wash.html">Stay Healthy Streets: Lake Washington Blvd</a></li>
+<li><a href="case_studies/west_seattle.html">West Seattle mitigations</a></li>
+<li>Simplify where the Burke Gilman crosses Corliss and Pacific
+<ul>
+<li>No write-up yet, but the proposal is included in A/B Street</li>
+</ul>
+</li>
+</ul>
+<p>TODO:</p>
+<ul>
+<li>Close Broadway and Pine to through-traffic
+<ul>
+<li>proposed
+<a href="https://old.reddit.com/r/SeattleWA/comments/gr4dsi/its_time_for_mayor_durkan_to_bring_stay_healthy/">here</a></li>
+<li>partly <a href="https://www.openstreetmap.org/way/814244753">happening already</a></li>
+<li>another <a href="https://twitter.com/pushtheneedle/status/1270757771802103809/photo/1">proposal</a></li>
+</ul>
+</li>
+<li>Traffic signal timing at Montlake/520 and Montlake/Pacific
+<ul>
+<li>Walking around here is frustrating, and pre-COVID, vehicle traffic got
+fairly stuck</li>
+</ul>
+</li>
+<li>Pedestrianizing the Ave (u-district)
+<ul>
+<li>I can't find the proposal anymore; maybe
+<a href="http://www.udistrictmobility.com/">this</a>?</li>
+</ul>
+</li>
+<li>Eastlake bike lanes / RapidRide J
+<ul>
+<li>See
+<a href="https://www.seattle.gov/transportation/projects-and-programs/programs/bike-program/protected-bike-lanes/eastlake-avenue-protected-bike-lanes">here</a>
+and
+<a href="http://www.seattle.gov/transportation/projects-and-programs/programs/transit-program/transit-plus-multimodal-corridor-program/rapidride-roosevelt">here</a></li>
+<li>Need to audit lanes in OSM along Eastlake</li>
+<li>Especially with the Fairview Ave bridge out, detouring to the Cheshiahud
+loop isn't as useful</li>
+</ul>
+</li>
+<li>Madison / RapidRide G
+<ul>
+<li>See
+<a href="http://www.seattle.gov/transportation/projects-and-programs/programs/transit-program/transit-plus-multimodal-corridor-program/madison-street-bus-rapid-transit">here</a></li>
+</ul>
+</li>
+<li>Bus lanes on Denny
+<ul>
+<li>Proposed
+<a href="https://twitter.com/transitrunner/status/1175068582142599168">here</a></li>
+</ul>
+</li>
+<li>Bike Master Plan
+<ul>
+<li>Prototype the
+<a href="https://www.seattle.gov/transportation/document-library/citywide-plans/modal-plans/bicycle-master-plan">planned network</a></li>
+</ul>
+</li>
+<li>Downtown one-way snake
+<ul>
+<li>An old crazy idea I've always wanted to try</li>
+</ul>
+</li>
+<li>Unsorted ideas
+<ul>
+<li><a href="https://www.reddit.com/r/SeattleWA/comments/cr1r1l/why_the_fuck_does_the_right_lane_convert_to/">Parking</a></li>
+<li><a href="https://seattletransitblog.com/2018/10/05/seven-places-to-add-bus-lanes-now/">Bus lanes</a></li>
+<li><a href="https://old.reddit.com/r/SeattleWA/comments/83h4ri/the_intersection_at_john_and_broadway_desperately/">John and Broadway</a></li>
+<li><a href="https://old.reddit.com/r/Seattle/comments/4z3ewl/what_are_seattles_worst_intersections/">Bad intersections</a></li>
+<li><a href="https://old.reddit.com/r/SeattleWA/comments/5rvss5/what_changes_would_you_make_to_seattles_bus/">Bus routes</a></li>
+</ul>
+</li>
+</ul>
+<h1><a class="header" href="#lake-washington-blvd-stay-healthy-street" id="lake-washington-blvd-stay-healthy-street">Lake Washington Blvd Stay Healthy Street</a></h1>
+<p><em>Draft, updated May 7, 2020 by Dustin Carlino (<a href="mailto:case_studies/dabreegster@gmail.com">dabreegster@gmail.com</a>)</em></p>
+<p>In April 2020, Seattle Department of Transportation started rolling out
+<a href="https://sdotblog.seattle.gov/2020/04/16/announcing-stay-healthy-streets/">Stay Healthy Streets</a>,
+restricting roads to through-traffic to give people walking and biking more
+space for social distancing.
+<a href="http://seattlegreenways.org/socialdistancingstreets/">Seattle Neighborhood Greenways</a>
+soon proposed extending this to a
+<a href="https://drive.google.com/open?id=1HQMnagRf8EbS1nouqCMLl4LZr0QE8VrC&amp;usp=sharing">130-mile network</a>.</p>
+<p>Selecting the streets requires some planning:</p>
+<blockquote>
+<p>These streets were selected to amplify outdoor exercise opportunities for
+areas with limited open space options, low car ownership and routes connecting
+people to essential services and food take out. We also ensured street
+closures did not impact newly opened food pick up loading zones, parking
+around hospitals for service for health care professionals, and bus routes.</p>
+</blockquote>
+<p>I've spent the last two years building <a href="https://abstreet.org">A/B Street</a>,
+software to explore the impacts of changes like this on different modes of
+transportation. So, let's try implementing part of the proposed network and see
+what happens!</p>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> You might want to read <a href="https://github.com/dabreegster/abstreet/blob/master/old_docs/how_it_works.md">how A/B Street
+works</a>
+first.</p>
+</blockquote>
+<h2><a class="header" href="#lake-washington-blvd" id="lake-washington-blvd">Lake Washington Blvd</a></h2>
+<p>Let's start with one part of the proposal, closing Lake Washington Blvd to cars
+through the Arboretum. There's already a multi-use trail alongside this stretch,
+but its width makes it difficult to maintain 6 feet from people. There are some
+parking lots that become inaccessible with this proposal, but they're currently
+closed anyway.</p>
+<p><img src="case_studies/edits.gif" alt="edits" /></p>
+<h3><a class="header" href="#first-attempt" id="first-attempt">First attempt</a></h3>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/PU0iT-_3-es" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>Let's get started! If you want to follow along, <a href="https://github.com/dabreegster/abstreet/blob/master/old_docs/INSTRUCTIONS.md">install A/B
+Street</a>,
+open sandbox mode, and switch the map to Lake Washington corridor. Zoom in on
+the southern tip of the Arboretum and hop into edit mode. We can see Lake
+Washington Blvd just has one travel lane in each direction here. Click each
+lane, convert it to a bike lane, and repeat north until Foster Island Road.</p>
+<p>When we leave edit mode, the traffic simulation resets to midnight. Nothing
+really interesting happens until 5 or 6am, so we'll speed up time. Watching the
+section of road we edited, we'll only see pedestrians and bikes use this stretch
+of road. If we want, we can click an individual person and follow along their
+journey.</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/LSCHeDi5484" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>Something's weird though. There's lots of traffic cutting northbound through the
+neighborhood, along 29th, Ward, and 28th. We can open up the throughput layer to
+find which roads have the most traffic. More usefully, we can select &quot;compare
+before edits&quot; to see what roads are getting more or less traffic because of the
+road we modified. As expected, there's much less traffic along Lake Wash Blvd,
+but it's also clear that lots of cars are now cutting through 26th Ave E.</p>
+<h3><a class="header" href="#traffic-calming" id="traffic-calming">Traffic calming</a></h3>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/qAf5IAMbpcU" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>Let's say you want to nudge traffic to use 23rd Ave, the nearest north/south
+arterial, instead. (A/B Street is an unopinionated tool; if you have a different
+goal in mind, try using it for that instead.) In this simulation, drivers pick
+the fastest route, so we could try lowering speed limits or make some of the
+residential streets connecting to Madison one-way, discouraging through-traffic.
+In reality, the speed limit changes could be implemented through
+<a href="https://streetsillustrated.seattle.gov/design-standards/trafficcalming/">traffic calming</a>
+or cheap, temporary alternatives.</p>
+<h2><a class="header" href="#next-steps" id="next-steps">Next steps</a></h2>
+<p>I'm working to model &quot;local access only&quot; roads in A/B Street, and I'll describe
+how to measure the impact on travel times. Stay tuned to see more of the
+<a href="https://drive.google.com/open?id=1HQMnagRf8EbS1nouqCMLl4LZr0QE8VrC&amp;usp=sharing">proposed network</a>
+simulated, and get in touch if you'd like to help out!</p>
+<h1><a class="header" href="#west-seattle-mitigations" id="west-seattle-mitigations">West Seattle mitigations</a></h1>
+<p><em>Draft, updated June 23, 2020 by Dustin Carlino (<a href="mailto:case_studies/dabreegster@gmail.com">dabreegster@gmail.com</a>)</em></p>
+<p>In March 2020, the West Seattle bridge was closed due to cracks forming. As of
+May, COVID-19's impact on commuting means the area still hasn't seen how the
+area will handle losing the main route to the rest of Seattle. A local group,
+HPAC, published a list of
+<a href="https://www.westsideseattle.com/robinson-papers/2020/05/04/highland-park-action-coalition-calls-seattle-officials-traffic">requests to SDOT</a>
+to prepare the area for these changes.</p>
+<p>This page will try to explore some of the problems and solutions from HPAC's
+document using <a href="https://abstreet.org">A/B Street</a>, a traffic simulator designed
+to explore the impacts of changes like this on different modes of
+transportation.</p>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> You might want to read <a href="https://github.com/dabreegster/abstreet/blob/master/old_docs/how_it_works.md">how A/B Street
+works</a>
+first.</p>
+</blockquote>
+<h2><a class="header" href="#16th-ave-sw-and-sw-holden-st" id="16th-ave-sw-and-sw-holden-st">16th Ave SW and SW Holden St</a></h2>
+<p>HPAC has been asking for a protected left-turn phase at this intersection. I'm
+unfamiliar with this intersection and currently unable to scout in-person, so
+I'm blindly guessing the traffic signal currently has just two phases:</p>
+<p><img src="case_studies/existing_diagram.gif" alt="existing_diagram" /></p>
+<p>From watching the traffic, it seems like the east/west direction is busier, with
+lots of eastbound traffic headed towards WA-509. Holden St has no turn lanes, so
+a protected left turn phase makes sense. Let's make the change and see what
+happens:</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/6tooJaZLa0Q" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>Unfortuately, we can't evaluate the change yet, because the simulation gets
+stuck with unrealistic traffic jams in other parts of the map. This is mostly
+due to data quality issues in OpenStreetMap and incorrectly guessed traffic
+signal timings. These problems can be fixed with the help of somebody familiar
+with the area.</p>
+<h2><a class="header" href="#re-evaluate-arterials" id="re-evaluate-arterials">Re-evaluate arterials</a></h2>
+<p>The 9th item from HPAC's list asks for measuring the amount of east-west traffic
+to figure out what streets people are using as arterials. That's an easy
+analysis, using the <em>throughput</em> layer.</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/yzp9c7gHhOI" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>By 6am, the busiest streets include Admiral Way, S Charlestown, SW Genesee, SW
+Alaska, SW Holden, and SW Roxbury St. Again, it's necessary to first fix data
+quality problems and run a full day before doing more analysis.</p>
+<p>Once the simulation is running smoothly, A/B Street can be used to make changes
+-- like lowering speed limits, adding a protected left turn phase, or converting
+part of the road into a bus lane -- and evaluate the effects on individual trips
+and aggregate groups.</p>
+<h2><a class="header" href="#repair-the-bridge" id="repair-the-bridge">Repair the bridge</a></h2>
+<p>Community proposals now includes a &quot;repair the bridge&quot; option, which should
+restore things to how they were before March 2020. This is useful as a baseline,
+to explore what traffic patterns were like before the closure.</p>
 <h1><a class="header" href="#project-logistics" id="project-logistics">Project logistics</a></h1>
 <p>This has some background/logistics about the project.</p>
 <h1><a class="header" href="#roadmap" id="roadmap">Roadmap</a></h1>
@@ -1129,6 +1327,250 @@ sudden change. I don't want to ban all cars from downtown Seattle, because
 that's not realistic. I want to focus on immediate steps forward. I want to
 come up with estimates about impacting drivers by a median 3 minutes in order
 to save a bus route 1 minute, and to shift public discourse towards that.</p>
+</li>
+</ul>
+<h1><a class="header" href="#project-history" id="project-history">Project history</a></h1>
+<p>As of June 2020.</p>
+<p>tldr: A/B Street has been in active development since June 2018, but the idea
+has been festering since I was about 16.</p>
+<h2><a class="header" href="#retrospective" id="retrospective">Retrospective</a></h2>
+<p>What poor judgments have cost me the most time?</p>
+<ul>
+<li>UI churn: I should've studied some UX on my own and started with a clear idea
+of how to organize everything</li>
+<li>OSM data quality: I should've gained the confidence to upstream fixes earlier</li>
+<li>Intersection geometry: I should've realized sooner that simulation robustness
+is more important than nice appearance.</li>
+<li>Geometry primitives: I sunk too much time into the polyline problem and f64
+precision.</li>
+</ul>
+<h2><a class="header" href="#trivia" id="trivia">Trivia</a></h2>
+<ul>
+<li>The name was almost &quot;Unstreet&quot; or &quot;Superban&quot; (superb urban)</li>
+<li>I hope you enjoy and/or are baffled by the
+<a href="https://github.com/dabreegster/abstreet/releases">release names</a></li>
+</ul>
+<h1><a class="header" href="#backstory" id="backstory">Backstory</a></h1>
+<p>I originally wanted to tell a much longer story here of how I came to work on
+A/B Street, but I'm not sure this is the right time yet. So consider this the
+quick version.</p>
+<p>I grew up in Baton Rouge, where driving is effectively the only mode of
+transport. (I've gone back and made a point of taking long walks to confirm how
+antagonistically the city is designed towards walking.) Very early on, I fell in
+love with a Nintendo 64 game called Banjo Kazooie, which led me to the online
+fan communities of the early 2000's. I wanted to create games too, so I started
+learning programming via library books and lots of questions on IRC. Because I
+never had any confidence in art, I wound up working on
+<a href="https://github.com/dabreegster/mnemonicrl/">roguelikes</a>, which led to a fervent
+interest in pathfinding algorithms and
+<a href="http://www.cs.colorado.edu/%7Eralex/papers/PDF/OOPSLA06antiobjects.pdf">collaborative diffusion</a>.
+When I started driving in high school, I quickly realized how bad people were at
+it. I remember being stuck at the intersection of
+<a href="https://www.openstreetmap.org/node/1279204989">Florida Blvd and Cloud</a> and
+first wondering if the pathfinding algorithms could help with traffic. Can you
+see where this is going?</p>
+<p><img src="project/history/cloud_florida.jpg" alt="Impatience is a virtue" /></p>
+<p>I moved to Austin for college. One of the first days of class, I shuffled down
+the stairs of Gearing Hall past a crackly old speaker apocalyptically announcing
+the weather forecast (details add color, right?) into a seminar demanding a
+totally open-ended first assignment to do something interesting. After I left,
+somebody stopped to ask me for directions, but I didn't know campus well yet. I
+thought about how Google Maps gave really silly walking directions. So I decided
+I'd hand-draw a map of campus, showing all of the construction, how to cut
+through the labryinth that is Welch Hall on hot days, and where to find the 24/7
+robot coffee machines, and hack together a routing engine to help people find
+the shortest path between their classes. The feedback I got on this assignment
+included something along the lines of, &quot;I was really pretty impressed first that
+you would be so stupid as to actually try to do this...&quot;</p>
+<p><img src="project/history/ut_map.png" alt="Hand-mapping UT Austin" /></p>
+<p>But I did, and that led me to discovering OpenStreetMap, which it turns out was
+pretty pivotal. (The first version of my campus map was seeded vaguely off an
+official paper map, but mostly I walked around and invented half-assed surveying
+methods on the spot.) Next semester, I joined a freshman research stream with
+somebody who had worked on <a href="http://www.cs.utexas.edu/%7Eaim/">AIM</a>, UT's
+demonstration that autonomous vehicles wouldn't need traffic lights. Everything
+came together, and I started a 3 year journey of building
+<a href="https://github.com/dabreegster/aorta/">AORTA</a>, a traffic simulator for AVs.
+Guided by the research lab, I explored the really bizarre idea of letting AVs
+<a href="http://www.cs.utexas.edu/%7Eaim/papers/ITSC13-dcarlino.pdf">bid to turn lights green sooner</a>
+and micro-tolling all roads to disincentivize congestion. Both of these
+mechanisms would be incredibly unfair to people without the spare cash to back
+up their high value-of-time, but I brushed this off by saying the currency could
+be based on carpooling, EVs, etc.</p>
+<p><img src="project/history/aorta.gif" alt="Approximately Orchestrated Routing and Transportation Analyzer" /></p>
+<p>It was great to try research in college; I learned I <em>really</em> dislike munging
+data and compressing my work into 6 pages of conference paper LaTeX. So I moved
+to Seattle to work in industry instead, on something completely unrelated to
+transportation. Lots of things began unravelling for me in Seattle, but one of
+them was biking. In Austin, I had picked up mountain biking, and all but stopped
+driving; it was an amazing place to explore and commute by bike. Seattle was
+different. There were many more cyclists around, but the experience felt more
+stressful, the drivers more aggressive. I had plenty of near-misses. I kept
+commuting by bike, but the joy of it was gone. I started noticing how many cars
+were parked on narrow arterials and wondering why that was a fair use of space.
+I started paying attention to the public discourse around bike infrastructure in
+Seattle and feeling like the conversation was... chaotic.</p>
+<p><img src="project/history/manhattan.jpg" alt="Manhattan took walkability seriously" /></p>
+<p>Fast forward to late 2017. This is where I'll omit chunks of the story. I
+visited London, my first experience with a city that took public transit
+seriously. When I returned, lots of latent ideas stopped fermenting and started
+exploding. I threw together a prototype of A/B Street and started the arduous
+process at work of open-sourcing it and applying to a program to let me work it
+on for a few quarters. A few months later, I wound up quitting instead, and
+began to work on A/B Street in earnest.</p>
+<h1><a class="header" href="#year-1-june-2018-2019" id="year-1-june-2018-2019">Year 1 (June 2018-2019)</a></h1>
+<p>I skimmed through git and summarized roughly what I was working on each month,
+calling out milestones. &quot;UI churn&quot; is pretty much constantly happening.</p>
+<ul>
+<li>
+<p>June: polyline geometry and lanes, building paths, protobuf -&gt; serde</p>
+</li>
+<li>
+<p>July: pedestrians, bikes, parked cars, lane edits</p>
+</li>
+<li>
+<p>August: porting AORTA's discrete-time driving model</p>
+</li>
+<li>
+<p>September: multi-leg trips, buses, the first ezgui wizard, randomized
+scenarios</p>
+</li>
+<li>
+<p>October: A/B test mode (and so per-map plugins), forking RNG for
+edit-invariance, intersection geometry</p>
+</li>
+<li>
+<p>November: clipping / borders, using blockface for parking, time travel mode,
+test runner framework</p>
+</li>
+<li>
+<p>December: bezier curves for turns, traffic signal editor, a first attempt at
+merging intersections, right-click menus, a top menu, modal menus</p>
+<ul>
+<li>the grand colorscheme refactor: a python script scraped <code>cs.get_def</code> calls
+at build-time</li>
+</ul>
+</li>
+<li>
+<p>January: careful f64 resolution, ezgui screencapping, synthetic map editor</p>
+<ul>
+<li><strong>grand refactor</strong>: piston to glium</li>
+</ul>
+</li>
+<li>
+<p>February: attempting to use time-space intervals for a new driving model, new
+discrete-event model instead</p>
+<ul>
+<li><strong>Feb 19-27</strong>: conceiving and cutting over to the new discrete event model</li>
+</ul>
+</li>
+<li>
+<p>March: fleshing out DES model (laggy heads), first attempt to build on
+windows, gridlock detection</p>
+</li>
+<li>
+<p>April: first public releases, splash screen and rearranging game modes</p>
+</li>
+<li>
+<p>May: fancier agent rendering, attempting to use census tracts, finding real
+demand data</p>
+<ul>
+<li><strong>milestone</strong>: discovered PSRC Soundcast data, much more realistic trips</li>
+</ul>
+</li>
+</ul>
+<h1><a class="header" href="#year-2-june-2019-2020" id="year-2-june-2019-2020">Year 2 (June 2019-2020)</a></h1>
+<p><img src="project/history/oct_2019.png" alt="Circa October 2019" /></p>
+<ul>
+<li>
+<p>June: contraction hierarchies for pathfinding, stackable game states</p>
+</li>
+<li>
+<p>July: OSM turn restrictions, misc (I think I was in Europe?)</p>
+</li>
+<li>
+<p>August: pedestrian crowds, agent color schemes, parking blackholes, a big
+<code>raw_data</code> refactor to store <code>Pt2D</code>, attended first hackathon</p>
+</li>
+<li>
+<p>September: offstreet parking, associating parked cars with buildings using
+Soundcast (before that, anybody could use any car!), implemented texture
+support for some reason, doing manual <code>MapFixes</code> at scale to fix OSM bugs</p>
+<ul>
+<li><strong>milestone</strong>: got the smallest montlake map to run without gridlock</li>
+</ul>
+</li>
+<li>
+<p>October: parking sim fixes, opportunistic lane-changing, starting challenge
+modes</p>
+</li>
+<li>
+<p>November: prebaked sim results, time-series plots, undo for edit mode, traffic
+signal editor grouping turns</p>
+<ul>
+<li><strong>milestone</strong>: Yuwen joins project</li>
+</ul>
+</li>
+<li>
+<p>December: the UI reform begins (flexbox, minimap, trip timelines, cutting over
+to SVGs, info panels, scrolling), started naming releases sensibly</p>
+<ul>
+<li>Project leaked to <a href="https://news.ycombinator.com/item?id=21763636">HN</a>, woops</li>
+</ul>
+</li>
+<li>
+<p>January: UI reform continues, the modern tutorial mode appears</p>
+</li>
+<li>
+<p>Feburary: UI and tutorial, all text now pure vectors, port to glow+WASM</p>
+</li>
+<li>
+<p>March: lockdowns start in US, start grouping trips as a person, population
+heatmap, left-hand driving, info panel and typography overhauls. started
+engaging with Greenways, started effort to map traffic signals</p>
+</li>
+<li>
+<p>April: Orestis joins and starts the pandemic model, trip tables, the optimize
+commute challenge, refactor for people's schedules and owned vehicles, trip
+time dat viz, MAJOR progress fixing gridlock at the sim layer</p>
+</li>
+<li>
+<p>May: gridlock progress, upstreaming fixes in OSM, differential throughput and
+first real write-up, long-lasting player edits, dedicated parking mapper,
+maybe vanquished the HiDPI bugs, multi-step turn restrictions, random bios for
+people, and docs like this to prep for launch ;)</p>
+<ul>
+<li><strong>milestone</strong>: relying on pure OSM, no more <code>MapFixes</code></li>
+</ul>
+</li>
+</ul>
+<h1><a class="header" href="#year-3-june-2020-2021" id="year-3-june-2020-2021">Year 3 (June 2020-2021)</a></h1>
+<ul>
+<li>June: parking lots, real minimap controls, road labels
+<ul>
+<li><strong>June 22</strong>: alpha launch!
+<a href="https://old.reddit.com/r/Seattle/comments/hdtucd/ab_street_think_you_can_fix_seattles_traffic/">r/Seattle</a>,
+<a href="https://old.reddit.com/r/SeattleWA/comments/hdttu8/ab_street_think_you_can_fix_seattles_traffic/">r/SeattleWA</a>,
+<a href="https://old.reddit.com/r/urbanplanning/comments/hdylmo/ab_street_a_traffic_simulation_game/">r/UrbanPlanning</a>,
+<a href="https://news.ycombinator.com/item?id=23605048#23608365">HN</a>,
+<a href="https://www.geekwire.com/2020/want-fix-seattle-traffic-redditor-makes-game-allows-players-tweak-city-streets/">GeekWire</a>,
+<a href="https://www.thestranger.com/slog/2020/06/29/43999454/ab-streets-game-lets-you-create-the-seattle-street-grid-of-your-dreams">The Stranger</a></li>
+</ul>
+</li>
+<li>July: loads of bugfixes, map geometry improvements, UI cleanups,
+access-restricted zones for private neighborhoods and no-through-traffic,
+better traffic generation between home&lt;-&gt;work for new maps, complete overhaul
+to bus routes and introduction of light rail, commute pattern explorer,
+importing Krakow and Berlin, smarter lane-changing, walkable shoulders for
+roads without sidewalks
+<ul>
+<li><a href="https://www.youtube.com/watch?v=Pk8V-egsUxU">KING 5 Evening</a> interview</li>
+</ul>
+</li>
+<li>August: ...
+<ul>
+<li><a href="https://bikesiliconvalley.org/2020/07/poster_dustin-carlino/">Silicon Valley Bike Summit</a>, <a href="https://www.seattlepi.com/local/transportation/slideshow/solve-Seattles-traffic-problem-in-this-video-game-205839.php">Seattle PI</a></li>
+</ul>
 </li>
 </ul>
 

@@ -1,0 +1,286 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Lake Washington Blvd Stay Healthy Street - A/B Street</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../map/index.html"><strong aria-hidden="true">2.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/index.html"><strong aria-hidden="true">2.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/convert_osm.html"><strong aria-hidden="true">2.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="../map/importing/geometry.html"><strong aria-hidden="true">2.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="../map/importing/rest.html"><strong aria-hidden="true">2.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="../map/edits.html"><strong aria-hidden="true">2.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../map/misc.html"><strong aria-hidden="true">2.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="../trafficsim/index.html"><strong aria-hidden="true">3.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trafficsim/discrete_event.html"><strong aria-hidden="true">3.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="../trafficsim/travel_demand.html"><strong aria-hidden="true">3.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="../trafficsim/gridlock.html"><strong aria-hidden="true">3.3.</strong> Gridlock</a></li></ol></li><li class="chapter-item expanded "><a href="../case_studies/index.html"><strong aria-hidden="true">4.</strong> Case studies</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../case_studies/lake_wash.html" class="active"><strong aria-hidden="true">4.1.</strong> Lake Washington Blvd Stay Healthy Street</a></li><li class="chapter-item expanded "><a href="../case_studies/west_seattle.html"><strong aria-hidden="true">4.2.</strong> West Seattle mitigations</a></li></ol></li><li class="chapter-item expanded "><a href="../project/index.html"><strong aria-hidden="true">5.</strong> Project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="../project/motivations.html"><strong aria-hidden="true">5.2.</strong> Motivations</a></li><li class="chapter-item expanded "><a href="../project/history/index.html"><strong aria-hidden="true">5.3.</strong> History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/history/backstory.html"><strong aria-hidden="true">5.3.1.</strong> Backstory</a></li><li class="chapter-item expanded "><a href="../project/history/year1.html"><strong aria-hidden="true">5.3.2.</strong> Year 1</a></li><li class="chapter-item expanded "><a href="../project/history/year2.html"><strong aria-hidden="true">5.3.3.</strong> Year 2</a></li><li class="chapter-item expanded "><a href="../project/history/year3.html"><strong aria-hidden="true">5.3.4.</strong> Year 3</a></li></ol></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">A/B Street</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#lake-washington-blvd-stay-healthy-street" id="lake-washington-blvd-stay-healthy-street">Lake Washington Blvd Stay Healthy Street</a></h1>
+<p><em>Draft, updated May 7, 2020 by Dustin Carlino (<a href="mailto:dabreegster@gmail.com">dabreegster@gmail.com</a>)</em></p>
+<p>In April 2020, Seattle Department of Transportation started rolling out
+<a href="https://sdotblog.seattle.gov/2020/04/16/announcing-stay-healthy-streets/">Stay Healthy Streets</a>,
+restricting roads to through-traffic to give people walking and biking more
+space for social distancing.
+<a href="http://seattlegreenways.org/socialdistancingstreets/">Seattle Neighborhood Greenways</a>
+soon proposed extending this to a
+<a href="https://drive.google.com/open?id=1HQMnagRf8EbS1nouqCMLl4LZr0QE8VrC&amp;usp=sharing">130-mile network</a>.</p>
+<p>Selecting the streets requires some planning:</p>
+<blockquote>
+<p>These streets were selected to amplify outdoor exercise opportunities for
+areas with limited open space options, low car ownership and routes connecting
+people to essential services and food take out. We also ensured street
+closures did not impact newly opened food pick up loading zones, parking
+around hospitals for service for health care professionals, and bus routes.</p>
+</blockquote>
+<p>I've spent the last two years building <a href="https://abstreet.org">A/B Street</a>,
+software to explore the impacts of changes like this on different modes of
+transportation. So, let's try implementing part of the proposed network and see
+what happens!</p>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> You might want to read <a href="https://github.com/dabreegster/abstreet/blob/master/old_docs/how_it_works.md">how A/B Street
+works</a>
+first.</p>
+</blockquote>
+<h2><a class="header" href="#lake-washington-blvd" id="lake-washington-blvd">Lake Washington Blvd</a></h2>
+<p>Let's start with one part of the proposal, closing Lake Washington Blvd to cars
+through the Arboretum. There's already a multi-use trail alongside this stretch,
+but its width makes it difficult to maintain 6 feet from people. There are some
+parking lots that become inaccessible with this proposal, but they're currently
+closed anyway.</p>
+<p><img src="edits.gif" alt="edits" /></p>
+<h3><a class="header" href="#first-attempt" id="first-attempt">First attempt</a></h3>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/PU0iT-_3-es" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>Let's get started! If you want to follow along, <a href="https://github.com/dabreegster/abstreet/blob/master/old_docs/INSTRUCTIONS.md">install A/B
+Street</a>,
+open sandbox mode, and switch the map to Lake Washington corridor. Zoom in on
+the southern tip of the Arboretum and hop into edit mode. We can see Lake
+Washington Blvd just has one travel lane in each direction here. Click each
+lane, convert it to a bike lane, and repeat north until Foster Island Road.</p>
+<p>When we leave edit mode, the traffic simulation resets to midnight. Nothing
+really interesting happens until 5 or 6am, so we'll speed up time. Watching the
+section of road we edited, we'll only see pedestrians and bikes use this stretch
+of road. If we want, we can click an individual person and follow along their
+journey.</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/LSCHeDi5484" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>Something's weird though. There's lots of traffic cutting northbound through the
+neighborhood, along 29th, Ward, and 28th. We can open up the throughput layer to
+find which roads have the most traffic. More usefully, we can select &quot;compare
+before edits&quot; to see what roads are getting more or less traffic because of the
+road we modified. As expected, there's much less traffic along Lake Wash Blvd,
+but it's also clear that lots of cars are now cutting through 26th Ave E.</p>
+<h3><a class="header" href="#traffic-calming" id="traffic-calming">Traffic calming</a></h3>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/qAf5IAMbpcU" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>Let's say you want to nudge traffic to use 23rd Ave, the nearest north/south
+arterial, instead. (A/B Street is an unopinionated tool; if you have a different
+goal in mind, try using it for that instead.) In this simulation, drivers pick
+the fastest route, so we could try lowering speed limits or make some of the
+residential streets connecting to Madison one-way, discouraging through-traffic.
+In reality, the speed limit changes could be implemented through
+<a href="https://streetsillustrated.seattle.gov/design-standards/trafficcalming/">traffic calming</a>
+or cheap, temporary alternatives.</p>
+<h2><a class="header" href="#next-steps" id="next-steps">Next steps</a></h2>
+<p>I'm working to model &quot;local access only&quot; roads in A/B Street, and I'll describe
+how to measure the impact on travel times. Stay tuned to see more of the
+<a href="https://drive.google.com/open?id=1HQMnagRf8EbS1nouqCMLl4LZr0QE8VrC&amp;usp=sharing">proposed network</a>
+simulated, and get in touch if you'd like to help out!</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../case_studies/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../case_studies/west_seattle.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../case_studies/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../case_studies/west_seattle.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
