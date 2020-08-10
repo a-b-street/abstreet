@@ -1,10 +1,5 @@
 # Case studies
 
-See [the main page](https://github.com/dabreegster/abstreet/) for now. I'll
-probably organize everything here eventually.
-
-## Ideas to explore with A/B Street
-
 Note: Most of these still aren't started, because the baseline simulation in the
 relevant area isn't working. Unknown traffic signal timing, bad guesses at the
 amount of off-street parking, lanes tagged incorrectly in OpenStreetMap, and
@@ -13,8 +8,8 @@ without a realistic baseline.
 
 In progress:
 
-- [Stay Healthy Streets: Lake Washington Blvd](lake_wash/proposal.md)
-- [West Seattle mitigations](west_seattle/proposal.md)
+- [Stay Healthy Streets: Lake Washington Blvd](lake_wash.md)
+- [West Seattle mitigations](west_seattle.md)
 - Simplify where the Burke Gilman crosses Corliss and Pacific
   - No write-up yet, but the proposal is included in A/B Street
 

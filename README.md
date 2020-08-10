@@ -49,14 +49,15 @@ Measure the effects:
 - Project
   - [Roadmap](https://dabreegster.github.io/abstreet/project/roadmap.html)
   - [Motivations](https://dabreegster.github.io/abstreet/project/motivations.html)
-  - [History](old_docs/history/history.md)
+  - [History](https://dabreegster.github.io/abstreet/project/history/index.html)
 
 ## Roadmap and contributing
 
-See the [roadmap](old_docs/roadmap.md) for current work, including ways to help. If
-you want to bring this to your city or if you're skilled in design, traffic
-simulation, data visualization, or civic/government outreach, please contact
-Dustin Carlino at <dabreegster@gmail.com>. Follow
+See the [roadmap](https://dabreegster.github.io/abstreet/project/roadmap.html)
+for current work, including ways to help. If you want to bring this to your
+city or if you're skilled in design, traffic simulation, data visualization, or
+civic/government outreach, please contact Dustin Carlino at
+<dabreegster@gmail.com>. Follow
 [r/abstreet](https://www.reddit.com/r/abstreet/) for weekly updates or
 [@CarlinoDustin](https://twitter.com/CarlinoDustin) for occasional videos of
 recent progress.

@@ -14,7 +14,8 @@ document using [A/B Street](https://abstreet.org), a traffic simulator designed
 to explore the impacts of changes like this on different modes of
 transportation.
 
-> **_NOTE:_** You might want to read [how A/B Street works](../how_it_works.md)
+> **_NOTE:_** You might want to read [how A/B Street
+> works](https://github.com/dabreegster/abstreet/blob/master/old_docs/how_it_works.md)
 > first.
 
 ## 16th Ave SW and SW Holden St
