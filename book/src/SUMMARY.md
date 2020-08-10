@@ -12,6 +12,6 @@
   - [Discrete event simulation](trafficsim/discrete_event.md)
   - [Travel demand](trafficsim/travel_demand.md)
   - [Gridlock](trafficsim/gridlock.md)
-- Project
+- [Project](project/README.md)
   - [Roadmap](project/roadmap.md)
   - [Motivations](project/motivations.md)
