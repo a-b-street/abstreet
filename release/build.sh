@@ -12,7 +12,7 @@ cargo run --bin updater
 
 mkdir $output
 
-cp old_docs/INSTRUCTIONS.md $output
+cp book/src/howto/README.md $output/INSTRUCTIONS.txt
 cp release/$runner $output
 # Put the importer in the root directory, but hide game to encourage people to
 # use the runner script. It will capture output logs. But if somebody runs the

@@ -1,6 +1,12 @@
 # Summary
 
 - [Overview](README.md)
+- [Instructions](howto/README.md)
+  - [Developer guide](howto/dev.md)
+  - [How to map on-street parking](howto/map_parking.md)
+  - [Importing a new city](howto/new_city.md)
+  - [Misc developer tricks](howto/misc_dev_tricks.md)
+- [How it works](how_it_works.md)
 - [Map model](map/README.md)
   - [Importing](map/importing/README.md)
     - [convert_osm](map/importing/convert_osm.md)
@@ -23,3 +29,5 @@
     - [Year 1](project/history/year1.md)
     - [Year 2](project/history/year2.md)
     - [Year 3](project/history/year3.md)
+  - [Full CHANGELOG](project/CHANGELOG.md)
+  - [References](project/references.md)

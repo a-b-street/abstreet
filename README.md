@@ -10,8 +10,10 @@ pedestrians.
   [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.7/abstreet_mac_v0_2_7.zip),
   [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.7/abstreet_linux_v0_2_7.zip),
   [FreeBSD](https://www.freshports.org/games/abstreet/), or
-  [read all instructions](old_docs/INSTRUCTIONS.md) (new releases every Sunday)
-- [build from source](old_docs/dev.md) (new changes daily)
+  [read all instructions](https://dabreegster.github.io/abstreet/howto/index.html)
+  (new releases every Sunday)
+- [build from source](https://dabreegster.github.io/abstreet/howto/dev.html)
+  (new changes daily)
 
 ## Show, don't tell
 
@@ -19,25 +21,24 @@ pedestrians.
 
 Find a problem:
 
-![exploring_traffic](old_docs/videos/exploring_traffic.gif)
+![exploring_traffic](book/videos/exploring_traffic.gif)
 
 Make some changes:
 
-![editing_map](old_docs/videos/editing_map.gif)
+![editing_map](book/videos/editing_map.gif)
 
 Measure the effects:
 
-![evaluating_impacts](old_docs/videos/evaluating_impacts.gif)
+![evaluating_impacts](book/videos/evaluating_impacts.gif)
 
 ## Documentation
 
-- [How A/B Street works](old_docs/how_it_works.md)
-- [Case studies](old_docs/index.md)
+- [How A/B Street works](https://dabreegster.github.io/abstreet/how_it_works.html)
 - Technical
-  - [Developer guide](old_docs/dev.md)
+  - [Developer guide](https://dabreegster.github.io/abstreet/howto/dev.html)
   - [Map model](https://dabreegster.github.io/abstreet/map/index.html)
   - [Traffic simulation](https://dabreegster.github.io/abstreet/trafficsim/index.html)
-  - [Running A/B Street in a new city](old_docs/new_city.md)
+  - [Running A/B Street in a new city](https://dabreegster.github.io/abstreet/howto/new_city.html)
   - [UX design](https://yuwen-li.com/work/abstreet)
 - Presentations
   - April 2020 Rust meetup:
@@ -54,13 +55,12 @@ Measure the effects:
 ## Roadmap and contributing
 
 See the [roadmap](https://dabreegster.github.io/abstreet/project/roadmap.html)
-for current work, including ways to help. If you want to bring this to your
-city or if you're skilled in design, traffic simulation, data visualization, or
+for current work, including ways to help. If you want to bring this to your city
+or if you're skilled in design, traffic simulation, data visualization, or
 civic/government outreach, please contact Dustin Carlino at
-<dabreegster@gmail.com>. Follow
-[r/abstreet](https://www.reddit.com/r/abstreet/) for weekly updates or
-[@CarlinoDustin](https://twitter.com/CarlinoDustin) for occasional videos of
-recent progress.
+<dabreegster@gmail.com>. Follow [r/abstreet](https://www.reddit.com/r/abstreet/)
+for weekly updates or [@CarlinoDustin](https://twitter.com/CarlinoDustin) for
+occasional videos of recent progress.
 
 ## Project mission
 
@@ -83,7 +83,8 @@ writes:
 
 Existing urban planning software is either proprietary or hard to use. A/B
 Street strives to be highly accessible, by being a fun, engaging game. See
-[here](old_docs/motivations.md) for more guiding principles.
+[here](https://dabreegster.github.io/abstreet/project/motivations.html) for more
+guiding principles.
 
 ## Credits
 
