@@ -1,0 +1,778 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Full CHANGELOG - A/B Street</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../howto/index.html"><strong aria-hidden="true">2.</strong> Instructions</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../howto/dev.html"><strong aria-hidden="true">2.1.</strong> Developer guide</a></li><li class="chapter-item expanded "><a href="../howto/map_parking.html"><strong aria-hidden="true">2.2.</strong> How to map on-street parking</a></li><li class="chapter-item expanded "><a href="../howto/new_city.html"><strong aria-hidden="true">2.3.</strong> Importing a new city</a></li><li class="chapter-item expanded "><a href="../howto/misc_dev_tricks.html"><strong aria-hidden="true">2.4.</strong> Misc developer tricks</a></li></ol></li><li class="chapter-item expanded "><a href="../how_it_works.html"><strong aria-hidden="true">3.</strong> How it works</a></li><li class="chapter-item expanded "><a href="../map/index.html"><strong aria-hidden="true">4.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/index.html"><strong aria-hidden="true">4.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/convert_osm.html"><strong aria-hidden="true">4.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="../map/importing/geometry.html"><strong aria-hidden="true">4.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="../map/importing/rest.html"><strong aria-hidden="true">4.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="../map/edits.html"><strong aria-hidden="true">4.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../map/misc.html"><strong aria-hidden="true">4.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="../trafficsim/index.html"><strong aria-hidden="true">5.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trafficsim/discrete_event.html"><strong aria-hidden="true">5.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="../trafficsim/travel_demand.html"><strong aria-hidden="true">5.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="../trafficsim/gridlock.html"><strong aria-hidden="true">5.3.</strong> Gridlock</a></li></ol></li><li class="chapter-item expanded "><a href="../case_studies/index.html"><strong aria-hidden="true">6.</strong> Case studies</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../case_studies/lake_wash.html"><strong aria-hidden="true">6.1.</strong> Lake Washington Blvd Stay Healthy Street</a></li><li class="chapter-item expanded "><a href="../case_studies/west_seattle.html"><strong aria-hidden="true">6.2.</strong> West Seattle mitigations</a></li></ol></li><li class="chapter-item expanded "><a href="../project/index.html"><strong aria-hidden="true">7.</strong> Project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/roadmap.html"><strong aria-hidden="true">7.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="../project/motivations.html"><strong aria-hidden="true">7.2.</strong> Motivations</a></li><li class="chapter-item expanded "><a href="../project/history/index.html"><strong aria-hidden="true">7.3.</strong> History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/history/backstory.html"><strong aria-hidden="true">7.3.1.</strong> Backstory</a></li><li class="chapter-item expanded "><a href="../project/history/year1.html"><strong aria-hidden="true">7.3.2.</strong> Year 1</a></li><li class="chapter-item expanded "><a href="../project/history/year2.html"><strong aria-hidden="true">7.3.3.</strong> Year 2</a></li><li class="chapter-item expanded "><a href="../project/history/year3.html"><strong aria-hidden="true">7.3.4.</strong> Year 3</a></li></ol></li><li class="chapter-item expanded "><a href="../project/CHANGELOG.html" class="active"><strong aria-hidden="true">7.4.</strong> Full CHANGELOG</a></li><li class="chapter-item expanded "><a href="../project/references.html"><strong aria-hidden="true">7.5.</strong> References</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">A/B Street</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#changelog" id="changelog">CHANGELOG</a></h1>
+<p>Every time I upload a new <a href="https://github.com/dabreegster/abstreet/releases">binary
+release</a>, I'll list major
+changes here.</p>
+<p>0.1.0</p>
+<ul>
+<li>First binary release</li>
+</ul>
+<p>0.1.1</p>
+<ul>
+<li>drawing arrows better</li>
+<li>start with a splash screen, make it easy to change maps in-game</li>
+</ul>
+<p>0.1.2</p>
+<ul>
+<li>totally revamp GUI by organizing everything into distinct gameplay modes</li>
+</ul>
+<p>0.1.3</p>
+<ul>
+<li>new warp tool that autocompletes street names</li>
+<li>hideable menus, place context menus better, remove top menu bar, add a simple OSD</li>
+<li>loading screens reflect what's printed to the terminal</li>
+<li>depict pedestrians and bikes with more detail</li>
+<li>tool to scroll through an agent's route</li>
+<li>make simulation speed controls actually work</li>
+</ul>
+<p>0.1.4</p>
+<ul>
+<li>improve stop sign editor UI (toggle entire roads)</li>
+<li>better mouseover / selection rendering</li>
+<li>better traffic signal rendering (show time left, use outlines for yields)</li>
+<li>make cars actually stop and briefly wait at stop signs</li>
+<li>improve edit mode diff visualization (cross-hatching)</li>
+<li>render actual stop signs, not just red lines</li>
+<li>fix intersection policies confused by conflicting straight turns with lane-changing</li>
+<li>fix mac scrolling</li>
+<li>better turn indicators</li>
+<li>nicer unzoomed view of roads, with different colors for big/small roads</li>
+</ul>
+<p>0.1.5</p>
+<p>(release file size jumped from ~15MB to ~70MB because of new PSRC trips)</p>
+<ul>
+<li>improve UX of intersection editors</li>
+<li>define a better set of maps included by default</li>
+<li>improve drawing speed by batching more stuff</li>
+<li>better default traffic signal policies for many cases</li>
+<li>import and visualize census data</li>
+<li>fix missing sidewalks on downtown one-ways</li>
+<li>import and visualize PSRC trip data</li>
+</ul>
+<p>0.1.6</p>
+<ul>
+<li>slider widget for controlling time and speed</li>
+<li>fixing bad polyline geometry in most cases; visualizing routes should no longer be buggy</li>
+<li>handle PSRC trips that begin or end out-of-bounds</li>
+<li>draw agents in unzoomed mode in a way simpler way</li>
+<li>improve edit mode: detect reverts to original, easier lane type switching</li>
+<li>lots of fixes for buses: handle edits better, read sequence of stops correctly from GTFS</li>
+<li>set up A/B tests faster</li>
+</ul>
+<p>0.1.7</p>
+<ul>
+<li>bulk and revert tools in edit mode</li>
+<li>improve turns and default intersection policies when bike/bus lanes involved</li>
+<li>new tool to manually hint for short roads and weird intersections. some problems have now been manually fixed</li>
+<li>scoreboard of trip results for sandbox and A/B test mode</li>
+<li>reduce lag when sim is running at full speeds, but system is too slow</li>
+<li>switch to easbar's contraction hierarchy crate, making all pathfinding INSANELY fast</li>
+<li>remove weird rules about the world freezing when traffic signals are in &quot;overtime&quot;</li>
+</ul>
+<p>0.1.8</p>
+<ul>
+<li>edit mode: convert to a ped scramble cycle, simplify stop sign editor by removing individual turns</li>
+<li>ui: put labels next to sliders, organize modal menus into sections, add a minimize/maximize icon</li>
+<li>A/B test mode: savestate, include time controls and agent following/route tools here</li>
+<li>use more OSM data for turn lanes, turn restrictions from lanes, turn restrictions between entire roads</li>
+<li>dont attempt to cross a traffic signal if there's absolutely no hope</li>
+<li>improve bus route UI tools and make routes using transit more sane</li>
+<li>user-defined shortcuts for jumping between views of a map</li>
+</ul>
+<p>0.1.9</p>
+<ul>
+<li>sliders to pick times in wizards</li>
+<li>fix hidpi scaling</li>
+<li>traffic signal diagram scrolls properly</li>
+<li>easier to instantiate a scenario, show all trips involving a building for a scenario</li>
+<li>colorschemes to show trip duration or time blocked</li>
+<li>label buses with route number</li>
+<li>represent overlapping pedestrians as a labeled crowd</li>
+<li>massive performance boost via real priority queue</li>
+<li>prevent cars from &quot;blocking the box&quot;</li>
+<li>prevent all? aborted trips (due to parking blackholes mostly)</li>
+<li>smarter roam-around-for-parking router</li>
+</ul>
+<p>0.1.10</p>
+<ul>
+<li>sim
+<ul>
+<li>parking in off-street garages and on-street lanes on the off-side of oneways now mostly works</li>
+<li>detect and handle parking blackholes; cars should never get stuck looking for parking now</li>
+<li>let lower-priority turns happen at traffic signals when higher-priority ones blocked</li>
+<li>get closer to FCFS ordering at stop signs</li>
+<li>basic opportunistic lane-changing</li>
+<li>a bus should be seeded for every route now</li>
+</ul>
+</li>
+<li>demand data
+<ul>
+<li>show trips to/from buildings and borders</li>
+<li>make PSRC trips seed and attempt to use parked cars</li>
+</ul>
+</li>
+<li>UI
+<ul>
+<li>different heatmap overlays, like parking availability and busiest areas</li>
+<li>show colorscheme legends when relevant</li>
+<li>interactively seed parked cars, spawn more types of trips</li>
+<li>fix major A/B test mode bug (mismatched scenarios and map edits)</li>
+<li>adjusting sliders, menu placement, dynamic items</li>
+<li>consolidating different tools into a single info panel for objects</li>
+<li>bus route explorer shows entire route, current bus location</li>
+</ul>
+</li>
+<li>map quality
+<ul>
+<li>degenerate intersections only have one crosswalk now</li>
+<li>revamped the map editor for fixing geometry problems, used it in many places</li>
+<li>nicer yellow center lines (dashed when appropriate)</li>
+<li>handling OSM turn restriction relations properly</li>
+<li>fix empty traffic signal phases</li>
+<li>handling bike lanes on certain sides of the road</li>
+<li>starting to upstream manually-verified parking lanes into OSM</li>
+</ul>
+</li>
+<li>new gameplay: reverse direction of lanes</li>
+</ul>
+<p>0.1.11</p>
+<ul>
+<li>small UI fixes: fixed width traffic signal diagram, skip info phase of menus when empty</li>
+<li>start drawing (but not using) shared left-turn lanes from OSM</li>
+<li>fix OSM polylines with redundant points (fixing an issue in ballard)</li>
+<li>improved traffic signal policies in some cases</li>
+<li>started upstreaming some sidewalk tags in OSM to fix inference issues</li>
+<li>fixed misclassified right turns</li>
+<li>adjusting map colors</li>
+<li>handling lakes/ocean polygons from OSM way better</li>
+<li>reorganized sim analytics, added stuff for bus arrivals</li>
+<li>adding new internal road points to map editor. almost ready to really aggressively use it</li>
+<li>skipping parking lanes with no nearby sidewalks, since they're unusable</li>
+<li>fix z-order of bridges/tunnels in unzoomed view</li>
+<li>allow unzooming indefinitely</li>
+<li>move lots of sandbox mode controls (and other modes) to menus under buttons and dedicated buttons</li>
+<li>basic support for marking a lane closed for construction</li>
+<li>improved geometry of sidewalks at dead-ends</li>
+</ul>
+<p>0.1.12</p>
+<ul>
+<li>reorganize everything as different challenge modes. start implementing 3: optimizing a bus route, speeding up all trips, or causing as much gridlock as possible</li>
+<li>improved bus route explorer</li>
+<li>some UI fixes (popup messages in a few places, moving mouse tooltips to the OSD)</li>
+<li>lots of analytics and time-series plots</li>
+</ul>
+<p>0.1.13</p>
+<ul>
+<li>analytics: prebake baseline results properly. hover over plot series. some new modes to see bus network, throughput of a road/intersection over time</li>
+<li>log scale for the speed slider</li>
+<li>add a bulk spawner in freeform mode (F2 on a lane)</li>
+<li>rendering: nicer routes, crosswalks, zoomed car colors</li>
+<li>map data: better stop sign and sidewalk heuristics</li>
+<li>fixed the mac hidpi text rendering issue once and for all?!</li>
+</ul>
+<p>0.1.14</p>
+<ul>
+<li>better crosswalk generation when there's only a sidewalk on one side of a road</li>
+<li>edit mode UI revamp: paintbrush-style buttons to apply changes to lanes</li>
+<li>show error messages and prevent edits, like disconnecting sidewalks</li>
+<li>properly ban bikes from highways (revamped rules for vehicles using a lane)</li>
+<li>new freeform mode tool to spawn bikes</li>
+<li>WIP (not working yet): make bikes prefer bike lanes. some debug heatmaps for path cost</li>
+<li>edit mode has proper undo support</li>
+</ul>
+<p>0.1.15</p>
+<ul>
+<li>minor bugfixes with reverting lane types, preserving stop signs</li>
+<li>incorporate edits into the challenge splash screen, make sure edits are reset when appropriate</li>
+<li>starting a new challenge mode, just focused on traffic signals</li>
+<li>can't leave traffic signal editor with missing turns</li>
+<li>render pedestrian crowds on building front paths</li>
+<li>traffic signals support an offset parameter</li>
+<li>traffic signal visualization and editing revamped to group related turns together</li>
+<li>can preview traffic using a signal from the editor</li>
+<li>actually apply priority at intersections, so protected turns get first dibs over yield turns</li>
+</ul>
+<p>0.1.16</p>
+<ul>
+<li>fix Mac crashing with texture limit bug by switching to texture arrays</li>
+<li>fix crashing simulation when a border intersection was used</li>
+<li>started to implement a new UI design for starting the game</li>
+</ul>
+<p>0.1.17</p>
+<ul>
+<li>more work on the pre-game UI, with some flexbox layouting</li>
+<li>prototype a minimap in sandbox mode. doesn't pan or scroll yet.</li>
+<li>prototype a new speed/time control panel from the mockup</li>
+<li>nicer time warp loading screen</li>
+<li>record and show detailed trip timeline, including time to park</li>
+</ul>
+<p>0.1.18</p>
+<ul>
+<li>map data: infer more building addresses</li>
+<li>some analytics on how long people spend parking and intersection delay over time</li>
+<li>create an options panel, allowing runtime customization of color scheme, traffic signal rendering, etc</li>
+<li>internal changes to map building pipeline to make it much easier for new devs to onboard</li>
+<li>organizing challenges into sub-stages, starting to flesh out specifics for the fix traffic signal track</li>
+<li>much more realistic pedestrian pathfinding</li>
+<li>fix minimap on mac (dpi issues)</li>
+<li>visual tweaks to cars to make front/back easier to distinguish</li>
+<li>internal change to switch most assets from PNG to SVG</li>
+</ul>
+<p>0.1.19</p>
+<ul>
+<li>some challenge modes show a histogram for counting faster/slower trips</li>
+<li>new visualization of current demand per direction at a traffic signal</li>
+<li>implementing some of Yuwen's UI changes: agent counter, split time/speed panel, moved functionality out of the old drop-down menus into a bottom-left tool panel, hiding debug functionality</li>
+<li>replaced right-click context menus with left click to open info panels</li>
+<li>fixed random issues reported by people from HN</li>
+</ul>
+<p>0.1.20</p>
+<ul>
+<li>moved some UI functionality around, pulling graphs into info panel</li>
+<li>interactive legend for the minimap, toggle visibility of different agents</li>
+<li>nicer colors and shapes for cars</li>
+<li>misc simulation bugfixes that might help huge_seattle</li>
+<li>pedestrians choose to use transit more realistically, factoring in time for the bus to drive</li>
+</ul>
+<p>0.1.21</p>
+<ul>
+<li>switch some analytics dashboards to use buttons, not old non-scrolling menus</li>
+<li>scrollbars... at least a start</li>
+<li>preview traffic signal changes from live sim as the base</li>
+<li>traffic signal preview has normal time/speed controls</li>
+<li>traffic signal editor has undo support</li>
+<li>minimap has buttons to pan</li>
+</ul>
+<p>0.1.22</p>
+<ul>
+<li>minimap zoom controls</li>
+<li>traffic signal rendering overhaul</li>
+<li>heatmap colors improved, heatmap appears on minimap</li>
+<li>bus info panel, a start to live delay analytics</li>
+</ul>
+<p>0.1.23</p>
+<ul>
+<li>UI revamps: speed panel, minimap controls, heatmap chooser</li>
+<li>bus timeline</li>
+<li>hide internal IDs normally</li>
+<li>limit map zoom</li>
+<li>fix bugs with crosswalks conflicting with vehicle turns</li>
+</ul>
+<p>0.1.24</p>
+<ul>
+<li>overhaul traffic signal editor UI, and add redo support</li>
+<li>update main edit mode UI, and add redo support</li>
+<li>limit max unzoom</li>
+<li>fix the infamous HiDPI bug once and for all; minimaps should work everywhere</li>
+<li>almost bug-free support for floating, horizontally and vertically scrolling panels</li>
+<li>overhaul top-center panel, rename scenarios to be less confusing</li>
+<li>expose bus analytics outside of challenge mode</li>
+<li>live info panel can exist during a running simulation</li>
+<li>consolidated agent route/trip information into info panel</li>
+</ul>
+<p>0.1.25</p>
+<ul>
+<li>overhauled the tutorial</li>
+<li>tuned top-center panel for sandbox and challenge modes</li>
+<li>make bike and bus lanes more obvious</li>
+<li>show map edits as an overlay anywhere</li>
+<li>tune info panel contents, and show relationships between parked cars and buildings</li>
+<li>fixes to traffic signal editor, like making all-walk conversion idempotent</li>
+<li>nicer throughput and delay plots (sliding windows, grid lines)</li>
+</ul>
+<p>0.1.26</p>
+<ul>
+<li>tutorial improved in a few places</li>
+<li>map data: thinner sidewalks, associate buildings with named amenities</li>
+<li>traffic model: vehicles can spawn on all lanes from a border</li>
+<li>much better gameplay speed (previously was too fast)</li>
+<li>UI tuning: lane editor, minimap, signal editor, heatmap legends don't overwrite minimap</li>
+<li>traffic signal challenge communicates score more clearly</li>
+</ul>
+<p>0.1.27</p>
+<ul>
+<li>edit mode revamped: click to edit stuff. no more lane paintbrushes. autosaving and save as.</li>
+<li>tutorial: can quit and resume tutorial now</li>
+<li>challenge picking flow simplified</li>
+<li>UI: layouting fixes to full-screen / into stuff, popup menus go beneath buttons, plots improved</li>
+<li>internal change to render all text using vector graphics. other than a few text layouting issues, shouldn't be noticeable, except now tooltips in plots don't get covered up</li>
+<li>misc perf improvements (cache SVGs, drawing many circles for unzoomed agents, dont reload prebaked data)</li>
+<li>upgraded winit, glutin, glium -- hopefully no new bugs introduced on any platforms</li>
+</ul>
+<p>0.1.27a</p>
+<ul>
+<li>patch to fix a crash with empty text dimensions on things like building info panels</li>
+</ul>
+<p>0.1.28</p>
+<ul>
+<li>all info panels revamped</li>
+<li>some tutorial stages are much more clear, with an updating goal</li>
+<li>traffic signal scorecard generalized to work for some tutorial too</li>
+<li>adjust how selected agents look</li>
+<li>X button on popup menus</li>
+</ul>
+<p>0.1.29</p>
+<ul>
+<li>new tool to convert between stop signs and traffic signals</li>
+<li>lane editor easier to edit multiple lanes</li>
+<li>info panels: IDs, mostly avoid horizontal scrolling, better info about trips to/from somewhere, move buttons up</li>
+<li>traffic signal editor UI overhaul</li>
+<li>different data in top-right agent meters panel</li>
+<li>tooltips to communicate keybindings better</li>
+<li>new jump-to-time panel, showing when rush hours occur</li>
+<li>speed controls use more useful speeds</li>
+<li>include ongoing trips in measured trip times</li>
+<li>jump to next challenge after completing one</li>
+<li>lots of tutorial tweaks</li>
+</ul>
+<p>0.1.30</p>
+<ul>
+<li>show additional info about traffic patterns and buggy maps</li>
+<li>revamp tutorial UI to group tasks and messages better</li>
+<li>handle different mode transitions when info panel open on an agent</li>
+<li>select entire roads in unzoomed edit mode</li>
+<li>show total time an agent has spent moving / blocked</li>
+<li>use 2-phase traffic signals by default, making the 23rd map successfully complete!</li>
+<li>jump-to-time now optionally points out traffic jams forming</li>
+<li>challenge splash screen improved</li>
+</ul>
+<p>0.1.31</p>
+<ul>
+<li>overhauled trip timeline in agent info panels</li>
+<li>overhauled traffic signal details panel and the per-lane turn explorer</li>
+<li>settings page: show all options at once. add way to scale up text/UI elements for high-DPI displays, and an alternate pan/zoom control scheme</li>
+<li>traffic signal edits can now be exported and used in any slice of Seattle. will be using this to hand-map many of them.</li>
+<li>many small tutorial fixes</li>
+</ul>
+<p>0.1.32</p>
+<ul>
+<li>some UI work on giving focus to textboxes, improving dropdown menus</li>
+<li>road/intersection plots display baseline sim data too</li>
+<li>start associating people with multiple trips, exposing this a little in the UI</li>
+<li>bring back elevation data, introduce a new overlay. the elevation data is still really bad.</li>
+</ul>
+<p>0.1.33</p>
+<ul>
+<li>new &quot;population&quot; overlay, showing people (not just current trips). heatmap and dot map to visualize.</li>
+<li>improved the &quot;delay&quot; overlay to handle roads and intersections</li>
+<li>removed the confusing and useless alternate color schemes for agents</li>
+<li>initial left-hand driving side, tested in Perth, also drawing more arrows for all one-way roads</li>
+<li>loads of internal GUI code refactorings, preparing for a standalone release of the library</li>
+<li>fixed z-buffering and alpha values for web backend</li>
+</ul>
+<p>0.1.34</p>
+<ul>
+<li>info panels have been totally overhauled again. multiple tabs, way more clear representation of agents, trips, and people.</li>
+<li>draw people inside of a building</li>
+<li>applied consistent typography everywhere</li>
+<li>lots of internal refactoring</li>
+</ul>
+<p>0.1.35</p>
+<ul>
+<li>more info panel work, particularly for trips and buses. change plot settings live.</li>
+<li>prototype of a SEIR pandemic model based on time spent in shared spaces, by orestis</li>
+<li>slight heatmap improvements, more coming</li>
+<li>more typography changes</li>
+<li>mouse cursor now changes for buttons and dragging!</li>
+<li>overhaul minimap controls, make layers behavior zoomed in a little better</li>
+<li>new speed panel and jump-to-time modal</li>
+</ul>
+<p>0.1.36</p>
+<ul>
+<li>overhauled simulation data page, with a table to find slow trips and some initial summary visualizations</li>
+<li>plots can change windowing and show/hide series</li>
+<li>layers: fade map to contrast more, better scales/legends</li>
+<li>show relative trip times in info panels</li>
+<li>tools to rewind/ffw to watch particular trips</li>
+<li>refocusing efforts on challenge modes; level 1 of a new one is pretty much ready</li>
+<li>some simulation fixes around parking and a corner case of cars temporarily forming a cycle</li>
+<li>orestis improved the population/pandemic heatmaps</li>
+</ul>
+<p>0.1.37</p>
+<ul>
+<li>optimize commute challenge: high score, live sentiment, second stage</li>
+<li>parked cars are owned by people, not buildings</li>
+<li>info panel improvements for trips</li>
+<li>bike layer suggests places where bike lanes could be helpful</li>
+<li>many improvements to scatter plot</li>
+<li>a new histogram-ish thing for understanding faster/slower trips</li>
+<li>handling scenarios longer than 24 hours better (for pandemic model)</li>
+<li>prototype of commute visualization, grouping buildings by blocks</li>
+<li>sim bugfixes: crosswalk / vehicle turn conflicts, start bikes in bike lanes from borders</li>
+</ul>
+<p>0.1.38</p>
+<ul>
+<li>major internal changes to ensure people's schedules don't have impossible gaps, to associate fixed bikes/cars to a eprson, handle delayed starts to trips</li>
+<li>parking changes: show path to closest free spot, utilization of a lane over time, every building includes at least 1 offstreet spot by default</li>
+<li>progress on removing unrealistic gridlock: detect turn conflict cycles and temporarily allow conflicts, trim last steps of a laggy head</li>
+<li>internal sim alert system. speeds up debugging, could be used for player-facing &quot;traffic jam!&quot; alerts</li>
+</ul>
+<p>0.1.39</p>
+<ul>
+<li>switched to proper OSM-based maps; no more brittle, manual geometry fixes</li>
+<li>more sorting and filtering options in trip table and parking overhead tables</li>
+<li>improve offstreet parking rendering. park closer to destination buildings</li>
+<li>easier process for importing new cities. introducing Los Angeles, Austin, Barranquilla.</li>
+<li>new data updater tool so people can opt-in to new cities</li>
+<li>many internal fixes to prevent gridlock. smarter cycle detection, manual OSM fixes and traffic signal timings</li>
+</ul>
+<p>0.1.40</p>
+<ul>
+<li>differential throughput layer to understand routing diversions</li>
+<li>map edits now reference longer-lasting OSM IDs, can work cross-map</li>
+<li>basemap updates: new areas for west seattle, mt baker, lots of upstreamed fixes in OSM and traffic signals, smarter border matching</li>
+<li>parking: optionally filter on/off-street spots in the layer, allow disconnecting spots via edits</li>
+<li>render some tunnels with lower opacity</li>
+<li>new feature to change speed limits and bulk road selection tools</li>
+<li>first write-up of a real use case (closing lake wash through arboretum)</li>
+<li>make the traffic signal challenge act like a game, with a failure/win state and scoring</li>
+</ul>
+<p>0.1.40a</p>
+<ul>
+<li>added a mode to map parking</li>
+</ul>
+<p>0.1.41</p>
+<ul>
+<li>new parking mapper tool</li>
+<li>include a one-shot .osm importer in the release</li>
+<li>new layer to find different types of amenities / businesses</li>
+<li>adjust traffic signal rendering style</li>
+<li>bulk lane editor for changing speed limits and lane types</li>
+<li>including west seattle and udistrict maps</li>
+<li>include some OSM buildings that were being skipped</li>
+<li>dont pause after opening something from sandbox mode</li>
+<li>adjust turn signals for lane-changing cars</li>
+<li>lots of fixes for monitors with different DPIs, enabled by default</li>
+</ul>
+<p>0.1.42</p>
+<ul>
+<li>many misc UI bugfixes, especially for high-DPI screens</li>
+<li>managing turns across multiple nearby intersections: tool to visualize, handling multi-way OSM turn restrictions, using this to ban illegal movements at the pathfinding layer, starting a traffic signal editor variant to edit these</li>
+<li>rendering improvements: unzoomed agent size, visualizing routes on trip table, transparent roads beneath bridges, draw harbor island</li>
+<li>overhauled street/address finder</li>
+<li>parking mapper: shortcut to open bing</li>
+</ul>
+<p>0.1.43</p>
+<ul>
+<li>new map picker!</li>
+<li>UI polish: traffic signal editor, layers, bus stops, delay plots</li>
+<li>generate more interesting biographies for people</li>
+<li>tuned all the map boundaries</li>
+<li>fleshing out lots of docs in preparation for the alpha release...</li>
+</ul>
+<p>0.1.44</p>
+<ul>
+<li>spawner UI revamped</li>
+<li>model parking lots! and finally model public/private parking</li>
+<li>fix up tutorial</li>
+<li>starting a story map mode</li>
+</ul>
+<p>0.1.45</p>
+<ul>
+<li>overhauled challenge cutscenes and hints</li>
+<li>traffic signal challenge: fix score detection, add meter, much faster startup, no reset-to-midnight required</li>
+<li>layers: use gradient for a few, delay comparison, new UI for picker</li>
+<li>overhauled minimap controls, should be intuitive now</li>
+<li>edit mode changelist UI started</li>
+</ul>
+<p>0.2.0 (alpha launch)</p>
+<ul>
+<li>road names now shown by default, in a new style</li>
+<li>all layers now use gradients and show up zoomed in. worst traffic jam layer revamped.</li>
+<li>scatter and line plot improvements</li>
+<li>internal UI fixes: proper word wrap</li>
+<li>bugfixes for following people riding the bus</li>
+<li>rainbow crosswalks in one neighborhood</li>
+<li>final polishing for launch</li>
+</ul>
+<p>0.2.1</p>
+<ul>
+<li>busy week due to launch, but many new features in the pipeline</li>
+<li>many bug fixes</li>
+<li>edit mode: proper autosave, load proposals, jump between lane/intersection editors</li>
+<li>very first steps on light rail... importing the tracks</li>
+<li>starting a new traffic scenario modifier system, to repeat entire scenario or outright cancel trips for some people. many more ideas for filters and actions coming soon.</li>
+<li>starting to represent private roads</li>
+<li>add a very simple actuated traffic signal</li>
+</ul>
+<p>0.2.2</p>
+<ul>
+<li>the default traffic signal configuration is much smarter now, handling roads with some sidewalks missing and automatically synchronizing pairs of adjacent lights</li>
+<li>much faster startup time for large maps</li>
+<li>better UX for handling unsaved edits</li>
+<li>access-restricted zones: changing existing zones almost completely works, except for granting new access to pedestrians</li>
+<li>new sidewalk corner rendering, more rounded</li>
+<li>ui style standardized for margins, padding</li>
+<li>Javed got camera panning when your cursor is at the edge of the screen to work; enable it in settings</li>
+<li>pulling bus stop/route info from OSM, not GTFS. steps towards light rail.</li>
+<li>experimenting with controls for hiding bridges to see roads underneath; try them in dev mode (ctrl+S)</li>
+<li>many bug fixes</li>
+</ul>
+<p>0.2.3</p>
+<ul>
+<li>lane geometry is dramatically fixed, especially for one-ways</li>
+<li>importing lanes from OSM improved</li>
+<li>UI: bulk select includes select-along-a-route, show all bus routes in the layer, unzoomed zordering for roads/intersections</li>
+<li>traffic scenario modifier can now convert trip modes</li>
+<li>slight progress on light rail, although the train only makes one stop</li>
+<li>vehicles moving through complex intersections with multiple traffic signals will now make it through multiple lights, even if they're unsynchronized</li>
+<li>new random traffic scenario generator that makes people go between houses and workplaces</li>
+<li>access-restricted zones: granular editing of individual roads now mostly works</li>
+<li>removing the hardcoded relative directories, which many people have been having problems with</li>
+<li>many many bug fixes, and some optimizations to reduce release file size</li>
+</ul>
+<p>0.2.4</p>
+<ul>
+<li>bus/train routes overhauled; they're now one-way, regularly spawn every hour, and may begin or end at a border</li>
+<li>new commute pattern explorer tool</li>
+<li>new character art to give cutscenes a bit more personaliy</li>
+<li>some progress on gridlocking maps, both from manual fixes and an attempt to reduce conflicts in multi-turn sequences</li>
+<li>misc UI: show cars seeking parking in unzoomed mode, plot arrival rate at border intersections, consolidate bulk selection controls</li>
+<li>trips modified by an experiment can now be filtered in summaries</li>
+<li>buses, trains, and passengers on them are now properly distinguished in different stats</li>
+<li>include krakow and berlin in release</li>
+<li>buildings with holes in the middle are now rendered properly</li>
+</ul>
+<p>0.2.5</p>
+<ul>
+<li>cars pick lanes better</li>
+<li>overhaul bus/stop/route info panels</li>
+<li>UI: better autocomplete, commuter pattern improvements by Michael, toggles instead of checkboxes, contours for heatmaps, edit mode loader revamp</li>
+<li>internal refactors: turn creation, osm tags, osm parsing</li>
+<li>import living streets from OSM as restricted-access zones, and other importer tweaks for berlin, krakow, san jose, sydney</li>
+</ul>
+<p>0.2.6</p>
+<ul>
+<li>many roads without sidewalks now have a tiny shoulder lane, still enabling pedestrian movement, but with a penalty</li>
+<li>bike trips will stop/start at a better position along the sidewalk now</li>
+<li>support parking lanes on the off-side of a one-way</li>
+<li>UI: search by building names, commuter patterns shows borders better</li>
+<li>transit: make people ride off-map, spawn buses on short roads</li>
+<li>internal cleanups for buttons</li>
+</ul>
+<p>0.2.7</p>
+<ul>
+<li>many intersections with on/off ramps have much better geometry</li>
+<li>lane-changing banned on turn lanes</li>
+<li>lots more work matching bus stops/routes to the map. some progress, also some regressions.</li>
+<li>fixing spawning on tiny borders</li>
+<li>bus spawn rates from GTFS for seattle. started an editor for the schedule.</li>
+<li>internal ezgui refactorings</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../project/history/year3.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../project/references.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../project/history/year3.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../project/references.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Misc developer tricks - A/B Street</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../howto/index.html"><strong aria-hidden="true">2.</strong> Instructions</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../howto/dev.html"><strong aria-hidden="true">2.1.</strong> Developer guide</a></li><li class="chapter-item expanded "><a href="../howto/map_parking.html"><strong aria-hidden="true">2.2.</strong> How to map on-street parking</a></li><li class="chapter-item expanded "><a href="../howto/new_city.html"><strong aria-hidden="true">2.3.</strong> Importing a new city</a></li><li class="chapter-item expanded "><a href="../howto/misc_dev_tricks.html" class="active"><strong aria-hidden="true">2.4.</strong> Misc developer tricks</a></li></ol></li><li class="chapter-item expanded "><a href="../how_it_works.html"><strong aria-hidden="true">3.</strong> How it works</a></li><li class="chapter-item expanded "><a href="../map/index.html"><strong aria-hidden="true">4.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/index.html"><strong aria-hidden="true">4.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/convert_osm.html"><strong aria-hidden="true">4.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="../map/importing/geometry.html"><strong aria-hidden="true">4.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="../map/importing/rest.html"><strong aria-hidden="true">4.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="../map/edits.html"><strong aria-hidden="true">4.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../map/misc.html"><strong aria-hidden="true">4.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="../trafficsim/index.html"><strong aria-hidden="true">5.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trafficsim/discrete_event.html"><strong aria-hidden="true">5.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="../trafficsim/travel_demand.html"><strong aria-hidden="true">5.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="../trafficsim/gridlock.html"><strong aria-hidden="true">5.3.</strong> Gridlock</a></li></ol></li><li class="chapter-item expanded "><a href="../case_studies/index.html"><strong aria-hidden="true">6.</strong> Case studies</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../case_studies/lake_wash.html"><strong aria-hidden="true">6.1.</strong> Lake Washington Blvd Stay Healthy Street</a></li><li class="chapter-item expanded "><a href="../case_studies/west_seattle.html"><strong aria-hidden="true">6.2.</strong> West Seattle mitigations</a></li></ol></li><li class="chapter-item expanded "><a href="../project/index.html"><strong aria-hidden="true">7.</strong> Project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/roadmap.html"><strong aria-hidden="true">7.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="../project/motivations.html"><strong aria-hidden="true">7.2.</strong> Motivations</a></li><li class="chapter-item expanded "><a href="../project/history/index.html"><strong aria-hidden="true">7.3.</strong> History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/history/backstory.html"><strong aria-hidden="true">7.3.1.</strong> Backstory</a></li><li class="chapter-item expanded "><a href="../project/history/year1.html"><strong aria-hidden="true">7.3.2.</strong> Year 1</a></li><li class="chapter-item expanded "><a href="../project/history/year2.html"><strong aria-hidden="true">7.3.3.</strong> Year 2</a></li><li class="chapter-item expanded "><a href="../project/history/year3.html"><strong aria-hidden="true">7.3.4.</strong> Year 3</a></li></ol></li><li class="chapter-item expanded "><a href="../project/CHANGELOG.html"><strong aria-hidden="true">7.4.</strong> Full CHANGELOG</a></li><li class="chapter-item expanded "><a href="../project/references.html"><strong aria-hidden="true">7.5.</strong> References</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">A/B Street</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#development-notes" id="development-notes">Development notes</a></h1>
+<p>Find packages to upgrade: <code>cargo outdated -R</code></p>
+<p>Deal with compile tile: <code>cargo bloat --time</code></p>
+<p>Find why two binary crates aren't sharing dependencies:
+https://old.reddit.com/r/rust/comments/cqceu4/common_crates_in_cargo_workspace_recompiled/</p>
+<p>Where's a dependency coming from? <code>cargo tree -i -p syn</code></p>
+<p>Diff screencaps: http://www.imagemagick.org/Usage/compare/#methods</p>
+<p>Debug OpenGL calls:</p>
+<pre><code>apitrace trace --api gl ../target/debug/game ../data/input/raw_maps/montlake.bin
+qapitrace game.trace
+apitrace dump game.trace
+</code></pre>
+<p>Understand XML: just use firefox</p>
+<h2><a class="header" href="#profiling" id="profiling">Profiling</a></h2>
+<p>Actually, https://github.com/flamegraph-rs/flamegraph is pretty cool too.</p>
+<p><code>apt-get install google-perftools libgoogle-perftools-dev</code></p>
+<p>Follow Usage from https://crates.io/crates/cpuprofiler</p>
+<p>Modify <code>game/Cargo.toml</code> to include the <code>abstutil/profiler</code> feature. Then run
+game or headless with <code>--enable_profiler</code></p>
+<pre><code>google-pprof --no_strip_temp ../target/debug/game profile
+google-pprof --no_strip_temp ../target/release/headless profile
+top30 --cum
+</code></pre>
+<p>Why aren't the columns labelled?
+https://groups.google.com/d/msg/golang-nuts/qkDWqFKj8og/tWfYAaWRYqkJ</p>
+<h2><a class="header" href="#building-releases" id="building-releases">Building releases</a></h2>
+<p>Cross-compilation notes: https://github.com/rust-embedded/cross Or use
+https://github.com/japaric/trust</p>
+<p>Initially have to:</p>
+<pre><code class="language-shell">cargo install cross
+sudo apt-get install docker.io
+sudo usermod -aG docker ${USER}
+</code></pre>
+<p>Then:</p>
+<pre><code>sudo systemctl start docker
+cross build --release --target x86_64-pc-windows-gnu --bin game
+wine target/x86_64-pc-windows-gnu/release/game.exe data/system/maps/montlake.bin
+</code></pre>
+<h2><a class="header" href="#markdown" id="markdown">Markdown</a></h2>
+<p>For formatting:</p>
+<pre><code>sudo apt-get install npm
+cd ~; mkdir npm; cd npm
+npm init --yes
+npm install prettier --save-dev --save-exact
+</code></pre>
+<p>Use https://github.com/joeyespo/grip to render. Doesn't seem to work with the
+graphviz image.</p>
+<p>https://github.com/ekalinin/github-markdown-toc for table of contents (stashed
+in ~/Downloads/gh-md-toc)</p>
+<h2><a class="header" href="#videos" id="videos">Videos</a></h2>
+<pre><code># Fullscreen
+ffmpeg -f x11grab -r 25 -s 1920x960 -i :0.0+0,55 -vcodec huffyuv raw.avi
+
+ffmpeg -ss 10.0 -t 5.0 -i raw.avi -f gif -filter_complex &quot;[0:v] fps=12,scale=1024:-1,split [a][b];[a] palettegen [p];[b][p] paletteuse&quot; screencast.gif
+</code></pre>
+<h2><a class="header" href="#faster-linking" id="faster-linking">Faster linking</a></h2>
+<pre><code>sudo apt-get install lld
+</code></pre>
+<p>Stick this in ~/.cargo/config:</p>
+<pre><code>[target.x86_64-unknown-linux-gnu]                                                                   
+rustflags = [                                                                                       
+    &quot;-C&quot;, &quot;link-arg=-fuse-ld=lld&quot;,                                                    
+]
+</code></pre>
+<h2><a class="header" href="#git" id="git">git</a></h2>
+<p>Keep a fork up to date:</p>
+<pre><code># Once
+git remote add upstream https://github.com/rust-windowing/glutin/
+
+git fetch upstream
+git merge upstream/master
+git diff upstream/master
+</code></pre>
+<h2><a class="header" href="#refactoring" id="refactoring">Refactoring</a></h2>
+<p>perl -pi -e 's/WrappedComposite::text_button(ctx, (.+?), (.+?))/Btn::text_fg(\1).build_def(ctx, \2)/' <code>find|grep rs|xargs</code></p>
+<h2><a class="header" href="#stack-overflow" id="stack-overflow">Stack overflow</a></h2>
+<p>rust-gdb --args ../target/release/game --dev</p>
+<h2><a class="header" href="#drawing-diagrams" id="drawing-diagrams">Drawing diagrams</a></h2>
+<p>draw.io</p>
+<h2><a class="header" href="#mapping" id="mapping">Mapping</a></h2>
+<p>xodo on Android for annotating maps in the field</p>
+<h2><a class="header" href="#osm-tools" id="osm-tools">OSM tools</a></h2>
+<p>osmcha.org for recent changes</p>
+<p>To upload diffs:</p>
+<pre><code>java -jar ~/Downloads/josm-tested.jar ~/abstreet/map_editor/diff.osc
+</code></pre>
+<p>JOSM: Press (and release T), then click to pan. Download a relevant layer,
+select the .osc, merge, then upload.</p>
+<h2><a class="header" href="#fonts" id="fonts">Fonts</a></h2>
+<p>fontdrop.info</p>
+<h2><a class="header" href="#release-checklist" id="release-checklist">Release checklist</a></h2>
+<p>What things are sensitive to changes in map data and simulation rules?</p>
+<ul>
+<li>tutorial</li>
+<li>optimize commute challenges</li>
+</ul>
+<p>What things do I always forget to test?</p>
+<ul>
+<li>DPI issues, use <code>--scale_factor</code></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../howto/new_city.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../how_it_works.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../howto/new_city.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../how_it_works.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>How to map on-street parking - A/B Street</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../howto/index.html"><strong aria-hidden="true">2.</strong> Instructions</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../howto/dev.html"><strong aria-hidden="true">2.1.</strong> Developer guide</a></li><li class="chapter-item expanded "><a href="../howto/map_parking.html" class="active"><strong aria-hidden="true">2.2.</strong> How to map on-street parking</a></li><li class="chapter-item expanded "><a href="../howto/new_city.html"><strong aria-hidden="true">2.3.</strong> Importing a new city</a></li><li class="chapter-item expanded "><a href="../howto/misc_dev_tricks.html"><strong aria-hidden="true">2.4.</strong> Misc developer tricks</a></li></ol></li><li class="chapter-item expanded "><a href="../how_it_works.html"><strong aria-hidden="true">3.</strong> How it works</a></li><li class="chapter-item expanded "><a href="../map/index.html"><strong aria-hidden="true">4.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/index.html"><strong aria-hidden="true">4.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/convert_osm.html"><strong aria-hidden="true">4.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="../map/importing/geometry.html"><strong aria-hidden="true">4.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="../map/importing/rest.html"><strong aria-hidden="true">4.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="../map/edits.html"><strong aria-hidden="true">4.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../map/misc.html"><strong aria-hidden="true">4.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="../trafficsim/index.html"><strong aria-hidden="true">5.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trafficsim/discrete_event.html"><strong aria-hidden="true">5.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="../trafficsim/travel_demand.html"><strong aria-hidden="true">5.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="../trafficsim/gridlock.html"><strong aria-hidden="true">5.3.</strong> Gridlock</a></li></ol></li><li class="chapter-item expanded "><a href="../case_studies/index.html"><strong aria-hidden="true">6.</strong> Case studies</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../case_studies/lake_wash.html"><strong aria-hidden="true">6.1.</strong> Lake Washington Blvd Stay Healthy Street</a></li><li class="chapter-item expanded "><a href="../case_studies/west_seattle.html"><strong aria-hidden="true">6.2.</strong> West Seattle mitigations</a></li></ol></li><li class="chapter-item expanded "><a href="../project/index.html"><strong aria-hidden="true">7.</strong> Project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/roadmap.html"><strong aria-hidden="true">7.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="../project/motivations.html"><strong aria-hidden="true">7.2.</strong> Motivations</a></li><li class="chapter-item expanded "><a href="../project/history/index.html"><strong aria-hidden="true">7.3.</strong> History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/history/backstory.html"><strong aria-hidden="true">7.3.1.</strong> Backstory</a></li><li class="chapter-item expanded "><a href="../project/history/year1.html"><strong aria-hidden="true">7.3.2.</strong> Year 1</a></li><li class="chapter-item expanded "><a href="../project/history/year2.html"><strong aria-hidden="true">7.3.3.</strong> Year 2</a></li><li class="chapter-item expanded "><a href="../project/history/year3.html"><strong aria-hidden="true">7.3.4.</strong> Year 3</a></li></ol></li><li class="chapter-item expanded "><a href="../project/CHANGELOG.html"><strong aria-hidden="true">7.4.</strong> Full CHANGELOG</a></li><li class="chapter-item expanded "><a href="../project/references.html"><strong aria-hidden="true">7.5.</strong> References</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">A/B Street</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#help-map-out-on-street-parking" id="help-map-out-on-street-parking">Help map out on-street parking</a></h1>
+<p><img src="parking_mapper.gif" alt="parking_mapper" /></p>
+<p>This guide assumes you've edited OSM before. Contact <a href="mailto:dabreegster@gmail.com">dabreegster@gmail.com</a> if
+you have any trouble. Also give me a heads up when you make some edits, so I can
+regenerate the maps!</p>
+<ol>
+<li><a href="https://github.com/dabreegster/abstreet/blob/master/docs/INSTRUCTIONS.md">Install A/B Street</a></li>
+<li>Choose <strong>Contribute parking data</strong> on the main screen</li>
+<li>Change the map if you'd like to focus somewhere in particular</li>
+<li>Click a road with unknown parking</li>
+<li>Select what kind of on-street parking the road has</li>
+<li>Repeat</li>
+<li>Click <strong>Generate OsmChange file</strong></li>
+<li>Upload the diff.osc file by adding a layer in JOSM (or send it to me)</li>
+</ol>
+<p>Like all edits to OSM, to figure out ground-truth, you can survey in-person or
+use
+<a href="https://wiki.openstreetmap.org/wiki/Bing_Maps#Streetside_imagery">Bing Streetside</a>.
+<strong>Do not use data from Google Maps to edit OSM.</strong></p>
+<h2><a class="header" href="#faq" id="faq">FAQ</a></h2>
+<h3><a class="header" href="#why" id="why">Why?</a></h3>
+<p>I'm trying to build a realistic traffic simulation of Seattle using OSM data,
+then use it to strengthen proposals for
+<a href="https://dabreegster.github.io/abstreet/lake_wash/proposal.html">pedestrianized streets</a>,
+<a href="https://www.glwstreets.org/45th-st-bridge-overview">improving the bike network</a>,
+and
+<a href="https://dabreegster.github.io/abstreet/west_seattle/proposal.html">mitigating the West Seattle bridge closure</a>.
+A/B Street is only as good as its data, and parking is one of the biggest gaps.
+Missing data means unrealistic traffic as vehicles contend for few parking
+spots, and roads that look much wider than they are in reality.</p>
+<h3><a class="header" href="#why-put-this-data-in-osm" id="why-put-this-data-in-osm">Why put this data in OSM?</a></h3>
+<p>Why can't I just grab parking data from
+<a href="http://web6.seattle.gov/SDOT/seattleparkingmap/">SDOT's map</a>, using the
+<a href="http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface">blockface</a>
+dataset? Well, I'm trying -- when you see a parking lane in the tool, it's
+coming from blockface, unless that road in OSM is tagged. But the blockface
+dataset is comically wrong in many places -- for example, the Montlake bridge
+apparently has unrestricted parking?! King County GIS has confirmed the dataset
+isn't meant to be used for this level of detail.</p>
+<p>Plus, if the data is in OSM, anybody else can make use of it.</p>
+<h3><a class="header" href="#how-does-the-tool-work" id="how-does-the-tool-work">How does the tool work?</a></h3>
+<p>A/B Street attempts to render individual lanes and intersections from OSM data.
+This makes it useful to audit the lane tags in OSM, including
+<a href="https://wiki.openstreetmap.org/wiki/Key:parking:lane">parking:lane</a>. The tool
+tracks your edits and when you generate the OsmChange file, it grabs modified
+ways from the OSM API to generate a diff. You can inspect the diff, load it in
+JOSM, and upload.</p>
+<p><strong>Your changes won't immediately be reflected in A/B Street.</strong> Let me know when
+you've done some amount of mapping, and I'll regenerate the maps from fresh
+data.</p>
+<h3><a class="header" href="#why-use-this-tool" id="why-use-this-tool">Why use this tool?</a></h3>
+<p>You don't have to; <a href="https://zlant.github.io/parking-lanes/">this tool</a> or ID or
+JOSM all work. But the UI is clunky for this specific purpose. (Also, if you
+find this tool clunky in any way, let me know and I'll fix it.) There's also a
+proposed
+<a href="https://github.com/westnordost/StreetComplete/issues/771">StreetComplete quest</a>.</p>
+<h3><a class="header" href="#what-about-parking-restrictions" id="what-about-parking-restrictions">What about parking restrictions?</a></h3>
+<p>There are many
+<a href="https://wiki.openstreetmap.org/wiki/Key:parking:lane">parking:lane</a> tags to
+indicate restricted parking zones, time restrictions, etc. Feel free to map that
+in ID or JOSM, but I'm just looking to make a first pass over a wide area.</p>
+<h3><a class="header" href="#what-about-off-street-parking" id="what-about-off-street-parking">What about off-street parking?</a></h3>
+<p>Ideally I'd also like to know how many private parking spots are available to
+residents of each building. But I don't know of an OSM schema for mapping this,
+or a practical way to collect this data. Let me know if you have ideas.</p>
+<h3><a class="header" href="#what-about-long-roads-where-parking-appears-and-disappears" id="what-about-long-roads-where-parking-appears-and-disappears">What about long roads where parking appears and disappears?</a></h3>
+<p>The tool won't help. Use your favorite editor to split the way when the lane
+configuration changes. Also feel free to just skip these areas.</p>
+<h3><a class="header" href="#how-to-coordinate-with-other-mappers" id="how-to-coordinate-with-other-mappers">How to coordinate with other mappers?</a></h3>
+<p>If somebody wants to set up HOT tasking, that'd be great, but I don't expect so
+many people to jump on this.</p>
+<h3><a class="header" href="#i-noticed-weird-roads-in-the-tool" id="i-noticed-weird-roads-in-the-tool">I noticed weird roads in the tool</a></h3>
+<p>Welcome to my world. ;) If the number of lanes seems wrong, select the road and
+check the OSM tags. I'm inferring lanes from that. Feel free to make manual OSM
+edits to fix any problems you see. (I'd like to extend this tool to make that
+easier; let me know if you have ideas how to do this.)</p>
+<h3><a class="header" href="#i-want-to-map-an-area-but-theres-no-option-for-it" id="i-want-to-map-an-area-but-theres-no-option-for-it">I want to map an area, but there's no option for it</a></h3>
+<p>To keep the release size small, I'm not including all maps yet. Let me know what
+you'd like to see included.</p>
+<p>Or if you have a <code>.osm</code> file, try the <a href="new_city.html">quick start guide</a>.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../howto/dev.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../howto/new_city.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../howto/dev.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../howto/new_city.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
