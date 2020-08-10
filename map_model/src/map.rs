@@ -108,8 +108,8 @@ impl Map {
             );
         }
         println!(
-            "Check https://github.com/dabreegster/abstreet/blob/master/docs/dev.md and file an \
-             issue if you have trouble."
+            "Check https://github.com/dabreegster/abstreet/blob/master/old_docs/dev.md and file \
+             an issue if you have trouble."
         );
     }
 

@@ -10,8 +10,8 @@ pedestrians.
   [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.7/abstreet_mac_v0_2_7.zip),
   [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.7/abstreet_linux_v0_2_7.zip),
   [FreeBSD](https://www.freshports.org/games/abstreet/), or
-  [read all instructions](docs/INSTRUCTIONS.md) (new releases every Sunday)
-- [build from source](docs/dev.md) (new changes daily)
+  [read all instructions](old_docs/INSTRUCTIONS.md) (new releases every Sunday)
+- [build from source](old_docs/dev.md) (new changes daily)
 
 ## Show, don't tell
 
@@ -19,25 +19,25 @@ pedestrians.
 
 Find a problem:
 
-![exploring_traffic](docs/videos/exploring_traffic.gif)
+![exploring_traffic](old_docs/videos/exploring_traffic.gif)
 
 Make some changes:
 
-![editing_map](docs/videos/editing_map.gif)
+![editing_map](old_docs/videos/editing_map.gif)
 
 Measure the effects:
 
-![evaluating_impacts](docs/videos/evaluating_impacts.gif)
+![evaluating_impacts](old_docs/videos/evaluating_impacts.gif)
 
 ## Documentation
 
-- [How A/B Street works](docs/how_it_works.md)
-- [Case studies](https://dabreegster.github.io/abstreet/)
+- [How A/B Street works](old_docs/how_it_works.md)
+- [Case studies](old_docs/index.md)
 - Technical
-  - [Developer guide](docs/dev.md)
-  - [Map model](docs/book/src/map)
-  - [Traffic simulation](docs/book/src/trafficsim)
-  - [Running A/B Street in a new city](docs/new_city.md)
+  - [Developer guide](old_docs/dev.md)
+  - [Map model](https://dabreegster.github.io/abstreet/map/index.html)
+  - [Traffic simulation](https://dabreegster.github.io/abstreet/trafficsim/index.html)
+  - [Running A/B Street in a new city](old_docs/new_city.md)
   - [UX design](https://yuwen-li.com/work/abstreet)
 - Presentations
   - April 2020 Rust meetup:
@@ -47,13 +47,13 @@ Measure the effects:
   - [Oct 2019 Traffic sim and current challenges](https://docs.google.com/presentation/d/1PJRFoXmJAyenkqHIwo48zxqu1LSH6pc7XKSzhyC1raw/edit?usp=sharing)
   - [Oct 2019 Map construction](https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing)
 - Project
-  - [Roadmap](docs/roadmap.md)
-  - [Motivations](docs/motivations.md)
-  - [History](docs/history/history.md)
+  - [Roadmap](https://dabreegster.github.io/abstreet/project/roadmap.html)
+  - [Motivations](https://dabreegster.github.io/abstreet/project/motivations.html)
+  - [History](old_docs/history/history.md)
 
 ## Roadmap and contributing
 
-See the [roadmap](docs/roadmap.md) for current work, including ways to help. If
+See the [roadmap](old_docs/roadmap.md) for current work, including ways to help. If
 you want to bring this to your city or if you're skilled in design, traffic
 simulation, data visualization, or civic/government outreach, please contact
 Dustin Carlino at <dabreegster@gmail.com>. Follow
@@ -82,7 +82,7 @@ writes:
 
 Existing urban planning software is either proprietary or hard to use. A/B
 Street strives to be highly accessible, by being a fun, engaging game. See
-[here](docs/motivations.md) for more guiding principles.
+[here](old_docs/motivations.md) for more guiding principles.
 
 ## Credits
 

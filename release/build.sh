@@ -12,7 +12,7 @@ cargo run --bin updater
 
 mkdir $output
 
-cp docs/INSTRUCTIONS.md $output
+cp old_docs/INSTRUCTIONS.md $output
 cp release/$runner $output
 # Put the importer in the root directory, but hide game to encourage people to
 # use the runner script. It will capture output logs. But if somebody runs the

@@ -1,8 +1,6 @@
 /target/
 *.swp
 
-docs/book/book
-
 data/config
 
 data/input/berlin/osm
