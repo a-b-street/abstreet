@@ -130,6 +130,7 @@ impl Map {
                 Pt2D::new(0.0, 0.0),
                 Pt2D::new(1.0, 0.0),
                 Pt2D::new(1.0, 1.0),
+                Pt2D::new(0.0, 0.0),
             ])
             .to_polygon(),
             stop_signs: BTreeMap::new(),

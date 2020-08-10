@@ -7,7 +7,8 @@ edition = "2018"
 [dependencies]
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
+hyper = "0.13.7"
+lazy_static = "1.4.0"
 map_model = { path = "../map_model" }
-rand = "0.7.0"
-rand_xorshift = "0.2.0"
 sim = { path = "../sim" }
+tokio = { version = "0.2", features = ["full"] }
