@@ -197,7 +197,7 @@ pub struct TurnGroup {
 }
 
 impl TurnGroup {
-    pub(crate) fn for_i(i: IntersectionID, map: &Map) -> BTreeMap<TurnGroupID, TurnGroup> {
+    pub fn for_i(i: IntersectionID, map: &Map) -> BTreeMap<TurnGroupID, TurnGroup> {
         let mut results = BTreeMap::new();
         let mut groups: MultiMap<(DirectedRoadID, DirectedRoadID), TurnID> = MultiMap::new();
         for turn in map.get_turns_in_intersection(i) {

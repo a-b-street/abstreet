@@ -2,6 +2,7 @@ mod commuter;
 mod misc;
 mod parking_overhead;
 mod summaries;
+mod traffic_signals;
 mod trip_table;
 
 use crate::app::App;
@@ -18,6 +19,7 @@ pub enum DashTab {
     ActiveTraffic,
     TransitRoutes,
     CommuterPatterns,
+    TrafficSignals,
 }
 
 impl DashTab {
@@ -30,6 +32,7 @@ impl DashTab {
             ("active traffic", DashTab::ActiveTraffic),
             ("transit routes", DashTab::TransitRoutes),
             ("commuter patterns", DashTab::CommuterPatterns),
+            ("traffic signal demand", DashTab::TrafficSignals),
         ] {
             if tab == DashTab::TripSummaries && app.has_prebaked().is_none() {
                 continue;
@@ -65,6 +68,9 @@ impl DashTab {
             "active traffic" => Transition::Replace(misc::ActiveTraffic::new(ctx, app)),
             "transit routes" => Transition::Replace(misc::TransitRoutes::new(ctx, app)),
             "commuter patterns" => Transition::Replace(commuter::CommuterPatterns::new(ctx, app)),
+            "traffic signal demand" => {
+                Transition::Replace(traffic_signals::TrafficSignalDemand::new(ctx, app))
+            }
             _ => unreachable!(),
         }
     }

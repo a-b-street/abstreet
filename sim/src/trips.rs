@@ -1497,6 +1497,64 @@ pub enum TripEndpoint {
     Border(IntersectionID, Option<OffMapLocation>),
 }
 
+impl TripEndpoint {
+    pub fn path_req(
+        from: TripEndpoint,
+        to: TripEndpoint,
+        mode: TripMode,
+        map: &Map,
+    ) -> Option<PathRequest> {
+        Some(PathRequest {
+            start: pos(from, mode, true, map)?,
+            end: pos(to, mode, false, map)?,
+            constraints: match mode {
+                TripMode::Walk | TripMode::Transit => PathConstraints::Pedestrian,
+                TripMode::Drive => PathConstraints::Car,
+                TripMode::Bike => PathConstraints::Bike,
+            },
+        })
+    }
+}
+
+fn pos(endpt: TripEndpoint, mode: TripMode, from: bool, map: &Map) -> Option<Position> {
+    match endpt {
+        TripEndpoint::Bldg(b) => match mode {
+            TripMode::Walk | TripMode::Transit => Some(map.get_b(b).sidewalk_pos),
+            TripMode::Bike => Some(DrivingGoal::ParkNear(b).goal_pos(PathConstraints::Bike, map)?),
+            TripMode::Drive => Some(
+                DrivingGoal::ParkNear(b)
+                    .goal_pos(PathConstraints::Car, map)
+                    .unwrap(),
+            ),
+        },
+        TripEndpoint::Border(i, _) => match mode {
+            TripMode::Walk | TripMode::Transit => if from {
+                SidewalkSpot::start_at_border(i, None, map)
+            } else {
+                SidewalkSpot::end_at_border(i, None, map)
+            }
+            .map(|spot| spot.sidewalk_pos),
+            TripMode::Bike | TripMode::Drive => (if from {
+                map.get_i(i).some_outgoing_road(map)
+            } else {
+                map.get_i(i).some_incoming_road(map)
+            })
+            .and_then(|dr| {
+                dr.lanes(
+                    if mode == TripMode::Bike {
+                        PathConstraints::Bike
+                    } else {
+                        PathConstraints::Car
+                    },
+                    map,
+                )
+                .get(0)
+                .map(|l| Position::start(*l))
+            }),
+        },
+    }
+}
+
 pub enum TripResult<T> {
     Ok(T),
     ModeChange,
