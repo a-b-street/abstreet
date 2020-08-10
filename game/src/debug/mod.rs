@@ -18,6 +18,8 @@ use geom::{Distance, Pt2D};
 use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
 use std::collections::HashSet;
+use std::fs::File;
+use std::io::{Error, Write};
 
 pub struct DebugMode {
     composite: Composite,
@@ -224,6 +226,8 @@ impl State for DebugMode {
                     self.reset_info(ctx);
                 }
                 "screenshot everything" => {
+                    dump_route_goldenfile(app).unwrap();
+
                     let bounds = app.primary.map.get_bounds();
                     assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
                     ctx.request_update(UpdateType::ScreenCaptureEverything {
@@ -721,4 +725,28 @@ fn find_large_intersections(app: &App) {
             seen.insert(t.id.parent);
         }
     }
+}
+
+fn dump_route_goldenfile(app: &App) -> Result<(), Error> {
+    let path = abstutil::path(format!(
+        "route_goldenfiles/{}.txt",
+        app.primary.map.get_name()
+    ));
+    let mut f = File::create(path)?;
+    for br in app.primary.map.all_bus_routes() {
+        writeln!(
+            f,
+            "{} from {} to {:?}",
+            br.osm_rel_id, br.start, br.end_border
+        )?;
+        for bs in &br.stops {
+            let bs = app.primary.map.get_bs(*bs);
+            writeln!(
+                f,
+                "  {}: {} driving, {} sidewalk",
+                bs.name, bs.driving_pos, bs.sidewalk_pos
+            )?;
+        }
+    }
+    Ok(())
 }

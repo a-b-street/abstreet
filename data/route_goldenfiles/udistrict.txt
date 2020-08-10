@@ -1,0 +1,156 @@
+https://www.openstreetmap.org/relation/6741078 from Lane #2236 to Some(LaneID(6529))
+  N 35th St & Carr Pl N: Position(Lane #3815, 22.1499m) driving, Position(Lane #3816, 22.1409m) sidewalk
+  Wallingford Ave N & N 35th St: Position(Lane #2593, 15.4713m) driving, Position(Lane #2595, 15.4703m) sidewalk
+  Wallingford Ave N & N 37th St: Position(Lane #2599, 14.3385m) driving, Position(Lane #2601, 14.3332m) sidewalk
+  N 40th St & Wallingford Ave N: Position(Lane #572, 30.1763m) driving, Position(Lane #574, 30.1712m) sidewalk
+  N 40th St & Bagley Ave N: Position(Lane #567, 19.5136m) driving, Position(Lane #569, 19.4955m) sidewalk
+  N 40th St & Sunnyside Ave N: Position(Lane #595, 16.3472m) driving, Position(Lane #597, 16.3269m) sidewalk
+  NE 40th St & 1st Ave NE: Position(Lane #1836, 25.687m) driving, Position(Lane #1837, 25.7553m) sidewalk
+  NE Northlake Way & 7th Ave NE: Position(Lane #160, 0m) driving, Position(Lane #162, 0m) sidewalk
+  NE Pacific St & NE Boat St: Position(Lane #5315, 34.0927m) driving, Position(Lane #5317, 35.036m) sidewalk
+  NE Campus Pkwy & University Way NE: Position(Lane #5240, 49.0733m) driving, Position(Lane #5241, 49.0733m) sidewalk
+  Grant Ln & George Washington Lane: Position(Lane #3602, 20.6584m) driving, Position(Lane #3603, 17.5998m) sidewalk
+  Stevens Way & Okanogan Ln: Position(Lane #3742, 102.2752m) driving, Position(Lane #3743, 103.0237m) sidewalk
+  Stevens Way & Benton Ln: Position(Lane #3432, 200.4468m) driving, Position(Lane #3433, 201.9867m) sidewalk
+  Stevens Way & Pend Oreille Rd: Position(Lane #5364, 43.0797m) driving, Position(Lane #5365, 42.4321m) sidewalk
+https://www.openstreetmap.org/relation/6742590 from Lane #2236 to Some(LaneID(6529))
+  N 35th St & Carr Pl N: Position(Lane #3815, 22.1499m) driving, Position(Lane #3816, 22.1409m) sidewalk
+  Wallingford Ave N & N 35th St: Position(Lane #2593, 15.4713m) driving, Position(Lane #2595, 15.4703m) sidewalk
+  Wallingford Ave N & N 37th St: Position(Lane #2599, 14.3385m) driving, Position(Lane #2601, 14.3332m) sidewalk
+  N 40th St & Wallingford Ave N: Position(Lane #572, 30.1763m) driving, Position(Lane #574, 30.1712m) sidewalk
+  N 40th St & Bagley Ave N: Position(Lane #567, 19.5136m) driving, Position(Lane #569, 19.4955m) sidewalk
+  N 40th St & Sunnyside Ave N: Position(Lane #595, 16.3472m) driving, Position(Lane #597, 16.3269m) sidewalk
+  NE 40th St & 1st Ave NE: Position(Lane #1836, 25.687m) driving, Position(Lane #1837, 25.7553m) sidewalk
+  NE Northlake Way & 7th Ave NE: Position(Lane #160, 0m) driving, Position(Lane #162, 0m) sidewalk
+  NE Pacific St & NE Boat St: Position(Lane #5315, 34.0927m) driving, Position(Lane #5317, 35.036m) sidewalk
+  NE Campus Pkwy & University Way NE: Position(Lane #5240, 49.0733m) driving, Position(Lane #5241, 49.0733m) sidewalk
+  Grant Ln & George Washington Lane: Position(Lane #3602, 20.6584m) driving, Position(Lane #3603, 17.5998m) sidewalk
+  Stevens Way & Okanogan Ln: Position(Lane #3742, 102.2752m) driving, Position(Lane #3743, 103.0237m) sidewalk
+  Stevens Way & Benton Ln: Position(Lane #3432, 200.4468m) driving, Position(Lane #3433, 201.9867m) sidewalk
+  Stevens Way & Pend Oreille Rd: Position(Lane #5364, 43.0797m) driving, Position(Lane #5365, 42.4321m) sidewalk
+https://www.openstreetmap.org/relation/6752729 from Lane #6526 to None
+  Bay 3: Position(Lane #5762, 56.1656m) driving, Position(Lane #5763, 56.605m) sidewalk
+  Roosevelt Way NE & NE 50th St: Position(Lane #4975, 35.0207m) driving, Position(Lane #4977, 35.0208m) sidewalk
+  Roosevelt Way NE & NE 45th St: Position(Lane #6404, 7.2366m) driving, Position(Lane #4254, 0.3049m) sidewalk
+https://www.openstreetmap.org/relation/6760508 from Lane #903 to Some(LaneID(5300))
+  Latona Ave NE & NE 51st St: Position(Lane #898, 18.0044m) driving, Position(Lane #899, 18.0022m) sidewalk
+  Thackeray Pl NE & NE 50th St: Position(Lane #5586, 18.4078m) driving, Position(Lane #5587, 18.4133m) sidewalk
+  Thackeray Pl NE & NE 47th St: Position(Lane #5589, 11.192m) driving, Position(Lane #5590, 11.1957m) sidewalk
+  Thackeray Pl NE & NE 45th St: Position(Lane #1080, 14.3927m) driving, Position(Lane #1081, 14.3883m) sidewalk
+  Thackeray Pl NE & NE 43rd St: Position(Lane #1083, 20.1265m) driving, Position(Lane #1084, 20.1303m) sidewalk
+  2nd Ave NE & NE 42nd St: Position(Lane #2476, 23.4635m) driving, Position(Lane #2478, 23.4678m) sidewalk
+  2nd Ave NE & NE 40th St: Position(Lane #4461, 27.2502m) driving, Position(Lane #4462, 27.2442m) sidewalk
+  N 40th St & Eastern Ave N: Position(Lane #598, 18.7325m) driving, Position(Lane #600, 18.8459m) sidewalk
+  N 40th St & Corliss Ave N: Position(Lane #570, 19.9841m) driving, Position(Lane #571, 19.9708m) sidewalk
+  N 40th St & Meridian Ave N: Position(Lane #581, 29.4228m) driving, Position(Lane #582, 29.8295m) sidewalk
+  N 40th St & Wallingford Ave N: Position(Lane #575, 67.2385m) driving, Position(Lane #577, 67.2209m) sidewalk
+https://www.openstreetmap.org/relation/6760509 from Lane #5297 to Some(LaneID(900))
+  N 40th St & Ashworth Ave N: Position(Lane #5297, 1m) driving, Position(Lane #5299, 0m) sidewalk
+  N 40th St & Wallingford Ave N: Position(Lane #572, 30.1763m) driving, Position(Lane #574, 30.1712m) sidewalk
+  N 40th St & Bagley Ave N: Position(Lane #567, 19.5136m) driving, Position(Lane #569, 19.4955m) sidewalk
+  N 40th St & Sunnyside Ave N: Position(Lane #595, 16.3472m) driving, Position(Lane #597, 16.3269m) sidewalk
+  NE 40th St & 1st Ave NE: Position(Lane #1836, 25.687m) driving, Position(Lane #1837, 25.7553m) sidewalk
+  Latona Ave NE & NE 40th St: Position(Lane #1995, 25.8376m) driving, Position(Lane #1998, 25.8349m) sidewalk
+  NE 42nd St & Latona Ave NE: Position(Lane #4178, 23.7244m) driving, Position(Lane #4179, 23.361m) sidewalk
+  Latona Ave NE & NE 43rd St: Position(Lane #887, 30.5782m) driving, Position(Lane #889, 30.573m) sidewalk
+  Latona Ave NE & NE 45th St: Position(Lane #3528, 32.3248m) driving, Position(Lane #3529, 32.3228m) sidewalk
+  Latona Ave NE & NE 50th St: Position(Lane #3531, 168.9262m) driving, Position(Lane #3533, 168.9211m) sidewalk
+https://www.openstreetmap.org/relation/6802265 from Lane #3496 to None
+  Harvard Ave E & Eastlake Ave E: Position(Lane #4499, 53.2688m) driving, Position(Lane #4501, 53.4118m) sidewalk
+  NE Campus Pkwy & Brooklyn Ave NE: Position(Lane #5240, 27.6377m) driving, Position(Lane #5241, 27.6345m) sidewalk
+  15th Ave NE & NE 42nd St: Position(Lane #5370, 30.3087m) driving, Position(Lane #5393, 0m) sidewalk
+  NE 45th St & Brooklyn Ave NE: Position(Lane #3920, 13.5961m) driving, Position(Lane #3921, 13.5961m) sidewalk
+  11th Ave NE & NE 45th St: Position(Lane #5387, 40.325m) driving, Position(Lane #5389, 40.325m) sidewalk
+https://www.openstreetmap.org/relation/6802266 from Lane #3496 to None
+  Harvard Ave E & Eastlake Ave E: Position(Lane #4499, 53.2688m) driving, Position(Lane #4501, 53.4118m) sidewalk
+  NE Campus Pkwy & Brooklyn Ave NE: Position(Lane #5240, 27.6377m) driving, Position(Lane #5241, 27.6345m) sidewalk
+  15th Ave NE & NE 42nd St: Position(Lane #5370, 30.3087m) driving, Position(Lane #5393, 0m) sidewalk
+  NE 45th St & Brooklyn Ave NE: Position(Lane #3920, 13.5961m) driving, Position(Lane #3921, 13.5961m) sidewalk
+  11th Ave NE & NE 45th St: Position(Lane #5387, 40.325m) driving, Position(Lane #5389, 40.325m) sidewalk
+https://www.openstreetmap.org/relation/6833712 from Lane #2387 to None
+  Meridian Ave N & N 50th St: Position(Lane #2393, 26.2626m) driving, Position(Lane #2395, 26.2634m) sidewalk
+  Meridian Ave N & N 46th St: Position(Lane #2381, 17.4844m) driving, Position(Lane #2383, 16.0416m) sidewalk
+  N 45th St & Wallingford Ave N: Position(Lane #4434, 9.5243m) driving, Position(Lane #4436, 9.5265m) sidewalk
+https://www.openstreetmap.org/relation/6880982 from Lane #4483 to Some(LaneID(5469))
+  7th Ave NE & NE 42nd St: Position(Lane #4483, 56.0735m) driving, Position(Lane #4485, 56.0783m) sidewalk
+  I-5 & NE 45th St: Position(Lane #3213, 37.593m) driving, Position(Lane #3214, 37.6139m) sidewalk
+https://www.openstreetmap.org/relation/6880987 from Lane #4483 to Some(LaneID(5469))
+  7th Ave NE & NE 42nd St: Position(Lane #4483, 56.0735m) driving, Position(Lane #4485, 56.0783m) sidewalk
+  I-5 & NE 45th St: Position(Lane #3213, 37.593m) driving, Position(Lane #3214, 37.6139m) sidewalk
+https://www.openstreetmap.org/relation/7134627 from Lane #903 to Some(LaneID(5300))
+  Latona Ave NE & NE 51st St: Position(Lane #898, 18.0044m) driving, Position(Lane #899, 18.0022m) sidewalk
+  Thackeray Pl NE & NE 50th St: Position(Lane #5586, 18.4078m) driving, Position(Lane #5587, 18.4133m) sidewalk
+  Thackeray Pl NE & NE 47th St: Position(Lane #5589, 11.192m) driving, Position(Lane #5590, 11.1957m) sidewalk
+  Thackeray Pl NE & NE 45th St: Position(Lane #1080, 14.3927m) driving, Position(Lane #1081, 14.3883m) sidewalk
+  Thackeray Pl NE & NE 43rd St: Position(Lane #1083, 20.1265m) driving, Position(Lane #1084, 20.1303m) sidewalk
+  2nd Ave NE & NE 42nd St: Position(Lane #2476, 23.4635m) driving, Position(Lane #2478, 23.4678m) sidewalk
+  2nd Ave NE & NE 40th St: Position(Lane #4461, 27.2502m) driving, Position(Lane #4462, 27.2442m) sidewalk
+  N 40th St & Eastern Ave N: Position(Lane #598, 18.7325m) driving, Position(Lane #600, 18.8459m) sidewalk
+  N 40th St & Corliss Ave N: Position(Lane #570, 19.9841m) driving, Position(Lane #571, 19.9708m) sidewalk
+  N 40th St & Meridian Ave N: Position(Lane #581, 29.4228m) driving, Position(Lane #582, 29.8295m) sidewalk
+  N 40th St & Wallingford Ave N: Position(Lane #575, 67.2385m) driving, Position(Lane #577, 67.2209m) sidewalk
+https://www.openstreetmap.org/relation/7134628 from Lane #903 to Some(LaneID(5300))
+  Latona Ave NE & NE 51st St: Position(Lane #898, 18.0044m) driving, Position(Lane #899, 18.0022m) sidewalk
+  Thackeray Pl NE & NE 50th St: Position(Lane #5586, 18.4078m) driving, Position(Lane #5587, 18.4133m) sidewalk
+  Thackeray Pl NE & NE 47th St: Position(Lane #5589, 11.192m) driving, Position(Lane #5590, 11.1957m) sidewalk
+  Thackeray Pl NE & NE 45th St: Position(Lane #1080, 14.3927m) driving, Position(Lane #1081, 14.3883m) sidewalk
+  Thackeray Pl NE & NE 43rd St: Position(Lane #1083, 20.1265m) driving, Position(Lane #1084, 20.1303m) sidewalk
+  2nd Ave NE & NE 42nd St: Position(Lane #2476, 23.4635m) driving, Position(Lane #2478, 23.4678m) sidewalk
+  2nd Ave NE & NE 40th St: Position(Lane #4461, 27.2502m) driving, Position(Lane #4462, 27.2442m) sidewalk
+  N 40th St & Eastern Ave N: Position(Lane #598, 18.7325m) driving, Position(Lane #600, 18.8459m) sidewalk
+  N 40th St & Corliss Ave N: Position(Lane #570, 19.9841m) driving, Position(Lane #571, 19.9708m) sidewalk
+  N 40th St & Meridian Ave N: Position(Lane #581, 29.4228m) driving, Position(Lane #582, 29.8295m) sidewalk
+  N 40th St & Wallingford Ave N: Position(Lane #575, 67.2385m) driving, Position(Lane #577, 67.2209m) sidewalk
+https://www.openstreetmap.org/relation/7134666 from Lane #4483 to Some(LaneID(5469))
+  7th Ave NE & NE 42nd St: Position(Lane #4483, 56.0735m) driving, Position(Lane #4485, 56.0783m) sidewalk
+  I-5 & NE 45th St: Position(Lane #3213, 37.593m) driving, Position(Lane #3214, 37.6139m) sidewalk
+https://www.openstreetmap.org/relation/7728951 from Lane #2387 to None
+  Meridian Ave N & N 50th St: Position(Lane #2393, 26.2626m) driving, Position(Lane #2395, 26.2634m) sidewalk
+  Meridian Ave N & N 46th St: Position(Lane #2381, 17.4844m) driving, Position(Lane #2383, 16.0416m) sidewalk
+  N 45th St & Wallingford Ave N: Position(Lane #4434, 9.5243m) driving, Position(Lane #4436, 9.5265m) sidewalk
+https://www.openstreetmap.org/relation/7728954 from Lane #4438 to Some(LaneID(2384))
+  N 45th St & Wallingford Ave N: Position(Lane #5071, 1.3657m) driving, Position(Lane #5072, 1.3631m) sidewalk
+  Meridian Ave N & N 45th St: Position(Lane #2378, 22.077m) driving, Position(Lane #2380, 22.4639m) sidewalk
+  Meridian Ave N & N 49th St: Position(Lane #2390, 2.1088m) driving, Position(Lane #2392, 2.1074m) sidewalk
+https://www.openstreetmap.org/relation/7728955 from Lane #2387 to None
+  Meridian Ave N & N 50th St: Position(Lane #2393, 26.2626m) driving, Position(Lane #2395, 26.2634m) sidewalk
+  Meridian Ave N & N 46th St: Position(Lane #2381, 17.4844m) driving, Position(Lane #2383, 16.0416m) sidewalk
+  N 45th St & Wallingford Ave N: Position(Lane #4434, 9.5243m) driving, Position(Lane #4436, 9.5265m) sidewalk
+https://www.openstreetmap.org/relation/8623701 from Lane #5297 to Some(LaneID(900))
+  N 40th St & Ashworth Ave N: Position(Lane #5297, 1m) driving, Position(Lane #5299, 0m) sidewalk
+  N 40th St & Wallingford Ave N: Position(Lane #572, 30.1763m) driving, Position(Lane #574, 30.1712m) sidewalk
+  N 40th St & Bagley Ave N: Position(Lane #567, 19.5136m) driving, Position(Lane #569, 19.4955m) sidewalk
+  N 40th St & Sunnyside Ave N: Position(Lane #595, 16.3472m) driving, Position(Lane #597, 16.3269m) sidewalk
+  NE 40th St & 1st Ave NE: Position(Lane #1836, 25.687m) driving, Position(Lane #1837, 25.7553m) sidewalk
+  Latona Ave NE & NE 40th St: Position(Lane #1995, 25.8376m) driving, Position(Lane #1998, 25.8349m) sidewalk
+  NE 42nd St & Latona Ave NE: Position(Lane #4178, 23.7244m) driving, Position(Lane #4179, 23.361m) sidewalk
+  Latona Ave NE & NE 43rd St: Position(Lane #887, 30.5782m) driving, Position(Lane #889, 30.573m) sidewalk
+  Latona Ave NE & NE 45th St: Position(Lane #3528, 32.3248m) driving, Position(Lane #3529, 32.3228m) sidewalk
+  Latona Ave NE & NE 50th St: Position(Lane #3531, 168.9262m) driving, Position(Lane #3533, 168.9211m) sidewalk
+https://www.openstreetmap.org/relation/8624241 from Lane #3562 to None
+  20th Ave NE & NE 52nd St: Position(Lane #6086, 11.4073m) driving, Position(Lane #6088, 11.4126m) sidewalk
+  NE 50th St & 19th Ave NE: Position(Lane #4644, 32.2477m) driving, Position(Lane #4645, 31.3683m) sidewalk
+  NE 50th St & 16th Ave NE: Position(Lane #6444, 25.9544m) driving, Position(Lane #6446, 25.9061m) sidewalk
+  NE 50th St & University Way NE: Position(Lane #6350, 1.0288m) driving, Position(Lane #6351, 0.9632m) sidewalk
+  Roosevelt Way NE & NE 50th St: Position(Lane #4975, 35.0207m) driving, Position(Lane #4977, 35.0208m) sidewalk
+  Roosevelt Way NE & NE 45th St: Position(Lane #6404, 7.2366m) driving, Position(Lane #4254, 0.3049m) sidewalk
+  Roosevelt Way NE & NE 42nd St: Position(Lane #4247, 79.6095m) driving, Position(Lane #4248, 79.6135m) sidewalk
+  NE 42nd St & 8th Ave NE: Position(Lane #2268, 35.7144m) driving, Position(Lane #2270, 35.7112m) sidewalk
+https://www.openstreetmap.org/relation/9436231 from Lane #28 to Some(LaneID(3559))
+  NE 42nd St & 8th Ave NE: Position(Lane #2277, 31.178m) driving, Position(Lane #2278, 31.1794m) sidewalk
+  11th Ave NE & NE 42nd St: Position(Lane #6219, 17.9383m) driving, Position(Lane #1570, 0m) sidewalk
+  11th Ave NE & NE 45th St: Position(Lane #5387, 40.325m) driving, Position(Lane #5389, 40.325m) sidewalk
+  11th Ave NE & NE 47th St: Position(Lane #6096, 24.9567m) driving, Position(Lane #6099, 24.9575m) sidewalk
+  NE 50th St & University Way NE: Position(Lane #5441, 23.0882m) driving, Position(Lane #5442, 23.11m) sidewalk
+  NE 50th St & 16th Ave NE: Position(Lane #6434, 20.6588m) driving, Position(Lane #6435, 20.678m) sidewalk
+  20th Ave NE & NE 50th St: Position(Lane #6083, 15.6425m) driving, Position(Lane #6085, 15.6827m) sidewalk
+  20th Ave NE & NE 52nd St: Position(Lane #3559, 17.0613m) driving, Position(Lane #3561, 17.0577m) sidewalk
+https://www.openstreetmap.org/relation/9436232 from Lane #3562 to None
+  20th Ave NE & NE 52nd St: Position(Lane #6086, 11.4073m) driving, Position(Lane #6088, 11.4126m) sidewalk
+  NE 50th St & 19th Ave NE: Position(Lane #4644, 32.2477m) driving, Position(Lane #4645, 31.3683m) sidewalk
+  NE 50th St & 16th Ave NE: Position(Lane #6444, 25.9544m) driving, Position(Lane #6446, 25.9061m) sidewalk
+  NE 50th St & University Way NE: Position(Lane #6350, 1.0288m) driving, Position(Lane #6351, 0.9632m) sidewalk
+  Roosevelt Way NE & NE 50th St: Position(Lane #4975, 35.0207m) driving, Position(Lane #4977, 35.0208m) sidewalk
+  Roosevelt Way NE & NE 45th St: Position(Lane #6404, 7.2366m) driving, Position(Lane #4254, 0.3049m) sidewalk
+  Roosevelt Way NE & NE 42nd St: Position(Lane #4247, 79.6095m) driving, Position(Lane #4248, 79.6135m) sidewalk
+  11th Ave NE & NE 42nd St: Position(Lane #6219, 17.9383m) driving, Position(Lane #1570, 0m) sidewalk

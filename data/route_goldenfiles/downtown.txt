@@ -1,0 +1,69 @@
+https://www.openstreetmap.org/relation/1571732 from Lane #6057 to Some(LaneID(6059))
+  Olive Way & 6th Ave: Position(Lane #5991, 70.6111m) driving, Position(Lane #14955, 0m) sidewalk
+  4th Ave & Pike St: Position(Lane #6870, 90.4701m) driving, Position(Lane #6871, 90.4701m) sidewalk
+  4th Ave & Seneca St: Position(Lane #6463, 72.8547m) driving, Position(Lane #6465, 72.8506m) sidewalk
+  4th Avenue & Cherry Street: Position(Lane #11622, 42.0471m) driving, Position(Lane #11624, 42.08m) sidewalk
+  4th Ave S & S Washington St: Position(Lane #7973, 21.125m) driving, Position(Lane #7975, 21.1237m) sidewalk
+https://www.openstreetmap.org/relation/3494092 from Lane #6153 to None
+  International District Station: Position(Lane #6153, 63.433m) driving, Position(Lane #8584, 33.7753m) sidewalk
+  Pioneer Square Station: Position(Lane #6153, 680.7593m) driving, Position(Lane #8724, 40.3247m) sidewalk
+  University Street Station: Position(Lane #6153, 1338.8661m) driving, Position(Lane #9765, 46.6002m) sidewalk
+  Westlake Station: Position(Lane #6153, 1881.9171m) driving, Position(Lane #4316, 77.8971m) sidewalk
+  Capitol Hill: Position(Lane #9919, 1472.2587m) driving, Position(Lane #10860, 52.8147m) sidewalk
+https://www.openstreetmap.org/relation/5517060 from Lane #16220 to None
+  Capitol Hill: Position(Lane #16220, 974.265m) driving, Position(Lane #10860, 52.8147m) sidewalk
+  Westlake Station: Position(Lane #12485, 325.085m) driving, Position(Lane #4316, 77.8971m) sidewalk
+  University Street Station: Position(Lane #12485, 870.0847m) driving, Position(Lane #9765, 46.6002m) sidewalk
+  Pioneer Square Station: Position(Lane #12485, 1538.5062m) driving, Position(Lane #8724, 40.3247m) sidewalk
+https://www.openstreetmap.org/relation/6833824 from Lane #9150 to None
+  Queen Anne Ave N & W Highland Dr: Position(Lane #9150, 1m) driving, Position(Lane #9151, 0m) sidewalk
+  Queen Anne Ave N & W Mercer St: Position(Lane #12776, 37.0231m) driving, Position(Lane #8011, 0m) sidewalk
+  2nd Ave & Stewart St: Position(Lane #11510, 6.212m) driving, Position(Lane #11511, 6.2065m) sidewalk
+  2nd Ave & Pike St: Position(Lane #11652, 74.358m) driving, Position(Lane #11654, 73.436m) sidewalk
+  2nd Ave & Marion St: Position(Lane #11552, 64.7792m) driving, Position(Lane #11553, 64.7792m) sidewalk
+  2nd Ave & James St: Position(Lane #11539, 57.3336m) driving, Position(Lane #11540, 57.2518m) sidewalk
+  2nd Ave Ext S & S Jackson St: Position(Lane #6515, 11.2151m) driving, Position(Lane #6516, 11.2151m) sidewalk
+https://www.openstreetmap.org/relation/8624462 from Lane #6362 to None
+  3rd Ave & Madison St: Position(Lane #13788, 64.6052m) driving, Position(Lane #13789, 64.6446m) sidewalk
+  3rd Ave & Union St: Position(Lane #9764, 86.6295m) driving, Position(Lane #9765, 86.6407m) sidewalk
+https://www.openstreetmap.org/relation/8624463 from Lane #6362 to None
+  3rd Ave & Madison St: Position(Lane #13788, 64.6052m) driving, Position(Lane #13789, 64.6446m) sidewalk
+  3rd Ave & Union St: Position(Lane #9764, 86.6295m) driving, Position(Lane #9765, 86.6407m) sidewalk
+https://www.openstreetmap.org/relation/8624672 from Lane #6362 to None
+  3rd Ave & Seneca St: Position(Lane #10413, 59.4461m) driving, Position(Lane #7430, 69.6937m) sidewalk
+  3rd Ave & Columbia St: Position(Lane #9758, 71.578m) driving, Position(Lane #9759, 70.2842m) sidewalk
+https://www.openstreetmap.org/relation/9338838 from Lane #6362 to None
+  3rd Ave & Madison St: Position(Lane #13788, 64.6052m) driving, Position(Lane #13789, 64.6446m) sidewalk
+  3rd Ave & Union St: Position(Lane #9764, 86.6295m) driving, Position(Lane #9765, 86.6407m) sidewalk
+https://www.openstreetmap.org/relation/9341184 from Lane #6362 to None
+  3rd Ave & Madison St: Position(Lane #13788, 64.6052m) driving, Position(Lane #13789, 64.6446m) sidewalk
+  3rd Ave & Union St: Position(Lane #9764, 86.6295m) driving, Position(Lane #9765, 86.6407m) sidewalk
+https://www.openstreetmap.org/relation/9436268 from Lane #5003 to None
+  4th Ave S & S Jackson St: Position(Lane #11163, 9.3998m) driving, Position(Lane #11164, 0m) sidewalk
+  4th Ave & James St: Position(Lane #11595, 5.1813m) driving, Position(Lane #11596, 4.7429m) sidewalk
+  4th Ave & Madison St: Position(Lane #11629, 69.0112m) driving, Position(Lane #11630, 68.4281m) sidewalk
+  4th Ave & Union St: Position(Lane #14287, 20.2451m) driving, Position(Lane #14288, 20.2425m) sidewalk
+  Pike St & 6th Ave: Position(Lane #11954, 83.0849m) driving, Position(Lane #11955, 70.2132m) sidewalk
+  Pike St & Convention Pl: Position(Lane #8830, 11.0155m) driving, Position(Lane #8831, 11.0155m) sidewalk
+https://www.openstreetmap.org/relation/9436314 from Lane #5003 to None
+  4th Ave S & S Jackson St: Position(Lane #11163, 9.3998m) driving, Position(Lane #11164, 0m) sidewalk
+  4th Ave S & S Washington St: Position(Lane #7973, 21.125m) driving, Position(Lane #7975, 21.1237m) sidewalk
+  4th Avenue & Cherry Street: Position(Lane #11622, 42.0471m) driving, Position(Lane #11624, 42.08m) sidewalk
+  4th Ave & Seneca St: Position(Lane #6463, 72.8547m) driving, Position(Lane #6465, 72.8506m) sidewalk
+  4th Ave & Union St: Position(Lane #14287, 20.2451m) driving, Position(Lane #14288, 20.2425m) sidewalk
+  Pike St & 6th Ave: Position(Lane #11954, 83.0849m) driving, Position(Lane #11955, 70.2132m) sidewalk
+  Pike St & Convention Pl: Position(Lane #8830, 11.0155m) driving, Position(Lane #8831, 11.0155m) sidewalk
+https://www.openstreetmap.org/relation/9436347 from Lane #5003 to None
+  4th Ave S & S Jackson St: Position(Lane #11163, 9.3998m) driving, Position(Lane #11164, 0m) sidewalk
+  4th Ave & James St: Position(Lane #11595, 5.1813m) driving, Position(Lane #11596, 4.7429m) sidewalk
+  4th Ave & Madison St: Position(Lane #11629, 69.0112m) driving, Position(Lane #11630, 68.4281m) sidewalk
+  4th Ave & Union St: Position(Lane #14287, 20.2451m) driving, Position(Lane #14288, 20.2425m) sidewalk
+  Pike St & 6th Ave: Position(Lane #11954, 83.0849m) driving, Position(Lane #11955, 70.2132m) sidewalk
+  Pike St & Convention Pl: Position(Lane #8830, 11.0155m) driving, Position(Lane #8831, 11.0155m) sidewalk
+https://www.openstreetmap.org/relation/9438566 from Lane #5003 to None
+  4th Ave S & S Jackson St: Position(Lane #11163, 9.3998m) driving, Position(Lane #11164, 0m) sidewalk
+  4th Ave & James St: Position(Lane #11595, 5.1813m) driving, Position(Lane #11596, 4.7429m) sidewalk
+  4th Ave & Madison St: Position(Lane #11629, 69.0112m) driving, Position(Lane #11630, 68.4281m) sidewalk
+  4th Ave & Union St: Position(Lane #14287, 20.2451m) driving, Position(Lane #14288, 20.2425m) sidewalk
+  Pike St & 6th Ave: Position(Lane #11954, 83.0849m) driving, Position(Lane #11955, 70.2132m) sidewalk
+  Pike St & Convention Pl: Position(Lane #8830, 11.0155m) driving, Position(Lane #8831, 11.0155m) sidewalk
