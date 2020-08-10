@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Traffic simulation - A/B Street</title>
+        <title>Roadmap - A/B Street</title>
         
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../map/index.html"><strong aria-hidden="true">2.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/index.html"><strong aria-hidden="true">2.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/convert_osm.html"><strong aria-hidden="true">2.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="../map/importing/geometry.html"><strong aria-hidden="true">2.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="../map/importing/rest.html"><strong aria-hidden="true">2.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="../map/edits.html"><strong aria-hidden="true">2.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../map/misc.html"><strong aria-hidden="true">2.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="../trafficsim/index.html" class="active"><strong aria-hidden="true">3.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trafficsim/discrete_event.html"><strong aria-hidden="true">3.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="../trafficsim/travel_demand.html"><strong aria-hidden="true">3.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="../trafficsim/gridlock.html"><strong aria-hidden="true">3.3.</strong> Gridlock</a></li></ol></li><li class="chapter-item expanded "><a href="../project/index.html"><strong aria-hidden="true">4.</strong> Project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/roadmap.html"><strong aria-hidden="true">4.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="../project/motivations.html"><strong aria-hidden="true">4.2.</strong> Motivations</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../map/index.html"><strong aria-hidden="true">2.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/index.html"><strong aria-hidden="true">2.1.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/convert_osm.html"><strong aria-hidden="true">2.1.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="../map/importing/geometry.html"><strong aria-hidden="true">2.1.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="../map/importing/rest.html"><strong aria-hidden="true">2.1.3.</strong> The rest</a></li></ol></li><li class="chapter-item expanded "><a href="../map/edits.html"><strong aria-hidden="true">2.2.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../map/misc.html"><strong aria-hidden="true">2.3.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="../trafficsim/index.html"><strong aria-hidden="true">3.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trafficsim/discrete_event.html"><strong aria-hidden="true">3.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="../trafficsim/travel_demand.html"><strong aria-hidden="true">3.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="../trafficsim/gridlock.html"><strong aria-hidden="true">3.3.</strong> Gridlock</a></li></ol></li><li class="chapter-item expanded "><a href="../project/index.html"><strong aria-hidden="true">4.</strong> Project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/roadmap.html" class="active"><strong aria-hidden="true">4.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="../project/motivations.html"><strong aria-hidden="true">4.2.</strong> Motivations</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -147,24 +147,128 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#ab-streets-traffic-simulation" id="ab-streets-traffic-simulation">A/B Street's Traffic Simulation</a></h1>
-<p>This article describes how cars, bikes, buses, and pedestrians are modeled in
-A/B Street. All code lives in the <code>sim</code> crate.</p>
-<p><a href="https://youtu.be/chYd5I-5oyc?t=1086">This recorded presentation</a> covers some of
-this.</p>
+                        <h1><a class="header" href="#roadmap" id="roadmap">Roadmap</a></h1>
+<p>A/B Street has been under active development since June 2018. That's a long time
+-- what work is happening now and how can you contribute?</p>
+<h2><a class="header" href="#next-steps-summer-2020" id="next-steps-summer-2020">Next steps, summer 2020</a></h2>
+<p>Afer the alpha launch in June, I plan to focus on:</p>
+<ul>
+<li>shared biking/walking trails like the Burke Gilman</li>
+<li>light rail</li>
+<li>more score functions besides trip time, like safety/comfort</li>
+<li>changing trip mode choice (if you make a bus route more desirable, switch some
+trips)</li>
+<li>web support (so people can try out proposals without installing anything)</li>
+</ul>
+<h2><a class="header" href="#ongoing-work" id="ongoing-work">Ongoing work</a></h2>
+<p>If I had resources to hire a team, this is roughly how I'd organize different
+roles. If you're interested in helping, these aren't strictly defined positions,
+just ideas of related tasks.</p>
+<h3><a class="header" href="#ui-and-data-visualization" id="ui-and-data-visualization">UI and data visualization</a></h3>
+<p>We've got a UX designer, but implementing all of the new designs takes time.
+Also:</p>
+<ul>
+<li>improve color schemes for colorblind players, implement night mode, rain
+effects, etc</li>
+<li>refactor and clean up the GUI library for other Rust users</li>
+<li>lots of data viz design / implementation needed</li>
+</ul>
+<h3><a class="header" href="#game-design" id="game-design">Game design</a></h3>
+<ul>
+<li>the tutorial mode needs attention</li>
+<li>many ideas for challenge/story modes, but playtesting, tuning, and game design
+needed</li>
+</ul>
+<h3><a class="header" href="#map-data--gis" id="map-data--gis">Map data / GIS</a></h3>
+<p>Support more cities:</p>
+<ul>
+<li>write docs/tools to help people add new cities without programming experience</li>
+<li>add support for non-OpenStreetMap input: GeoJSON for parking in Perth, other
+trip demand sources, etc</li>
+<li>fix bugs for driving on the left side of the road</li>
+</ul>
+<p>Improve the quality of map geometry derived from OpenStreetMap:</p>
+<ul>
+<li>try new algorithms to generate intersection polygons</li>
+<li>make tools for easily improving relevant data in OSM</li>
+<li>use ML and lidar/satellite data to get extremely accurate curb / planter /
+sidewalk geometry</li>
+</ul>
+<p>Build tools and organize community mapping:</p>
+<ul>
+<li>organize an effort to map how traffic signals are timed (partly started)</li>
+<li>divide and track work for distributed mapathons</li>
+</ul>
+<p>Bring in new data to understand more about cities:</p>
+<ul>
+<li>PM2.5 pollution</li>
+<li>Tax / land value (is there inequitable access to transit?)</li>
+</ul>
+<h3><a class="header" href="#simulation--modeling" id="simulation--modeling">Simulation / modeling</a></h3>
+<p>Totally new areas:</p>
+<ul>
+<li>light rail</li>
+<li>shared bike/pedestrian paths</li>
+<li>ridesharing</li>
+<li>micromobility (scooters, floating bikeshare)</li>
+<li>more score functions (elevation gain, biking safety)</li>
+<li>generating trip demand / activity models from scratch or modifying existing
+ones</li>
+</ul>
+<p>Improve existing models:</p>
+<ul>
+<li>overtaking / lane-changing</li>
+<li>pedestrian crowds</li>
+<li>instant vehicle acceleration</li>
+<li>pedestrians walking on road shoulders (some streets have no sidewalks)</li>
+<li>buses: transfers, proper schedules, multiple buses per route</li>
+</ul>
+<h3><a class="header" href="#web" id="web">Web</a></h3>
+<p>A/B Street runs on the web via WASM and WebGL; just waiting on vector text
+support. Besides that:</p>
+<ul>
+<li>Share community proposals online, discuss them, vote, etc</li>
+</ul>
+<h2><a class="header" href="#contributing-for-non-programmers" id="contributing-for-non-programmers">Contributing for non-programmers</a></h2>
+<p>There's plenty to do besides programming!</p>
+<ul>
+<li>Mapping, most of which directly contributes to OpenStreetMap:
+<ul>
+<li>sidewalks and crosswalks</li>
+<li><a href="https://dabreegster.github.io/abstreet/map_parking.html">on-street parking</a></li>
+<li><a href="https://docs.google.com/document/d/1Od_7WvBVYsvpY4etRI0sKmYmZnwXMAXcJxVmm8Iwdcg/edit?usp=sharing">traffic signal timing</a></li>
+</ul>
+</li>
+<li>Playtesting by attempting to implement real proposals would also be helpful,
+to expose where it's awkward for A/B Street to edit the map and to write up
+problems encountered.</li>
+<li>Advocacy: I'm not great at finding the right people to to get ideas
+implemented for real. Maybe you are?</li>
+</ul>
+<h2><a class="header" href="#long-term-vision" id="long-term-vision">Long-term vision</a></h2>
+<p>Longer term, I'd like to take lots of the work in generating and interacting
+with high-detail OpenStreetMap-based maps and generalize it, possibly as a new
+OSM viewer/editor.</p>
+<p>More generally, I'd like to see how simulation can help individuals understand
+and explore other policy decisions related to cities. Domains I'm vaguely
+interested in, but not at all knowledgable about, include land-use / zoning,
+housing, and supply chains. In late March 2020, a new collaborator started a
+pandemic model using the existing simulation of people occupying shared spaces.
+What are other domains could benefit from the rich agent-based model we're
+building?</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="../map/misc.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../project/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="../trafficsim/discrete_event.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../project/motivations.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -176,13 +280,13 @@ this.</p>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a rel="prev" href="../map/misc.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../project/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a rel="next" href="../trafficsim/discrete_event.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../project/motivations.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
