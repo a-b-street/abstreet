@@ -8,7 +8,7 @@ use ezgui::{
     Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, Duration, Time};
-use map_model::{IntersectionID, PathStep, TurnGroup, TurnGroupID, TurnType};
+use map_model::{IntersectionID, PathStep, TurnGroupID, TurnType};
 use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::HashMap;
 
@@ -101,18 +101,9 @@ impl Demand {
         let map = &app.primary.map;
 
         let mut all_demand = HashMap::new();
-        // TODO This should be stored directly on Intersection
-        let mut turn_groups = HashMap::new();
         for i in map.all_intersections() {
             if i.is_traffic_signal() {
                 all_demand.insert(i.id, Demand { raw: Vec::new() });
-                turn_groups.insert(
-                    i.id,
-                    TurnGroup::for_i(i.id, map)
-                        .into_iter()
-                        .map(|(_, v)| v)
-                        .collect::<Vec<_>>(),
-                );
             }
         }
 
@@ -143,13 +134,9 @@ impl Demand {
                             continue;
                         }
                         if let Some(demand) = all_demand.get_mut(&t.parent) {
-                            // TODO TurnID->TurnGroupID should be a method on Intersection
-                            let tg = turn_groups[&t.parent]
-                                .iter()
-                                .find(|g| g.members.contains(t))
-                                .unwrap()
-                                .id;
-                            demand.raw.push((now, tg));
+                            demand
+                                .raw
+                                .push((now, map.get_traffic_signal(t.parent).turn_to_group(*t)));
                         }
                     }
                 }
@@ -179,15 +166,13 @@ impl Demand {
         let mut arrow_batch = GeomBatch::new();
         let mut txt_batch = GeomBatch::new();
         for (i, demand) in all_demand {
-            let turn_groups = TurnGroup::for_i(*i, &app.primary.map);
-
             let cnt = demand.count(hour);
             let total_demand = cnt.sum() as f64;
 
             // TODO Refactor with info/intersection after deciding exactly how to draw this
             for (tg, demand) in cnt.consume() {
                 let percent = (demand as f64) / total_demand;
-                let pl = &turn_groups[&tg].geom;
+                let pl = &app.primary.map.get_traffic_signal(*i).turn_groups[&tg].geom;
                 arrow_batch.push(
                     Color::hex("#A3A3A3"),
                     pl.make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle),

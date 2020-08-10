@@ -158,6 +158,18 @@ impl ControlTrafficSignal {
         }
         self != &orig
     }
+
+    pub fn turn_to_group(&self, turn: TurnID) -> TurnGroupID {
+        if let Some(tg) = self
+            .turn_groups
+            .values()
+            .find(|tg| tg.members.contains(&turn))
+        {
+            tg.id
+        } else {
+            panic!("{} doesn't belong to any turn groups", turn)
+        }
+    }
 }
 
 impl Phase {
@@ -184,17 +196,7 @@ impl Phase {
     }
 
     pub fn get_priority_of_turn(&self, t: TurnID, parent: &ControlTrafficSignal) -> TurnPriority {
-        // TODO Cache this?
-        if let Some(g) = parent
-            .turn_groups
-            .values()
-            .find(|g| g.members.contains(&t))
-            .map(|g| g.id)
-        {
-            self.get_priority_of_group(g)
-        } else {
-            panic!("{} doesn't belong to any turn groups", t);
-        }
+        self.get_priority_of_group(parent.turn_to_group(t))
     }
 
     pub fn get_priority_of_group(&self, g: TurnGroupID) -> TurnPriority {
