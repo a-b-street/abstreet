@@ -1,6 +1,6 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::edit::ClusterTrafficSignalEditor;
+use crate::edit::{ClusterTrafficSignalEditor, NewTrafficSignalEditor};
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
@@ -39,7 +39,8 @@ impl UberTurnPicker {
                         .align_right(),
                 ]),
                 Btn::text_fg("View uber-turns").build_def(ctx, hotkey(Key::Enter)),
-                Btn::text_fg("Edit").build_def(ctx, hotkey(Key::E)),
+                Btn::text_fg("Edit (old attempt)").build_def(ctx, None),
+                Btn::text_fg("Edit (new attempt)").build_def(ctx, hotkey(Key::E)),
                 Btn::text_fg("Detect all clusters").build_def(ctx, hotkey(Key::D)),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -85,7 +86,7 @@ impl State for UberTurnPicker {
                         true,
                     ));
                 }
-                "Edit" => {
+                "Edit (old attempt)" => {
                     if self.members.len() < 2 {
                         return Transition::Push(PopupMsg::new(
                             ctx,
@@ -97,6 +98,20 @@ impl State for UberTurnPicker {
                         ctx,
                         app,
                         &IntersectionCluster::new(self.members.clone(), &app.primary.map).0,
+                    ));
+                }
+                "Edit (new attempt)" => {
+                    if self.members.len() < 2 {
+                        return Transition::Push(PopupMsg::new(
+                            ctx,
+                            "Error",
+                            vec!["Select at least two intersections"],
+                        ));
+                    }
+                    return Transition::Replace(NewTrafficSignalEditor::new(
+                        ctx,
+                        app,
+                        self.members.clone(),
                     ));
                 }
                 "Detect all clusters" => {

@@ -169,12 +169,12 @@ impl State for StopSignEditor {
                         ),
                     });
                     apply_map_edits(ctx, app, edits);
-                    return Transition::Replace(Box::new(TrafficSignalEditor::new(
+                    return Transition::Replace(TrafficSignalEditor::new(
                         ctx,
                         app,
                         self.id,
                         self.mode.clone(),
-                    )));
+                    ));
                 }
                 _ => unreachable!(),
             },

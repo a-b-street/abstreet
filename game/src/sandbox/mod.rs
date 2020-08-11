@@ -442,7 +442,7 @@ impl ContextualActions for Actions {
         match (id, action.as_ref()) {
             (ID::Intersection(i), "edit traffic signal") => Transition::PushTwice(
                 EditMode::new(ctx, app, self.gameplay.clone()),
-                Box::new(TrafficSignalEditor::new(ctx, app, i, self.gameplay.clone())),
+                TrafficSignalEditor::new(ctx, app, i, self.gameplay.clone()),
             ),
             (ID::Intersection(i), "edit stop sign") => Transition::PushTwice(
                 EditMode::new(ctx, app, self.gameplay.clone()),

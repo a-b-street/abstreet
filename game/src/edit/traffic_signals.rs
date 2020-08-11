@@ -20,10 +20,10 @@ use std::collections::BTreeSet;
 
 // TODO Warn if there are empty phases or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
-    pub i: IntersectionID,
+    i: IntersectionID,
     current_phase: usize,
     composite: Composite,
-    pub top_panel: Composite,
+    top_panel: Composite,
     mode: GameplayMode,
 
     groups: Vec<DrawTurnGroup>,
@@ -31,8 +31,8 @@ pub struct TrafficSignalEditor {
     group_selected: Option<(TurnGroupID, Option<TurnPriority>)>,
 
     // The first ControlTrafficSignal is the original
-    pub command_stack: Vec<ControlTrafficSignal>,
-    pub redo_stack: Vec<ControlTrafficSignal>,
+    command_stack: Vec<ControlTrafficSignal>,
+    redo_stack: Vec<ControlTrafficSignal>,
 
     fade_irrelevant: Drawable,
 }
@@ -43,7 +43,7 @@ impl TrafficSignalEditor {
         app: &mut App,
         id: IntersectionID,
         mode: GameplayMode,
-    ) -> TrafficSignalEditor {
+    ) -> Box<dyn State> {
         app.primary.current_selection = None;
 
         let map = &app.primary.map;
@@ -57,7 +57,7 @@ impl TrafficSignalEditor {
             vec![Polygon::convex_hull(holes).into_ring()],
         );
 
-        TrafficSignalEditor {
+        Box::new(TrafficSignalEditor {
             i: id,
             current_phase: 0,
             composite: make_signal_diagram(ctx, app, id, 0),
@@ -68,7 +68,7 @@ impl TrafficSignalEditor {
             command_stack: Vec::new(),
             redo_stack: Vec::new(),
             fade_irrelevant: GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx),
-        }
+        })
     }
 
     fn change_phase(&mut self, idx: usize, ctx: &mut EventCtx, app: &App) {
