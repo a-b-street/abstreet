@@ -208,20 +208,13 @@ impl State for StoryMapEditor {
                         if story.name == self.story.name {
                             continue;
                         }
-                        // TODO Argh, we can't make StoryMap cloneable, so redo some
-                        // work
-                        let gps_bounds = app.primary.map.get_gps_bounds();
-                        if story
-                            .markers
-                            .iter()
-                            .all(|(pts, _)| gps_bounds.try_convert(pts).is_some())
-                        {
-                            choices.push(Choice::new(name, story));
+                        if let Some(s) = StoryMap::load(ctx, app, story) {
+                            choices.push(Choice::new(name, s));
                         }
                     }
                     choices.push(Choice::new(
                         "new story",
-                        RecordedStoryMap {
+                        StoryMap {
                             name: "new story".to_string(),
                             markers: Vec::new(),
                         },
@@ -231,8 +224,7 @@ impl State for StoryMapEditor {
                         ctx,
                         self.composite.rect_of("load"),
                         choices,
-                        Box::new(|raw, ctx, app| {
-                            let story = StoryMap::load(ctx, app, raw).unwrap();
+                        Box::new(|story, _, _| {
                             Transition::PopWithData(Box::new(move |state, ctx, _| {
                                 let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
                                 editor.story = story;
