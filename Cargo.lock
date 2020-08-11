@@ -1308,6 +1308,7 @@ dependencies = [
  "map_model 0.1.0",
  "sim 0.1.0",
  "tokio 0.2.21 (registry+https://github.com/rust-lang/crates.io-index)",
+ "url 2.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

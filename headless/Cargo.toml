@@ -12,3 +12,4 @@ lazy_static = "1.4.0"
 map_model = { path = "../map_model" }
 sim = { path = "../sim" }
 tokio = { version = "0.2", features = ["full"] }
+url = "2.1.1"

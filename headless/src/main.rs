@@ -48,21 +48,13 @@ async fn main() {
 
 async fn serve_req(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
     let path = req.uri().path();
-    // Scrape query parameters
-    let params: HashMap<&str, &str> = req
-        .uri()
-        .query()
-        .unwrap_or("")
-        .split("&")
-        .filter(|x| !x.is_empty())
-        .map(|kv| {
-            let parts = kv.split("=").collect::<Vec<_>>();
-            // TODO Error handling
-            assert_eq!(parts.len(), 2);
-            (parts[0], parts[1])
-        })
-        .collect();
-
+    // Url::parse needs an absolute URL
+    let params: HashMap<String, String> =
+        url::Url::parse(&format!("http://localhost{}", req.uri()))
+            .unwrap()
+            .query_pairs()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect();
     let resp = handle_command(
         path,
         params,
@@ -72,11 +64,11 @@ async fn serve_req(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
     Ok(Response::new(Body::from(resp)))
 }
 
-fn handle_command(path: &str, params: HashMap<&str, &str>, sim: &mut Sim, map: &Map) -> String {
+fn handle_command(path: &str, params: HashMap<String, String>, sim: &mut Sim, map: &Map) -> String {
     match path {
         "/get-time" => sim.time().to_string(),
         "/goto-time" => {
-            let t = Time::parse(params["t"]).unwrap();
+            let t = Time::parse(&params["t"]).unwrap();
             if t <= sim.time() {
                 format!("{} is in the past", t)
             } else {
