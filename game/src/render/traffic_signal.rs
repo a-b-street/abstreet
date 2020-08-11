@@ -69,7 +69,7 @@ pub fn draw_signal_phase(
                 } else {
                     let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
                     batch.append(
-                        GeomBatch::mapspace_svg(prerender, "system/assets/map/walk.svg")
+                        GeomBatch::load_svg(prerender, "system/assets/map/walk.svg")
                             .scale(0.07)
                             .centered_on(center)
                             .rotate(angle)
@@ -81,7 +81,7 @@ pub fn draw_signal_phase(
             for g in dont_walk {
                 let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
                 batch.append(
-                    GeomBatch::mapspace_svg(prerender, "system/assets/map/dont_walk.svg")
+                    GeomBatch::load_svg(prerender, "system/assets/map/dont_walk.svg")
                         .scale(0.07)
                         .centered_on(center)
                         .rotate(angle),
@@ -150,7 +150,7 @@ pub fn draw_signal_phase(
                 } else {
                     let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
                     batch.append(
-                        GeomBatch::mapspace_svg(prerender, "system/assets/map/walk.svg")
+                        GeomBatch::load_svg(prerender, "system/assets/map/walk.svg")
                             .scale(0.07)
                             .centered_on(center)
                             .rotate(angle),
@@ -161,7 +161,7 @@ pub fn draw_signal_phase(
             for g in dont_walk {
                 let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
                 batch.append(
-                    GeomBatch::mapspace_svg(prerender, "system/assets/map/dont_walk.svg")
+                    GeomBatch::load_svg(prerender, "system/assets/map/dont_walk.svg")
                         .scale(0.07)
                         .centered_on(center)
                         .rotate(angle),

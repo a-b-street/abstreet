@@ -296,7 +296,7 @@ impl RoadSelector {
             } {
                 let mut batch = GeomBatch::new();
                 batch.append(
-                    GeomBatch::screenspace_svg(g.prerender, cursor)
+                    GeomBatch::load_svg(g.prerender, cursor)
                         .centered_on(g.canvas.get_cursor().to_pt())
                         .color(RewriteColor::ChangeAll(Color::GREEN)),
                 );

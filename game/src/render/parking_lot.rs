@@ -28,7 +28,7 @@ impl DrawParkingLot {
             );
         }
         unzoomed_batch.append(
-            GeomBatch::mapspace_svg(ctx.prerender, "system/assets/map/parking.svg")
+            GeomBatch::load_svg(ctx.prerender, "system/assets/map/parking.svg")
                 .scale(0.05)
                 .centered_on(lot.polygon.polylabel()),
         );

@@ -26,7 +26,7 @@ impl DrawBusStop {
 
         let mut icon = GeomBatch::new();
         icon.append(
-            GeomBatch::mapspace_svg(
+            GeomBatch::load_svg(
                 ctx.prerender,
                 if stop.is_train_stop {
                     "system/assets/map/light_rail.svg"

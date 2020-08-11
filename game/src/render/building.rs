@@ -46,7 +46,7 @@ impl DrawBuilding {
         if let OffstreetParking::PublicGarage(_, _) = bldg.parking {
             // Might need to scale down more for some buildings, but so far, this works everywhere.
             bldg_batch.append(
-                GeomBatch::mapspace_svg(ctx.prerender, "system/assets/map/parking.svg")
+                GeomBatch::load_svg(ctx.prerender, "system/assets/map/parking.svg")
                     .scale(0.1)
                     .centered_on(bldg.label_center),
             );

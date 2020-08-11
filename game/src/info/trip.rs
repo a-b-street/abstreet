@@ -385,7 +385,7 @@ fn make_timeline(
         }
 
         details.unzoomed.append(
-            GeomBatch::mapspace_svg(ctx.prerender, "system/assets/timeline/start_pos.svg")
+            GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/start_pos.svg")
                 .scale(3.0)
                 .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
                 .color(RewriteColor::Change(
@@ -395,7 +395,7 @@ fn make_timeline(
                 .centered_on(center),
         );
         details.zoomed.append(
-            GeomBatch::mapspace_svg(ctx.prerender, "system/assets/timeline/start_pos.svg")
+            GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/start_pos.svg")
                 .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
                 .color(RewriteColor::Change(
                     Color::hex("#5B5B5B"),
@@ -430,7 +430,7 @@ fn make_timeline(
         }
 
         details.unzoomed.append(
-            GeomBatch::mapspace_svg(ctx.prerender, "system/assets/timeline/goal_pos.svg")
+            GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/goal_pos.svg")
                 .scale(3.0)
                 .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
                 .color(RewriteColor::Change(
@@ -440,7 +440,7 @@ fn make_timeline(
                 .centered_on(center),
         );
         details.zoomed.append(
-            GeomBatch::mapspace_svg(ctx.prerender, "system/assets/timeline/goal_pos.svg")
+            GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/goal_pos.svg")
                 .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
                 .color(RewriteColor::Change(
                     Color::hex("#5B5B5B"),
@@ -502,16 +502,13 @@ fn make_timeline(
         if idx == num_phases - 1 {
             if let Some(p) = progress_along_path {
                 normal.append(
-                    GeomBatch::screenspace_svg(
-                        ctx.prerender,
-                        "system/assets/timeline/current_pos.svg",
-                    )
-                    .centered_on(Pt2D::new(p * phase_width, 7.5)),
+                    GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/current_pos.svg")
+                        .centered_on(Pt2D::new(p * phase_width, 7.5)),
                 );
             }
         }
         normal.append(
-            GeomBatch::screenspace_svg(
+            GeomBatch::load_svg(
                 ctx.prerender,
                 match p.phase_type {
                     TripPhaseType::Driving => "system/assets/timeline/driving.svg",
