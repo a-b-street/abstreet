@@ -74,6 +74,7 @@ pub enum Tab {
     IntersectionDelay(IntersectionID, DataOptions, bool),
     IntersectionDemand(IntersectionID),
     IntersectionArrivals(IntersectionID, DataOptions),
+    IntersectionTrafficSignal(IntersectionID),
 
     LaneInfo(LaneID),
     LaneDebug(LaneID),
@@ -110,6 +111,13 @@ impl Tab {
                 "arrivals" => {
                     if app.primary.map.get_i(i).is_incoming_border() {
                         Tab::IntersectionArrivals(i, DataOptions::new())
+                    } else {
+                        Tab::IntersectionInfo(i)
+                    }
+                }
+                "traffic signal" => {
+                    if app.primary.map.get_i(i).is_traffic_signal() {
+                        Tab::IntersectionTrafficSignal(i)
                     } else {
                         Tab::IntersectionInfo(i)
                     }
@@ -203,7 +211,8 @@ impl Tab {
             | Tab::IntersectionTraffic(i, _)
             | Tab::IntersectionDelay(i, _, _)
             | Tab::IntersectionDemand(i)
-            | Tab::IntersectionArrivals(i, _) => Some(ID::Intersection(*i)),
+            | Tab::IntersectionArrivals(i, _)
+            | Tab::IntersectionTrafficSignal(i) => Some(ID::Intersection(*i)),
             Tab::LaneInfo(l) | Tab::LaneDebug(l) | Tab::LaneTraffic(l, _) => Some(ID::Lane(*l)),
         }
     }
@@ -264,6 +273,7 @@ impl Tab {
             Tab::IntersectionDelay(_, _, _) => ("intersection", "delay"),
             Tab::IntersectionDemand(_) => ("intersection", "demand"),
             Tab::IntersectionArrivals(_, _) => ("intersection", "arrivals"),
+            Tab::IntersectionTrafficSignal(_) => ("intersection", "traffic signal"),
             Tab::LaneInfo(_) => ("lane", "info"),
             Tab::LaneDebug(_) => ("lane", "debug"),
             Tab::LaneTraffic(_, _) => ("lane", "traffic"),
@@ -338,6 +348,10 @@ impl InfoPanel {
             ),
             Tab::IntersectionArrivals(i, ref opts) => (
                 intersection::arrivals(ctx, app, &mut details, i, opts),
+                false,
+            ),
+            Tab::IntersectionTrafficSignal(i) => (
+                intersection::traffic_signal(ctx, app, &mut details, i),
                 false,
             ),
             Tab::LaneInfo(l) => (lane::info(ctx, app, &mut details, l), true),

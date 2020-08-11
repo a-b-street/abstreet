@@ -1,13 +1,13 @@
 use crate::app::{App, ShowEverything};
 use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
-use crate::render::{draw_signal_phase, make_signal_diagram, DrawOptions, BIG_ARROW_THICKNESS};
+use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, Polygon, Time};
-use map_model::{IntersectionID, LaneID, TurnType};
+use map_model::{LaneID, TurnType};
 use sim::{AgentID, DontDrawAgents};
 
 pub struct RoutePreview {
@@ -59,86 +59,6 @@ impl RoutePreview {
         if let Some((_, _, ref d)) = self.preview {
             g.redraw(d);
         }
-    }
-}
-
-pub struct ShowTrafficSignal {
-    i: IntersectionID,
-    composite: Composite,
-    current_phase: usize,
-}
-
-impl ShowTrafficSignal {
-    pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State> {
-        let (idx, _) = app.primary.sim.current_phase_and_remaining_time(i);
-        return Box::new(ShowTrafficSignal {
-            i,
-            composite: make_signal_diagram(ctx, app, i, idx, false),
-            current_phase: idx,
-        });
-    }
-
-    fn change_phase(&mut self, idx: usize, ctx: &mut EventCtx, app: &App) {
-        if self.current_phase != idx {
-            self.current_phase = idx;
-            self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase, false);
-            self.composite
-                .scroll_to_member(ctx, format!("phase {}", idx + 1));
-        }
-    }
-}
-
-impl State for ShowTrafficSignal {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
-
-        // TODO Buttons for these...
-        if self.current_phase != 0 && ctx.input.key_pressed(Key::UpArrow) {
-            self.change_phase(self.current_phase - 1, ctx, app);
-        }
-
-        if self.current_phase != app.primary.map.get_traffic_signal(self.i).phases.len() - 1
-            && ctx.input.key_pressed(Key::DownArrow)
-        {
-            self.change_phase(self.current_phase + 1, ctx, app);
-        }
-
-        match self.composite.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
-                }
-                _ => {
-                    self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, ctx, app);
-                }
-            },
-            _ => {}
-        }
-
-        Transition::Keep
-    }
-
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        let mut opts = DrawOptions::new();
-        opts.suppress_traffic_signal_details.push(self.i);
-        app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
-        let mut batch = GeomBatch::new();
-        draw_signal_phase(
-            g.prerender,
-            &app.primary.map.get_traffic_signal(self.i).phases[self.current_phase],
-            self.i,
-            None,
-            &mut batch,
-            app,
-            app.opts.traffic_signal_style.clone(),
-        );
-        batch.draw(g);
-
-        self.composite.draw(g);
     }
 }
 

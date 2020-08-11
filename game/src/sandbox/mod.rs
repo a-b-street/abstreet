@@ -4,7 +4,7 @@ mod misc_tools;
 mod speed;
 mod uber_turns;
 
-use self::misc_tools::{RoutePreview, ShowTrafficSignal, TurnExplorer};
+use self::misc_tools::{RoutePreview, TurnExplorer};
 use crate::app::App;
 use crate::common::{tool_panel, CommonState, ContextualActions, IsochroneViewer, Minimap};
 use crate::debug::DebugMode;
@@ -401,7 +401,6 @@ impl ContextualActions for Actions {
             match id.clone() {
                 ID::Intersection(i) => {
                     if app.primary.map.get_i(i).is_traffic_signal() {
-                        actions.push((Key::F, "explore traffic signal details".to_string()));
                         actions.push((Key::E, "edit traffic signal".to_string()));
                     }
                     if app.primary.map.get_i(i).is_stop_sign()
@@ -441,9 +440,6 @@ impl ContextualActions for Actions {
         close_panel: &mut bool,
     ) -> Transition {
         match (id, action.as_ref()) {
-            (ID::Intersection(i), "explore traffic signal details") => {
-                Transition::Push(ShowTrafficSignal::new(ctx, app, i))
-            }
             (ID::Intersection(i), "edit traffic signal") => Transition::PushTwice(
                 EditMode::new(ctx, app, self.gameplay.clone()),
                 Box::new(TrafficSignalEditor::new(ctx, app, i, self.gameplay.clone())),

@@ -2,9 +2,8 @@ use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
 use crate::game::{ChooseSomething, DrawBaselayer, PopupMsg, State, Transition};
-use crate::render::{
-    draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS,
-};
+use crate::options::TrafficSignalStyle;
+use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::sandbox::{spawn_agents_around, GameplayMode, SpeedControls, TimePanel};
 use abstutil::Timer;
 use ezgui::{
@@ -61,7 +60,7 @@ impl TrafficSignalEditor {
         TrafficSignalEditor {
             i: id,
             current_phase: 0,
-            composite: make_signal_diagram(ctx, app, id, 0, true),
+            composite: make_signal_diagram(ctx, app, id, 0),
             top_panel: make_top_panel(ctx, app, false, false),
             mode,
             groups: DrawTurnGroup::for_i(id, map),
@@ -74,12 +73,12 @@ impl TrafficSignalEditor {
 
     fn change_phase(&mut self, idx: usize, ctx: &mut EventCtx, app: &App) {
         if self.current_phase == idx {
-            let mut new = make_signal_diagram(ctx, app, self.i, self.current_phase, true);
+            let mut new = make_signal_diagram(ctx, app, self.i, self.current_phase);
             new.restore(ctx, &self.composite);
             self.composite = new;
         } else {
             self.current_phase = idx;
-            self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase, true);
+            self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase);
             // TODO Maybe center of previous member
             self.composite
                 .scroll_to_member(ctx, format!("phase {}", idx + 1));
@@ -154,8 +153,7 @@ impl State for TrafficSignalEditor {
                         app.primary.map.incremental_edit_traffic_signal(new_signal);
                         // Don't use change_phase; it tries to preserve scroll
                         self.current_phase = if idx == num_phases { idx - 1 } else { idx };
-                        self.composite =
-                            make_signal_diagram(ctx, app, self.i, self.current_phase, true);
+                        self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase);
                         return Transition::Keep;
                     }
                     if let Some(x) = x.strip_prefix("move up phase ") {
@@ -606,7 +604,7 @@ fn edit_entire_signal(
                     // Don't use change_phase; it tries to preserve scroll
                     editor.current_phase = 0;
                     editor.composite =
-                        make_signal_diagram(ctx, app, editor.i, editor.current_phase, true);
+                        make_signal_diagram(ctx, app, editor.i, editor.current_phase);
                 }))
             }
             _ => unreachable!(),
@@ -765,7 +763,7 @@ fn check_for_missing_groups(
     new_signal.phases.insert(0, phase);
     let id = new_signal.id;
     app.primary.map.incremental_edit_traffic_signal(new_signal);
-    *composite = make_signal_diagram(ctx, app, id, 0, true);
+    *composite = make_signal_diagram(ctx, app, id, 0);
 
     Transition::Push(PopupMsg::new(
         ctx,
@@ -881,4 +879,170 @@ impl State for PreviewTrafficSignal {
         self.speed.draw(g);
         self.time_panel.draw(g);
     }
+}
+
+fn make_signal_diagram(
+    ctx: &mut EventCtx,
+    app: &App,
+    i: IntersectionID,
+    selected: usize,
+) -> Composite {
+    // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
+    // but this is close enough.
+    let bounds = app.primary.map.get_i(i).polygon.get_bounds();
+    // Pick a zoom so that we fit a fixed width in pixels
+    let zoom = 150.0 / bounds.width();
+    let bbox = Polygon::rectangle(zoom * bounds.width(), zoom * bounds.height());
+
+    let signal = app.primary.map.get_traffic_signal(i);
+    let txt_widget = {
+        let mut txt = Text::from(Line(i.to_string()).big_heading_plain());
+
+        let mut road_names = BTreeSet::new();
+        for r in &app.primary.map.get_i(i).roads {
+            road_names.insert(app.primary.map.get_r(*r).get_name());
+        }
+        for r in road_names {
+            // TODO The spacing is ignored, so use -
+            txt.add(Line(format!("- {}", r)));
+        }
+
+        txt.add(Line(""));
+        txt.add(Line(format!("{} phases", signal.phases.len())).small_heading());
+        txt.add(Line(format!("Signal offset: {}", signal.offset)));
+        {
+            let mut total = Duration::ZERO;
+            for p in &signal.phases {
+                total += p.phase_type.simple_duration();
+            }
+            // TODO Say "normally" or something?
+            txt.add(Line(format!("One cycle lasts {}", total)));
+        }
+        txt.draw(ctx)
+    };
+    let mut col = vec![
+        txt_widget,
+        Btn::text_bg2("Edit entire signal").build_def(ctx, hotkey(Key::E)),
+    ];
+
+    for (idx, phase) in signal.phases.iter().enumerate() {
+        // Separator
+        col.push(
+            Widget::draw_batch(
+                ctx,
+                GeomBatch::from(vec![(
+                    Color::WHITE,
+                    // TODO draw_batch will scale up, but that's inappropriate here, since we're
+                    // depending on window width, which already factors in scale
+                    Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+                )]),
+            )
+            .centered_horiz(),
+        );
+
+        let phase_btn = {
+            let mut orig_batch = GeomBatch::new();
+            draw_signal_phase(
+                ctx.prerender,
+                phase,
+                i,
+                None,
+                &mut orig_batch,
+                app,
+                TrafficSignalStyle::Sidewalks,
+            );
+
+            let mut normal = GeomBatch::new();
+            normal.push(Color::BLACK, bbox.clone());
+            normal.append(
+                orig_batch
+                    .translate(-bounds.min_x, -bounds.min_y)
+                    .scale(zoom),
+            );
+
+            let mut hovered = GeomBatch::new();
+            hovered.append(normal.clone());
+            hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)).unwrap());
+
+            Btn::custom(normal, hovered, bbox.clone()).build(
+                ctx,
+                format!("phase {}", idx + 1),
+                None,
+            )
+        };
+
+        let phase_col = Widget::col(vec![
+            Widget::row(vec![
+                match phase.phase_type {
+                    PhaseType::Fixed(d) => Line(format!("Phase {}: {}", idx + 1, d)),
+                    PhaseType::Adaptive(d) => Line(format!("Phase {}: {} (adaptive)", idx + 1, d)),
+                }
+                .small_heading()
+                .draw(ctx),
+                Btn::svg_def("system/assets/tools/edit.svg").build(
+                    ctx,
+                    format!("change duration of phase {}", idx + 1),
+                    if selected == idx {
+                        hotkey(Key::X)
+                    } else {
+                        None
+                    },
+                ),
+                if signal.phases.len() > 1 {
+                    Btn::svg_def("system/assets/tools/delete.svg")
+                        .build(ctx, format!("delete phase {}", idx + 1), None)
+                        .align_right()
+                } else {
+                    Widget::nothing()
+                },
+            ]),
+            Widget::row(vec![
+                phase_btn,
+                Widget::col(vec![
+                    if idx == 0 {
+                        Btn::text_fg("↑").inactive(ctx)
+                    } else {
+                        Btn::text_fg("↑").build(ctx, format!("move up phase {}", idx + 1), None)
+                    },
+                    if idx == signal.phases.len() - 1 {
+                        Btn::text_fg("↓").inactive(ctx)
+                    } else {
+                        Btn::text_fg("↓").build(ctx, format!("move down phase {}", idx + 1), None)
+                    },
+                ])
+                .centered_vert()
+                .align_right(),
+            ]),
+        ])
+        .padding(10);
+
+        if idx == selected {
+            col.push(phase_col.bg(Color::hex("#2A2A2A")));
+        } else {
+            col.push(phase_col);
+        }
+    }
+
+    // Separator
+    col.push(
+        Widget::draw_batch(
+            ctx,
+            GeomBatch::from(vec![(
+                Color::WHITE,
+                Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+            )]),
+        )
+        .centered_horiz(),
+    );
+
+    col.push(Btn::text_fg("Add new phase").build_def(ctx, None));
+    col.push(Widget::row(vec![
+        Spinner::new(ctx, (0, 300), signal.offset.inner_seconds() as isize).named("offset"),
+        Btn::text_fg("Change signal offset").build_def(ctx, None),
+    ]));
+
+    Composite::new(Widget::col(col))
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .exact_size_percent(30, 85)
+        .build(ctx)
 }

@@ -1,13 +1,15 @@
 use crate::app::App;
 use crate::helpers::color_for_agent_type;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
+use crate::options::TrafficSignalStyle;
+use crate::render::draw_signal_phase;
 use abstutil::prettyprint_usize;
 use ezgui::{
     Btn, Checkbox, Color, EventCtx, FanChart, GeomBatch, Line, PlotOptions, ScatterPlot, Series,
     Text, Widget,
 };
-use geom::{ArrowCap, Distance, Duration, PolyLine, Time};
-use map_model::{IntersectionID, IntersectionType};
+use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Time};
+use map_model::{IntersectionID, IntersectionType, PhaseType};
 use sim::AgentType;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -220,6 +222,73 @@ pub fn arrivals(
     rows
 }
 
+pub fn traffic_signal(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: IntersectionID,
+) -> Vec<Widget> {
+    let mut rows = header(ctx, app, details, id, Tab::IntersectionTrafficSignal(id));
+
+    // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
+    // but this is close enough.
+    let bounds = app.primary.map.get_i(id).polygon.get_bounds();
+    // Pick a zoom so that we fit a fixed width in pixels
+    let zoom = 150.0 / bounds.width();
+    let bbox = Polygon::rectangle(zoom * bounds.width(), zoom * bounds.height());
+
+    let signal = app.primary.map.get_traffic_signal(id);
+    {
+        let mut txt = Text::new();
+        txt.add(Line(format!("{} phases", signal.phases.len())).small_heading());
+        txt.add(Line(format!("Signal offset: {}", signal.offset)));
+        {
+            let mut total = Duration::ZERO;
+            for p in &signal.phases {
+                total += p.phase_type.simple_duration();
+            }
+            // TODO Say "normally" or something?
+            txt.add(Line(format!("One cycle lasts {}", total)));
+        }
+        rows.push(txt.draw(ctx));
+    }
+
+    for (idx, phase) in signal.phases.iter().enumerate() {
+        rows.push(
+            match phase.phase_type {
+                PhaseType::Fixed(d) => Line(format!("Phase {}: {}", idx + 1, d)),
+                PhaseType::Adaptive(d) => Line(format!("Phase {}: {} (adaptive)", idx + 1, d)),
+            }
+            .draw(ctx),
+        );
+
+        {
+            let mut orig_batch = GeomBatch::new();
+            draw_signal_phase(
+                ctx.prerender,
+                phase,
+                id,
+                None,
+                &mut orig_batch,
+                app,
+                TrafficSignalStyle::Sidewalks,
+            );
+
+            let mut normal = GeomBatch::new();
+            normal.push(Color::BLACK, bbox.clone());
+            normal.append(
+                orig_batch
+                    .translate(-bounds.min_x, -bounds.min_y)
+                    .scale(zoom),
+            );
+
+            rows.push(Widget::draw_batch(ctx, normal));
+        }
+    }
+
+    rows
+}
+
 fn delay_plot(
     ctx: &EventCtx,
     app: &App,
@@ -309,6 +378,7 @@ fn header(
                 Tab::IntersectionDelay(id, DataOptions::new(), false),
             ));
             tabs.push(("Current demand", Tab::IntersectionDemand(id)));
+            tabs.push(("Signal", Tab::IntersectionTrafficSignal(id)));
         }
         if i.is_incoming_border() {
             tabs.push((
