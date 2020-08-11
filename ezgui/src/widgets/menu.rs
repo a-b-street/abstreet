@@ -1,26 +1,22 @@
 use crate::{
-    text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, Style, Text, Widget, WidgetImpl, WidgetOutput,
+    text, Choice, EventCtx, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt, ScreenRectangle,
+    Style, Text, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::Pt2D;
 
-pub struct Menu<T: Clone> {
+pub struct Menu<T> {
     choices: Vec<Choice<T>>,
     current_idx: usize,
-
-    pub(crate) state: InputResult<T>,
 
     pub(crate) top_left: ScreenPt,
     dims: ScreenDims,
 }
 
-impl<T: 'static + Clone> Menu<T> {
+impl<T: 'static> Menu<T> {
     pub fn new(ctx: &EventCtx, choices: Vec<Choice<T>>) -> Widget {
         let mut m = Menu {
             choices,
             current_idx: 0,
-
-            state: InputResult::StillActive,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
@@ -29,8 +25,9 @@ impl<T: 'static + Clone> Menu<T> {
         Widget::new(Box::new(m))
     }
 
-    pub fn current_choice(&self) -> &T {
-        &self.choices[self.current_idx].data
+    pub fn take_current_choice(&mut self) -> T {
+        // TODO Make sure it's marked invalid, like button
+        self.choices.remove(self.current_idx).data
     }
 
     fn calculate_txt(&self, style: &Style) -> Text {
@@ -70,7 +67,7 @@ impl<T: 'static + Clone> Menu<T> {
     }
 }
 
-impl<T: 'static + Clone> WidgetImpl for Menu<T> {
+impl<T: 'static> WidgetImpl for Menu<T> {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }
@@ -82,11 +79,6 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         if self.choices.is_empty() {
             return;
-        }
-
-        match self.state {
-            InputResult::StillActive => {}
-            _ => unreachable!(),
         }
 
         // Handle the mouse
@@ -125,7 +117,6 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
                         // TODO Two ways of communicating results, based on use in wizards or a
                         // larger composite.
                         output.outcome = Outcome::Clicked(choice.label.clone());
-                        self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
                         return;
                     }
                 }
@@ -140,7 +131,6 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             }
             if ctx.input.pressed(choice.hotkey.clone()) {
                 self.current_idx = idx;
-                self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
                 output.outcome = Outcome::Clicked(choice.label.clone());
                 return;
             }
@@ -150,7 +140,6 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
         if ctx.input.key_pressed(Key::Enter) {
             let choice = &self.choices[self.current_idx];
             if choice.active {
-                self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
                 output.outcome = Outcome::Clicked(choice.label.clone());
                 return;
             } else {

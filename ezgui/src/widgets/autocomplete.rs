@@ -1,5 +1,5 @@
 use crate::{
-    Choice, EventCtx, GfxCtx, InputResult, Menu, ScreenDims, ScreenPt, TextBox, Widget, WidgetImpl,
+    Choice, EventCtx, GfxCtx, Menu, Outcome, ScreenDims, ScreenPt, TextBox, Widget, WidgetImpl,
     WidgetOutput,
 };
 use abstutil::MultiMap;
@@ -96,34 +96,28 @@ impl<T: 'static + Clone> WidgetImpl for Autocomplete<T> {
             output.redo_layout = true;
         } else {
             // Don't let the menu fill out the real outcome.
-            self.menu.event(ctx, &mut WidgetOutput::new());
-            match self.menu.state {
-                InputResult::StillActive => {}
-                // Ignore this and make sure the Composite has a quit control
-                InputResult::Canceled => {
-                    self.menu.state = InputResult::StillActive;
-                }
-                InputResult::Done(ref choice, _) => {
-                    // Mutating choices is fine, because we're supposed to be consumed by the
-                    // caller immediately after this.
-                    if choice.starts_with("anything matching") {
-                        let query = self.current_line.to_ascii_lowercase();
-                        let mut matches = Vec::new();
-                        for (name, choices) in self.choices.drain(..) {
-                            if name.to_ascii_lowercase().contains(&query) {
-                                matches.extend(choices);
-                            }
+            let mut tmp_output = WidgetOutput::new();
+            self.menu.event(ctx, &mut tmp_output);
+            if let Outcome::Clicked(ref choice) = tmp_output.outcome {
+                // Mutating choices is fine, because we're supposed to be consumed by the
+                // caller immediately after this.
+                if choice.starts_with("anything matching") {
+                    let query = self.current_line.to_ascii_lowercase();
+                    let mut matches = Vec::new();
+                    for (name, choices) in self.choices.drain(..) {
+                        if name.to_ascii_lowercase().contains(&query) {
+                            matches.extend(choices);
                         }
-                        self.chosen_values = Some(matches);
-                    } else {
-                        self.chosen_values = Some(
-                            self.choices
-                                .drain(..)
-                                .find(|(name, _)| name == choice)
-                                .unwrap()
-                                .1,
-                        );
                     }
+                    self.chosen_values = Some(matches);
+                } else {
+                    self.chosen_values = Some(
+                        self.choices
+                            .drain(..)
+                            .find(|(name, _)| name == choice)
+                            .unwrap()
+                            .1,
+                    );
                 }
             }
         }

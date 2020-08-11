@@ -300,7 +300,7 @@ pub struct ChooseSomething<T> {
     cb: Box<dyn Fn(T, &mut EventCtx, &mut App) -> Transition>,
 }
 
-impl<T: 'static + Clone> ChooseSomething<T> {
+impl<T: 'static> ChooseSomething<T> {
     pub fn new(
         ctx: &mut EventCtx,
         query: &str,
@@ -340,14 +340,13 @@ impl<T: 'static + Clone> ChooseSomething<T> {
     }
 }
 
-impl<T: 'static + Clone> State for ChooseSomething<T> {
+impl<T: 'static> State for ChooseSomething<T> {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
                 _ => {
-                    // TODO We shouldn't need to clone everywhere
-                    let data = self.composite.menu::<T>("menu").current_choice().clone();
+                    let data = self.composite.take_menu_choice::<T>("menu");
                     (self.cb)(data, ctx, app)
                 }
             },

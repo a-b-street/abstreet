@@ -1,6 +1,6 @@
 use crate::{
-    Btn, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, InputResult, Menu, Outcome,
-    ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl, WidgetOutput,
+    Btn, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, Menu, Outcome, ScreenDims, ScreenPt,
+    ScreenRectangle, WidgetImpl, WidgetOutput,
 };
 use geom::{Distance, Polygon, Pt2D};
 
@@ -91,26 +91,20 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
 
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         if let Some(ref mut m) = self.menu {
-            m.event(ctx, &mut WidgetOutput::new());
-            match m.state {
-                InputResult::StillActive => {}
-                InputResult::Canceled => {
-                    self.menu = None;
-                }
-                InputResult::Done(_, idx) => {
-                    self.menu = None;
-                    self.current_idx = idx;
-                    output.outcome = Outcome::Changed;
-                    let top_left = self.btn.top_left;
-                    self.btn = make_btn(
-                        ctx,
-                        &self.choices[self.current_idx].label,
-                        &self.label,
-                        self.blank_btn_label,
-                    );
-                    self.btn.set_pos(top_left);
-                    output.redo_layout = true;
-                }
+            let mut tmp_ouput = WidgetOutput::new();
+            m.event(ctx, &mut tmp_ouput);
+            if let Outcome::Clicked(_) = tmp_ouput.outcome {
+                self.current_idx = self.menu.take().unwrap().take_current_choice();
+                output.outcome = Outcome::Changed;
+                let top_left = self.btn.top_left;
+                self.btn = make_btn(
+                    ctx,
+                    &self.choices[self.current_idx].label,
+                    &self.label,
+                    self.blank_btn_label,
+                );
+                self.btn.set_pos(top_left);
+                output.redo_layout = true;
             }
         } else {
             self.btn.event(ctx, output);

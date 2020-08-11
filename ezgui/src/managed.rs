@@ -860,8 +860,8 @@ impl Composite {
         self.find(name)
     }
 
-    pub fn menu<T: 'static + Clone>(&self, name: &str) -> &Menu<T> {
-        self.find(name)
+    pub fn take_menu_choice<T: 'static>(&mut self, name: &str) -> T {
+        self.find_mut::<Menu<T>>(name).take_current_choice()
     }
 
     pub fn is_checked(&self, name: &str) -> bool {

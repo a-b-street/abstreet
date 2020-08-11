@@ -467,11 +467,7 @@ impl State for ChangeWay {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
                 _ => {
-                    let value = self
-                        .composite
-                        .menu::<Value>("menu")
-                        .current_choice()
-                        .clone();
+                    let value = self.composite.take_menu_choice::<Value>("menu");
                     if value == Value::Complicated {
                         Transition::Replace(PopupMsg::new(
                             ctx,
