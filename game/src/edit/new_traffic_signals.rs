@@ -1,14 +1,14 @@
-use crate::app::App;
-use crate::edit::traffic_signals::make_top_panel;
-use crate::game::{State, Transition};
+use crate::app::{App, ShowEverything};
+use crate::edit::traffic_signals::{draw_selected_group, make_top_panel};
+use crate::game::{DrawBaselayer, State, Transition};
 use crate::options::TrafficSignalStyle;
-use crate::render::draw_signal_phase;
+use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup};
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, VerticalAlignment, Widget,
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, VerticalAlignment, Widget,
 };
 use geom::{Bounds, Distance, Polygon};
-use map_model::{IntersectionID, Phase};
+use map_model::{IntersectionID, Phase, TurnGroupID, TurnPriority};
 use std::collections::BTreeSet;
 
 pub struct NewTrafficSignalEditor {
@@ -17,6 +17,12 @@ pub struct NewTrafficSignalEditor {
 
     members: BTreeSet<IntersectionID>,
     current_phase: usize,
+
+    groups: Vec<DrawTurnGroup>,
+    // And the next priority to toggle to
+    group_selected: Option<(TurnGroupID, Option<TurnPriority>)>,
+
+    fade_irrelevant: Drawable,
 }
 
 impl NewTrafficSignalEditor {
@@ -25,13 +31,38 @@ impl NewTrafficSignalEditor {
         app: &mut App,
         members: BTreeSet<IntersectionID>,
     ) -> Box<dyn State> {
+        let map = &app.primary.map;
         app.primary.current_selection = None;
+
+        let fade_area = {
+            let mut holes = Vec::new();
+            for i in &members {
+                let i = map.get_i(*i);
+                holes.push(i.polygon.clone());
+                for r in &i.roads {
+                    holes.push(map.get_r(*r).get_thick_polygon(map));
+                }
+            }
+            // The convex hull illuminates a bit more of the surrounding area, looks better
+            Polygon::with_holes(
+                map.get_boundary_polygon().clone().into_ring(),
+                vec![Polygon::convex_hull(holes).into_ring()],
+            )
+        };
+
+        let mut groups = Vec::new();
+        for i in &members {
+            groups.extend(DrawTurnGroup::for_i(*i, &app.primary.map));
+        }
 
         Box::new(NewTrafficSignalEditor {
             side_panel: make_side_panel(ctx, app, &members, 0),
             top_panel: make_top_panel(ctx, app, false, false),
             members,
             current_phase: 0,
+            groups,
+            group_selected: None,
+            fade_irrelevant: GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx),
         })
     }
 
@@ -78,26 +109,102 @@ impl State for NewTrafficSignalEditor {
             _ => {}
         }
 
-        if self.current_phase != 0 && ctx.input.key_pressed(Key::UpArrow) {
-            self.change_phase(ctx, app, self.current_phase - 1);
+        {
+            if self.current_phase != 0 && ctx.input.key_pressed(Key::UpArrow) {
+                self.change_phase(ctx, app, self.current_phase - 1);
+            }
+
+            // TODO When we enter this state, force all signals to have the same number of phases,
+            // so we can look up any of them.
+            let num_phases = self
+                .members
+                .iter()
+                .map(|i| app.primary.map.get_traffic_signal(*i).phases.len())
+                .max()
+                .unwrap();
+            if self.current_phase != num_phases - 1 && ctx.input.key_pressed(Key::DownArrow) {
+                self.change_phase(ctx, app, self.current_phase + 1);
+            }
         }
 
-        // TODO When we enter this state, force all signals to have the same number of phases, so
-        // we can look up any of them.
-        let num_phases = self
-            .members
-            .iter()
-            .map(|i| app.primary.map.get_traffic_signal(*i).phases.len())
-            .max()
-            .unwrap();
-        if self.current_phase != num_phases - 1 && ctx.input.key_pressed(Key::DownArrow) {
-            self.change_phase(ctx, app, self.current_phase + 1);
+        if ctx.redo_mouseover() {
+            self.group_selected = None;
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                for g in &self.groups {
+                    let signal = app.primary.map.get_traffic_signal(g.id.parent);
+                    if g.block.contains_pt(pt) {
+                        let phase = &signal.phases[self.current_phase];
+                        let next_priority = match phase.get_priority_of_group(g.id) {
+                            TurnPriority::Banned => {
+                                if phase.could_be_protected(g.id, &signal.turn_groups) {
+                                    Some(TurnPriority::Protected)
+                                } else if g.id.crosswalk {
+                                    None
+                                } else {
+                                    Some(TurnPriority::Yield)
+                                }
+                            }
+                            TurnPriority::Yield => Some(TurnPriority::Banned),
+                            TurnPriority::Protected => {
+                                if g.id.crosswalk {
+                                    Some(TurnPriority::Banned)
+                                } else {
+                                    Some(TurnPriority::Yield)
+                                }
+                            }
+                        };
+                        self.group_selected = Some((g.id, next_priority));
+                        break;
+                    }
+                }
+            }
         }
 
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        {
+            let mut opts = DrawOptions::new();
+            opts.suppress_traffic_signal_details
+                .extend(self.members.clone());
+            app.draw(g, opts, &app.primary.sim, &ShowEverything::new());
+        }
+        g.redraw(&self.fade_irrelevant);
+
+        let mut batch = GeomBatch::new();
+        for g in &self.groups {
+            let signal = app.primary.map.get_traffic_signal(g.id.parent);
+            if self
+                .group_selected
+                .as_ref()
+                .map(|(id, _)| *id == g.id)
+                .unwrap_or(false)
+            {
+                draw_selected_group(
+                    app,
+                    &mut batch,
+                    g,
+                    &signal.turn_groups[&g.id],
+                    self.group_selected.unwrap().1,
+                );
+            } else {
+                batch.push(app.cs.signal_turn_block_bg, g.block.clone());
+                let phase = &signal.phases[self.current_phase];
+                let arrow_color = match phase.get_priority_of_group(g.id) {
+                    TurnPriority::Protected => app.cs.signal_protected_turn,
+                    TurnPriority::Yield => app.cs.signal_permitted_turn,
+                    TurnPriority::Banned => app.cs.signal_banned_turn,
+                };
+                batch.push(arrow_color, g.arrow.clone());
+            }
+        }
+        batch.draw(g);
+
         self.top_panel.draw(g);
         self.side_panel.draw(g);
     }

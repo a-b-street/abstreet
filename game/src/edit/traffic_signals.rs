@@ -14,7 +14,7 @@ use ezgui::{
 use geom::{ArrowCap, Distance, Duration, Polygon};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase,
-    PhaseType, TurnGroupID, TurnPriority,
+    PhaseType, TurnGroup, TurnGroupID, TurnPriority,
 };
 use std::collections::BTreeSet;
 
@@ -336,65 +336,13 @@ impl State for TrafficSignalEditor {
                 .map(|(id, _)| *id == g.id)
                 .unwrap_or(false)
             {
-                // TODO Refactor this mess. Maybe after things like "dashed with outline" can be
-                // expressed more composably like SVG, using lyon.
-                let block_color = match self.group_selected.unwrap().1 {
-                    Some(TurnPriority::Protected) => {
-                        let green = Color::hex("#72CE36");
-                        let arrow = signal.turn_groups[&g.id]
-                            .geom
-                            .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
-                        batch.push(green.alpha(0.5), arrow.clone());
-                        if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
-                            batch.push(green, p);
-                        }
-                        green
-                    }
-                    Some(TurnPriority::Yield) => {
-                        batch.extend(
-                            // TODO Ideally the inner part would be the lower opacity blue, but
-                            // can't yet express that it should cover up the thicker solid blue
-                            // beneath it
-                            Color::BLACK.alpha(0.8),
-                            signal.turn_groups[&g.id].geom.dashed_arrow(
-                                BIG_ARROW_THICKNESS,
-                                Distance::meters(1.2),
-                                Distance::meters(0.3),
-                                ArrowCap::Triangle,
-                            ),
-                        );
-                        batch.extend(
-                            app.cs.signal_permitted_turn.alpha(0.8),
-                            signal.turn_groups[&g.id]
-                                .geom
-                                .exact_slice(
-                                    Distance::meters(0.1),
-                                    signal.turn_groups[&g.id].geom.length() - Distance::meters(0.1),
-                                )
-                                .dashed_arrow(
-                                    BIG_ARROW_THICKNESS / 2.0,
-                                    Distance::meters(1.0),
-                                    Distance::meters(0.5),
-                                    ArrowCap::Triangle,
-                                ),
-                        );
-                        app.cs.signal_permitted_turn
-                    }
-                    Some(TurnPriority::Banned) => {
-                        let red = Color::hex("#EB3223");
-                        let arrow = signal.turn_groups[&g.id]
-                            .geom
-                            .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
-                        batch.push(red.alpha(0.5), arrow.clone());
-                        if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
-                            batch.push(red, p);
-                        }
-                        red
-                    }
-                    None => app.cs.signal_turn_block_bg,
-                };
-                batch.push(block_color, g.block.clone());
-                batch.push(Color::WHITE, g.arrow.clone());
+                draw_selected_group(
+                    app,
+                    &mut batch,
+                    g,
+                    &signal.turn_groups[&g.id],
+                    self.group_selected.unwrap().1,
+                );
             } else {
                 batch.push(app.cs.signal_turn_block_bg, g.block.clone());
                 let arrow_color = match phase.get_priority_of_group(g.id) {
@@ -1043,4 +991,66 @@ fn make_signal_diagram(
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .exact_size_percent(30, 85)
         .build(ctx)
+}
+
+pub fn draw_selected_group(
+    app: &App,
+    batch: &mut GeomBatch,
+    g: &DrawTurnGroup,
+    tg: &TurnGroup,
+    next_priority: Option<TurnPriority>,
+) {
+    // TODO Refactor this mess. Maybe after things like "dashed with outline" can be expressed more
+    // composably like SVG, using lyon.
+    let block_color = match next_priority {
+        Some(TurnPriority::Protected) => {
+            let green = Color::hex("#72CE36");
+            let arrow = tg.geom.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
+            batch.push(green.alpha(0.5), arrow.clone());
+            if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
+                batch.push(green, p);
+            }
+            green
+        }
+        Some(TurnPriority::Yield) => {
+            batch.extend(
+                // TODO Ideally the inner part would be the lower opacity blue, but can't yet
+                // express that it should cover up the thicker solid blue beneath it
+                Color::BLACK.alpha(0.8),
+                tg.geom.dashed_arrow(
+                    BIG_ARROW_THICKNESS,
+                    Distance::meters(1.2),
+                    Distance::meters(0.3),
+                    ArrowCap::Triangle,
+                ),
+            );
+            batch.extend(
+                app.cs.signal_permitted_turn.alpha(0.8),
+                tg.geom
+                    .exact_slice(
+                        Distance::meters(0.1),
+                        tg.geom.length() - Distance::meters(0.1),
+                    )
+                    .dashed_arrow(
+                        BIG_ARROW_THICKNESS / 2.0,
+                        Distance::meters(1.0),
+                        Distance::meters(0.5),
+                        ArrowCap::Triangle,
+                    ),
+            );
+            app.cs.signal_permitted_turn
+        }
+        Some(TurnPriority::Banned) => {
+            let red = Color::hex("#EB3223");
+            let arrow = tg.geom.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
+            batch.push(red.alpha(0.5), arrow.clone());
+            if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
+                batch.push(red, p);
+            }
+            red
+        }
+        None => app.cs.signal_turn_block_bg,
+    };
+    batch.push(block_color, g.block.clone());
+    batch.push(Color::WHITE, g.arrow.clone());
 }
