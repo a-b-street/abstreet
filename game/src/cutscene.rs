@@ -203,12 +203,9 @@ fn make_panel(
                 Layout::PlayerSpeaking => Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
-                        GeomBatch::screenspace_svg(
-                            ctx.prerender,
-                            "system/assets/characters/boss.svg",
-                        )
-                        .scale(0.75)
-                        .autocrop(),
+                        GeomBatch::load_svg(ctx.prerender, "system/assets/characters/boss.svg")
+                            .scale(0.75)
+                            .autocrop(),
                     ),
                     Widget::custom_row(vec![
                         scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
@@ -219,12 +216,9 @@ fn make_panel(
                 Layout::BossSpeaking => Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
-                        GeomBatch::screenspace_svg(
-                            ctx.prerender,
-                            "system/assets/characters/boss.svg",
-                        )
-                        .scale(0.75)
-                        .autocrop(),
+                        GeomBatch::load_svg(ctx.prerender, "system/assets/characters/boss.svg")
+                            .scale(0.75)
+                            .autocrop(),
                     ),
                     scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                     Widget::draw_svg(ctx, "system/assets/characters/player.svg").align_right(),
@@ -232,19 +226,16 @@ fn make_panel(
                 Layout::Extra(name, scale) => Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
-                        GeomBatch::screenspace_svg(
-                            ctx.prerender,
-                            "system/assets/characters/boss.svg",
-                        )
-                        .scale(0.75)
-                        .autocrop(),
+                        GeomBatch::load_svg(ctx.prerender, "system/assets/characters/boss.svg")
+                            .scale(0.75)
+                            .autocrop(),
                     ),
                     Widget::col(vec![
                         Widget::draw_batch(
                             ctx,
-                            GeomBatch::screenspace_svg(
+                            GeomBatch::load_svg(
                                 ctx.prerender,
-                                format!("system/assets/characters/{}.svg", name),
+                                &format!("system/assets/characters/{}.svg", name),
                             )
                             .scale(scale)
                             .autocrop(),

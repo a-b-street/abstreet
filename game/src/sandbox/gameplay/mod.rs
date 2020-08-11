@@ -317,12 +317,9 @@ impl FinalScore {
                 Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
-                        GeomBatch::screenspace_svg(
-                            ctx.prerender,
-                            "system/assets/characters/boss.svg",
-                        )
-                        .scale(0.75)
-                        .autocrop(),
+                        GeomBatch::load_svg(ctx.prerender, "system/assets/characters/boss.svg")
+                            .scale(0.75)
+                            .autocrop(),
                     )
                     .container()
                     .outline(10.0, Color::BLACK)

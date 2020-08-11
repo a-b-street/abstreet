@@ -131,14 +131,14 @@ impl DrawLane {
                 let (pt, angle) = lane.lane_center_pts.must_dist_along(dist);
                 if lane.is_bus() {
                     draw.append(
-                        GeomBatch::mapspace_svg(g.prerender, "system/assets/map/bus_only.svg")
+                        GeomBatch::load_svg(g.prerender, "system/assets/map/bus_only.svg")
                             .scale(0.06)
                             .centered_on(pt)
                             .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
                     );
                 } else if lane.is_biking() {
                     draw.append(
-                        GeomBatch::mapspace_svg(g.prerender, "system/assets/meters/bike.svg")
+                        GeomBatch::load_svg(g.prerender, "system/assets/meters/bike.svg")
                             .scale(0.06)
                             .centered_on(pt)
                             .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
@@ -146,7 +146,7 @@ impl DrawLane {
                 } else if lane.lane_type == LaneType::Construction {
                     // TODO Still not quite centered right, but close enough
                     draw.append(
-                        GeomBatch::mapspace_svg(
+                        GeomBatch::load_svg(
                             g.prerender,
                             "system/assets/map/under_construction.svg",
                         )

@@ -132,7 +132,7 @@ pub fn trips(
                 .centered_vert()
                 .margin_right(21),
             Widget::row(vec![
-                GeomBatch::screenspace_svg(
+                GeomBatch::load_svg(
                     ctx.prerender,
                     match trip.mode {
                         TripMode::Walk => "system/assets/meters/pedestrian.svg",
@@ -458,7 +458,7 @@ pub fn parked_car(
                 )
             } else {
                 // TODO Blink
-                GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/location.svg")
+                GeomBatch::load_svg(ctx.prerender, "system/assets/tools/location.svg")
                     .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
                     .to_btn(ctx)
                     .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))
@@ -570,7 +570,7 @@ fn header(
                 )
             } else {
                 // TODO Blink
-                GeomBatch::screenspace_svg(ctx.prerender, "system/assets/tools/location.svg")
+                GeomBatch::load_svg(ctx.prerender, "system/assets/tools/location.svg")
                     .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
                     .to_btn(ctx)
                     .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))

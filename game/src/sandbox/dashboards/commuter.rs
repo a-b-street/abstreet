@@ -229,7 +229,7 @@ impl CommuterPatterns {
                     };
 
                     let center = base_block.shape.polylabel();
-                    let icon = GeomBatch::mapspace_svg(
+                    let icon = GeomBatch::load_svg(
                         ctx.prerender,
                         &format!("system/assets/tools/{}", icon_name),
                     )

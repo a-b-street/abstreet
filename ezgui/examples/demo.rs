@@ -213,7 +213,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
     );
     // SVG support using lyon and usvg. Map-space means don't scale for high DPI monitors.
     batch.append(
-        GeomBatch::mapspace_svg(&ctx.prerender, "system/assets/pregame/logo.svg")
+        GeomBatch::load_svg(&ctx.prerender, "system/assets/pregame/logo.svg")
             .translate(300.0, 300.0),
     );
     // Text rendering also goes through lyon and usvg.

@@ -70,7 +70,7 @@ impl SpeedControls {
                     txt.extend(Text::tooltip(ctx, hotkey(Key::LeftArrow), "slow down"));
                     txt.extend(Text::tooltip(ctx, hotkey(Key::RightArrow), "speed up"));
 
-                    GeomBatch::screenspace_svg(ctx.prerender, "system/assets/speed/triangle.svg")
+                    GeomBatch::load_svg(ctx.prerender, "system/assets/speed/triangle.svg")
                         .color(if setting >= s {
                             RewriteColor::NoOp
                         } else {
