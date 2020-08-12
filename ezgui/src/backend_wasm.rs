@@ -6,13 +6,7 @@ use stdweb::traits::INode;
 use webgl_stdweb::WebGL2RenderingContext;
 use winit::platform::web::WindowExtStdweb;
 
-pub fn setup(
-    window_title: &str,
-) -> (
-    PrerenderInnards,
-    winit::event_loop::EventLoop<()>,
-    ScreenDims,
-) {
+pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     stdweb::console!(log, "Setting up ezgui");
 
     // This doesn't seem to work for the shader panics here, but later it does work. Huh.
@@ -25,7 +19,9 @@ pub fn setup(
         // TODO Not sure how to get scrollbar dims
         let scrollbars = 30;
         let win = stdweb::web::window();
-        winit::dpi::PhysicalSize::new(
+        // `inner_width` corresponds to the browser's `self.innerWidth` function, which are in
+        // Logical, not Physical, pixels
+        winit::dpi::LogicalSize::new(
             win.inner_width() - scrollbars,
             win.inner_height() - scrollbars,
         )
@@ -101,7 +97,6 @@ pub fn setup(
             total_bytes_uploaded: Cell::new(0),
         },
         event_loop,
-        ScreenDims::new(canvas.width().into(), canvas.height().into()),
     )
 }
 
@@ -146,32 +141,29 @@ impl<'a> GfxCtxInnards<'a> {
         }
     }
 
-    pub fn enable_clipping(&mut self, rect: ScreenRectangle, canvas: &Canvas) {
+    pub fn enable_clipping(&mut self, rect: ScreenRectangle, scale_factor: f64, canvas: &Canvas) {
         assert!(self.current_clip.is_none());
-        // The scissor rectangle has to be in device coordinates, so you would think some transform
-        // by scale factor (previously called HiDPI factor) has to happen here. But actually,
-        // window dimensions and the rectangle passed in are already scaled up. So don't do
-        // anything here!
-        let left = rect.x1 as i32;
+        // The scissor rectangle is in units of physical pixles, as opposed to logical pixels
+        let left = (rect.x1 * scale_factor) as i32;
         // Y-inversion
-        let bottom = (canvas.window_height - rect.y2) as i32;
-        let width = (rect.x2 - rect.x1) as i32;
-        let height = (rect.y2 - rect.y1) as i32;
+        let bottom = ((canvas.window_height - rect.y2) * scale_factor) as i32;
+        let width = ((rect.x2 - rect.x1) * scale_factor) as i32;
+        let height = ((rect.y2 - rect.y1) * scale_factor) as i32;
         unsafe {
             self.gl.scissor(left, bottom, width, height);
         }
         self.current_clip = Some([left, bottom, width, height]);
     }
 
-    pub fn disable_clipping(&mut self, canvas: &Canvas) {
+    pub fn disable_clipping(&mut self, scale_factor: f64, canvas: &Canvas) {
         assert!(self.current_clip.is_some());
         self.current_clip = None;
         unsafe {
             self.gl.scissor(
                 0,
                 0,
-                canvas.window_width as i32,
-                canvas.window_height as i32,
+                (canvas.window_width * scale_factor) as i32,
+                (canvas.window_height * scale_factor) as i32,
             );
         }
     }
@@ -316,18 +308,27 @@ impl PrerenderInnards {
         }
     }
 
-    pub fn window_resized(&self, new_size: ScreenDims) {
-        todo!("DPI TODO: support other backends");
-        //unsafe {
-        //    self.gl.viewport(0, 0, width as i32, height as i32);
-        //    // I think it's safe to assume there's not a clip right now.
-        //    self.gl.scissor(0, 0, width as i32, height as i32);
-        //}
+    pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {
+        let physical_size = winit::dpi::LogicalSize::from(new_size).to_physical::<f64>(scale_factor);
+        unsafe {
+            self.gl.viewport(
+                0,
+                0,
+                physical_size.width as i32,
+                physical_size.height as i32,
+            );
+            // I think it's safe to assume there's not a clip right now.
+            self.gl.scissor(
+                0,
+                0,
+                physical_size.width as i32,
+                physical_size.height as i32,
+            );
+        }
     }
 
-    pub fn get_inner_size(&self) -> (f64, f64) {
-        let size = self.window.inner_size();
-        (size.width.into(), size.height.into())
+    pub fn window_size(&self, scale_factor: f64) -> ScreenDims {
+        self.window.inner_size().to_logical(scale_factor).into()
     }
 
     pub fn set_window_icon(&self, icon: winit::window::Icon) {

@@ -132,13 +132,23 @@ impl ScreenDims {
             }
         }
     }
+
+    pub fn scaled(&self, factor: f64) -> ScreenDims {
+        ScreenDims::new(self.width * factor, self.height * factor)
+    }
 }
 
 impl From<winit::dpi::LogicalSize<f64>> for ScreenDims {
-    fn from(lp: winit::dpi::LogicalSize<f64>) -> ScreenDims {
+    fn from(size: winit::dpi::LogicalSize<f64>) -> ScreenDims {
         ScreenDims {
-            width: lp.width,
-            height: lp.height,
+            width: size.width,
+            height: size.height,
         }
+    }
+}
+
+impl From<ScreenDims> for winit::dpi::LogicalSize<f64> {
+    fn from(dims: ScreenDims) -> winit::dpi::LogicalSize<f64> {
+        winit::dpi::LogicalSize::new(dims.width, dims.height)
     }
 }

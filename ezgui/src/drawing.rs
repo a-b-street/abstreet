@@ -141,7 +141,8 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn disable_clipping(&mut self) {
-        self.inner.disable_clipping(self.canvas);
+        let scale_factor = self.prerender.get_scale_factor();
+        self.inner.disable_clipping(scale_factor, self.canvas);
     }
 
     // Canvas stuff.
@@ -264,5 +265,9 @@ impl Prerender {
 
     pub fn window_size(&self) -> ScreenDims {
         self.inner.window_size(self.get_scale_factor())
+    }
+
+    pub fn window_resized(&self, new_size: ScreenDims) {
+        self.inner.window_resized(new_size, self.get_scale_factor())
     }
 }

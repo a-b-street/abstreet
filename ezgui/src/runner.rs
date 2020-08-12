@@ -66,7 +66,7 @@ impl<G: GUI> State<G> {
                      is {:?}, so using that",
                     self.canvas.window_width, self.canvas.window_height, new_size, inner_size
                 );
-                prerender.inner.window_resized(new_size);
+                prerender.window_resized(new_size);
                 self.canvas.window_width = inner_size.width;
                 self.canvas.window_height = inner_size.height;
             }
@@ -215,13 +215,9 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
     };
     let mut style = Style::standard();
 
-    // DPI TODO: This is going to cause a regression for devs on linux - since not all UI elements
-    // properly resize, e.g. the minimap. However, since only dev's are launching directly to the
-    // simulation, in practice this shouldn't cause much of an issue until we can get the minimap
-    // to resize itself.
     let initial_size = prerender.window_size();
     let mut canvas = Canvas::new(initial_size);
-    prerender.inner.window_resized(initial_size);
+    prerender.window_resized(initial_size);
 
     let gui = make_gui(&mut EventCtx {
         fake_mouseover: true,
