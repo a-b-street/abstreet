@@ -5,7 +5,7 @@ use crate::layer::PickLayer;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Outcome, ScreenDims, ScreenPt, Spinner, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Outcome, ScreenPt, Spinner, VerticalAlignment, Widget,
 };
 use geom::{Distance, Polygon, Pt2D, Ring};
 
@@ -364,7 +364,6 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
         .margin_above(26)
     };
 
-    let square_len = 0.15 * ctx.canvas.window_width;
     let minimap_controls = Widget::col(vec![
         Btn::svg_def("system/assets/minimap/up.svg")
             .build(ctx, "pan up", None)
@@ -373,7 +372,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
             Btn::svg_def("system/assets/minimap/left.svg")
                 .build(ctx, "pan left", None)
                 .centered_vert(),
-            Filler::new(ScreenDims::new(square_len, square_len)).named("minimap"),
+            Filler::square_width(ctx, 0.15).named("minimap"),
             Btn::svg_def("system/assets/minimap/right.svg")
                 .build(ctx, "pan right", None)
                 .centered_vert(),

@@ -6,8 +6,7 @@ use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    Btn, Checkbox, Composite, EventCtx, Filler, GfxCtx, Line, Outcome, ScreenDims, Text, TextExt,
-    Widget,
+    Btn, Checkbox, Composite, EventCtx, Filler, GfxCtx, Line, Outcome, Text, TextExt, Widget,
 };
 use geom::Duration;
 use sim::{TripEndpoint, TripID, TripPhaseType};
@@ -285,11 +284,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
                 Line("since the time spent driving off-map isn't shown here."),
             ])
             .draw(ctx),
-            Filler::new(ScreenDims::new(
-                0.15 * ctx.canvas.window_width,
-                0.15 * ctx.canvas.window_width,
-            ))
-            .named("preview"),
+            Filler::square_width(ctx, 0.15).named("preview"),
         ])
         .evenly_spaced(),
     );

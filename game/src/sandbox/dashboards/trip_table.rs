@@ -9,7 +9,7 @@ use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
     Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome,
-    RewriteColor, ScreenDims, ScreenPt, Text, TextExt, Widget,
+    RewriteColor, ScreenPt, Text, TextExt, Widget,
 };
 use geom::{Distance, Duration, Polygon, Pt2D, Time};
 use sim::{TripEndpoint, TripID, TripMode};
@@ -413,12 +413,9 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         0.88 * ctx.canvas.window_width,
     ));
     col.push(
-        Filler::new(ScreenDims::new(
-            0.15 * ctx.canvas.window_width,
-            0.15 * ctx.canvas.window_width,
-        ))
-        .named("preview")
-        .centered_horiz(),
+        Filler::square_width(ctx, 0.15)
+            .named("preview")
+            .centered_horiz(),
     );
 
     Composite::new(Widget::col(col))
