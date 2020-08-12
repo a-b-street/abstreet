@@ -29,6 +29,7 @@ pub struct NewTrafficSignalEditor {
     groups: Vec<DrawTurnGroup>,
     // And the next priority to toggle to
     group_selected: Option<(TurnGroupID, Option<TurnPriority>)>,
+    draw_current: Drawable,
 
     // The first is the original
     command_stack: Vec<BundleEdits>,
@@ -76,7 +77,7 @@ impl NewTrafficSignalEditor {
 
         BundleEdits::synchronize(app, &members).apply(app);
 
-        Box::new(NewTrafficSignalEditor {
+        let mut editor = NewTrafficSignalEditor {
             side_panel: make_side_panel(ctx, app, &members, 0),
             top_panel: make_top_panel(ctx, app, false, false),
             gameplay,
@@ -84,10 +85,13 @@ impl NewTrafficSignalEditor {
             current_phase: 0,
             groups,
             group_selected: None,
+            draw_current: ctx.upload(GeomBatch::new()),
             command_stack: Vec::new(),
             redo_stack: Vec::new(),
             fade_irrelevant: GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx),
-        })
+        };
+        editor.draw_current = editor.recalc_draw_current(ctx, app);
+        Box::new(editor)
     }
 
     fn change_phase(&mut self, ctx: &mut EventCtx, app: &App, idx: usize) {
@@ -102,6 +106,59 @@ impl NewTrafficSignalEditor {
             self.side_panel
                 .scroll_to_member(ctx, format!("phase {}", idx + 1));
         }
+
+        self.draw_current = self.recalc_draw_current(ctx, app);
+    }
+
+    fn recalc_draw_current(&self, ctx: &mut EventCtx, app: &App) -> Drawable {
+        let mut batch = GeomBatch::new();
+
+        for i in &self.members {
+            let signal = app.primary.map.get_traffic_signal(*i);
+            let mut phase = signal.phases[self.current_phase].clone();
+            if let Some((id, _)) = self.group_selected {
+                if id.parent == signal.id {
+                    phase.edit_group(&signal.turn_groups[&id], TurnPriority::Banned);
+                }
+            }
+            draw_signal_phase(
+                ctx.prerender,
+                &phase,
+                signal.id,
+                None,
+                &mut batch,
+                app,
+                app.opts.traffic_signal_style.clone(),
+            );
+        }
+
+        for tg in &self.groups {
+            let signal = app.primary.map.get_traffic_signal(tg.id.parent);
+            if self
+                .group_selected
+                .as_ref()
+                .map(|(id, _)| *id == tg.id)
+                .unwrap_or(false)
+            {
+                draw_selected_group(
+                    app,
+                    &mut batch,
+                    tg,
+                    &signal.turn_groups[&tg.id],
+                    self.group_selected.unwrap().1,
+                );
+            } else {
+                batch.push(app.cs.signal_turn_block_bg, tg.block.clone());
+                let phase = &signal.phases[self.current_phase];
+                let arrow_color = match phase.get_priority_of_group(tg.id) {
+                    TurnPriority::Protected => app.cs.signal_protected_turn,
+                    TurnPriority::Yield => app.cs.signal_permitted_turn,
+                    TurnPriority::Banned => app.cs.signal_banned_turn,
+                };
+                batch.push(arrow_color, tg.arrow.clone());
+            }
+        }
+        ctx.upload(batch)
     }
 }
 
@@ -256,6 +313,8 @@ impl State for NewTrafficSignalEditor {
         }
 
         if ctx.redo_mouseover() {
+            let old = self.group_selected.clone();
+
             self.group_selected = None;
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 for g in &self.groups {
@@ -285,6 +344,10 @@ impl State for NewTrafficSignalEditor {
                         break;
                     }
                 }
+            }
+
+            if self.group_selected != old {
+                self.draw_current = self.recalc_draw_current(ctx, app);
             }
         }
 
@@ -333,51 +396,7 @@ impl State for NewTrafficSignalEditor {
             app.draw(g, opts, &app.primary.sim, &ShowEverything::new());
         }
         g.redraw(&self.fade_irrelevant);
-
-        let mut batch = GeomBatch::new();
-        for tg in &self.groups {
-            let signal = app.primary.map.get_traffic_signal(tg.id.parent);
-            let mut phase = signal.phases[self.current_phase].clone();
-            if let Some((id, _)) = self.group_selected {
-                if id.parent == signal.id {
-                    phase.edit_group(&signal.turn_groups[&id], TurnPriority::Banned);
-                }
-            }
-            draw_signal_phase(
-                g.prerender,
-                &phase,
-                signal.id,
-                None,
-                &mut batch,
-                app,
-                app.opts.traffic_signal_style.clone(),
-            );
-
-            if self
-                .group_selected
-                .as_ref()
-                .map(|(id, _)| *id == tg.id)
-                .unwrap_or(false)
-            {
-                draw_selected_group(
-                    app,
-                    &mut batch,
-                    tg,
-                    &signal.turn_groups[&tg.id],
-                    self.group_selected.unwrap().1,
-                );
-            } else {
-                batch.push(app.cs.signal_turn_block_bg, tg.block.clone());
-                let phase = &signal.phases[self.current_phase];
-                let arrow_color = match phase.get_priority_of_group(tg.id) {
-                    TurnPriority::Protected => app.cs.signal_protected_turn,
-                    TurnPriority::Yield => app.cs.signal_permitted_turn,
-                    TurnPriority::Banned => app.cs.signal_banned_turn,
-                };
-                batch.push(arrow_color, tg.arrow.clone());
-            }
-        }
-        batch.draw(g);
+        g.redraw(&self.draw_current);
 
         self.top_panel.draw(g);
         self.side_panel.draw(g);
@@ -421,9 +440,7 @@ fn make_side_panel(
                 ctx,
                 GeomBatch::from(vec![(
                     Color::WHITE,
-                    // TODO draw_batch will scale up, but that's inappropriate here, since we're
-                    // depending on window width, which already factors in scale
-                    Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+                    Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
                 )]),
             )
             .centered_horiz(),
@@ -497,9 +514,7 @@ fn make_side_panel(
             ctx,
             GeomBatch::from(vec![(
                 Color::WHITE,
-                // TODO draw_batch will scale up, but that's inappropriate here, since we're
-                // depending on window width, which already factors in scale
-                Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+                Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
             )]),
         )
         .centered_horiz(),
