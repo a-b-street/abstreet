@@ -5,7 +5,7 @@ use crate::options::TrafficSignalStyle;
 use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, RewriteColor, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
     Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
@@ -18,41 +18,58 @@ pub struct DrawIntersection {
     intersection_type: IntersectionType,
     zorder: isize,
 
-    draw_default: Drawable,
+    draw_default: RefCell<Option<Drawable>>,
     pub draw_traffic_signal: RefCell<Option<(Time, Drawable)>>,
 }
 
 impl DrawIntersection {
-    pub fn new(ctx: &EventCtx, i: &Intersection, map: &Map, cs: &ColorScheme) -> DrawIntersection {
+    pub fn new(i: &Intersection, map: &Map) -> DrawIntersection {
+        DrawIntersection {
+            id: i.id,
+            intersection_type: i.intersection_type,
+            zorder: i.get_zorder(map),
+            draw_default: RefCell::new(None),
+            draw_traffic_signal: RefCell::new(None),
+        }
+    }
+
+    pub fn clear_rendering(&mut self) {
+        *self.draw_default.borrow_mut() = None;
+    }
+
+    fn render(&self, g: &mut GfxCtx, app: &App) -> Drawable {
+        let map = &app.primary.map;
+        let i = map.get_i(self.id);
+
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
-        default_geom.push(cs.normal_intersection, i.polygon.clone());
-        default_geom.extend(cs.sidewalk, calculate_corners(i, map));
+        default_geom.push(app.cs.normal_intersection, i.polygon.clone());
+        default_geom.extend(app.cs.sidewalk, calculate_corners(i, map));
 
         for turn in map.get_turns_in_intersection(i.id) {
             // Avoid double-rendering
             if turn.turn_type == TurnType::Crosswalk
                 && !turn.other_crosswalk_ids.iter().any(|id| *id < turn.id)
             {
-                make_crosswalk(&mut default_geom, turn, map, cs);
+                make_crosswalk(&mut default_geom, turn, map, &app.cs);
             }
         }
 
         if i.is_private(map) {
-            default_geom.push(cs.private_road.alpha(0.5), i.polygon.clone());
+            default_geom.push(app.cs.private_road.alpha(0.5), i.polygon.clone());
         }
 
         match i.intersection_type {
             IntersectionType::Border => {
                 let r = map.get_r(*i.roads.iter().next().unwrap());
-                default_geom.extend(cs.road_center_line, calculate_border_arrows(i, r, map));
+                default_geom.extend(app.cs.road_center_line, calculate_border_arrows(i, r, map));
             }
             IntersectionType::StopSign => {
                 for ss in map.get_stop_sign(i.id).roads.values() {
                     if ss.must_stop {
                         if let Some((octagon, pole)) = DrawIntersection::stop_sign_geom(ss, map) {
-                            default_geom.push(cs.stop_sign, octagon);
-                            default_geom.push(cs.stop_sign_pole, pole);
+                            default_geom.push(app.cs.stop_sign, octagon);
+                            default_geom.push(app.cs.stop_sign_pole, pole);
                         }
                     }
                 }
@@ -61,7 +78,7 @@ impl DrawIntersection {
                 // TODO Centering seems weird
                 default_geom.append(
                     GeomBatch::mapspace_svg(
-                        ctx.prerender,
+                        g.prerender,
                         "system/assets/map/under_construction.svg",
                     )
                     .scale(0.08)
@@ -76,13 +93,7 @@ impl DrawIntersection {
             default_geom = default_geom.color(RewriteColor::ChangeAlpha(0.5));
         }
 
-        DrawIntersection {
-            id: i.id,
-            intersection_type: i.intersection_type,
-            zorder,
-            draw_default: ctx.upload(default_geom),
-            draw_traffic_signal: RefCell::new(None),
-        }
+        g.upload(default_geom)
     }
 
     // Returns the (octagon, pole) if there's room to draw it.
@@ -123,7 +134,13 @@ impl Renderable for DrawIntersection {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions) {
-        g.redraw(&self.draw_default);
+        // Lazily calculate, because these are expensive to all do up-front, and most players won't
+        // exhaustively see every lane during a single session
+        let mut draw = self.draw_default.borrow_mut();
+        if draw.is_none() {
+            *draw = Some(self.render(g, app));
+        }
+        g.redraw(draw.as_ref().unwrap());
 
         if self.intersection_type == IntersectionType::TrafficSignal
             && !opts.suppress_traffic_signal_details.contains(&self.id)

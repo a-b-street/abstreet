@@ -22,7 +22,7 @@ use crate::debug::DebugMode;
 use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::options::OptionsPanel;
-use crate::render::{DrawIntersection, DrawMap, DrawRoad};
+use crate::render::{DrawMap, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
 use ezgui::{
@@ -578,8 +578,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     }
 
     for i in modified_intersections {
-        app.primary.draw_map.intersections[i.0] =
-            DrawIntersection::new(ctx, app.primary.map.get_i(i), &app.primary.map, &app.cs);
+        app.primary.draw_map.intersections[i.0].clear_rendering();
     }
 
     if app.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {

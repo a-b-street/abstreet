@@ -64,7 +64,7 @@ impl DrawMap {
         timer.start_iter("make DrawIntersections", map.all_intersections().len());
         for i in map.all_intersections() {
             timer.next();
-            intersections.push(DrawIntersection::new(ctx, i, map, cs));
+            intersections.push(DrawIntersection::new(i, map));
         }
 
         let draw_all_unzoomed_roads_and_intersections =
