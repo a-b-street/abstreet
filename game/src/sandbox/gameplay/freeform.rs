@@ -8,8 +8,8 @@ use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Distance, Polygon};
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
@@ -84,10 +84,7 @@ fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
     let rows = vec![
         Widget::row(vec![
             Line("Sandbox").small_heading().draw(ctx),
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-            ),
+            Widget::vert_separator(ctx, 50.0),
             "Map:".draw_text(ctx),
             Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name()))).build(
                 ctx,

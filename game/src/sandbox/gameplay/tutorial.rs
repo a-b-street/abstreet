@@ -11,11 +11,10 @@ use crate::sandbox::{
 };
 use abstutil::Timer;
 use ezgui::{
-    hotkey, hotkeys, lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, ScreenPt, Text, TextExt,
-    VerticalAlignment, Widget,
+    hotkey, hotkeys, lctrl, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D, Time};
+use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad};
 use map_model::{osm, BuildingID, Map, OriginalLane, Position};
 use sim::{
@@ -724,10 +723,7 @@ impl TutorialState {
     fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Composite {
         let mut col = vec![Widget::row(vec![
             Line("Tutorial").small_heading().draw(ctx),
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-            ),
+            Widget::vert_separator(ctx, 50.0),
             if self.current.stage == 0 {
                 Btn::text_fg("<").inactive(ctx)
             } else {

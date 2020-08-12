@@ -397,14 +397,7 @@ impl JumpToTime {
                     .build(ctx, "jump to time", hotkey(Key::Enter))
                     .centered_horiz()
                     .named("jump to time"),
-                Widget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(
-                        Color::WHITE,
-                        Polygon::rectangle(0.25 * ctx.canvas.window_width, 2.0),
-                    )]),
-                )
-                .margin_above(10),
+                Widget::horiz_separator(ctx, 0.25).margin_above(10),
                 Btn::text_bg2("Jump to the next delay over 5 minutes")
                     .build_def(ctx, None)
                     .centered_horiz(),

@@ -6,7 +6,7 @@ use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{ArrowCap, Distance, Polygon, Time};
+use geom::{ArrowCap, Distance, Time};
 use map_model::{LaneID, TurnType};
 use sim::{AgentID, DontDrawAgents};
 
@@ -168,10 +168,7 @@ impl TurnExplorer {
                 .small_heading(),
             )
             .draw(ctx),
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-            ),
+            Widget::vert_separator(ctx, 50.0),
             if idx == 0 {
                 Btn::text_fg("<").inactive(ctx)
             } else {

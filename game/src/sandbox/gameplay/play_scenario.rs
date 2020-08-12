@@ -7,10 +7,9 @@ use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{SandboxControls, SandboxMode};
 use ezgui::{
-    hotkey, lctrl, AreaSlider, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
+    hotkey, lctrl, AreaSlider, Btn, Choice, Color, Composite, EventCtx, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::Polygon;
 use maplit::btreeset;
 use sim::{ScenarioModifier, TripMode};
 use std::collections::BTreeSet;
@@ -114,10 +113,7 @@ fn make_top_center(
     let rows = vec![
         Widget::row(vec![
             Line("Sandbox").small_heading().draw(ctx),
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-            ),
+            Widget::vert_separator(ctx, 50.0),
             "Map:".draw_text(ctx),
             Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name()))).build(
                 ctx,

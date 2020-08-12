@@ -22,7 +22,7 @@ pub struct NewTrafficSignalEditor {
     side_panel: Composite,
     top_panel: Composite,
 
-    gameplay: GameplayMode,
+    _gameplay: GameplayMode,
     members: BTreeSet<IntersectionID>,
     current_phase: usize,
 
@@ -80,7 +80,7 @@ impl NewTrafficSignalEditor {
         let mut editor = NewTrafficSignalEditor {
             side_panel: make_side_panel(ctx, app, &members, 0),
             top_panel: make_top_panel(ctx, app, false, false),
-            gameplay,
+            _gameplay: gameplay,
             members,
             current_phase: 0,
             groups,
@@ -434,17 +434,7 @@ fn make_side_panel(
     // Use any member for phase duration
     let canonical_signal = map.get_traffic_signal(*members.iter().next().unwrap());
     for (idx, canonical_phase) in canonical_signal.phases.iter().enumerate() {
-        // Separator
-        col.push(
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(
-                    Color::WHITE,
-                    Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
-                )]),
-            )
-            .centered_horiz(),
-        );
+        col.push(Widget::horiz_separator(ctx, 0.2));
 
         let unselected_btn = draw_multiple_signals(ctx, app, members, idx);
         let mut selected_btn = unselected_btn.clone();
@@ -508,17 +498,7 @@ fn make_side_panel(
         }
     }
 
-    // TODO Widget::separator(ctx, pct_width)
-    col.push(
-        Widget::draw_batch(
-            ctx,
-            GeomBatch::from(vec![(
-                Color::WHITE,
-                Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
-            )]),
-        )
-        .centered_horiz(),
-    );
+    col.push(Widget::horiz_separator(ctx, 0.2));
     col.push(Btn::text_fg("Add new phase").build_def(ctx, None));
 
     Composite::new(Widget::col(col))

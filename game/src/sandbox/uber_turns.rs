@@ -9,7 +9,7 @@ use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{ArrowCap, Polygon};
+use geom::ArrowCap;
 use map_model::{IntersectionCluster, IntersectionID};
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
@@ -199,10 +199,7 @@ impl UberTurnViewer {
             composite: Composite::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Uber-turn viewer").small_heading().draw(ctx),
-                    Widget::draw_batch(
-                        ctx,
-                        GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-                    ),
+                    Widget::vert_separator(ctx, 50.0),
                     if idx == 0 {
                         Btn::text_fg("<").inactive(ctx)
                     } else {

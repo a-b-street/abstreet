@@ -345,6 +345,24 @@ impl Widget {
         batch.autocrop_dims = false;
         (batch, hitbox)
     }
+
+    pub fn horiz_separator(ctx: &mut EventCtx, pct_width: f64) -> Widget {
+        Widget::draw_batch(
+            ctx,
+            GeomBatch::from(vec![(
+                Color::WHITE,
+                Polygon::rectangle(pct_width * ctx.canvas.window_width, 2.0),
+            )]),
+        )
+        .centered_horiz()
+    }
+
+    pub fn vert_separator(ctx: &mut EventCtx, height_px: f64) -> Widget {
+        Widget::draw_batch(
+            ctx,
+            GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, height_px))]),
+        )
+    }
 }
 
 // Internals

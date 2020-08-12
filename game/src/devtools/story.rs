@@ -303,10 +303,7 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
     Composite::new(Widget::col(vec![
         Widget::row(vec![
             Line("Story map editor").small_heading().draw(ctx),
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),
-            ),
+            Widget::vert_separator(ctx, 30.0),
             Btn::text_fg(format!("{} ↓", story.name)).build(ctx, "load", lctrl(Key::L)),
             if dirty {
                 Btn::svg_def("system/assets/tools/save.svg").build(ctx, "save", lctrl(Key::S))

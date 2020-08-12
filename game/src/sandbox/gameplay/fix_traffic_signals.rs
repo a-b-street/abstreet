@@ -8,10 +8,10 @@ use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{SandboxControls, SandboxMode};
 use ezgui::{
-    Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    RewriteColor, Text, VerticalAlignment, Widget,
+    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
+    Text, VerticalAlignment, Widget,
 };
-use geom::{Duration, Polygon, Time};
+use geom::{Duration, Time};
 use map_model::IntersectionID;
 
 const THRESHOLD: Duration = Duration::const_seconds(20.0 * 60.0);
@@ -288,15 +288,7 @@ fn make_meter(
     worst: Option<(IntersectionID, Duration)>,
 ) -> Composite {
     Composite::new(Widget::col(vec![
-        // Separator
-        Widget::draw_batch(
-            ctx,
-            GeomBatch::from(vec![(
-                Color::WHITE,
-                Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
-            )]),
-        )
-        .centered_horiz(),
+        Widget::horiz_separator(ctx, 0.2),
         if let Some((_, delay)) = worst {
             Widget::row(vec![
                 Text::from_all(vec![

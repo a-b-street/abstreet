@@ -874,17 +874,7 @@ fn make_signal_diagram(
     ];
 
     for (idx, phase) in signal.phases.iter().enumerate() {
-        // Separator
-        col.push(
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(
-                    Color::WHITE,
-                    Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
-                )]),
-            )
-            .centered_horiz(),
-        );
+        col.push(Widget::horiz_separator(ctx, 0.2));
 
         let phase_btn = {
             let mut orig_batch = GeomBatch::new();
@@ -969,17 +959,7 @@ fn make_signal_diagram(
         }
     }
 
-    // Separator
-    col.push(
-        Widget::draw_batch(
-            ctx,
-            GeomBatch::from(vec![(
-                Color::WHITE,
-                Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
-            )]),
-        )
-        .centered_horiz(),
-    );
+    col.push(Widget::horiz_separator(ctx, 0.2));
 
     col.push(Btn::text_fg("Add new phase").build_def(ctx, None));
     col.push(Widget::row(vec![

@@ -19,7 +19,7 @@ use abstutil::Timer;
 use ezgui::{
     lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, TextExt, Widget,
 };
-use geom::{Duration, Polygon};
+use geom::Duration;
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use rand_xorshift::XorShiftRng;
 use sim::{Analytics, OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
@@ -284,10 +284,7 @@ fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
         Btn::svg_def("system/assets/tools/info.svg")
             .build(ctx, "instructions", None)
             .centered_vert(),
-        Widget::draw_batch(
-            ctx,
-            GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-        ),
+        Widget::vert_separator(ctx, 50.0),
         Btn::svg_def("system/assets/tools/edit_map.svg")
             .build(ctx, "edit map", lctrl(Key::E))
             .centered_vert(),

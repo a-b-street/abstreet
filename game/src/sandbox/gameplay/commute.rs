@@ -9,10 +9,10 @@ use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use ezgui::{
-    Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
+    Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Duration, Polygon, Time};
+use geom::{Duration, Time};
 use sim::{OrigPersonID, PersonID, TripID};
 use std::collections::BTreeMap;
 
@@ -243,15 +243,7 @@ fn make_meter(
     txt.append(Line(")"));
 
     Composite::new(Widget::col(vec![
-        // Separator
-        Widget::draw_batch(
-            ctx,
-            GeomBatch::from(vec![(
-                Color::WHITE,
-                Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
-            )]),
-        )
-        .centered_horiz(),
+        Widget::horiz_separator(ctx, 0.2),
         Widget::row(vec![
             Btn::svg_def("system/assets/tools/location.svg").build(ctx, "locate VIP", None),
             format!("{}/{} trips done", done, trips).draw_text(ctx),

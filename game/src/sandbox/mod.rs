@@ -19,11 +19,11 @@ use crate::options::OptionsPanel;
 use crate::pregame::MainMenu;
 use crate::render::UnzoomedAgents;
 use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    hotkey, lctrl, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
-use geom::{Polygon, Time};
+use geom::Time;
 use map_model::MapEdits;
 use sim::AgentType;
 pub use speed::TimeWarpScreen;
@@ -325,15 +325,7 @@ impl AgentMeter {
                 ]),
             ])
             .centered(),
-            // Separator
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(
-                    Color::WHITE,
-                    Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
-                )]),
-            )
-            .centered_horiz(),
+            Widget::horiz_separator(ctx, 0.2),
             Widget::row(vec![
                 {
                     let mut txt = Text::new();
