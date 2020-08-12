@@ -9,6 +9,7 @@ edition = "2018"
 [features]
 default = ["built", "ezgui/glium-backend", "reqwest", "webbrowser"]
 wasm = ["ezgui/wasm-backend"]
+glow = ["built", "ezgui/glow-backend", "reqwest", "webbrowser"]
 
 [dependencies]
 aabb-quadtree = "0.1.0"
