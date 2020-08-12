@@ -8,7 +8,9 @@ use ezgui::{
     Line, Outcome, VerticalAlignment, Widget,
 };
 use geom::{Bounds, Distance, Polygon};
-use map_model::{IntersectionID, Phase, TurnGroupID, TurnPriority};
+use map_model::{
+    ControlTrafficSignal, IntersectionID, Phase, PhaseType, TurnGroupID, TurnPriority,
+};
 use std::collections::BTreeSet;
 
 pub struct NewTrafficSignalEditor {
@@ -22,7 +24,16 @@ pub struct NewTrafficSignalEditor {
     // And the next priority to toggle to
     group_selected: Option<(TurnGroupID, Option<TurnPriority>)>,
 
+    // The first is the original
+    command_stack: Vec<BundleEdits>,
+    redo_stack: Vec<BundleEdits>,
+
     fade_irrelevant: Drawable,
+}
+
+// For every member intersection, the full state of that signal
+struct BundleEdits {
+    signals: Vec<ControlTrafficSignal>,
 }
 
 impl NewTrafficSignalEditor {
@@ -55,6 +66,8 @@ impl NewTrafficSignalEditor {
             groups.extend(DrawTurnGroup::for_i(*i, &app.primary.map));
         }
 
+        BundleEdits::synchronize(app, &members).apply(app);
+
         Box::new(NewTrafficSignalEditor {
             side_panel: make_side_panel(ctx, app, &members, 0),
             top_panel: make_top_panel(ctx, app, false, false),
@@ -62,6 +75,8 @@ impl NewTrafficSignalEditor {
             current_phase: 0,
             groups,
             group_selected: None,
+            command_stack: Vec::new(),
+            redo_stack: Vec::new(),
             fade_irrelevant: GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx),
         })
     }
@@ -84,6 +99,14 @@ impl NewTrafficSignalEditor {
 impl State for NewTrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
+
+        // All signals have the same number of phases
+        let num_phases = app
+            .primary
+            .map
+            .get_traffic_signal(*self.members.iter().next().unwrap())
+            .phases
+            .len();
 
         match self.side_panel.event(ctx) {
             Outcome::Clicked(x) => {
@@ -114,14 +137,6 @@ impl State for NewTrafficSignalEditor {
                 self.change_phase(ctx, app, self.current_phase - 1);
             }
 
-            // TODO When we enter this state, force all signals to have the same number of phases,
-            // so we can look up any of them.
-            let num_phases = self
-                .members
-                .iter()
-                .map(|i| app.primary.map.get_traffic_signal(*i).phases.len())
-                .max()
-                .unwrap();
             if self.current_phase != num_phases - 1 && ctx.input.key_pressed(Key::DownArrow) {
                 self.change_phase(ctx, app, self.current_phase + 1);
             }
@@ -217,15 +232,12 @@ fn make_side_panel(
     selected: usize,
 ) -> Composite {
     let map = &app.primary.map;
-    let num_phases = members
-        .iter()
-        .map(|i| map.get_traffic_signal(*i).phases.len())
-        .max()
-        .unwrap();
 
     let mut col = Vec::new();
 
-    for idx in 0..num_phases {
+    // Use any member for phase duration
+    let canonical_signal = map.get_traffic_signal(*members.iter().next().unwrap());
+    for (idx, canonical_phase) in canonical_signal.phases.iter().enumerate() {
         // Separator
         col.push(
             Widget::draw_batch(
@@ -252,8 +264,12 @@ fn make_side_panel(
 
         let phase_col = Widget::col(vec![
             Widget::row(vec![
-                // TODO Print duration
-                Line(format!("Phase {}", idx + 1)).small_heading().draw(ctx),
+                match canonical_phase.phase_type {
+                    PhaseType::Fixed(d) => Line(format!("Phase {}: {}", idx + 1, d)),
+                    PhaseType::Adaptive(d) => Line(format!("Phase {}: {} (adaptive)", idx + 1, d)),
+                }
+                .small_heading()
+                .draw(ctx),
                 Btn::svg_def("system/assets/tools/edit.svg").build(
                     ctx,
                     format!("change duration of phase {}", idx + 1),
@@ -263,7 +279,7 @@ fn make_side_panel(
                         None
                     },
                 ),
-                if num_phases > 1 {
+                if canonical_signal.phases.len() > 1 {
                     Btn::svg_def("system/assets/tools/delete.svg")
                         .build(ctx, format!("delete phase {}", idx + 1), None)
                         .align_right()
@@ -279,7 +295,7 @@ fn make_side_panel(
                     } else {
                         Btn::text_fg("↑").build(ctx, format!("move up phase {}", idx + 1), None)
                     },
-                    if idx == num_phases - 1 {
+                    if idx == canonical_signal.phases.len() - 1 {
                         Btn::text_fg("↓").inactive(ctx)
                     } else {
                         Btn::text_fg("↓").build(ctx, format!("move down phase {}", idx + 1), None)
@@ -319,12 +335,7 @@ fn draw_multiple_signals(
 
         draw_signal_phase(
             ctx.prerender,
-            app.primary
-                .map
-                .get_traffic_signal(*i)
-                .phases
-                .get(idx)
-                .unwrap_or(&Phase::new()),
+            &app.primary.map.get_traffic_signal(*i).phases[idx],
             *i,
             None,
             &mut batch,
@@ -350,4 +361,47 @@ fn draw_multiple_signals(
         }
     }
     batch.scale(zoom)
+}
+
+impl BundleEdits {
+    fn apply(&self, app: &mut App) {
+        for s in &self.signals {
+            app.primary.map.incremental_edit_traffic_signal(s.clone());
+        }
+    }
+
+    fn get_current(app: &App, members: &BTreeSet<IntersectionID>) -> BundleEdits {
+        let signals = members
+            .iter()
+            .map(|i| app.primary.map.get_traffic_signal(*i).clone())
+            .collect();
+        BundleEdits { signals }
+    }
+
+    // If the intersections haven't been edited together before, the number of phases and the
+    // durations might not match up. Just initially force them to align somehow.
+    fn synchronize(app: &App, members: &BTreeSet<IntersectionID>) -> BundleEdits {
+        let map = &app.primary.map;
+        // Pick one of the members with the most phases as canonical.
+        let canonical = map.get_traffic_signal(
+            *members
+                .iter()
+                .max_by_key(|i| map.get_traffic_signal(**i).phases.len())
+                .unwrap(),
+        );
+
+        let mut signals = Vec::new();
+        for i in members {
+            let mut signal = map.get_traffic_signal(*i).clone();
+            for (idx, canonical_phase) in canonical.phases.iter().enumerate() {
+                if signal.phases.len() == idx {
+                    signal.phases.push(Phase::new());
+                }
+                signal.phases[idx].phase_type = canonical_phase.phase_type.clone();
+            }
+            signals.push(signal);
+        }
+
+        BundleEdits { signals }
+    }
 }
