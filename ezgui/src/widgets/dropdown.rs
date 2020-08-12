@@ -105,6 +105,17 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                 );
                 self.btn.set_pos(top_left);
                 output.redo_layout = true;
+            } else if ctx.normal_left_click() {
+                if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                    if !ScreenRectangle::top_left(m.top_left, m.get_dims()).contains(pt) {
+                        self.menu = None;
+                    }
+                } else {
+                    self.menu = None;
+                }
+                if self.menu.is_some() {
+                    ctx.input.unconsume_event();
+                }
             }
         } else {
             self.btn.event(ctx, output);
