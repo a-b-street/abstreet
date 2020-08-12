@@ -21,10 +21,12 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
         let win = stdweb::web::window();
         // `inner_width` corresponds to the browser's `self.innerWidth` function, which are in
         // Logical, not Physical, pixels
-        winit::dpi::LogicalSize::new(
+        let size = winit::dpi::LogicalSize::new(
             win.inner_width() - scrollbars,
             win.inner_height() - scrollbars,
-        )
+        );
+        stdweb::console!(log, format!("initial size: {:?}, win.inner_width: {:?}", size, win.inner_width()));
+        size
     };
     let window = winit::window::WindowBuilder::new()
         .with_title(window_title)
@@ -328,7 +330,10 @@ impl PrerenderInnards {
     }
 
     pub fn window_size(&self, scale_factor: f64) -> ScreenDims {
-        self.window.inner_size().to_logical(scale_factor).into()
+        let inner_size = self.window.inner_size();
+        let logical_size = inner_size.to_logical(scale_factor);
+        stdweb::console!(log, format!("window.inner_size: {:?}, scale_factor: {}, logical_size: {:?}", inner_size, scale_factor, logical_size));
+        logical_size.into()
     }
 
     pub fn set_window_icon(&self, icon: winit::window::Icon) {

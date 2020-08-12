@@ -256,7 +256,9 @@ impl Prerender {
     }
 
     pub fn get_scale_factor(&self) -> f64 {
-        *self.scale_factor.borrow()
+        let scale_factor = *self.scale_factor.borrow();
+        //stdweb::console!(log, format!("monitor_scale_factor: {:?}, scale_factor: {:?}", self.inner.monitor_scale_factor(), scale_factor));
+        scale_factor
     }
 
     pub fn set_scale_factor(&self, scale_factor: f64) {
