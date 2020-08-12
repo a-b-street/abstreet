@@ -172,28 +172,28 @@ pub fn split_up_roads(
             .push((via, to));
     }
 
+    timer.start("match traffic signals to intersections");
     // Handle traffic signals tagged on incoming ways and not at intersections
     // (https://wiki.openstreetmap.org/wiki/Tag:highway=traffic%20signals?uselang=en#Tag_all_incoming_ways).
-    timer.start_iter(
-        "match traffic signals to intersections",
-        input.traffic_signals.len(),
-    );
-    for (pt, forwards) in input.traffic_signals {
-        timer.next();
-        for (id, r) in &map.roads {
-            if r.center_points.contains(&pt.to_pt2d()) {
-                // Example: https://www.openstreetmap.org/node/26734224
-                if r.osm_tags.is(osm::HIGHWAY, "construction") {
-                    break;
-                }
-
-                let i = if forwards { id.i2 } else { id.i1 };
-                map.intersections.get_mut(&i).unwrap().intersection_type =
-                    IntersectionType::TrafficSignal;
-                break;
+    let mut pt_to_road: HashMap<HashablePt2D, OriginalRoad> = HashMap::new();
+    for (id, r) in &map.roads {
+        for (idx, pt) in r.center_points.iter().enumerate() {
+            if idx != 0 && idx != r.center_points.len() - 1 {
+                pt_to_road.insert(pt.to_hashable(), *id);
             }
         }
     }
+    for (pt, forwards) in input.traffic_signals {
+        if let Some(r) = pt_to_road.get(&pt) {
+            // Example: https://www.openstreetmap.org/node/26734224
+            if !map.roads[r].osm_tags.is(osm::HIGHWAY, "construction") {
+                let i = if forwards { r.i2 } else { r.i1 };
+                map.intersections.get_mut(&i).unwrap().intersection_type =
+                    IntersectionType::TrafficSignal;
+            }
+        }
+    }
+    timer.stop("match traffic signals to intersections");
 
     timer.stop("splitting up roads");
     (input.amenities, pt_to_road)

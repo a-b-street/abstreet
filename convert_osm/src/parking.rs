@@ -62,14 +62,14 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             (*id, true),
             map.config
                 .driving_side
-                .right_shift(center.clone(), DIRECTED_ROAD_THICKNESS)
+                .must_right_shift(center.clone(), DIRECTED_ROAD_THICKNESS)
                 .points(),
         );
         closest.add(
             (*id, false),
             map.config
                 .driving_side
-                .left_shift(center, DIRECTED_ROAD_THICKNESS)
+                .must_left_shift(center, DIRECTED_ROAD_THICKNESS)
                 .points(),
         );
     }
