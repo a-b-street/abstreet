@@ -309,7 +309,8 @@ impl PrerenderInnards {
     }
 
     pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {
-        let physical_size = winit::dpi::LogicalSize::from(new_size).to_physical::<f64>(scale_factor);
+        let physical_size =
+            winit::dpi::LogicalSize::from(new_size).to_physical::<f64>(scale_factor);
         unsafe {
             self.gl.viewport(
                 0,
