@@ -9,7 +9,7 @@ pub struct Line(Pt2D, Pt2D);
 
 impl Line {
     pub fn new(pt1: Pt2D, pt2: Pt2D) -> Option<Line> {
-        if pt1.dist_to(pt2) < EPSILON_DIST {
+        if pt1.dist_to(pt2) <= EPSILON_DIST {
             return None;
         }
         Some(Line(pt1, pt2))

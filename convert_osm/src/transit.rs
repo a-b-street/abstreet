@@ -221,8 +221,12 @@ pub fn snap_bus_stops(
             for idx in (0..idx_in_route).rev() {
                 let (i, pt) = route.all_pts[idx];
                 if !raw.intersections.contains_key(&i) {
-                    found = Some(pt_to_road[&pt.to_hashable()]);
-                    break;
+                    if let Some(r) = pt_to_road.get(&pt.to_hashable()) {
+                        found = Some(*r);
+                        break;
+                    } else {
+                        return Err(format!("Some point on the route isn't even on a road?!"));
+                    }
                 }
             }
             if let Some(r) = found {

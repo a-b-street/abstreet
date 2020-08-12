@@ -120,7 +120,7 @@ impl Ring {
         for pt in pts.iter().cloned() {
             current.push(pt);
             if intersections.contains(&pt.to_hashable()) && current.len() > 1 {
-                if current[0] == pt {
+                if current[0] == pt && current.len() >= 3 {
                     rings.push(Ring::must_new(current.drain(..).collect()));
                 } else {
                     polylines.push(PolyLine::new(current.drain(..).collect())?);

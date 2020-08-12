@@ -306,7 +306,7 @@ impl ControlTrafficSignal {
             id,
             phases,
             offset: Duration::seconds(raw.offset_seconds as f64),
-            turn_groups: TurnGroup::for_i(id, map),
+            turn_groups: TurnGroup::for_i(id, map).unwrap(),
         }
         .validate()
     }

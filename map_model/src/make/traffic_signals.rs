@@ -70,7 +70,7 @@ fn new(id: IntersectionID, map: &Map) -> ControlTrafficSignal {
         id,
         phases: Vec::new(),
         offset: Duration::ZERO,
-        turn_groups: TurnGroup::for_i(id, map),
+        turn_groups: TurnGroup::for_i(id, map).unwrap(),
     }
 }
 
@@ -428,6 +428,7 @@ fn make_phases(
 
 pub fn brute_force(map: &Map, i: IntersectionID) {
     let turn_groups: Vec<TurnGroup> = TurnGroup::for_i(i, map)
+        .unwrap()
         .into_iter()
         .filter_map(|(id, tg)| if id.crosswalk { None } else { Some(tg) })
         .collect();

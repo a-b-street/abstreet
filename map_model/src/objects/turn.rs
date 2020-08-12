@@ -197,7 +197,10 @@ pub struct TurnGroup {
 }
 
 impl TurnGroup {
-    pub(crate) fn for_i(i: IntersectionID, map: &Map) -> BTreeMap<TurnGroupID, TurnGroup> {
+    pub(crate) fn for_i(
+        i: IntersectionID,
+        map: &Map,
+    ) -> Result<BTreeMap<TurnGroupID, TurnGroup>, Box<dyn Error>> {
         let mut results = BTreeMap::new();
         let mut groups: MultiMap<(DirectedRoadID, DirectedRoadID), TurnID> = MultiMap::new();
         for turn in map.get_turns_in_intersection(i) {
@@ -233,11 +236,7 @@ impl TurnGroup {
                 members.iter().map(|t| &map.get_t(*t).geom).collect(),
                 from,
                 to,
-            )
-            .expect(&format!(
-                "Weird turn group geometry near {}",
-                map.get_i(i).orig_id
-            ));
+            )?;
             let turn_types: BTreeSet<TurnType> =
                 members.iter().map(|t| map.get_t(*t).turn_type).collect();
             if turn_types.len() > 1 {
@@ -265,9 +264,11 @@ impl TurnGroup {
             );
         }
         if results.is_empty() {
-            panic!("{} has no TurnGroups!", map.get_i(i).orig_id);
+            return Err(
+                format!("No TurnGroups! Does the intersection have at least 2 roads?").into(),
+            );
         }
-        results
+        Ok(results)
     }
 
     // Polyline points FROM intersection

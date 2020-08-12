@@ -13,7 +13,7 @@ use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, Area, AreaID, ControlStopSign, ControlTrafficSignal, Intersection,
     IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints, Position, Road,
-    RoadID, Zone,
+    RoadID, TurnGroup, Zone,
 };
 use abstutil::{Parallelism, Timer};
 use enumset::EnumSet;
@@ -141,7 +141,9 @@ impl Map {
             }
             // TODO Maybe easier to use the road's "yellow center line" and shift left/right from
             // there.
-            let road_left_pts = map.must_left_shift(road.center_pts.clone(), r.half_width);
+            let road_left_pts = map
+                .left_shift(road.center_pts.clone(), r.half_width)
+                .unwrap_or_else(|_| road.center_pts.clone());
 
             let mut fwd_width_so_far = Distance::ZERO;
             let mut back_width_so_far = Distance::ZERO;
@@ -306,14 +308,28 @@ impl Map {
                 IntersectionType::StopSign => {
                     stop_signs.insert(i.id, ControlStopSign::new(&map, i.id));
                 }
-                IntersectionType::TrafficSignal => {
-                    traffic_signals.insert(i.id, ControlTrafficSignal::new(&map, i.id, timer));
-                }
+                IntersectionType::TrafficSignal => match TurnGroup::for_i(i.id, &map) {
+                    Ok(_) => {
+                        traffic_signals.insert(i.id, ControlTrafficSignal::new(&map, i.id, timer));
+                    }
+                    Err(err) => {
+                        timer.error(format!(
+                            "Traffic signal at {} downgraded to stop sign because of weird \
+                             problem: {}",
+                            i.orig_id, err
+                        ));
+                        stop_signs.insert(i.id, ControlStopSign::new(&map, i.id));
+                    }
+                },
                 IntersectionType::Border | IntersectionType::Construction => {}
             };
         }
         map.stop_signs = stop_signs;
         map.traffic_signals = traffic_signals;
+        // Fix up the type for any problematic traffic signals
+        for i in map.stop_signs.keys() {
+            map.intersections[i.0].intersection_type = IntersectionType::StopSign;
+        }
 
         traffic_signals::synchronize(&mut map);
 
