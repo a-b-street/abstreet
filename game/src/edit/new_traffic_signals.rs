@@ -1,4 +1,5 @@
 use crate::app::{App, ShowEverything};
+use crate::common::CommonState;
 use crate::edit::traffic_signals::{draw_selected_group, make_top_panel, PreviewTrafficSignal};
 use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
 use crate::options::TrafficSignalStyle;
@@ -7,13 +8,15 @@ use crate::sandbox::{spawn_agents_around, GameplayMode};
 use abstutil::Timer;
 use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Spinner, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Bounds, Distance, Duration, Polygon};
 use map_model::{
     ControlTrafficSignal, IntersectionID, Phase, PhaseType, TurnGroupID, TurnPriority,
 };
 use std::collections::BTreeSet;
+
+// Welcome to one of the most overwhelmingly complicated parts of the UI...
 
 pub struct NewTrafficSignalEditor {
     side_panel: Composite,
@@ -285,6 +288,36 @@ impl State for NewTrafficSignalEditor {
             }
         }
 
+        if let Some((id, next_priority)) = self.group_selected {
+            if let Some(pri) = next_priority {
+                let signal = app.primary.map.get_traffic_signal(id.parent);
+                if app.per_obj.left_click(
+                    ctx,
+                    format!(
+                        "toggle from {:?} to {:?}",
+                        signal.phases[self.current_phase].get_priority_of_group(id),
+                        pri
+                    ),
+                ) {
+                    let mut bundle = BundleEdits::get_current(app, &self.members);
+                    self.command_stack.push(bundle.clone());
+                    self.redo_stack.clear();
+                    for ts in &mut bundle.signals {
+                        if ts.id == id.parent {
+                            ts.phases[self.current_phase].edit_group(&signal.turn_groups[&id], pri);
+                            break;
+                        }
+                    }
+                    bundle.apply(app);
+
+                    self.top_panel = make_top_panel(ctx, app, true, false);
+                    self.change_phase(ctx, app, self.current_phase);
+                    self.side_panel = make_side_panel(ctx, app, &self.members, self.current_phase);
+                    return Transition::KeepWithMouseover;
+                }
+            }
+        }
+
         Transition::Keep
     }
 
@@ -302,36 +335,70 @@ impl State for NewTrafficSignalEditor {
         g.redraw(&self.fade_irrelevant);
 
         let mut batch = GeomBatch::new();
-        for g in &self.groups {
-            let signal = app.primary.map.get_traffic_signal(g.id.parent);
+        for tg in &self.groups {
+            let signal = app.primary.map.get_traffic_signal(tg.id.parent);
+            let mut phase = signal.phases[self.current_phase].clone();
+            if let Some((id, _)) = self.group_selected {
+                if id.parent == signal.id {
+                    phase.edit_group(&signal.turn_groups[&id], TurnPriority::Banned);
+                }
+            }
+            draw_signal_phase(
+                g.prerender,
+                &phase,
+                signal.id,
+                None,
+                &mut batch,
+                app,
+                app.opts.traffic_signal_style.clone(),
+            );
+
             if self
                 .group_selected
                 .as_ref()
-                .map(|(id, _)| *id == g.id)
+                .map(|(id, _)| *id == tg.id)
                 .unwrap_or(false)
             {
                 draw_selected_group(
                     app,
                     &mut batch,
-                    g,
-                    &signal.turn_groups[&g.id],
+                    tg,
+                    &signal.turn_groups[&tg.id],
                     self.group_selected.unwrap().1,
                 );
             } else {
-                batch.push(app.cs.signal_turn_block_bg, g.block.clone());
+                batch.push(app.cs.signal_turn_block_bg, tg.block.clone());
                 let phase = &signal.phases[self.current_phase];
-                let arrow_color = match phase.get_priority_of_group(g.id) {
+                let arrow_color = match phase.get_priority_of_group(tg.id) {
                     TurnPriority::Protected => app.cs.signal_protected_turn,
                     TurnPriority::Yield => app.cs.signal_permitted_turn,
                     TurnPriority::Banned => app.cs.signal_banned_turn,
                 };
-                batch.push(arrow_color, g.arrow.clone());
+                batch.push(arrow_color, tg.arrow.clone());
             }
         }
         batch.draw(g);
 
         self.top_panel.draw(g);
         self.side_panel.draw(g);
+
+        if let Some((id, _)) = self.group_selected {
+            let osd = if id.crosswalk {
+                Text::from(Line(format!(
+                    "Crosswalk across {}",
+                    app.primary.map.get_r(id.from.id).get_name()
+                )))
+            } else {
+                Text::from(Line(format!(
+                    "Turn from {} to {}",
+                    app.primary.map.get_r(id.from.id).get_name(),
+                    app.primary.map.get_r(id.to.id).get_name()
+                )))
+            };
+            CommonState::draw_custom_osd(g, app, osd);
+        } else {
+            CommonState::draw_osd(g, app);
+        }
     }
 }
 
