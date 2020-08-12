@@ -773,14 +773,14 @@ fn make_previewer(
 
 // TODO Show diagram, auto-sync the phase.
 // TODO Auto quit after things are gone?
-struct PreviewTrafficSignal {
+pub struct PreviewTrafficSignal {
     composite: Composite,
     speed: SpeedControls,
     time_panel: TimePanel,
 }
 
 impl PreviewTrafficSignal {
-    fn new(ctx: &mut EventCtx, app: &App) -> PreviewTrafficSignal {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> PreviewTrafficSignal {
         PreviewTrafficSignal {
             composite: Composite::new(Widget::col(vec![
                 "Previewing traffic signal".draw_text(ctx),

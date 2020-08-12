@@ -1,9 +1,10 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::edit::{ClusterTrafficSignalEditor, NewTrafficSignalEditor};
+use crate::edit::{ClusterTrafficSignalEditor, EditMode, NewTrafficSignalEditor};
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
+use crate::sandbox::gameplay::GameplayMode;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
@@ -16,10 +17,17 @@ use std::collections::BTreeSet;
 pub struct UberTurnPicker {
     members: BTreeSet<IntersectionID>,
     composite: Composite,
+    // TODO Plumbing this everywhere is annoying, is it time for it to live in App?
+    gameplay: GameplayMode,
 }
 
 impl UberTurnPicker {
-    pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        i: IntersectionID,
+        gameplay: GameplayMode,
+    ) -> Box<dyn State> {
         let mut members = BTreeSet::new();
         if let Some(list) = IntersectionCluster::autodetect(i, &app.primary.map) {
             members.extend(list);
@@ -45,6 +53,7 @@ impl UberTurnPicker {
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
+            gameplay,
         })
     }
 }
@@ -108,11 +117,15 @@ impl State for UberTurnPicker {
                             vec!["Select at least two intersections"],
                         ));
                     }
-                    return Transition::Replace(NewTrafficSignalEditor::new(
-                        ctx,
-                        app,
-                        self.members.clone(),
-                    ));
+                    return Transition::ReplaceThenPush(
+                        EditMode::new(ctx, app, self.gameplay.clone()),
+                        NewTrafficSignalEditor::new(
+                            ctx,
+                            app,
+                            self.members.clone(),
+                            self.gameplay.clone(),
+                        ),
+                    );
                 }
                 "Detect all clusters" => {
                     self.members.clear();

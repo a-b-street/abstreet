@@ -1,13 +1,15 @@
 use crate::app::{App, ShowEverything};
-use crate::edit::traffic_signals::{draw_selected_group, make_top_panel};
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::edit::traffic_signals::{draw_selected_group, make_top_panel, PreviewTrafficSignal};
+use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
 use crate::options::TrafficSignalStyle;
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup};
+use crate::sandbox::{spawn_agents_around, GameplayMode};
+use abstutil::Timer;
 use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Spinner, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Bounds, Distance, Polygon};
+use geom::{Bounds, Distance, Duration, Polygon};
 use map_model::{
     ControlTrafficSignal, IntersectionID, Phase, PhaseType, TurnGroupID, TurnPriority,
 };
@@ -17,6 +19,7 @@ pub struct NewTrafficSignalEditor {
     side_panel: Composite,
     top_panel: Composite,
 
+    gameplay: GameplayMode,
     members: BTreeSet<IntersectionID>,
     current_phase: usize,
 
@@ -32,6 +35,7 @@ pub struct NewTrafficSignalEditor {
 }
 
 // For every member intersection, the full state of that signal
+#[derive(Clone)]
 struct BundleEdits {
     signals: Vec<ControlTrafficSignal>,
 }
@@ -41,6 +45,7 @@ impl NewTrafficSignalEditor {
         ctx: &mut EventCtx,
         app: &mut App,
         members: BTreeSet<IntersectionID>,
+        gameplay: GameplayMode,
     ) -> Box<dyn State> {
         let map = &app.primary.map;
         app.primary.current_selection = None;
@@ -71,6 +76,7 @@ impl NewTrafficSignalEditor {
         Box::new(NewTrafficSignalEditor {
             side_panel: make_side_panel(ctx, app, &members, 0),
             top_panel: make_top_panel(ctx, app, false, false),
+            gameplay,
             members,
             current_phase: 0,
             groups,
@@ -100,23 +106,89 @@ impl State for NewTrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        // All signals have the same number of phases
-        let num_phases = app
+        let canonical_signal = app
             .primary
             .map
-            .get_traffic_signal(*self.members.iter().next().unwrap())
-            .phases
-            .len();
+            .get_traffic_signal(*self.members.iter().next().unwrap());
+        let num_phases = canonical_signal.phases.len();
 
         match self.side_panel.event(ctx) {
             Outcome::Clicked(x) => {
+                if x == "Add new phase" {
+                    let mut bundle = BundleEdits::get_current(app, &self.members);
+                    self.command_stack.push(bundle.clone());
+                    self.redo_stack.clear();
+                    for ts in &mut bundle.signals {
+                        ts.phases.push(Phase::new());
+                    }
+                    bundle.apply(app);
+
+                    self.top_panel = make_top_panel(ctx, app, true, false);
+                    self.change_phase(ctx, app, num_phases);
+                    self.side_panel = make_side_panel(ctx, app, &self.members, self.current_phase);
+                    return Transition::Keep;
+                }
+                if let Some(x) = x.strip_prefix("change duration of phase ") {
+                    let idx = x.parse::<usize>().unwrap() - 1;
+                    return Transition::Push(ChangeDuration::new(
+                        ctx,
+                        canonical_signal.phases[idx].phase_type.clone(),
+                        idx,
+                    ));
+                }
+                if let Some(x) = x.strip_prefix("delete phase ") {
+                    let idx = x.parse::<usize>().unwrap() - 1;
+
+                    let mut bundle = BundleEdits::get_current(app, &self.members);
+                    self.command_stack.push(bundle.clone());
+                    self.redo_stack.clear();
+                    for ts in &mut bundle.signals {
+                        ts.phases.remove(idx);
+                    }
+                    bundle.apply(app);
+
+                    self.top_panel = make_top_panel(ctx, app, true, false);
+                    // Don't use change_phase; it tries to preserve scroll
+                    self.current_phase = if idx == num_phases - 1 { idx - 1 } else { idx };
+                    self.side_panel = make_side_panel(ctx, app, &self.members, self.current_phase);
+                    return Transition::Keep;
+                }
+                if let Some(x) = x.strip_prefix("move up phase ") {
+                    let idx = x.parse::<usize>().unwrap() - 1;
+
+                    let mut bundle = BundleEdits::get_current(app, &self.members);
+                    self.command_stack.push(bundle.clone());
+                    self.redo_stack.clear();
+                    for ts in &mut bundle.signals {
+                        ts.phases.swap(idx, idx - 1);
+                    }
+                    bundle.apply(app);
+
+                    self.top_panel = make_top_panel(ctx, app, true, false);
+                    self.change_phase(ctx, app, idx - 1);
+                    return Transition::Keep;
+                }
+                if let Some(x) = x.strip_prefix("move down phase ") {
+                    let idx = x.parse::<usize>().unwrap() - 1;
+
+                    let mut bundle = BundleEdits::get_current(app, &self.members);
+                    self.command_stack.push(bundle.clone());
+                    self.redo_stack.clear();
+                    for ts in &mut bundle.signals {
+                        ts.phases.swap(idx, idx + 1);
+                    }
+                    bundle.apply(app);
+
+                    self.top_panel = make_top_panel(ctx, app, true, false);
+                    self.change_phase(ctx, app, idx + 1);
+                    return Transition::Keep;
+                }
                 if let Some(x) = x.strip_prefix("phase ") {
                     let idx = x.parse::<usize>().unwrap() - 1;
                     self.change_phase(ctx, app, idx);
                     return Transition::Keep;
-                } else {
-                    unreachable!()
                 }
+                unreachable!()
             }
             _ => {}
         }
@@ -124,9 +196,47 @@ impl State for NewTrafficSignalEditor {
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Finish" => {
+                    // TODO check_for_missing_groups
                     return Transition::Pop;
                 }
-                // TODO Handle the other things
+                "Export" => {
+                    for signal in BundleEdits::get_current(app, &self.members).signals {
+                        let ts = signal.export(&app.primary.map);
+                        abstutil::write_json(
+                            format!("traffic_signal_data/{}.json", ts.intersection_osm_node_id),
+                            &ts,
+                        );
+                    }
+                }
+                "Preview" => {
+                    // Might have to do this first!
+                    app.primary
+                        .map
+                        .recalculate_pathfinding_after_edits(&mut Timer::throwaway());
+
+                    return Transition::Push(make_previewer(
+                        ctx,
+                        app,
+                        self.members.clone(),
+                        self.current_phase,
+                    ));
+                }
+                "undo" => {
+                    self.redo_stack
+                        .push(BundleEdits::get_current(app, &self.members));
+                    self.command_stack.pop().unwrap().apply(app);
+                    self.top_panel = make_top_panel(ctx, app, !self.command_stack.is_empty(), true);
+                    self.change_phase(ctx, app, 0);
+                    return Transition::Keep;
+                }
+                "redo" => {
+                    self.command_stack
+                        .push(BundleEdits::get_current(app, &self.members));
+                    self.redo_stack.pop().unwrap().apply(app);
+                    self.top_panel = make_top_panel(ctx, app, true, !self.redo_stack.is_empty());
+                    self.change_phase(ctx, app, 0);
+                    return Transition::Keep;
+                }
                 _ => unreachable!(),
             },
             _ => {}
@@ -314,6 +424,21 @@ fn make_side_panel(
         }
     }
 
+    // TODO Widget::separator(ctx, pct_width)
+    col.push(
+        Widget::draw_batch(
+            ctx,
+            GeomBatch::from(vec![(
+                Color::WHITE,
+                // TODO draw_batch will scale up, but that's inappropriate here, since we're
+                // depending on window width, which already factors in scale
+                Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+            )]),
+        )
+        .centered_horiz(),
+    );
+    col.push(Btn::text_fg("Add new phase").build_def(ctx, None));
+
     Composite::new(Widget::col(col))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .exact_size_percent(30, 85)
@@ -404,4 +529,152 @@ impl BundleEdits {
 
         BundleEdits { signals }
     }
+}
+
+struct ChangeDuration {
+    composite: Composite,
+    idx: usize,
+}
+
+impl ChangeDuration {
+    fn new(ctx: &mut EventCtx, current: PhaseType, idx: usize) -> Box<dyn State> {
+        Box::new(ChangeDuration {
+            composite: Composite::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("How long should this phase last?")
+                        .small_heading()
+                        .draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Widget::row(vec![
+                    "Seconds:".draw_text(ctx),
+                    Spinner::new(
+                        ctx,
+                        (5, 300),
+                        current.simple_duration().inner_seconds() as isize,
+                    )
+                    .named("duration"),
+                ]),
+                Widget::row(vec![
+                    "Type:".draw_text(ctx),
+                    Checkbox::toggle(
+                        ctx,
+                        "phase type",
+                        "fixed",
+                        "adaptive",
+                        None,
+                        match current {
+                            PhaseType::Fixed(_) => true,
+                            PhaseType::Adaptive(_) => false,
+                        },
+                    ),
+                ]),
+                Btn::text_bg2("Apply").build_def(ctx, hotkey(Key::Enter)),
+            ]))
+            .build(ctx),
+            idx,
+        })
+    }
+}
+
+impl State for ChangeDuration {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => Transition::Pop,
+                "Apply" => {
+                    let dt = Duration::seconds(self.composite.spinner("duration") as f64);
+                    let new_type = if self.composite.is_checked("phase type") {
+                        PhaseType::Fixed(dt)
+                    } else {
+                        PhaseType::Adaptive(dt)
+                    };
+                    let idx = self.idx;
+                    return Transition::PopWithData(Box::new(move |state, ctx, app| {
+                        let editor = state.downcast_mut::<NewTrafficSignalEditor>().unwrap();
+
+                        let mut bundle = BundleEdits::get_current(app, &editor.members);
+                        editor.command_stack.push(bundle.clone());
+                        editor.redo_stack.clear();
+                        for ts in &mut bundle.signals {
+                            ts.phases[idx].phase_type = new_type.clone();
+                        }
+                        bundle.apply(app);
+
+                        editor.top_panel = make_top_panel(ctx, app, true, false);
+                        editor.change_phase(ctx, app, idx);
+                        editor.side_panel =
+                            make_side_panel(ctx, app, &editor.members, editor.current_phase);
+                    }));
+                }
+                _ => unreachable!(),
+            },
+            _ => {
+                if ctx.normal_left_click() && ctx.canvas.get_cursor_in_screen_space().is_none() {
+                    return Transition::Pop;
+                }
+                Transition::Keep
+            }
+        }
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.composite.draw(g);
+    }
+}
+
+// TODO I guess it's valid to preview without all turns possible. Some agents are just sad.
+fn make_previewer(
+    ctx: &mut EventCtx,
+    app: &App,
+    members: BTreeSet<IntersectionID>,
+    phase: usize,
+) -> Box<dyn State> {
+    let random = "random agents around these intersections".to_string();
+    let right_now = format!(
+        "change the traffic signal live at {}",
+        app.suspended_sim.as_ref().unwrap().time()
+    );
+
+    ChooseSomething::new(
+        ctx,
+        "Preview the traffic signal with what kind of traffic?",
+        Choice::strings(vec![random, right_now]),
+        Box::new(move |x, ctx, app| {
+            if x == "random agents around these intersections" {
+                for (idx, i) in members.iter().enumerate() {
+                    if idx == 0 {
+                        // Start at the current phase
+                        let signal = app.primary.map.get_traffic_signal(*i);
+                        // TODO Use the offset correctly
+                        // TODO If there are adaptive phases, this could land anywhere
+                        let mut step = Duration::ZERO;
+                        for idx in 0..phase {
+                            step += signal.phases[idx].phase_type.simple_duration();
+                        }
+                        app.primary.sim.timed_step(
+                            &app.primary.map,
+                            step,
+                            &mut app.primary.sim_cb,
+                            &mut Timer::throwaway(),
+                        );
+                    }
+
+                    spawn_agents_around(*i, app);
+                }
+            } else {
+                app.primary.sim = app.suspended_sim.as_ref().unwrap().clone();
+                app.primary
+                    .sim
+                    .handle_live_edited_traffic_signals(&app.primary.map);
+            }
+            Transition::Replace(Box::new(PreviewTrafficSignal::new(ctx, app)))
+        }),
+    )
 }
