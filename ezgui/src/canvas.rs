@@ -49,6 +49,7 @@ pub struct Canvas {
 
 impl Canvas {
     pub(crate) fn new(initial_dims: ScreenDims) -> Canvas {
+        stdweb::console!(log, format!("[Canvas#new] initial_dims: {:?}", initial_dims));
         Canvas {
             cam_x: 0.0,
             cam_y: 0.0,

@@ -48,7 +48,11 @@ impl Event {
                 }
             }
             WindowEvent::CursorMoved { position, .. } => Some(Event::MouseMovedTo(
-                position.to_logical(scale_factor).into(),
+                    {
+                        let position = position.to_logical(scale_factor).into();
+                        //stdweb::console!(log, format!("cursor moved: {:?}", position));
+                        position
+                    }
             )),
             WindowEvent::MouseWheel { delta, .. } => match delta {
                 MouseScrollDelta::LineDelta(dx, dy) => {

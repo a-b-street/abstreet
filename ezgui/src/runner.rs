@@ -6,6 +6,7 @@ use image::{GenericImageView, Pixel};
 use instant::Instant;
 use std::cell::{Cell, RefCell};
 use std::panic;
+use stdweb;
 use winit::window::Icon;
 
 const UPDATE_FREQUENCY: std::time::Duration = std::time::Duration::from_millis(1000 / 30);
@@ -61,10 +62,10 @@ impl<G: GUI> State<G> {
         {
             if let Event::WindowResized(new_size) = input.event {
                 let inner_size = prerender.window_size();
-                println!(
-                    "winit event says the window was resized from {}, {} to {:?}. But inner size \
+                stdweb::console!(log, 
+                    format!("winit event says the window was resized from {}, {} to {:?}. But inner size \
                      is {:?}, so using that",
-                    self.canvas.window_width, self.canvas.window_height, new_size, inner_size
+                    self.canvas.window_width, self.canvas.window_height, new_size, inner_size)
                 );
                 prerender.window_resized(new_size);
                 self.canvas.window_width = inner_size.width;
@@ -139,12 +140,12 @@ impl<G: GUI> State<G> {
         let naming_hint = g.naming_hint.take();
 
         if false {
-            println!(
-                "----- {} uploads, {} draw calls, {} forks -----",
+            stdweb::console!(log, 
+                format!("----- {} uploads, {} draw calls, {} forks -----",
                 g.get_num_uploads(),
                 g.num_draw_calls,
                 g.num_forks
-            );
+            ));
         }
 
         g.inner.finish();
@@ -241,7 +242,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
     let mut last_update = Instant::now();
     event_loop.run(move |event, _, control_flow| {
         if dump_raw_events {
-            println!("Event: {:?}", event);
+            stdweb::console!(log, format!("Event: {:?}", event));
         }
         let ev = match event {
             winit::event::Event::WindowEvent {
