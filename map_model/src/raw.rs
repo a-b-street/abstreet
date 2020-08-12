@@ -5,6 +5,7 @@ use geom::{Angle, Circle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+use std::error::Error;
 use std::fmt;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -323,10 +324,10 @@ impl RawRoad {
         let mut true_center = PolyLine::new(self.center_points.clone()).expect(&id.to_string());
         match (sidewalk_right, sidewalk_left) {
             (Some(w), None) => {
-                true_center = driving_side.right_shift(true_center, w / 2.0);
+                true_center = driving_side.must_right_shift(true_center, w / 2.0);
             }
             (None, Some(w)) => {
-                true_center = driving_side.left_shift(true_center, w / 2.0);
+                true_center = driving_side.must_left_shift(true_center, w / 2.0);
             }
             _ => {}
         }
@@ -413,21 +414,24 @@ pub enum DrivingSide {
 impl DrivingSide {
     // "right" and "left" here are in terms of DrivingSide::Right, what I'm used to reasoning about
     // in the USA. They invert appropriately for DrivingSide::Left.
-    pub fn right_shift(self, pl: PolyLine, width: Distance) -> PolyLine {
-        // TODO Plumb through the error further
+    pub fn right_shift(self, pl: PolyLine, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
         match self {
             DrivingSide::Right => pl.shift_right(width),
             DrivingSide::Left => pl.shift_left(width),
         }
-        .unwrap()
+    }
+    pub fn must_right_shift(self, pl: PolyLine, width: Distance) -> PolyLine {
+        self.right_shift(pl, width).unwrap()
     }
 
-    pub fn left_shift(self, pl: PolyLine, width: Distance) -> PolyLine {
+    pub fn left_shift(self, pl: PolyLine, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
         match self {
             DrivingSide::Right => pl.shift_left(width),
             DrivingSide::Left => pl.shift_right(width),
         }
-        .unwrap()
+    }
+    pub fn must_left_shift(self, pl: PolyLine, width: Distance) -> PolyLine {
+        self.left_shift(pl, width).unwrap()
     }
 
     pub fn right_shift_line(self, line: Line, width: Distance) -> Line {

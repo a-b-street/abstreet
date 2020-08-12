@@ -141,7 +141,7 @@ impl Map {
             }
             // TODO Maybe easier to use the road's "yellow center line" and shift left/right from
             // there.
-            let road_left_pts = map.left_shift(road.center_pts.clone(), r.half_width);
+            let road_left_pts = map.must_left_shift(road.center_pts.clone(), r.half_width);
 
             let mut fwd_width_so_far = Distance::ZERO;
             let mut back_width_so_far = Distance::ZERO;
@@ -158,14 +158,14 @@ impl Map {
                 // Careful about order here. lane_specs are all of the forwards from center to
                 // sidewalk, then all the backwards from center to sidewalk.
                 let lane_center_pts = if !lane.reverse_pts {
-                    let pl = map.right_shift(
+                    let pl = map.must_right_shift(
                         road_left_pts.clone(),
                         total_back_width + fwd_width_so_far + (lane.width / 2.0),
                     );
                     fwd_width_so_far += lane.width;
                     pl
                 } else {
-                    let pl = map.right_shift(
+                    let pl = map.must_right_shift(
                         road_left_pts.clone(),
                         total_back_width - back_width_so_far - (lane.width / 2.0),
                     );

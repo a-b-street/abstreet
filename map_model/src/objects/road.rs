@@ -272,7 +272,7 @@ impl Road {
         } else {
             self.children_backwards[0].0
         });
-        map.left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
+        map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
     }
 
     pub fn any_on_other_side(&self, l: LaneID, lt: LaneType) -> Option<LaneID> {

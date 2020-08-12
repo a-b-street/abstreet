@@ -384,7 +384,7 @@ fn make_shared_sidewalk_corner(
 
             pts_between.extend(
                 driving_side
-                    .right_shift(PolyLine::must_new(deduped), l1.width.min(l2.width) / 2.0)
+                    .must_right_shift(PolyLine::must_new(deduped), l1.width.min(l2.width) / 2.0)
                     .points(),
             );
         }

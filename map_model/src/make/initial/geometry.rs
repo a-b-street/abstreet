@@ -37,8 +37,8 @@ pub fn intersection_polygon(
             } else {
                 panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
             };
-            let pl_normal = driving_side.right_shift(pl.clone(), r.half_width);
-            let pl_reverse = driving_side.left_shift(pl.clone(), r.half_width);
+            let pl_normal = driving_side.must_right_shift(pl.clone(), r.half_width);
+            let pl_reverse = driving_side.must_left_shift(pl.clone(), r.half_width);
             (*id, pl.last_line(), pl_normal, pl_reverse)
         })
         .collect();
@@ -219,23 +219,23 @@ fn generalized_trim_back(
         if r.dst_i == i {
             endpoints.push(
                 driving_side
-                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .must_right_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .last_pt(),
             );
             endpoints.push(
                 driving_side
-                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .must_left_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .last_pt(),
             );
         } else {
             endpoints.push(
                 driving_side
-                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .must_left_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .first_pt(),
             );
             endpoints.push(
                 driving_side
-                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .must_right_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .first_pt(),
             );
         }
@@ -333,21 +333,25 @@ fn deadend(
     if r.dst_i == i {
         endpts.push(
             driving_side
-                .right_shift(trimmed.clone(), r.half_width)
+                .must_right_shift(trimmed.clone(), r.half_width)
                 .last_pt(),
         );
         endpts.push(
             driving_side
-                .left_shift(trimmed.clone(), r.half_width)
+                .must_left_shift(trimmed.clone(), r.half_width)
                 .last_pt(),
         );
     } else {
         endpts.push(
             driving_side
-                .left_shift(trimmed.clone(), r.half_width)
+                .must_left_shift(trimmed.clone(), r.half_width)
                 .first_pt(),
         );
-        endpts.push(driving_side.right_shift(trimmed, r.half_width).first_pt());
+        endpts.push(
+            driving_side
+                .must_right_shift(trimmed, r.half_width)
+                .first_pt(),
+        );
     }
 
     endpts.dedup();
@@ -549,23 +553,23 @@ fn on_off_ramp(
         if r.dst_i == i {
             endpoints.push(
                 driving_side
-                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .must_right_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .last_pt(),
             );
             endpoints.push(
                 driving_side
-                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .must_left_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .last_pt(),
             );
         } else {
             endpoints.push(
                 driving_side
-                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .must_left_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .first_pt(),
             );
             endpoints.push(
                 driving_side
-                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .must_right_shift(r.trimmed_center_pts.clone(), r.half_width)
                     .first_pt(),
             );
         }

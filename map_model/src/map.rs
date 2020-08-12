@@ -9,6 +9,7 @@ use abstutil::Timer;
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring, Time};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+use std::error::Error;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MapConfig {
@@ -584,11 +585,17 @@ impl Map {
         None
     }
 
-    pub fn right_shift(&self, pl: PolyLine, width: Distance) -> PolyLine {
+    pub fn right_shift(&self, pl: PolyLine, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
         self.config.driving_side.right_shift(pl, width)
     }
-    pub fn left_shift(&self, pl: PolyLine, width: Distance) -> PolyLine {
+    pub fn must_right_shift(&self, pl: PolyLine, width: Distance) -> PolyLine {
+        self.right_shift(pl, width).unwrap()
+    }
+    pub fn left_shift(&self, pl: PolyLine, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
         self.config.driving_side.left_shift(pl, width)
+    }
+    pub fn must_left_shift(&self, pl: PolyLine, width: Distance) -> PolyLine {
+        self.left_shift(pl, width).unwrap()
     }
     pub fn right_shift_line(&self, line: Line, width: Distance) -> Line {
         self.config.driving_side.right_shift_line(line, width)

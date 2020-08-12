@@ -270,7 +270,7 @@ fn calculate_driving_lines(map: &Map, lane: &Lane, parent: &Road) -> Vec<Polygon
     if idx == 0 || (dir && !parent.children_forwards[idx - 1].1.is_for_moving_vehicles()) {
         return Vec::new();
     }
-    let lane_edge_pts = map.left_shift(lane.lane_center_pts.clone(), lane.width / 2.0);
+    let lane_edge_pts = map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0);
     lane_edge_pts.dashed_lines(
         Distance::meters(0.25),
         Distance::meters(1.0),

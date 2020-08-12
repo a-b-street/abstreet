@@ -200,11 +200,13 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
-            let mut pts = map.left_shift(turn.geom.clone(), width / 2.0).into_points();
+            let mut pts = map
+                .must_left_shift(turn.geom.clone(), width / 2.0)
+                .into_points();
             pts.push(map.left_shift_line(l2.first_line(), width / 2.0).pt1());
             pts.push(map.right_shift_line(l2.first_line(), width / 2.0).pt1());
             pts.extend(
-                map.right_shift(turn.geom.clone(), width / 2.0)
+                map.must_right_shift(turn.geom.clone(), width / 2.0)
                     .reversed()
                     .into_points(),
             );

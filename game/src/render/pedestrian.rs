@@ -210,6 +210,7 @@ impl DrawPedCrowd {
                 } else {
                     map.right_shift(pl_slice, SIDEWALK_THICKNESS / 4.0)
                 }
+                .unwrap_or_else(|_| on.exact_slice(input.low, input.high, map))
             }
             PedCrowdLocation::BldgDriveway(b) => map
                 .get_b(b)
