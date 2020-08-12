@@ -384,6 +384,10 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 }
 
 fn is_road(tags: &mut Tags, opts: &Options) -> bool {
+    if tags.is("area", "yes") {
+        return false;
+    }
+
     // First deal with railways.
     if tags.is("railway", "light_rail") {
         return true;

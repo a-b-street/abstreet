@@ -158,17 +158,27 @@ impl Map {
                 // Careful about order here. lane_specs are all of the forwards from center to
                 // sidewalk, then all the backwards from center to sidewalk.
                 let lane_center_pts = if !lane.reverse_pts {
-                    let pl = map.must_right_shift(
+                    let pl = if let Ok(pl) = map.right_shift(
                         road_left_pts.clone(),
                         total_back_width + fwd_width_so_far + (lane.width / 2.0),
-                    );
+                    ) {
+                        pl
+                    } else {
+                        timer.error(format!("{} geometry broken; lane not shifted!", id));
+                        road_left_pts.clone()
+                    };
                     fwd_width_so_far += lane.width;
                     pl
                 } else {
-                    let pl = map.must_right_shift(
+                    let pl = if let Ok(pl) = map.right_shift(
                         road_left_pts.clone(),
                         total_back_width - back_width_so_far - (lane.width / 2.0),
-                    );
+                    ) {
+                        pl
+                    } else {
+                        timer.error(format!("{} geometry broken; lane not shifted!", id));
+                        road_left_pts.clone()
+                    };
                     back_width_so_far += lane.width;
                     pl.reversed()
                 };

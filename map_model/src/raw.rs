@@ -206,7 +206,7 @@ impl RawMap {
         }
 
         let (poly, debug) =
-            initial::intersection_polygon(self.config.driving_side, &i, &mut roads, timer);
+            initial::intersection_polygon(self.config.driving_side, &i, &mut roads, timer).unwrap();
         (
             poly,
             roads

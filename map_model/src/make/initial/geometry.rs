@@ -4,6 +4,7 @@ use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad};
 use abstutil::{wraparound_get, Timer};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
 use std::collections::BTreeMap;
+use std::error::Error;
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5);
 
@@ -15,7 +16,7 @@ pub fn intersection_polygon(
     i: &Intersection,
     roads: &mut BTreeMap<OriginalRoad, Road>,
     timer: &mut Timer,
-) -> (Polygon, Vec<(String, Polygon)>) {
+) -> Result<(Polygon, Vec<(String, Polygon)>), Box<dyn Error>> {
     if i.roads.is_empty() {
         panic!("{} has no roads", i.id);
     }
@@ -24,24 +25,21 @@ pub fn intersection_polygon(
     // the road, if the roads were oriented to both be incoming to the intersection), both ending
     // at the intersection, and the last segment of the center line.
     // TODO Maybe express the two incoming PolyLines as the "right" and "left"
-    let mut lines: Vec<(OriginalRoad, Line, PolyLine, PolyLine)> = i
-        .roads
-        .iter()
-        .map(|id| {
-            let r = &roads[id];
+    let mut lines: Vec<(OriginalRoad, Line, PolyLine, PolyLine)> = Vec::new();
+    for id in &i.roads {
+        let r = &roads[id];
 
-            let pl = if r.src_i == i.id {
-                r.trimmed_center_pts.reversed()
-            } else if r.dst_i == i.id {
-                r.trimmed_center_pts.clone()
-            } else {
-                panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
-            };
-            let pl_normal = driving_side.must_right_shift(pl.clone(), r.half_width);
-            let pl_reverse = driving_side.must_left_shift(pl.clone(), r.half_width);
-            (*id, pl.last_line(), pl_normal, pl_reverse)
-        })
-        .collect();
+        let pl = if r.src_i == i.id {
+            r.trimmed_center_pts.reversed()
+        } else if r.dst_i == i.id {
+            r.trimmed_center_pts.clone()
+        } else {
+            panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
+        };
+        let pl_normal = driving_side.right_shift(pl.clone(), r.half_width)?;
+        let pl_reverse = driving_side.left_shift(pl.clone(), r.half_width)?;
+        lines.push((*id, pl.last_line(), pl_normal, pl_reverse));
+    }
 
     // Sort the polylines by the angle their last segment makes to the common point.
     let intersection_center = lines[0].1.pt2();
@@ -57,7 +55,7 @@ pub fn intersection_polygon(
         .map(|(r, _, _, _)| (*r, roads[r].trimmed_center_pts.clone()))
         .collect::<Vec<_>>();
     if let Some(result) = on_off_ramp(driving_side, roads, i.id, lines.clone()) {
-        result
+        Ok(result)
     } else {
         for (r, trimmed_center_pts) in rollback {
             roads.get_mut(&r).unwrap().trimmed_center_pts = trimmed_center_pts;
@@ -72,7 +70,7 @@ fn generalized_trim_back(
     i: OriginalIntersection,
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
     timer: &mut Timer,
-) -> (Polygon, Vec<(String, Polygon)>) {
+) -> Result<(Polygon, Vec<(String, Polygon)>), Box<dyn Error>> {
     let mut debug = Vec::new();
 
     let mut road_lines: Vec<(OriginalRoad, PolyLine)> = Vec::new();
@@ -137,11 +135,12 @@ fn generalized_trim_back(
             };
 
             if use_pl1 == use_pl2 {
-                panic!(
+                return Err(format!(
                     "{} and {} have overlapping segments. You likely need to fix OSM and make the \
                      two ways meet at exactly one node.",
                     r1, r2
-                );
+                )
+                .into());
             }
 
             if let Some((hit, angle)) = use_pl1.intersection(&use_pl2) {
@@ -219,23 +218,23 @@ fn generalized_trim_back(
         if r.dst_i == i {
             endpoints.push(
                 driving_side
-                    .must_right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)?
                     .last_pt(),
             );
             endpoints.push(
                 driving_side
-                    .must_left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)?
                     .last_pt(),
             );
         } else {
             endpoints.push(
                 driving_side
-                    .must_left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)?
                     .first_pt(),
             );
             endpoints.push(
                 driving_side
-                    .must_right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)?
                     .first_pt(),
             );
         }
@@ -269,13 +268,13 @@ fn generalized_trim_back(
     deduped = Pt2D::approx_dedupe(deduped, Distance::meters(0.1));
     deduped = close_off_polygon(deduped);
     if main_result.len() == deduped.len() {
-        (Ring::must_new(main_result).to_polygon(), debug)
+        Ok((Ring::must_new(main_result).to_polygon(), debug))
     } else {
         timer.warn(format!(
             "{}'s polygon has weird repeats, forcibly removing points",
             i
         ));
-        (Ring::must_new(deduped).to_polygon(), debug)
+        Ok((Ring::must_new(deduped).to_polygon(), debug))
     }
 
     // TODO Or always sort points? Helps some cases, hurts other for downtown Seattle.
@@ -291,7 +290,7 @@ fn deadend(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: OriginalIntersection,
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
-) -> (Polygon, Vec<(String, Polygon)>) {
+) -> Result<(Polygon, Vec<(String, Polygon)>), Box<dyn Error>> {
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
 
     let (id, _, mut pl_a, mut pl_b) = lines[0].clone();
@@ -333,32 +332,28 @@ fn deadend(
     if r.dst_i == i {
         endpts.push(
             driving_side
-                .must_right_shift(trimmed.clone(), r.half_width)
+                .right_shift(trimmed.clone(), r.half_width)?
                 .last_pt(),
         );
         endpts.push(
             driving_side
-                .must_left_shift(trimmed.clone(), r.half_width)
+                .left_shift(trimmed.clone(), r.half_width)?
                 .last_pt(),
         );
     } else {
         endpts.push(
             driving_side
-                .must_left_shift(trimmed.clone(), r.half_width)
+                .left_shift(trimmed.clone(), r.half_width)?
                 .first_pt(),
         );
-        endpts.push(
-            driving_side
-                .must_right_shift(trimmed, r.half_width)
-                .first_pt(),
-        );
+        endpts.push(driving_side.right_shift(trimmed, r.half_width)?.first_pt());
     }
 
     endpts.dedup();
-    (
+    Ok((
         Ring::must_new(close_off_polygon(endpts)).to_polygon(),
         Vec::new(),
-    )
+    ))
 }
 
 fn close_off_polygon(mut pts: Vec<Pt2D>) -> Vec<Pt2D> {
@@ -553,23 +548,27 @@ fn on_off_ramp(
         if r.dst_i == i {
             endpoints.push(
                 driving_side
-                    .must_right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .ok()?
                     .last_pt(),
             );
             endpoints.push(
                 driving_side
-                    .must_left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .ok()?
                     .last_pt(),
             );
         } else {
             endpoints.push(
                 driving_side
-                    .must_left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .ok()?
                     .first_pt(),
             );
             endpoints.push(
                 driving_side
-                    .must_right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                    .ok()?
                     .first_pt(),
             );
         }

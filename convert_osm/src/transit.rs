@@ -23,7 +23,7 @@ pub fn extract_route(
         "bus" => true,
         "light_rail" => false,
         x => {
-            if x != "road" && x != "bicycle" && x != "foot" && x != "railway" {
+            if !vec!["bicycle", "foot", "railway", "road", "tracks", "train"].contains(&x) {
                 // TODO Handle these at some point
                 println!(
                     "Skipping route {} of unknown type {}: {}",

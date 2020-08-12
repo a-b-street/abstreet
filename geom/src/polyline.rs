@@ -506,7 +506,7 @@ impl PolyLine {
         dash_len: Distance,
         dash_separation: Distance,
     ) -> Vec<Polygon> {
-        if self.length() < dash_separation * 2.0 + EPSILON_DIST {
+        if self.length() <= dash_separation * 2.0 + EPSILON_DIST {
             return vec![self.make_polygons(width)];
         }
         self.exact_slice(dash_separation, self.length() - dash_separation)

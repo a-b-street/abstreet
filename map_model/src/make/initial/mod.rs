@@ -93,62 +93,31 @@ impl InitialMap {
                 .insert(*id, Road::new(*id, r, raw.config.driving_side));
         }
 
-        // Detect all overlapping geometry upfront
-        timer.start_iter("detect overlapping roads", m.intersections.len());
-        let mut problems = BTreeSet::new();
-        let mut bad_intersections = BTreeSet::new();
-        for i in m.intersections.values() {
-            timer.next();
-            for r1 in &i.roads {
-                for r2 in &i.roads {
-                    if r1 >= r2 {
-                        continue;
-                    }
-                    let pl1 = if m.roads[r1].src_i == i.id {
-                        m.roads[r1].trimmed_center_pts.clone()
-                    } else {
-                        m.roads[r1].trimmed_center_pts.reversed()
-                    };
-                    let pl2 = if m.roads[r2].src_i == i.id {
-                        m.roads[r2].trimmed_center_pts.clone()
-                    } else {
-                        m.roads[r2].trimmed_center_pts.reversed()
-                    };
-                    if pl1 == pl2 {
-                        problems.insert(format!("{} and {} overlap", r1.osm_way_id, r2.osm_way_id));
-                        bad_intersections.insert(i.id);
-                    }
-                }
-            }
-        }
-        if !problems.is_empty() {
-            timer.error(
-                "Some roads have overlapping segments in OSM. You likely need to fix OSM and make \
-                 the two ways meet at exactly one node."
-                    .to_string(),
-            );
-            for x in problems {
-                timer.error(format!("- {}", x));
-            }
-        }
-
         timer.start_iter("find each intersection polygon", m.intersections.len());
         for i in m.intersections.values_mut() {
             timer.next();
-            if bad_intersections.contains(&i.id) {
-                // Don't trim lines back at all
-                let r = &m.roads[i.roads.iter().next().unwrap()];
-                let pt = if r.src_i == i.id {
-                    r.trimmed_center_pts.first_pt()
-                } else {
-                    r.trimmed_center_pts.last_pt()
-                };
-                i.polygon = Circle::new(pt, Distance::meters(3.0)).to_polygon();
+            match intersection_polygon(raw.config.driving_side, i, &mut m.roads, timer) {
+                Ok((poly, _)) => {
+                    i.polygon = poly;
+                }
+                Err(err) => {
+                    timer.error(format!(
+                        "Can't make intersection geometry for {}: {}",
+                        i.id, err
+                    ));
 
-                // Also don't attempt to make TurnGroups later!
-                i.intersection_type = IntersectionType::StopSign;
-            } else {
-                i.polygon = intersection_polygon(raw.config.driving_side, i, &mut m.roads, timer).0;
+                    // Don't trim lines back at all
+                    let r = &m.roads[i.roads.iter().next().unwrap()];
+                    let pt = if r.src_i == i.id {
+                        r.trimmed_center_pts.first_pt()
+                    } else {
+                        r.trimmed_center_pts.last_pt()
+                    };
+                    i.polygon = Circle::new(pt, Distance::meters(3.0)).to_polygon();
+
+                    // Also don't attempt to make TurnGroups later!
+                    i.intersection_type = IntersectionType::StopSign;
+                }
             }
         }
 
@@ -173,7 +142,9 @@ impl InitialMap {
                     .extend_to_length(min_len)
                     .reversed();
             }
-            i.polygon = intersection_polygon(raw.config.driving_side, i, &mut m.roads, timer).0;
+            i.polygon = intersection_polygon(raw.config.driving_side, i, &mut m.roads, timer)
+                .unwrap()
+                .0;
             timer.note(format!(
                 "Shifted border {} out a bit to make the road a reasonable length",
                 i.id
