@@ -3,13 +3,7 @@ use crate::{Canvas, Color, GeomBatch, ScreenDims, ScreenRectangle};
 use glow::HasContext;
 use std::cell::Cell;
 
-pub fn setup(
-    window_title: &str,
-) -> (
-    PrerenderInnards,
-    winit::event_loop::EventLoop<()>,
-    ScreenDims,
-) {
+pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     let event_loop = winit::event_loop::EventLoop::new();
     let window = winit::window::WindowBuilder::new()
         .with_title(window_title)
@@ -72,19 +66,6 @@ pub fn setup(
         );
     }
 
-    let inner_window = windowed_context.window().inner_size();
-    let monitor = event_loop.primary_monitor().size();
-    let initial_size = if cfg!(target_os = "linux") {
-        monitor
-    } else {
-        inner_window
-    };
-    println!(
-        "Inner window size is {:?}, monitor is {:?}, scale factor is {}",
-        inner_window,
-        monitor,
-        windowed_context.window().scale_factor()
-    );
     (
         PrerenderInnards {
             gl,
@@ -93,7 +74,6 @@ pub fn setup(
             total_bytes_uploaded: Cell::new(0),
         },
         event_loop,
-        ScreenDims::new(initial_size.width.into(), initial_size.height.into()),
     )
 }
 
@@ -139,32 +119,29 @@ impl<'a> GfxCtxInnards<'a> {
         }
     }
 
-    pub fn enable_clipping(&mut self, rect: ScreenRectangle, canvas: &Canvas) {
+    pub fn enable_clipping(&mut self, rect: ScreenRectangle, scale_factor: f64, canvas: &Canvas) {
         assert!(self.current_clip.is_none());
-        // The scissor rectangle has to be in device coordinates, so you would think some transform
-        // by scale factor (previously called HiDPI factor) has to happen here. But actually,
-        // window dimensions and the rectangle passed in are already scaled up. So don't do
-        // anything here!
-        let left = rect.x1 as i32;
+        // The scissor rectangle is in units of physical pixles, as opposed to logical pixels
+        let left = (rect.x1 * scale_factor) as i32;
         // Y-inversion
-        let bottom = (canvas.window_height - rect.y2) as i32;
-        let width = (rect.x2 - rect.x1) as i32;
-        let height = (rect.y2 - rect.y1) as i32;
+        let bottom = ((canvas.window_height - rect.y2) * scale_factor) as i32;
+        let width = ((rect.x2 - rect.x1) * scale_factor) as i32;
+        let height = ((rect.y2 - rect.y1) * scale_factor) as i32;
         unsafe {
             self.gl.scissor(left, bottom, width, height);
         }
         self.current_clip = Some([left, bottom, width, height]);
     }
 
-    pub fn disable_clipping(&mut self, canvas: &Canvas) {
+    pub fn disable_clipping(&mut self, scale_factor: f64, canvas: &Canvas) {
         assert!(self.current_clip.is_some());
         self.current_clip = None;
         unsafe {
             self.gl.scissor(
                 0,
                 0,
-                canvas.window_width as i32,
-                canvas.window_height as i32,
+                (canvas.window_width * scale_factor) as i32,
+                (canvas.window_height * scale_factor) as i32,
             );
         }
     }
@@ -312,20 +289,32 @@ impl PrerenderInnards {
         }
     }
 
-    pub fn window_resized(&self, new_size: ScreenDims) {
-        todo!("DPI TODO: support other backends");
-        //self.windowed_context
-        //    .resize(winit::dpi::PhysicalSize::new(width as u32, height as u32));
-        //unsafe {
-        //    self.gl.viewport(0, 0, width as i32, height as i32);
-        //    // I think it's safe to assume there's not a clip right now.
-        //    self.gl.scissor(0, 0, width as i32, height as i32);
-        //}
+    pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {
+        let physical_size = winit::dpi::LogicalSize::from(new_size).to_physical(scale_factor);
+        self.windowed_context.resize(physical_size);
+        unsafe {
+            self.gl.viewport(
+                0,
+                0,
+                physical_size.width as i32,
+                physical_size.height as i32,
+            );
+            // I think it's safe to assume there's not a clip right now.
+            self.gl.scissor(
+                0,
+                0,
+                physical_size.width as i32,
+                physical_size.height as i32,
+            );
+        }
     }
 
-    pub fn get_inner_size(&self) -> (f64, f64) {
-        let size = self.windowed_context.window().inner_size();
-        (size.width.into(), size.height.into())
+    pub fn window_size(&self, scale_factor: f64) -> ScreenDims {
+        self.windowed_context
+            .window()
+            .inner_size()
+            .to_logical(scale_factor)
+            .into()
     }
 
     pub fn set_window_icon(&self, icon: winit::window::Icon) {
