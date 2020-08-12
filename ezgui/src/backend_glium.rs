@@ -158,7 +158,7 @@ impl<'a> GfxCtxInnards<'a> {
         });
     }
 
-    pub fn disable_clipping(&mut self, _: &Canvas) {
+    pub fn disable_clipping(&mut self, _scale_factor: f64, _: &Canvas) {
         assert!(self.params.scissor.is_some());
         self.params.scissor = None;
     }
@@ -277,7 +277,7 @@ impl PrerenderInnards {
         }
     }
 
-    pub fn window_resized(&self, _new_size: ScreenDims) {}
+    pub fn window_resized(&self, _new_size: ScreenDims, _scale_factor: f64) {}
 
     pub fn window_size(&self, scale_factor: f64) -> ScreenDims {
         self.display
