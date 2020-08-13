@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::edit::traffic_signals::{make_top_panel, BundleEdits, TrafficSignalEditor};
+use crate::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
 use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
 use crate::sandbox::GameplayMode;
@@ -76,17 +76,9 @@ impl State for ChangeDuration {
                     let idx = self.idx;
                     return Transition::PopWithData(Box::new(move |state, ctx, app| {
                         let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-
-                        let mut bundle = BundleEdits::get_current(app, &editor.members);
-                        editor.command_stack.push(bundle.clone());
-                        editor.redo_stack.clear();
-                        for ts in &mut bundle.signals {
+                        editor.add_new_edit(ctx, app, idx, |ts| {
                             ts.phases[idx].phase_type = new_type.clone();
-                        }
-                        bundle.apply(app);
-
-                        editor.top_panel = make_top_panel(ctx, app, true, false);
-                        editor.change_phase(ctx, app, idx);
+                        });
                     }));
                 }
                 _ => unreachable!(),
@@ -155,15 +147,9 @@ pub fn edit_entire_signal(
                 Box::new(move |new_signal, _, _| {
                     Transition::PopWithData(Box::new(move |state, ctx, app| {
                         let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-
-                        let mut bundle = BundleEdits::get_current(app, &editor.members);
-                        editor.command_stack.push(bundle.clone());
-                        editor.redo_stack.clear();
-                        bundle.signals = vec![new_signal];
-                        bundle.apply(app);
-
-                        editor.top_panel = make_top_panel(ctx, app, true, false);
-                        editor.change_phase(ctx, app, 0);
+                        editor.add_new_edit(ctx, app, 0, |ts| {
+                            *ts = new_signal.clone();
+                        });
                     }))
                 }),
             )),
@@ -171,15 +157,9 @@ pub fn edit_entire_signal(
                 let mut new_signal = app.primary.map.get_traffic_signal(i).clone();
                 if new_signal.convert_to_ped_scramble() {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-
-                    let mut bundle = BundleEdits::get_current(app, &editor.members);
-                    editor.command_stack.push(bundle.clone());
-                    editor.redo_stack.clear();
-                    bundle.signals = vec![new_signal];
-                    bundle.apply(app);
-
-                    editor.top_panel = make_top_panel(ctx, app, true, false);
-                    editor.change_phase(ctx, app, 0);
+                    editor.add_new_edit(ctx, app, 0, |ts| {
+                        *ts = new_signal.clone();
+                    });
                 }
             })),
             x if x == stop_sign => {
@@ -214,10 +194,6 @@ pub fn edit_entire_signal(
             }
             x if x == reset => Transition::PopWithData(Box::new(move |state, ctx, app| {
                 let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-
-                let mut bundle = BundleEdits::get_current(app, &editor.members);
-                editor.command_stack.push(bundle.clone());
-                editor.redo_stack.clear();
                 let new_signal = ControlTrafficSignal::get_possible_policies(
                     &app.primary.map,
                     i,
@@ -225,11 +201,9 @@ pub fn edit_entire_signal(
                 )
                 .remove(0)
                 .1;
-                bundle.signals = vec![new_signal];
-                bundle.apply(app);
-
-                editor.top_panel = make_top_panel(ctx, app, true, false);
-                editor.change_phase(ctx, app, 0);
+                editor.add_new_edit(ctx, app, 0, |ts| {
+                    *ts = new_signal.clone();
+                });
             })),
             _ => unreachable!(),
         }),

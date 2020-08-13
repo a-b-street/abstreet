@@ -122,6 +122,25 @@ impl TrafficSignalEditor {
         self.draw_current = self.recalc_draw_current(ctx, app);
     }
 
+    fn add_new_edit<F: Fn(&mut ControlTrafficSignal)>(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        idx: usize,
+        fxn: F,
+    ) {
+        let mut bundle = BundleEdits::get_current(app, &self.members);
+        self.command_stack.push(bundle.clone());
+        self.redo_stack.clear();
+        for ts in &mut bundle.signals {
+            fxn(ts);
+        }
+        bundle.apply(app);
+
+        self.top_panel = make_top_panel(ctx, app, true, false);
+        self.change_phase(ctx, app, idx);
+    }
+
     fn recalc_draw_current(&self, ctx: &mut EventCtx, app: &App) -> Drawable {
         let mut batch = GeomBatch::new();
 
@@ -218,16 +237,9 @@ impl State for TrafficSignalEditor {
                     ));
                 }
                 if x == "Add new phase" {
-                    let mut bundle = BundleEdits::get_current(app, &self.members);
-                    self.command_stack.push(bundle.clone());
-                    self.redo_stack.clear();
-                    for ts in &mut bundle.signals {
+                    self.add_new_edit(ctx, app, num_phases, |ts| {
                         ts.phases.push(Phase::new());
-                    }
-                    bundle.apply(app);
-
-                    self.top_panel = make_top_panel(ctx, app, true, false);
-                    self.change_phase(ctx, app, num_phases);
+                    });
                     return Transition::Keep;
                 }
                 if let Some(x) = x.strip_prefix("change duration of phase ") {
@@ -240,49 +252,23 @@ impl State for TrafficSignalEditor {
                 }
                 if let Some(x) = x.strip_prefix("delete phase ") {
                     let idx = x.parse::<usize>().unwrap() - 1;
-
-                    let mut bundle = BundleEdits::get_current(app, &self.members);
-                    self.command_stack.push(bundle.clone());
-                    self.redo_stack.clear();
-                    for ts in &mut bundle.signals {
+                    self.add_new_edit(ctx, app, 0, |ts| {
                         ts.phases.remove(idx);
-                    }
-                    bundle.apply(app);
-
-                    self.top_panel = make_top_panel(ctx, app, true, false);
-                    // Don't use change_phase; it tries to preserve scroll
-                    self.current_phase = if idx == num_phases - 1 { idx - 1 } else { idx };
-                    self.side_panel = make_side_panel(ctx, app, &self.members, self.current_phase);
+                    });
                     return Transition::Keep;
                 }
                 if let Some(x) = x.strip_prefix("move up phase ") {
                     let idx = x.parse::<usize>().unwrap() - 1;
-
-                    let mut bundle = BundleEdits::get_current(app, &self.members);
-                    self.command_stack.push(bundle.clone());
-                    self.redo_stack.clear();
-                    for ts in &mut bundle.signals {
+                    self.add_new_edit(ctx, app, idx - 1, |ts| {
                         ts.phases.swap(idx, idx - 1);
-                    }
-                    bundle.apply(app);
-
-                    self.top_panel = make_top_panel(ctx, app, true, false);
-                    self.change_phase(ctx, app, idx - 1);
+                    });
                     return Transition::Keep;
                 }
                 if let Some(x) = x.strip_prefix("move down phase ") {
                     let idx = x.parse::<usize>().unwrap() - 1;
-
-                    let mut bundle = BundleEdits::get_current(app, &self.members);
-                    self.command_stack.push(bundle.clone());
-                    self.redo_stack.clear();
-                    for ts in &mut bundle.signals {
+                    self.add_new_edit(ctx, app, idx + 1, |ts| {
                         ts.phases.swap(idx, idx + 1);
-                    }
-                    bundle.apply(app);
-
-                    self.top_panel = make_top_panel(ctx, app, true, false);
-                    self.change_phase(ctx, app, idx + 1);
+                    });
                     return Transition::Keep;
                 }
                 if let Some(x) = x.strip_prefix("phase ") {
@@ -303,9 +289,8 @@ impl State for TrafficSignalEditor {
                         self.command_stack.push(bundle.clone());
                         self.redo_stack.clear();
 
-                        self.current_phase = 0;
                         self.top_panel = make_top_panel(ctx, app, true, false);
-                        self.change_phase(ctx, app, self.current_phase);
+                        self.change_phase(ctx, app, 0);
 
                         return Transition::Push(PopupMsg::new(
                             ctx,
@@ -426,19 +411,13 @@ impl State for TrafficSignalEditor {
                         pri
                     ),
                 ) {
-                    let mut bundle = BundleEdits::get_current(app, &self.members);
-                    self.command_stack.push(bundle.clone());
-                    self.redo_stack.clear();
-                    for ts in &mut bundle.signals {
+                    let idx = self.current_phase;
+                    let signal = signal.clone();
+                    self.add_new_edit(ctx, app, idx, |ts| {
                         if ts.id == id.parent {
-                            ts.phases[self.current_phase].edit_group(&signal.turn_groups[&id], pri);
-                            break;
+                            ts.phases[idx].edit_group(&signal.turn_groups[&id], pri);
                         }
-                    }
-                    bundle.apply(app);
-
-                    self.top_panel = make_top_panel(ctx, app, true, false);
-                    self.change_phase(ctx, app, self.current_phase);
+                    });
                     return Transition::KeepWithMouseover;
                 }
             }
