@@ -1,4 +1,5 @@
 mod edits;
+mod picker;
 mod preview;
 
 use crate::app::{App, ShowEverything};
@@ -44,7 +45,7 @@ pub struct TrafficSignalEditor {
 }
 
 // For every member intersection, the full state of that signal
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct BundleEdits {
     signals: Vec<ControlTrafficSignal>,
 }
@@ -181,6 +182,19 @@ impl State for TrafficSignalEditor {
 
         match self.side_panel.event(ctx) {
             Outcome::Clicked(x) => {
+                if x == "Edit multiple signals" {
+                    // First commit the current changes, so we enter SignalPicker with clean state.
+                    // This UX flow is a little unintuitive.
+                    let changes = check_for_missing_turns(app, &self.members)
+                        .unwrap_or_else(|| BundleEdits::get_current(app, &self.members));
+                    self.original.apply(app);
+                    changes.commit(ctx, app);
+                    return Transition::Replace(picker::SignalPicker::new(
+                        ctx,
+                        self.members.clone(),
+                        self.mode.clone(),
+                    ));
+                }
                 if x == "Edit entire signal" {
                     return Transition::Push(edits::edit_entire_signal(
                         ctx,
@@ -292,20 +306,7 @@ impl State for TrafficSignalEditor {
                     } else {
                         let changes = BundleEdits::get_current(app, &self.members);
                         self.original.apply(app);
-
-                        let mut edits = app.primary.map.get_edits().clone();
-                        // TODO Can we batch these commands somehow, so undo/redo in edit mode
-                        // behaves properly?
-                        for signal in changes.signals {
-                            edits.commands.push(EditCmd::ChangeIntersection {
-                                i: signal.id,
-                                old: app.primary.map.get_i_edit(signal.id),
-                                new: EditIntersection::TrafficSignal(
-                                    signal.export(&app.primary.map),
-                                ),
-                            });
-                        }
-                        apply_map_edits(ctx, app, edits);
+                        changes.commit(ctx, app);
                         return Transition::Pop;
                     }
                 }
@@ -557,7 +558,10 @@ fn make_side_panel(
         txt.add(Line(format!("One full cycle lasts {}", total)));
     }
 
-    let mut col = vec![txt.draw(ctx)];
+    let mut col = vec![
+        txt.draw(ctx),
+        Btn::text_bg2("Edit multiple signals").build_def(ctx, None),
+    ];
     if members.len() == 1 {
         col.push(Btn::text_bg2("Edit entire signal").build_def(ctx, hotkey(Key::E)));
     }
@@ -641,6 +645,24 @@ impl BundleEdits {
         for s in &self.signals {
             app.primary.map.incremental_edit_traffic_signal(s.clone());
         }
+    }
+
+    fn commit(self, ctx: &mut EventCtx, app: &mut App) {
+        // Skip if there's no change
+        if self == BundleEdits::get_current(app, &self.signals.iter().map(|s| s.id).collect()) {
+            return;
+        }
+
+        let mut edits = app.primary.map.get_edits().clone();
+        // TODO Can we batch these commands somehow, so undo/redo in edit mode behaves properly?
+        for signal in self.signals {
+            edits.commands.push(EditCmd::ChangeIntersection {
+                i: signal.id,
+                old: app.primary.map.get_i_edit(signal.id),
+                new: EditIntersection::TrafficSignal(signal.export(&app.primary.map)),
+            });
+        }
+        apply_map_edits(ctx, app, edits);
     }
 
     fn get_current(app: &App, members: &BTreeSet<IntersectionID>) -> BundleEdits {
