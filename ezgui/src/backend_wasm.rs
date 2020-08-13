@@ -126,13 +126,13 @@ impl<'a> GfxCtxInnards<'a> {
                 .get_uniform_location(*self.program, "transform")
                 .unwrap();
             self.gl
-                .uniform_3_f32_slice(Some(transform_loc), &uniforms.transform);
+                .uniform_3_f32_slice(Some(&transform_loc), &uniforms.transform);
             let window_loc = self
                 .gl
                 .get_uniform_location(*self.program, "window")
                 .unwrap();
             self.gl
-                .uniform_3_f32_slice(Some(window_loc), &uniforms.window);
+                .uniform_3_f32_slice(Some(&window_loc), &uniforms.window);
 
             self.gl.bind_vertex_array(Some(obj.vert_array));
             self.gl
