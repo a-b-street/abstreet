@@ -1,6 +1,6 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::edit::{ClusterTrafficSignalEditor, EditMode, NewTrafficSignalEditor};
+use crate::edit::{ClusterTrafficSignalEditor, EditMode, TrafficSignalEditor};
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
@@ -112,7 +112,7 @@ impl State for UberTurnPicker {
                 "Edit (new attempt)" => {
                     return Transition::ReplaceThenPush(
                         EditMode::new(ctx, app, self.gameplay.clone()),
-                        NewTrafficSignalEditor::new(
+                        TrafficSignalEditor::new(
                             ctx,
                             app,
                             self.members.clone(),

@@ -1,7 +1,6 @@
 mod bulk;
 mod cluster_traffic_signals;
 mod lanes;
-mod new_traffic_signals;
 mod routes;
 mod select;
 mod stop_signs;
@@ -11,7 +10,6 @@ mod zones;
 
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
 pub use self::lanes::LaneEditor;
-pub use self::new_traffic_signals::NewTrafficSignalEditor;
 pub use self::routes::RouteEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
@@ -34,6 +32,7 @@ use ezgui::{
 };
 use geom::Speed;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits, PermanentMapEdits};
+use maplit::btreeset;
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 
@@ -643,7 +642,12 @@ pub fn maybe_edit_intersection(
     if app.primary.map.maybe_get_traffic_signal(id).is_some()
         && app.per_obj.left_click(ctx, "edit traffic signal")
     {
-        return Some(TrafficSignalEditor::new(ctx, app, id, mode.clone()));
+        return Some(TrafficSignalEditor::new(
+            ctx,
+            app,
+            btreeset! {id},
+            mode.clone(),
+        ));
     }
 
     if app.primary.map.get_i(id).is_closed()
