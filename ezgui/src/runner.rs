@@ -85,8 +85,7 @@ impl<G: GUI> State<G> {
             }
 
             if let Some(pt) = input.get_moved_mouse() {
-                self.canvas.cursor_x = pt.x;
-                self.canvas.cursor_y = pt.y;
+                self.canvas.cursor = pt;
             }
 
             if input.event == Event::WindowGainedCursor {

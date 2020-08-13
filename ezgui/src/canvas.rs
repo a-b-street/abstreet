@@ -19,9 +19,8 @@ pub struct Canvas {
     pub cam_y: f64,
     pub cam_zoom: f64,
 
-    // TODO We probably shouldn't even track screen-space cursor when we don't have the cursor.
-    pub(crate) cursor_x: f64,
-    pub(crate) cursor_y: f64,
+    // TODO Should this become Option<ScreenPt>?
+    pub(crate) cursor: ScreenPt,
     pub(crate) window_has_cursor: bool,
 
     // Only for drags starting on the map. Only used to pan the map. (Last event, original)
@@ -54,8 +53,7 @@ impl Canvas {
             cam_y: 0.0,
             cam_zoom: 1.0,
 
-            cursor_x: 0.0,
-            cursor_y: 0.0,
+            cursor: ScreenPt::new(0.0, 0.0),
             window_has_cursor: true,
 
             drag_canvas_from: None,
@@ -90,7 +88,7 @@ impl Canvas {
             if self.touchpad_to_move {
                 if let Some((scroll_x, scroll_y)) = input.get_mouse_scroll() {
                     if self.lctrl_held {
-                        self.zoom(scroll_y, (self.cursor_x, self.cursor_y));
+                        self.zoom(scroll_y, self.cursor);
                     } else {
                         // Woo, inversion is different for the two. :P
                         self.cam_x += scroll_x * PAN_SPEED;
@@ -103,7 +101,7 @@ impl Canvas {
                 }
 
                 if let Some((_, scroll)) = input.get_mouse_scroll() {
-                    self.zoom(scroll, (self.cursor_x, self.cursor_y));
+                    self.zoom(scroll, self.cursor);
                 }
             }
 
@@ -121,10 +119,16 @@ impl Canvas {
                     self.cam_y += PAN_SPEED;
                 }
                 if input.key_pressed(Key::Q) {
-                    self.zoom(1.0, (self.window_width / 2.0, self.window_height / 2.0));
+                    self.zoom(
+                        1.0,
+                        ScreenPt::new(self.window_width / 2.0, self.window_height / 2.0),
+                    );
                 }
                 if input.key_pressed(Key::W) {
-                    self.zoom(-1.0, (self.window_width / 2.0, self.window_height / 2.0));
+                    self.zoom(
+                        -1.0,
+                        ScreenPt::new(self.window_width / 2.0, self.window_height / 2.0),
+                    );
                 }
             }
         }
@@ -171,7 +175,7 @@ impl Canvas {
         None
     }
 
-    fn zoom(&mut self, delta: f64, focus: (f64, f64)) {
+    fn zoom(&mut self, delta: f64, focus: ScreenPt) {
         let old_zoom = self.cam_zoom;
         // By popular request, some limits ;)
         self.cam_zoom = 1.1_f64
@@ -181,8 +185,8 @@ impl Canvas {
 
         // Make screen_to_map of the focus point still point to the same thing after
         // zooming.
-        self.cam_x = ((self.cam_zoom / old_zoom) * (focus.0 + self.cam_x)) - focus.0;
-        self.cam_y = ((self.cam_zoom / old_zoom) * (focus.1 + self.cam_y)) - focus.1;
+        self.cam_x = ((self.cam_zoom / old_zoom) * (focus.x + self.cam_x)) - focus.x;
+        self.cam_y = ((self.cam_zoom / old_zoom) * (focus.y + self.cam_y)) - focus.y;
     }
 
     pub(crate) fn start_drawing(&self) {
@@ -196,7 +200,7 @@ impl Canvas {
 
     // Might be hovering anywhere.
     pub fn get_cursor(&self) -> ScreenPt {
-        ScreenPt::new(self.cursor_x, self.cursor_y)
+        self.cursor
     }
 
     pub fn get_cursor_in_screen_space(&self) -> Option<ScreenPt> {

@@ -157,7 +157,7 @@ impl<'a> GfxCtx<'a> {
 
         // TODO Maybe also consider the cursor as a valid center
         let pt = dims.top_left_for_corner(
-            ScreenPt::new(self.canvas.cursor_x, self.canvas.cursor_y + 20.0),
+            ScreenPt::new(self.canvas.cursor.x, self.canvas.cursor.y + 20.0),
             &self.canvas,
         );
         let mut batch = GeomBatch::new();
