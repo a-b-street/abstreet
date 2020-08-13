@@ -421,9 +421,12 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
             Widget::nothing()
         },
     ];
-    Composite::new(Widget::row(row))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx)
+    Composite::new(Widget::col(vec![
+        Line("Traffic signal editor").small_heading().draw(ctx),
+        Widget::row(row),
+    ]))
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx)
 }
 
 fn edit_entire_signal(
