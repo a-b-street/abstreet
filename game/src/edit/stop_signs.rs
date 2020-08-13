@@ -13,6 +13,7 @@ use geom::Polygon;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
 };
+use maplit::btreeset;
 use std::collections::HashMap;
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
@@ -172,7 +173,7 @@ impl State for StopSignEditor {
                     return Transition::Replace(TrafficSignalEditor::new(
                         ctx,
                         app,
-                        self.id,
+                        btreeset! {self.id},
                         self.mode.clone(),
                     ));
                 }

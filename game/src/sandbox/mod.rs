@@ -25,6 +25,7 @@ use ezgui::{
 pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use geom::Time;
 use map_model::MapEdits;
+use maplit::btreeset;
 use sim::AgentType;
 pub use speed::TimeWarpScreen;
 pub use speed::{SpeedControls, TimePanel};
@@ -434,7 +435,7 @@ impl ContextualActions for Actions {
         match (id, action.as_ref()) {
             (ID::Intersection(i), "edit traffic signal") => Transition::PushTwice(
                 EditMode::new(ctx, app, self.gameplay.clone()),
-                TrafficSignalEditor::new(ctx, app, i, self.gameplay.clone()),
+                TrafficSignalEditor::new(ctx, app, btreeset! {i}, self.gameplay.clone()),
             ),
             (ID::Intersection(i), "edit stop sign") => Transition::PushTwice(
                 EditMode::new(ctx, app, self.gameplay.clone()),
