@@ -40,6 +40,7 @@ pub struct TrafficSignalEditor {
     redo_stack: Vec<BundleEdits>,
     // Before synchronizing the number of phases
     original: BundleEdits,
+    warn_changed: bool,
 
     fade_irrelevant: Drawable,
 }
@@ -82,7 +83,9 @@ impl TrafficSignalEditor {
         }
 
         let original = BundleEdits::get_current(app, &members);
-        BundleEdits::synchronize(app, &members).apply(app);
+        let synced = BundleEdits::synchronize(app, &members);
+        let warn_changed = original != synced;
+        synced.apply(app);
 
         let mut editor = TrafficSignalEditor {
             side_panel: make_side_panel(ctx, app, &members, 0),
@@ -95,6 +98,7 @@ impl TrafficSignalEditor {
             draw_current: ctx.upload(GeomBatch::new()),
             command_stack: Vec::new(),
             redo_stack: Vec::new(),
+            warn_changed,
             original,
             fade_irrelevant: GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx),
         };
@@ -172,6 +176,15 @@ impl TrafficSignalEditor {
 
 impl State for TrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if self.warn_changed {
+            self.warn_changed = false;
+            return Transition::Push(PopupMsg::new(
+                ctx,
+                "Note",
+                vec!["Some signals were modified to match the number and duration of phases"],
+            ));
+        }
+
         ctx.canvas_movement();
 
         let canonical_signal = app
