@@ -1,7 +1,8 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
+use crate::edit::apply_map_edits;
 use crate::edit::traffic_signals::{draw_selected_group, make_top_panel, PreviewTrafficSignal};
-use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
+use crate::game::{ChooseSomething, DrawBaselayer, PopupMsg, State, Transition};
 use crate::options::TrafficSignalStyle;
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup};
 use crate::sandbox::{spawn_agents_around, GameplayMode};
@@ -12,7 +13,8 @@ use ezgui::{
 };
 use geom::{Bounds, Distance, Duration, Polygon};
 use map_model::{
-    ControlTrafficSignal, IntersectionID, Phase, PhaseType, TurnGroupID, TurnPriority,
+    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase, PhaseType, TurnGroupID,
+    TurnPriority,
 };
 use std::collections::BTreeSet;
 
@@ -31,9 +33,10 @@ pub struct NewTrafficSignalEditor {
     group_selected: Option<(TurnGroupID, Option<TurnPriority>)>,
     draw_current: Drawable,
 
-    // The first is the original
     command_stack: Vec<BundleEdits>,
     redo_stack: Vec<BundleEdits>,
+    // Before synchronizing the number of phases
+    original: BundleEdits,
 
     fade_irrelevant: Drawable,
 }
@@ -75,6 +78,7 @@ impl NewTrafficSignalEditor {
             groups.extend(DrawTurnGroup::for_i(*i, &app.primary.map));
         }
 
+        let original = BundleEdits::get_current(app, &members);
         BundleEdits::synchronize(app, &members).apply(app);
 
         let mut editor = NewTrafficSignalEditor {
@@ -88,6 +92,7 @@ impl NewTrafficSignalEditor {
             draw_current: ctx.upload(GeomBatch::new()),
             command_stack: Vec::new(),
             redo_stack: Vec::new(),
+            original,
             fade_irrelevant: GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx),
         };
         editor.draw_current = editor.recalc_draw_current(ctx, app);
@@ -256,8 +261,45 @@ impl State for NewTrafficSignalEditor {
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Finish" => {
-                    // TODO check_for_missing_groups
-                    return Transition::Pop;
+                    if let Some(bundle) = check_for_missing_turns(app, &self.members) {
+                        bundle.apply(app);
+                        self.command_stack.push(bundle.clone());
+                        self.redo_stack.clear();
+
+                        self.current_phase = 0;
+                        self.top_panel = make_top_panel(ctx, app, true, false);
+                        self.change_phase(ctx, app, self.current_phase);
+                        self.side_panel =
+                            make_side_panel(ctx, app, &self.members, self.current_phase);
+
+                        return Transition::Push(PopupMsg::new(
+                            ctx,
+                            "Error: missing turns",
+                            vec![
+                                "Some turns are missing from this traffic signal",
+                                "They've all been added as a new first phase. Please update your \
+                                 changes to include them.",
+                            ],
+                        ));
+                    } else {
+                        let changes = BundleEdits::get_current(app, &self.members);
+                        self.original.apply(app);
+
+                        let mut edits = app.primary.map.get_edits().clone();
+                        // TODO Can we batch these commands somehow, so undo/redo in edit mode
+                        // behaves properly?
+                        for signal in changes.signals {
+                            edits.commands.push(EditCmd::ChangeIntersection {
+                                i: signal.id,
+                                old: app.primary.map.get_i_edit(signal.id),
+                                new: EditIntersection::TrafficSignal(
+                                    signal.export(&app.primary.map),
+                                ),
+                            });
+                        }
+                        apply_map_edits(ctx, app, edits);
+                        return Transition::Pop;
+                    }
                 }
                 "Export" => {
                     for signal in BundleEdits::get_current(app, &self.members).signals {
@@ -428,11 +470,36 @@ fn make_side_panel(
     selected: usize,
 ) -> Composite {
     let map = &app.primary.map;
-
-    let mut col = Vec::new();
-
     // Use any member for phase duration
     let canonical_signal = map.get_traffic_signal(*members.iter().next().unwrap());
+
+    let mut txt = Text::new();
+    if members.len() == 1 {
+        let i = *members.iter().next().unwrap();
+        txt.add(Line(i.to_string()).big_heading_plain());
+
+        let mut road_names = BTreeSet::new();
+        for r in &app.primary.map.get_i(i).roads {
+            road_names.insert(app.primary.map.get_r(*r).get_name());
+        }
+        for r in road_names {
+            txt.add(Line(format!("- {}", r)));
+        }
+    } else {
+        txt.add(Line(format!("{} intersections", members.len())).big_heading_plain());
+    }
+    {
+        let mut total = Duration::ZERO;
+        for p in &canonical_signal.phases {
+            total += p.phase_type.simple_duration();
+        }
+        // TODO Say "normally" to account for adaptive phases?
+        txt.add(Line(""));
+        txt.add(Line(format!("One full cycle lasts {}", total)));
+    }
+
+    let mut col = vec![txt.draw(ctx)];
+
     for (idx, canonical_phase) in canonical_signal.phases.iter().enumerate() {
         col.push(Widget::horiz_separator(ctx, 0.2));
 
@@ -739,4 +806,34 @@ fn make_previewer(
             Transition::Replace(Box::new(PreviewTrafficSignal::new(ctx, app)))
         }),
     )
+}
+
+// If None, nothing missing.
+fn check_for_missing_turns(app: &App, members: &BTreeSet<IntersectionID>) -> Option<BundleEdits> {
+    let mut all_missing = BTreeSet::new();
+    for i in members {
+        all_missing.extend(app.primary.map.get_traffic_signal(*i).missing_turns());
+    }
+    if all_missing.is_empty() {
+        return None;
+    }
+
+    let mut bundle = BundleEdits::get_current(app, members);
+    // Stick all the missing turns in a new phase at the beginning.
+    for signal in &mut bundle.signals {
+        let mut phase = Phase::new();
+        // TODO Could do this more efficiently
+        for g in &all_missing {
+            if g.parent != signal.id {
+                continue;
+            }
+            if g.crosswalk {
+                phase.protected_groups.insert(*g);
+            } else {
+                phase.yield_groups.insert(*g);
+            }
+        }
+        signal.phases.insert(0, phase);
+    }
+    Some(bundle)
 }

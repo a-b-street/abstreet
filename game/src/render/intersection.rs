@@ -33,6 +33,7 @@ impl DrawIntersection {
 
     pub fn clear_rendering(&mut self) {
         *self.draw_default.borrow_mut() = None;
+        *self.draw_traffic_signal.borrow_mut() = None;
     }
 
     fn render(&self, g: &mut GfxCtx, app: &App) -> Drawable {

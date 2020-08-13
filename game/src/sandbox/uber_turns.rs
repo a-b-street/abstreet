@@ -110,13 +110,6 @@ impl State for UberTurnPicker {
                     ));
                 }
                 "Edit (new attempt)" => {
-                    if self.members.len() < 2 {
-                        return Transition::Push(PopupMsg::new(
-                            ctx,
-                            "Error",
-                            vec!["Select at least two intersections"],
-                        ));
-                    }
                     return Transition::ReplaceThenPush(
                         EditMode::new(ctx, app, self.gameplay.clone()),
                         NewTrafficSignalEditor::new(

@@ -170,6 +170,19 @@ impl ControlTrafficSignal {
             panic!("{} doesn't belong to any turn groups", turn)
         }
     }
+
+    pub fn missing_turns(&self) -> BTreeSet<TurnGroupID> {
+        let mut missing: BTreeSet<TurnGroupID> = self.turn_groups.keys().cloned().collect();
+        for phase in &self.phases {
+            for g in &phase.protected_groups {
+                missing.remove(g);
+            }
+            for g in &phase.yield_groups {
+                missing.remove(g);
+            }
+        }
+        missing
+    }
 }
 
 impl Phase {
