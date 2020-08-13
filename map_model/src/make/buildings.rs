@@ -1,5 +1,5 @@
 use crate::make::match_points_to_lanes;
-use crate::raw::{OriginalBuilding, RawBuilding};
+use crate::raw::RawBuilding;
 use crate::{osm, Building, BuildingID, BuildingType, LaneID, Map, OffstreetParking};
 use abstutil::{Tags, Timer};
 use geom::{Distance, HashablePt2D, Line, Polygon};
@@ -8,12 +8,12 @@ use rand_xorshift::XorShiftRng;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 pub fn make_all_buildings(
-    input: &BTreeMap<OriginalBuilding, RawBuilding>,
+    input: &BTreeMap<osm::OsmID, RawBuilding>,
     map: &Map,
     timer: &mut Timer,
 ) -> Vec<Building> {
     timer.start("convert buildings");
-    let mut center_per_bldg: BTreeMap<OriginalBuilding, HashablePt2D> = BTreeMap::new();
+    let mut center_per_bldg: BTreeMap<osm::OsmID, HashablePt2D> = BTreeMap::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
     timer.start_iter("get building center points", input.len());
     for (id, b) in input {
@@ -55,7 +55,7 @@ pub fn make_all_buildings(
             };
 
             let id = BuildingID(results.len());
-            let mut rng = XorShiftRng::seed_from_u64(orig_id.osm_id.inner() as u64);
+            let mut rng = XorShiftRng::seed_from_u64(orig_id.inner() as u64);
             results.push(Building {
                 id,
                 polygon: b.polygon.clone(),

@@ -1,4 +1,4 @@
-use crate::raw::{DrivingSide, OriginalBuilding, OriginalIntersection, OriginalRoad, RawMap};
+use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
     osm, Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID,
@@ -566,7 +566,7 @@ impl Map {
         Err(format!("Can't find {}", id))
     }
 
-    pub fn find_b_by_osm_id(&self, id: OriginalBuilding) -> Option<BuildingID> {
+    pub fn find_b_by_osm_id(&self, id: osm::OsmID) -> Option<BuildingID> {
         for b in self.all_buildings() {
             if b.orig_id == id {
                 return Some(b.id);

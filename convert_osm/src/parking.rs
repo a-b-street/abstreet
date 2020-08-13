@@ -3,7 +3,7 @@ use abstutil::Timer;
 use geom::{Distance, FindClosest, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::osm;
-use map_model::raw::{OriginalBuilding, OriginalRoad, RawMap};
+use map_model::raw::{OriginalRoad, RawMap};
 
 // Just used for matching hints to different sides of a road.
 const DIRECTED_ROAD_THICKNESS: Distance = Distance::const_meters(2.5);
@@ -146,7 +146,7 @@ fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
     timer.start("match offstreet parking points");
     let shapes: ExtraShapes = abstutil::read_binary(path, timer);
 
-    let mut closest: FindClosest<OriginalBuilding> = FindClosest::new(&map.gps_bounds.to_bounds());
+    let mut closest: FindClosest<osm::OsmID> = FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {
         closest.add(*id, b.polygon.points());
     }

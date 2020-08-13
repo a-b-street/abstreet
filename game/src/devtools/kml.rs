@@ -56,7 +56,7 @@ impl ViewKML {
                 .map
                 .all_buildings()
                 .iter()
-                .map(|b| (b.orig_id.osm_id.inner().to_string(), b.id))
+                .map(|b| (b.orig_id.inner().to_string(), b.id))
                 .collect();
             let cs = &app.cs;
             let objects: Vec<Object> = timer

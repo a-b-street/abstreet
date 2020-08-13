@@ -25,7 +25,7 @@ pub struct RawMap {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    pub buildings: BTreeMap<OriginalBuilding, RawBuilding>,
+    pub buildings: BTreeMap<osm::OsmID, RawBuilding>,
     pub bus_routes: Vec<RawBusRoute>,
     pub areas: Vec<RawArea>,
     pub parking_lots: Vec<RawParkingLot>,
@@ -55,12 +55,6 @@ pub struct OriginalIntersection {
     pub osm_node_id: osm::NodeID,
 }
 
-// A way to refer to buildings across many maps.
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct OriginalBuilding {
-    pub osm_id: osm::OsmID,
-}
-
 impl fmt::Display for OriginalRoad {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -82,17 +76,6 @@ impl fmt::Display for OriginalIntersection {
     }
 }
 impl fmt::Debug for OriginalIntersection {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self)
-    }
-}
-
-impl fmt::Display for OriginalBuilding {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "OriginalBuilding({}", self.osm_id)
-    }
-}
-impl fmt::Debug for OriginalBuilding {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)
     }

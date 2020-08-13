@@ -7,7 +7,8 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, ScreenPt, Text, VerticalAlignment, Widget, GUI,
 };
 use geom::{Distance, Line, Polygon};
-use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad};
+use map_model::osm;
+use map_model::raw::{OriginalIntersection, OriginalRoad};
 use model::{Model, ID};
 
 struct UI {
@@ -23,7 +24,7 @@ struct UI {
 enum State {
     Viewing,
     MovingIntersection(OriginalIntersection),
-    MovingBuilding(OriginalBuilding),
+    MovingBuilding(osm::OsmID),
     MovingRoadPoint(OriginalRoad, usize),
     CreatingRoad(OriginalIntersection),
     // bool is show_tooltip

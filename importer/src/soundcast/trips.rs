@@ -147,14 +147,14 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
     } else {
         let mut huge_osm_id_to_bldg = HashMap::new();
         for b in huge_map.all_buildings() {
-            huge_osm_id_to_bldg.insert(b.orig_id.osm_id, b.id);
+            huge_osm_id_to_bldg.insert(b.orig_id, b.id);
         }
         Some((huge_map, huge_osm_id_to_bldg))
     };
 
     let mut osm_id_to_bldg = HashMap::new();
     for b in map.all_buildings() {
-        osm_id_to_bldg.insert(b.orig_id.osm_id, b.id);
+        osm_id_to_bldg.insert(b.orig_id, b.id);
     }
     let bounds = map.get_gps_bounds();
     let incoming_borders_walking: Vec<(IntersectionID, LonLat)> = map

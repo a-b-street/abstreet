@@ -1,5 +1,4 @@
-use crate::raw::OriginalBuilding;
-use crate::{LaneID, Map, PathConstraints, Position};
+use crate::{osm, LaneID, Map, PathConstraints, Position};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
@@ -27,7 +26,7 @@ pub struct Building {
     pub polygon: Polygon,
     pub address: String,
     pub name: Option<String>,
-    pub orig_id: OriginalBuilding,
+    pub orig_id: osm::OsmID,
     // Where a text label should be centered to have the best chances of being contained within the
     // polygon.
     pub label_center: Pt2D,

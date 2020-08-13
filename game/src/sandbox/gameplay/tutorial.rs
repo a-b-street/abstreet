@@ -15,7 +15,7 @@ use ezgui::{
     Line, Outcome, RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
-use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad};
+use map_model::raw::{OriginalIntersection, OriginalRoad};
 use map_model::{osm, BuildingID, Map, OriginalLane, Position};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
@@ -1450,8 +1450,6 @@ fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
 }
 
 // Assumes ways
-fn bldg(id: i64) -> OriginalBuilding {
-    OriginalBuilding {
-        osm_id: osm::OsmID::Way(osm::WayID(id)),
-    }
+fn bldg(id: i64) -> osm::OsmID {
+    osm::OsmID::Way(osm::WayID(id))
 }

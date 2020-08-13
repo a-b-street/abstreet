@@ -3,8 +3,7 @@ use abstutil::{Tags, Timer};
 use ezgui::{Color, EventCtx, Line, Text};
 use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw::{
-    OriginalBuilding, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap,
-    RawRoad,
+    OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad,
 };
 use map_model::{osm, IntersectionType};
 use std::collections::{BTreeMap, BTreeSet};
@@ -439,7 +438,7 @@ impl Model {
 
 // Buildings
 impl Model {
-    fn bldg_added(&mut self, id: OriginalBuilding, ctx: &EventCtx) {
+    fn bldg_added(&mut self, id: osm::OsmID, ctx: &EventCtx) {
         let b = &self.map.buildings[&id];
         self.world.add(
             ctx,
@@ -448,9 +447,7 @@ impl Model {
     }
 
     pub fn create_b(&mut self, center: Pt2D, ctx: &EventCtx) -> ID {
-        let id = OriginalBuilding {
-            osm_id: osm::OsmID::Way(self.map.new_osm_way_id(time_to_id())),
-        };
+        let id = osm::OsmID::Way(self.map.new_osm_way_id(time_to_id()));
         self.map.buildings.insert(
             id,
             RawBuilding {
@@ -465,7 +462,7 @@ impl Model {
         ID::Building(id)
     }
 
-    pub fn move_b(&mut self, id: OriginalBuilding, new_center: Pt2D, ctx: &EventCtx) {
+    pub fn move_b(&mut self, id: osm::OsmID, new_center: Pt2D, ctx: &EventCtx) {
         self.world.delete(ID::Building(id));
 
         let b = self.map.buildings.get_mut(&id).unwrap();
@@ -478,7 +475,7 @@ impl Model {
         self.bldg_added(id, ctx);
     }
 
-    pub fn delete_b(&mut self, id: OriginalBuilding) {
+    pub fn delete_b(&mut self, id: osm::OsmID) {
         self.world.delete(ID::Building(id));
         self.map.buildings.remove(&id).unwrap();
     }
@@ -486,7 +483,7 @@ impl Model {
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum ID {
-    Building(OriginalBuilding),
+    Building(osm::OsmID),
     Intersection(OriginalIntersection),
     Road(OriginalRoad),
     RoadPoint(OriginalRoad, usize),

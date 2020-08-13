@@ -8,8 +8,8 @@ mod transit;
 
 use abstutil::Timer;
 use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
-use map_model::raw::{OriginalBuilding, RawMap};
-use map_model::MapConfig;
+use map_model::raw::RawMap;
+use map_model::{osm, MapConfig};
 
 pub struct Options {
     pub osm_input: String,
@@ -107,7 +107,7 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
 }
 
 fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, String, String)>, timer: &mut Timer) {
-    let mut closest: FindClosest<OriginalBuilding> = FindClosest::new(&map.gps_bounds.to_bounds());
+    let mut closest: FindClosest<osm::OsmID> = FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {
         closest.add(*id, b.polygon.points());
     }

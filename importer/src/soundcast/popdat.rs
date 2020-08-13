@@ -118,7 +118,7 @@ fn import_parcels(
     // line-string stuff right now, which'll be weird for the last->first pt line and stuff.
     let mut closest_bldg: FindClosest<osm::OsmID> = FindClosest::new(huge_map.get_bounds());
     for b in huge_map.all_buildings() {
-        closest_bldg.add(b.orig_id.osm_id, b.polygon.points());
+        closest_bldg.add(b.orig_id, b.polygon.points());
     }
 
     let mut x_coords: Vec<f64> = Vec::new();

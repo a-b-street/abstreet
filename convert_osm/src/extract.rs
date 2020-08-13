@@ -5,8 +5,7 @@ use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, PolyLine, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{
-    OriginalBuilding, OriginalIntersection, RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad,
-    RestrictionType,
+    OriginalIntersection, RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType,
 };
 use map_model::{osm, AreaType};
 use osm::{NodeID, OsmID, RelationID, WayID};
@@ -138,9 +137,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
         if is_bldg(&way.tags) {
             map.buildings.insert(
-                OriginalBuilding {
-                    osm_id: OsmID::Way(id),
-                },
+                OsmID::Way(id),
                 RawBuilding {
                     polygon,
                     public_garage_name: None,
@@ -259,9 +256,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
             match multipoly_geometry(id, rel, &doc) {
                 Ok(polygon) => {
                     map.buildings.insert(
-                        OriginalBuilding {
-                            osm_id: OsmID::Relation(id),
-                        },
+                        OsmID::Relation(id),
                         RawBuilding {
                             polygon,
                             public_garage_name: None,
