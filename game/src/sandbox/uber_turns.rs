@@ -1,10 +1,9 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::edit::{ClusterTrafficSignalEditor, EditMode, TrafficSignalEditor};
+use crate::edit::ClusterTrafficSignalEditor;
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
-use crate::sandbox::gameplay::GameplayMode;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
@@ -17,17 +16,10 @@ use std::collections::BTreeSet;
 pub struct UberTurnPicker {
     members: BTreeSet<IntersectionID>,
     composite: Composite,
-    // TODO Plumbing this everywhere is annoying, is it time for it to live in App?
-    gameplay: GameplayMode,
 }
 
 impl UberTurnPicker {
-    pub fn new(
-        ctx: &mut EventCtx,
-        app: &App,
-        i: IntersectionID,
-        gameplay: GameplayMode,
-    ) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State> {
         let mut members = BTreeSet::new();
         if let Some(list) = IntersectionCluster::autodetect(i, &app.primary.map) {
             members.extend(list);
@@ -47,13 +39,11 @@ impl UberTurnPicker {
                         .align_right(),
                 ]),
                 Btn::text_fg("View uber-turns").build_def(ctx, hotkey(Key::Enter)),
-                Btn::text_fg("Edit (old attempt)").build_def(ctx, None),
-                Btn::text_fg("Edit (new attempt)").build_def(ctx, hotkey(Key::E)),
+                Btn::text_fg("Edit").build_def(ctx, hotkey(Key::E)),
                 Btn::text_fg("Detect all clusters").build_def(ctx, hotkey(Key::D)),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-            gameplay,
         })
     }
 }
@@ -95,7 +85,7 @@ impl State for UberTurnPicker {
                         true,
                     ));
                 }
-                "Edit (old attempt)" => {
+                "Edit" => {
                     if self.members.len() < 2 {
                         return Transition::Push(PopupMsg::new(
                             ctx,
@@ -108,17 +98,6 @@ impl State for UberTurnPicker {
                         app,
                         &IntersectionCluster::new(self.members.clone(), &app.primary.map).0,
                     ));
-                }
-                "Edit (new attempt)" => {
-                    return Transition::ReplaceThenPush(
-                        EditMode::new(ctx, app, self.gameplay.clone()),
-                        TrafficSignalEditor::new(
-                            ctx,
-                            app,
-                            self.members.clone(),
-                            self.gameplay.clone(),
-                        ),
-                    );
                 }
                 "Detect all clusters" => {
                     self.members.clear();

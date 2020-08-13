@@ -441,9 +441,9 @@ impl ContextualActions for Actions {
                 EditMode::new(ctx, app, self.gameplay.clone()),
                 Box::new(StopSignEditor::new(ctx, app, i, self.gameplay.clone())),
             ),
-            (ID::Intersection(i), "explore uber-turns") => Transition::Push(
-                uber_turns::UberTurnPicker::new(ctx, app, i, self.gameplay.clone()),
-            ),
+            (ID::Intersection(i), "explore uber-turns") => {
+                Transition::Push(uber_turns::UberTurnPicker::new(ctx, app, i))
+            }
             (ID::Lane(l), "explore turns from this lane") => {
                 Transition::Push(TurnExplorer::new(ctx, app, l))
             }
