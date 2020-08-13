@@ -5,8 +5,8 @@ use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::GameplayMode;
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, VerticalAlignment, Widget,
+    hotkey, hotkeys, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, VerticalAlignment, Widget,
 };
 use map_model::IntersectionID;
 use std::collections::BTreeSet;
@@ -34,7 +34,8 @@ impl SignalPicker {
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
-                Btn::text_fg("Edit").build_def(ctx, hotkey(Key::E)),
+                // TODO Change label based on number of intersections and disable when 0
+                Btn::text_bg2("Continue").build_def(ctx, hotkeys(vec![Key::Enter, Key::E])),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
@@ -72,7 +73,7 @@ impl State for SignalPicker {
                 "close" => {
                     return Transition::Pop;
                 }
-                "Edit" => {
+                "Continue" => {
                     if self.members.is_empty() {
                         return Transition::Push(PopupMsg::new(
                             ctx,
