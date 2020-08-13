@@ -3,7 +3,7 @@ use abstutil::Timer;
 use geom::{HashablePt2D, Polygon, Pt2D};
 use map_model::osm;
 use map_model::osm::{NodeID, OsmID, RelationID, WayID};
-use map_model::raw::{OriginalIntersection, OriginalRoad, RawBusRoute, RawBusStop, RawMap};
+use map_model::raw::{OriginalRoad, RawBusRoute, RawBusStop, RawMap};
 use std::collections::HashMap;
 
 pub fn extract_route(
@@ -48,7 +48,7 @@ pub fn extract_route(
                         .get("name")
                         .cloned()
                         .unwrap_or_else(|| format!("stop #{}", stops.len() + 1)),
-                    vehicle_pos: (OriginalIntersection { osm_node_id: *n }, node.pt),
+                    vehicle_pos: (*n, node.pt),
                     matched_road: None,
                     ped_pos: None,
                 });
@@ -88,15 +88,10 @@ pub fn extract_route(
         }
     }
 
-    let all_pts: Vec<(OriginalIntersection, Pt2D)> = match glue_route(all_ways, doc) {
+    let all_pts: Vec<(NodeID, Pt2D)> = match glue_route(all_ways, doc) {
         Ok(nodes) => nodes
             .into_iter()
-            .map(|osm_node_id| {
-                (
-                    OriginalIntersection { osm_node_id },
-                    doc.nodes[&osm_node_id].pt,
-                )
-            })
+            .map(|osm_node_id| (osm_node_id, doc.nodes[&osm_node_id].pt))
             .collect(),
         Err(err) => {
             timer.error(format!(
@@ -234,16 +229,13 @@ pub fn snap_bus_stops(
             } else {
                 return Err(format!(
                     "stop {} right at an intersection near the beginning of the route",
-                    stop.vehicle_pos.0.osm_node_id
+                    stop.vehicle_pos.0
                 ));
             }
         } else {
             *pt_to_road
                 .get(&stop.vehicle_pos.1.to_hashable())
-                .ok_or(format!(
-                    "{} isn't on a road",
-                    stop.vehicle_pos.0.osm_node_id
-                ))?
+                .ok_or(format!("{} isn't on a road", stop.vehicle_pos.0))?
         };
 
         // Scan backwards and forwards in the route for the nearest intersections.
@@ -276,7 +268,7 @@ pub fn snap_bus_stops(
         } else {
             return Err(format!(
                 "Can't figure out where {} is along route. At {}, between {:?} and {:?}. {} of {}",
-                stop.vehicle_pos.0.osm_node_id,
+                stop.vehicle_pos.0,
                 road,
                 i1,
                 i2,
@@ -287,10 +279,7 @@ pub fn snap_bus_stops(
 
         stop.matched_road = Some((road, fwds));
         if false {
-            println!(
-                "{} matched to {}, fwds={}",
-                stop.vehicle_pos.0.osm_node_id, road, fwds
-            );
+            println!("{} matched to {}, fwds={}", stop.vehicle_pos.0, road, fwds);
         }
 
         // If this road is missing a sidewalk (likely because it's a motorway), add one.
@@ -310,7 +299,7 @@ pub fn snap_bus_stops(
             }
             timer.note(format!(
                 "Inferring a sidewalk on {} for bus stop {}",
-                road, stop.vehicle_pos.0.osm_node_id
+                road, stop.vehicle_pos.0
             ));
         }
     }

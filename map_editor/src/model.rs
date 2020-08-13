@@ -2,9 +2,7 @@ use crate::world::{Object, ObjectID, World};
 use abstutil::{Tags, Timer};
 use ezgui::{Color, EventCtx, Line, Text};
 use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
-use map_model::raw::{
-    OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad,
-};
+use map_model::raw::{OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad};
 use map_model::{osm, IntersectionType};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -193,7 +191,7 @@ impl Model {
 
 // Intersections
 impl Model {
-    fn intersection_added(&mut self, id: OriginalIntersection, ctx: &EventCtx) {
+    fn intersection_added(&mut self, id: osm::NodeID, ctx: &EventCtx) {
         let i = &self.map.intersections[&id];
         let color = match i.intersection_type {
             IntersectionType::TrafficSignal => Color::GREEN,
@@ -214,9 +212,7 @@ impl Model {
     }
 
     pub fn create_i(&mut self, point: Pt2D, ctx: &EventCtx) {
-        let id = OriginalIntersection {
-            osm_node_id: self.map.new_osm_node_id(time_to_id()),
-        };
+        let id = self.map.new_osm_node_id(time_to_id());
         self.map.intersections.insert(
             id,
             RawIntersection {
@@ -230,7 +226,7 @@ impl Model {
         self.intersection_added(id, ctx);
     }
 
-    pub fn move_i(&mut self, id: OriginalIntersection, point: Pt2D, ctx: &EventCtx) {
+    pub fn move_i(&mut self, id: osm::NodeID, point: Pt2D, ctx: &EventCtx) {
         self.world.delete(ID::Intersection(id));
         for r in self.map.move_intersection(id, point).unwrap() {
             self.road_deleted(r);
@@ -239,7 +235,7 @@ impl Model {
         self.intersection_added(id, ctx);
     }
 
-    pub fn delete_i(&mut self, id: OriginalIntersection) {
+    pub fn delete_i(&mut self, id: osm::NodeID) {
         if !self.map.can_delete_intersection(id) {
             println!("Can't delete intersection used by roads");
             return;
@@ -259,7 +255,7 @@ impl Model {
         self.world.delete(ID::Road(id));
     }
 
-    pub fn create_r(&mut self, i1: OriginalIntersection, i2: OriginalIntersection, ctx: &EventCtx) {
+    pub fn create_r(&mut self, i1: osm::NodeID, i2: osm::NodeID, ctx: &EventCtx) {
         // Ban cul-de-sacs, since they get stripped out later anyway.
         if self
             .map
@@ -484,7 +480,7 @@ impl Model {
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum ID {
     Building(osm::OsmID),
-    Intersection(OriginalIntersection),
+    Intersection(osm::NodeID),
     Road(OriginalRoad),
     RoadPoint(OriginalRoad, usize),
 }

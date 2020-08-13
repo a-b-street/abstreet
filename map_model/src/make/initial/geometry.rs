@@ -1,6 +1,6 @@
 use crate::make::initial::{Intersection, Road};
 use crate::osm;
-use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad};
+use crate::raw::{DrivingSide, OriginalRoad};
 use abstutil::{wraparound_get, Timer};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
 use std::collections::BTreeMap;
@@ -66,7 +66,7 @@ pub fn intersection_polygon(
 fn generalized_trim_back(
     driving_side: DrivingSide,
     roads: &mut BTreeMap<OriginalRoad, Road>,
-    i: OriginalIntersection,
+    i: osm::NodeID,
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
     timer: &mut Timer,
 ) -> Result<(Polygon, Vec<(String, Polygon)>), String> {
@@ -286,7 +286,7 @@ fn generalized_trim_back(
 fn deadend(
     driving_side: DrivingSide,
     roads: &mut BTreeMap<OriginalRoad, Road>,
-    i: OriginalIntersection,
+    i: osm::NodeID,
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
 ) -> Result<(Polygon, Vec<(String, Polygon)>), String> {
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
@@ -374,7 +374,7 @@ struct Piece {
 fn on_off_ramp(
     driving_side: DrivingSide,
     roads: &mut BTreeMap<OriginalRoad, Road>,
-    i: OriginalIntersection,
+    i: osm::NodeID,
     lines: Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
 ) -> Option<(Polygon, Vec<(String, Polygon)>)> {
     if lines.len() != 3 {

@@ -1,4 +1,4 @@
-use crate::raw::{OriginalIntersection, OriginalRoad};
+use crate::raw::OriginalRoad;
 use crate::{
     connectivity, osm, BusRouteID, ControlStopSign, ControlTrafficSignal, IntersectionID,
     IntersectionType, LaneID, LaneType, Map, PathConstraints, RoadID, TurnID, Zone,
@@ -292,7 +292,7 @@ enum PermanentEditCmd {
     ReverseLane {
         l: OriginalLane,
         // New intended dst_i
-        dst_i: OriginalIntersection,
+        dst_i: osm::NodeID,
     },
     ChangeSpeedLimit {
         id: OriginalRoad,
@@ -300,7 +300,7 @@ enum PermanentEditCmd {
         old: Speed,
     },
     ChangeIntersection {
-        i: OriginalIntersection,
+        i: osm::NodeID,
         new: PermanentEditIntersection,
         old: PermanentEditIntersection,
     },

@@ -1,7 +1,7 @@
 use abstutil::{retain_btreemap, Timer};
 use geom::{Distance, PolyLine, Ring};
-use map_model::raw::{OriginalIntersection, OriginalRoad, RawMap};
-use map_model::IntersectionType;
+use map_model::raw::{OriginalRoad, RawMap};
+use map_model::{osm, IntersectionType};
 use std::collections::BTreeMap;
 
 // TODO This needs to update turn restrictions too
@@ -30,7 +30,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
 
     // When we split an intersection out of bounds into two, one of them gets a new ID. Remember
     // that here.
-    let mut extra_borders: BTreeMap<OriginalIntersection, OriginalIntersection> = BTreeMap::new();
+    let mut extra_borders: BTreeMap<osm::NodeID, osm::NodeID> = BTreeMap::new();
 
     // First pass: Clip roads beginning out of bounds
     let road_ids: Vec<OriginalRoad> = map.roads.keys().cloned().collect();
@@ -56,9 +56,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         {
             let copy = map.intersections[&move_i].clone();
             // Don't conflict with OSM IDs
-            move_i = OriginalIntersection {
-                osm_node_id: map.new_osm_node_id(-1),
-            };
+            move_i = map.new_osm_node_id(-1);
             extra_borders.insert(orig_id, move_i);
             map.intersections.insert(move_i, copy);
             println!("Disconnecting {} from some other stuff (starting OOB)", id);
@@ -113,9 +111,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
             > 1
         {
             let copy = map.intersections[&move_i].clone();
-            move_i = OriginalIntersection {
-                osm_node_id: map.new_osm_node_id(-1),
-            };
+            move_i = map.new_osm_node_id(-1);
             extra_borders.insert(orig_id, move_i);
             map.intersections.insert(move_i, copy);
             println!("Disconnecting {} from some other stuff (ending OOB)", id);
@@ -176,7 +172,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
             continue;
         }
 
-        let mut borders: Vec<OriginalIntersection> = Vec::new();
+        let mut borders: Vec<osm::NodeID> = Vec::new();
         for (node, _) in &r.all_pts {
             if let Some(i) = map.intersections.get(node) {
                 if i.intersection_type == IntersectionType::Border {
@@ -191,8 +187,8 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         // Guess which border is for the beginning and end of the route.
         let start_i = map.closest_intersection(r.stops[0].vehicle_pos.1);
         let end_i = map.closest_intersection(r.stops.last().unwrap().vehicle_pos.1);
-        let mut best_start: Option<(OriginalIntersection, Distance)> = None;
-        let mut best_end: Option<(OriginalIntersection, Distance)> = None;
+        let mut best_start: Option<(osm::NodeID, Distance)> = None;
+        let mut best_end: Option<(osm::NodeID, Distance)> = None;
         for i in borders {
             // closest_intersection might snap to the wrong end, so try both directions
             if let Some(d1) = map

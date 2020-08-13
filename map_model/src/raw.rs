@@ -20,7 +20,7 @@ pub struct RawMap {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    pub intersections: BTreeMap<OriginalIntersection, RawIntersection>,
+    pub intersections: BTreeMap<osm::NodeID, RawIntersection>,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -45,14 +45,8 @@ pub struct RawMap {
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OriginalRoad {
     pub osm_way_id: osm::WayID,
-    pub i1: OriginalIntersection,
-    pub i2: OriginalIntersection,
-}
-
-// A way to refer to intersections across many maps.
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct OriginalIntersection {
-    pub osm_node_id: osm::NodeID,
+    pub i1: osm::NodeID,
+    pub i2: osm::NodeID,
 }
 
 impl fmt::Display for OriginalRoad {
@@ -60,7 +54,7 @@ impl fmt::Display for OriginalRoad {
         write!(
             f,
             "OriginalRoad({} from {} to {}",
-            self.osm_way_id, self.i1.osm_node_id, self.i2.osm_node_id
+            self.osm_way_id, self.i1, self.i2
         )
     }
 }
@@ -70,30 +64,12 @@ impl fmt::Debug for OriginalRoad {
     }
 }
 
-impl fmt::Display for OriginalIntersection {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "OriginalIntersection({})", self.osm_node_id)
-    }
-}
-impl fmt::Debug for OriginalIntersection {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self)
-    }
-}
-
-impl OriginalIntersection {
-    pub fn new(id: i64) -> OriginalIntersection {
-        OriginalIntersection {
-            osm_node_id: osm::NodeID(id),
-        }
-    }
-}
 impl OriginalRoad {
     pub fn new(way: i64, (i1, i2): (i64, i64)) -> OriginalRoad {
         OriginalRoad {
             osm_way_id: osm::WayID(way),
-            i1: OriginalIntersection::new(i1),
-            i2: OriginalIntersection::new(i2),
+            i1: osm::NodeID(i1),
+            i2: osm::NodeID(i2),
         }
     }
 }
@@ -121,7 +97,7 @@ impl RawMap {
     }
 
     // TODO Might be better to maintain this instead of doing a search everytime.
-    pub fn roads_per_intersection(&self, i: OriginalIntersection) -> Vec<OriginalRoad> {
+    pub fn roads_per_intersection(&self, i: osm::NodeID) -> Vec<OriginalRoad> {
         let mut results = Vec::new();
         for id in self.roads.keys() {
             if id.i1 == i || id.i2 == i {
@@ -136,11 +112,7 @@ impl RawMap {
         // Slow, but deterministic.
         let mut osm_node_id = start;
         loop {
-            if self
-                .intersections
-                .keys()
-                .any(|i| i.osm_node_id.0 == osm_node_id)
-            {
+            if self.intersections.keys().any(|i| i.0 == osm_node_id) {
                 osm_node_id -= 1;
             } else {
                 return osm::NodeID(osm_node_id);
@@ -167,7 +139,7 @@ impl RawMap {
     // (Intersection polygon, polygons for roads, list of labeled polylines to debug)
     pub fn preview_intersection(
         &self,
-        id: OriginalIntersection,
+        id: osm::NodeID,
         timer: &mut Timer,
     ) -> (Polygon, Vec<Polygon>, Vec<(String, Polygon)>) {
         use crate::make::initial;
@@ -202,11 +174,11 @@ impl RawMap {
 
 // Mutations and supporting queries
 impl RawMap {
-    pub fn can_delete_intersection(&self, i: OriginalIntersection) -> bool {
+    pub fn can_delete_intersection(&self, i: osm::NodeID) -> bool {
         self.roads_per_intersection(i).is_empty()
     }
 
-    pub fn delete_intersection(&mut self, id: OriginalIntersection) {
+    pub fn delete_intersection(&mut self, id: osm::NodeID) {
         if !self.can_delete_intersection(id) {
             panic!(
                 "Can't delete_intersection {}, must have roads connected",
@@ -216,11 +188,7 @@ impl RawMap {
         self.intersections.remove(&id).unwrap();
     }
 
-    pub fn move_intersection(
-        &mut self,
-        id: OriginalIntersection,
-        point: Pt2D,
-    ) -> Option<Vec<OriginalRoad>> {
+    pub fn move_intersection(&mut self, id: osm::NodeID, point: Pt2D) -> Option<Vec<OriginalRoad>> {
         self.intersections.get_mut(&id).unwrap().point = point;
 
         // Update all the roads.
@@ -239,7 +207,7 @@ impl RawMap {
         Some(fixed)
     }
 
-    pub fn closest_intersection(&self, pt: Pt2D) -> OriginalIntersection {
+    pub fn closest_intersection(&self, pt: Pt2D) -> osm::NodeID {
         self.intersections
             .iter()
             .min_by_key(|(_, i)| i.point.dist_to(pt))
@@ -247,11 +215,7 @@ impl RawMap {
             .unwrap()
     }
 
-    pub fn path_dist_to(
-        &self,
-        from: OriginalIntersection,
-        to: OriginalIntersection,
-    ) -> Option<Distance> {
+    pub fn path_dist_to(&self, from: osm::NodeID, to: osm::NodeID) -> Option<Distance> {
         let mut graph = DiGraphMap::new();
         for (id, r) in &self.roads {
             graph.add_edge(id.i1, id.i2, id);
@@ -447,18 +411,17 @@ pub struct RawBusRoute {
     // If not, light rail
     pub is_bus: bool,
     pub stops: Vec<RawBusStop>,
-    pub border_start: Option<OriginalIntersection>,
-    pub border_end: Option<OriginalIntersection>,
-    // This is guaranteed to be in order and contiguous. These're ALL nodes, not just
-    // intersections.
-    pub all_pts: Vec<(OriginalIntersection, Pt2D)>,
+    pub border_start: Option<osm::NodeID>,
+    pub border_end: Option<osm::NodeID>,
+    // This is guaranteed to be in order and contiguous.
+    pub all_pts: Vec<(osm::NodeID, Pt2D)>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawBusStop {
     pub name: String,
     // Probably not an intersection, but this type is more convenient.
-    pub vehicle_pos: (OriginalIntersection, Pt2D),
+    pub vehicle_pos: (osm::NodeID, Pt2D),
     // Guaranteed to be filled out when RawMap is fully written. True for forwards.
     pub matched_road: Option<(OriginalRoad, bool)>,
     // If it's not explicitly mapped, we'll do equiv_pos.

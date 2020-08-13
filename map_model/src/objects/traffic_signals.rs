@@ -1,5 +1,5 @@
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
-use crate::raw::{OriginalIntersection, OriginalRoad};
+use crate::raw::OriginalRoad;
 use crate::{
     osm, DirectedRoadID, IntersectionID, Map, TurnGroup, TurnGroupID, TurnID, TurnPriority,
     TurnType,
@@ -234,7 +234,7 @@ impl Phase {
 impl ControlTrafficSignal {
     pub fn export(&self, map: &Map) -> seattle_traffic_signals::TrafficSignal {
         seattle_traffic_signals::TrafficSignal {
-            intersection_osm_node_id: map.get_i(self.id).orig_id.osm_node_id.0,
+            intersection_osm_node_id: map.get_i(self.id).orig_id.0,
             phases: self
                 .phases
                 .iter()
@@ -319,17 +319,17 @@ fn export_turn_group(id: &TurnGroupID, map: &Map) -> seattle_traffic_signals::Tu
     seattle_traffic_signals::Turn {
         from: seattle_traffic_signals::DirectedRoad {
             osm_way_id: from.osm_way_id.0,
-            osm_node1: from.i1.osm_node_id.0,
-            osm_node2: from.i2.osm_node_id.0,
+            osm_node1: from.i1.0,
+            osm_node2: from.i2.0,
             is_forwards: id.from.forwards,
         },
         to: seattle_traffic_signals::DirectedRoad {
             osm_way_id: to.osm_way_id.0,
-            osm_node1: to.i1.osm_node_id.0,
-            osm_node2: to.i2.osm_node_id.0,
+            osm_node1: to.i1.0,
+            osm_node2: to.i2.0,
             is_forwards: id.to.forwards,
         },
-        intersection_osm_node_id: map.get_i(id.parent).orig_id.osm_node_id.0,
+        intersection_osm_node_id: map.get_i(id.parent).orig_id.0,
         is_crosswalk: id.crosswalk,
     }
 }
@@ -339,9 +339,7 @@ fn import_turn_group(id: seattle_traffic_signals::Turn, map: &Map) -> Option<Tur
         from: find_r(id.from, map)?,
         to: find_r(id.to, map)?,
         parent: map
-            .find_i_by_osm_id(OriginalIntersection {
-                osm_node_id: osm::NodeID(id.intersection_osm_node_id),
-            })
+            .find_i_by_osm_id(osm::NodeID(id.intersection_osm_node_id))
             .ok()?,
         crosswalk: id.is_crosswalk,
     })

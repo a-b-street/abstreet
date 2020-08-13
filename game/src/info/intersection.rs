@@ -29,11 +29,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
     rows.push(txt.draw(ctx));
 
     if app.opts.dev {
-        rows.push(Btn::text_bg1("Open OSM node").build(
-            ctx,
-            format!("open {}", i.orig_id.osm_node_id),
-            None,
-        ));
+        rows.push(Btn::text_bg1("Open OSM node").build(ctx, format!("open {}", i.orig_id), None));
     }
 
     rows

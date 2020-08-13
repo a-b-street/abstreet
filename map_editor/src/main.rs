@@ -8,7 +8,7 @@ use ezgui::{
 };
 use geom::{Distance, Line, Polygon};
 use map_model::osm;
-use map_model::raw::{OriginalIntersection, OriginalRoad};
+use map_model::raw::OriginalRoad;
 use model::{Model, ID};
 
 struct UI {
@@ -23,10 +23,10 @@ struct UI {
 
 enum State {
     Viewing,
-    MovingIntersection(OriginalIntersection),
+    MovingIntersection(osm::NodeID),
     MovingBuilding(osm::OsmID),
     MovingRoadPoint(OriginalRoad, usize),
-    CreatingRoad(OriginalIntersection),
+    CreatingRoad(osm::NodeID),
     // bool is show_tooltip
     PreviewIntersection(Drawable, bool),
 }
@@ -327,7 +327,7 @@ impl GUI for UI {
     }
 }
 
-fn preview_intersection(i: OriginalIntersection, model: &Model, ctx: &EventCtx) -> Drawable {
+fn preview_intersection(i: osm::NodeID, model: &Model, ctx: &EventCtx) -> Drawable {
     let (intersection, roads, debug) = model
         .map
         .preview_intersection(i, &mut Timer::new("calculate intersection_polygon"));

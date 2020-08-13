@@ -373,7 +373,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
 
 fn make_rainbow_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map) -> bool {
     // TODO The crosswalks aren't tagged in OSM yet. Manually hardcoding some now.
-    let node = map.get_i(turn.id.parent).orig_id.osm_node_id.0;
+    let node = map.get_i(turn.id.parent).orig_id.0;
     let way = map.get_parent(turn.id.src).orig_id.osm_way_id.0;
     match (node, way) {
         // Broadway and Pine

@@ -15,7 +15,7 @@ use ezgui::{
     Line, Outcome, RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
-use map_model::raw::{OriginalIntersection, OriginalRoad};
+use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, Map, OriginalLane, Position};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
@@ -909,10 +909,7 @@ impl TutorialState {
         state.stages.push(
             Stage::new(Task::Camera)
                 .warp_to(
-                    ID::Intersection(
-                        map.find_i_by_osm_id(OriginalIntersection::new(53096945))
-                            .unwrap(),
-                    ),
+                    ID::Intersection(map.find_i_by_osm_id(osm::NodeID(53096945)).unwrap()),
                     None,
                 )
                 .msg(
@@ -970,10 +967,7 @@ impl TutorialState {
         state.stages.push(
             Stage::new(Task::TimeControls)
                 .warp_to(
-                    ID::Intersection(
-                        map.find_i_by_osm_id(OriginalIntersection::new(53096945))
-                            .unwrap(),
-                    ),
+                    ID::Intersection(map.find_i_by_osm_id(osm::NodeID(53096945)).unwrap()),
                     Some(6.5),
                 )
                 .msg(
@@ -1107,7 +1101,7 @@ impl TutorialState {
                     spawn_agents_around(
                         app.primary
                             .map
-                            .find_i_by_osm_id(OriginalIntersection::new(1709145066))
+                            .find_i_by_osm_id(osm::NodeID(1709145066))
                             .unwrap(),
                         app,
                     );

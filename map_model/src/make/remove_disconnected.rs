@@ -1,4 +1,5 @@
-use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
+use crate::osm;
+use crate::raw::{OriginalRoad, RawMap};
 use abstutil::{retain_btreemap, MultiMap, Timer};
 use std::collections::BTreeSet;
 
@@ -7,7 +8,7 @@ pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
     // This is a simple floodfill, not Tarjan's. Assumes all roads bidirectional.
     // All the usizes are indices into the original list of roads
 
-    let mut next_roads: MultiMap<OriginalIntersection, OriginalRoad> = MultiMap::new();
+    let mut next_roads: MultiMap<osm::NodeID, OriginalRoad> = MultiMap::new();
     for id in map.roads.keys() {
         next_roads.insert(id.i1, *id);
         next_roads.insert(id.i2, *id);

@@ -9,7 +9,7 @@ pub mod turns;
 mod walking_turns;
 
 use crate::pathfind::Pathfinder;
-use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
+use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, Area, AreaID, ControlStopSign, ControlTrafficSignal, Intersection,
     IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints, Position, Road,
@@ -61,8 +61,7 @@ impl Map {
             .enumerate()
             .map(|(idx, id)| (*id, RoadID(idx)))
             .collect();
-        let mut intersection_id_mapping: BTreeMap<OriginalIntersection, IntersectionID> =
-            BTreeMap::new();
+        let mut intersection_id_mapping: BTreeMap<osm::NodeID, IntersectionID> = BTreeMap::new();
         for (idx, i) in initial_map.intersections.values().enumerate() {
             let id = IntersectionID(idx);
             map.intersections.push(Intersection {

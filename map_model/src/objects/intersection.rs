@@ -1,4 +1,3 @@
-use crate::raw::OriginalIntersection;
 use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};
@@ -38,7 +37,7 @@ pub struct Intersection {
     pub elevation: Distance,
 
     pub intersection_type: IntersectionType,
-    pub orig_id: OriginalIntersection,
+    pub orig_id: osm::NodeID,
 
     // Note that a lane may belong to both incoming_lanes and outgoing_lanes.
     // TODO narrow down when and why. is it just sidewalks in weird cases?

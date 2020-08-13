@@ -2,8 +2,8 @@ mod geometry;
 pub mod lane_specs;
 
 pub use self::geometry::intersection_polygon;
-use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad, RawMap, RawRoad};
-use crate::IntersectionType;
+use crate::raw::{DrivingSide, OriginalRoad, RawMap, RawRoad};
+use crate::{osm, IntersectionType};
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use lane_specs::LaneSpec;
@@ -11,7 +11,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 pub struct InitialMap {
     pub roads: BTreeMap<OriginalRoad, Road>,
-    pub intersections: BTreeMap<OriginalIntersection, Intersection>,
+    pub intersections: BTreeMap<osm::NodeID, Intersection>,
 
     pub bounds: Bounds,
 }
@@ -19,8 +19,8 @@ pub struct InitialMap {
 pub struct Road {
     // Redundant but useful to embed
     pub id: OriginalRoad,
-    pub src_i: OriginalIntersection,
-    pub dst_i: OriginalIntersection,
+    pub src_i: osm::NodeID,
+    pub dst_i: osm::NodeID,
     // The true center of the road, including sidewalks
     pub trimmed_center_pts: PolyLine,
     pub half_width: Distance,
@@ -47,7 +47,7 @@ impl Road {
 
 pub struct Intersection {
     // Redundant but useful to embed
-    pub id: OriginalIntersection,
+    pub id: osm::NodeID,
     pub polygon: Polygon,
     pub roads: BTreeSet<OriginalRoad>,
     pub intersection_type: IntersectionType,

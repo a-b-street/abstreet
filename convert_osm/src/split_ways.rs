@@ -1,7 +1,7 @@
 use crate::extract::OsmExtract;
 use abstutil::{Counter, Timer};
 use geom::{Distance, HashablePt2D, Pt2D};
-use map_model::raw::{OriginalIntersection, OriginalRoad, RawIntersection, RawMap};
+use map_model::raw::{OriginalRoad, RawIntersection, RawMap};
 use map_model::{osm, IntersectionType};
 use std::collections::HashMap;
 
@@ -17,7 +17,7 @@ pub fn split_up_roads(
 ) {
     timer.start("splitting up roads");
 
-    let mut pt_to_intersection: HashMap<HashablePt2D, OriginalIntersection> = HashMap::new();
+    let mut pt_to_intersection: HashMap<HashablePt2D, osm::NodeID> = HashMap::new();
     let mut counts_per_pt = Counter::new();
     for (_, r) in &input.roads {
         for (idx, raw_pt) in r.center_points.iter().enumerate() {
@@ -27,9 +27,7 @@ pub fn split_up_roads(
             // All start and endpoints of ways are also intersections.
             if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
                 if !pt_to_intersection.contains_key(&pt) {
-                    let id = OriginalIntersection {
-                        osm_node_id: input.osm_node_ids[&pt],
-                    };
+                    let id = input.osm_node_ids[&pt];
                     pt_to_intersection.insert(pt, id);
                 }
             }
@@ -102,9 +100,7 @@ pub fn split_up_roads(
     // Resolve simple turn restrictions (via a node)
     let mut restrictions = Vec::new();
     for (restriction, from_osm, via_osm, to_osm) in input.simple_turn_restrictions {
-        let roads = map.roads_per_intersection(OriginalIntersection {
-            osm_node_id: via_osm,
-        });
+        let roads = map.roads_per_intersection(via_osm);
         // If some of the roads are missing, they were likely filtered out -- usually service
         // roads.
         if let (Some(from), Some(to)) = (
