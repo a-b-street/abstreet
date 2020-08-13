@@ -15,7 +15,6 @@ use std::cell::RefCell;
 
 pub struct DrawIntersection {
     pub id: IntersectionID,
-    intersection_type: IntersectionType,
     zorder: isize,
 
     draw_default: RefCell<Option<Drawable>>,
@@ -26,7 +25,6 @@ impl DrawIntersection {
     pub fn new(i: &Intersection, map: &Map) -> DrawIntersection {
         DrawIntersection {
             id: i.id,
-            intersection_type: i.intersection_type,
             zorder: i.get_zorder(map),
             draw_default: RefCell::new(None),
             draw_traffic_signal: RefCell::new(None),
@@ -139,39 +137,39 @@ impl Renderable for DrawIntersection {
         }
         g.redraw(draw.as_ref().unwrap());
 
-        if self.intersection_type == IntersectionType::TrafficSignal
-            && !opts.suppress_traffic_signal_details.contains(&self.id)
-        {
-            let signal = app.primary.map.get_traffic_signal(self.id);
-            let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
-            let recalc = maybe_redraw
-                .as_ref()
-                .map(|(t, _)| *t != app.primary.sim.time())
-                .unwrap_or(true);
-            if recalc {
-                let (idx, remaining) = app.primary.sim.current_phase_and_remaining_time(self.id);
-                let mut batch = GeomBatch::new();
-                draw_signal_phase(
-                    g.prerender,
-                    &signal.phases[idx],
-                    self.id,
-                    Some(remaining),
-                    &mut batch,
-                    app,
-                    app.opts.traffic_signal_style.clone(),
-                );
-                if app.opts.traffic_signal_style != TrafficSignalStyle::BAP {
-                    batch.append(
-                        Text::from(Line(format!("{}", idx + 1)))
-                            .render_to_batch(g.prerender)
-                            .scale(0.1)
-                            .centered_on(app.primary.map.get_i(self.id).polygon.center()),
+        if let Some(signal) = app.primary.map.maybe_get_traffic_signal(self.id) {
+            if !opts.suppress_traffic_signal_details.contains(&self.id) {
+                let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
+                let recalc = maybe_redraw
+                    .as_ref()
+                    .map(|(t, _)| *t != app.primary.sim.time())
+                    .unwrap_or(true);
+                if recalc {
+                    let (idx, remaining) =
+                        app.primary.sim.current_phase_and_remaining_time(self.id);
+                    let mut batch = GeomBatch::new();
+                    draw_signal_phase(
+                        g.prerender,
+                        &signal.phases[idx],
+                        self.id,
+                        Some(remaining),
+                        &mut batch,
+                        app,
+                        app.opts.traffic_signal_style.clone(),
                     );
+                    if app.opts.traffic_signal_style != TrafficSignalStyle::BAP {
+                        batch.append(
+                            Text::from(Line(format!("{}", idx + 1)))
+                                .render_to_batch(g.prerender)
+                                .scale(0.1)
+                                .centered_on(app.primary.map.get_i(self.id).polygon.center()),
+                        );
+                    }
+                    *maybe_redraw = Some((app.primary.sim.time(), g.prerender.upload(batch)));
                 }
-                *maybe_redraw = Some((app.primary.sim.time(), g.prerender.upload(batch)));
+                let (_, batch) = maybe_redraw.as_ref().unwrap();
+                g.redraw(batch);
             }
-            let (_, batch) = maybe_redraw.as_ref().unwrap();
-            g.redraw(batch);
         }
     }
 
