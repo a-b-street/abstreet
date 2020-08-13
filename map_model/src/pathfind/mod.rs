@@ -17,7 +17,6 @@ use enumset::EnumSetType;
 use geom::{Distance, PolyLine, EPSILON_DIST};
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
-use std::error::Error;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -53,13 +52,13 @@ impl PathStep {
         map: &Map,
         start: Distance,
         dist_ahead: Option<Distance>,
-    ) -> Result<(PolyLine, Distance), Box<dyn Error>> {
+    ) -> Result<(PolyLine, Distance), String> {
         if let Some(d) = dist_ahead {
             if d < Distance::ZERO {
                 panic!("Negative dist_ahead?! {}", d);
             }
             if d == Distance::ZERO {
-                return Err(format!("0 dist ahead for slice").into());
+                return Err(format!("0 dist ahead for slice"));
             }
         }
 

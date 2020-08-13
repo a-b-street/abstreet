@@ -11,7 +11,6 @@ use map_model::raw::{
 use map_model::{osm, AreaType};
 use osm::{NodeID, OsmID, RelationID, WayID};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::error::Error;
 
 pub struct OsmExtract {
     // Unsplit roads
@@ -662,7 +661,7 @@ fn multipoly_geometry(
     rel_id: RelationID,
     rel: &Relation,
     doc: &Document,
-) -> Result<Polygon, Box<dyn Error>> {
+) -> Result<Polygon, String> {
     let mut outer: Vec<Vec<Pt2D>> = Vec::new();
     let mut inner: Vec<Vec<Pt2D>> = Vec::new();
     for (role, member) in &rel.members {
@@ -678,7 +677,7 @@ fn multipoly_geometry(
             } else if role == "inner" {
                 inner.push(deduped);
             } else {
-                return Err(format!("What's role {} for multipolygon {}?", role, rel_id).into());
+                return Err(format!("What's role {} for multipolygon {}?", role, rel_id));
             }
         }
     }
@@ -689,8 +688,7 @@ fn multipoly_geometry(
             rel_id,
             outer.len(),
             inner.len()
-        )
-        .into());
+        ));
     }
     if inner.is_empty() {
         if outer.len() > 1 {

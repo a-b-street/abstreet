@@ -3,7 +3,6 @@ use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
-use std::error::Error;
 use std::fmt;
 
 // Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
@@ -200,7 +199,7 @@ impl TurnGroup {
     pub(crate) fn for_i(
         i: IntersectionID,
         map: &Map,
-    ) -> Result<BTreeMap<TurnGroupID, TurnGroup>, Box<dyn Error>> {
+    ) -> Result<BTreeMap<TurnGroupID, TurnGroup>, String> {
         let mut results = BTreeMap::new();
         let mut groups: MultiMap<(DirectedRoadID, DirectedRoadID), TurnID> = MultiMap::new();
         for turn in map.get_turns_in_intersection(i) {
@@ -264,9 +263,9 @@ impl TurnGroup {
             );
         }
         if results.is_empty() {
-            return Err(
-                format!("No TurnGroups! Does the intersection have at least 2 roads?").into(),
-            );
+            return Err(format!(
+                "No TurnGroups! Does the intersection have at least 2 roads?"
+            ));
         }
         Ok(results)
     }
@@ -346,7 +345,7 @@ fn turn_group_geom(
     polylines: Vec<&PolyLine>,
     from: DirectedRoadID,
     to: DirectedRoadID,
-) -> Result<PolyLine, Box<dyn Error>> {
+) -> Result<PolyLine, String> {
     let num_pts = polylines[0].points().len();
     for pl in &polylines {
         if num_pts != pl.points().len() {

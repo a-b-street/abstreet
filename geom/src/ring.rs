@@ -1,7 +1,6 @@
 use crate::{Distance, Line, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::error::Error;
 use std::fmt;
 
 // Maybe a misnomer, but like a PolyLine, but closed.
@@ -12,16 +11,18 @@ pub struct Ring {
 }
 
 impl Ring {
-    pub fn new(pts: Vec<Pt2D>) -> Result<Ring, Box<dyn Error>> {
+    pub fn new(pts: Vec<Pt2D>) -> Result<Ring, String> {
         if pts.len() < 3 {
-            return Err(format!("Can't make a ring with < 3 points").into());
+            return Err(format!("Can't make a ring with < 3 points"));
         }
         if pts[0] != *pts.last().unwrap() {
-            return Err(format!("Can't make a ring with mismatching first/last points").into());
+            return Err(format!(
+                "Can't make a ring with mismatching first/last points"
+            ));
         }
 
         if pts.windows(2).any(|pair| pair[0] == pair[1]) {
-            return Err(format!("Ring has ~dupe adjacent pts").into());
+            return Err(format!("Ring has ~dupe adjacent pts"));
         }
 
         let result = Ring { pts };
@@ -31,7 +32,7 @@ impl Ring {
             seen_pts.insert(pt.to_hashable());
         }
         if seen_pts.len() != result.pts.len() - 1 {
-            return Err(format!("Ring has repeat non-adjacent points").into());
+            return Err(format!("Ring has repeat non-adjacent points"));
         }
 
         Ok(result)
@@ -100,7 +101,7 @@ impl Ring {
     }
 
     // Extract all PolyLines and Rings. Doesn't handle crazy double loops and stuff.
-    pub fn split_points(pts: &Vec<Pt2D>) -> Result<(Vec<PolyLine>, Vec<Ring>), Box<dyn Error>> {
+    pub fn split_points(pts: &Vec<Pt2D>) -> Result<(Vec<PolyLine>, Vec<Ring>), String> {
         let mut seen = HashSet::new();
         let mut intersections = HashSet::new();
         for pt in pts {

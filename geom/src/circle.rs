@@ -1,6 +1,5 @@
 use crate::{Angle, Bounds, Distance, Polygon, Pt2D, Ring};
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 use std::fmt;
 
 const TRIANGLES_PER_CIRCLE: usize = 60;
@@ -70,17 +69,12 @@ impl Circle {
         )
     }
 
-    pub fn outline(
-        center: Pt2D,
-        radius: Distance,
-        thickness: Distance,
-    ) -> Result<Polygon, Box<dyn Error>> {
+    pub fn outline(center: Pt2D, radius: Distance, thickness: Distance) -> Result<Polygon, String> {
         if radius <= thickness {
             return Err(format!(
                 "Can't make Circle outline with radius {} and thickness {}",
                 radius, thickness
-            )
-            .into());
+            ));
         }
 
         let bigger = Circle::new(center, radius).to_ring();

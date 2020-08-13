@@ -3,7 +3,6 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::error::Error;
 use std::fmt;
 
 // TODO How to tune this?
@@ -23,9 +22,9 @@ pub struct PolyLine {
 }
 
 impl PolyLine {
-    pub fn new(pts: Vec<Pt2D>) -> Result<PolyLine, Box<dyn Error>> {
+    pub fn new(pts: Vec<Pt2D>) -> Result<PolyLine, String> {
         if pts.len() < 2 {
-            return Err(format!("Need at least two points for a PolyLine").into());
+            return Err(format!("Need at least two points for a PolyLine"));
         }
         let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
             so_far + pair[0].dist_to(pair[1])
@@ -36,8 +35,7 @@ impl PolyLine {
                 "PL with total length {} and {} pts has ~dupe adjacent pts",
                 length,
                 pts.len(),
-            )
-            .into());
+            ));
         }
 
         let result = PolyLine { pts, length };
@@ -50,8 +48,7 @@ impl PolyLine {
                 "PL with total length {} and {} pts has dupe non-adjacent pts",
                 result.length,
                 result.pts.len(),
-            )
-            .into());
+            ));
         }
 
         Ok(result)
@@ -71,7 +68,7 @@ impl PolyLine {
     }
 
     // First dedupes adjacent points
-    pub fn deduping_new(mut pts: Vec<Pt2D>) -> Result<PolyLine, Box<dyn Error>> {
+    pub fn deduping_new(mut pts: Vec<Pt2D>) -> Result<PolyLine, String> {
         pts.dedup();
         PolyLine::new(pts)
     }
@@ -102,9 +99,11 @@ impl PolyLine {
         PolyLine::must_new(pts)
     }
 
-    pub fn extend(self, other: PolyLine) -> Result<PolyLine, Box<dyn Error>> {
+    pub fn extend(self, other: PolyLine) -> Result<PolyLine, String> {
         if *self.pts.last().unwrap() != other.pts[0] {
-            return Err(format!("can't extend PL; last and first points don't match").into());
+            return Err(format!(
+                "can't extend PL; last and first points don't match"
+            ));
         }
 
         let mut self_pts = self.pts;
@@ -156,7 +155,7 @@ impl PolyLine {
     }
 
     // One or both args might be empty.
-    pub fn append(first: Vec<Pt2D>, second: Vec<Pt2D>) -> Result<Vec<Pt2D>, Box<dyn Error>> {
+    pub fn append(first: Vec<Pt2D>, second: Vec<Pt2D>) -> Result<Vec<Pt2D>, String> {
         if second.is_empty() {
             return Ok(first);
         }
@@ -189,13 +188,9 @@ impl PolyLine {
     }
 
     // Returns the excess distance left over from the end
-    pub fn slice(
-        &self,
-        start: Distance,
-        end: Distance,
-    ) -> Result<(PolyLine, Distance), Box<dyn Error>> {
+    pub fn slice(&self, start: Distance, end: Distance) -> Result<(PolyLine, Distance), String> {
         if start > end || start < Distance::ZERO || end < Distance::ZERO {
-            return Err(format!("Can't get a polyline slice [{}, {}]", start, end).into());
+            return Err(format!("Can't get a polyline slice [{}, {}]", start, end));
         }
         if start > self.length() {
             return Err(format!(
@@ -203,15 +198,13 @@ impl PolyLine {
                 start,
                 end,
                 self.length()
-            )
-            .into());
+            ));
         }
         if end - start < EPSILON_DIST {
             return Err(format!(
                 "Can't get a polyline slice [{}, {}] -- too small",
                 start, end
-            )
-            .into());
+            ));
         }
 
         let mut result: Vec<Pt2D> = Vec::new();
@@ -237,8 +230,7 @@ impl PolyLine {
                     return Err(format!(
                         "slice({}, {}) on {} did something weird",
                         start, end, self
-                    )
-                    .into());
+                    ));
                 }
                 return Ok((PolyLine::new(result)?, Distance::ZERO));
             }
@@ -258,15 +250,13 @@ impl PolyLine {
                 start,
                 end,
                 self.length()
-            )
-            .into());
+            ));
         }
         if result.len() == 1 {
             return Err(format!(
                 "Slice [{}, {}] on {} wound up a single point",
                 start, end, self
-            )
-            .into());
+            ));
         }
 
         Ok((PolyLine::new(result)?, end - dist_so_far))
@@ -298,14 +288,16 @@ impl PolyLine {
         self.exact_slice(self.length() / 2.0, self.length())
     }
 
-    pub fn dist_along(&self, dist_along: Distance) -> Result<(Pt2D, Angle), Box<dyn Error>> {
+    pub fn dist_along(&self, dist_along: Distance) -> Result<(Pt2D, Angle), String> {
         if dist_along < Distance::ZERO {
-            return Err(format!("dist_along {} is negative", dist_along).into());
+            return Err(format!("dist_along {} is negative", dist_along));
         }
         if dist_along > self.length() {
-            return Err(
-                format!("dist_along {} is longer than {}", dist_along, self.length()).into(),
-            );
+            return Err(format!(
+                "dist_along {} is longer than {}",
+                dist_along,
+                self.length()
+            ));
         }
 
         let mut dist_left = dist_along;
@@ -365,14 +357,14 @@ impl PolyLine {
         Line::must_new(self.pts[self.pts.len() - 2], self.pts[self.pts.len() - 1])
     }
 
-    pub fn shift_right(&self, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
+    pub fn shift_right(&self, width: Distance) -> Result<PolyLine, String> {
         self.shift_with_corrections(width)
     }
     pub fn must_shift_right(&self, width: Distance) -> PolyLine {
         self.shift_right(width).unwrap()
     }
 
-    pub fn shift_left(&self, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
+    pub fn shift_left(&self, width: Distance) -> Result<PolyLine, String> {
         self.shift_with_corrections(-width)
     }
     pub fn must_shift_left(&self, width: Distance) -> PolyLine {
@@ -382,7 +374,7 @@ impl PolyLine {
     // Things to remember about shifting polylines:
     // - the length before and after probably don't match up
     // - the number of points may not match
-    fn shift_with_corrections(&self, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
+    fn shift_with_corrections(&self, width: Distance) -> Result<PolyLine, String> {
         let raw = self.shift_with_sharp_angles(width, MITER_THRESHOLD);
         let result = PolyLine::deduping_new(raw)?;
         if result.pts.len() == self.pts.len() {
@@ -772,7 +764,7 @@ impl fmt::Display for PolyLine {
     }
 }
 
-fn fix_angles(orig: &PolyLine, result: PolyLine) -> Result<PolyLine, Box<dyn Error>> {
+fn fix_angles(orig: &PolyLine, result: PolyLine) -> Result<PolyLine, String> {
     let mut pts = result.pts.clone();
 
     // Check that the angles roughly match up between the original and shifted line

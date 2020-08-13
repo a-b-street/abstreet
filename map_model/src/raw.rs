@@ -5,7 +5,6 @@ use geom::{Angle, Circle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
-use std::error::Error;
 use std::fmt;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -414,7 +413,7 @@ pub enum DrivingSide {
 impl DrivingSide {
     // "right" and "left" here are in terms of DrivingSide::Right, what I'm used to reasoning about
     // in the USA. They invert appropriately for DrivingSide::Left.
-    pub fn right_shift(self, pl: PolyLine, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
+    pub fn right_shift(self, pl: PolyLine, width: Distance) -> Result<PolyLine, String> {
         match self {
             DrivingSide::Right => pl.shift_right(width),
             DrivingSide::Left => pl.shift_left(width),
@@ -424,7 +423,7 @@ impl DrivingSide {
         self.right_shift(pl, width).unwrap()
     }
 
-    pub fn left_shift(self, pl: PolyLine, width: Distance) -> Result<PolyLine, Box<dyn Error>> {
+    pub fn left_shift(self, pl: PolyLine, width: Distance) -> Result<PolyLine, String> {
         match self {
             DrivingSide::Right => pl.shift_left(width),
             DrivingSide::Left => pl.shift_right(width),

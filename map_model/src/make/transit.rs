@@ -6,7 +6,6 @@ use crate::{
 use abstutil::Timer;
 use geom::{Distance, Duration, FindClosest, HashablePt2D, Time};
 use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
-use std::error::Error;
 
 pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer: &mut Timer) {
     timer.start("make transit stops and routes");
@@ -43,7 +42,7 @@ fn make_route(
     r: &RawBusRoute,
     pt_to_stop: &mut BTreeMap<(Position, Position), BusStopID>,
     matcher: &Matcher,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<(), String> {
     let route_type = if r.is_bus {
         PathConstraints::Bus
     } else {
@@ -79,7 +78,7 @@ fn make_route(
                 stops.push(stop_id);
             }
             Err(err) => {
-                return Err(format!("couldn't match stop {}: {}", stop.name, err).into());
+                return Err(format!("couldn't match stop {}: {}", stop.name, err));
             }
         }
     }
@@ -97,8 +96,7 @@ fn make_route(
             return Err(format!(
                 "Route {} starts at {} ({}), but no starting lane for a {:?}?",
                 r.osm_rel_id, i.id, i.orig_id, route_type
-            )
-            .into());
+            ));
         }
     } else {
         // Not starting at a border. Find a lane at or before the first stop that's at least 13m.
@@ -161,8 +159,7 @@ fn make_route(
             return Err(format!(
                 "Two stops seemingly out of order somewhere on {}",
                 map.get_parent(req.start.lane()).orig_id
-            )
-            .into());
+            ));
         }
 
         if map.pathfind(req.clone()).is_none() {
@@ -172,8 +169,7 @@ fn make_route(
                 map.get_parent(req.end.lane()).orig_id,
                 req,
                 debug_route
-            )
-            .into());
+            ));
         }
     }
 
@@ -234,7 +230,7 @@ impl Matcher {
         route_type: PathConstraints,
         stop: &RawBusStop,
         map: &Map,
-    ) -> Result<(Position, Position), Box<dyn Error>> {
+    ) -> Result<(Position, Position), String> {
         if route_type == PathConstraints::Train {
             // Light rail needs explicit platforms.
             let sidewalk_pt = stop.ped_pos.ok_or("light rail missing platform")?;
@@ -305,9 +301,10 @@ impl Matcher {
             if let Some(pos) = driving_pos.min_dist(Distance::meters(1.0), map) {
                 driving_pos = pos;
             } else {
-                return Err(
-                    format!("too close to start of a border {}", driving_pos.lane()).into(),
-                );
+                return Err(format!(
+                    "too close to start of a border {}",
+                    driving_pos.lane()
+                ));
             }
         }
         Ok((sidewalk_pos, driving_pos))

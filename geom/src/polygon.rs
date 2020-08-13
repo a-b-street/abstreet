@@ -3,7 +3,6 @@ use geo::algorithm::area::Area;
 use geo::algorithm::convexhull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 use std::fmt;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -298,7 +297,7 @@ impl Polygon {
 
     // Only works for polygons that're formed from rings. Those made from PolyLines won't work, for
     // example.
-    pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, Box<dyn Error>> {
+    pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, String> {
         if let Some(ref rings) = self.rings {
             Ok(Polygon::union_all(
                 rings.iter().map(|r| r.to_outline(thickness)).collect(),
