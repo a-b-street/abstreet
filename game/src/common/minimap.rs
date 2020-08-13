@@ -118,6 +118,17 @@ impl Minimap {
                 self.recenter(ctx, app);
             }
         }
+        if ctx.input.is_window_resized() {
+            // When the window is resized, just reset completely. This is important when the window
+            // size at startup is incorrect and immediately corrected by the window manager after
+            // Minimap::new happens.
+            let bounds = app.primary.map.get_bounds();
+            self.base_zoom = 0.15 * ctx.canvas.window_width / bounds.width().min(bounds.height());
+            self.zoom = self.base_zoom;
+            if self.zoomed {
+                self.recenter(ctx, app);
+            }
+        }
 
         let pan_speed = 100.0;
         match self.composite.event(ctx) {
