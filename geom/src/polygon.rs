@@ -307,6 +307,14 @@ impl Polygon {
         }
     }
 
+    // Remove the internal rings used for to_outline. This is fine to do if the polygon is being
+    // added to some larger piece of geometry that won't need an outline.
+    pub fn strip_rings(&self) -> Polygon {
+        let mut p = self.clone();
+        p.rings = None;
+        p
+    }
+
     // Usually m^2, unless the polygon is in screen-space
     pub fn area(&self) -> f64 {
         // Polygon orientation messes this up sometimes

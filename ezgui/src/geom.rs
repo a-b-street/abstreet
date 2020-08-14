@@ -195,7 +195,9 @@ impl GeomBatch {
             return self;
         }
         for (_, poly) in &mut self.list {
-            *poly = poly.scale(factor);
+            // strip_rings first -- sometimes when scaling down, the original rings collapse. Since
+            // this polygon is part of a GeomBatch anyway, not calling to_outline on it.
+            *poly = poly.strip_rings().scale(factor);
         }
         self
     }
