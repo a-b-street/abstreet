@@ -97,10 +97,11 @@ impl EditMode {
             app.primary.clear_sim();
             if app.opts.resume_after_edit {
                 if self.mode.reset_after_edits() {
-                    Transition::PopThenReplaceThenPush(
-                        Box::new(SandboxMode::new(ctx, app, self.mode.clone())),
-                        TimeWarpScreen::new(ctx, app, old_sim.time(), false),
-                    )
+                    Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::Replace(SandboxMode::new(ctx, app, self.mode.clone())),
+                        Transition::Push(TimeWarpScreen::new(ctx, app, old_sim.time(), false)),
+                    ])
                 } else {
                     app.primary.sim = old_sim;
                     app.primary.dirty_from_edits = true;
@@ -110,7 +111,10 @@ impl EditMode {
                     Transition::Pop
                 }
             } else {
-                Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, app, self.mode.clone())))
+                Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::Replace(SandboxMode::new(ctx, app, self.mode.clone())),
+                ])
             }
         })
     }
@@ -177,16 +181,16 @@ impl State for EditMode {
             Outcome::Clicked(x) => match x.as_ref() {
                 "load edits" => {
                     if app.primary.map.unsaved_edits() {
-                        return Transition::PushTwice(
-                            LoadEdits::new(ctx, app, self.mode.clone()),
-                            SaveEdits::new(
+                        return Transition::Multi(vec![
+                            Transition::Push(LoadEdits::new(ctx, app, self.mode.clone())),
+                            Transition::Push(SaveEdits::new(
                                 ctx,
                                 app,
                                 "Do you want to save your edits first?",
                                 true,
-                                Some(Transition::PopTwice),
-                            ),
-                        );
+                                Some(Transition::Multi(vec![Transition::Pop, Transition::Pop])),
+                            )),
+                        ]);
                     } else {
                         return Transition::Push(LoadEdits::new(ctx, app, self.mode.clone()));
                     }
@@ -255,12 +259,7 @@ impl State for EditMode {
             }
             if let Some(ID::Lane(l)) = app.primary.current_selection {
                 if app.per_obj.left_click(ctx, "edit lane") {
-                    return Transition::Push(Box::new(LaneEditor::new(
-                        ctx,
-                        app,
-                        l,
-                        self.mode.clone(),
-                    )));
+                    return Transition::Push(LaneEditor::new(ctx, app, l, self.mode.clone()));
                 }
             }
         }
@@ -486,16 +485,16 @@ impl State for LoadEdits {
                         }
                         // TODO Hack. Have to replace ourselves, because the Menu might be
                         // invalidated now that something was chosen.
-                        Err(err) => Transition::ReplaceThenPush(
-                            LoadEdits::new(ctx, app, self.mode.clone()),
+                        Err(err) => Transition::Multi(vec![
+                            Transition::Replace(LoadEdits::new(ctx, app, self.mode.clone())),
                             // TODO Menu draws at a weird Z-order to deal with tooltips, so now the
                             // menu underneath bleeds through
-                            PopupMsg::new(
+                            Transition::Push(PopupMsg::new(
                                 ctx,
                                 "Error",
                                 vec![format!("Can't load {}", path), err.clone()],
-                            ),
-                        ),
+                            )),
+                        ]),
                     }
                 }
             },
@@ -636,7 +635,7 @@ pub fn maybe_edit_intersection(
         && mode.can_edit_stop_signs()
         && app.per_obj.left_click(ctx, "edit stop signs")
     {
-        return Some(Box::new(StopSignEditor::new(ctx, app, id, mode.clone())));
+        return Some(StopSignEditor::new(ctx, app, id, mode.clone()));
     }
 
     if app.primary.map.maybe_get_traffic_signal(id).is_some()

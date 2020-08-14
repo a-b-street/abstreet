@@ -120,7 +120,10 @@ impl State for DevToolsMode {
                         ctx,
                         app,
                         Box::new(|ctx, app| {
-                            Transition::PopThenReplace(DevToolsMode::new(ctx, app))
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::Replace(DevToolsMode::new(ctx, app)),
+                            ])
                         }),
                     ));
                 }

@@ -90,7 +90,7 @@ impl State for CutscenePlayer {
                     // TODO Should SandboxMode use on_destroy for this?
                     app.primary.clear_sim();
                     app.set_prebaked(None);
-                    return Transition::PopTwice;
+                    return Transition::Multi(vec![Transition::Pop, Transition::Pop]);
                 }
                 "back" => {
                     self.idx -= 1;

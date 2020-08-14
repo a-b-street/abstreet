@@ -528,14 +528,15 @@ impl InfoPanel {
                     (
                         false,
                         Some(Transition::ReplaceWithData(Box::new(
-                            move |state, ctx, app| {
-                                let mut sandbox = state.downcast::<SandboxMode>().ok().unwrap();
-
+                            move |mut state, ctx, app| {
                                 if time < app.primary.sim.time() {
-                                    sandbox = ctx.loading_screen("rewind simulation", |ctx, _| {
-                                        Box::new(SandboxMode::new(ctx, app, sandbox.gameplay_mode))
+                                    let gameplay =
+                                        state.downcast::<SandboxMode>().ok().unwrap().gameplay_mode;
+                                    state = ctx.loading_screen("rewind simulation", |ctx, _| {
+                                        SandboxMode::new(ctx, app, gameplay)
                                     });
                                 }
+                                let mut sandbox = state.downcast::<SandboxMode>().ok().unwrap();
 
                                 let mut actions = sandbox.contextual_actions();
                                 sandbox.controls.common.as_mut().unwrap().launch_info_panel(
@@ -555,10 +556,14 @@ impl InfoPanel {
                 } else if let Some(x) = action.strip_prefix("edit BusRoute #") {
                     (
                         false,
-                        Some(Transition::PushTwice(
-                            EditMode::new(ctx, app, ctx_actions.gameplay_mode()),
-                            RouteEditor::new(ctx, app, BusRouteID(x.parse::<usize>().unwrap())),
-                        )),
+                        Some(Transition::Multi(vec![
+                            Transition::Push(EditMode::new(ctx, app, ctx_actions.gameplay_mode())),
+                            Transition::Push(RouteEditor::new(
+                                ctx,
+                                app,
+                                BusRouteID(x.parse::<usize>().unwrap()),
+                            )),
+                        ])),
                     )
                 } else {
                     let mut close_panel = true;

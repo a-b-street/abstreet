@@ -172,7 +172,10 @@ pub fn edit_entire_signal(
                     new: EditIntersection::StopSign(ControlStopSign::new(&app.primary.map, i)),
                 });
                 apply_map_edits(ctx, app, edits);
-                Transition::PopThenReplace(Box::new(StopSignEditor::new(ctx, app, i, mode.clone())))
+                Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::Replace(StopSignEditor::new(ctx, app, i, mode.clone())),
+                ])
             }
             x if x == close => {
                 original.apply(app);
@@ -189,7 +192,7 @@ pub fn edit_entire_signal(
                     edits.commands.push(cmd);
                     apply_map_edits(ctx, app, edits);
 
-                    Transition::PopTwice
+                    Transition::Multi(vec![Transition::Pop, Transition::Pop])
                 }
             }
             x if x == reset => Transition::PopWithData(Box::new(move |state, ctx, app| {

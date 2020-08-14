@@ -65,7 +65,10 @@ impl GameplayState for PlayScenario {
                             } else {
                                 GameplayMode::Freeform(path)
                             };
-                            Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, app, mode)))
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::Replace(SandboxMode::new(ctx, app, mode)),
+                            ])
                         }),
                     )))
                 }
@@ -222,15 +225,18 @@ impl State for EditScenarioModifiers {
                     return Transition::Pop;
                 }
                 "Apply" => {
-                    return Transition::PopThenReplace(Box::new(SandboxMode::new(
-                        ctx,
-                        app,
-                        GameplayMode::PlayScenario(
-                            abstutil::path_map(&app.primary.map.get_name()),
-                            self.scenario_name.clone(),
-                            self.modifiers.clone(),
-                        ),
-                    )));
+                    return Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::Replace(SandboxMode::new(
+                            ctx,
+                            app,
+                            GameplayMode::PlayScenario(
+                                abstutil::path_map(&app.primary.map.get_name()),
+                                self.scenario_name.clone(),
+                                self.modifiers.clone(),
+                            ),
+                        )),
+                    ]);
                 }
                 "Change trip mode" => {
                     return Transition::Push(ChangeMode::new(
@@ -387,11 +393,14 @@ impl State for ChangeMode {
                         departure_filter,
                         from_modes,
                     });
-                    Transition::PopThenReplace(EditScenarioModifiers::new(
-                        ctx,
-                        self.scenario_name.clone(),
-                        mods,
-                    ))
+                    Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::Replace(EditScenarioModifiers::new(
+                            ctx,
+                            self.scenario_name.clone(),
+                            mods,
+                        )),
+                    ])
                 }
                 _ => unreachable!(),
             },
