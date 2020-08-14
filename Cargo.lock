@@ -794,7 +794,7 @@ dependencies = [
  "ttf-parser 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "usvg 0.11.0 (git+https://github.com/RazrFalcon/resvg)",
  "webgl_stdweb 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "winit 0.22.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winit 0.22.2 (git+https://github.com/michaelkirk/winit?branch=mkirk/fix-stdweb-dpi)",
 ]
 
 [[package]]
@@ -1227,7 +1227,7 @@ dependencies = [
  "parking_lot 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "wayland-client 0.23.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "winit 0.22.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winit 0.22.2 (git+https://github.com/michaelkirk/winit?branch=mkirk/fix-stdweb-dpi)",
 ]
 
 [[package]]
@@ -2784,7 +2784,7 @@ dependencies = [
 [[package]]
 name = "seattle_traffic_signals"
 version = "0.1.0"
-source = "git+https://github.com/dabreegster/seattle_traffic_signals#4585e52dabeb5377f23869197bd43a7609543586"
+source = "git+https://github.com/dabreegster/seattle_traffic_signals#ccc37b56a1f879a15fc1e4402785cf9b21f12703"
 dependencies = [
  "include_dir 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.110 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3761,7 +3761,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "winit"
 version = "0.22.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/michaelkirk/winit?branch=mkirk/fix-stdweb-dpi#6b61263293b72a76d46c14ba2abfef92e5a0bd75"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "cocoa 0.20.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -4277,7 +4277,7 @@ dependencies = [
 "checksum winapi-i686-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6"
 "checksum winapi-util 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "fa515c5163a99cc82bab70fd3bfdd36d827be85de63737b40fcef2ce084a436e"
 "checksum winapi-x86_64-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
-"checksum winit 0.22.2 (registry+https://github.com/rust-lang/crates.io-index)" = "1e4ccbf7ddb6627828eace16cacde80fc6bf4dbb3469f88487262a02cf8e7862"
+"checksum winit 0.22.2 (git+https://github.com/michaelkirk/winit?branch=mkirk/fix-stdweb-dpi)" = "<none>"
 "checksum winreg 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "0120db82e8a1e0b9fb3345a539c478767c0048d842860994d96113d5b667bd69"
 "checksum ws2_32-sys 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d59cefebd0c892fa2dd6de581e937301d8552cb44489cdff035c6187cb63fa5e"
 "checksum x11-dl 2.18.5 (registry+https://github.com/rust-lang/crates.io-index)" = "2bf981e3a5b3301209754218f962052d4d9ee97e478f4d26d4a6eced34c1fef8"
