@@ -355,11 +355,10 @@ impl State for FinalScore {
                     return Transition::Pop;
                 }
                 "Try again" => {
-                    return Transition::PopThenReplace(Box::new(SandboxMode::new(
-                        ctx,
-                        app,
-                        self.retry.clone(),
-                    )));
+                    return Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::Replace(SandboxMode::new(ctx, app, self.retry.clone())),
+                    ]);
                 }
                 "Next challenge" => {
                     self.chose_next = true;
@@ -406,7 +405,7 @@ impl State for FinalScore {
         if self.chose_next {
             return Transition::Clear(vec![
                 MainMenu::new(ctx, app),
-                Box::new(SandboxMode::new(ctx, app, self.next_mode.clone().unwrap())),
+                SandboxMode::new(ctx, app, self.next_mode.clone().unwrap()),
                 (Challenge::find(self.next_mode.as_ref().unwrap())
                     .0
                     .cutscene

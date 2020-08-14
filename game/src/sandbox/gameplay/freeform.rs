@@ -49,11 +49,14 @@ impl GameplayState for Freeform {
                         Box::new(|ctx, app| {
                             // The map will be switched before this callback happens.
                             let path = abstutil::path_map(app.primary.map.get_name());
-                            Transition::PopThenReplace(Box::new(SandboxMode::new(
-                                ctx,
-                                app,
-                                GameplayMode::Freeform(path),
-                            )))
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::Replace(SandboxMode::new(
+                                    ctx,
+                                    app,
+                                    GameplayMode::Freeform(path),
+                                )),
+                            ])
                         }),
                     )))
                 }
@@ -163,15 +166,18 @@ pub fn make_change_traffic(
         choices,
         Box::new(|scenario_name, ctx, app| {
             let map_path = abstutil::path_map(app.primary.map.get_name());
-            Transition::PopThenReplace(Box::new(SandboxMode::new(
-                ctx,
-                app,
-                if scenario_name == "none" {
-                    GameplayMode::Freeform(map_path)
-                } else {
-                    GameplayMode::PlayScenario(map_path, scenario_name, Vec::new())
-                },
-            )))
+            Transition::Multi(vec![
+                Transition::Pop,
+                Transition::Replace(SandboxMode::new(
+                    ctx,
+                    app,
+                    if scenario_name == "none" {
+                        GameplayMode::Freeform(map_path)
+                    } else {
+                        GameplayMode::PlayScenario(map_path, scenario_name, Vec::new())
+                    },
+                )),
+            ])
         }),
     )
 }

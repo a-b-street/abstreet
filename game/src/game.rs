@@ -68,7 +68,7 @@ impl Game {
             let mode = maybe_mode.unwrap_or_else(|| {
                 GameplayMode::Freeform(abstutil::path_map(app.primary.map.get_name()))
             });
-            vec![Box::new(SandboxMode::new(ctx, &mut app, mode))]
+            vec![SandboxMode::new(ctx, &mut app, mode)]
         };
         if let Some(ss) = savestate {
             // TODO This is weird, we're left in Freeform mode with the wrong UI. Can't instantiate
@@ -77,6 +77,62 @@ impl Game {
         }
         Game { states, app }
     }
+
+    // If true, then the top-most state on the stack needs to be "woken up" with a fake mouseover
+    // event.
+    fn execute_transition(&mut self, ctx: &mut EventCtx, transition: Transition) -> bool {
+        match transition {
+            Transition::Keep => false,
+            Transition::KeepWithMouseover => true,
+            Transition::Pop => {
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
+                if self.states.is_empty() {
+                    self.before_quit(ctx.canvas);
+                    std::process::exit(0);
+                }
+                true
+            }
+            Transition::PopWithData(cb) => {
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
+                cb(self.states.last_mut().unwrap(), ctx, &mut self.app);
+                true
+            }
+            Transition::ReplaceWithData(cb) => {
+                let mut last = self.states.pop().unwrap();
+                last.on_destroy(ctx, &mut self.app);
+                let new_states = cb(last, ctx, &mut self.app);
+                self.states.extend(new_states);
+                true
+            }
+            Transition::KeepWithData(cb) => {
+                cb(self.states.last_mut().unwrap(), ctx, &mut self.app);
+                true
+            }
+            Transition::Push(state) => {
+                self.states.push(state);
+                true
+            }
+            Transition::Replace(state) => {
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
+                self.states.push(state);
+                true
+            }
+            Transition::Clear(states) => {
+                while !self.states.is_empty() {
+                    self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
+                }
+                self.states.extend(states);
+                true
+            }
+            Transition::Multi(list) => {
+                // Always wake-up just the last state remaining after the sequence
+                for t in list {
+                    self.execute_transition(ctx, t);
+                }
+                true
+            }
+        }
+    }
 }
 
 impl GUI for Game {
@@ -84,76 +140,12 @@ impl GUI for Game {
         self.app.per_obj.reset();
 
         let transition = self.states.last_mut().unwrap().event(ctx, &mut self.app);
-        // If we fall through, there's a new state that we need to wakeup.
-        match transition {
-            Transition::Keep => {
-                return;
-            }
-            Transition::KeepWithMouseover => {}
-            Transition::Pop => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                if self.states.is_empty() {
-                    self.before_quit(ctx.canvas);
-                    std::process::exit(0);
-                }
-            }
-            Transition::PopWithData(cb) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                cb(self.states.last_mut().unwrap(), ctx, &mut self.app);
-            }
-            Transition::ReplaceWithData(cb) => {
-                let mut last = self.states.pop().unwrap();
-                last.on_destroy(ctx, &mut self.app);
-                let new_states = cb(last, ctx, &mut self.app);
-                self.states.extend(new_states);
-            }
-            Transition::KeepWithData(cb) => {
-                cb(self.states.last_mut().unwrap(), ctx, &mut self.app);
-            }
-            Transition::PopTwice => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-            }
-            Transition::Push(state) => {
-                self.states.push(state);
-            }
-            Transition::Replace(state) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                self.states.push(state);
-            }
-            Transition::ReplaceThenPush(state1, state2) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                self.states.push(state1);
-                self.states.push(state2);
-            }
-            Transition::PopThenReplace(state) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                assert!(!self.states.is_empty());
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                self.states.push(state);
-            }
-            Transition::PopThenReplaceThenPush(state1, state2) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                assert!(!self.states.is_empty());
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                self.states.push(state1);
-                self.states.push(state2);
-            }
-            Transition::Clear(states) => {
-                while !self.states.is_empty() {
-                    self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                }
-                self.states.extend(states);
-            }
-            Transition::PushTwice(s1, s2) => {
-                self.states.push(s1);
-                self.states.push(s2);
-            }
-        };
-        // Let the new state initialize with a fake event. Usually these just return
-        // Transition::Keep, but nothing stops them from doing whatever. (For example, entering
-        // tutorial mode immediately pushes on a Warper.) So just recurse.
-        ctx.no_op_event(true, |ctx| self.event(ctx))
+        if self.execute_transition(ctx, transition) {
+            // Let the new state initialize with a fake event. Usually these just return
+            // Transition::Keep, but nothing stops them from doing whatever. (For example, entering
+            // tutorial mode immediately pushes on a Warper.) So just recurse.
+            ctx.no_op_event(true, |ctx| self.event(ctx));
+        }
     }
 
     fn draw(&self, g: &mut GfxCtx) {
@@ -279,8 +271,8 @@ pub enum Transition {
     Keep,
     KeepWithMouseover,
     Pop,
-    PopTwice,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
+    // TODO Collapse some of these cases too
     PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut EventCtx, &mut App)>),
     KeepWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut EventCtx, &mut App)>),
     ReplaceWithData(
@@ -288,11 +280,8 @@ pub enum Transition {
     ),
     Push(Box<dyn State>),
     Replace(Box<dyn State>),
-    ReplaceThenPush(Box<dyn State>, Box<dyn State>),
-    PopThenReplace(Box<dyn State>),
-    PopThenReplaceThenPush(Box<dyn State>, Box<dyn State>),
     Clear(Vec<Box<dyn State>>),
-    PushTwice(Box<dyn State>, Box<dyn State>),
+    Multi(Vec<Transition>),
 }
 
 pub struct ChooseSomething<T> {

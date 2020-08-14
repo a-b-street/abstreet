@@ -22,7 +22,7 @@ pub struct LaneEditor {
 }
 
 impl LaneEditor {
-    pub fn new(ctx: &mut EventCtx, app: &App, l: LaneID, mode: GameplayMode) -> LaneEditor {
+    pub fn new(ctx: &mut EventCtx, app: &App, l: LaneID, mode: GameplayMode) -> Box<dyn State> {
         let mut row = Vec::new();
         let lt = app.primary.map.get_l(l).lane_type;
         for (icon, label, key, active) in vec![
@@ -99,7 +99,7 @@ impl LaneEditor {
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 
-        LaneEditor { l, mode, composite }
+        Box::new(LaneEditor { l, mode, composite })
     }
 }
 
@@ -125,12 +125,7 @@ impl State for LaneEditor {
         }
         if let Some(ID::Lane(l)) = app.primary.current_selection {
             if app.per_obj.left_click(ctx, "edit this lane") {
-                return Transition::Replace(Box::new(LaneEditor::new(
-                    ctx,
-                    app,
-                    l,
-                    self.mode.clone(),
-                )));
+                return Transition::Replace(LaneEditor::new(ctx, app, l, self.mode.clone()));
             }
         }
         if let Some(ID::Intersection(id)) = app.primary.current_selection {
@@ -186,12 +181,12 @@ impl State for LaneEditor {
                             edits.commands.push(cmd);
                             apply_map_edits(ctx, app, edits);
 
-                            return Transition::Replace(Box::new(LaneEditor::new(
+                            return Transition::Replace(LaneEditor::new(
                                 ctx,
                                 app,
                                 self.l,
                                 self.mode.clone(),
-                            )));
+                            ));
                         }
                         Err(err) => {
                             return Transition::Push(err);
@@ -210,12 +205,7 @@ impl State for LaneEditor {
                     old,
                 });
                 apply_map_edits(ctx, app, edits);
-                return Transition::Replace(Box::new(LaneEditor::new(
-                    ctx,
-                    app,
-                    self.l,
-                    self.mode.clone(),
-                )));
+                return Transition::Replace(LaneEditor::new(ctx, app, self.l, self.mode.clone()));
             }
             _ => {}
         }

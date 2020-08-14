@@ -196,11 +196,11 @@ impl State for MainMenu {
                     } else {
                         "home_to_work"
                     };
-                    return Transition::Push(Box::new(SandboxMode::new(
+                    return Transition::Push(SandboxMode::new(
                         ctx,
                         app,
                         GameplayMode::PlayScenario(map_path, scenario.to_string(), Vec::new()),
-                    )));
+                    ));
                 }
                 "Challenges" => {
                     return Transition::Push(ChallengesPicker::new(ctx, app));
@@ -435,7 +435,7 @@ impl State for Proposals {
                         ));
                     } else {
                         app.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
-                        return Transition::Push(Box::new(SandboxMode::new(
+                        return Transition::Push(SandboxMode::new(
                             ctx,
                             app,
                             GameplayMode::PlayScenario(
@@ -443,7 +443,7 @@ impl State for Proposals {
                                 "weekday".to_string(),
                                 Vec::new(),
                             ),
-                        )));
+                        ));
                     }
                 }
                 "Read detailed write-up" => {

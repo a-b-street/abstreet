@@ -33,7 +33,7 @@ impl StopSignEditor {
         app: &mut App,
         id: IntersectionID,
         mode: GameplayMode,
-    ) -> StopSignEditor {
+    ) -> Box<dyn State> {
         app.primary.current_selection = None;
         let geom = app
             .primary
@@ -64,13 +64,13 @@ impl StopSignEditor {
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
 
-        StopSignEditor {
+        Box::new(StopSignEditor {
             composite,
             id,
             mode,
             geom,
             selected_sign: None,
-        }
+        })
     }
 }
 
@@ -107,12 +107,12 @@ impl State for StopSignEditor {
                     new: EditIntersection::StopSign(sign),
                 });
                 apply_map_edits(ctx, app, edits);
-                return Transition::Replace(Box::new(StopSignEditor::new(
+                return Transition::Replace(StopSignEditor::new(
                     ctx,
                     app,
                     self.id,
                     self.mode.clone(),
-                )));
+                ));
             }
         }
 
@@ -132,12 +132,12 @@ impl State for StopSignEditor {
                         )),
                     });
                     apply_map_edits(ctx, app, edits);
-                    return Transition::Replace(Box::new(StopSignEditor::new(
+                    return Transition::Replace(StopSignEditor::new(
                         ctx,
                         app,
                         self.id,
                         self.mode.clone(),
-                    )));
+                    ));
                 }
                 "close intersection for construction" => {
                     let cmd = EditCmd::ChangeIntersection {

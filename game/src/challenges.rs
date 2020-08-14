@@ -257,12 +257,12 @@ impl State for ChallengesPicker {
                 }
                 "Start!" => {
                     let challenge = self.challenge.take().unwrap();
-                    let sandbox = Box::new(SandboxMode::new(ctx, app, challenge.gameplay.clone()));
+                    let sandbox = SandboxMode::new(ctx, app, challenge.gameplay.clone());
                     if let Some(cutscene) = challenge.cutscene {
-                        Transition::ReplaceThenPush(
-                            sandbox,
-                            cutscene(ctx, app, &challenge.gameplay),
-                        )
+                        Transition::Multi(vec![
+                            Transition::Replace(sandbox),
+                            Transition::Push(cutscene(ctx, app, &challenge.gameplay)),
+                        ])
                     } else {
                         Transition::Replace(sandbox)
                     }

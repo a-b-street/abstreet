@@ -48,11 +48,11 @@ pub struct SandboxControls {
 }
 
 impl SandboxMode {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> SandboxMode {
+    pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> Box<dyn State> {
         app.primary.clear_sim();
         let gameplay = mode.initialize(ctx, app);
 
-        SandboxMode {
+        Box::new(SandboxMode {
             controls: SandboxControls {
                 common: if gameplay.has_common() {
                     Some(CommonState::new())
@@ -92,7 +92,7 @@ impl SandboxMode {
             },
             gameplay,
             gameplay_mode: mode,
-        }
+        })
     }
 
     // Just for Warping
@@ -252,16 +252,16 @@ pub fn maybe_exit_sandbox(ctx: &mut EventCtx) -> Transition {
 
             ctx.canvas.save_camera_state(app.primary.map.get_name());
             if app.primary.map.unsaved_edits() {
-                return Transition::PushTwice(
-                    Box::new(BackToMainMenu),
-                    SaveEdits::new(
+                return Transition::Multi(vec![
+                    Transition::Push(Box::new(BackToMainMenu)),
+                    Transition::Push(SaveEdits::new(
                         ctx,
                         app,
                         "Do you want to save your edits first?",
                         true,
                         None,
-                    ),
-                );
+                    )),
+                ]);
             }
             Transition::Replace(Box::new(BackToMainMenu))
         }),
@@ -433,24 +433,29 @@ impl ContextualActions for Actions {
         close_panel: &mut bool,
     ) -> Transition {
         match (id, action.as_ref()) {
-            (ID::Intersection(i), "edit traffic signal") => Transition::PushTwice(
-                EditMode::new(ctx, app, self.gameplay.clone()),
-                TrafficSignalEditor::new(ctx, app, btreeset! {i}, self.gameplay.clone()),
-            ),
-            (ID::Intersection(i), "edit stop sign") => Transition::PushTwice(
-                EditMode::new(ctx, app, self.gameplay.clone()),
-                Box::new(StopSignEditor::new(ctx, app, i, self.gameplay.clone())),
-            ),
+            (ID::Intersection(i), "edit traffic signal") => Transition::Multi(vec![
+                Transition::Push(EditMode::new(ctx, app, self.gameplay.clone())),
+                Transition::Push(TrafficSignalEditor::new(
+                    ctx,
+                    app,
+                    btreeset! {i},
+                    self.gameplay.clone(),
+                )),
+            ]),
+            (ID::Intersection(i), "edit stop sign") => Transition::Multi(vec![
+                Transition::Push(EditMode::new(ctx, app, self.gameplay.clone())),
+                Transition::Push(StopSignEditor::new(ctx, app, i, self.gameplay.clone())),
+            ]),
             (ID::Intersection(i), "explore uber-turns") => {
                 Transition::Push(uber_turns::UberTurnPicker::new(ctx, app, i))
             }
             (ID::Lane(l), "explore turns from this lane") => {
                 Transition::Push(TurnExplorer::new(ctx, app, l))
             }
-            (ID::Lane(l), "edit lane") => Transition::PushTwice(
-                EditMode::new(ctx, app, self.gameplay.clone()),
-                Box::new(LaneEditor::new(ctx, app, l, self.gameplay.clone())),
-            ),
+            (ID::Lane(l), "edit lane") => Transition::Multi(vec![
+                Transition::Push(EditMode::new(ctx, app, self.gameplay.clone())),
+                Transition::Push(LaneEditor::new(ctx, app, l, self.gameplay.clone())),
+            ]),
             (ID::Building(b), "explore isochrone from here") => {
                 Transition::Push(IsochroneViewer::new(ctx, app, b))
             }

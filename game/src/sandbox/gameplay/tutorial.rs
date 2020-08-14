@@ -49,8 +49,8 @@ impl TutorialPointer {
 
 impl Tutorial {
     pub fn start(ctx: &mut EventCtx, app: &mut App) -> Transition {
-        Transition::PushTwice(
-            Box::new(SandboxMode::new(
+        Transition::Multi(vec![
+            Transition::Push(SandboxMode::new(
                 ctx,
                 app,
                 GameplayMode::Tutorial(
@@ -61,8 +61,8 @@ impl Tutorial {
                         .unwrap_or(TutorialPointer::new(0, 0)),
                 ),
             )),
-            intro_story(ctx, app),
-        )
+            Transition::Push(intro_story(ctx, app)),
+        ])
     }
 
     pub fn new(
@@ -656,7 +656,7 @@ fn make_bike_lane_scenario(map: &Map) -> ScenarioGenerator {
 fn transition(ctx: &mut EventCtx, app: &mut App, tut: &mut TutorialState) -> Transition {
     tut.reset_state();
     let mode = GameplayMode::Tutorial(tut.current);
-    Transition::Replace(Box::new(SandboxMode::new(ctx, app, mode)))
+    Transition::Replace(SandboxMode::new(ctx, app, mode))
 }
 
 impl TutorialState {

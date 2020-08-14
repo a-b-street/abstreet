@@ -353,12 +353,15 @@ impl State for ParkingMapper {
                         ctx,
                         app,
                         Box::new(|ctx, app| {
-                            Transition::PopThenReplace(ParkingMapper::make(
-                                ctx,
-                                app,
-                                Show::TODO,
-                                BTreeMap::new(),
-                            ))
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::Replace(ParkingMapper::make(
+                                    ctx,
+                                    app,
+                                    Show::TODO,
+                                    BTreeMap::new(),
+                                )),
+                            ])
                         }),
                     ));
                 }
@@ -479,12 +482,15 @@ impl State for ChangeWay {
                         ))
                     } else {
                         self.data.insert(self.osm_way_id, value);
-                        Transition::PopThenReplace(ParkingMapper::make(
-                            ctx,
-                            app,
-                            self.show,
-                            self.data.clone(),
-                        ))
+                        Transition::Multi(vec![
+                            Transition::Pop,
+                            Transition::Replace(ParkingMapper::make(
+                                ctx,
+                                app,
+                                self.show,
+                                self.data.clone(),
+                            )),
+                        ])
                     }
                 }
             },

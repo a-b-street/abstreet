@@ -158,16 +158,16 @@ impl GameplayState for FixTrafficSignals {
                     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
                     .build(ctx);
 
-                    return Some(Transition::PushTwice(
-                        final_score(ctx, app, self.mode.clone(), true),
-                        Warping::new(
+                    return Some(Transition::Multi(vec![
+                        Transition::Push(final_score(ctx, app, self.mode.clone(), true)),
+                        Transition::Push(Warping::new(
                             ctx,
                             ID::Intersection(i).canonical_point(&app.primary).unwrap(),
                             Some(10.0),
                             None,
                             &mut app.primary,
-                        ),
-                    ));
+                        )),
+                    ]));
                 }
             } else {
                 self.meter = make_meter(ctx, app, None);
@@ -216,11 +216,11 @@ impl GameplayState for FixTrafficSignals {
                     return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
                 }
                 "try again" => {
-                    return Some(Transition::Replace(Box::new(SandboxMode::new(
+                    return Some(Transition::Replace(SandboxMode::new(
                         ctx,
                         app,
                         self.mode.clone(),
-                    ))));
+                    )));
                 }
                 _ => unreachable!(),
             },

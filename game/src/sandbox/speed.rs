@@ -175,11 +175,11 @@ impl SpeedControls {
                 }
                 "reset to midnight" => {
                     if let Some(mode) = maybe_mode {
-                        return Some(Transition::Replace(Box::new(SandboxMode::new(
+                        return Some(Transition::Replace(SandboxMode::new(
                             ctx,
                             app,
                             mode.clone(),
-                        ))));
+                        )));
                     } else {
                         return Some(Transition::Push(PopupMsg::new(
                             ctx,
@@ -307,16 +307,16 @@ impl SpeedControls {
             self.pause(ctx, app);
             if let Some(id) = maybe_id {
                 // Just go to the first one, but print all messages
-                return Some(Transition::PushTwice(
-                    popup,
-                    Warping::new(
+                return Some(Transition::Multi(vec![
+                    Transition::Push(popup),
+                    Transition::Push(Warping::new(
                         ctx,
                         id.canonical_point(&app.primary).unwrap(),
                         Some(10.0),
                         None,
                         &mut app.primary,
-                    ),
-                ));
+                    )),
+                ]));
             } else {
                 return Some(Transition::Push(popup));
             }
@@ -425,10 +425,10 @@ impl State for JumpToTime {
                 "jump to time" => {
                     if self.target < app.primary.sim.time() {
                         if let Some(mode) = self.maybe_mode.take() {
-                            return Transition::ReplaceThenPush(
-                                Box::new(SandboxMode::new(ctx, app, mode)),
-                                TimeWarpScreen::new(ctx, app, self.target, false),
-                            );
+                            return Transition::Multi(vec![
+                                Transition::Replace(SandboxMode::new(ctx, app, mode)),
+                                Transition::Push(TimeWarpScreen::new(ctx, app, self.target, false)),
+                            ]);
                         } else {
                             return Transition::Replace(PopupMsg::new(
                                 ctx,
