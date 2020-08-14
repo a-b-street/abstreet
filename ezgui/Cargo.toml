@@ -29,7 +29,7 @@ stretch = "0.3.2"
 ttf-parser = "0.6.1"
 usvg = { git = "https://github.com/RazrFalcon/resvg", default-features=false }
 webgl_stdweb = { version = "0.3", optional = true }
-winit = "0.22.2"
+winit = { version = "0.22.2", git = "https://github.com/michaelkirk/winit", branch = "mkirk/fix-stdweb-dpi" }
 
 [dev-dependencies]
 rand = "0.7.0"
