@@ -1,7 +1,7 @@
 use crate::app::{App, ShowEverything};
 use crate::common::{CityPicker, CommonState};
 use crate::edit::EditMode;
-use crate::game::{ChooseSomething, State, Transition};
+use crate::game::{ChooseSomething, PopupMsg, PromptInput, State, Transition};
 use crate::helpers::{nice_map_name, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
@@ -72,6 +72,32 @@ impl GameplayState for Freeform {
                     GameplayMode::Freeform(abstutil::path_map(app.primary.map.get_name())),
                 ))),
                 "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, None))),
+                "Record trips as a scenario" => Some(Transition::Push(PromptInput::new(
+                    ctx,
+                    "Name this scenario",
+                    Box::new(|name, ctx, app| {
+                        if abstutil::file_exists(abstutil::path_scenario(
+                            app.primary.map.get_name(),
+                            &name,
+                        )) {
+                            Transition::Push(PopupMsg::new(
+                                ctx,
+                                "Error",
+                                vec![format!(
+                                    "A scenario called \"{}\" already exists, please pick another \
+                                     name",
+                                    name
+                                )],
+                            ))
+                        } else {
+                            app.primary
+                                .sim
+                                .generate_scenario(&app.primary.map, name)
+                                .save();
+                            Transition::Pop
+                        }
+                    }),
+                ))),
                 _ => unreachable!(),
             },
             _ => None,
@@ -99,9 +125,11 @@ fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
             Btn::svg_def("system/assets/tools/edit_map.svg").build(ctx, "edit map", lctrl(Key::E)),
         ])
         .centered(),
-        Btn::text_fg("Start a new trip")
-            .build_def(ctx, None)
-            .centered_horiz(),
+        Widget::row(vec![
+            Btn::text_fg("Start a new trip").build_def(ctx, None),
+            Btn::text_fg("Record trips as a scenario").build_def(ctx, None),
+        ])
+        .centered(),
         Text::from_all(vec![
             Line("Select an intersection and press "),
             Line(Key::Z.describe()).fg(ctx.style().hotkey_color),

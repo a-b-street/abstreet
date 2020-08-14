@@ -1,8 +1,9 @@
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
-    Event, OffMapLocation, OrigPersonID, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID,
-    PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripID, TripPhaseType,
-    TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState,
+    Event, IndividTrip, OffMapLocation, OrigPersonID, ParkedCar, ParkingSimState, ParkingSpot,
+    PedestrianID, PersonID, PersonSpec, Scenario, Scheduler, SidewalkPOI, SidewalkSpot, SpawnTrip,
+    TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle, VehicleSpec, VehicleType,
+    WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Duration, Speed, Time};
@@ -1325,6 +1326,35 @@ impl TripManager {
         }
         times.sort();
         times
+    }
+
+    // TODO This could be lossy. There are a few layers in spawning trips, and things like
+    // spawn_agents_around reach into one of the middle layers directly. So here in TripManager, we
+    // might not have retained enough state to create a proper scenario. But this should work
+    // reasonably for most cases.
+    pub fn generate_scenario(&self, map: &Map, name: String) -> Scenario {
+        let mut scenario = Scenario::empty(map, &name);
+        for p in &self.people {
+            scenario.people.push(PersonSpec {
+                id: p.id,
+                orig_id: p.orig_id,
+                trips: p
+                    .trips
+                    .iter()
+                    .filter_map(|t| {
+                        let trip = &self.trips[t.0];
+                        SpawnTrip::new(
+                            trip.info.start.clone(),
+                            trip.info.end.clone(),
+                            trip.info.mode,
+                            map,
+                        )
+                        .map(|spawn| IndividTrip::new(trip.info.departure, spawn))
+                    })
+                    .collect(),
+            });
+        }
+        scenario
     }
 }
 

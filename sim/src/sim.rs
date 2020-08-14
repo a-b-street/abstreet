@@ -3,9 +3,9 @@ use crate::{
     AgentID, AgentType, AlertLocation, Analytics, CarID, Command, CreateCar, DrawCarInput,
     DrawPedCrowdInput, DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents,
     IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSimState, ParkingSpot,
-    PedestrianID, Person, PersonID, PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot,
-    TransitSimState, TripID, TripInfo, TripManager, TripPhaseType, TripResult, TripSpawner,
-    UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    PedestrianID, Person, PersonID, PersonState, Router, Scenario, Scheduler, SidewalkPOI,
+    SidewalkSpot, TransitSimState, TripID, TripInfo, TripManager, TripPhaseType, TripResult,
+    TripSpawner, UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
     LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
 use abstutil::{prettyprint_usize, serialized_size_bytes, Counter, Parallelism, Timer};
@@ -1191,6 +1191,10 @@ impl Sim {
         at: BusStopID,
     ) -> &Vec<(PedestrianID, BusRouteID, Option<BusStopID>, Time)> {
         self.transit.get_people_waiting_at_stop(at)
+    }
+
+    pub fn generate_scenario(&self, map: &Map, name: String) -> Scenario {
+        self.trips.generate_scenario(map, name)
     }
 }
 
