@@ -19,6 +19,7 @@ pub struct IntersectionSimState {
     use_freeform_policy_everywhere: bool,
     dont_block_the_box: bool,
     break_turn_conflict_cycles: bool,
+    handle_uber_turns: bool,
     // (x, y) means x is blocked by y. It's a many-to-many relationship. TODO Better data
     // structure.
     blocked_by: BTreeSet<(CarID, CarID)>,
@@ -58,12 +59,14 @@ impl IntersectionSimState {
         use_freeform_policy_everywhere: bool,
         dont_block_the_box: bool,
         break_turn_conflict_cycles: bool,
+        handle_uber_turns: bool,
     ) -> IntersectionSimState {
         let mut sim = IntersectionSimState {
             state: BTreeMap::new(),
             use_freeform_policy_everywhere,
             dont_block_the_box,
             break_turn_conflict_cycles,
+            handle_uber_turns,
             blocked_by: BTreeSet::new(),
             events: Vec::new(),
         };
@@ -295,7 +298,9 @@ impl IntersectionSimState {
             false
         } else if maybe_cars_and_queues
             .as_ref()
-            .map(|(car, _, _)| car.router.get_path().currently_inside_ut().is_some())
+            .map(|(car, _, _)| {
+                self.handle_uber_turns && car.router.get_path().currently_inside_ut().is_some()
+            })
             .unwrap_or(false)
         {
             // If we started an uber-turn, then finish it! But alert if we're running a red light.
@@ -325,32 +330,35 @@ impl IntersectionSimState {
         }
 
         // Lock the entire uber-turn.
-        if let Some(ut) = maybe_cars_and_queues
-            .as_ref()
-            .and_then(|(car, _, _)| car.router.get_path().about_to_start_ut())
-        {
-            // If there's a problem up ahead, don't start.
-            for t in &ut.path {
-                let req = Request { agent, turn: *t };
-                if !self.handle_accepted_conflicts(&req, map, readonly_pair) {
-                    return false;
+        if self.handle_uber_turns {
+            if let Some(ut) = maybe_cars_and_queues
+                .as_ref()
+                .and_then(|(car, _, _)| car.router.get_path().about_to_start_ut())
+            {
+                // If there's a problem up ahead, don't start.
+                for t in &ut.path {
+                    let req = Request { agent, turn: *t };
+                    if !self.handle_accepted_conflicts(&req, map, readonly_pair) {
+                        return false;
+                    }
                 }
-            }
-            // If the way is clear, make sure it stays that way.
-            for t in &ut.path {
-                self.state
-                    .get_mut(&t.parent)
-                    .unwrap()
-                    .reserved
-                    .insert(Request { agent, turn: *t });
+                // If the way is clear, make sure it stays that way.
+                for t in &ut.path {
+                    self.state
+                        .get_mut(&t.parent)
+                        .unwrap()
+                        .reserved
+                        .insert(Request { agent, turn: *t });
+                }
             }
         }
 
         // Don't block the box.
         if let Some((car, _, queues)) = maybe_cars_and_queues {
             assert_eq!(agent, AgentID::Car(car.vehicle.id));
-            let inside_ut = car.router.get_path().currently_inside_ut().is_some()
-                || car.router.get_path().about_to_start_ut().is_some();
+            let inside_ut = self.handle_uber_turns
+                && (car.router.get_path().currently_inside_ut().is_some()
+                    || car.router.get_path().about_to_start_ut().is_some());
             let queue = queues.get_mut(&Traversable::Lane(turn.dst)).unwrap();
             if !queue.try_to_reserve_entry(
                 car,

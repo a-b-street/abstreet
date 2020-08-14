@@ -67,6 +67,7 @@ pub struct SimOptions {
     pub dont_block_the_box: bool,
     pub recalc_lanechanging: bool,
     pub break_turn_conflict_cycles: bool,
+    pub handle_uber_turns: bool,
     pub enable_pandemic_model: Option<XorShiftRng>,
     pub alerts: AlertHandler,
     pub pathfinding_upfront: bool,
@@ -96,6 +97,7 @@ impl SimOptions {
             dont_block_the_box: true,
             recalc_lanechanging: true,
             break_turn_conflict_cycles: true,
+            handle_uber_turns: true,
             enable_pandemic_model: None,
             alerts: AlertHandler::Print,
             pathfinding_upfront: false,
@@ -108,7 +110,7 @@ impl Sim {
     pub fn new(map: &Map, opts: SimOptions, timer: &mut Timer) -> Sim {
         let mut scheduler = Scheduler::new();
         Sim {
-            driving: DrivingSimState::new(map, opts.recalc_lanechanging),
+            driving: DrivingSimState::new(map, opts.recalc_lanechanging, opts.handle_uber_turns),
             parking: ParkingSimState::new(map, timer),
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(
@@ -117,6 +119,7 @@ impl Sim {
                 opts.use_freeform_policy_everywhere,
                 opts.dont_block_the_box,
                 opts.break_turn_conflict_cycles,
+                opts.handle_uber_turns,
             ),
             transit: TransitSimState::new(map),
             trips: TripManager::new(opts.pathfinding_upfront),

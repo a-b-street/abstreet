@@ -326,8 +326,11 @@ impl Router {
         &mut self,
         queues: &BTreeMap<Traversable, Queue>,
         map: &Map,
+        handle_uber_turns: bool,
     ) {
-        if self.path.approaching_uber_turn() || self.path.currently_inside_ut().is_some() {
+        if handle_uber_turns
+            && (self.path.approaching_uber_turn() || self.path.currently_inside_ut().is_some())
+        {
             return;
         }
         let (current_turn, next_lane) = {

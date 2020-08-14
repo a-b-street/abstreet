@@ -32,6 +32,7 @@ impl SimFlags {
                 dont_block_the_box: !args.enabled("--disable_block_the_box"),
                 recalc_lanechanging: !args.enabled("--disable_recalc_lc"),
                 break_turn_conflict_cycles: !args.enabled("--disable_break_turn_conflict_cycles"),
+                handle_uber_turns: !args.enabled("--disable_handle_uber_turns"),
                 enable_pandemic_model: if args.enabled("--pandemic") {
                     Some(XorShiftRng::from_seed([rng_seed; 16]))
                 } else {

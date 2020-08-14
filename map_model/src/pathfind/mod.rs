@@ -239,6 +239,7 @@ impl Path {
         }
 
         if self.steps.len() == 1 {
+            // TODO When handle_uber_turns experiment is turned off, this will crash
             assert!(self.uber_turns.is_empty());
             assert!(self.currently_inside_ut.is_none());
         }

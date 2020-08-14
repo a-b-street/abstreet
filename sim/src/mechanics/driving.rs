@@ -37,15 +37,17 @@ pub struct DrivingSimState {
     events: Vec<Event>,
 
     recalc_lanechanging: bool,
+    handle_uber_turns: bool,
 }
 
 impl DrivingSimState {
-    pub fn new(map: &Map, recalc_lanechanging: bool) -> DrivingSimState {
+    pub fn new(map: &Map, recalc_lanechanging: bool, handle_uber_turns: bool) -> DrivingSimState {
         let mut sim = DrivingSimState {
             cars: BTreeMap::new(),
             queues: BTreeMap::new(),
             events: Vec::new(),
             recalc_lanechanging,
+            handle_uber_turns,
         };
 
         for l in map.all_lanes() {
@@ -265,7 +267,11 @@ impl DrivingSimState {
                     // Want to re-run, but no urgency about it happening immediately.
                     car.state = CarState::WaitingToAdvance { blocked_since: now };
                     if self.recalc_lanechanging {
-                        car.router.opportunistically_lanechange(&self.queues, map);
+                        car.router.opportunistically_lanechange(
+                            &self.queues,
+                            map,
+                            self.handle_uber_turns,
+                        );
                     }
                     scheduler.push(now, Command::UpdateCar(car.vehicle.id));
                 }
@@ -811,9 +817,11 @@ impl DrivingSimState {
                                 // immediately promote them to WaitingToAdvance.
                                 follower.state = CarState::WaitingToAdvance { blocked_since };
                                 if self.recalc_lanechanging {
-                                    follower
-                                        .router
-                                        .opportunistically_lanechange(&self.queues, map);
+                                    follower.router.opportunistically_lanechange(
+                                        &self.queues,
+                                        map,
+                                        self.handle_uber_turns,
+                                    );
                                 }
                                 scheduler.push(now, Command::UpdateCar(follower.vehicle.id));
                             }

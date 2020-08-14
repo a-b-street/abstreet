@@ -14,7 +14,7 @@ Diff screencaps: http://www.imagemagick.org/Usage/compare/#methods
 Debug OpenGL calls:
 
 ```
-apitrace trace --api gl ../target/debug/game ../data/input/raw_maps/montlake.bin
+apitrace trace --api gl ../target/debug/game
 qapitrace game.trace
 apitrace dump game.trace
 ```
