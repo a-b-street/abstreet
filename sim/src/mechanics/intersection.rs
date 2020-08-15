@@ -84,7 +84,9 @@ impl IntersectionSimState {
                 // What phase are we starting with?
                 let mut offset = signal.offset;
                 loop {
-                    let dt = signal.phases[state.current_phase].phase_type.simple_duration();
+                    let dt = signal.phases[state.current_phase]
+                        .phase_type
+                        .simple_duration();
                     if offset >= dt {
                         offset -= dt;
                         state.current_phase += 1;
