@@ -22,7 +22,7 @@ use crate::debug::DebugMode;
 use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::options::OptionsPanel;
-use crate::render::{DrawMap, DrawRoad};
+use crate::render::DrawMap;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
 use ezgui::{
@@ -558,7 +558,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
 
     for r in roads_changed {
         let road = app.primary.map.get_r(r);
-        app.primary.draw_map.roads[r.0] = DrawRoad::new(ctx, road, &app.primary.map, &app.cs);
+        app.primary.draw_map.roads[r.0].clear_rendering();
 
         // An edit to one lane potentially affects markings in all lanes in the same road, because
         // of one-way markings, driving lines, etc.

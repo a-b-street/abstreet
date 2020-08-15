@@ -1,8 +1,7 @@
 use crate::app::App;
-use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use ezgui::{Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Text};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{Map, Road, RoadID};
 use std::cell::RefCell;
@@ -11,43 +10,22 @@ pub struct DrawRoad {
     pub id: RoadID,
     zorder: isize,
 
-    draw_center_line: Drawable,
+    draw_center_line: RefCell<Option<Drawable>>,
     label: RefCell<Option<Drawable>>,
 }
 
 impl DrawRoad {
-    pub fn new(ctx: &EventCtx, r: &Road, map: &Map, cs: &ColorScheme) -> DrawRoad {
-        let mut draw = GeomBatch::new();
-
-        // Only draw a center line if it straddles two driving/bike/bus lanes of opposite
-        // directions
-        if let (Some((_, lt1)), Some((_, lt2))) =
-            (r.children_forwards.get(0), r.children_backwards.get(0))
-        {
-            if lt1.is_for_moving_vehicles() && lt2.is_for_moving_vehicles() {
-                let width = Distance::meters(0.25);
-                let color = if r.is_private() {
-                    cs.road_center_line.lerp(cs.private_road, 0.5)
-                } else {
-                    cs.road_center_line
-                };
-                draw.extend(
-                    color,
-                    r.get_current_center(map).dashed_lines(
-                        width,
-                        Distance::meters(2.0),
-                        Distance::meters(1.0),
-                    ),
-                );
-            }
-        }
-
+    pub fn new(r: &Road) -> DrawRoad {
         DrawRoad {
             id: r.id,
             zorder: r.zorder,
-            draw_center_line: ctx.upload(draw),
+            draw_center_line: RefCell::new(None),
             label: RefCell::new(None),
         }
+    }
+
+    pub fn clear_rendering(&mut self) {
+        *self.draw_center_line.borrow_mut() = None;
     }
 }
 
@@ -57,7 +35,36 @@ impl Renderable for DrawRoad {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App, _: &DrawOptions) {
-        g.redraw(&self.draw_center_line);
+        let mut draw_center_line = self.draw_center_line.borrow_mut();
+        if draw_center_line.is_none() {
+            let mut batch = GeomBatch::new();
+            let r = app.primary.map.get_r(self.id);
+
+            // Only draw a center line if it straddles two driving/bike/bus lanes of opposite
+            // directions
+            if let (Some((_, lt1)), Some((_, lt2))) =
+                (r.children_forwards.get(0), r.children_backwards.get(0))
+            {
+                if lt1.is_for_moving_vehicles() && lt2.is_for_moving_vehicles() {
+                    let width = Distance::meters(0.25);
+                    let color = if r.is_private() {
+                        app.cs.road_center_line.lerp(app.cs.private_road, 0.5)
+                    } else {
+                        app.cs.road_center_line
+                    };
+                    batch.extend(
+                        color,
+                        r.get_current_center(&app.primary.map).dashed_lines(
+                            width,
+                            Distance::meters(2.0),
+                            Distance::meters(1.0),
+                        ),
+                    );
+                }
+            }
+            *draw_center_line = Some(g.prerender.upload(batch));
+        }
+        g.redraw(draw_center_line.as_ref().unwrap());
 
         if app.opts.label_roads {
             // Lazily calculate

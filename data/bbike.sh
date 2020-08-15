@@ -13,5 +13,5 @@ for city in Aachen Aarhus Adelaide Albuquerque Alexandria Amsterdam Antwerpen Ar
 	#osmconvert $city.osm.pbf -o=$city.osm
 	#rm -f $city.osm.pbf
 	cd ..
-	#./import.sh --oneshot=`pwd`/bbike_extracts/$city.osm --skip_ch
+	#./import.sh --oneshot=`pwd`/bbike_extracts/$city.osm --skip_ch > log_$city
 done

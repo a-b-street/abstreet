@@ -50,7 +50,7 @@ impl DrawMap {
         timer.start_iter("make DrawRoads", map.all_roads().len());
         for r in map.all_roads() {
             timer.next();
-            roads.push(DrawRoad::new(ctx, r, map, cs));
+            roads.push(DrawRoad::new(r));
         }
 
         let mut lanes: Vec<DrawLane> = Vec::new();
