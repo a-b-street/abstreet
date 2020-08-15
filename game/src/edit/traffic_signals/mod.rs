@@ -12,7 +12,8 @@ use crate::sandbox::GameplayMode;
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Spinner, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Bounds, Distance, Duration, Polygon};
 use map_model::{
@@ -239,6 +240,13 @@ impl State for TrafficSignalEditor {
                 if x == "Add new phase" {
                     self.add_new_edit(ctx, app, num_phases, |ts| {
                         ts.phases.push(Phase::new());
+                    });
+                    return Transition::Keep;
+                }
+                if x == "Apply offset" {
+                    let offset = Duration::seconds(self.side_panel.spinner("offset") as f64);
+                    self.add_new_edit(ctx, app, self.current_phase, |ts| {
+                        ts.offset = offset;
                     });
                     return Transition::Keep;
                 }
@@ -556,6 +564,16 @@ fn make_side_panel(
     ];
     if members.len() == 1 {
         col.push(Btn::text_bg2("Edit entire signal").build_def(ctx, hotkey(Key::E)));
+        col.push(Widget::row(vec![
+            "Offset (s):".draw_text(ctx),
+            Spinner::new(
+                ctx,
+                (0, 90),
+                canonical_signal.offset.inner_seconds() as isize,
+            )
+            .named("offset"),
+            Btn::text_bg2("Apply").build(ctx, "Apply offset", None),
+        ]));
     }
 
     for (idx, canonical_phase) in canonical_signal.phases.iter().enumerate() {

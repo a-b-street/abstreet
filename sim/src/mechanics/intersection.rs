@@ -71,20 +71,34 @@ impl IntersectionSimState {
             events: Vec::new(),
         };
         for i in map.all_intersections() {
-            sim.state.insert(
-                i.id,
-                State {
-                    id: i.id,
-                    accepted: BTreeSet::new(),
-                    waiting: BTreeMap::new(),
-                    reserved: BTreeSet::new(),
-                    current_phase: 0,
-                    phase_ends_at: Time::START_OF_DAY,
-                },
-            );
+            let mut state = State {
+                id: i.id,
+                accepted: BTreeSet::new(),
+                waiting: BTreeMap::new(),
+                reserved: BTreeSet::new(),
+                current_phase: 0,
+                phase_ends_at: Time::START_OF_DAY,
+            };
             if i.is_traffic_signal() && !use_freeform_policy_everywhere {
-                sim.update_intersection(Time::START_OF_DAY, i.id, map, scheduler);
+                let signal = map.get_traffic_signal(i.id);
+                // What phase are we starting with?
+                let mut offset = signal.offset;
+                loop {
+                    let dt = signal.phases[state.current_phase].phase_type.simple_duration();
+                    if offset >= dt {
+                        offset -= dt;
+                        state.current_phase += 1;
+                        if state.current_phase == signal.phases.len() {
+                            state.current_phase = 0;
+                        }
+                    } else {
+                        state.phase_ends_at = Time::START_OF_DAY + dt - offset;
+                        break;
+                    }
+                }
+                scheduler.push(state.phase_ends_at, Command::UpdateIntersection(i.id));
             }
+            sim.state.insert(i.id, state);
         }
         sim
     }
@@ -222,34 +236,32 @@ impl IntersectionSimState {
         let signal = map.get_traffic_signal(id);
 
         // Switch to a new phase?
-        if now != Time::START_OF_DAY {
-            assert_eq!(now, state.phase_ends_at);
-            let old_phase = &signal.phases[state.current_phase];
-            match old_phase.phase_type {
-                PhaseType::Fixed(_) => {
+        assert_eq!(now, state.phase_ends_at);
+        let old_phase = &signal.phases[state.current_phase];
+        match old_phase.phase_type {
+            PhaseType::Fixed(_) => {
+                state.current_phase += 1;
+            }
+            PhaseType::Adaptive(_) => {
+                // TODO Make a better policy here. For now, if there's _anyone_ waiting to start a
+                // protected turn, repeat this phase for the full duration. Note that "waiting" is
+                // only defined as "at the end of the lane, ready to start the turn." If a
+                // vehicle/ped is a second away from the intersection, this won't detect that. We
+                // could pass in all of the Queues here and use that to count all incoming agents,
+                // even ones a little farther away.
+                if state.waiting.keys().all(|req| {
+                    old_phase.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
+                }) {
                     state.current_phase += 1;
-                }
-                PhaseType::Adaptive(_) => {
-                    // TODO Make a better policy here. For now, if there's _anyone_ waiting to
-                    // start a protected turn, repeat this phase for the full duration. Note that
-                    // "waiting" is only defined as "at the end of the lane, ready to start the
-                    // turn." If a vehicle/ped is a second away from the intersection, this won't
-                    // detect that. We could pass in all of the Queues here and use that to count
-                    // all incoming agents, even ones a little farther away.
-                    if state.waiting.keys().all(|req| {
-                        old_phase.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
-                    }) {
-                        state.current_phase += 1;
-                        self.events.push(Event::Alert(
-                            AlertLocation::Intersection(id),
-                            "Repeating an adaptive phase".to_string(),
-                        ));
-                    }
+                    self.events.push(Event::Alert(
+                        AlertLocation::Intersection(id),
+                        "Repeating an adaptive phase".to_string(),
+                    ));
                 }
             }
-            if state.current_phase == signal.phases.len() {
-                state.current_phase = 0;
-            }
+        }
+        if state.current_phase == signal.phases.len() {
+            state.current_phase = 0;
         }
 
         state.phase_ends_at = now
