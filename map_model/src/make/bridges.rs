@@ -17,7 +17,10 @@ pub fn find_bridges(roads: &mut Vec<Road>, bounds: &Bounds, timer: &mut Timer) {
         timer.next();
         let bridge_pts = roads[bridge.0].center_pts.clone();
         for (r, _, _) in closest.all_close_pts(bridge_pts.middle(), Distance::meters(500.0)) {
-            if bridge != r && bridge_pts.intersection(&roads[r.0].center_pts).is_some() {
+            if bridge != r
+                && bridge_pts != roads[r.0].center_pts
+                && bridge_pts.intersection(&roads[r.0].center_pts).is_some()
+            {
                 if roads[r.0].zorder == 0 {
                     roads[r.0].zorder = -1;
                 }

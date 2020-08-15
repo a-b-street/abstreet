@@ -195,9 +195,12 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
         if let Some(area_type) = get_area_type(&rel.tags) {
             if rel.tags.is("type", "multipolygon") {
-                for polygon in
-                    glue_multipolygon(id, get_multipolygon_members(id, rel, &doc), &boundary)
-                {
+                for polygon in glue_multipolygon(
+                    id,
+                    get_multipolygon_members(id, rel, &doc),
+                    &boundary,
+                    timer,
+                ) {
                     map.areas.push(RawArea {
                         area_type,
                         osm_id: OsmID::Relation(id),
@@ -318,7 +321,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
     // Special case the coastline.
     println!("{} ways of coastline", coastline_groups.len());
-    for polygon in glue_multipolygon(RelationID(-1), coastline_groups, &boundary) {
+    for polygon in glue_multipolygon(RelationID(-1), coastline_groups, &boundary, timer) {
         let mut osm_tags = Tags::new(BTreeMap::new());
         osm_tags.insert("water", "ocean");
         // Put it at the beginning, so that it's naturally beneath island areas
@@ -560,6 +563,7 @@ fn glue_multipolygon(
     rel_id: RelationID,
     mut pts_per_way: Vec<(WayID, Vec<Pt2D>)>,
     boundary: &Ring,
+    timer: &mut Timer,
 ) -> Vec<Polygon> {
     // First deal with all of the closed loops.
     let mut polygons: Vec<Polygon> = Vec::new();
@@ -617,12 +621,19 @@ fn glue_multipolygon(
     if result.len() < 2 {
         return Vec::new();
     }
-    if let Some(poly) = glue_to_boundary(PolyLine::must_new(result.clone()), boundary) {
-        polygons.push(poly);
-    } else {
-        // Give up and just connect the ends directly.
-        result.push(result[0]);
-        polygons.push(Ring::must_new(result).to_polygon());
+    match PolyLine::new(result.clone()) {
+        Ok(pl) => {
+            if let Some(poly) = glue_to_boundary(pl, boundary) {
+                polygons.push(poly);
+            } else {
+                // Give up and just connect the ends directly.
+                result.push(result[0]);
+                polygons.push(Ring::must_new(result).to_polygon());
+            }
+        }
+        Err(err) => {
+            timer.error(format!("Really weird multipolygon {}: {}", rel_id, err));
+        }
     }
 
     polygons

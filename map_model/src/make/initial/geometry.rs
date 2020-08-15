@@ -435,6 +435,10 @@ fn on_off_ramp(
     for thin_pl in vec![&thin.left, &thin.right] {
         for thick in vec![&thick1, &thick2] {
             for thick_pl in vec![&thick.left, &thick.right] {
+                if thin_pl == thick_pl {
+                    // How? Just bail.
+                    return None;
+                }
                 if let Some((hit, angle)) = thin_pl.intersection(thick_pl) {
                     // Find where the perpendicular hits the original road line
                     // TODO Refactor something to go from a hit+angle on a left/right to a trimmed

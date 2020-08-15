@@ -203,6 +203,7 @@ fn make_vehicle_turns(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<Tur
                 PolyLine::must_new(vec![src.last_pt(), dst.first_pt()])
             } else {
                 curvey_turn(src, dst)
+                    .unwrap_or_else(|_| PolyLine::must_new(vec![src.last_pt(), dst.first_pt()]))
             };
 
             turns.push(Turn {
@@ -221,7 +222,7 @@ fn make_vehicle_turns(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<Tur
     turns
 }
 
-fn curvey_turn(src: &Lane, dst: &Lane) -> PolyLine {
+fn curvey_turn(src: &Lane, dst: &Lane) -> Result<PolyLine, String> {
     // The control points are straight out/in from the source/destination lanes, so
     // that the car exits and enters at the same angle as the road.
     let src_line = src.last_line();
@@ -245,7 +246,7 @@ fn curvey_turn(src: &Lane, dst: &Lane) -> PolyLine {
         })
         .collect();
     curve.dedup();
-    PolyLine::must_new(curve)
+    PolyLine::new(curve)
 }
 
 fn to_pt(pt: Pt2D) -> Point2d<f64> {
