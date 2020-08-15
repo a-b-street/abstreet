@@ -20,7 +20,7 @@ use map_model::{
     ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase, PhaseType, TurnGroup,
     TurnGroupID, TurnPriority,
 };
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 
 // Welcome to one of the most overwhelmingly complicated parts of the UI...
 
@@ -247,6 +247,25 @@ impl State for TrafficSignalEditor {
                     let offset = Duration::seconds(self.side_panel.spinner("offset") as f64);
                     self.add_new_edit(ctx, app, self.current_phase, |ts| {
                         ts.offset = offset;
+                    });
+                    return Transition::Keep;
+                }
+                if x == "Apply offsets" {
+                    let offsets: HashMap<IntersectionID, Duration> = self
+                        .members
+                        .iter()
+                        .enumerate()
+                        .map(|(idx, i)| {
+                            (
+                                *i,
+                                Duration::seconds(
+                                    self.side_panel.spinner(&format!("offset {}", idx)) as f64,
+                                ),
+                            )
+                        })
+                        .collect();
+                    self.add_new_edit(ctx, app, self.current_phase, |ts| {
+                        ts.offset = offsets[&ts.id];
                     });
                     return Transition::Keep;
                 }
@@ -643,6 +662,30 @@ fn make_side_panel(
 
     col.push(Widget::horiz_separator(ctx, 0.2));
     col.push(Btn::text_fg("Add new phase").build_def(ctx, None));
+
+    // TODO This doesn't even have a way of knowing which spinner corresponds to which
+    // intersection!
+    if members.len() > 1 {
+        col.push("Tune offset (s)".draw_text(ctx));
+        col.push(
+            Widget::row(
+                members
+                    .iter()
+                    .enumerate()
+                    .map(|(idx, i)| {
+                        Spinner::new(
+                            ctx,
+                            (0, 90),
+                            map.get_traffic_signal(*i).offset.inner_seconds() as isize,
+                        )
+                        .named(format!("offset {}", idx))
+                    })
+                    .collect(),
+            )
+            .evenly_spaced(),
+        );
+        col.push(Btn::text_bg2("Apply").build(ctx, "Apply offsets", None));
+    }
 
     Composite::new(Widget::col(col))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
