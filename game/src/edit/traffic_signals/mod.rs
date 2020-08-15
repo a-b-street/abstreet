@@ -89,7 +89,7 @@ impl TrafficSignalEditor {
         synced.apply(app);
 
         let mut editor = TrafficSignalEditor {
-            side_panel: make_side_panel(ctx, app, &members, 0),
+            side_panel: make_side_panel(ctx, app, &members, 0, None),
             top_panel: make_top_panel(ctx, app, false, false),
             mode,
             members,
@@ -108,13 +108,16 @@ impl TrafficSignalEditor {
     }
 
     fn change_phase(&mut self, ctx: &mut EventCtx, app: &App, idx: usize) {
+        let hovering = self.group_selected.map(|(tg, _)| tg.parent);
+
         if self.current_phase == idx {
-            let mut new = make_side_panel(ctx, app, &self.members, self.current_phase);
+            let mut new = make_side_panel(ctx, app, &self.members, self.current_phase, hovering);
             new.restore(ctx, &self.side_panel);
             self.side_panel = new;
         } else {
             self.current_phase = idx;
-            self.side_panel = make_side_panel(ctx, app, &self.members, self.current_phase);
+            self.side_panel =
+                make_side_panel(ctx, app, &self.members, self.current_phase, hovering);
             // TODO Maybe center of previous member
             self.side_panel
                 .scroll_to_member(ctx, format!("phase {}", idx + 1));
@@ -424,6 +427,7 @@ impl State for TrafficSignalEditor {
 
             if self.group_selected != old {
                 self.draw_current = self.recalc_draw_current(ctx, app);
+                self.change_phase(ctx, app, self.current_phase);
             }
         }
 
@@ -547,6 +551,7 @@ fn make_side_panel(
     app: &App,
     members: &BTreeSet<IntersectionID>,
     selected: usize,
+    hovering: Option<IntersectionID>,
 ) -> Composite {
     let map = &app.primary.map;
     // Use any member for phase duration
@@ -579,7 +584,7 @@ fn make_side_panel(
 
     let mut col = vec![
         txt.draw(ctx),
-        Btn::text_bg2("Edit multiple signals").build_def(ctx, None),
+        Btn::text_bg2("Edit multiple signals").build_def(ctx, hotkey(Key::M)),
     ];
     if members.len() == 1 {
         col.push(Btn::text_bg2("Edit entire signal").build_def(ctx, hotkey(Key::E)));
@@ -605,7 +610,7 @@ fn make_side_panel(
     for (idx, canonical_phase) in canonical_signal.phases.iter().enumerate() {
         col.push(Widget::horiz_separator(ctx, 0.2));
 
-        let unselected_btn = draw_multiple_signals(ctx, app, members, idx, &translations);
+        let unselected_btn = draw_multiple_signals(ctx, app, members, idx, hovering, &translations);
         let mut selected_btn = unselected_btn.clone();
         let bbox = unselected_btn.get_bounds().get_rectangle();
         selected_btn.push(Color::RED, bbox.to_outline(Distance::meters(5.0)).unwrap());
@@ -680,12 +685,17 @@ fn make_side_panel(
                     .iter()
                     .enumerate()
                     .map(|(idx, i)| {
-                        Spinner::new(
+                        let spinner = Spinner::new(
                             ctx,
                             (0, 90),
                             map.get_traffic_signal(*i).offset.inner_seconds() as isize,
                         )
-                        .named(format!("offset {}", idx))
+                        .named(format!("offset {}", idx));
+                        if hovering == Some(*i) {
+                            spinner.padding(2).outline(2.0, Color::YELLOW)
+                        } else {
+                            spinner
+                        }
                     })
                     .collect(),
             )
@@ -796,6 +806,7 @@ fn draw_multiple_signals(
     app: &App,
     members: &BTreeSet<IntersectionID>,
     idx: usize,
+    hovering: Option<IntersectionID>,
     translations: &Vec<(f64, f64)>,
 ) -> GeomBatch {
     let mut batch = GeomBatch::new();
@@ -814,6 +825,19 @@ fn draw_multiple_signals(
             app,
             TrafficSignalStyle::Sidewalks,
         );
+        if members.len() > 1 && hovering.map(|x| x == *i).unwrap_or(false) {
+            // TODO This makes the side-panel jump a little, because the outline slightly increases
+            // the bounds...
+            if let Ok(p) = app
+                .primary
+                .map
+                .get_i(*i)
+                .polygon
+                .to_outline(Distance::meters(0.1))
+            {
+                piece.push(Color::YELLOW, p);
+            }
+        }
         batch.append(piece.translate(*dx, *dy));
     }
 
