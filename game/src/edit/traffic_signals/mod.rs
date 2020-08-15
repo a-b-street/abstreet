@@ -15,12 +15,12 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, Spinner, Text, TextExt,
     VerticalAlignment, Widget,
 };
-use geom::{ArrowCap, Bounds, Distance, Duration, Polygon};
+use geom::{ArrowCap, Distance, Duration, Line, Polygon, Pt2D};
 use map_model::{
     ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase, PhaseType, TurnGroup,
     TurnGroupID, TurnPriority,
 };
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, VecDeque};
 
 // Welcome to one of the most overwhelmingly complicated parts of the UI...
 
@@ -595,10 +595,17 @@ fn make_side_panel(
         ]));
     }
 
+    let translations = squish_polygons_together(
+        members
+            .iter()
+            .map(|i| app.primary.map.get_i(*i).polygon.clone())
+            .collect(),
+    );
+
     for (idx, canonical_phase) in canonical_signal.phases.iter().enumerate() {
         col.push(Widget::horiz_separator(ctx, 0.2));
 
-        let unselected_btn = draw_multiple_signals(ctx, app, members, idx);
+        let unselected_btn = draw_multiple_signals(ctx, app, members, idx, &translations);
         let mut selected_btn = unselected_btn.clone();
         let bbox = unselected_btn.get_bounds().get_rectangle();
         selected_btn.push(Color::RED, bbox.to_outline(Distance::meters(5.0)).unwrap());
@@ -789,41 +796,31 @@ fn draw_multiple_signals(
     app: &App,
     members: &BTreeSet<IntersectionID>,
     idx: usize,
+    translations: &Vec<(f64, f64)>,
 ) -> GeomBatch {
     let mut batch = GeomBatch::new();
-    for i in members {
-        batch.push(
+    for (i, (dx, dy)) in members.iter().zip(translations) {
+        let mut piece = GeomBatch::new();
+        piece.push(
             app.cs.normal_intersection,
             app.primary.map.get_i(*i).polygon.clone(),
         );
-
         draw_signal_phase(
             ctx.prerender,
             &app.primary.map.get_traffic_signal(*i).phases[idx],
             *i,
             None,
-            &mut batch,
+            &mut piece,
             app,
             TrafficSignalStyle::Sidewalks,
         );
+        batch.append(piece.translate(*dx, *dy));
     }
 
-    // Transform to a screen-space icon. How much should we scale things down?
+    // Make the whole thing fit a fixed width
     batch = batch.autocrop();
-    let mut zoom: f64 = 1.0;
-    if true {
-        // Make the whole thing fit a fixed width
-        let mut bounds = Bounds::new();
-        for i in members {
-            bounds.union(app.primary.map.get_i(*i).polygon.get_bounds());
-        }
-        zoom = 300.0 / bounds.width();
-    } else {
-        // Don't let any intersection get too small
-        for i in members {
-            zoom = zoom.max(150.0 / app.primary.map.get_i(*i).polygon.get_bounds().width());
-        }
-    }
+    let bounds = batch.get_bounds();
+    let zoom = (300.0 / bounds.width()).min(300.0 / bounds.height());
     batch.scale(zoom)
 }
 
@@ -887,4 +884,47 @@ fn draw_selected_group(
     };
     batch.push(block_color, g.block.clone());
     batch.push(Color::WHITE, g.arrow.clone());
+}
+
+// TODO Move to geom?
+fn squish_polygons_together(mut polygons: Vec<Polygon>) -> Vec<(f64, f64)> {
+    if polygons.len() == 1 {
+        return vec![(0.0, 0.0)];
+    }
+
+    // Can't be too big, or polygons could silently swap places. To be careful, pick something a
+    // bit smaller than the smallest polygon.
+    let step_size = 0.8
+        * polygons.iter().fold(std::f64::MAX, |x, p| {
+            x.min(p.get_bounds().width()).min(p.get_bounds().height())
+        });
+
+    let mut translations: Vec<(f64, f64)> =
+        std::iter::repeat((0.0, 0.0)).take(polygons.len()).collect();
+    // Once a polygon hits another while moving, stop adjusting it. Otherwise, go round-robin.
+    let mut indices: VecDeque<usize> = (0..polygons.len()).collect();
+
+    while !indices.is_empty() {
+        let idx = indices.pop_front().unwrap();
+        let center = Pt2D::center(&polygons.iter().map(|p| p.center()).collect());
+        let angle = Line::must_new(polygons[idx].center(), center).angle();
+        let pt = Pt2D::new(0.0, 0.0).project_away(Distance::meters(step_size), angle);
+
+        // Do we hit anything if we move this way?
+        let translated = polygons[idx].translate(pt.x(), pt.y());
+        if polygons
+            .iter()
+            .enumerate()
+            .any(|(i, p)| i != idx && !translated.intersection(p).is_empty())
+        {
+            // Stop moving this polygon
+        } else {
+            translations[idx].0 += pt.x();
+            translations[idx].1 += pt.y();
+            polygons[idx] = translated;
+            indices.push_back(idx);
+        }
+    }
+
+    translations
 }
