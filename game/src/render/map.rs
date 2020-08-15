@@ -100,7 +100,6 @@ impl DrawMap {
             parking_lots.push(DrawParkingLot::new(
                 ctx,
                 pl,
-                map,
                 cs,
                 &mut all_unzoomed_parking_lots,
             ));
