@@ -168,9 +168,11 @@ pub fn future(
         details
             .warpers
             .insert(format!("jump to goal of {}", id), id2);
-        details
-            .time_warpers
-            .insert(format!("wait for {}", id), (id, trip.departure));
+        if details.can_jump_to_time {
+            details
+                .time_warpers
+                .insert(format!("wait for {}", id), (id, trip.departure));
+        }
 
         col.push(
             Widget::row(vec![
@@ -180,12 +182,16 @@ pub fn future(
                 )
                 .tooltip(Text::from(Line(name1)))
                 .build(ctx, format!("jump to start of {}", id), None),
-                Btn::text_bg2("Wait for trip")
-                    .tooltip(Text::from(Line(format!(
-                        "This will advance the simulation to {}",
-                        trip.departure.ampm_tostring()
-                    ))))
-                    .build(ctx, format!("wait for {}", id), None),
+                if details.can_jump_to_time {
+                    Btn::text_bg2("Wait for trip")
+                        .tooltip(Text::from(Line(format!(
+                            "This will advance the simulation to {}",
+                            trip.departure.ampm_tostring()
+                        ))))
+                        .build(ctx, format!("wait for {}", id), None)
+                } else {
+                    Widget::nothing()
+                },
                 Btn::svg(
                     "system/assets/timeline/goal_pos.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
@@ -601,7 +607,7 @@ fn make_timeline(
             },
         ]),
         Widget::row(vec![
-            {
+            if details.can_jump_to_time {
                 details.time_warpers.insert(
                     format!("jump to {}", trip.departure),
                     (trip_id, trip.departure),
@@ -618,24 +624,30 @@ fn make_timeline(
                     txt
                 })
                 .build(ctx, format!("jump to {}", trip.departure), None)
+            } else {
+                Widget::nothing()
             },
             if let Some(t) = end_time {
-                details
-                    .time_warpers
-                    .insert(format!("jump to {}", t), (trip_id, t));
-                Btn::svg(
-                    "system/assets/speed/info_jump_to_time.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .tooltip({
-                    let mut txt = Text::from(Line("This will jump to "));
-                    txt.append(Line(t.ampm_tostring()).fg(Color::hex("#F9EC51")));
-                    txt.add(Line("The simulation will continue, and your score"));
-                    txt.add(Line("will be calculated at this new time."));
-                    txt
-                })
-                .build(ctx, format!("jump to {}", t), None)
-                .align_right()
+                if details.can_jump_to_time {
+                    details
+                        .time_warpers
+                        .insert(format!("jump to {}", t), (trip_id, t));
+                    Btn::svg(
+                        "system/assets/speed/info_jump_to_time.svg",
+                        RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                    )
+                    .tooltip({
+                        let mut txt = Text::from(Line("This will jump to "));
+                        txt.append(Line(t.ampm_tostring()).fg(Color::hex("#F9EC51")));
+                        txt.add(Line("The simulation will continue, and your score"));
+                        txt.add(Line("will be calculated at this new time."));
+                        txt
+                    })
+                    .build(ctx, format!("jump to {}", t), None)
+                    .align_right()
+                } else {
+                    Widget::nothing()
+                }
             } else {
                 Widget::nothing()
             },

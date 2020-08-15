@@ -288,6 +288,8 @@ pub struct Details {
     pub hyperlinks: HashMap<String, Tab>,
     pub warpers: HashMap<String, ID>,
     pub time_warpers: HashMap<String, (TripID, Time)>,
+    // It's just convenient to plumb this here
+    pub can_jump_to_time: bool,
 }
 
 impl InfoPanel {
@@ -306,6 +308,7 @@ impl InfoPanel {
             hyperlinks: HashMap::new(),
             warpers: HashMap::new(),
             time_warpers: HashMap::new(),
+            can_jump_to_time: ctx_actions.gameplay_mode().can_jump_to_time(),
         };
 
         let (mut col, main_tab) = match tab {

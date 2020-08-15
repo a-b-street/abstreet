@@ -154,6 +154,13 @@ impl GameplayMode {
         }
     }
 
+    pub fn can_jump_to_time(&self) -> bool {
+        match self {
+            GameplayMode::Freeform(_) => false,
+            _ => true,
+        }
+    }
+
     pub fn allows(&self, edits: &MapEdits) -> bool {
         for cmd in &edits.commands {
             match cmd {
