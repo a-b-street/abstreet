@@ -928,6 +928,7 @@ fn squish_polygons_together(mut polygons: Vec<Polygon>) -> Vec<(f64, f64)> {
     // Once a polygon hits another while moving, stop adjusting it. Otherwise, go round-robin.
     let mut indices: VecDeque<usize> = (0..polygons.len()).collect();
 
+    let mut attempts = 0;
     while !indices.is_empty() {
         let idx = indices.pop_front().unwrap();
         let center = Pt2D::center(&polygons.iter().map(|p| p.center()).collect());
@@ -947,6 +948,11 @@ fn squish_polygons_together(mut polygons: Vec<Polygon>) -> Vec<(f64, f64)> {
             translations[idx].1 += pt.y();
             polygons[idx] = translated;
             indices.push_back(idx);
+        }
+
+        attempts += 1;
+        if attempts == 100 {
+            break;
         }
     }
 
