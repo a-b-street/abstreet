@@ -1697,7 +1697,7 @@ name = "line_drawing"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "num-traits 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num-traits 0.1.43 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -3761,7 +3761,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "winit"
 version = "0.22.2"
-source = "git+https://github.com/michaelkirk/winit?branch=mkirk/fix-stdweb-dpi#6b61263293b72a76d46c14ba2abfef92e5a0bd75"
+source = "git+https://github.com/michaelkirk/winit?branch=mkirk/fix-stdweb-dpi#a87ae2661263ff241e8868cbf3ce65aab205863a"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "cocoa 0.20.1 (registry+https://github.com/rust-lang/crates.io-index)",
