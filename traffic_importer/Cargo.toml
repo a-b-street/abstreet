@@ -1,0 +1,12 @@
+[package]
+name = "traffic_importer"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+abstutil = { path = "../abstutil" }
+geom = { path = "../geom" }
+map_model = { path = "../map_model" }
+serde = "1.0.110"
+sim = { path = "../sim" }

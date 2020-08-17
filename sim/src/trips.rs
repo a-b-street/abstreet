@@ -1521,7 +1521,7 @@ impl TripMode {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Debug, Clone)]
 pub enum TripEndpoint {
     Bldg(BuildingID),
     Border(IntersectionID, Option<OffMapLocation>),

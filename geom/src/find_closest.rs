@@ -4,23 +4,23 @@ use aabb_quadtree::QuadTree;
 use geo;
 use geo::algorithm::contains::Contains;
 use geo::prelude::{ClosestPoint, EuclideanDistance};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 // TODO Maybe use https://crates.io/crates/spatial-join proximity maps
 
 pub struct FindClosest<K> {
     // TODO maybe any type of geo:: thing
-    geometries: HashMap<K, geo::LineString<f64>>,
+    geometries: BTreeMap<K, geo::LineString<f64>>,
     quadtree: QuadTree<K>,
 }
 
 impl<K> FindClosest<K>
 where
-    K: Clone + std::cmp::Eq + std::hash::Hash + std::fmt::Debug,
+    K: Clone + Ord + std::fmt::Debug,
 {
     pub fn new(bounds: &Bounds) -> FindClosest<K> {
         FindClosest {
-            geometries: HashMap::new(),
+            geometries: BTreeMap::new(),
             quadtree: QuadTree::default(bounds.as_bbox()),
         }
     }

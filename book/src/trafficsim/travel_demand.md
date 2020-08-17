@@ -60,6 +60,48 @@ different types of people (students, workers), give them a set of activities
 with durations (go to school for 7 hours, 1 hour lunch break), and then further
 pick specfic buildings to travel to using more OSM tags.
 
+### Custom import
+
+If you have your own data, you can import it. The input format is JSON -- an
+example:
+
+```
+{
+  "scenario_name": "monday",
+  "people": [
+    {
+      "origin": {
+        "longitude": -122.303723,
+        "latitude": 47.6372834
+      },
+      "trips": [
+        {
+          "departure": 10800.0,
+          "position": {
+            "longitude": -122.3075948,
+            "latitude": 47.6394773
+          },
+          "mode": "Drive"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Run the tool:
+
+```
+cargo run --bin traffic_importer -- --map=data/system/maps/montlake.bin --input=/path/to/input.json
+```
+
+The tool matches input positions to the nearest building or border intersection,
+within 100 meters. The `departure` time is seconds since midnight. The tool will
+fail if any point doesn't match to a building, or if any of the specified trips
+can't be created (due to graph connectivity problems, for example). If your
+requirements are different or you have any trouble using this format/tool,
+please file a Github issue -- just consider this tool and format a prototype.
+
 ## Modifying demand
 
 The travel demand model is extremely fixed; the main effect of a different
