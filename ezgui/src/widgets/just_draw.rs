@@ -61,16 +61,23 @@ impl WidgetImpl for JustDraw {
 pub struct DrawWithTooltips {
     draw: Drawable,
     tooltips: Vec<(Polygon, Text)>,
+    hover: Box<dyn Fn(&Polygon) -> GeomBatch>,
 
     top_left: ScreenPt,
     dims: ScreenDims,
 }
 
 impl DrawWithTooltips {
-    pub fn new(ctx: &EventCtx, batch: GeomBatch, tooltips: Vec<(Polygon, Text)>) -> Widget {
+    pub fn new(
+        ctx: &EventCtx,
+        batch: GeomBatch,
+        tooltips: Vec<(Polygon, Text)>,
+        hover: Box<dyn Fn(&Polygon) -> GeomBatch>,
+    ) -> Widget {
         Widget::new(Box::new(DrawWithTooltips {
             dims: batch.get_dims(),
             top_left: ScreenPt::new(0.0, 0.0),
+            hover,
             draw: ctx.upload(batch),
             tooltips,
         }))
@@ -100,6 +107,8 @@ impl WidgetImpl for DrawWithTooltips {
             // TODO Assume regions are non-overlapping
             for (region, txt) in &self.tooltips {
                 if region.contains_pt(translated) {
+                    let extra = g.upload((self.hover)(region));
+                    g.redraw_at(self.top_left, &extra);
                     g.draw_mouse_tooltip(txt.clone());
                     return;
                 }

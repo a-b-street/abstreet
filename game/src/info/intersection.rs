@@ -5,8 +5,8 @@ use crate::options::TrafficSignalStyle;
 use crate::render::draw_signal_phase;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    Btn, Checkbox, Color, EventCtx, FanChart, GeomBatch, Line, PlotOptions, ScatterPlot, Series,
-    Text, Widget,
+    Btn, Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
+    ScatterPlot, Series, Text, Widget,
 };
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Time};
 use map_model::{IntersectionID, IntersectionType, PhaseType};
@@ -150,25 +150,22 @@ pub fn current_demand(
     let polygon = app.primary.map.get_i(id).polygon.clone();
     let bounds = polygon.get_bounds();
     // Pick a zoom so that we fit a fixed width in pixels
-    let zoom = 300.0 / bounds.width();
-    batch.push(app.cs.normal_intersection, polygon);
+    let zoom = (0.25 * ctx.canvas.window_width) / bounds.width();
+    batch.push(
+        app.cs.normal_intersection,
+        polygon.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
+    );
 
-    let mut txt_batch = GeomBatch::new();
+    let mut tooltips: Vec<(Polygon, Text)> = Vec::new();
     for (pl, demand) in demand_per_group {
         let percent = (demand as f64) / (total_demand as f64);
-        batch.push(
-            Color::hex("#A3A3A3"),
-            pl.make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle),
-        );
-        txt_batch.append(
-            Text::from(Line(prettyprint_usize(demand)).fg(Color::RED))
-                .render_ctx(ctx)
-                .scale(0.15)
-                .centered_on(pl.middle()),
-        );
+        let arrow = pl
+            .make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle)
+            .translate(-bounds.min_x, -bounds.min_y)
+            .scale(zoom);
+        batch.push(Color::hex("#A3A3A3"), arrow.clone());
+        tooltips.push((arrow, Text::from(Line(prettyprint_usize(demand)))));
     }
-    batch.append(txt_batch);
-    let batch = batch.translate(-bounds.min_x, -bounds.min_y).scale(zoom);
 
     let mut txt = Text::from(Line(format!(
         "Active agent demand at {}",
@@ -183,10 +180,24 @@ pub fn current_demand(
     );
 
     rows.push(
-        Widget::col(vec![txt.draw(ctx), Widget::draw_batch(ctx, batch)])
-            .padding(10)
-            .bg(app.cs.inner_panel)
-            .outline(2.0, Color::WHITE),
+        Widget::col(vec![
+            txt.draw(ctx),
+            DrawWithTooltips::new(
+                ctx,
+                batch,
+                tooltips,
+                Box::new(|arrow| {
+                    let mut list = vec![(Color::hex("#EE702E"), arrow.clone())];
+                    if let Ok(p) = arrow.to_outline(Distance::meters(1.0)) {
+                        list.push((Color::WHITE, p));
+                    }
+                    GeomBatch::from(list)
+                }),
+            ),
+        ])
+        .padding(10)
+        .bg(app.cs.inner_panel)
+        .outline(2.0, Color::WHITE),
     );
 
     rows

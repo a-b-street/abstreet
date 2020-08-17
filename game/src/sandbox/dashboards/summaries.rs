@@ -304,7 +304,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     }
     batch.extend(Color::BLACK, outlines);
 
-    DrawWithTooltips::new(ctx, batch, tooltips)
+    DrawWithTooltips::new(ctx, batch, tooltips, Box::new(|_| GeomBatch::new()))
         .container()
         .outline(2.0, Color::WHITE)
         .padding(10)
