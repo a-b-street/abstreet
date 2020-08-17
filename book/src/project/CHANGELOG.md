@@ -548,3 +548,12 @@ changes here.
 - fixing spawning on tiny borders
 - bus spawn rates from GTFS for seattle. started an editor for the schedule.
 - internal ezgui refactorings
+
+0.2.8
+
+- multiple traffic signals can now be synchronized and edited together
+- new dashboard for "traffic signal demand" over the entire day and map
+- started experimenting with controlling the headless runner via a JSON API
+- epic ezgui fix by Michael to consolidate handling of HiDPI scaling
+- got a bunch of huge cities importing and loading quickly
+- you can now save the trips you manually spawn in freeform mode, then replay them later
