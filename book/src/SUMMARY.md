@@ -21,6 +21,7 @@
 - [Case studies](case_studies/README.md)
   - [Lake Washington Blvd Stay Healthy Street](case_studies/lake_wash.md)
   - [West Seattle mitigations](case_studies/west_seattle.md)
+- [API](api.md)
 - [Project](project/README.md)
   - [Roadmap](project/roadmap.md)
   - [Motivations](project/motivations.md)
