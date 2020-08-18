@@ -2,7 +2,7 @@ use crate::make::initial::{Intersection, Road};
 use crate::osm;
 use crate::raw::{DrivingSide, OriginalRoad};
 use abstutil::{wraparound_get, Timer};
-use geom::{Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
+use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
 use std::collections::BTreeMap;
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5);
@@ -424,7 +424,8 @@ fn on_off_ramp(
         });
     }
 
-    pieces.sort_by_key(|r| roads[&r.id].half_width);
+    // Break ties by preferring the outbound roads for thin
+    pieces.sort_by_key(|r| (roads[&r.id].half_width, r.id.i2 == i));
     let thick1 = pieces.pop().unwrap();
     let thick2 = pieces.pop().unwrap();
     let thin = pieces.pop().unwrap();
@@ -470,16 +471,15 @@ fn on_off_ramp(
                     if false {
                         debug.push((
                             format!("1"),
-                            geom::Circle::new(hit, Distance::meters(3.0)).to_polygon(),
+                            Circle::new(hit, Distance::meters(3.0)).to_polygon(),
                         ));
                         debug.push((
                             format!("2"),
-                            geom::Circle::new(trimmed_thin.last_pt(), Distance::meters(3.0))
-                                .to_polygon(),
+                            Circle::new(trimmed_thin.last_pt(), Distance::meters(3.0)).to_polygon(),
                         ));
                         debug.push((
                             format!("3"),
-                            geom::Circle::new(trimmed_thick.last_pt(), Distance::meters(3.0))
+                            Circle::new(trimmed_thick.last_pt(), Distance::meters(3.0))
                                 .to_polygon(),
                         ));
                     }
@@ -575,6 +575,10 @@ fn on_off_ramp(
             );
         }
     }
+    /*for (idx, pt) in endpoints.iter().enumerate() {
+        debug.push((format!("{}", idx), Circle::new(*pt, Distance::meters(2.0)).to_polygon()));
+    }*/
+
     endpoints.sort_by_key(|pt| pt.to_hashable());
     endpoints.dedup();
     let center = Pt2D::center(&endpoints);
@@ -585,6 +589,6 @@ fn on_off_ramp(
         debug,
     ))
 
-    //let dummy = geom::Circle::new(orig_lines[0].3.last_pt(), Distance::meters(3.0)).to_polygon();
+    //let dummy = Circle::new(orig_lines[0].3.last_pt(), Distance::meters(3.0)).to_polygon();
     //Some((close_off_polygon(dummy.into_points()), debug))
 }
