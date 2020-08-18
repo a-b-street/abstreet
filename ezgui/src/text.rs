@@ -29,6 +29,7 @@ pub enum Font {
     OverpassRegular,
     OverpassSemiBold,
     OverpassMonoBold,
+    ZcoolXiaoWei,
 }
 
 impl Font {
@@ -40,6 +41,7 @@ impl Font {
             Font::OverpassRegular => "Overpass",
             Font::OverpassSemiBold => "Overpass",
             Font::OverpassMonoBold => "Overpass Mono",
+            Font::ZcoolXiaoWei => "ZCOOL XiaoWei",
         }
     }
 }
