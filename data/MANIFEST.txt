@@ -19,6 +19,7 @@ data/input/raw_maps/montlake.bin,73922ac812b537daeef40068c01cce8d,https://www.dr
 data/input/raw_maps/south_seattle.bin,7881e280e2f5d72f00147c0c10f305c4,https://www.dropbox.com/s/6cd15ll3c61ayk0/south_seattle.bin.zip?dl=0
 data/input/raw_maps/udistrict.bin,2208dd4d8adc416b76693b46ee15146f,https://www.dropbox.com/s/04xwvvr0mryr945/udistrict.bin.zip?dl=0
 data/input/raw_maps/west_seattle.bin,adc409ea690442ee85cb587b211711f1,https://www.dropbox.com/s/jy0gnzkkpmz47m8/west_seattle.bin.zip?dl=0
+data/input/raw_maps/xian.bin,e3e8b30278c89a5954b737b2442dffea,https://www.dropbox.com/s/d3n7gtuctmq4vji/xian.bin.zip?dl=0
 data/input/screenshots/downtown.zip,43c3b8bc849c821ada33b06caf72f847,https://www.dropbox.com/s/qawd35wz62m2acl/downtown.zip.zip?dl=0
 data/input/screenshots/krakow_center.zip,31b8f51826b4c5e5866327ea3bf30fd8,https://www.dropbox.com/s/azea6v6mnxbe0vc/krakow_center.zip.zip?dl=0
 data/input/screenshots/lakeslice.zip,6030ef70e37a777f930e6a6a0bd32d17,https://www.dropbox.com/s/06mwgdt6orow3rk/lakeslice.zip.zip?dl=0
@@ -56,6 +57,10 @@ data/input/seattle/parcels_urbansim.txt,db63d7d606e8702d12f9399e87e6a00f,https:/
 data/input/seattle/popdat.bin,113028930e3dada483651a8d3fe169ec,https://www.dropbox.com/s/eddccrdrhz10qo3/popdat.bin.zip?dl=0
 data/input/seattle/service_roads.bin,771cffc34dfbca9f941a90adf553be5d,https://www.dropbox.com/s/61o9prqoa7f52q7/service_roads.bin.zip?dl=0
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
+data/input/xian/footways.bin,425becbab867631415fe49edcf8f9694,https://www.dropbox.com/s/6hf4t4ovk1m1wi3/footways.bin.zip?dl=0
+data/input/xian/osm/china-latest.osm.pbf,0108807f1dc321d5de5579622ac3f4cf,https://www.dropbox.com/s/qewwxtioocbv3ld/china-latest.osm.pbf.zip?dl=0
+data/input/xian/osm/xian.osm,4084c665ad947bb40173a43cb33fdec8,https://www.dropbox.com/s/j5qwt33bs077sd2/xian.osm.zip?dl=0
+data/input/xian/service_roads.bin,2130675f49282a5e9fe3db870b089e98,https://www.dropbox.com/s/5djufzeqgdp43ek/service_roads.bin.zip?dl=0
 data/system/cities/seattle.bin,4c23d8a7fbf0981a65c7e9499a1c7185,https://www.dropbox.com/s/1vg3138khp81kyi/seattle.bin.zip?dl=0
 data/system/maps/ballard.bin,1ff13ad11bbfac8137d96235015373b6,https://www.dropbox.com/s/n7oghzcfbye9fml/ballard.bin.zip?dl=0
 data/system/maps/berlin_center.bin,ace7bb9c6dba31958a43c89eb47aa9e6,https://www.dropbox.com/s/824wuz69ekmm9is/berlin_center.bin.zip?dl=0
@@ -67,6 +72,7 @@ data/system/maps/montlake.bin,653d0b2f30b659bf37817fe52ea21968,https://www.dropb
 data/system/maps/south_seattle.bin,4e7d70c334bd805da68d6e85e03c04f3,https://www.dropbox.com/s/2mhx2n88xjfaz3l/south_seattle.bin.zip?dl=0
 data/system/maps/udistrict.bin,0b05788c8d3b9170558b8588c1ab6e03,https://www.dropbox.com/s/jfqjxfhrp2hvc2p/udistrict.bin.zip?dl=0
 data/system/maps/west_seattle.bin,c4960ab69538b119377ee8345fb073dc,https://www.dropbox.com/s/wjit26emy6p71m9/west_seattle.bin.zip?dl=0
+data/system/maps/xian.bin,a63be02191cd100b5a00a3469f4dbbdd,https://www.dropbox.com/s/9hfwjzrg0b5l6oe/xian.bin.zip?dl=0
 data/system/prebaked_results/lakeslice/weekday.bin,f5bae6db7cbb443a255016d46bdd400b,https://www.dropbox.com/s/rpz6rjipi0dy688/weekday.bin.zip?dl=0
 data/system/prebaked_results/montlake/car vs bike contention.bin,faa041af70a41bb8fcacd3dfd7a7d467,https://www.dropbox.com/s/jefg0ikjy9dsrdd/car%20vs%20bike%20contention.bin.zip?dl=0
 data/system/prebaked_results/montlake/weekday.bin,91831b8fda857deeaedf3a03be3e2bcd,https://www.dropbox.com/s/xk51cbpivk7q196/weekday.bin.zip?dl=0

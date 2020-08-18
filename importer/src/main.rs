@@ -4,6 +4,7 @@ mod seattle;
 #[cfg(feature = "scenarios")]
 mod soundcast;
 mod utils;
+mod xian;
 
 // TODO Might be cleaner to express as a dependency graph?
 
@@ -110,6 +111,7 @@ fn main() {
                 "berlin" => berlin::osm_to_raw(&name, &mut timer),
                 "krakow" => krakow::osm_to_raw(&name, &mut timer),
                 "seattle" => seattle::osm_to_raw(&name, &mut timer),
+                "xian" => xian::osm_to_raw(&name, &mut timer),
                 x => panic!("Unknown city {}", x),
             }
         }
