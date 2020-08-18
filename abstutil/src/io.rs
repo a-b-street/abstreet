@@ -87,6 +87,10 @@ pub fn read_json<T: DeserializeOwned>(path: String, timer: &mut Timer) -> T {
     }
 }
 
+pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Error> {
+    serde_json::from_slice(raw).map_err(|err| Error::new(ErrorKind::Other, err))
+}
+
 fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     if !path.ends_with(".bin") {
         panic!("write_binary needs {} to end with .bin", path);
