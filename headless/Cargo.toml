@@ -10,6 +10,7 @@ geom = { path = "../geom" }
 hyper = "0.13.7"
 lazy_static = "1.4.0"
 map_model = { path = "../map_model" }
+serde = "1.0.110"
 sim = { path = "../sim" }
 tokio = { version = "0.2", features = ["full"] }
 url = "2.1.1"

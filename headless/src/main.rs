@@ -10,10 +10,11 @@
 // ... huge JSON blob
 
 use abstutil::{CmdArgs, Timer};
-use geom::Time;
+use geom::{Duration, Time};
 use hyper::{Body, Request, Response, Server};
 use map_model::{ControlTrafficSignal, IntersectionID, Map};
-use sim::{AlertHandler, Sim, SimFlags, SimOptions};
+use serde::Serialize;
+use sim::{AlertHandler, Sim, SimFlags, SimOptions, TripID, TripMode};
 use std::collections::HashMap;
 use std::error::Error;
 use std::sync::RwLock;
@@ -21,6 +22,8 @@ use std::sync::RwLock;
 lazy_static::lazy_static! {
     static ref MAP: RwLock<Map> = RwLock::new(Map::blank());
     static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp"), &mut Timer::throwaway()));
+    // TODO Readonly?
+    static ref FLAGS: RwLock<SimFlags> = RwLock::new(SimFlags::for_test("tmp"));
 }
 
 #[tokio::main]
@@ -32,10 +35,10 @@ async fn main() {
 
     // Less spam
     sim_flags.opts.alerts = AlertHandler::Silence;
-    let mut timer = Timer::new("setup headless");
-    let (map, sim, _) = sim_flags.load(&mut timer);
+    let (map, sim, _) = sim_flags.load(&mut Timer::new("setup headless"));
     *MAP.write().unwrap() = map;
     *SIM.write().unwrap() = sim;
+    *FLAGS.write().unwrap() = sim_flags;
 
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], port));
     println!("Listening on http://{}", addr);
@@ -81,19 +84,26 @@ fn handle_command(
     map: &mut Map,
 ) -> Result<String, Box<dyn Error>> {
     match path {
-        "/get-time" => Ok(sim.time().to_string()),
-        "/goto-time" => {
+        // Controlling the simulation
+        "/sim/reset" => {
+            let (new_map, new_sim, _) = FLAGS.read().unwrap().load(&mut Timer::new("reset sim"));
+            *map = new_map;
+            *sim = new_sim;
+            Ok(format!("sim reloaded"))
+        }
+        "/sim/get-time" => Ok(sim.time().to_string()),
+        "/sim/goto-time" => {
             let t = Time::parse(&params["t"])?;
             if t <= sim.time() {
-                Err(format!("{} is in the past", t).into())
+                Err(format!("{} is in the past. call /sim/reset first?", t).into())
             } else {
                 let dt = t - sim.time();
-                sim.timed_step(map, dt, &mut None, &mut Timer::throwaway());
+                sim.timed_step(map, dt, &mut None, &mut Timer::new("goto-time"));
                 Ok(format!("it's now {}", t))
             }
         }
-        "/get-delays" => Ok(abstutil::to_json(&sim.get_analytics().intersection_delays)),
-        "/get-traffic-signal" => {
+        // Traffic signals
+        "/traffic-signals/get" => {
             let i = IntersectionID(params["id"].parse::<usize>()?);
             if let Some(ts) = map.maybe_get_traffic_signal(i) {
                 Ok(abstutil::to_json(ts))
@@ -101,11 +111,25 @@ fn handle_command(
                 Err(format!("{} isn't a traffic signal", i).into())
             }
         }
-        "/set-traffic-signal" => {
+        "/traffic-signals/set" => {
             let ts: ControlTrafficSignal = abstutil::from_json(body)?;
+            let id = ts.id;
             map.incremental_edit_traffic_signal(ts);
-            Ok(format!("cool, got ts updates"))
+            Ok(format!("{} has been updated", id))
         }
+        // Querying data
+        "/data/get-finished-trips" => Ok(abstutil::to_json(&FinishedTrips {
+            trips: sim.get_analytics().finished_trips.clone(),
+        })),
         _ => Err("Unknown command".into()),
     }
+}
+
+// TODO I think specifying the API with protobufs or similar will be a better idea.
+
+#[derive(Serialize)]
+struct FinishedTrips {
+    // TODO Hack: No TripMode means aborted
+    // Finish time, ID, mode (or None as aborted), trip duration
+    pub trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
 }
