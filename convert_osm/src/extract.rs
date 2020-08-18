@@ -105,7 +105,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
             continue;
         } else if way.tags.is(osm::HIGHWAY, "service") {
             // If we got here, is_road didn't interpret it as a normal road
-            map.parking_aisles.push(way.pts.clone());
+            map.parking_aisles.push((id, way.pts.clone()));
 
             extra_service_roads.shapes.push(ExtraShape {
                 points: map.gps_bounds.convert_back(&way.pts),

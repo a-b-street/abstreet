@@ -265,19 +265,22 @@ impl PolyLine {
     // No excess leftover distance allowed.
     // TODO Lot of callers of this. Make safer later.
     pub fn exact_slice(&self, start: Distance, end: Distance) -> PolyLine {
+        self.maybe_exact_slice(start, end).unwrap()
+    }
+    pub fn maybe_exact_slice(&self, start: Distance, end: Distance) -> Result<PolyLine, String> {
         let (pl, leftover) = self
             .slice(start, end)
-            .unwrap_or_else(|_| panic!("exact_slice({}, {}) yielded empty slice", start, end));
+            .map_err(|_| format!("exact_slice({}, {}) yielded empty slice", start, end))?;
         if leftover > EPSILON_DIST {
-            panic!(
+            return Err(format!(
                 "exact_slice({}, {}) on a PL of length {} yielded leftover distance of {}",
                 start,
                 end,
                 self.length(),
                 leftover
-            );
+            ));
         }
-        pl
+        Ok(pl)
     }
 
     pub fn first_half(&self) -> PolyLine {

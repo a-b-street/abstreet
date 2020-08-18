@@ -1,7 +1,7 @@
 use crate::make::match_points_to_lanes;
 use crate::raw::RawParkingLot;
 use crate::{
-    Map, ParkingLot, ParkingLotID, PathConstraints, Position, NORMAL_LANE_THICKNESS,
+    osm, Map, ParkingLot, ParkingLotID, PathConstraints, Position, NORMAL_LANE_THICKNESS,
     PARKING_LOT_SPOT_LENGTH,
 };
 use abstutil::Timer;
@@ -10,7 +10,7 @@ use std::collections::HashSet;
 
 pub fn make_all_parking_lots(
     input: &Vec<RawParkingLot>,
-    aisles: &Vec<Vec<Pt2D>>,
+    aisles: &Vec<(osm::WayID, Vec<Pt2D>)>,
     map: &Map,
     timer: &mut Timer,
 ) -> Vec<ParkingLot> {
@@ -106,7 +106,7 @@ pub fn make_all_parking_lots(
         closest.add(lot.id, lot.polygon.points());
     }
     timer.start_iter("match parking aisles", aisles.len());
-    for pts in aisles {
+    for (aisle_id, pts) in aisles {
         timer.next();
         // Use the center of all the aisle points to match it to a lot
         let candidates: Vec<ParkingLotID> = closest
@@ -115,27 +115,34 @@ pub fn make_all_parking_lots(
             .map(|(id, _, _)| id)
             .collect();
 
-        if let Ok((polylines, rings)) = Ring::split_points(pts) {
-            'PL: for pl in polylines {
-                for id in &candidates {
-                    let lot = &mut results[id.0];
-                    for segment in lot.polygon.clip_polyline(&pl) {
-                        lot.aisles.push(segment);
-                        continue 'PL;
+        match Ring::split_points(pts) {
+            Ok((polylines, rings)) => {
+                'PL: for pl in polylines {
+                    for id in &candidates {
+                        let lot = &mut results[id.0];
+                        if let Some(segment) = lot.polygon.clip_polyline(&pl) {
+                            lot.aisles.push(segment);
+                            continue 'PL;
+                        }
+                    }
+                }
+                'RING: for ring in rings {
+                    for id in &candidates {
+                        let lot = &mut results[id.0];
+                        if let Some(segment) = lot.polygon.clip_ring(&ring) {
+                            lot.aisles.push(segment);
+                            continue 'RING;
+                        }
                     }
                 }
             }
-            'RING: for ring in rings {
-                for id in &candidates {
-                    let lot = &mut results[id.0];
-                    for segment in lot.polygon.clip_ring(&ring) {
-                        lot.aisles.push(segment);
-                        continue 'RING;
-                    }
-                }
+            Err(err) => {
+                timer.warn(format!(
+                    "Parking aisle {} has weird geometry: {}",
+                    aisle_id, err
+                ));
             }
         }
-        // TODO Should plumb along the OSM ID too and warn here
     }
 
     timer.start_iter("generate parking lot spots", results.len());

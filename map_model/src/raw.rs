@@ -29,7 +29,7 @@ pub struct RawMap {
     pub bus_routes: Vec<RawBusRoute>,
     pub areas: Vec<RawArea>,
     pub parking_lots: Vec<RawParkingLot>,
-    pub parking_aisles: Vec<Vec<Pt2D>>,
+    pub parking_aisles: Vec<(osm::WayID, Vec<Pt2D>)>,
 
     pub boundary_polygon: Polygon,
     pub gps_bounds: GPSBounds,

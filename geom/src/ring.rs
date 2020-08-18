@@ -79,7 +79,7 @@ impl Ring {
         hits
     }
 
-    pub fn get_shorter_slice_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> PolyLine {
+    pub fn get_both_slices_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> Option<(PolyLine, PolyLine)> {
         assert!(pt1 != pt2);
         let pl = PolyLine::unchecked_new(self.pts.clone());
 
@@ -88,11 +88,20 @@ impl Ring {
         if dist1 > dist2 {
             std::mem::swap(&mut dist1, &mut dist2);
         }
+        if dist1 == dist2 {
+            return None;
+        }
 
-        let candidate1 = pl.exact_slice(dist1, dist2);
+        let candidate1 = pl.maybe_exact_slice(dist1, dist2).ok()?;
         let candidate2 = pl
-            .exact_slice(dist2, pl.length())
-            .must_extend(pl.exact_slice(Distance::ZERO, dist1));
+            .maybe_exact_slice(dist2, pl.length())
+            .ok()?
+            .must_extend(pl.maybe_exact_slice(Distance::ZERO, dist1).ok()?);
+        Some((candidate1, candidate2))
+    }
+
+    pub fn get_shorter_slice_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> PolyLine {
+        let (candidate1, candidate2) = self.get_both_slices_btwn(pt1, pt2).unwrap();
         if candidate1.length() < candidate2.length() {
             candidate1
         } else {
@@ -130,6 +139,12 @@ impl Ring {
             }
         }
         Ok((polylines, rings))
+    }
+
+    pub fn contains_pt(&self, pt: Pt2D) -> bool {
+        PolyLine::unchecked_new(self.pts.clone())
+            .dist_along_of_point(pt)
+            .is_some()
     }
 }
 

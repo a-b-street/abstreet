@@ -285,7 +285,11 @@ pub fn snap_bus_stops(
         // If this road is missing a sidewalk (likely because it's a motorway), add one.
         // https://www.openstreetmap.org/way/325148569 is a motivating example. When we understand
         // bus platforms properly, won't need this hack.
-        let tags = &mut raw.roads.get_mut(&road).unwrap().osm_tags;
+        let tags = &mut raw
+            .roads
+            .get_mut(&road)
+            .ok_or_else(|| format!("{} isn't an extracted road", road))?
+            .osm_tags;
         if tags.is(osm::INFERRED_SIDEWALKS, "true") {
             let current = tags.get(osm::SIDEWALK).unwrap();
             if current == "none" {

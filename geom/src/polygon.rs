@@ -352,14 +352,39 @@ impl Polygon {
         }
     }
 
-    // TODO Doesn't really handle anything but the simplest case right now
+    // TODO Only handles a few cases
     pub fn clip_ring(&self, input: &Ring) -> Option<Vec<Pt2D>> {
-        for pt in input.points() {
-            if !self.contains_pt(*pt) {
-                return None;
+        let ring = Ring::must_new(self.points.clone());
+        let hits = ring.all_intersections(&PolyLine::unchecked_new(input.clone().into_points()));
+
+        if hits.len() == 0 {
+            // If the first point is inside, then all must be
+            if self.contains_pt(input.points()[0]) {
+                return Some(input.points().clone());
             }
+        } else if hits.len() == 2 {
+            let (pl1, pl2) = input.get_both_slices_btwn(hits[0], hits[1])?;
+
+            // One of these should be partly outside the polygon. The endpoints won't be in the
+            // polygon itself, but they'll be on the ring.
+            if pl1
+                .points()
+                .iter()
+                .all(|pt| self.contains_pt(*pt) || ring.contains_pt(*pt))
+            {
+                return Some(pl1.into_points());
+            }
+            if pl2
+                .points()
+                .iter()
+                .all(|pt| self.contains_pt(*pt) || ring.contains_pt(*pt))
+            {
+                return Some(pl2.into_points());
+            }
+            // Huh?
         }
-        Some(input.points().clone())
+
+        None
     }
 }
 
