@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["make_horiz_viz_panel",""],["make_minimap_panel",""],["make_tool_panel",""],["make_vert_viz_panel",""]],"struct":[["Minimap",""]]});

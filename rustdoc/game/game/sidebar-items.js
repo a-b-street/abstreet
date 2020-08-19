@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["DrawBaselayer",""],["Transition",""]],"struct":[["ChooseSomething",""],["Game",""],["PopupMsg",""],["PromptInput",""]],"trait":[["State",""]]});

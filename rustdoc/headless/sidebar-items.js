@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["handle_command",""],["main",""],["serve_req",""]],"struct":[["FLAGS",""],["FinishedTrips",""],["MAP",""],["SIM",""]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["ID",""]],"fn":[["amenity_type",""],["checkbox_per_mode",""],["cmp_duration_shorter",""],["color_for_agent_type",""],["color_for_mode",""],["color_for_trip_phase",""],["hotkey_btn",""],["intersections_from_roads",""],["list_names",""],["nice_map_name",""],["open_browser",""]]});

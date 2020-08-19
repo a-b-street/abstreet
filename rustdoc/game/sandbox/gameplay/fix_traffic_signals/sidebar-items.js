@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["METER_HACK",""],["THRESHOLD",""]],"fn":[["cutscene_pt1_task",""],["final_score",""],["make_meter",""]],"struct":[["FixTrafficSignals",""]]});

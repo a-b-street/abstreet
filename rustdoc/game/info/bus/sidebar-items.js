@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["bus_header",""],["bus_status",""],["describe_schedule",""],["route",""],["stop",""]]});

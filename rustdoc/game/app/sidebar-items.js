@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["App",""],["FindDelayedIntersections",""],["Flags",""],["PerMap",""],["PerObjectActions",""],["SessionState",""],["ShowEverything",""],["ShowLayers",""]],"trait":[["ShowObject",""]]});

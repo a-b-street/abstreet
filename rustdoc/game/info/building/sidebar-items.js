@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["draw_occupants",""],["header",""],["info",""],["people",""]]});

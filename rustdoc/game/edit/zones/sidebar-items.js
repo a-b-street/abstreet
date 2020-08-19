@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["draw_zone",""],["make_instructions",""]],"struct":[["ZoneEditor",""]]});

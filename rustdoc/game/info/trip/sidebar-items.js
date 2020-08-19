@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["aborted",""],["cancelled",""],["endpoint",""],["finished",""],["future",""],["make_elevation",""],["make_timeline",""],["ongoing",""]],"struct":[["OpenTrip",""]]});

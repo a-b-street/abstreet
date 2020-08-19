@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["make_isochrone",""]],"struct":[["IsochroneViewer",""]]});

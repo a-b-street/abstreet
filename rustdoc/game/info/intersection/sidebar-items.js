@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["arrivals",""],["current_demand",""],["delay",""],["delay_plot",""],["header",""],["info",""],["traffic",""],["traffic_signal",""]]});

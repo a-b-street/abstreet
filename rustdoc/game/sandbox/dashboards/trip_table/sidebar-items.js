@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["ROWS",""]],"enum":[["SortBy",""]],"fn":[["make",""],["make_table",""],["preview_route",""],["preview_trip",""]],"struct":[["Entry",""],["Options",""],["TripTable",""]]});

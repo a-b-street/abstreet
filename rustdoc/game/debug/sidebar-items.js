@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["calc_all_routes",""],["diff_tags",""],["dump_route_goldenfile",""],["find_bad_signals",""],["find_degenerate_roads",""],["find_large_intersections",""],["search_osm",""]],"mod":[["floodfill",""],["objects",""],["polygons",""],["shared_row",""]],"struct":[["Actions",""],["DebugMode",""],["SearchResults",""]]});

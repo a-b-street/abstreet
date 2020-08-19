@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Layout",""]],"fn":[["make_panel",""]],"struct":[["CutsceneBuilder",""],["CutscenePlayer",""],["FYI",""],["Scene",""]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Mode",""]],"fn":[["pathfind",""]],"struct":[["RoadSelector",""]]});

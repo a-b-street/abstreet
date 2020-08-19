@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["make_top_center",""]],"struct":[["ChangeMode",""],["EditScenarioModifiers",""],["PlayScenario",""]]});

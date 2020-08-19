@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["game"] = [{"text":"impl <a class=\"trait\" href=\"sim/sim/trait.SimCallback.html\" title=\"trait sim::sim::SimCallback\">SimCallback</a> for <a class=\"struct\" href=\"game/app/struct.FindDelayedIntersections.html\" title=\"struct game::app::FindDelayedIntersections\">FindDelayedIntersections</a>","synthetic":false,"types":["game::app::FindDelayedIntersections"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

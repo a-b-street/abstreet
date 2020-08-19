@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["destinations",""],["kml",""],["mapping",""],["polygon",""],["scenario",""],["story",""]],"struct":[["DevToolsMode",""]]});

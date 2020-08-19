@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["SpeedSetting",""]],"fn":[["area_under_curve",""],["compare_count",""]],"struct":[["JumpToTime",""],["SpeedControls",""],["TimePanel",""],["TimeWarpScreen",""]]});

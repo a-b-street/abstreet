@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["bio",""],["cmp_duration_shorter",""],["crowd",""],["current_status",""],["header",""],["parked_car",""],["schedule",""],["trips",""]]});
