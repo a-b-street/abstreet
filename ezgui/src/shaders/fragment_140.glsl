@@ -1,4 +1,4 @@
-#version 140
+#version 410
 
 // (x offset, y offset, zoom)
 uniform vec3 transform;
