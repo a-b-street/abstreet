@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::common::CityPicker;
 use crate::edit::EditMode;
-use crate::game::{PopupMsg, State, Transition};
+use crate::game::{ChooseSomething, PopupMsg, State, Transition};
 use crate::helpers::{checkbox_per_mode, nice_map_name};
 use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
@@ -190,7 +190,13 @@ impl EditScenarioModifiers {
                 .outline(2.0, Color::WHITE),
             );
         }
-        rows.push(Btn::text_bg2("Change trip mode").build_def(ctx, None));
+        rows.push(
+            Widget::row(vec![
+                Btn::text_bg2("Change trip mode").build_def(ctx, None),
+                Btn::text_bg2("Add extra new trips").build_def(ctx, None),
+            ])
+            .centered(),
+        );
         rows.push(Widget::row(vec![
             Spinner::new(ctx, (2, 14), 2).named("repeat_days"),
             Btn::text_bg2("Repeat schedule multiple days").build_def(ctx, None),
@@ -244,6 +250,31 @@ impl State for EditScenarioModifiers {
                         app,
                         self.scenario_name.clone(),
                         self.modifiers.clone(),
+                    ));
+                }
+                "Add extra new trips" => {
+                    return Transition::Push(ChooseSomething::new(
+                        ctx,
+                        "Which trips do you want to add in?",
+                        // TODO Exclude weekday?
+                        Choice::strings(abstutil::list_all_objects(abstutil::path_all_scenarios(
+                            app.primary.map.get_name(),
+                        ))),
+                        Box::new(|name, _, _| {
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::ReplaceWithData(Box::new(|state, ctx, _| {
+                                    let mut state =
+                                        state.downcast::<EditScenarioModifiers>().ok().unwrap();
+                                    state.modifiers.push(ScenarioModifier::AddExtraTrips(name));
+                                    vec![EditScenarioModifiers::new(
+                                        ctx,
+                                        state.scenario_name,
+                                        state.modifiers,
+                                    )]
+                                })),
+                            ])
+                        }),
                     ));
                 }
                 "Repeat schedule multiple days" => {

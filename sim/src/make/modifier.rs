@@ -1,4 +1,5 @@
-use crate::{IndividTrip, Scenario, SpawnTrip, TripMode};
+use crate::{IndividTrip, PersonID, Scenario, SpawnTrip, TripMode};
+use abstutil::Timer;
 use geom::{Duration, Time};
 use map_model::Map;
 use rand::Rng;
@@ -15,6 +16,8 @@ pub enum ScenarioModifier {
         departure_filter: (Time, Time),
         from_modes: BTreeSet<TripMode>,
     },
+    // Scenario name
+    AddExtraTrips(String),
 }
 
 impl ScenarioModifier {
@@ -52,6 +55,20 @@ impl ScenarioModifier {
                 }
                 s
             }
+            ScenarioModifier::AddExtraTrips(name) => {
+                let other: Scenario = abstutil::read_binary(
+                    abstutil::path_scenario(map.get_name(), name),
+                    &mut Timer::throwaway(),
+                );
+                for mut p in other.people {
+                    p.id = PersonID(s.people.len());
+                    for trip in &mut p.trips {
+                        trip.modified = true;
+                    }
+                    s.people.push(p);
+                }
+                s
+            }
         }
     }
 
@@ -74,6 +91,7 @@ impl ScenarioModifier {
                 departure_filter.1.ampm_tostring(),
                 to_mode.verb()
             ),
+            ScenarioModifier::AddExtraTrips(name) => format!("Add extra trips from {}", name),
         }
     }
 }
