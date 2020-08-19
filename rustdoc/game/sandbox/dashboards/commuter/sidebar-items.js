@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["BlockSelection",""],["BorderType",""]],"fn":[["build_shape_for_border",""],["group_bldgs",""],["make_panel",""],["partition_sidewalk_loops",""]],"struct":[["Block",""],["CommuterPatterns",""],["CompositeState",""],["Filter",""],["Loop",""]],"type":[["BlockID",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["SEIR",""]],"fn":[["make_controls",""]],"struct":[["Options",""],["Pandemic",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["ENDPT_BACK",""],["ENDPT_FWD",""],["HIGHWAY",""],["INFERRED_PARKING",""],["INFERRED_SIDEWALKS",""],["MAXSPEED",""],["NAME",""],["OSM_REL_ID",""],["OSM_WAY_ID",""],["PARKING_BOTH",""],["PARKING_LEFT",""],["PARKING_RIGHT",""],["SIDEWALK",""]],"enum":[["OsmID",""],["RoadRank",""]],"struct":[["NodeID",""],["RelationID",""],["WayID",""]]});

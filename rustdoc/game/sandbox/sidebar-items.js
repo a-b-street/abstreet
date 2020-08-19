@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["maybe_exit_sandbox",""]],"mod":[["dashboards",""],["gameplay",""],["misc_tools",""],["speed",""],["uber_turns",""]],"struct":[["Actions",""],["AgentMeter",""],["BackToMainMenu",""],["SandboxControls",""],["SandboxMode",""]]});
