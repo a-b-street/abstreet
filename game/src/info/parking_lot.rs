@@ -8,7 +8,7 @@ use std::collections::HashSet;
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLotID) -> Vec<Widget> {
     let mut rows = header(ctx, details, id, Tab::ParkingLot(id));
     let pl = app.primary.map.get_pl(id);
-    let capacity = pl.spots.len();
+    let capacity = pl.capacity();
 
     rows.push(
         format!(

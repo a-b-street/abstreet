@@ -36,6 +36,9 @@ pub struct ParkingLot {
     pub osm_id: osm::OsmID,
     // The middle of the "T", pointing towards the parking aisle
     pub spots: Vec<(Pt2D, Angle)>,
+    // If we can't render all spots (maybe a lot with no aisles or a multi-story garage), still
+    // count the other spots.
+    pub extra_spots: usize,
 
     // Goes from the lot to the driving lane
     pub driveway_line: PolyLine,
@@ -46,4 +49,10 @@ pub struct ParkingLot {
     // Lot to sidewalk
     pub sidewalk_line: Line,
     pub sidewalk_pos: Position,
+}
+
+impl ParkingLot {
+    pub fn capacity(&self) -> usize {
+        self.spots.len() + self.extra_spots
+    }
 }
