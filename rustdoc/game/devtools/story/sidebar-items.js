@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Mode",""]],"fn":[["make_panel",""],["simplify",""]],"struct":[["Lasso",""],["Marker",""],["RecordedStoryMap",""],["StoryMap",""],["StoryMapEditor",""]]});

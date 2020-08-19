@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["CONFLICTING_TURN",""],["CURRENT_TURN",""]],"fn":[["color_turn_type",""]],"struct":[["RoutePreview",""],["TurnExplorer",""]]});

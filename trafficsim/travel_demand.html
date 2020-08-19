@@ -223,7 +223,7 @@ example:</p>
 }
 </code></pre>
 <p>Run the tool:</p>
-<pre><code>cargo run --bin traffic_importer -- --map=data/system/maps/montlake.bin --input=/path/to/input.json
+<pre><code>cargo run --bin iotool -- import_traffic --map=data/system/maps/montlake.bin --input=/path/to/input.json
 </code></pre>
 <p>The tool matches input positions to the nearest building or border intersection,
 within 100 meters. The <code>departure</code> time is seconds since midnight. The tool will

@@ -243,6 +243,7 @@ set environment variables like this:
 </ol>
 <h2><a class="header" href="#development-tips" id="development-tips">Development tips</a></h2>
 <ul>
+<li><a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html">Generated API documentation</a></li>
 <li>Compile faster by just doing <code>cargo run</code>. The executable will have debug stack
 traces and run more slowly. You can do <code>cargo run --release</code> to build in
 optimized release mode; compilation will be slower, but the executable much
@@ -348,6 +349,7 @@ scratch. pretty abandoned as of June 2020</li>
 <li><code>abstutil</code>: a grab-bag of IO helpers, timing and logging utilities, etc</li>
 <li><code>geom</code>: types for GPS and map-space points, lines, angles, polylines,
 polygons, circles, durations, speeds</li>
+<li><code>iotool</code>: a catch-all tool to import/export data</li>
 </ul>
 <h2><a class="header" href="#code-conventions" id="code-conventions">Code conventions</a></h2>
 <p>All code is automatically formatted using https://github.com/rust-lang/rustfmt;
@@ -1539,7 +1541,7 @@ example:</p>
 }
 </code></pre>
 <p>Run the tool:</p>
-<pre><code>cargo run --bin traffic_importer -- --map=data/system/maps/montlake.bin --input=/path/to/input.json
+<pre><code>cargo run --bin iotool -- import_traffic --map=data/system/maps/montlake.bin --input=/path/to/input.json
 </code></pre>
 <p>The tool matches input positions to the nearest building or border intersection,
 within 100 meters. The <code>departure</code> time is seconds since midnight. The tool will
@@ -1918,6 +1920,16 @@ disconnected map).</li>
 </ul>
 </li>
 </ul>
+<h2><a class="header" href="#related-tools" id="related-tools">Related tools</a></h2>
+<p>There's no API to create trips. Instead, you can
+<a href="https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import">import trips from your own data</a>.</p>
+<p>If you need to deeply inspect the map, you can dump it to JSON:</p>
+<pre><code>cargo run --bin iotool -- dump_map --map=data/system/maps/montlake.bin
+</code></pre>
+<p>The format of the map isn't well-documented yet. See the
+<a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html">generated API docs</a>
+and <a href="https://dabreegster.github.io/abstreet/map/index.html">the map model docs</a>
+in the meantime.</p>
 <h1><a class="header" href="#project-logistics" id="project-logistics">Project logistics</a></h1>
 <p>This has some background/logistics about the project.</p>
 <h1><a class="header" href="#roadmap" id="roadmap">Roadmap</a></h1>

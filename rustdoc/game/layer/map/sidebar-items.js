@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BikeNetwork",""],["Static",""]]});

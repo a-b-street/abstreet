@@ -192,6 +192,16 @@ disconnected map).</li>
 </ul>
 </li>
 </ul>
+<h2><a class="header" href="#related-tools" id="related-tools">Related tools</a></h2>
+<p>There's no API to create trips. Instead, you can
+<a href="https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import">import trips from your own data</a>.</p>
+<p>If you need to deeply inspect the map, you can dump it to JSON:</p>
+<pre><code>cargo run --bin iotool -- dump_map --map=data/system/maps/montlake.bin
+</code></pre>
+<p>The format of the map isn't well-documented yet. See the
+<a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html">generated API docs</a>
+and <a href="https://dabreegster.github.io/abstreet/map/index.html">the map model docs</a>
+in the meantime.</p>
 
                     </main>
 
