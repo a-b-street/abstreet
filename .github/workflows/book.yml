@@ -18,6 +18,15 @@ jobs:
         run: |
             cd book
             mdbook build
+
+      - name: Install Rust
+        uses: hecrj/setup-rust-action@v1
+
+      - name: Generate rustdoc
+        run: |
+            cargo doc --no-deps
+            mv target/doc book/book/rustdoc
+
       - name: Publish HTML
         uses: peaceiris/actions-gh-pages@v3
         with:
