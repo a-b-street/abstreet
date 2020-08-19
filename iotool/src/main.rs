@@ -6,10 +6,21 @@ use sim::{IndividTrip, PersonID, PersonSpec, Scenario, SpawnTrip, TripEndpoint, 
 
 fn main() {
     let mut args = CmdArgs::new();
-    let map = args.required("--map");
-    let input = args.required("--input");
-    args.done();
+    match args.required_free().as_ref() {
+        "import_traffic" => {
+            import_traffic(args.required("--map"), args.required("--input"));
+            args.done();
+        }
+        "dump_map" => {
+            let map = Map::new(args.required("--map"), &mut Timer::new("dump map"));
+            println!("{}", abstutil::to_json(&map));
+            args.done();
+        }
+        x => panic!("Unknown command {}. Try: import_traffic, dump_map", x),
+    }
+}
 
+fn import_traffic(map: String, input: String) {
     let mut timer = Timer::new("import traffic demand data");
     let map = Map::new(map, &mut timer);
     let input: Input = abstutil::read_json(input, &mut timer);

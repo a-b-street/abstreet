@@ -37,3 +37,19 @@ are missing, etc. A summary of the commands available so far:
     mode, duration of trip in seconds). The mode is either a string like "Walk"
     or "Drive", or null if the trip was aborted (due to a simulation bug or
     disconnected map).
+
+## Related tools
+
+There's no API to create trips. Instead, you can
+[import trips from your own data](https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import).
+
+If you need to deeply inspect the map, you can dump it to JSON:
+
+```
+cargo run --bin iotool -- dump_map --map=data/system/maps/montlake.bin
+```
+
+The format of the map isn't well-documented yet. See the
+[generated API docs](https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html)
+and [the map model docs](https://dabreegster.github.io/abstreet/map/index.html)
+in the meantime.

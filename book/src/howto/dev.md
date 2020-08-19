@@ -23,6 +23,7 @@ One-time setup:
 
 ## Development tips
 
+- [Generated API documentation](https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html)
 - Compile faster by just doing `cargo run`. The executable will have debug stack
   traces and run more slowly. You can do `cargo run --release` to build in
   optimized release mode; compilation will be slower, but the executable much
@@ -136,6 +137,7 @@ Common utilities:
 - `abstutil`: a grab-bag of IO helpers, timing and logging utilities, etc
 - `geom`: types for GPS and map-space points, lines, angles, polylines,
   polygons, circles, durations, speeds
+- `iotool`: a catch-all tool to import/export data
 
 ## Code conventions
 

@@ -1,5 +1,5 @@
 [package]
-name = "traffic_importer"
+name = "iotool"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"

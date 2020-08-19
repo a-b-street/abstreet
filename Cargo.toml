@@ -8,11 +8,11 @@ members = [
   "geom",
   "headless",
   "importer",
+  "iotool",
   "kml",
   "map_editor",
   "map_model",
   "sim",
-  "traffic_importer",
   "updater",
 ]
 

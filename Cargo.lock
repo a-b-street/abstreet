@@ -1533,6 +1533,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "iotool"
+version = "0.1.0"
+dependencies = [
+ "abstutil 0.1.0",
+ "geom 0.1.0",
+ "map_model 0.1.0",
+ "serde 1.0.110 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sim 0.1.0",
+]
+
+[[package]]
 name = "iovec"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3340,17 +3351,6 @@ version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "traffic_importer"
-version = "0.1.0"
-dependencies = [
- "abstutil 0.1.0",
- "geom 0.1.0",
- "map_model 0.1.0",
- "serde 1.0.110 (registry+https://github.com/rust-lang/crates.io-index)",
- "sim 0.1.0",
 ]
 
 [[package]]
