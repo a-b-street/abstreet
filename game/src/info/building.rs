@@ -87,6 +87,10 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         rows.push(txt.draw(ctx))
     }
 
+    if app.opts.dev {
+        rows.push(Btn::text_bg1("Open OSM").build(ctx, format!("open {}", b.orig_id), None));
+    }
+
     rows
 }
 

@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{EventCtx, Line, LinePlot, PlotOptions, Series, TextExt, Widget};
+use ezgui::{Btn, EventCtx, Line, LinePlot, PlotOptions, Series, TextExt, Widget};
 use map_model::ParkingLotID;
 use std::collections::HashSet;
 
@@ -50,6 +50,10 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
             disabled: HashSet::new(),
         },
     ));
+
+    if app.opts.dev {
+        rows.push(Btn::text_bg1("Open OSM").build(ctx, format!("open {}", pl.osm_id), None));
+    }
 
     rows
 }
