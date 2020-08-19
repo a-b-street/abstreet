@@ -160,8 +160,8 @@ pub fn future(
         ));
     } else {
         // TODO Warp buttons. make_table is showing its age.
-        let (id1, _, name1) = endpoint(&trip.start, &app.primary.map);
-        let (id2, _, name2) = endpoint(&trip.end, &app.primary.map);
+        let (id1, _, name1) = endpoint(&trip.start, app);
+        let (id2, _, name2) = endpoint(&trip.end, app);
         details
             .warpers
             .insert(format!("jump to start of {}", id), id1);
@@ -323,8 +323,8 @@ pub fn aborted(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
     .draw(ctx)];
 
     // TODO Warp buttons. make_table is showing its age.
-    let (_, _, name1) = endpoint(&trip.start, &app.primary.map);
-    let (_, _, name2) = endpoint(&trip.end, &app.primary.map);
+    let (_, _, name1) = endpoint(&trip.start, app);
+    let (_, _, name2) = endpoint(&trip.end, app);
     col.extend(make_table(
         ctx,
         vec![
@@ -344,8 +344,8 @@ pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
     let mut col = vec!["Trip cancelled due to traffic pattern modifications".draw_text(ctx)];
 
     // TODO Warp buttons. make_table is showing its age.
-    let (_, _, name1) = endpoint(&trip.start, &app.primary.map);
-    let (_, _, name2) = endpoint(&trip.end, &app.primary.map);
+    let (_, _, name1) = endpoint(&trip.start, app);
+    let (_, _, name2) = endpoint(&trip.end, app);
     col.extend(make_table(
         ctx,
         vec![
@@ -374,7 +374,7 @@ fn make_timeline(
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
 
     let start_btn = {
-        let (id, center, name) = endpoint(&trip.start, map);
+        let (id, center, name) = endpoint(&trip.start, app);
         details
             .warpers
             .insert(format!("jump to start of {}", trip_id), id);
@@ -419,7 +419,7 @@ fn make_timeline(
     };
 
     let goal_btn = {
-        let (id, center, name) = endpoint(&trip.end, map);
+        let (id, center, name) = endpoint(&trip.end, app);
         details
             .warpers
             .insert(format!("jump to goal of {}", trip_id), id);
@@ -699,18 +699,21 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
 }
 
 // (ID, center, name)
-fn endpoint(endpt: &TripEndpoint, map: &Map) -> (ID, Pt2D, String) {
+fn endpoint(endpt: &TripEndpoint, app: &App) -> (ID, Pt2D, String) {
     match endpt {
         TripEndpoint::Bldg(b) => {
-            let bldg = map.get_b(*b);
+            let bldg = app.primary.map.get_b(*b);
             (ID::Building(*b), bldg.label_center, bldg.address.clone())
         }
         TripEndpoint::Border(i, _) => {
-            let i = map.get_i(*i);
+            let i = app.primary.map.get_i(*i);
             (
                 ID::Intersection(i.id),
                 i.polygon.center(),
-                format!("off map, via {}", i.name(map)),
+                format!(
+                    "off map, via {}",
+                    i.name(app.opts.language.as_ref(), &app.primary.map)
+                ),
             )
         }
     }

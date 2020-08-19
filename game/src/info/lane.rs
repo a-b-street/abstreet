@@ -222,7 +222,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
             .draw(ctx),
         header_btns(ctx),
     ]));
-    rows.push(format!("@ {}", r.get_name()).draw_text(ctx));
+    rows.push(format!("@ {}", r.get_name(app.opts.language.as_ref())).draw_text(ctx));
 
     let mut tabs = vec![("Info", Tab::LaneInfo(id))];
     if !l.is_parking() {

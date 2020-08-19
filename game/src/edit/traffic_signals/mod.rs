@@ -478,13 +478,22 @@ impl State for TrafficSignalEditor {
             let osd = if id.crosswalk {
                 Text::from(Line(format!(
                     "Crosswalk across {}",
-                    app.primary.map.get_r(id.from.id).get_name()
+                    app.primary
+                        .map
+                        .get_r(id.from.id)
+                        .get_name(app.opts.language.as_ref())
                 )))
             } else {
                 Text::from(Line(format!(
                     "Turn from {} to {}",
-                    app.primary.map.get_r(id.from.id).get_name(),
-                    app.primary.map.get_r(id.to.id).get_name()
+                    app.primary
+                        .map
+                        .get_r(id.from.id)
+                        .get_name(app.opts.language.as_ref()),
+                    app.primary
+                        .map
+                        .get_r(id.to.id)
+                        .get_name(app.opts.language.as_ref())
                 )))
             };
             CommonState::draw_custom_osd(g, app, osd);
@@ -564,7 +573,12 @@ fn make_side_panel(
 
         let mut road_names = BTreeSet::new();
         for r in &app.primary.map.get_i(i).roads {
-            road_names.insert(app.primary.map.get_r(*r).get_name());
+            road_names.insert(
+                app.primary
+                    .map
+                    .get_r(*r)
+                    .get_name(app.opts.language.as_ref()),
+            );
         }
         for r in road_names {
             txt.add(Line(format!("- {}", r)));

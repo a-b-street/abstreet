@@ -293,7 +293,13 @@ impl Road {
             .make_polygons(self.get_half_width(map) * 2.0)
     }
 
-    pub fn get_name(&self) -> String {
+    pub fn get_name(&self, lang: Option<&String>) -> String {
+        if let Some(lang) = lang {
+            if let Some(name) = self.osm_tags.get(&format!("name:{}", lang)) {
+                return name.to_string();
+            }
+        }
+
         if let Some(name) = self.osm_tags.get(osm::NAME) {
             if name == "" {
                 return "???".to_string();

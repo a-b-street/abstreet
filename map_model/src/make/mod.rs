@@ -197,7 +197,7 @@ impl Map {
                     biking_blackhole: false,
                 });
             }
-            if road.get_name() == "???" {
+            if road.get_name(None) == "???" {
                 // Suppress the warning in some cases.
                 if !(road.osm_tags.is("noname", "yes")
                     || road

@@ -75,9 +75,12 @@ impl LaneEditor {
 
         let parent = app.primary.map.get_parent(l);
         let col = vec![
-            format!("Convert this lane of {} to what type?", parent.get_name())
-                .draw_text(ctx)
-                .centered_horiz(),
+            format!(
+                "Convert this lane of {} to what type?",
+                parent.get_name(app.opts.language.as_ref())
+            )
+            .draw_text(ctx)
+            .centered_horiz(),
             Widget::custom_row(row).centered(),
             change_speed_limit(ctx, parent.speed_limit),
             Btn::text_fg("Change access restrictions").build_def(ctx, hotkey(Key::A)),

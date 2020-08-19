@@ -163,7 +163,10 @@ impl TurnExplorer {
             Text::from(
                 Line(format!(
                     "Turns from {}",
-                    app.primary.map.get_parent(l).get_name()
+                    app.primary
+                        .map
+                        .get_parent(l)
+                        .get_name(app.opts.language.as_ref())
                 ))
                 .small_heading(),
             )

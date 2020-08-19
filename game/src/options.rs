@@ -22,6 +22,8 @@ pub struct Options {
     pub time_increment: Duration,
     pub resume_after_edit: bool,
     pub dont_draw_time_warp: bool,
+
+    pub language: Option<String>,
 }
 
 impl Options {
@@ -39,6 +41,8 @@ impl Options {
             time_increment: Duration::minutes(10),
             resume_after_edit: true,
             dont_draw_time_warp: false,
+
+            language: None,
         }
     }
 }
@@ -167,6 +171,17 @@ impl OptionsPanel {
                         None,
                         app.opts.large_unzoomed_agents,
                     ),
+                    Widget::row(vec![
+                        "Language".draw_text(ctx),
+                        Widget::dropdown(ctx, "language", app.opts.language.clone(), {
+                            let mut choices = Vec::new();
+                            choices.push(Choice::new("Map native language", None));
+                            for lang in app.primary.map.get_languages() {
+                                choices.push(Choice::new(lang, Some(lang.to_string())));
+                            }
+                            choices
+                        }),
+                    ]),
                 ])
                 .bg(app.cs.section_bg)
                 .padding(8),
@@ -222,7 +237,7 @@ impl State for OptionsPanel {
                     if app.opts.traffic_signal_style != style {
                         app.opts.traffic_signal_style = style;
                         println!("Rerendering traffic signals...");
-                        for i in app.primary.draw_map.intersections.iter_mut() {
+                        for i in &mut app.primary.draw_map.intersections {
                             *i.draw_traffic_signal.borrow_mut() = None;
                         }
                     }
@@ -236,6 +251,14 @@ impl State for OptionsPanel {
                     app.opts.min_zoom_for_detail = self.composite.dropdown_value("min zoom");
                     app.opts.large_unzoomed_agents =
                         self.composite.is_checked("Draw enlarged unzoomed agents");
+
+                    let language = self.composite.dropdown_value("language");
+                    if language != app.opts.language {
+                        app.opts.language = language;
+                        for r in &mut app.primary.draw_map.roads {
+                            r.clear_rendering();
+                        }
+                    }
 
                     return Transition::Pop;
                 }

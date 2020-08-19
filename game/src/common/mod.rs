@@ -133,7 +133,7 @@ impl CommonState {
                 let r = map.get_parent(l);
                 osd.append_all(vec![
                     Line(format!("{} of ", map.get_l(l).lane_type.describe())),
-                    Line(r.get_name()).fg(name_color),
+                    Line(r.get_name(app.opts.language.as_ref())).fg(name_color),
                 ]);
                 if app.opts.dev {
                     osd.append(Line(" ("));
@@ -166,7 +166,7 @@ impl CommonState {
 
                 let mut road_names = BTreeSet::new();
                 for r in &map.get_i(i).roads {
-                    road_names.insert(map.get_r(*r).get_name());
+                    road_names.insert(map.get_r(*r).get_name(app.opts.language.as_ref()));
                 }
                 list_names(&mut osd, |l| l.fg(name_color), road_names);
             }
@@ -218,7 +218,7 @@ impl CommonState {
                     osd.append(Line(r.to_string()).fg(id_color));
                     osd.append(Line(" is "));
                 }
-                osd.append(Line(map.get_r(r).get_name()).fg(name_color));
+                osd.append(Line(map.get_r(r).get_name(app.opts.language.as_ref())).fg(name_color));
             }
         }
         osd

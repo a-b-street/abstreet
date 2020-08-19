@@ -633,4 +633,16 @@ impl Map {
         self.bus_routes[br.0].orig_spawn_times = times.clone();
         self.bus_routes[br.0].spawn_times = times;
     }
+
+    pub fn get_languages(&self) -> BTreeSet<&str> {
+        let mut languages = BTreeSet::new();
+        for r in self.all_roads() {
+            for key in r.osm_tags.inner().keys() {
+                if let Some(x) = key.strip_prefix("name:") {
+                    languages.insert(x);
+                }
+            }
+        }
+        languages
+    }
 }

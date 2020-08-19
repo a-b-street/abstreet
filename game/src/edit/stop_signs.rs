@@ -210,7 +210,13 @@ impl State for StopSignEditor {
             let mut osd = Text::new();
             osd.add_appended(vec![
                 Line("Stop sign for "),
-                Line(app.primary.map.get_r(r).get_name()).fg(app.cs.bottom_bar_name),
+                Line(
+                    app.primary
+                        .map
+                        .get_r(r)
+                        .get_name(app.opts.language.as_ref()),
+                )
+                .fg(app.cs.bottom_bar_name),
             ]);
             CommonState::draw_custom_osd(g, app, osd);
         } else {

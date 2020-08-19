@@ -30,7 +30,7 @@ impl Navigator {
                         .map
                         .all_roads()
                         .iter()
-                        .map(|r| (r.get_name(), r.id))
+                        .map(|r| (r.get_name(app.opts.language.as_ref()), r.id))
                         .collect(),
                 )
                 .named("street"),
@@ -108,7 +108,7 @@ impl CrossStreet {
                         // TODO This isn't so clear...
                         txt.add(Line(format!(
                             "(Or just quit to go to {})",
-                            map.get_r(first[0]).get_name(),
+                            map.get_r(first[0]).get_name(app.opts.language.as_ref()),
                         )));
                         txt.draw(ctx)
                     },
@@ -120,7 +120,7 @@ impl CrossStreet {
                     ctx,
                     cross_streets
                         .into_iter()
-                        .map(|r| (map.get_r(r).get_name(), r))
+                        .map(|r| (map.get_r(r).get_name(app.opts.language.as_ref()), r))
                         .collect(),
                 )
                 .named("street"),

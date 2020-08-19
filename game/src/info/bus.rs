@@ -237,7 +237,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     rows.push(format!("{} stops", route.stops.len()).draw_text(ctx));
     {
         let i = map.get_i(map.get_l(route.start).src_i);
-        let name = format!("Starts at {}", i.name(map));
+        let name = format!("Starts at {}", i.name(app.opts.language.as_ref(), map));
         rows.push(Widget::row(vec![
             Btn::svg(
                 "system/assets/timeline/goal_pos.svg",
@@ -273,7 +273,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     }
     if let Some(l) = route.end_border {
         let i = map.get_i(map.get_l(l).dst_i);
-        let name = format!("Ends at {}", i.name(map));
+        let name = format!("Ends at {}", i.name(app.opts.language.as_ref(), map));
         rows.push(Widget::row(vec![
             Btn::svg(
                 "system/assets/timeline/goal_pos.svg",

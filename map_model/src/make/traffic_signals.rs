@@ -26,7 +26,7 @@ pub fn get_possible_policies(
             timer.error(format!(
                 "seattle_traffic_signals data for {} ({}) out of date, go update it",
                 i.orig_id,
-                i.name(map)
+                i.name(None, map)
             ));
         }
     }

@@ -105,7 +105,7 @@ fn get_address(tags: &Tags, sidewalk: LaneID, map: &Map) -> String {
     match (tags.get("addr:housenumber"), tags.get("addr:street")) {
         (Some(num), Some(st)) => format!("{} {}", num, st),
         (None, Some(st)) => format!("??? {}", st),
-        _ => format!("??? {}", map.get_parent(sidewalk).get_name()),
+        _ => format!("??? {}", map.get_parent(sidewalk).get_name(None)),
     }
 }
 

@@ -20,7 +20,12 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
     let mut txt = Text::from(Line("Connecting"));
     let mut road_names = BTreeSet::new();
     for r in &i.roads {
-        road_names.insert(app.primary.map.get_r(*r).get_name());
+        road_names.insert(
+            app.primary
+                .map
+                .get_r(*r)
+                .get_name(app.opts.language.as_ref()),
+        );
     }
     for r in road_names {
         // TODO The spacing is ignored, so use -

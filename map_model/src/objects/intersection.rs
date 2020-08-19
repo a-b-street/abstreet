@@ -142,11 +142,11 @@ impl Intersection {
             .map(|l| map.get_l(*l).get_directed_parent(map))
     }
 
-    pub fn name(&self, map: &Map) -> String {
+    pub fn name(&self, lang: Option<&String>, map: &Map) -> String {
         let road_names = self
             .roads
             .iter()
-            .map(|r| map.get_r(*r).get_name())
+            .map(|r| map.get_r(*r).get_name(lang))
             .collect::<BTreeSet<_>>();
         abstutil::plain_list_names(road_names)
     }

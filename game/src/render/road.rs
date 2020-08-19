@@ -26,6 +26,7 @@ impl DrawRoad {
 
     pub fn clear_rendering(&mut self) {
         *self.draw_center_line.borrow_mut() = None;
+        *self.label.borrow_mut() = None;
     }
 }
 
@@ -73,7 +74,7 @@ impl Renderable for DrawRoad {
                 let mut batch = GeomBatch::new();
                 let r = app.primary.map.get_r(self.id);
                 if !r.is_light_rail() {
-                    let name = r.get_name();
+                    let name = r.get_name(app.opts.language.as_ref());
                     if r.center_pts.length() >= Distance::meters(30.0) && name != "???" {
                         // TODO If it's definitely straddling bus/bike lanes, change the color? Or
                         // even easier, just skip the center lines?

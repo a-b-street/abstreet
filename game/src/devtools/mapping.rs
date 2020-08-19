@@ -640,7 +640,8 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
                     ])
                     .intersection(&map.get_r(r2).center_pts)
                     .is_some()
-                    && r1.get_name() == map.get_r(r2).get_name()
+                    && r1.get_name(app.opts.language.as_ref())
+                        == map.get_r(r2).get_name(app.opts.language.as_ref())
                 {
                     found.insert(r1.id);
                     found.insert(r2);
