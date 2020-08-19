@@ -3,7 +3,7 @@ use crate::{
     svg, Color, DeferDraw, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey, Prerender, ScreenDims,
     Widget,
 };
-use geom::Polygon;
+use geom::{PolyLine, Polygon};
 use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
 use std::hash::Hasher;
@@ -482,5 +482,69 @@ impl TextExt for String {
     }
     fn batch_text(self, ctx: &EventCtx) -> Widget {
         Line(self).batch(ctx)
+    }
+}
+
+impl TextSpan {
+    // TODO Copies from render_line a fair amount
+    pub fn render_curvey(self, prerender: &Prerender, path: &PolyLine, scale: f64) -> GeomBatch {
+        let assets = &prerender.assets;
+        let tolerance = svg::HIGH_QUALITY;
+
+        // Just set a sufficiently large view box
+        let mut svg = r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg">"##.to_string();
+
+        write!(
+            &mut svg,
+            r##"<path id="txtpath" fill="none" stroke="none" d=""##
+        )
+        .unwrap();
+        write!(
+            &mut svg,
+            "M {} {}",
+            path.points()[0].x(),
+            path.points()[0].y()
+        )
+        .unwrap();
+        for pt in path.points().into_iter().skip(1) {
+            write!(&mut svg, " L {} {}", pt.x(), pt.y()).unwrap();
+        }
+        write!(&mut svg, "\" />").unwrap();
+        // We need to subtract and account for the length of the text
+        let start_offset = (path.length() / 2.0).inner_meters()
+            - (Text::from(Line(&self.text)).dims(assets).width * scale) / 2.0;
+        write!(
+            &mut svg,
+            r##"<text font-size="{}" font-family="{}" {} fill="{}" startOffset="{}">"##,
+            // This is seemingly the easiest way to do this. We could .scale() the whole batch
+            // after, but then we have to re-translate it to the proper spot
+            (self.size as f64) * scale,
+            self.font.family(),
+            match self.font {
+                Font::OverpassBold => "font-weight=\"bold\"",
+                Font::OverpassSemiBold => "font-weight=\"600\"",
+                _ => "",
+            },
+            self.fg_color.to_hex(),
+            start_offset,
+        )
+        .unwrap();
+
+        write!(
+            &mut svg,
+            r##"<textPath href="#txtpath">{}</textPath></text></svg>"##,
+            self.text
+        )
+        .unwrap();
+
+        let svg_tree = match usvg::Tree::from_str(&svg, &assets.text_opts) {
+            Ok(t) => t,
+            Err(err) => panic!("curvey({}): {}", self.text, err),
+        };
+        let mut batch = GeomBatch::new();
+        match crate::svg::add_svg_inner(&mut batch, svg_tree, tolerance) {
+            Ok(_) => batch,
+            Err(err) => panic!("curvey({}): {}", self.text, err),
+        }
     }
 }

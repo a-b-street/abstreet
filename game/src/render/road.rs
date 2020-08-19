@@ -88,14 +88,25 @@ impl Renderable for DrawRoad {
                         } else {
                             app.cs.driving_lane
                         };
-                        let txt = Text::from(Line(name).fg(fg)).bg(bg);
-                        let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
-                        batch.append(
-                            txt.render_to_batch(g.prerender)
-                                .scale(0.1)
-                                .centered_on(pt)
-                                .rotate(angle.reorient()),
-                        );
+
+                        if false {
+                            // TODO Not ready yet
+                            batch.append(Line(name).fg(fg).render_curvey(
+                                g.prerender,
+                                &r.center_pts,
+                                0.1,
+                            ));
+                        } else {
+                            let txt = Text::from(Line(name).fg(fg)).bg(bg);
+                            let (pt, angle) =
+                                r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
+                            batch.append(
+                                txt.render_to_batch(g.prerender)
+                                    .scale(0.1)
+                                    .centered_on(pt)
+                                    .rotate(angle.reorient()),
+                            );
+                        }
                     }
                 }
                 *label = Some(g.prerender.upload(batch));
