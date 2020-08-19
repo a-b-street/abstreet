@@ -484,13 +484,77 @@
 <span id="484">484</span>
 <span id="485">485</span>
 <span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">assets</span>::<span class="ident">Assets</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">svg</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">MultiKey</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>,
     <span class="ident">Widget</span>,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::<span class="ident">DefaultHasher</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Write</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>::<span class="ident">Hasher</span>;
@@ -969,6 +1033,70 @@
     }
     <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">TextSpan</span> {
+    <span class="comment">// TODO Copies from render_line a fair amount</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render_curvey</span>(<span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>, <span class="ident">scale</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+        <span class="kw">let</span> <span class="ident">assets</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">prerender</span>.<span class="ident">assets</span>;
+        <span class="kw">let</span> <span class="ident">tolerance</span> <span class="op">=</span> <span class="ident">svg</span>::<span class="ident">HIGH_QUALITY</span>;
+
+        <span class="comment">// Just set a sufficiently large view box</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">svg</span> <span class="op">=</span> <span class="string">r##&quot;&lt;svg width=&quot;9999&quot; height=&quot;9999&quot; viewBox=&quot;0 0 9999 9999&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&quot;##</span>.<span class="ident">to_string</span>();
+
+        <span class="macro">write</span><span class="macro">!</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>,
+            <span class="string">r##&quot;&lt;path id=&quot;txtpath&quot; fill=&quot;none&quot; stroke=&quot;none&quot; d=&quot;&quot;##</span>
+        )
+        .<span class="ident">unwrap</span>();
+        <span class="macro">write</span><span class="macro">!</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>,
+            <span class="string">&quot;M {} {}&quot;</span>,
+            <span class="ident">path</span>.<span class="ident">points</span>()[<span class="number">0</span>].<span class="ident">x</span>(),
+            <span class="ident">path</span>.<span class="ident">points</span>()[<span class="number">0</span>].<span class="ident">y</span>()
+        )
+        .<span class="ident">unwrap</span>();
+        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">points</span>().<span class="ident">into_iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
+            <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>, <span class="string">&quot; L {} {}&quot;</span>, <span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()).<span class="ident">unwrap</span>();
+        }
+        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>, <span class="string">&quot;\&quot; /&gt;&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="comment">// We need to subtract and account for the length of the text</span>
+        <span class="kw">let</span> <span class="ident">start_offset</span> <span class="op">=</span> (<span class="ident">path</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">inner_meters</span>()
+            <span class="op">-</span> (<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">text</span>)).<span class="ident">dims</span>(<span class="ident">assets</span>).<span class="ident">width</span> <span class="op">*</span> <span class="ident">scale</span>) <span class="op">/</span> <span class="number">2.0</span>;
+        <span class="macro">write</span><span class="macro">!</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>,
+            <span class="string">r##&quot;&lt;text font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; startOffset=&quot;{}&quot;&gt;&quot;##</span>,
+            <span class="comment">// This is seemingly the easiest way to do this. We could .scale() the whole batch</span>
+            <span class="comment">// after, but then we have to re-translate it to the proper spot</span>
+            (<span class="self">self</span>.<span class="ident">size</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">scale</span>,
+            <span class="self">self</span>.<span class="ident">font</span>.<span class="ident">family</span>(),
+            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">font</span> {
+                <span class="ident">Font</span>::<span class="ident">OverpassBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;font-weight=\&quot;bold\&quot;&quot;</span>,
+                <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>,
+            },
+            <span class="self">self</span>.<span class="ident">fg_color</span>.<span class="ident">to_hex</span>(),
+            <span class="ident">start_offset</span>,
+        )
+        .<span class="ident">unwrap</span>();
+
+        <span class="macro">write</span><span class="macro">!</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>,
+            <span class="string">r##&quot;&lt;textPath href=&quot;#txtpath&quot;&gt;{}&lt;/textPath&gt;&lt;/text&gt;&lt;/svg&gt;&quot;##</span>,
+            <span class="self">self</span>.<span class="ident">text</span>
+        )
+        .<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">svg_tree</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">usvg</span>::<span class="ident">Tree</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">svg</span>, <span class="kw-2">&amp;</span><span class="ident">assets</span>.<span class="ident">text_opts</span>) {
+            <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.<span class="ident">text</span>, <span class="ident">err</span>),
+        };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">match</span> <span class="kw">crate</span>::<span class="ident">svg</span>::<span class="ident">add_svg_inner</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">tolerance</span>) {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">batch</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.<span class="ident">text</span>, <span class="ident">err</span>),
+        }
     }
 }
 </pre></div>
