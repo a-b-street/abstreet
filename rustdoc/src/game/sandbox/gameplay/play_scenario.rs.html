@@ -413,11 +413,42 @@
 <span id="413">413</span>
 <span id="414">414</span>
 <span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CityPicker</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">nice_map_name</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::<span class="ident">freeform</span>::<span class="ident">make_change_traffic</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
@@ -606,7 +637,13 @@
                 .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
             );
         }
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Change trip mode&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
+        <span class="ident">rows</span>.<span class="ident">push</span>(
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Change trip mode&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Add extra new trips&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+            ])
+            .<span class="ident">centered</span>(),
+        );
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Spinner</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2</span>).<span class="ident">named</span>(<span class="string">&quot;repeat_days&quot;</span>),
             <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Repeat schedule multiple days&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
@@ -660,6 +697,31 @@
                         <span class="ident">app</span>,
                         <span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>(),
                         <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">clone</span>(),
+                    ));
+                }
+                <span class="string">&quot;Add extra new trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;Which trips do you want to add in?&quot;</span>,
+                        <span class="comment">// TODO Exclude weekday?</span>
+                        <span class="ident">Choice</span>::<span class="ident">strings</span>(<span class="ident">abstutil</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstutil</span>::<span class="ident">path_all_scenarios</span>(
+                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
+                        ))),
+                        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">name</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
+                            <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                                <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                                <span class="ident">Transition</span>::<span class="ident">ReplaceWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
+                                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span>
+                                        <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">EditScenarioModifiers</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
+                                    <span class="ident">state</span>.<span class="ident">modifiers</span>.<span class="ident">push</span>(<span class="ident">ScenarioModifier</span>::<span class="ident">AddExtraTrips</span>(<span class="ident">name</span>));
+                                    <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">EditScenarioModifiers</span>::<span class="ident">new</span>(
+                                        <span class="ident">ctx</span>,
+                                        <span class="ident">state</span>.<span class="ident">scenario_name</span>,
+                                        <span class="ident">state</span>.<span class="ident">modifiers</span>,
+                                    )]
+                                })),
+                            ])
+                        }),
                     ));
                 }
                 <span class="string">&quot;Repeat schedule multiple days&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
