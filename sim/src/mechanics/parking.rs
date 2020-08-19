@@ -91,12 +91,8 @@ impl ParkingSimState {
             }
         }
         for pl in map.all_parking_lots() {
-            // TODO Parking lots without any spots shouldn't be possible
-            if pl.spots.is_empty() {
-                continue;
-            }
             if !map.get_l(pl.driving_pos.lane()).driving_blackhole {
-                sim.num_spots_per_lot.insert(pl.id, pl.spots.len());
+                sim.num_spots_per_lot.insert(pl.id, pl.capacity());
                 sim.driving_to_lots.insert(pl.driving_pos.lane(), pl.id);
             }
         }
@@ -196,7 +192,9 @@ impl ParkingSimState {
         for pl in self.driving_to_lots.get(id) {
             for idx in 0..self.num_spots_per_lot[&pl] {
                 if let Some(car) = self.occupants.get(&ParkingSpot::Lot(*pl, idx)) {
-                    cars.push(self.get_draw_car(*car, map).unwrap());
+                    if let Some(d) = self.get_draw_car(*car, map) {
+                        cars.push(d);
+                    }
                 }
             }
         }
@@ -225,7 +223,8 @@ impl ParkingSimState {
             ParkingSpot::Offstreet(_, _) => None,
             ParkingSpot::Lot(pl, idx) => {
                 let pl = map.get_pl(pl);
-                let (pt, angle) = pl.spots[idx];
+                // Some cars might be in the unrenderable extra_spots.
+                let (pt, angle) = pl.spots.get(idx)?;
                 let buffer = Distance::meters(0.5);
                 Some(DrawCarInput {
                     id: p.vehicle.id,
@@ -237,8 +236,8 @@ impl ParkingSimState {
                     label: None,
 
                     body: PolyLine::must_new(vec![
-                        pt.project_away(buffer, angle),
-                        pt.project_away(map_model::PARKING_LOT_SPOT_LENGTH - buffer, angle),
+                        pt.project_away(buffer, *angle),
+                        pt.project_away(map_model::PARKING_LOT_SPOT_LENGTH - buffer, *angle),
                     ]),
                 })
             }
@@ -249,8 +248,13 @@ impl ParkingSimState {
     pub fn canonical_pt(&self, id: CarID, map: &Map) -> Option<Pt2D> {
         let p = self.parked_cars.get(&id)?;
         match p.spot {
-            ParkingSpot::Onstreet(_, _) | ParkingSpot::Lot(_, _) => {
-                self.get_draw_car(id, map).map(|c| c.body.last_pt())
+            ParkingSpot::Onstreet(_, _) => Some(self.get_draw_car(id, map).unwrap().body.last_pt()),
+            ParkingSpot::Lot(pl, _) => {
+                if let Some(car) = self.get_draw_car(id, map) {
+                    Some(car.body.last_pt())
+                } else {
+                    Some(map.get_pl(pl).polygon.center())
+                }
             }
             ParkingSpot::Offstreet(b, _) => Some(map.get_b(b).label_center),
         }

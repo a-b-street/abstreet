@@ -36,6 +36,7 @@ pub fn make_all_parking_lots(
     );
 
     let mut results = Vec::new();
+    let mut osm_tags = Vec::new();
     timer.start_iter("create parking lot driveways", center_per_lot.len());
     for (lot_center, orig) in center_per_lot.into_iter().zip(input.iter()) {
         timer.next();
@@ -81,12 +82,14 @@ pub fn make_all_parking_lots(
                     aisles: Vec::new(),
                     osm_id: orig.osm_id,
                     spots: Vec::new(),
+                    extra_spots: 0,
 
                     driveway_line,
                     driving_pos,
                     sidewalk_line,
                     sidewalk_pos: *sidewalk_pos,
                 });
+                osm_tags.push(&orig.osm_tags);
             } else {
                 timer.warn(format!(
                     "Parking lot from {}, near sidewalk {}, can't have a driveway.",
@@ -146,9 +149,24 @@ pub fn make_all_parking_lots(
     }
 
     timer.start_iter("generate parking lot spots", results.len());
-    for lot in results.iter_mut() {
+    for (lot, osm_tags) in results.iter_mut().zip(osm_tags.into_iter()) {
         timer.next();
         lot.spots = infer_spots(&lot.polygon, &lot.aisles);
+
+        // Guess how many extra spots are available, that maybe aren't renderable.
+        if lot.spots.is_empty() {
+            // No parking aisles. Just guess based on the area. One spot per 30m^2 is a quick guess
+            // from looking at examples with aisles.
+            lot.extra_spots = (lot.polygon.area() / 30.0) as usize;
+        }
+        // For multi-story garages, assume every floor has the same capacity.
+        if let Some(levels) = osm_tags
+            .get("building:levels")
+            .and_then(|x| x.parse::<usize>().ok())
+        {
+            let base = lot.spots.len().max(lot.extra_spots);
+            lot.extra_spots = base * levels;
+        }
     }
 
     timer.stop("convert parking lots");

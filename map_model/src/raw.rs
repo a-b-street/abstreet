@@ -320,8 +320,9 @@ pub struct RawArea {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RawParkingLot {
-    pub polygon: Polygon,
     pub osm_id: osm::OsmID,
+    pub polygon: Polygon,
+    pub osm_tags: Tags,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

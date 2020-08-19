@@ -152,10 +152,10 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 osm_tags: way.tags.clone(),
             });
         } else if way.tags.is("amenity", "parking") {
-            // TODO Verify parking = surface or handle other cases?
             map.parking_lots.push(RawParkingLot {
-                polygon,
                 osm_id: OsmID::Way(id),
+                polygon,
+                osm_tags: way.tags.clone(),
             });
         } else if way.tags.is("historic", "memorial") {
             memorial_areas.push(polygon);
