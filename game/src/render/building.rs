@@ -43,7 +43,13 @@ impl DrawBuilding {
             outlines_batch.push(cs.building_outline, p);
         }
 
-        if let OffstreetParking::PublicGarage(_, _) = bldg.parking {
+        let parking_icon = match bldg.parking {
+            OffstreetParking::PublicGarage(_, _) => true,
+            // TODO Might need to keep adjusting this. Really it's if the building was explicitly
+            // tagged as having parking in OSM.
+            OffstreetParking::Private(n) => n > 10,
+        };
+        if parking_icon {
             // Might need to scale down more for some buildings, but so far, this works everywhere.
             bldg_batch.append(
                 GeomBatch::load_svg(ctx.prerender, "system/assets/map/parking.svg")

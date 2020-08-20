@@ -196,7 +196,23 @@ fn apply_private_offstreet_parking(map: &mut RawMap, policy: &PrivateOffstreetPa
             for b in map.buildings.values_mut() {
                 if b.public_garage_name.is_none() {
                     assert_eq!(b.num_parking_spots, 0);
-                    b.num_parking_spots = *n;
+
+                    // Is it a parking garage?
+                    if b.osm_tags.is("building", "parking") || b.osm_tags.is("amenity", "parking") {
+                        let levels = b
+                            .osm_tags
+                            .get("parking:levels")
+                            .or_else(|| b.osm_tags.get("building:levels"))
+                            .and_then(|x| x.parse::<usize>().ok())
+                            .unwrap_or(1);
+                        // For multi-story garages, assume every floor has the same capacity. Guess
+                        // 1 spot per 30m^2.
+                        b.num_parking_spots = ((b.polygon.area() / 30.0) as usize) * levels;
+                        // Not useful to list this
+                        abstutil::retain_btreeset(&mut b.amenities, |(_, a)| a != "parking");
+                    } else {
+                        b.num_parking_spots = *n;
+                    }
                 }
             }
         }
