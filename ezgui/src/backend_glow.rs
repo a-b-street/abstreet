@@ -2,6 +2,7 @@ use crate::drawing::Uniforms;
 use crate::{Canvas, Color, GeomBatch, ScreenDims, ScreenRectangle};
 use glow::HasContext;
 use std::cell::Cell;
+use std::rc::Rc;
 
 pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     let event_loop = winit::event_loop::EventLoop::new();
@@ -68,7 +69,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
 
     (
         PrerenderInnards {
-            gl,
+            gl: Rc::new(gl),
             program,
             windowed_context,
             total_bytes_uploaded: Cell::new(0),
@@ -79,7 +80,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
 
 // Represents one frame that's gonna be drawn
 pub struct GfxCtxInnards<'a> {
-    gl: &'a glow::Context,
+    gl: Rc<glow::Context>,
     windowed_context: &'a glutin::WindowedContext<glutin::PossiblyCurrent>,
     program: &'a <glow::Context as glow::HasContext>::Program,
 
@@ -112,7 +113,7 @@ impl<'a> GfxCtxInnards<'a> {
             self.gl
                 .uniform_3_f32_slice(Some(&window_loc), &uniforms.window);
 
-            self.gl.bind_vertex_array(Some(obj.vert_array));
+            self.gl.bind_vertex_array(Some(obj.vert_array.id));
             self.gl
                 .draw_elements(glow::TRIANGLES, obj.num_indices, glow::UNSIGNED_INT, 0);
             self.gl.bind_vertex_array(None);
@@ -164,16 +165,87 @@ impl<'a> GfxCtxInnards<'a> {
 }
 
 // Something that's been sent to the GPU already.
-// TODO Implement Drop; have to keep a reference to gl.
 pub struct Drawable {
-    _vert_buffer: u32,
-    vert_array: u32,
-    _elem_buffer: u32,
+    vert_array: VertexArray,
+    vert_buffer: Buffer,
+    elem_buffer: Buffer,
     num_indices: i32,
+    gl: Rc<glow::Context>,
+}
+
+impl Drop for Drawable {
+    #[inline]
+    fn drop(&mut self) {
+        self.elem_buffer.destroy(&self.gl);
+        self.vert_buffer.destroy(&self.gl);
+        self.vert_array.destroy(&self.gl);
+    }
+}
+
+struct VertexArray {
+    id: u32,
+    was_destroyed: bool,
+}
+
+impl VertexArray {
+    fn new(gl: &glow::Context) -> VertexArray {
+        let id = unsafe { gl.create_vertex_array().unwrap() };
+        VertexArray {
+            id,
+            was_destroyed: false,
+        }
+    }
+
+    fn destroy(&mut self, gl: &glow::Context) {
+        assert!(!self.was_destroyed, "already destroyed");
+        self.was_destroyed = true;
+        unsafe {
+            gl.delete_vertex_array(self.id);
+        }
+    }
+}
+
+impl Drop for VertexArray {
+    fn drop(&mut self) {
+        assert!(
+            self.was_destroyed,
+            "failed to call `destroy` before dropped. Memory leaked."
+        );
+    }
+}
+
+struct Buffer {
+    id: u32,
+    was_destroyed: bool,
+}
+
+impl Buffer {
+    fn new(gl: &glow::Context) -> Buffer {
+        let id = unsafe { gl.create_buffer().unwrap() };
+        Buffer {
+            id,
+            was_destroyed: false,
+        }
+    }
+
+    fn destroy(&mut self, gl: &glow::Context) {
+        assert!(!self.was_destroyed, "already destroyed");
+        self.was_destroyed = true;
+        unsafe { gl.delete_buffer(self.id) };
+    }
+}
+
+impl Drop for Buffer {
+    fn drop(&mut self) {
+        assert!(
+            self.was_destroyed,
+            "failed to call `destroy` before dropped. Memory leaked."
+        );
+    }
 }
 
 pub struct PrerenderInnards {
-    gl: glow::Context,
+    gl: Rc<glow::Context>,
     windowed_context: glutin::WindowedContext<glutin::PossiblyCurrent>,
     program: <glow::Context as glow::HasContext>::Program,
 
@@ -207,13 +279,14 @@ impl PrerenderInnards {
         }
 
         let (vert_buffer, vert_array, elem_buffer) = unsafe {
-            let vert_array = self.gl.create_vertex_array().unwrap();
-            let vert_buffer = self.gl.create_buffer().unwrap();
-            let elem_buffer = self.gl.create_buffer().unwrap();
+            let vert_array = VertexArray::new(&self.gl);
+            let vert_buffer = Buffer::new(&self.gl);
+            let elem_buffer = Buffer::new(&self.gl);
 
-            self.gl.bind_vertex_array(Some(vert_array));
+            self.gl.bind_vertex_array(Some(vert_array.id));
 
-            self.gl.bind_buffer(glow::ARRAY_BUFFER, Some(vert_buffer));
+            self.gl
+                .bind_buffer(glow::ARRAY_BUFFER, Some(vert_buffer.id));
             self.gl.buffer_data_u8_slice(
                 glow::ARRAY_BUFFER,
                 &vertices.align_to::<u8>().1,
@@ -222,7 +295,7 @@ impl PrerenderInnards {
             );
 
             self.gl
-                .bind_buffer(glow::ELEMENT_ARRAY_BUFFER, Some(elem_buffer));
+                .bind_buffer(glow::ELEMENT_ARRAY_BUFFER, Some(elem_buffer.id));
             self.gl.buffer_data_u8_slice(
                 glow::ELEMENT_ARRAY_BUFFER,
                 &indices.align_to::<u8>().1,
@@ -265,10 +338,11 @@ impl PrerenderInnards {
         }
 
         Drawable {
-            _vert_buffer: vert_buffer,
             vert_array,
-            _elem_buffer: elem_buffer,
+            vert_buffer,
+            elem_buffer,
             num_indices,
+            gl: self.gl.clone(),
         }
     }
 
@@ -282,7 +356,7 @@ impl PrerenderInnards {
 
     pub fn draw_new_frame(&self) -> GfxCtxInnards {
         GfxCtxInnards {
-            gl: &self.gl,
+            gl: self.gl.clone(),
             windowed_context: &self.windowed_context,
             program: &self.program,
             current_clip: None,
