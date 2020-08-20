@@ -1,10 +1,10 @@
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
 use crate::{
-    ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
-    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PersonID,
-    Scheduler, TimeInterval, TransitSimState, TripManager, UnzoomedAgent, Vehicle, WalkingSimState,
-    FOLLOWING_DISTANCE,
+    ActionAtEnd, AgentID, AgentProperties, CapSimState, CarID, Command, CreateCar,
+    DistanceInterval, DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState,
+    ParkingSpot, PersonID, Scheduler, TimeInterval, TransitSimState, TripManager, UnzoomedAgent,
+    Vehicle, WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Time};
@@ -171,6 +171,7 @@ impl DrivingSimState {
         trips: &mut TripManager,
         scheduler: &mut Scheduler,
         transit: &mut TransitSimState,
+        cap: &mut CapSimState,
         walking: &mut WalkingSimState,
     ) {
         // State transitions for this car:
@@ -214,6 +215,7 @@ impl DrivingSimState {
                 parking,
                 intersections,
                 transit,
+                cap,
                 scheduler,
             );
             self.cars.insert(id, car);
@@ -253,6 +255,7 @@ impl DrivingSimState {
         parking: &mut ParkingSimState,
         intersections: &mut IntersectionSimState,
         transit: &mut TransitSimState,
+        cap: &mut CapSimState,
         scheduler: &mut Scheduler,
     ) -> bool {
         match car.state {
@@ -346,22 +349,27 @@ impl DrivingSimState {
                 let goto = car.router.next();
                 assert!(from != goto);
 
-                if let Traversable::Turn(t) = goto {
-                    let mut speed = goto.speed_limit(map);
-                    if let Some(s) = car.vehicle.max_speed {
-                        speed = speed.min(s);
+                match goto {
+                    Traversable::Turn(t) => {
+                        let mut speed = goto.speed_limit(map);
+                        if let Some(s) = car.vehicle.max_speed {
+                            speed = speed.min(s);
+                        }
+                        if !intersections.maybe_start_turn(
+                            AgentID::Car(car.vehicle.id),
+                            t,
+                            speed,
+                            now,
+                            map,
+                            scheduler,
+                            Some((&car, &self.cars, &mut self.queues)),
+                        ) {
+                            // Don't schedule a retry here.
+                            return false;
+                        }
                     }
-                    if !intersections.maybe_start_turn(
-                        AgentID::Car(car.vehicle.id),
-                        t,
-                        speed,
-                        now,
-                        map,
-                        scheduler,
-                        Some((&car, &self.cars, &mut self.queues)),
-                    ) {
-                        // Don't schedule a retry here.
-                        return false;
+                    Traversable::Lane(l) => {
+                        cap.car_entering_lane(now, car.vehicle.id, l);
                     }
                 }
 

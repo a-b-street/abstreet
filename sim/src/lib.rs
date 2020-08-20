@@ -1,4 +1,5 @@
 mod analytics;
+mod cap;
 mod events;
 mod make;
 mod mechanics;
@@ -11,6 +12,7 @@ mod transit;
 mod trips;
 
 pub use self::analytics::{Analytics, TripPhase};
+pub(crate) use self::cap::CapSimState;
 pub(crate) use self::events::Event;
 pub use self::events::{AlertLocation, TripPhaseType};
 pub use self::make::{
