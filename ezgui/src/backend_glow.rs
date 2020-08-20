@@ -1,93 +1,33 @@
 use crate::drawing::Uniforms;
 use crate::{Canvas, Color, GeomBatch, ScreenDims, ScreenRectangle};
 use glow::HasContext;
-use std::cell::Cell;
 use std::rc::Rc;
 
-pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
-    let event_loop = winit::event_loop::EventLoop::new();
-    let window = winit::window::WindowBuilder::new()
-        .with_title(window_title)
-        .with_maximized(true);
-    // TODO Need the same fallback as backend_glium
-    // multisampling: 2 looks bad, 4 looks fine
-    let context = glutin::ContextBuilder::new()
-        .with_multisampling(4)
-        .with_depth_buffer(2)
-        .build_windowed(window, &event_loop)
-        .unwrap();
-    let windowed_context = unsafe { context.make_current().unwrap() };
-    let gl =
-        glow::Context::from_loader_function(|s| windowed_context.get_proc_address(s) as *const _);
-    let program = unsafe { gl.create_program().expect("Cannot create program") };
+#[cfg(feature = "glow-backend")]
+pub use crate::backend_glow_native::*;
 
-    unsafe {
-        let shaders = [
-            (glow::VERTEX_SHADER, include_str!("shaders/vertex_140.glsl")),
-            (
-                glow::FRAGMENT_SHADER,
-                include_str!("shaders/fragment_140.glsl"),
-            ),
-        ]
-        .iter()
-        .map(|(shader_type, source)| {
-            let shader = gl
-                .create_shader(*shader_type)
-                .expect("Cannot create shader");
-            gl.shader_source(shader, source);
-            gl.compile_shader(shader);
-            if !gl.get_shader_compile_status(shader) {
-                panic!(gl.get_shader_info_log(shader));
-            }
-            gl.attach_shader(program, shader);
-            shader
-        })
-        .collect::<Vec<_>>();
-        gl.link_program(program);
-        if !gl.get_program_link_status(program) {
-            panic!(gl.get_program_info_log(program));
-        }
-        for shader in shaders {
-            gl.detach_shader(program, shader);
-            gl.delete_shader(shader);
-        }
-        gl.use_program(Some(program));
-
-        gl.enable(glow::SCISSOR_TEST);
-
-        gl.enable(glow::DEPTH_TEST);
-        gl.depth_func(glow::LEQUAL);
-
-        gl.enable(glow::BLEND);
-        gl.blend_func_separate(
-            glow::SRC_ALPHA,
-            glow::ONE_MINUS_SRC_ALPHA,
-            glow::SRC_ALPHA,
-            glow::ONE_MINUS_SRC_ALPHA,
-        );
-    }
-
-    (
-        PrerenderInnards {
-            gl: Rc::new(gl),
-            program,
-            windowed_context,
-            total_bytes_uploaded: Cell::new(0),
-        },
-        event_loop,
-    )
-}
+#[cfg(feature = "wasm-backend")]
+pub use crate::backend_wasm::*;
 
 // Represents one frame that's gonna be drawn
 pub struct GfxCtxInnards<'a> {
-    gl: Rc<glow::Context>,
-    windowed_context: &'a glutin::WindowedContext<glutin::PossiblyCurrent>,
+    gl: &'a glow::Context,
     program: &'a <glow::Context as glow::HasContext>::Program,
-
     current_clip: Option<[i32; 4]>,
 }
 
 impl<'a> GfxCtxInnards<'a> {
+    pub fn new(
+        gl: &'a glow::Context,
+        program: &'a <glow::Context as glow::HasContext>::Program,
+    ) -> Self {
+        GfxCtxInnards {
+            gl,
+            program,
+            current_clip: None,
+        }
+    }
+
     pub fn clear(&mut self, color: Color) {
         unsafe {
             self.gl.clear_color(color.r, color.g, color.b, color.a);
@@ -150,6 +90,7 @@ impl<'a> GfxCtxInnards<'a> {
     pub fn take_clip(&mut self) -> Option<[i32; 4]> {
         self.current_clip.take()
     }
+
     pub fn restore_clip(&mut self, clip: Option<[i32; 4]>) {
         self.current_clip = clip;
         if let Some(c) = clip {
@@ -157,10 +98,6 @@ impl<'a> GfxCtxInnards<'a> {
                 self.gl.scissor(c[0], c[1], c[2], c[3]);
             }
         }
-    }
-
-    pub fn finish(self) {
-        self.windowed_context.swap_buffers().unwrap();
     }
 }
 
@@ -182,11 +119,6 @@ impl Drop for Drawable {
     }
 }
 
-struct VertexArray {
-    id: u32,
-    was_destroyed: bool,
-}
-
 impl VertexArray {
     fn new(gl: &glow::Context) -> VertexArray {
         let id = unsafe { gl.create_vertex_array().unwrap() };
@@ -205,20 +137,6 @@ impl VertexArray {
     }
 }
 
-impl Drop for VertexArray {
-    fn drop(&mut self) {
-        assert!(
-            self.was_destroyed,
-            "failed to call `destroy` before dropped. Memory leaked."
-        );
-    }
-}
-
-struct Buffer {
-    id: u32,
-    was_destroyed: bool,
-}
-
 impl Buffer {
     fn new(gl: &glow::Context) -> Buffer {
         let id = unsafe { gl.create_buffer().unwrap() };
@@ -235,26 +153,11 @@ impl Buffer {
     }
 }
 
-impl Drop for Buffer {
-    fn drop(&mut self) {
-        assert!(
-            self.was_destroyed,
-            "failed to call `destroy` before dropped. Memory leaked."
-        );
-    }
+pub(crate) struct GlowInnards {
+    pub(crate) gl: Rc<glow::Context>,
 }
 
-pub struct PrerenderInnards {
-    gl: Rc<glow::Context>,
-    windowed_context: glutin::WindowedContext<glutin::PossiblyCurrent>,
-    program: <glow::Context as glow::HasContext>::Program,
-
-    // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
-    // detailed.
-    pub total_bytes_uploaded: Cell<usize>,
-}
-
-impl PrerenderInnards {
+impl GlowInnards {
     pub fn actually_upload(&self, permanent: bool, batch: GeomBatch) -> Drawable {
         let mut vertices: Vec<[f32; 6]> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
@@ -346,56 +249,14 @@ impl PrerenderInnards {
         }
     }
 
-    pub fn request_redraw(&self) {
-        self.windowed_context.window().request_redraw();
-    }
-
-    pub fn set_cursor_icon(&self, icon: winit::window::CursorIcon) {
-        self.windowed_context.window().set_cursor_icon(icon);
-    }
-
-    pub fn draw_new_frame(&self) -> GfxCtxInnards {
-        GfxCtxInnards {
-            gl: self.gl.clone(),
-            windowed_context: &self.windowed_context,
-            program: &self.program,
-            current_clip: None,
-        }
-    }
-
     pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {
         let physical_size = winit::dpi::LogicalSize::from(new_size).to_physical(scale_factor);
-        self.windowed_context.resize(physical_size);
         unsafe {
-            self.gl.viewport(
-                0,
-                0,
-                physical_size.width as i32,
-                physical_size.height as i32,
-            );
+            self.gl
+                .viewport(0, 0, physical_size.width, physical_size.height);
             // I think it's safe to assume there's not a clip right now.
-            self.gl.scissor(
-                0,
-                0,
-                physical_size.width as i32,
-                physical_size.height as i32,
-            );
+            self.gl
+                .scissor(0, 0, physical_size.width, physical_size.height);
         }
-    }
-
-    pub fn window_size(&self, scale_factor: f64) -> ScreenDims {
-        self.windowed_context
-            .window()
-            .inner_size()
-            .to_logical(scale_factor)
-            .into()
-    }
-
-    pub fn set_window_icon(&self, icon: winit::window::Icon) {
-        self.windowed_context.window().set_window_icon(Some(icon));
-    }
-
-    pub fn monitor_scale_factor(&self) -> f64 {
-        self.windowed_context.window().scale_factor()
     }
 }

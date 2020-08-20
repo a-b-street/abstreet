@@ -34,7 +34,7 @@ Why OpenGL? My requirements are super simple; I don't need the power of Vulkan
 or other new stuff. I want something simple that runs everywhere. If you want to
 make this work with WGPU or something else, it should be easy. The 3 backend
 implementations ([glium](src/backend_glium.rs),
-[glow on native](src/backend_glow.rs), [glow on wasm](src/backend_wasm.rs)) are
+[glow on native](src/backend_glow_native.rs), [glow on wasm](src/backend_wasm.rs)) are
 each about 300 lines.
 
 ### 2D drawing

@@ -27,8 +27,10 @@
 mod assets;
 #[cfg(feature = "glium-backend")]
 mod backend_glium;
-#[cfg(feature = "glow-backend")]
+#[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
 mod backend_glow;
+#[cfg(feature = "glow-backend")]
+mod backend_glow_native;
 #[cfg(feature = "wasm-backend")]
 mod backend_wasm;
 mod canvas;
@@ -51,11 +53,8 @@ mod backend {
     #[cfg(feature = "glium-backend")]
     pub use crate::backend_glium::*;
 
-    #[cfg(feature = "glow-backend")]
+    #[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
     pub use crate::backend_glow::*;
-
-    #[cfg(feature = "wasm-backend")]
-    pub use crate::backend_wasm::*;
 }
 
 pub use crate::backend::Drawable;
