@@ -160,8 +160,12 @@ impl State for PopularDestinations {
                 "{} trips to here",
                 abstutil::prettyprint_usize(self.per_bldg.get(b))
             )));
-            for (name, amenity) in &app.primary.map.get_b(b).amenities {
-                txt.add(Line(format!("- {} ({})", name, amenity)));
+            for (names, amenity) in &app.primary.map.get_b(b).amenities {
+                txt.add(Line(format!(
+                    "- {} ({})",
+                    names.get(app.opts.language.as_ref()),
+                    amenity
+                )));
             }
             g.draw_mouse_tooltip(txt);
         }

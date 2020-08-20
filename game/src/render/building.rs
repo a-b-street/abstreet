@@ -78,8 +78,9 @@ impl Renderable for DrawBuilding {
             if label.is_none() {
                 let mut batch = GeomBatch::new();
                 let b = app.primary.map.get_b(self.id);
-                if let Some((name, _)) = b.amenities.iter().next() {
-                    let mut txt = Text::from(Line(name).fg(Color::BLACK));
+                if let Some((names, _)) = b.amenities.iter().next() {
+                    let mut txt =
+                        Text::from(Line(names.get(app.opts.language.as_ref())).fg(Color::BLACK));
                     if b.amenities.len() > 1 {
                         txt.append(Line(format!(" (+{})", b.amenities.len() - 1)).fg(Color::BLACK));
                     }

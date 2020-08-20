@@ -1,5 +1,5 @@
 use crate::make::initial::lane_specs::get_lane_specs;
-use crate::{osm, AreaType, IntersectionType, LaneType, MapConfig};
+use crate::{osm, AreaType, IntersectionType, LaneType, MapConfig, NamePerLanguage};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Angle, Circle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use petgraph::graphmap::DiGraphMap;
@@ -307,7 +307,7 @@ pub struct RawBuilding {
     pub public_garage_name: Option<String>,
     pub num_parking_spots: usize,
     // (Name, amenity type)
-    pub amenities: BTreeSet<(String, String)>,
+    pub amenities: BTreeSet<(NamePerLanguage, String)>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

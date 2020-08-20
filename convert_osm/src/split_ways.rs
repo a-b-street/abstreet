@@ -2,7 +2,7 @@ use crate::extract::OsmExtract;
 use abstutil::{Counter, Timer};
 use geom::{Distance, HashablePt2D, Pt2D};
 use map_model::raw::{OriginalRoad, RawIntersection, RawMap};
-use map_model::{osm, IntersectionType};
+use map_model::{osm, IntersectionType, NamePerLanguage};
 use std::collections::HashMap;
 
 // Returns amenities and a mapping of all points to split road. (Some internal points on roads are
@@ -12,7 +12,7 @@ pub fn split_up_roads(
     mut input: OsmExtract,
     timer: &mut Timer,
 ) -> (
-    Vec<(Pt2D, String, String)>,
+    Vec<(Pt2D, NamePerLanguage, String)>,
     HashMap<HashablePt2D, OriginalRoad>,
 ) {
     timer.start("splitting up roads");

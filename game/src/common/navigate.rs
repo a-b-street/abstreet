@@ -219,11 +219,21 @@ impl SearchBuildings {
                             if !b.address.starts_with("???") {
                                 results.push((b.address.clone(), b.id));
                             }
-                            if let Some(ref n) = b.name {
-                                results.push((n.clone(), b.id));
+                            if let Some(ref names) = b.name {
+                                results.push((
+                                    names.get(app.opts.language.as_ref()).to_string(),
+                                    b.id,
+                                ));
                             }
-                            for (a, _) in &b.amenities {
-                                results.push((format!("{} (at {})", a, b.address), b.id));
+                            for (names, _) in &b.amenities {
+                                results.push((
+                                    format!(
+                                        "{} (at {})",
+                                        names.get(app.opts.language.as_ref()),
+                                        b.address
+                                    ),
+                                    b.id,
+                                ));
                             }
                             results
                         })

@@ -151,7 +151,14 @@ impl log::Log for Logger {
             }
             *last = Some(Instant::now());
         }
-        println!("[{}] {}: {}", record.level(), target, record.args());
+        // Silence these; they're expected on any map using simplified Chinese or kanji.
+        let contents = format!("{}", record.args());
+        if target == "usvg::convert::text::shaper" {
+            if contents.contains("Fallback") {
+                return;
+            }
+        }
+        println!("[{}] {}: {}", record.level(), target, contents);
     }
     fn flush(&self) {}
 }

@@ -1,6 +1,8 @@
 use crate::make::match_points_to_lanes;
 use crate::raw::RawBuilding;
-use crate::{osm, Building, BuildingID, BuildingType, LaneID, Map, OffstreetParking};
+use crate::{
+    osm, Building, BuildingID, BuildingType, LaneID, Map, NamePerLanguage, OffstreetParking,
+};
 use abstutil::{Tags, Timer};
 use geom::{Distance, HashablePt2D, Line, Polygon};
 use rand::{Rng, SeedableRng};
@@ -60,7 +62,7 @@ pub fn make_all_buildings(
                 id,
                 polygon: b.polygon.clone(),
                 address: get_address(&b.osm_tags, sidewalk_pos.lane(), map),
-                name: b.osm_tags.get(osm::NAME).cloned(),
+                name: NamePerLanguage::new(&b.osm_tags),
                 orig_id,
                 label_center: b.polygon.polylabel(),
                 amenities: b.amenities.clone(),
@@ -111,7 +113,7 @@ fn get_address(tags: &Tags, sidewalk: LaneID, map: &Map) -> String {
 
 fn classify_bldg(
     tags: &Tags,
-    amenities: &BTreeSet<(String, String)>,
+    amenities: &BTreeSet<(NamePerLanguage, String)>,
     area_sq_meters: f64,
     rng: &mut XorShiftRng,
 ) -> BuildingType {

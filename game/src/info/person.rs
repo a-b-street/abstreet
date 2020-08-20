@@ -350,7 +350,11 @@ pub fn schedule(
                 if b.amenities.is_empty() {
                     b.address.clone()
                 } else {
-                    let list = b.amenities.iter().map(|(n, _)| n).collect::<Vec<_>>();
+                    let list = b
+                        .amenities
+                        .iter()
+                        .map(|(names, _)| names.get(app.opts.language.as_ref()))
+                        .collect::<Vec<_>>();
                     format!("{} (at {})", list.choose(&mut rng).unwrap(), b.address)
                 }
             }
@@ -375,7 +379,11 @@ pub fn schedule(
             if b.amenities.is_empty() {
                 b.address.clone()
             } else {
-                let list = b.amenities.iter().map(|(n, _)| n).collect::<Vec<_>>();
+                let list = b
+                    .amenities
+                    .iter()
+                    .map(|(names, _)| names.get(app.opts.language.as_ref()))
+                    .collect::<Vec<_>>();
                 format!("{} (at {})", list.choose(&mut rng).unwrap(), b.address)
             }
         }

@@ -643,6 +643,15 @@ impl Map {
                 }
             }
         }
+        for b in self.all_buildings() {
+            for (names, _) in &b.amenities {
+                for key in names.0.keys() {
+                    if let Some(lang) = key {
+                        languages.insert(lang);
+                    }
+                }
+            }
+        }
         languages
     }
 }

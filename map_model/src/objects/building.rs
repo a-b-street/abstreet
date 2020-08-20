@@ -1,8 +1,10 @@
 use crate::{osm, LaneID, Map, PathConstraints, Position};
-use abstutil::{deserialize_usize, serialize_usize};
+use abstutil::{
+    deserialize_btreemap, deserialize_usize, serialize_btreemap, serialize_usize, Tags,
+};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeSet, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -25,14 +27,14 @@ pub struct Building {
     pub id: BuildingID,
     pub polygon: Polygon,
     pub address: String,
-    pub name: Option<String>,
+    pub name: Option<NamePerLanguage>,
     pub orig_id: osm::OsmID,
     // Where a text label should be centered to have the best chances of being contained within the
     // polygon.
     pub label_center: Pt2D,
     // TODO Might fold these into BuildingType::Commercial
     // (Name, amenity)
-    pub amenities: BTreeSet<(String, String)>,
+    pub amenities: BTreeSet<(NamePerLanguage, String)>,
     pub bldg_type: BuildingType,
     pub parking: OffstreetParking,
 
@@ -66,6 +68,45 @@ impl BuildingType {
             BuildingType::Residential(_) | BuildingType::ResidentialCommercial(_) => true,
             BuildingType::Commercial | BuildingType::Empty => false,
         }
+    }
+}
+
+// None corresponds to the native name
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
+pub struct NamePerLanguage(
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub(crate) BTreeMap<Option<String>, String>,
+);
+
+impl NamePerLanguage {
+    pub fn get(&self, lang: Option<&String>) -> &String {
+        // TODO Can we avoid this clone?
+        let lang = lang.cloned();
+        if let Some(name) = self.0.get(&lang) {
+            return name;
+        }
+        &self.0[&None]
+    }
+
+    pub fn new(tags: &Tags) -> Option<NamePerLanguage> {
+        let native_name = tags.get(osm::NAME)?;
+        let mut map = BTreeMap::new();
+        map.insert(None, native_name.to_string());
+        for (k, v) in tags.inner() {
+            if let Some(lang) = k.strip_prefix("name:") {
+                map.insert(Some(lang.to_string()), v.to_string());
+            }
+        }
+        Some(NamePerLanguage(map))
+    }
+
+    pub fn unnamed() -> NamePerLanguage {
+        let mut map = BTreeMap::new();
+        map.insert(None, "unnamed".to_string());
+        NamePerLanguage(map)
     }
 }
 

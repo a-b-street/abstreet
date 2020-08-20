@@ -14,8 +14,8 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     let mut kv = Vec::new();
 
     kv.push(("Address", b.address.clone()));
-    if let Some(ref name) = b.name {
-        kv.push(("Name", name.clone()));
+    if let Some(ref names) = b.name {
+        kv.push(("Name", names.get(app.opts.language.as_ref()).to_string()));
     }
     if app.opts.dev {
         kv.push(("OSM ID", format!("{}", b.orig_id.inner())));
@@ -48,8 +48,12 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         if b.amenities.len() > 1 {
             txt.add(Line(format!("{} amenities:", b.amenities.len())));
         }
-        for (name, amenity) in &b.amenities {
-            txt.add(Line(format!("- {} ({})", name, amenity)));
+        for (names, amenity) in &b.amenities {
+            txt.add(Line(format!(
+                "- {} ({})",
+                names.get(app.opts.language.as_ref()),
+                amenity
+            )));
         }
     }
 

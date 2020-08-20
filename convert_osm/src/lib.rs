@@ -9,7 +9,7 @@ mod transit;
 use abstutil::Timer;
 use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
 use map_model::raw::RawMap;
-use map_model::{osm, MapConfig};
+use map_model::{osm, MapConfig, NamePerLanguage};
 
 pub struct Options {
     pub osm_input: String,
@@ -106,19 +106,23 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     map
 }
 
-fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, String, String)>, timer: &mut Timer) {
+fn use_amenities(
+    map: &mut RawMap,
+    amenities: Vec<(Pt2D, NamePerLanguage, String)>,
+    timer: &mut Timer,
+) {
     let mut closest: FindClosest<osm::OsmID> = FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {
         closest.add(*id, b.polygon.points());
     }
 
     timer.start_iter("match building amenities", amenities.len());
-    for (pt, name, amenity) in amenities {
+    for (pt, names, amenity) in amenities {
         timer.next();
         if let Some((id, _)) = closest.closest_pt(pt, Distance::meters(50.0)) {
             let b = map.buildings.get_mut(&id).unwrap();
             if b.polygon.contains_pt(pt) {
-                b.amenities.insert((name, amenity));
+                b.amenities.insert((names, amenity));
             }
         }
     }
