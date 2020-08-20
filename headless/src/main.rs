@@ -9,13 +9,13 @@
 // > curl http://localhost:1234/get-delays
 // ... huge JSON blob
 
-use abstutil::{CmdArgs, Timer};
+use abstutil::{serialize_btreemap, CmdArgs, Timer};
 use geom::{Duration, Time};
 use hyper::{Body, Request, Response, Server};
-use map_model::{ControlTrafficSignal, IntersectionID, Map};
+use map_model::{ControlTrafficSignal, IntersectionID, Map, TurnGroupID};
 use serde::Serialize;
 use sim::{AlertHandler, Sim, SimFlags, SimOptions, TripID, TripMode};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::error::Error;
 use std::sync::RwLock;
 
@@ -117,6 +117,36 @@ fn handle_command(
             map.incremental_edit_traffic_signal(ts);
             Ok(format!("{} has been updated", id))
         }
+        "/traffic-signals/get-delays" => {
+            let i = IntersectionID(params["id"].parse::<usize>()?);
+            let t1 = Time::parse(&params["t1"])?;
+            let t2 = Time::parse(&params["t2"])?;
+            let ts = if let Some(ts) = map.maybe_get_traffic_signal(i) {
+                ts
+            } else {
+                return Err(format!("{} isn't a traffic signal", i).into());
+            };
+            let turn_groups: Vec<&TurnGroupID> = ts.turn_groups.keys().collect();
+
+            let mut delays = Delays {
+                per_direction: BTreeMap::new(),
+            };
+            for tg in ts.turn_groups.keys() {
+                delays.per_direction.insert(tg.clone(), Vec::new());
+            }
+            if let Some(list) = sim.get_analytics().intersection_delays.get(&i) {
+                for (idx, t, dt, _) in list {
+                    if *t >= t1 && *t <= t2 {
+                        delays
+                            .per_direction
+                            .get_mut(turn_groups[*idx as usize])
+                            .unwrap()
+                            .push(*dt);
+                    }
+                }
+            }
+            Ok(abstutil::to_json(&delays))
+        }
         // Querying data
         "/data/get-finished-trips" => Ok(abstutil::to_json(&FinishedTrips {
             trips: sim.get_analytics().finished_trips.clone(),
@@ -131,5 +161,11 @@ fn handle_command(
 struct FinishedTrips {
     // TODO Hack: No TripMode means aborted
     // Finish time, ID, mode (or None as aborted), trip duration
-    pub trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
+    trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
+}
+
+#[derive(Serialize)]
+struct Delays {
+    #[serde(serialize_with = "serialize_btreemap")]
+    per_direction: BTreeMap<TurnGroupID, Vec<Duration>>,
 }
