@@ -95,16 +95,6 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     )
 }
 
-pub(crate) struct VertexArray {
-    pub(crate) id: glow::WebVertexArrayKey,
-    pub(crate) was_destroyed: bool,
-}
-
-pub(crate) struct Buffer {
-    pub(crate) id: glow::WebBufferKey,
-    pub(crate) was_destroyed: bool,
-}
-
 pub struct WindowAdapter(winit::window::Window);
 
 impl WindowAdapter {

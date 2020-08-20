@@ -6,13 +6,9 @@ use std::rc::Rc;
 
 #[cfg(feature = "glow-backend")]
 pub use crate::backend_glow_native::setup;
-#[cfg(feature = "glow-backend")]
-use crate::backend_glow_native::{self, Buffer, VertexArray, WindowAdapter};
 
 #[cfg(feature = "wasm-backend")]
 pub use crate::backend_wasm::setup;
-#[cfg(feature = "wasm-backend")]
-use crate::backend_wasm::{self, Buffer, VertexArray, WindowAdapter};
 
 // Represents one frame that's gonna be drawn
 pub struct GfxCtxInnards<'a> {
@@ -124,6 +120,11 @@ impl Drop for Drawable {
     }
 }
 
+struct VertexArray {
+    id: <glow::Context as glow::HasContext>::VertexArray,
+    was_destroyed: bool,
+}
+
 impl VertexArray {
     fn new(gl: &glow::Context) -> VertexArray {
         let id = unsafe { gl.create_vertex_array().unwrap() };
@@ -142,6 +143,20 @@ impl VertexArray {
     }
 }
 
+impl Drop for VertexArray {
+    fn drop(&mut self) {
+        assert!(
+            self.was_destroyed,
+            "failed to call `destroy` before dropped. Memory leaked."
+        );
+    }
+}
+
+struct Buffer {
+    id: <glow::Context as glow::HasContext>::Buffer,
+    was_destroyed: bool,
+}
+
 impl Buffer {
     fn new(gl: &glow::Context) -> Buffer {
         let id = unsafe { gl.create_buffer().unwrap() };
@@ -158,15 +173,24 @@ impl Buffer {
     }
 }
 
+impl Drop for Buffer {
+    fn drop(&mut self) {
+        assert!(
+            self.was_destroyed,
+            "failed to call `destroy` before dropped. Memory leaked."
+        );
+    }
+}
+
 #[cfg(feature = "wasm-backend")]
-type WindowProvider = backend_wasm::WindowAdapter;
+type WindowAdapter = crate::backend_wasm::WindowAdapter;
 
 #[cfg(feature = "glow-backend")]
-type WindowProvider = backend_glow_native::WindowAdapter;
+type WindowAdapter = crate::backend_glow_native::WindowAdapter;
 
 pub struct PrerenderInnards {
     pub(crate) gl: Rc<glow::Context>,
-    window_adapter: WindowProvider,
+    window_adapter: WindowAdapter,
     program: <glow::Context as glow::HasContext>::Program,
 
     // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
@@ -178,7 +202,7 @@ impl PrerenderInnards {
     pub fn new(
         gl: glow::Context,
         program: <glow::Context as glow::HasContext>::Program,
-        window_adapter: WindowProvider,
+        window_adapter: WindowAdapter,
     ) -> PrerenderInnards {
         PrerenderInnards {
             gl: Rc::new(gl),

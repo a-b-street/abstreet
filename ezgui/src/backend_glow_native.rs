@@ -72,16 +72,6 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     )
 }
 
-pub(crate) struct VertexArray {
-    pub(crate) id: u32,
-    pub(crate) was_destroyed: bool,
-}
-
-pub(crate) struct Buffer {
-    pub(crate) id: u32,
-    pub(crate) was_destroyed: bool,
-}
-
 pub struct WindowAdapter(glutin::WindowedContext<glutin::PossiblyCurrent>);
 
 impl WindowAdapter {
