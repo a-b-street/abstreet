@@ -414,6 +414,7 @@ impl Sim {
                     maybe_req,
                     maybe_path,
                     &mut self.parking,
+                    &self.cap,
                     &mut self.scheduler,
                     map,
                 );
@@ -474,6 +475,7 @@ impl Sim {
                         trip,
                         Some(create_car.vehicle),
                         &mut self.parking,
+                        &self.cap,
                         &mut self.scheduler,
                         map,
                     );
@@ -505,6 +507,7 @@ impl Sim {
                             Duration::ZERO,
                             map,
                             &mut self.parking,
+                            &self.cap,
                             &mut self.scheduler,
                         );
                     }
@@ -551,6 +554,7 @@ impl Sim {
                     &mut self.scheduler,
                     &mut self.trips,
                     &mut self.transit,
+                    &self.cap,
                 );
             }
             Command::UpdateIntersection(i) => {
@@ -576,6 +580,7 @@ impl Sim {
                     trip,
                     map,
                     &mut self.parking,
+                    &self.cap,
                     &mut self.scheduler,
                 );
             }
@@ -1221,6 +1226,7 @@ impl Sim {
                 trip,
                 Some(vehicle),
                 &mut self.parking,
+                &self.cap,
                 &mut self.scheduler,
                 map,
             );

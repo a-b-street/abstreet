@@ -1,9 +1,9 @@
 use crate::{
-    AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
-    Event, IndividTrip, OffMapLocation, OrigPersonID, ParkedCar, ParkingSimState, ParkingSpot,
-    PedestrianID, PersonID, PersonSpec, Scenario, Scheduler, SidewalkPOI, SidewalkSpot, SpawnTrip,
-    TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle, VehicleSpec, VehicleType,
-    WalkingSimState,
+    AgentID, AgentType, AlertLocation, CapSimState, CarID, Command, CreateCar, CreatePedestrian,
+    DrivingGoal, Event, IndividTrip, OffMapLocation, OrigPersonID, ParkedCar, ParkingSimState,
+    ParkingSpot, PedestrianID, PersonID, PersonSpec, Scenario, Scheduler, SidewalkPOI,
+    SidewalkSpot, SpawnTrip, TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle,
+    VehicleSpec, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Duration, Speed, Time};
@@ -184,6 +184,7 @@ impl TripManager {
         blocked_time: Duration,
         map: &Map,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
@@ -213,7 +214,7 @@ impl TripManager {
                     let person = trip.person;
                     self.people[person.0].state = PersonState::Inside(b1);
                     self.events.push(Event::PersonEntersBuilding(person, b1));
-                    self.person_finished_trip(now, person, parking, scheduler, map);
+                    self.person_finished_trip(now, person, parking, cap, scheduler, map);
                     return;
                 }
                 _ => {}
@@ -241,6 +242,7 @@ impl TripManager {
         blocked_time: Duration,
         map: &Map,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
     ) {
         self.events.push(Event::PedReachedParkingSpot(ped, spot));
@@ -293,9 +295,42 @@ impl TripManager {
             // Move the car to the destination...
             parking.remove_parked_car(parked_car.clone());
             let trip = trip.id;
-            self.abort_trip(now, trip, Some(parked_car.vehicle), parking, scheduler, map);
+            self.abort_trip(
+                now,
+                trip,
+                Some(parked_car.vehicle),
+                parking,
+                cap,
+                scheduler,
+                map,
+            );
             return;
         };
+
+        if !cap.allow_trip(parked_car.vehicle.id, &path) {
+            // TODO Different ways to handle this: abort the trip, delay it an hour, route around
+            // the zone, switch modes...
+            self.events.push(Event::Alert(
+                AlertLocation::Person(trip.person),
+                format!(
+                    "Aborting {} because it would exceed the cap through some zone",
+                    trip.id
+                ),
+            ));
+            // Move the car to the destination...
+            parking.remove_parked_car(parked_car.clone());
+            let trip = trip.id;
+            self.abort_trip(
+                now,
+                trip,
+                Some(parked_car.vehicle),
+                parking,
+                cap,
+                scheduler,
+                map,
+            );
+            return;
+        }
 
         let router = drive_to.make_router(parked_car.vehicle.id, path, map);
         scheduler.push(
@@ -322,6 +357,7 @@ impl TripManager {
         blocked_time: Duration,
         map: &Map,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self
@@ -352,7 +388,7 @@ impl TripManager {
                 ),
             ));
             let trip = trip.id;
-            self.abort_trip(now, trip, None, parking, scheduler, map);
+            self.abort_trip(now, trip, None, parking, cap, scheduler, map);
             return;
         };
         let req = PathRequest {
@@ -388,7 +424,7 @@ impl TripManager {
                 ),
             ));
             let trip = trip.id;
-            self.abort_trip(now, trip, None, parking, scheduler, map);
+            self.abort_trip(now, trip, None, parking, cap, scheduler, map);
         }
     }
 
@@ -435,6 +471,7 @@ impl TripManager {
         blocked_time: Duration,
         map: &Map,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self
@@ -458,7 +495,7 @@ impl TripManager {
         let person = trip.person;
         self.people[person.0].state = PersonState::Inside(bldg);
         self.events.push(Event::PersonEntersBuilding(person, bldg));
-        self.person_finished_trip(now, person, parking, scheduler, map);
+        self.person_finished_trip(now, person, parking, cap, scheduler, map);
     }
 
     // If no route is returned, the pedestrian boarded a bus immediately.
@@ -580,6 +617,7 @@ impl TripManager {
         blocked_time: Duration,
         map: &Map,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self
@@ -616,7 +654,7 @@ impl TripManager {
             ));
         }
         self.people[person.0].state = PersonState::OffMap;
-        self.person_finished_trip(now, person, parking, scheduler, map);
+        self.person_finished_trip(now, person, parking, cap, scheduler, map);
     }
 
     pub fn transit_rider_reached_border(
@@ -626,6 +664,7 @@ impl TripManager {
         bus: CarID,
         map: &Map,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
     ) {
         let agent = AgentID::BusPassenger(person, bus);
@@ -653,7 +692,7 @@ impl TripManager {
             unreachable!()
         }
         self.people[person.0].state = PersonState::OffMap;
-        self.person_finished_trip(now, person, parking, scheduler, map);
+        self.person_finished_trip(now, person, parking, cap, scheduler, map);
     }
 
     pub fn car_or_bike_reached_border(
@@ -664,6 +703,7 @@ impl TripManager {
         blocked_time: Duration,
         map: &Map,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
@@ -696,7 +736,7 @@ impl TripManager {
                 loc.clone(),
             ));
         }
-        self.person_finished_trip(now, person, parking, scheduler, map);
+        self.person_finished_trip(now, person, parking, cap, scheduler, map);
     }
 
     pub fn remote_trip_finished(
@@ -705,6 +745,7 @@ impl TripManager {
         id: TripID,
         map: &Map,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[id.0];
@@ -727,7 +768,7 @@ impl TripManager {
         self.events
             .push(Event::PersonEntersRemoteBuilding(person, to));
         self.people[person.0].state = PersonState::OffMap;
-        self.person_finished_trip(now, person, parking, scheduler, map);
+        self.person_finished_trip(now, person, parking, cap, scheduler, map);
     }
 
     // Different than aborting a trip. Don't warp any vehicles or change where the person is.
@@ -745,6 +786,7 @@ impl TripManager {
         id: TripID,
         abandoned_vehicle: Option<Vehicle>,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
         map: &Map,
     ) {
@@ -819,7 +861,7 @@ impl TripManager {
             }
         }
 
-        self.person_finished_trip(now, person, parking, scheduler, map);
+        self.person_finished_trip(now, person, parking, cap, scheduler, map);
     }
 
     pub fn active_agents(&self) -> Vec<AgentID> {
@@ -960,6 +1002,7 @@ impl TripManager {
         now: Time,
         person: PersonID,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
         map: &Map,
     ) {
@@ -978,7 +1021,7 @@ impl TripManager {
             ));
         }
         self.start_trip(
-            now, trip, spec, maybe_req, maybe_path, parking, scheduler, map,
+            now, trip, spec, maybe_req, maybe_path, parking, cap, scheduler, map,
         );
     }
 
@@ -990,6 +1033,7 @@ impl TripManager {
         maybe_req: Option<PathRequest>,
         mut maybe_path: Option<Path>,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
         map: &Map,
     ) {
@@ -1046,6 +1090,18 @@ impl TripManager {
                 let req = maybe_req.unwrap();
                 if let Some(router) = maybe_path.map(|path| goal.make_router(vehicle.id, path, map))
                 {
+                    if !cap.allow_trip(vehicle.id, router.get_path()) {
+                        self.events.push(Event::Alert(
+                            AlertLocation::Person(person.id),
+                            format!(
+                                "Aborting {} because it would exceed the cap through some zone",
+                                trip
+                            ),
+                        ));
+                        self.abort_trip(now, trip, Some(vehicle), parking, cap, scheduler, map);
+                        return;
+                    }
+
                     scheduler.push(
                         now,
                         Command::SpawnCar(
@@ -1063,7 +1119,7 @@ impl TripManager {
                             req
                         ),
                     ));
-                    self.abort_trip(now, trip, Some(vehicle), parking, scheduler, map);
+                    self.abort_trip(now, trip, Some(vehicle), parking, cap, scheduler, map);
                 }
             }
             TripSpec::NoRoomToSpawn {
@@ -1077,7 +1133,7 @@ impl TripManager {
                     format!("{} couldn't spawn at border {}: {}", person.id, i, error),
                 ));
                 let vehicle = person.get_vehicle(use_vehicle);
-                self.abort_trip(now, trip, Some(vehicle), parking, scheduler, map);
+                self.abort_trip(now, trip, Some(vehicle), parking, cap, scheduler, map);
             }
             TripSpec::UsingParkedCar {
                 car, start_bldg, ..
@@ -1122,6 +1178,7 @@ impl TripManager {
                             trip,
                             Some(parked_car.vehicle),
                             parking,
+                            cap,
                             scheduler,
                             map,
                         );
@@ -1137,7 +1194,7 @@ impl TripManager {
                             person.id, car, trip
                         ),
                     ));
-                    self.abort_trip(now, trip, None, parking, scheduler, map);
+                    self.abort_trip(now, trip, None, parking, cap, scheduler, map);
                 }
             }
             TripSpec::JustWalking { start, goal } => {
@@ -1190,7 +1247,7 @@ impl TripManager {
                         AlertLocation::Person(person.id),
                         format!("JustWalking trip couldn't find the first path {}", req),
                     ));
-                    self.abort_trip(now, trip, None, parking, scheduler, map);
+                    self.abort_trip(now, trip, None, parking, cap, scheduler, map);
                 }
             }
             TripSpec::UsingBike { start, .. } => {
@@ -1218,7 +1275,7 @@ impl TripManager {
                             AlertLocation::Person(person.id),
                             format!("UsingBike trip couldn't find the first path {}", req),
                         ));
-                        self.abort_trip(now, trip, None, parking, scheduler, map);
+                        self.abort_trip(now, trip, None, parking, cap, scheduler, map);
                     }
                 } else {
                     self.events.push(Event::Alert(
@@ -1228,7 +1285,7 @@ impl TripManager {
                             start
                         ),
                     ));
-                    self.abort_trip(now, trip, None, parking, scheduler, map);
+                    self.abort_trip(now, trip, None, parking, cap, scheduler, map);
                 }
             }
             TripSpec::UsingTransit { start, stop1, .. } => {
@@ -1282,7 +1339,7 @@ impl TripManager {
                         AlertLocation::Person(person.id),
                         format!("UsingTransit trip couldn't find the first path {}", req),
                     ));
-                    self.abort_trip(now, trip, None, parking, scheduler, map);
+                    self.abort_trip(now, trip, None, parking, cap, scheduler, map);
                 }
             }
             TripSpec::Remote {

@@ -235,7 +235,7 @@ impl DrivingSimState {
             let mut car = self.cars.remove(&id).unwrap();
             // Responsibility of update_car_with_distances to manage scheduling stuff!
             if self.update_car_with_distances(
-                &mut car, &dists, idx, now, map, parking, trips, scheduler, transit, walking,
+                &mut car, &dists, idx, now, map, parking, trips, scheduler, transit, walking, cap,
             ) {
                 self.cars.insert(id, car);
             } else {
@@ -446,6 +446,7 @@ impl DrivingSimState {
         scheduler: &mut Scheduler,
         transit: &mut TransitSimState,
         walking: &mut WalkingSimState,
+        cap: &CapSimState,
     ) -> bool {
         let our_dist = dists[idx].1;
 
@@ -474,6 +475,7 @@ impl DrivingSimState {
                                 car.total_blocked_time,
                                 map,
                                 parking,
+                                cap,
                                 scheduler,
                             );
                         }
@@ -488,6 +490,7 @@ impl DrivingSimState {
                             // car to the destination. There's no parking!
                             None,
                             parking,
+                            cap,
                             scheduler,
                             map,
                         );
@@ -538,6 +541,7 @@ impl DrivingSimState {
                             trips,
                             walking,
                             parking,
+                            cap,
                             scheduler,
                             map,
                         ) {
@@ -594,6 +598,7 @@ impl DrivingSimState {
                     car.total_blocked_time,
                     map,
                     parking,
+                    cap,
                     scheduler,
                 );
                 false
