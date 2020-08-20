@@ -7,7 +7,7 @@ edition = "2018"
 # TODO Can't toggle based on target_arch. https://github.com/rust-lang/cargo/issues/2524
 # cargo web start --target wasm32-unknown-unknown --no-default-features --features wasm
 [features]
-default = ["built", "ezgui/glium-backend", "reqwest", "webbrowser"]
+default = ["built", "ezgui/glow-backend", "reqwest", "webbrowser"]
 wasm = ["ezgui/wasm-backend"]
 glow = ["built", "ezgui/glow-backend", "reqwest", "webbrowser"]
 

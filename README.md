@@ -92,6 +92,7 @@ Core team:
 
 - Dustin Carlino (<dabreegster@gmail.com>)
 - [Yuwen Li](https://www.yuwen-li.com/) (UX)
+- [Michael Kirk](https://github.com/michaelkirk)
 
 Others:
 
@@ -114,7 +115,6 @@ Others:
 - Game design advice from Christopher Klein
 - OSM expertise courtesy [Mateusz Konieczny](https://github.com/matkoniecz)
 - Lots of helpful PRs from [Javed Nissar](https://github.com/RestitutorOrbis)
-  and [Michael Kirk](https://github.com/michaelkirk)
 - Lots of help with rendering SVG and fonts from
   [RazrFalcon](https://github.com/RazrFalcon) and
   [nical](https://github.com/nical)

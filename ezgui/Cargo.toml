@@ -6,7 +6,6 @@ edition = "2018"
 
 [features]
 default = ["glow-backend"]
-glium-backend = ["glium", "glutin", "usvg/text"]
 glow-backend = ["glow", "glutin", "usvg/text"]
 wasm-backend = ["glow/stdweb", "instant/stdweb", "stdweb", "webgl_stdweb", "winit/stdweb"]
 
@@ -15,7 +14,6 @@ abstutil = { path = "../abstutil" }
 # backtrace = "0.3.40"
 downcast-rs = "1.1.1"
 geom = { path = "../geom" }
-glium = { version = "0.27.0", optional = true }
 glow = { version = "0.5.0", optional = true, default-features=false }
 glutin = { version = "0.24.1", optional = true }
 htmlescape = "0.3.1"

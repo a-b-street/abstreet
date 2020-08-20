@@ -8,8 +8,9 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     let window = winit::window::WindowBuilder::new()
         .with_title(window_title)
         .with_maximized(true);
-    // TODO Need the same fallback as backend_glium
-    // multisampling: 2 looks bad, 4 looks fine
+    // TODO If people are hitting problems with context not matching what their GPU provides, dig up
+    // backend_glium.rs from git and bring the fallback behavior here. (Ideally, there'd be
+    // something in glutin to directly express this.) multisampling: 2 looks bad, 4 looks fine
     let context = glutin::ContextBuilder::new()
         .with_multisampling(4)
         .with_depth_buffer(2)

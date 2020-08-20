@@ -25,17 +25,15 @@ If you want a more thorough idea of what this crate can do, see
 
 ### Runs in lots of places
 
-Runs on Linux, Mac, Windows via [glium](https://github.com/glium/glium/). Also
-works in the browser using WebAssembly and
-[glow](https://github.com/grovesNL/glow/), but text support still coming in
+Runs on Linux, Mac, Windows via [glow](https://github.com/grovesNL/glow/). Also
+works in the browser using WebAssembly, but text support still coming in
 [a few months](https://github.com/RazrFalcon/resvg/issues/229).
 
 Why OpenGL? My requirements are super simple; I don't need the power of Vulkan
 or other new stuff. I want something simple that runs everywhere. If you want to
 make this work with WGPU or something else, it should be easy. The backends are
-each about 300 lines — [Glium](src/backend_glium.rs) running on native OpenGL,
-and [Glow](src/backend_glow.rs) running either [on
-native](src/backend_glow_native.rs) or [on wasm](src/backend_glow_wasm.rs).
+a few hundred lines -- [Glow](src/backend_glow.rs) running either
+[on native](src/backend_glow_native.rs) or [on wasm](src/backend_glow_wasm.rs).
 
 ### 2D drawing
 

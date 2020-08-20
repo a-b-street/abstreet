@@ -25,8 +25,6 @@
 //#![warn(missing_docs)]
 
 mod assets;
-#[cfg(feature = "glium-backend")]
-mod backend_glium;
 #[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
 mod backend_glow;
 #[cfg(feature = "glow-backend")]
@@ -50,9 +48,6 @@ mod tools;
 mod widgets;
 
 mod backend {
-    #[cfg(feature = "glium-backend")]
-    pub use crate::backend_glium::*;
-
     #[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
     pub use crate::backend_glow::*;
 }
