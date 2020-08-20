@@ -729,7 +729,7 @@
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>()
     };
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">intersection_delays</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
-        <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">dt</span>, <span class="ident">agent_type</span>) <span class="kw">in</span> <span class="ident">list</span> {
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">t</span>, <span class="ident">dt</span>, <span class="ident">agent_type</span>) <span class="kw">in</span> <span class="ident">list</span> {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span> <span class="ident">limit</span> {
                 <span class="kw">break</span>;
             }

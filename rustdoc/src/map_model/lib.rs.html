@@ -83,6 +83,8 @@
 <span id="83">83</span>
 <span id="84">84</span>
 <span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">city</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">connectivity</span>;
@@ -113,7 +115,9 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">road</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">stop_signs</span>::{<span class="ident">ControlStopSign</span>, <span class="ident">RoadWithStopSign</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">traffic_signals</span>::{<span class="ident">ControlTrafficSignal</span>, <span class="ident">Phase</span>, <span class="ident">PhaseType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">turn</span>::{<span class="ident">Turn</span>, <span class="ident">TurnGroup</span>, <span class="ident">TurnGroupID</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">turn</span>::{
+    <span class="ident">CompressedTurnGroupID</span>, <span class="ident">Turn</span>, <span class="ident">TurnGroup</span>, <span class="ident">TurnGroupID</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
+};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">zone</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">Zone</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>, <span class="ident">UberTurnGroup</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">Pathfinder</span>;

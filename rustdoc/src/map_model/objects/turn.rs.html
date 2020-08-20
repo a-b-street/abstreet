@@ -365,6 +365,14 @@
 <span id="365">365</span>
 <span id="366">366</span>
 <span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
@@ -549,6 +557,14 @@
     <span class="kw">pub</span> <span class="ident">to</span>: <span class="ident">DirectedRoadID</span>,
     <span class="kw">pub</span> <span class="ident">parent</span>: <span class="ident">IntersectionID</span>,
     <span class="kw">pub</span> <span class="ident">crosswalk</span>: <span class="ident">bool</span>,
+}
+
+<span class="comment">// This is cheaper to store than a TurnGroupID. It simply indexes into the list of turn_groups.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompressedTurnGroupID</span> {
+    <span class="kw">pub</span> <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
+    <span class="comment">// There better not be any intersection with more than 256 turn groups...</span>
+    <span class="kw">pub</span> <span class="ident">idx</span>: <span class="ident">u8</span>,
 }
 
 <span class="comment">// TODO Unclear how this plays with different lane types</span>
