@@ -298,4 +298,8 @@ impl PrerenderInnards {
     pub fn monitor_scale_factor(&self) -> f64 {
         self.display.gl_window().window().scale_factor()
     }
+
+    pub fn draw_finished(&self, gfx_ctx_innards: GfxCtxInnards) {
+        gfx_ctx_innards.finish()
+    }
 }
