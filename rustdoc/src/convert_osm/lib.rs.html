@@ -137,6 +137,10 @@
 <span id="137">137</span>
 <span id="138">138</span>
 <span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">clip</span>;
 <span class="kw">mod</span> <span class="ident">extract</span>;
@@ -149,7 +153,7 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">RawMap</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">MapConfig</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">MapConfig</span>, <span class="ident">NamePerLanguage</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
     <span class="kw">pub</span> <span class="ident">osm_input</span>: <span class="ident">String</span>,
@@ -246,19 +250,23 @@
     <span class="ident">map</span>
 }
 
-<span class="kw">fn</span> <span class="ident">use_amenities</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
+<span class="kw">fn</span> <span class="ident">use_amenities</span>(
+    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>,
+    <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">NamePerLanguage</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
+    <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">OsmID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>());
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">buildings</span> {
         <span class="ident">closest</span>.<span class="ident">add</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
     }
 
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;match building amenities&quot;</span>, <span class="ident">amenities</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">name</span>, <span class="ident">amenity</span>) <span class="kw">in</span> <span class="ident">amenities</span> {
+    <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">names</span>, <span class="ident">amenity</span>) <span class="kw">in</span> <span class="ident">amenities</span> {
         <span class="ident">timer</span>.<span class="ident">next</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">closest</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">50.0</span>)) {
             <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
             <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
-                <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">insert</span>((<span class="ident">name</span>, <span class="ident">amenity</span>));
+                <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">insert</span>((<span class="ident">names</span>, <span class="ident">amenity</span>));
             }
         }
     }

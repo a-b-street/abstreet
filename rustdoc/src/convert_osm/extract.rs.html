@@ -699,20 +699,6 @@
 <span id="699">699</span>
 <span id="700">700</span>
 <span id="701">701</span>
-<span id="702">702</span>
-<span id="703">703</span>
-<span id="704">704</span>
-<span id="705">705</span>
-<span id="706">706</span>
-<span id="707">707</span>
-<span id="708">708</span>
-<span id="709">709</span>
-<span id="710">710</span>
-<span id="711">711</span>
-<span id="712">712</span>
-<span id="713">713</span>
-<span id="714">714</span>
-<span id="715">715</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">reader</span>::{<span class="ident">Document</span>, <span class="ident">Relation</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">transit</span>;
@@ -721,7 +707,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">HashablePt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::{<span class="ident">RawArea</span>, <span class="ident">RawBuilding</span>, <span class="ident">RawMap</span>, <span class="ident">RawParkingLot</span>, <span class="ident">RawRoad</span>, <span class="ident">RestrictionType</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">AreaType</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">AreaType</span>, <span class="ident">NamePerLanguage</span>};
 <span class="kw">use</span> <span class="ident">osm</span>::{<span class="ident">NodeID</span>, <span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -736,7 +722,7 @@
     <span class="comment">// (relation ID, from way ID, via way ID, to way ID)</span>
     <span class="kw">pub</span> <span class="ident">complicated_turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RelationID</span>, <span class="ident">WayID</span>, <span class="ident">WayID</span>, <span class="ident">WayID</span>)<span class="op">&gt;</span>,
     <span class="comment">// (location, name, amenity type)</span>
-    <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">NamePerLanguage</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_osm</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsmExtract</span> {
@@ -769,20 +755,14 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">amenity</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;amenity&quot;</span>) {
             <span class="ident">out</span>.<span class="ident">amenities</span>.<span class="ident">push</span>((
                 <span class="ident">node</span>.<span class="ident">pt</span>,
-                <span class="ident">node</span>.<span class="ident">tags</span>
-                    .<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>)
-                    .<span class="ident">cloned</span>()
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;unnamed&quot;</span>.<span class="ident">to_string</span>()),
+                <span class="ident">NamePerLanguage</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">tags</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">NamePerLanguage</span>::<span class="ident">unnamed</span>),
                 <span class="ident">amenity</span>.<span class="ident">clone</span>(),
             ));
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">shop</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;shop&quot;</span>) {
             <span class="ident">out</span>.<span class="ident">amenities</span>.<span class="ident">push</span>((
                 <span class="ident">node</span>.<span class="ident">pt</span>,
-                <span class="ident">node</span>.<span class="ident">tags</span>
-                    .<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>)
-                    .<span class="ident">cloned</span>()
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;unnamed&quot;</span>.<span class="ident">to_string</span>()),
+                <span class="ident">NamePerLanguage</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">tags</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">NamePerLanguage</span>::<span class="ident">unnamed</span>),
                 <span class="ident">shop</span>.<span class="ident">clone</span>(),
             ));
         }
@@ -894,7 +874,7 @@
 
     <span class="kw">let</span> <span class="ident">boundary</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">boundary_polygon</span>.<span class="ident">clone</span>().<span class="ident">into_ring</span>();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">amenity_areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">amenity_areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">NamePerLanguage</span>, <span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="comment">// Vehicle position (stop) -&gt; pedestrian position (platform)</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stop_areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span>((<span class="ident">osm</span>::<span class="ident">NodeID</span>, <span class="ident">Pt2D</span>), <span class="ident">Pt2D</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
@@ -994,11 +974,7 @@
                 <span class="ident">timer</span>,
             ));
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;multipolygon&quot;</span>) <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;amenity&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">rel</span>
-                .<span class="ident">tags</span>
-                .<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>)
-                .<span class="ident">cloned</span>()
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;unnamed&quot;</span>.<span class="ident">to_string</span>());
+            <span class="kw">let</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">NamePerLanguage</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">tags</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">NamePerLanguage</span>::<span class="ident">unnamed</span>);
             <span class="kw">let</span> <span class="ident">amenity</span> <span class="op">=</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;amenity&quot;</span>).<span class="ident">clone</span>().<span class="ident">unwrap</span>();
             <span class="kw">for</span> (<span class="ident">role</span>, <span class="ident">member</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">members</span> {
                 <span class="kw">if</span> <span class="ident">role</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;outer&quot;</span> {
@@ -1006,7 +982,7 @@
                 }
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OsmID</span>::<span class="ident">Way</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">member</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">doc</span>.<span class="ident">ways</span>[<span class="ident">w</span>].<span class="ident">pts</span>.<span class="ident">clone</span>()) {
-                        <span class="ident">amenity_areas</span>.<span class="ident">push</span>((<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">amenity</span>.<span class="ident">clone</span>(), <span class="ident">ring</span>.<span class="ident">to_polygon</span>()));
+                        <span class="ident">amenity_areas</span>.<span class="ident">push</span>((<span class="ident">names</span>.<span class="ident">clone</span>(), <span class="ident">amenity</span>.<span class="ident">clone</span>(), <span class="ident">ring</span>.<span class="ident">to_polygon</span>()));
                     }
                 }
             }
@@ -1062,11 +1038,11 @@
     }
 
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;match buildings to amenity areas&quot;</span>, <span class="ident">amenity_areas</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">amenity</span>, <span class="ident">poly</span>) <span class="kw">in</span> <span class="ident">amenity_areas</span> {
+    <span class="kw">for</span> (<span class="ident">names</span>, <span class="ident">amenity</span>, <span class="ident">poly</span>) <span class="kw">in</span> <span class="ident">amenity_areas</span> {
         <span class="ident">timer</span>.<span class="ident">next</span>();
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">values_mut</span>() {
             <span class="kw">if</span> <span class="ident">poly</span>.<span class="ident">contains_pt</span>(<span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()) {
-                <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">insert</span>((<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">amenity</span>.<span class="ident">clone</span>()));
+                <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">insert</span>((<span class="ident">names</span>.<span class="ident">clone</span>(), <span class="ident">amenity</span>.<span class="ident">clone</span>()));
             }
         }
     }
@@ -1203,21 +1179,17 @@
     <span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;building&quot;</span>) <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;abandoned:man_made&quot;</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">get_bldg_amenities</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_bldg_amenities</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">NamePerLanguage</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">amenities</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">amenity</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;amenity&quot;</span>) {
         <span class="ident">amenities</span>.<span class="ident">insert</span>((
-            <span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>)
-                .<span class="ident">cloned</span>()
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;unnamed&quot;</span>.<span class="ident">to_string</span>()),
+            <span class="ident">NamePerLanguage</span>::<span class="ident">new</span>(<span class="ident">tags</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">NamePerLanguage</span>::<span class="ident">unnamed</span>),
             <span class="ident">amenity</span>.<span class="ident">clone</span>(),
         ));
     }
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">shop</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;shop&quot;</span>) {
         <span class="ident">amenities</span>.<span class="ident">insert</span>((
-            <span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>)
-                .<span class="ident">cloned</span>()
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;unnamed&quot;</span>.<span class="ident">to_string</span>()),
+            <span class="ident">NamePerLanguage</span>::<span class="ident">new</span>(<span class="ident">tags</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">NamePerLanguage</span>::<span class="ident">unnamed</span>),
             <span class="ident">shop</span>.<span class="ident">clone</span>(),
         ));
     }

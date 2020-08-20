@@ -277,6 +277,16 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Warping</span>;
@@ -499,11 +509,21 @@
                             <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">address</span>.<span class="ident">starts_with</span>(<span class="string">&quot;???&quot;</span>) {
                                 <span class="ident">results</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">address</span>.<span class="ident">clone</span>(), <span class="ident">b</span>.<span class="ident">id</span>));
                             }
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">n</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">name</span> {
-                                <span class="ident">results</span>.<span class="ident">push</span>((<span class="ident">n</span>.<span class="ident">clone</span>(), <span class="ident">b</span>.<span class="ident">id</span>));
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">names</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">name</span> {
+                                <span class="ident">results</span>.<span class="ident">push</span>((
+                                    <span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()).<span class="ident">to_string</span>(),
+                                    <span class="ident">b</span>.<span class="ident">id</span>,
+                                ));
                             }
-                            <span class="kw">for</span> (<span class="ident">a</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
-                                <span class="ident">results</span>.<span class="ident">push</span>((<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} (at {})&quot;</span>, <span class="ident">a</span>, <span class="ident">b</span>.<span class="ident">address</span>), <span class="ident">b</span>.<span class="ident">id</span>));
+                            <span class="kw">for</span> (<span class="ident">names</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
+                                <span class="ident">results</span>.<span class="ident">push</span>((
+                                    <span class="macro">format</span><span class="macro">!</span>(
+                                        <span class="string">&quot;{} (at {})&quot;</span>,
+                                        <span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()),
+                                        <span class="ident">b</span>.<span class="ident">address</span>
+                                    ),
+                                    <span class="ident">b</span>.<span class="ident">id</span>,
+                                ));
                             }
                             <span class="ident">results</span>
                         })

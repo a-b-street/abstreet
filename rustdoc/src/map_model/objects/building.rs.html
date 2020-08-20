@@ -151,12 +151,55 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{
+    <span class="ident">deserialize_btreemap</span>, <span class="ident">deserialize_usize</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">serialize_usize</span>, <span class="ident">Tags</span>,
+};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -179,14 +222,14 @@
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">BuildingID</span>,
     <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
     <span class="kw">pub</span> <span class="ident">address</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NamePerLanguage</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">orig_id</span>: <span class="ident">osm</span>::<span class="ident">OsmID</span>,
     <span class="comment">// Where a text label should be centered to have the best chances of being contained within the</span>
     <span class="comment">// polygon.</span>
     <span class="kw">pub</span> <span class="ident">label_center</span>: <span class="ident">Pt2D</span>,
     <span class="comment">// TODO Might fold these into BuildingType::Commercial</span>
     <span class="comment">// (Name, amenity)</span>
-    <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">NamePerLanguage</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">bldg_type</span>: <span class="ident">BuildingType</span>,
     <span class="kw">pub</span> <span class="ident">parking</span>: <span class="ident">OffstreetParking</span>,
 
@@ -220,6 +263,45 @@
             <span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             <span class="ident">BuildingType</span>::<span class="ident">Commercial</span> <span class="op">|</span> <span class="ident">BuildingType</span>::<span class="ident">Empty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
+    }
+}
+
+<span class="comment">// None corresponds to the native name</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NamePerLanguage</span>(
+    <span class="attribute">#[<span class="ident">serde</span>(
+        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
+        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
+    )]</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span>,
+);
+
+<span class="kw">impl</span> <span class="ident">NamePerLanguage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lang</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">String</span> {
+        <span class="comment">// TODO Can we avoid this clone?</span>
+        <span class="kw">let</span> <span class="ident">lang</span> <span class="op">=</span> <span class="ident">lang</span>.<span class="ident">cloned</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">lang</span>) {
+            <span class="kw">return</span> <span class="ident">name</span>;
+        }
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="kw-2">&amp;</span><span class="prelude-val">None</span>]
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NamePerLanguage</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">native_name</span> <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="ident">osm</span>::<span class="ident">NAME</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="prelude-val">None</span>, <span class="ident">native_name</span>.<span class="ident">to_string</span>());
+        <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">tags</span>.<span class="ident">inner</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lang</span>) <span class="op">=</span> <span class="ident">k</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;name:&quot;</span>) {
+                <span class="ident">map</span>.<span class="ident">insert</span>(<span class="prelude-val">Some</span>(<span class="ident">lang</span>.<span class="ident">to_string</span>()), <span class="ident">v</span>.<span class="ident">to_string</span>());
+            }
+        }
+        <span class="prelude-val">Some</span>(<span class="ident">NamePerLanguage</span>(<span class="ident">map</span>))
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unnamed</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NamePerLanguage</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="prelude-val">None</span>, <span class="string">&quot;unnamed&quot;</span>.<span class="ident">to_string</span>());
+        <span class="ident">NamePerLanguage</span>(<span class="ident">map</span>)
     }
 }
 

@@ -155,6 +155,13 @@
 <span id="155">155</span>
 <span id="156">156</span>
 <span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">elapsed_seconds</span>;
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
@@ -309,7 +316,14 @@
             }
             <span class="kw-2">*</span><span class="ident">last</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Instant</span>::<span class="ident">now</span>());
         }
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;[{}] {}: {}&quot;</span>, <span class="ident">record</span>.<span class="ident">level</span>(), <span class="ident">target</span>, <span class="ident">record</span>.<span class="ident">args</span>());
+        <span class="comment">// Silence these; they&#39;re expected on any map using simplified Chinese or kanji.</span>
+        <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">record</span>.<span class="ident">args</span>());
+        <span class="kw">if</span> <span class="ident">target</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;usvg::convert::text::shaper&quot;</span> {
+            <span class="kw">if</span> <span class="ident">contents</span>.<span class="ident">contains</span>(<span class="string">&quot;Fallback&quot;</span>) {
+                <span class="kw">return</span>;
+            }
+        }
+        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;[{}] {}: {}&quot;</span>, <span class="ident">record</span>.<span class="ident">level</span>(), <span class="ident">target</span>, <span class="ident">contents</span>);
     }
     <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
 }
