@@ -202,6 +202,22 @@
 <span id="202">202</span>
 <span id="203">203</span>
 <span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">OnstreetParking</span>, <span class="ident">Options</span>, <span class="ident">PrivateOffstreetParking</span>, <span class="ident">PublicOffstreetParking</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
@@ -401,7 +417,23 @@
             <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">values_mut</span>() {
                 <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">public_garage_name</span>.<span class="ident">is_none</span>() {
                     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">b</span>.<span class="ident">num_parking_spots</span>, <span class="number">0</span>);
-                    <span class="ident">b</span>.<span class="ident">num_parking_spots</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">n</span>;
+
+                    <span class="comment">// Is it a parking garage?</span>
+                    <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;building&quot;</span>, <span class="string">&quot;parking&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>) {
+                        <span class="kw">let</span> <span class="ident">levels</span> <span class="op">=</span> <span class="ident">b</span>
+                            .<span class="ident">osm_tags</span>
+                            .<span class="ident">get</span>(<span class="string">&quot;parking:levels&quot;</span>)
+                            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;building:levels&quot;</span>))
+                            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">ok</span>())
+                            .<span class="ident">unwrap_or</span>(<span class="number">1</span>);
+                        <span class="comment">// For multi-story garages, assume every floor has the same capacity. Guess</span>
+                        <span class="comment">// 1 spot per 30m^2.</span>
+                        <span class="ident">b</span>.<span class="ident">num_parking_spots</span> <span class="op">=</span> ((<span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">area</span>() <span class="op">/</span> <span class="number">30.0</span>) <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">*</span> <span class="ident">levels</span>;
+                        <span class="comment">// Not useful to list this</span>
+                        <span class="ident">abstutil</span>::<span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>.<span class="ident">amenities</span>, <span class="op">|</span>(<span class="kw">_</span>, <span class="ident">a</span>)<span class="op">|</span> <span class="ident">a</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;parking&quot;</span>);
+                    } <span class="kw">else</span> {
+                        <span class="ident">b</span>.<span class="ident">num_parking_spots</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">n</span>;
+                    }
                 }
             }
         }

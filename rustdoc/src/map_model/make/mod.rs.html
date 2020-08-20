@@ -434,6 +434,7 @@
 <span id="434">434</span>
 <span id="435">435</span>
 <span id="436">436</span>
+<span id="437">437</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">bridges</span>;
 <span class="kw">mod</span> <span class="ident">buildings</span>;
@@ -448,11 +449,12 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">Pathfinder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">connectivity</span>, <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>,
-    <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>, <span class="ident">PathConstraints</span>,
-    <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnGroup</span>, <span class="ident">Zone</span>,
+    <span class="ident">connectivity</span>, <span class="ident">osm</span>, <span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">Intersection</span>,
+    <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">Road</span>,
+    <span class="ident">RoadID</span>, <span class="ident">TurnGroup</span>, <span class="ident">Zone</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSet</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -563,10 +565,10 @@
                 } <span class="kw">else</span> {
                     <span class="number">0</span>
                 },
-                <span class="ident">access_restrictions</span>: <span class="ident">AccessRestrictions</span>::<span class="ident">new</span>(),
+                <span class="ident">allow_through_traffic</span>: <span class="ident">EnumSet</span>::<span class="ident">new</span>(),
             };
             <span class="ident">road</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">speed_limit_from_osm</span>();
-            <span class="ident">road</span>.<span class="ident">access_restrictions</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">access_restrictions_from_osm</span>();
+            <span class="ident">road</span>.<span class="ident">allow_through_traffic</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">access_restrictions_from_osm</span>();
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_back_width</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
             <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">lane_specs</span> {

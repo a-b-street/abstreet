@@ -868,10 +868,10 @@
                 <span class="ident">osm_tags</span>: <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
             });
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>) {
-            <span class="comment">// TODO Verify parking = surface or handle other cases?</span>
             <span class="ident">map</span>.<span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="ident">RawParkingLot</span> {
-                <span class="ident">polygon</span>,
                 <span class="ident">osm_id</span>: <span class="ident">OsmID</span>::<span class="ident">Way</span>(<span class="ident">id</span>),
+                <span class="ident">polygon</span>,
+                <span class="ident">osm_tags</span>: <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
             });
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;historic&quot;</span>, <span class="string">&quot;memorial&quot;</span>) {
             <span class="ident">memorial_areas</span>.<span class="ident">push</span>(<span class="ident">polygon</span>);

@@ -271,7 +271,6 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
-<span id="274">274</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
@@ -442,7 +441,6 @@
         <span class="kw">if</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>)
             <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">map</span>
                 .<span class="ident">get_r</span>(<span class="ident">l</span>.<span class="ident">parent</span>)
-                .<span class="ident">access_restrictions</span>
                 .<span class="ident">allow_through_traffic</span>
                 .<span class="ident">contains</span>(<span class="ident">constraints</span>)
         {

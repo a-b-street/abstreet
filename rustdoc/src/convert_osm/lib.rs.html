@@ -195,8 +195,8 @@
     <span class="ident">GIS</span>(<span class="ident">String</span>),
 }
 
-<span class="comment">// If a building doesn&#39;t have anything from public_offstreet_parking, how many private spots should</span>
-<span class="comment">// it have?</span>
+<span class="comment">// If a building doesn&#39;t have anything from public_offstreet_parking and isn&#39;t tagged as a garage</span>
+<span class="comment">// in OSM, how many private spots should it have?</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PrivateOffstreetParking</span> {
     <span class="ident">FixedPerBldg</span>(<span class="ident">usize</span>),
     <span class="comment">// TODO Based on the number of residents?</span>

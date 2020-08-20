@@ -47,6 +47,15 @@
 <span id="47">47</span>
 <span id="48">48</span>
 <span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">Position</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
@@ -86,6 +95,9 @@
     <span class="kw">pub</span> <span class="ident">osm_id</span>: <span class="ident">osm</span>::<span class="ident">OsmID</span>,
     <span class="comment">// The middle of the &quot;T&quot;, pointing towards the parking aisle</span>
     <span class="kw">pub</span> <span class="ident">spots</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span>,
+    <span class="comment">// If we can&#39;t render all spots (maybe a lot with no aisles or a multi-story garage), still</span>
+    <span class="comment">// count the other spots.</span>
+    <span class="kw">pub</span> <span class="ident">extra_spots</span>: <span class="ident">usize</span>,
 
     <span class="comment">// Goes from the lot to the driving lane</span>
     <span class="kw">pub</span> <span class="ident">driveway_line</span>: <span class="ident">PolyLine</span>,
@@ -96,6 +108,12 @@
     <span class="comment">// Lot to sidewalk</span>
     <span class="kw">pub</span> <span class="ident">sidewalk_line</span>: <span class="ident">Line</span>,
     <span class="kw">pub</span> <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">ParkingLot</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">spots</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="self">self</span>.<span class="ident">extra_spots</span>
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "map_model";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

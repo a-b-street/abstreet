@@ -424,19 +424,9 @@
 <span id="424">424</span>
 <span id="425">425</span>
 <span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RestrictionType</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>,
-    <span class="ident">PathConstraints</span>, <span class="ident">Zone</span>,
-};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Zone</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>, <span class="ident">Tags</span>};
 <span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSet</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Speed</span>};
@@ -532,7 +522,7 @@
     <span class="kw">pub</span> <span class="ident">complicated_turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">orig_id</span>: <span class="ident">OriginalRoad</span>,
     <span class="kw">pub</span> <span class="ident">speed_limit</span>: <span class="ident">Speed</span>,
-    <span class="kw">pub</span> <span class="ident">access_restrictions</span>: <span class="ident">AccessRestrictions</span>,
+    <span class="kw">pub</span> <span class="ident">allow_through_traffic</span>: <span class="ident">EnumSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">zorder</span>: <span class="ident">isize</span>,
 
     <span class="comment">// Invariant: A road must contain at least one child</span>
@@ -831,11 +821,11 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_private</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">access_restrictions</span>.<span class="ident">allow_through_traffic</span> <span class="op">!</span><span class="op">=</span> <span class="ident">EnumSet</span>::<span class="ident">all</span>()
+        <span class="self">self</span>.<span class="ident">allow_through_traffic</span> <span class="op">!</span><span class="op">=</span> <span class="ident">EnumSet</span>::<span class="ident">all</span>()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">access_restrictions_from_osm</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AccessRestrictions</span> {
-        <span class="kw">let</span> <span class="ident">allow_through_traffic</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;access&quot;</span>, <span class="string">&quot;private&quot;</span>) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">access_restrictions_from_osm</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EnumSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;access&quot;</span>, <span class="string">&quot;private&quot;</span>) {
             <span class="ident">EnumSet</span>::<span class="ident">new</span>()
         } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;living_street&quot;</span>) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">allow</span> <span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> <span class="op">|</span> <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>;
@@ -845,10 +835,6 @@
             <span class="ident">allow</span>
         } <span class="kw">else</span> {
             <span class="ident">EnumSet</span>::<span class="ident">all</span>()
-        };
-        <span class="ident">AccessRestrictions</span> {
-            <span class="ident">allow_through_traffic</span>,
-            <span class="ident">cap_vehicles_per_hour</span>: <span class="prelude-val">None</span>,
         }
     }
 

@@ -107,6 +107,12 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -153,7 +159,13 @@
             <span class="ident">outlines_batch</span>.<span class="ident">push</span>(<span class="ident">cs</span>.<span class="ident">building_outline</span>, <span class="ident">p</span>);
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OffstreetParking</span>::<span class="ident">PublicGarage</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">bldg</span>.<span class="ident">parking</span> {
+        <span class="kw">let</span> <span class="ident">parking_icon</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">bldg</span>.<span class="ident">parking</span> {
+            <span class="ident">OffstreetParking</span>::<span class="ident">PublicGarage</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="comment">// TODO Might need to keep adjusting this. Really it&#39;s if the building was explicitly</span>
+            <span class="comment">// tagged as having parking in OSM.</span>
+            <span class="ident">OffstreetParking</span>::<span class="ident">Private</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span> <span class="op">&gt;</span> <span class="number">10</span>,
+        };
+        <span class="kw">if</span> <span class="ident">parking_icon</span> {
             <span class="comment">// Might need to scale down more for some buildings, but so far, this works everywhere.</span>
             <span class="ident">bldg_batch</span>.<span class="ident">append</span>(
                 <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/parking.svg&quot;</span>)
