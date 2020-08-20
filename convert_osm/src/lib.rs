@@ -55,8 +55,8 @@ pub enum PublicOffstreetParking {
     GIS(String),
 }
 
-// If a building doesn't have anything from public_offstreet_parking, how many private spots should
-// it have?
+// If a building doesn't have anything from public_offstreet_parking and isn't tagged as a garage
+// in OSM, how many private spots should it have?
 pub enum PrivateOffstreetParking {
     FixedPerBldg(usize),
     // TODO Based on the number of residents?
