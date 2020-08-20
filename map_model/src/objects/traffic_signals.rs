@@ -1,13 +1,14 @@
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
 use crate::raw::OriginalRoad;
 use crate::{
-    osm, DirectedRoadID, IntersectionID, Map, TurnGroup, TurnGroupID, TurnID, TurnPriority,
-    TurnType,
+    osm, CompressedTurnGroupID, DirectedRoadID, IntersectionID, Map, TurnGroup, TurnGroupID,
+    TurnID, TurnPriority, TurnType,
 };
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
 use geom::Duration;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+use std::convert::TryFrom;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ControlTrafficSignal {
@@ -167,7 +168,7 @@ impl ControlTrafficSignal {
         {
             tg.id
         } else {
-            panic!("{} doesn't belong to any turn groups", turn)
+            panic!("{} doesn't belong to any turn groups in {}", turn, self.id)
         }
     }
 
@@ -182,6 +183,18 @@ impl ControlTrafficSignal {
             }
         }
         missing
+    }
+
+    pub fn compressed_id(&self, turn: TurnID) -> CompressedTurnGroupID {
+        for (idx, tg) in self.turn_groups.values().enumerate() {
+            if tg.members.contains(&turn) {
+                return CompressedTurnGroupID {
+                    i: self.id,
+                    idx: u8::try_from(idx).unwrap(),
+                };
+            }
+        }
+        panic!("{} doesn't belong to any turn groups in {}", turn, self.id)
     }
 }
 

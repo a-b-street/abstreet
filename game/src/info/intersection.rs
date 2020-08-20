@@ -323,7 +323,7 @@ fn delay_plot(
         app.primary.sim.time()
     };
     if let Some(list) = data.intersection_delays.get(&i) {
-        for (t, dt, agent_type) in list {
+        for (_, t, dt, agent_type) in list {
             if *t > limit {
                 break;
             }

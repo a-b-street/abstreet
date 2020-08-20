@@ -30,7 +30,8 @@ pub struct Analytics {
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
 
     // TODO Transit riders aren't represented here yet, just the vehicle they're riding.
-    pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration, AgentType)>>,
+    // Only for traffic signals. The u8 is the turn group index from a CompressedTurnGroupID.
+    pub intersection_delays: BTreeMap<IntersectionID, Vec<(u8, Time, Duration, AgentType)>>,
 
     // Per parking lane or lot, when does a spot become filled (true) or free (false)
     pub parking_lane_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
@@ -157,9 +158,9 @@ impl Analytics {
         // Intersection delays
         if let Event::IntersectionDelayMeasured(id, delay, agent) = ev {
             self.intersection_delays
-                .entry(id)
+                .entry(id.i)
                 .or_insert_with(Vec::new)
-                .push((time, delay, agent.to_type()));
+                .push((id.idx, time, delay, agent.to_type()));
         }
 
         // Parking spot changes
@@ -276,7 +277,7 @@ impl Analytics {
         for (i, list1) in &self.intersection_delays {
             if let Some(list2) = before.intersection_delays.get(i) {
                 let mut sum1 = Duration::ZERO;
-                for (t, dt, _) in list1 {
+                for (_, t, dt, _) in list1 {
                     if *t > now {
                         break;
                     }
@@ -284,7 +285,7 @@ impl Analytics {
                 }
 
                 let mut sum2 = Duration::ZERO;
-                for (t, dt, _) in list2 {
+                for (_, t, dt, _) in list2 {
                     if *t > now {
                         break;
                     }

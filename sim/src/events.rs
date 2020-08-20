@@ -3,7 +3,8 @@ use crate::{
 };
 use geom::Duration;
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, Traversable,
+    BuildingID, BusRouteID, BusStopID, CompressedTurnGroupID, IntersectionID, LaneID, Map, Path,
+    PathRequest, Traversable,
 };
 use serde::{Deserialize, Serialize};
 
@@ -41,7 +42,7 @@ pub enum Event {
     // If the agent is a transit vehicle, then include a count of how many passengers are on
     // board.
     AgentEntersTraversable(AgentID, Traversable, Option<usize>),
-    IntersectionDelayMeasured(IntersectionID, Duration, AgentID),
+    IntersectionDelayMeasured(CompressedTurnGroupID, Duration, AgentID),
 
     TripFinished {
         trip: TripID,

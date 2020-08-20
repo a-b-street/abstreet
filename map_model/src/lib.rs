@@ -27,7 +27,9 @@ pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
 pub use crate::objects::road::{DirectedRoadID, Road, RoadID};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::objects::traffic_signals::{ControlTrafficSignal, Phase, PhaseType};
-pub use crate::objects::turn::{Turn, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType};
+pub use crate::objects::turn::{
+    CompressedTurnGroupID, Turn, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType,
+};
 pub use crate::objects::zone::{AccessRestrictions, Zone};
 pub use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn, UberTurnGroup};
 use crate::pathfind::Pathfinder;
