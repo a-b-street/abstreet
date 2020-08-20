@@ -1,9 +1,7 @@
 pub use crate::backend_glow::Drawable;
-use crate::backend_glow::{GfxCtxInnards, GlowInnards};
-use crate::{GeomBatch, ScreenDims};
+use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
+use crate::ScreenDims;
 use glow::HasContext;
-use std::cell::Cell;
-use std::rc::Rc;
 use stdweb::traits::INode;
 use webgl_stdweb::WebGL2RenderingContext;
 use winit::platform::web::WindowExtStdweb;
@@ -92,12 +90,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     }
 
     (
-        PrerenderInnards {
-            glow_innards: GlowInnards { gl: Rc::new(gl) },
-            program,
-            window,
-            total_bytes_uploaded: Cell::new(0),
-        },
+        PrerenderInnards::new(gl, program, WindowAdapter(window)),
         event_loop,
     )
 }
@@ -112,48 +105,13 @@ pub(crate) struct Buffer {
     pub(crate) was_destroyed: bool,
 }
 
-pub struct PrerenderInnards {
-    glow_innards: GlowInnards,
-    window: winit::window::Window,
-    program: <glow::Context as glow::HasContext>::Program,
+pub struct WindowAdapter(winit::window::Window);
 
-    // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
-    // detailed.
-    pub total_bytes_uploaded: Cell<usize>,
-}
-
-impl PrerenderInnards {
-    pub fn actually_upload(&self, permanent: bool, batch: GeomBatch) -> Drawable {
-        self.glow_innards.actually_upload(permanent, batch)
+impl WindowAdapter {
+    pub fn window(&self) -> &winit::window::Window {
+        &self.0
     }
 
-    pub fn request_redraw(&self) {
-        self.window.request_redraw();
-    }
-
-    pub fn set_cursor_icon(&self, icon: winit::window::CursorIcon) {
-        self.window.set_cursor_icon(icon);
-    }
-
-    pub fn draw_new_frame(&self) -> GfxCtxInnards {
-        GfxCtxInnards::new(&self.glow_innards.gl, &self.program)
-    }
-
-    pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {
-        self.glow_innards.window_resized(new_size, scale_factor);
-    }
-
-    pub fn window_size(&self, scale_factor: f64) -> ScreenDims {
-        self.window.inner_size().to_logical(scale_factor).into()
-    }
-
-    pub fn set_window_icon(&self, icon: winit::window::Icon) {
-        self.window.set_window_icon(Some(icon));
-    }
-
-    pub fn monitor_scale_factor(&self) -> f64 {
-        self.window.scale_factor()
-    }
-
-    pub fn draw_did_finish(&self, _gfc_ctx_innards: GfxCtxInnards) {}
+    pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {}
+    pub fn draw_finished(&self, _gfc_ctx_innards: GfxCtxInnards) {}
 }

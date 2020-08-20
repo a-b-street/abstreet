@@ -1,9 +1,7 @@
 pub use crate::backend_glow::Drawable;
-use crate::backend_glow::{GfxCtxInnards, GlowInnards};
-use crate::{GeomBatch, ScreenDims};
+use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
+use crate::ScreenDims;
 use glow::HasContext;
-use std::cell::Cell;
-use std::rc::Rc;
 
 pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     let event_loop = winit::event_loop::EventLoop::new();
@@ -69,12 +67,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     }
 
     (
-        PrerenderInnards {
-            glow_innards: GlowInnards { gl: Rc::new(gl) },
-            program,
-            windowed_context,
-            total_bytes_uploaded: Cell::new(0),
-        },
+        PrerenderInnards::new(gl, program, WindowAdapter(windowed_context)),
         event_loop,
     )
 }
@@ -89,56 +82,19 @@ pub(crate) struct Buffer {
     pub(crate) was_destroyed: bool,
 }
 
-pub struct PrerenderInnards {
-    glow_innards: GlowInnards,
-    windowed_context: glutin::WindowedContext<glutin::PossiblyCurrent>,
-    program: <glow::Context as glow::HasContext>::Program,
+pub struct WindowAdapter(glutin::WindowedContext<glutin::PossiblyCurrent>);
 
-    // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
-    // detailed.
-    pub total_bytes_uploaded: Cell<usize>,
-}
-
-impl PrerenderInnards {
-    pub fn actually_upload(&self, permanent: bool, batch: GeomBatch) -> Drawable {
-        self.glow_innards.actually_upload(permanent, batch)
-    }
-
-    pub fn request_redraw(&self) {
-        self.windowed_context.window().request_redraw();
-    }
-
-    pub fn set_cursor_icon(&self, icon: winit::window::CursorIcon) {
-        self.windowed_context.window().set_cursor_icon(icon);
-    }
-
-    pub fn draw_new_frame(&self) -> GfxCtxInnards {
-        GfxCtxInnards::new(&self.glow_innards.gl, &self.program)
+impl WindowAdapter {
+    pub fn window(&self) -> &winit::window::Window {
+        &self.0.window()
     }
 
     pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {
         let physical_size = winit::dpi::LogicalSize::from(new_size).to_physical(scale_factor);
-        self.windowed_context.resize(physical_size);
-        self.glow_innards.window_resized(new_size, scale_factor);
+        self.0.resize(physical_size);
     }
 
-    pub fn window_size(&self, scale_factor: f64) -> ScreenDims {
-        self.windowed_context
-            .window()
-            .inner_size()
-            .to_logical(scale_factor)
-            .into()
-    }
-
-    pub fn set_window_icon(&self, icon: winit::window::Icon) {
-        self.windowed_context.window().set_window_icon(Some(icon));
-    }
-
-    pub fn monitor_scale_factor(&self) -> f64 {
-        self.windowed_context.window().scale_factor()
-    }
-
-    pub fn draw_did_finish(&self, _gfc_ctx_innards: GfxCtxInnards) {
-        self.windowed_context.swap_buffers().unwrap();
+    pub fn draw_finished(&self, _gfc_ctx_innards: GfxCtxInnards) {
+        self.0.swap_buffers().unwrap();
     }
 }

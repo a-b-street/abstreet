@@ -1,13 +1,18 @@
 use crate::drawing::Uniforms;
 use crate::{Canvas, Color, GeomBatch, ScreenDims, ScreenRectangle};
 use glow::HasContext;
+use std::cell::Cell;
 use std::rc::Rc;
 
 #[cfg(feature = "glow-backend")]
-pub use crate::backend_glow_native::*;
+pub use crate::backend_glow_native::setup;
+#[cfg(feature = "glow-backend")]
+use crate::backend_glow_native::{self, Buffer, VertexArray, WindowAdapter};
 
 #[cfg(feature = "wasm-backend")]
-pub use crate::backend_wasm::*;
+pub use crate::backend_wasm::setup;
+#[cfg(feature = "wasm-backend")]
+use crate::backend_wasm::{self, Buffer, VertexArray, WindowAdapter};
 
 // Represents one frame that's gonna be drawn
 pub struct GfxCtxInnards<'a> {
@@ -153,11 +158,40 @@ impl Buffer {
     }
 }
 
-pub(crate) struct GlowInnards {
+#[cfg(feature = "wasm-backend")]
+type WindowProvider = backend_wasm::WindowAdapter;
+
+#[cfg(feature = "glow-backend")]
+type WindowProvider = backend_glow_native::WindowAdapter;
+
+pub struct PrerenderInnards {
     pub(crate) gl: Rc<glow::Context>,
+    window_adapter: WindowProvider,
+    program: <glow::Context as glow::HasContext>::Program,
+
+    // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
+    // detailed.
+    pub total_bytes_uploaded: Cell<usize>,
 }
 
-impl GlowInnards {
+impl PrerenderInnards {
+    pub fn new(
+        gl: glow::Context,
+        program: <glow::Context as glow::HasContext>::Program,
+        window_adapter: WindowProvider,
+    ) -> PrerenderInnards {
+        PrerenderInnards {
+            gl: Rc::new(gl),
+            program,
+            window_adapter,
+            total_bytes_uploaded: Cell::new(0),
+        }
+    }
+
+    pub fn draw_new_frame(&self) -> GfxCtxInnards {
+        GfxCtxInnards::new(&self.gl, &self.program)
+    }
+
     pub fn actually_upload(&self, permanent: bool, batch: GeomBatch) -> Drawable {
         let mut vertices: Vec<[f32; 6]> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
@@ -251,6 +285,7 @@ impl GlowInnards {
 
     pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {
         let physical_size = winit::dpi::LogicalSize::from(new_size).to_physical(scale_factor);
+        self.window_adapter.window_resized(new_size, scale_factor);
         unsafe {
             self.gl
                 .viewport(0, 0, physical_size.width, physical_size.height);
@@ -258,5 +293,33 @@ impl GlowInnards {
             self.gl
                 .scissor(0, 0, physical_size.width, physical_size.height);
         }
+    }
+
+    fn window(&self) -> &winit::window::Window {
+        self.window_adapter.window()
+    }
+
+    pub fn request_redraw(&self) {
+        self.window().request_redraw();
+    }
+
+    pub fn set_cursor_icon(&self, icon: winit::window::CursorIcon) {
+        self.window().set_cursor_icon(icon);
+    }
+
+    pub fn window_size(&self, scale_factor: f64) -> ScreenDims {
+        self.window().inner_size().to_logical(scale_factor).into()
+    }
+
+    pub fn set_window_icon(&self, icon: winit::window::Icon) {
+        self.window().set_window_icon(Some(icon));
+    }
+
+    pub fn monitor_scale_factor(&self) -> f64 {
+        self.window().scale_factor()
+    }
+
+    pub fn draw_finished(&self, gfc_ctx_innards: GfxCtxInnards) {
+        self.window_adapter.draw_finished(gfc_ctx_innards)
     }
 }

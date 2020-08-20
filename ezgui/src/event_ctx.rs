@@ -184,7 +184,7 @@ impl<'a> LoadingScreen<'a> {
             &draw,
         );
 
-        g.prerender.inner.draw_did_finish(g.inner);
+        g.prerender.inner.draw_finished(g.inner);
     }
 }
 

@@ -299,7 +299,7 @@ impl PrerenderInnards {
         self.display.gl_window().window().scale_factor()
     }
 
-    pub fn draw_did_finish(&self, gfx_ctx_innards: GfxCtxInnards) {
+    pub fn draw_finished(&self, gfx_ctx_innards: GfxCtxInnards) {
         gfx_ctx_innards.finish()
     }
 }
