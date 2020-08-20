@@ -1,5 +1,8 @@
 use crate::raw::{OriginalRoad, RestrictionType};
-use crate::{osm, BusStopID, IntersectionID, Lane, LaneID, LaneType, Map, PathConstraints, Zone};
+use crate::{
+    osm, AccessRestrictions, BusStopID, IntersectionID, Lane, LaneID, LaneType, Map,
+    PathConstraints, Zone,
+};
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use enumset::EnumSet;
 use geom::{Distance, PolyLine, Polygon, Speed};
@@ -95,7 +98,7 @@ pub struct Road {
     pub complicated_turn_restrictions: Vec<(RoadID, RoadID)>,
     pub orig_id: OriginalRoad,
     pub speed_limit: Speed,
-    pub allow_through_traffic: EnumSet<PathConstraints>,
+    pub access_restrictions: AccessRestrictions,
     pub zorder: isize,
 
     // Invariant: A road must contain at least one child
@@ -394,11 +397,11 @@ impl Road {
     }
 
     pub fn is_private(&self) -> bool {
-        self.allow_through_traffic != EnumSet::all()
+        self.access_restrictions.allow_through_traffic != EnumSet::all()
     }
 
-    pub(crate) fn access_restrictions_from_osm(&self) -> EnumSet<PathConstraints> {
-        if self.osm_tags.is("access", "private") {
+    pub(crate) fn access_restrictions_from_osm(&self) -> AccessRestrictions {
+        let allow_through_traffic = if self.osm_tags.is("access", "private") {
             EnumSet::new()
         } else if self.osm_tags.is(osm::HIGHWAY, "living_street") {
             let mut allow = PathConstraints::Pedestrian | PathConstraints::Bike;
@@ -408,6 +411,10 @@ impl Road {
             allow
         } else {
             EnumSet::all()
+        };
+        AccessRestrictions {
+            allow_through_traffic,
+            cap_vehicles_per_hour: None,
         }
     }
 

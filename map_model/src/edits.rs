@@ -1,10 +1,9 @@
 use crate::raw::OriginalRoad;
 use crate::{
-    connectivity, osm, BusRouteID, ControlStopSign, ControlTrafficSignal, IntersectionID,
-    IntersectionType, LaneID, LaneType, Map, PathConstraints, RoadID, TurnID, Zone,
+    connectivity, osm, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal,
+    IntersectionID, IntersectionType, LaneID, LaneType, Map, PathConstraints, RoadID, TurnID, Zone,
 };
 use abstutil::{deserialize_btreemap, retain_btreemap, retain_btreeset, serialize_btreemap, Timer};
-use enumset::EnumSet;
 use geom::{Speed, Time};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -61,9 +60,8 @@ pub enum EditCmd {
     },
     ChangeAccessRestrictions {
         id: RoadID,
-        // All means it's not a zone
-        new_allow_through_traffic: EnumSet<PathConstraints>,
-        old_allow_through_traffic: EnumSet<PathConstraints>,
+        new: AccessRestrictions,
+        old: AccessRestrictions,
     },
     ChangeRouteSchedule {
         id: BusRouteID,
@@ -165,7 +163,7 @@ impl MapEdits {
         });
         retain_btreeset(&mut changed_access_restrictions, |r| {
             let r = map.get_r(*r);
-            r.access_restrictions_from_osm() != r.allow_through_traffic
+            r.access_restrictions_from_osm() != r.access_restrictions
         });
         retain_btreeset(&mut changed_routes, |br| {
             let r = map.get_br(*br);
@@ -212,8 +210,8 @@ impl MapEdits {
         for r in &self.changed_access_restrictions {
             self.commands.push(EditCmd::ChangeAccessRestrictions {
                 id: *r,
-                new_allow_through_traffic: map.get_r(*r).allow_through_traffic,
-                old_allow_through_traffic: map.get_r(*r).access_restrictions_from_osm(),
+                new: map.get_r(*r).access_restrictions.clone(),
+                old: map.get_r(*r).access_restrictions_from_osm(),
             });
         }
         for r in &self.changed_routes {
@@ -306,8 +304,8 @@ enum PermanentEditCmd {
     },
     ChangeAccessRestrictions {
         id: OriginalRoad,
-        new_allow_through_traffic: EnumSet<PathConstraints>,
-        old_allow_through_traffic: EnumSet<PathConstraints>,
+        new: AccessRestrictions,
+        old: AccessRestrictions,
     },
     ChangeRouteSchedule {
         osm_rel_id: osm::RelationID,
@@ -352,15 +350,13 @@ impl PermanentMapEdits {
                             old: old.to_permanent(map),
                         }
                     }
-                    EditCmd::ChangeAccessRestrictions {
-                        id,
-                        new_allow_through_traffic,
-                        old_allow_through_traffic,
-                    } => PermanentEditCmd::ChangeAccessRestrictions {
-                        id: map.get_r(*id).orig_id,
-                        new_allow_through_traffic: *new_allow_through_traffic,
-                        old_allow_through_traffic: *old_allow_through_traffic,
-                    },
+                    EditCmd::ChangeAccessRestrictions { id, new, old } => {
+                        PermanentEditCmd::ChangeAccessRestrictions {
+                            id: map.get_r(*id).orig_id,
+                            new: new.clone(),
+                            old: old.clone(),
+                        }
+                    }
                     EditCmd::ChangeRouteSchedule { id, old, new } => {
                         PermanentEditCmd::ChangeRouteSchedule {
                             osm_rel_id: map.get_br(*id).osm_rel_id,
@@ -416,17 +412,9 @@ impl PermanentMapEdits {
                                 .ok_or(format!("old ChangeIntersection of {} invalid", i))?,
                         })
                     }
-                    PermanentEditCmd::ChangeAccessRestrictions {
-                        id,
-                        new_allow_through_traffic,
-                        old_allow_through_traffic,
-                    } => {
+                    PermanentEditCmd::ChangeAccessRestrictions { id, new, old } => {
                         let id = map.find_r_by_osm_id(id)?;
-                        Ok(EditCmd::ChangeAccessRestrictions {
-                            id,
-                            new_allow_through_traffic,
-                            old_allow_through_traffic,
-                        })
+                        Ok(EditCmd::ChangeAccessRestrictions { id, new, old })
                     }
                     PermanentEditCmd::ChangeRouteSchedule {
                         osm_rel_id,
@@ -654,15 +642,11 @@ impl EditCmd {
                 }
                 true
             }
-            EditCmd::ChangeAccessRestrictions {
-                id,
-                new_allow_through_traffic,
-                ..
-            } => {
-                if map.get_r(*id).allow_through_traffic == *new_allow_through_traffic {
+            EditCmd::ChangeAccessRestrictions { id, new, .. } => {
+                if map.get_r(*id).access_restrictions == new.clone() {
                     return false;
                 }
-                map.roads[id.0].allow_through_traffic = *new_allow_through_traffic;
+                map.roads[id.0].access_restrictions = new.clone();
                 effects.changed_roads.insert(*id);
                 let r = map.get_r(*id);
                 effects.changed_intersections.insert(r.src_i);
@@ -717,16 +701,14 @@ impl EditCmd {
                 new: old.clone(),
             }
             .apply(effects, map, timer),
-            EditCmd::ChangeAccessRestrictions {
-                id,
-                old_allow_through_traffic,
-                new_allow_through_traffic,
-            } => EditCmd::ChangeAccessRestrictions {
-                id: *id,
-                old_allow_through_traffic: *new_allow_through_traffic,
-                new_allow_through_traffic: *old_allow_through_traffic,
+            EditCmd::ChangeAccessRestrictions { id, old, new } => {
+                EditCmd::ChangeAccessRestrictions {
+                    id: *id,
+                    old: new.clone(),
+                    new: old.clone(),
+                }
+                .apply(effects, map, timer)
             }
-            .apply(effects, map, timer),
             EditCmd::ChangeRouteSchedule { id, old, new } => EditCmd::ChangeRouteSchedule {
                 id: *id,
                 old: new.clone(),

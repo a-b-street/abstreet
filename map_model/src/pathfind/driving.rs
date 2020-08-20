@@ -167,6 +167,7 @@ fn make_input_graph(
         if constraints.can_use(l, map)
             && map
                 .get_r(l.parent)
+                .access_restrictions
                 .allow_through_traffic
                 .contains(constraints)
         {

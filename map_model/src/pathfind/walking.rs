@@ -229,6 +229,7 @@ fn make_input_graph(
         if l.is_walkable()
             && map
                 .get_r(l.parent)
+                .access_restrictions
                 .allow_through_traffic
                 .contains(PathConstraints::Pedestrian)
         {

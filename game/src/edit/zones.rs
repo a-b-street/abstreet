@@ -8,9 +8,9 @@ use crate::helpers::{checkbox_per_mode, intersections_from_roads};
 use enumset::EnumSet;
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Text, VerticalAlignment, Widget,
+    Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
-use map_model::{EditCmd, RoadID};
+use map_model::{AccessRestrictions, EditCmd, RoadID};
 use maplit::btreeset;
 use sim::TripMode;
 use std::collections::BTreeSet;
@@ -35,10 +35,12 @@ impl ZoneEditor {
             btreeset! { start.id }
         };
         let allow_through_traffic = start
+            .access_restrictions
             .allow_through_traffic
             .into_iter()
             .map(|c| TripMode::from_constraints(c))
             .collect();
+        let cap_vehicles_per_hour = start.access_restrictions.cap_vehicles_per_hour;
 
         let (unzoomed, zoomed, legend) = draw_zone(ctx, app, &members);
         let orig_members = members.clone();
@@ -53,6 +55,12 @@ impl ZoneEditor {
                 legend,
                 make_instructions(ctx, &allow_through_traffic),
                 checkbox_per_mode(ctx, app, &allow_through_traffic),
+                Widget::row(vec![
+                    "Limit the number of vehicles passing through per hour (0 = unlimited):"
+                        .draw_text(ctx),
+                    Spinner::new(ctx, (0, 1000), cap_vehicles_per_hour.unwrap_or(0) as isize)
+                        .named("cap_vehicles"),
+                ]),
                 Widget::custom_row(vec![
                     Btn::text_fg("Apply").build_def(ctx, hotkey(Key::Enter)),
                     Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
@@ -77,32 +85,38 @@ impl State for ZoneEditor {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Apply" => {
                     let mut edits = app.primary.map.get_edits().clone();
+
+                    // Roads deleted from the zone
                     for r in self.orig_members.difference(&self.selector.roads) {
                         edits.commands.push(EditCmd::ChangeAccessRestrictions {
                             id: *r,
-                            old_allow_through_traffic: app
-                                .primary
-                                .map
-                                .get_r(*r)
-                                .allow_through_traffic
-                                .clone(),
-                            new_allow_through_traffic: EnumSet::all(),
+                            old: app.primary.map.get_r(*r).access_restrictions.clone(),
+                            new: AccessRestrictions::new(),
                         });
                     }
 
-                    let new_allow_through_traffic = self
-                        .allow_through_traffic
-                        .iter()
-                        .map(|m| m.to_constraints())
-                        .collect::<EnumSet<_>>();
+                    let new = AccessRestrictions {
+                        allow_through_traffic: self
+                            .allow_through_traffic
+                            .iter()
+                            .map(|m| m.to_constraints())
+                            .collect::<EnumSet<_>>(),
+                        cap_vehicles_per_hour: {
+                            let n = self.composite.spinner("cap_vehicles") as usize;
+                            if n == 0 {
+                                None
+                            } else {
+                                Some(n)
+                            }
+                        },
+                    };
                     for r in &self.selector.roads {
-                        let old_allow_through_traffic =
-                            app.primary.map.get_r(*r).allow_through_traffic.clone();
-                        if old_allow_through_traffic != new_allow_through_traffic {
+                        let old = app.primary.map.get_r(*r).access_restrictions.clone();
+                        if old != new {
                             edits.commands.push(EditCmd::ChangeAccessRestrictions {
                                 id: *r,
-                                old_allow_through_traffic,
-                                new_allow_through_traffic: new_allow_through_traffic.clone(),
+                                old,
+                                new: new.clone(),
                             });
                         }
                     }

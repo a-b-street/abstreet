@@ -7,13 +7,28 @@ use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub struct AccessRestrictions {
+    pub allow_through_traffic: EnumSet<PathConstraints>,
+    pub cap_vehicles_per_hour: Option<usize>,
+}
+
+impl AccessRestrictions {
+    pub fn new() -> AccessRestrictions {
+        AccessRestrictions {
+            allow_through_traffic: EnumSet::all(),
+            cap_vehicles_per_hour: None,
+        }
+    }
+}
+
 // A contiguous set of roads with access restrictions. This is derived from all the map's roads and
 // kept cached for performance.
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Zone {
     pub members: BTreeSet<RoadID>,
     pub borders: BTreeSet<IntersectionID>,
-    pub allow_through_traffic: EnumSet<PathConstraints>,
+    pub restrictions: AccessRestrictions,
 }
 
 impl Zone {
@@ -124,7 +139,7 @@ impl Zone {
 }
 
 fn floodfill(map: &Map, start: RoadID) -> Zone {
-    let match_constraints = map.get_r(start).allow_through_traffic;
+    let match_constraints = map.get_r(start).access_restrictions.clone();
     let mut queue = vec![start];
     let mut members = BTreeSet::new();
     let mut borders = BTreeSet::new();
@@ -136,7 +151,7 @@ fn floodfill(map: &Map, start: RoadID) -> Zone {
         members.insert(current);
         for r in map.get_next_roads(current) {
             let r = map.get_r(r);
-            if r.allow_through_traffic == match_constraints {
+            if r.access_restrictions == match_constraints {
                 queue.push(r.id);
             } else {
                 borders.insert(map.get_r(current).common_endpt(r));
@@ -148,6 +163,6 @@ fn floodfill(map: &Map, start: RoadID) -> Zone {
     Zone {
         members,
         borders,
-        allow_through_traffic: match_constraints,
+        restrictions: match_constraints,
     }
 }
