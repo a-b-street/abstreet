@@ -1,6 +1,9 @@
 # From https://github.com/rust-lang/mdBook/pull/1248
 name: Book
-on: [push]
+on:
+  push:
+    branches:
+      - master
 jobs:
   book:
     name: Build and Deploy

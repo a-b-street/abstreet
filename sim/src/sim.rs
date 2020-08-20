@@ -1,7 +1,7 @@
 use crate::analytics::Window;
 use crate::{
-    AgentID, AgentType, AlertLocation, Analytics, CarID, Command, CreateCar, DrawCarInput,
-    DrawPedCrowdInput, DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents,
+    AgentID, AgentType, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar,
+    DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents,
     IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSimState, ParkingSpot,
     PedestrianID, Person, PersonID, PersonState, Router, Scenario, Scheduler, SidewalkPOI,
     SidewalkSpot, TransitSimState, TripID, TripInfo, TripManager, TripPhaseType, TripResult,
@@ -32,6 +32,7 @@ pub struct Sim {
     walking: WalkingSimState,
     intersections: IntersectionSimState,
     transit: TransitSimState,
+    cap: CapSimState,
     trips: TripManager,
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
@@ -122,6 +123,7 @@ impl Sim {
                 opts.handle_uber_turns,
             ),
             transit: TransitSimState::new(map),
+            cap: CapSimState::new(map),
             trips: TripManager::new(opts.pathfinding_upfront),
             pandemic: if let Some(rng) = opts.enable_pandemic_model {
                 Some(PandemicModel::new(rng))
@@ -526,6 +528,7 @@ impl Sim {
                     &mut self.trips,
                     &mut self.scheduler,
                     &mut self.transit,
+                    &mut self.cap,
                     &mut self.walking,
                 );
             }
@@ -807,6 +810,10 @@ impl Sim {
             println!(
                 "- transit: {} bytes",
                 prettyprint_usize(serialized_size_bytes(&self.transit))
+            );
+            println!(
+                "- cap: {} bytes",
+                prettyprint_usize(serialized_size_bytes(&self.cap))
             );
             println!(
                 "- trips: {} bytes",

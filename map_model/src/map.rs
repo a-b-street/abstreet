@@ -3,7 +3,7 @@ use crate::{
     osm, Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID,
     LaneType, Map, MapEdits, OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints,
-    PathRequest, Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType,
+    PathRequest, Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType, Zone,
 };
 use abstutil::Timer;
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring, Time};
@@ -175,6 +175,10 @@ impl Map {
 
     pub fn all_parking_lots(&self) -> &Vec<ParkingLot> {
         &self.parking_lots
+    }
+
+    pub fn all_zones(&self) -> &Vec<Zone> {
+        &self.zones
     }
 
     pub fn maybe_get_r(&self, id: RoadID) -> Option<&Road> {
