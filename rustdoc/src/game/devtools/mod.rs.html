@@ -161,7 +161,7 @@
     <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Composite</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
     <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">LonLat</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">Percent</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DevToolsMode</span> {
     <span class="ident">composite</span>: <span class="ident">Composite</span>,
@@ -192,7 +192,7 @@
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;view KML&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">K</span>)),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;story maps&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">S</span>)),
                 ])
-                .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="number">60</span>),
+                .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">60</span>)),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),

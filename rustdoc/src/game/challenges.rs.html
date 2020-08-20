@@ -419,7 +419,7 @@
 <span class="kw">use</span> <span class="ident">ezgui</span>::{
     <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Percent</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">Map</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AlertHandler</span>, <span class="ident">OrigPersonID</span>, <span class="ident">Scenario</span>, <span class="ident">Sim</span>, <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
@@ -574,7 +574,7 @@
         }
         <span class="ident">master_col</span>.<span class="ident">push</span>(
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">flex_row</span>)
-                .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="number">80</span>)
+                .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">80</span>))
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">16</span>)
                 .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>),

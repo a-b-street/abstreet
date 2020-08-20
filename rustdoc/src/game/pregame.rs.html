@@ -566,7 +566,7 @@
     <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>,
     <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Percent</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">PermanentMapEdits</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
@@ -935,7 +935,7 @@
                 <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Contact dabreegster@gmail.com to add your idea here!&quot;</span>));
                 <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>().<span class="ident">margin_below</span>(<span class="number">20</span>)
             },
-            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">buttons</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="number">80</span>),
+            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">buttons</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">80</span>)),
         ];
         <span class="ident">col</span>.<span class="ident">extend</span>(<span class="ident">current_tab</span>);
 
