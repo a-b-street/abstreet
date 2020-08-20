@@ -8,7 +8,7 @@ use std::rc::Rc;
 pub use crate::backend_glow_native::setup;
 
 #[cfg(feature = "wasm-backend")]
-pub use crate::backend_wasm::setup;
+pub use crate::backend_glow_wasm::setup;
 
 // Represents one frame that's gonna be drawn
 pub struct GfxCtxInnards<'a> {
@@ -183,7 +183,7 @@ impl Drop for Buffer {
 }
 
 #[cfg(feature = "wasm-backend")]
-type WindowAdapter = crate::backend_wasm::WindowAdapter;
+type WindowAdapter = crate::backend_glow_wasm::WindowAdapter;
 
 #[cfg(feature = "glow-backend")]
 type WindowAdapter = crate::backend_glow_native::WindowAdapter;

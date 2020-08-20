@@ -32,7 +32,7 @@ mod backend_glow;
 #[cfg(feature = "glow-backend")]
 mod backend_glow_native;
 #[cfg(feature = "wasm-backend")]
-mod backend_wasm;
+mod backend_glow_wasm;
 mod canvas;
 mod color;
 mod drawing;
