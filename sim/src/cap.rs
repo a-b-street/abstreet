@@ -1,6 +1,6 @@
-use crate::CarID;
+use crate::{CarID, VehicleType};
 use geom::{Duration, Time};
-use map_model::{LaneID, Map, PathConstraints};
+use map_model::{LaneID, Map, Path, PathConstraints, PathStep};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -49,6 +49,9 @@ impl CapSimState {
     }
 
     pub fn car_entering_lane(&mut self, now: Time, car: CarID, lane: LaneID) {
+        if car.1 != VehicleType::Car {
+            return;
+        }
         let zone = if let Some(idx) = self.lane_to_zone.get(&lane) {
             &mut self.zones[*idx]
         } else {
@@ -60,5 +63,25 @@ impl CapSimState {
             zone.entered_in_last_hour.clear();
         }
         zone.entered_in_last_hour.insert(car);
+    }
+
+    // TODO This is only called when the trip starts. So if a bunch of drivers all spawn at the
+    // same time, they'll all pass the check, but wind up exceeding the cap. Should there be some
+    // kind of reservation instead?
+    pub fn allow_trip(&self, car: CarID, path: &Path) -> bool {
+        if car.1 != VehicleType::Car {
+            return true;
+        }
+        for step in path.get_steps() {
+            if let PathStep::Lane(l) = step {
+                if let Some(idx) = self.lane_to_zone.get(l) {
+                    let zone = &self.zones[*idx];
+                    if zone.entered_in_last_hour.len() >= zone.cap {
+                        return false;
+                    }
+                }
+            }
+        }
+        true
     }
 }

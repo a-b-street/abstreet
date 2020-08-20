@@ -1,8 +1,8 @@
 use crate::{
-    AgentID, AgentProperties, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput,
-    DrawPedestrianInput, Event, IntersectionSimState, ParkingSimState, ParkingSpot,
-    PedCrowdLocation, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval,
-    TransitSimState, TripID, TripManager, UnzoomedAgent,
+    AgentID, AgentProperties, CapSimState, Command, CreatePedestrian, DistanceInterval,
+    DrawPedCrowdInput, DrawPedestrianInput, Event, IntersectionSimState, ParkingSimState,
+    ParkingSpot, PedCrowdLocation, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot,
+    TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
@@ -121,6 +121,7 @@ impl WalkingSimState {
         scheduler: &mut Scheduler,
         trips: &mut TripManager,
         transit: &mut TransitSimState,
+        cap: &CapSimState,
     ) {
         let mut ped = self.peds.get_mut(&id).unwrap();
         match ped.state {
@@ -148,6 +149,7 @@ impl WalkingSimState {
                                     ped.total_blocked_time,
                                     map,
                                     parking,
+                                    cap,
                                     scheduler,
                                 );
                                 self.peds.remove(&id);
@@ -189,6 +191,7 @@ impl WalkingSimState {
                                 ped.total_blocked_time,
                                 map,
                                 parking,
+                                cap,
                                 scheduler,
                             );
                             self.peds.remove(&id);
@@ -260,6 +263,7 @@ impl WalkingSimState {
                     ped.total_blocked_time,
                     map,
                     parking,
+                    cap,
                     scheduler,
                 );
                 self.peds.remove(&id);
@@ -281,6 +285,7 @@ impl WalkingSimState {
                     ped.total_blocked_time,
                     map,
                     parking,
+                    cap,
                     scheduler,
                 );
                 self.peds.remove(&id);
@@ -295,6 +300,7 @@ impl WalkingSimState {
                     ped.total_blocked_time,
                     map,
                     parking,
+                    cap,
                     scheduler,
                 );
                 self.peds.remove(&id);

@@ -1,6 +1,6 @@
 use crate::{
-    CarID, Event, ParkingSimState, PedestrianID, PersonID, Router, Scheduler, TripID, TripManager,
-    TripPhaseType, VehicleType, WalkingSimState,
+    CapSimState, CarID, Event, ParkingSimState, PedestrianID, PersonID, Router, Scheduler, TripID,
+    TripManager, TripPhaseType, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
@@ -174,6 +174,7 @@ impl TransitSimState {
         trips: &mut TripManager,
         walking: &mut WalkingSimState,
         parking: &mut ParkingSimState,
+        cap: &CapSimState,
         scheduler: &mut Scheduler,
         map: &Map,
     ) -> bool {
@@ -256,7 +257,9 @@ impl TransitSimState {
                             person, bus.car, stop2
                         );
                     }
-                    trips.transit_rider_reached_border(now, person, id, map, parking, scheduler);
+                    trips.transit_rider_reached_border(
+                        now, person, id, map, parking, cap, scheduler,
+                    );
                 }
                 false
             }
