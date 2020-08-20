@@ -11,12 +11,11 @@ mod walking_turns;
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
-    connectivity, osm, Area, AreaID, ControlStopSign, ControlTrafficSignal, Intersection,
-    IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints, Position, Road,
-    RoadID, TurnGroup, Zone,
+    connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
+    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints,
+    Position, Road, RoadID, TurnGroup, Zone,
 };
 use abstutil::{Parallelism, Timer};
-use enumset::EnumSet;
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
@@ -127,10 +126,10 @@ impl Map {
                 } else {
                     0
                 },
-                allow_through_traffic: EnumSet::new(),
+                access_restrictions: AccessRestrictions::new(),
             };
             road.speed_limit = road.speed_limit_from_osm();
-            road.allow_through_traffic = road.access_restrictions_from_osm();
+            road.access_restrictions = road.access_restrictions_from_osm();
 
             let mut total_back_width = Distance::ZERO;
             for lane in &r.lane_specs {

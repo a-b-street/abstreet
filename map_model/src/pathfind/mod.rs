@@ -651,7 +651,11 @@ impl Pathfinder {
         match (start_r.get_zone(map), end_r.get_zone(map)) {
             (Some(z1), Some(z2)) => {
                 if z1 == z2 {
-                    if !z1.allow_through_traffic.contains(req.constraints) {
+                    if !z1
+                        .restrictions
+                        .allow_through_traffic
+                        .contains(req.constraints)
+                    {
                         if req.constraints == PathConstraints::Pedestrian {
                             let steps =
                                 walking_path_to_steps(z1.pathfind_walking(req.clone(), map)?, map);
@@ -665,7 +669,11 @@ impl Pathfinder {
                 }
             }
             (Some(zone), None) => {
-                if !zone.allow_through_traffic.contains(req.constraints) {
+                if !zone
+                    .restrictions
+                    .allow_through_traffic
+                    .contains(req.constraints)
+                {
                     let mut borders: Vec<&Intersection> =
                         zone.borders.iter().map(|i| map.get_i(*i)).collect();
                     // TODO Use the CH to pick the lowest overall cost?
@@ -681,7 +689,11 @@ impl Pathfinder {
                 }
             }
             (None, Some(zone)) => {
-                if !zone.allow_through_traffic.contains(req.constraints) {
+                if !zone
+                    .restrictions
+                    .allow_through_traffic
+                    .contains(req.constraints)
+                {
                     let mut borders: Vec<&Intersection> =
                         zone.borders.iter().map(|i| map.get_i(*i)).collect();
                     // TODO Use the CH to pick the lowest overall cost?
