@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["SpawnTrip",""]],"fn":[["find_spot_near_building",""],["seed_parked_cars",""]],"struct":[["IndividTrip",""],["OffMapLocation",""],["PersonSpec",""],["Scenario",""]]});

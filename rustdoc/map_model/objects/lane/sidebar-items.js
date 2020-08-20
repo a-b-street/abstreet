@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["PARKING_LOT_SPOT_LENGTH",""],["PARKING_SPOT_LENGTH",""]],"enum":[["LaneType",""]],"struct":[["Lane",""],["LaneID",""]]});

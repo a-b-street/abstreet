@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Buffer",""],["Drawable",""],["GfxCtxInnards",""],["PrerenderInnards",""],["VertexArray",""]],"type":[["WindowAdapter",""]]});

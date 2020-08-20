@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["HashablePt2D",""],["Pt2D",""]]});

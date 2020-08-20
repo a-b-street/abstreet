@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["RewriteColor",""]],"struct":[["GeomBatch","A mutable builder for a group of colored polygons."]]});

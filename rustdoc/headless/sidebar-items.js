@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["handle_command",""],["main",""],["serve_req",""]],"struct":[["FLAGS",""],["FinishedTrips",""],["MAP",""],["SIM",""]]});
+initSidebarItems({"fn":[["handle_command",""],["main",""],["serve_req",""]],"struct":[["Delays",""],["FLAGS",""],["FinishedTrips",""],["MAP",""],["SIM",""]]});

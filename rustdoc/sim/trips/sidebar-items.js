@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["PersonState",""],["TripEndpoint",""],["TripLeg",""],["TripMode",""],["TripResult",""]],"fn":[["pos",""]],"struct":[["Person",""],["Trip",""],["TripInfo",""],["TripManager",""]]});

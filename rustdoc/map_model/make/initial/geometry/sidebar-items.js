@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["DEGENERATE_INTERSECTION_HALF_LENGTH",""]],"fn":[["close_off_polygon",""],["deadend",""],["generalized_trim_back",""],["intersection_polygon",""],["on_off_ramp",""]],"struct":[["Piece",""]]});

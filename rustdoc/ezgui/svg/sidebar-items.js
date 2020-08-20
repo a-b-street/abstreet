@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["HIGH_QUALITY",""],["LOW_QUALITY",""]],"fn":[["add_svg_inner",""],["convert_color",""],["convert_path",""],["convert_stroke",""],["load_svg",""],["point",""]],"struct":[["PathConvIter",""]]});

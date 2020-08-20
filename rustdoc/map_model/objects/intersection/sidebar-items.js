@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["IntersectionType",""]],"struct":[["Intersection",""],["IntersectionID",""]]});

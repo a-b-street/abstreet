@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["is_counter_clockwise",""]],"struct":[["InfiniteLine",""],["Line",""]]});

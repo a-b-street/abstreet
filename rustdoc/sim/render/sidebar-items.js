@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["CarStatus",""],["PedCrowdLocation",""]],"struct":[["DontDrawAgents",""],["DrawCarInput",""],["DrawPedCrowdInput",""],["DrawPedestrianInput",""],["UnzoomedAgent",""]],"trait":[["GetDrawAgents",""]]});

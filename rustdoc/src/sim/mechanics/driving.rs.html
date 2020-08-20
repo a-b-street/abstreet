@@ -1069,14 +1069,27 @@
 <span id="1069">1069</span>
 <span id="1070">1070</span>
 <span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::{<span class="ident">Car</span>, <span class="ident">CarState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ActionAtEnd</span>, <span class="ident">AgentID</span>, <span class="ident">AgentProperties</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">DistanceInterval</span>,
-    <span class="ident">DrawCarInput</span>, <span class="ident">Event</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSimState</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>,
-    <span class="ident">Scheduler</span>, <span class="ident">TimeInterval</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripManager</span>, <span class="ident">UnzoomedAgent</span>, <span class="ident">Vehicle</span>, <span class="ident">WalkingSimState</span>,
-    <span class="ident">FOLLOWING_DISTANCE</span>,
+    <span class="ident">ActionAtEnd</span>, <span class="ident">AgentID</span>, <span class="ident">AgentProperties</span>, <span class="ident">CapSimState</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>,
+    <span class="ident">DistanceInterval</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Event</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSimState</span>,
+    <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">TimeInterval</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripManager</span>, <span class="ident">UnzoomedAgent</span>,
+    <span class="ident">Vehicle</span>, <span class="ident">WalkingSimState</span>, <span class="ident">FOLLOWING_DISTANCE</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Time</span>};
@@ -1243,6 +1256,7 @@
         <span class="ident">trips</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TripManager</span>,
         <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
         <span class="ident">transit</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TransitSimState</span>,
+        <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CapSimState</span>,
         <span class="ident">walking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WalkingSimState</span>,
     ) {
         <span class="comment">// State transitions for this car:</span>
@@ -1286,6 +1300,7 @@
                 <span class="ident">parking</span>,
                 <span class="ident">intersections</span>,
                 <span class="ident">transit</span>,
+                <span class="ident">cap</span>,
                 <span class="ident">scheduler</span>,
             );
             <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">car</span>);
@@ -1305,7 +1320,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">car</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
             <span class="comment">// Responsibility of update_car_with_distances to manage scheduling stuff!</span>
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">update_car_with_distances</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">car</span>, <span class="kw-2">&amp;</span><span class="ident">dists</span>, <span class="ident">idx</span>, <span class="ident">now</span>, <span class="ident">map</span>, <span class="ident">parking</span>, <span class="ident">trips</span>, <span class="ident">scheduler</span>, <span class="ident">transit</span>, <span class="ident">walking</span>,
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">car</span>, <span class="kw-2">&amp;</span><span class="ident">dists</span>, <span class="ident">idx</span>, <span class="ident">now</span>, <span class="ident">map</span>, <span class="ident">parking</span>, <span class="ident">trips</span>, <span class="ident">scheduler</span>, <span class="ident">transit</span>, <span class="ident">walking</span>, <span class="ident">cap</span>,
             ) {
                 <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">car</span>);
             } <span class="kw">else</span> {
@@ -1325,6 +1340,7 @@
         <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ParkingSimState</span>,
         <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">IntersectionSimState</span>,
         <span class="ident">transit</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TransitSimState</span>,
+        <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CapSimState</span>,
         <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="ident">car</span>.<span class="ident">state</span> {
@@ -1418,22 +1434,27 @@
                 <span class="kw">let</span> <span class="ident">goto</span> <span class="op">=</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">next</span>();
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">from</span> <span class="op">!</span><span class="op">=</span> <span class="ident">goto</span>);
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">goto</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">speed</span> <span class="op">=</span> <span class="ident">goto</span>.<span class="ident">speed_limit</span>(<span class="ident">map</span>);
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">max_speed</span> {
-                        <span class="ident">speed</span> <span class="op">=</span> <span class="ident">speed</span>.<span class="ident">min</span>(<span class="ident">s</span>);
+                <span class="kw">match</span> <span class="ident">goto</span> {
+                    <span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">speed</span> <span class="op">=</span> <span class="ident">goto</span>.<span class="ident">speed_limit</span>(<span class="ident">map</span>);
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">max_speed</span> {
+                            <span class="ident">speed</span> <span class="op">=</span> <span class="ident">speed</span>.<span class="ident">min</span>(<span class="ident">s</span>);
+                        }
+                        <span class="kw">if</span> <span class="op">!</span><span class="ident">intersections</span>.<span class="ident">maybe_start_turn</span>(
+                            <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>),
+                            <span class="ident">t</span>,
+                            <span class="ident">speed</span>,
+                            <span class="ident">now</span>,
+                            <span class="ident">map</span>,
+                            <span class="ident">scheduler</span>,
+                            <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="ident">car</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">queues</span>)),
+                        ) {
+                            <span class="comment">// Don&#39;t schedule a retry here.</span>
+                            <span class="kw">return</span> <span class="bool-val">false</span>;
+                        }
                     }
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">intersections</span>.<span class="ident">maybe_start_turn</span>(
-                        <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>),
-                        <span class="ident">t</span>,
-                        <span class="ident">speed</span>,
-                        <span class="ident">now</span>,
-                        <span class="ident">map</span>,
-                        <span class="ident">scheduler</span>,
-                        <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="ident">car</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">queues</span>)),
-                    ) {
-                        <span class="comment">// Don&#39;t schedule a retry here.</span>
-                        <span class="kw">return</span> <span class="bool-val">false</span>;
+                    <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">cap</span>.<span class="ident">car_entering_lane</span>(<span class="ident">now</span>, <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">l</span>);
                     }
                 }
 
@@ -1510,6 +1531,7 @@
         <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
         <span class="ident">transit</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TransitSimState</span>,
         <span class="ident">walking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WalkingSimState</span>,
+        <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="ident">CapSimState</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">our_dist</span> <span class="op">=</span> <span class="ident">dists</span>[<span class="ident">idx</span>].<span class="number">1</span>;
 
@@ -1538,6 +1560,7 @@
                                 <span class="ident">car</span>.<span class="ident">total_blocked_time</span>,
                                 <span class="ident">map</span>,
                                 <span class="ident">parking</span>,
+                                <span class="ident">cap</span>,
                                 <span class="ident">scheduler</span>,
                             );
                         }
@@ -1552,6 +1575,7 @@
                             <span class="comment">// car to the destination. There&#39;s no parking!</span>
                             <span class="prelude-val">None</span>,
                             <span class="ident">parking</span>,
+                            <span class="ident">cap</span>,
                             <span class="ident">scheduler</span>,
                             <span class="ident">map</span>,
                         );
@@ -1602,6 +1626,7 @@
                             <span class="ident">trips</span>,
                             <span class="ident">walking</span>,
                             <span class="ident">parking</span>,
+                            <span class="ident">cap</span>,
                             <span class="ident">scheduler</span>,
                             <span class="ident">map</span>,
                         ) {
@@ -1658,6 +1683,7 @@
                     <span class="ident">car</span>.<span class="ident">total_blocked_time</span>,
                     <span class="ident">map</span>,
                     <span class="ident">parking</span>,
+                    <span class="ident">cap</span>,
                     <span class="ident">scheduler</span>,
                 );
                 <span class="bool-val">false</span>

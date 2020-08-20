@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["TRIANGLES_PER_CIRCLE",""]],"struct":[["Circle",""]]});

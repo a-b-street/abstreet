@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["EditCmd",""],["EditIntersection",""]],"fn":[["recalculate_turns",""]],"mod":[["perma",""]],"struct":[["EditEffects",""],["MapEdits",""]]});

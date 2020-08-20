@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["TIME_TO_FINISH_BIKING",""],["TIME_TO_START_BIKING",""]],"enum":[["PedState",""]],"fn":[["find_crowds",""]],"struct":[["Pedestrian",""],["WalkingSimState",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CapSimState",""],["Zone",""]],"type":[["ZoneIdx",""]]});

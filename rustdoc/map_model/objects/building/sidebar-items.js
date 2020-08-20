@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["BuildingType",""],["OffstreetParking",""]],"fn":[["sidewalk_to_bike",""]],"struct":[["Building",""],["BuildingID",""],["NamePerLanguage",""]]});

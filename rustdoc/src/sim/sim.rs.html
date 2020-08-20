@@ -1262,11 +1262,24 @@
 <span id="1262">1262</span>
 <span id="1263">1263</span>
 <span id="1264">1264</span>
+<span id="1265">1265</span>
+<span id="1266">1266</span>
+<span id="1267">1267</span>
+<span id="1268">1268</span>
+<span id="1269">1269</span>
+<span id="1270">1270</span>
+<span id="1271">1271</span>
+<span id="1272">1272</span>
+<span id="1273">1273</span>
+<span id="1274">1274</span>
+<span id="1275">1275</span>
+<span id="1276">1276</span>
+<span id="1277">1277</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">analytics</span>::<span class="ident">Window</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">AlertLocation</span>, <span class="ident">Analytics</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">DrawCarInput</span>,
-    <span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>, <span class="ident">DrivingSimState</span>, <span class="ident">Event</span>, <span class="ident">GetDrawAgents</span>,
+    <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">AlertLocation</span>, <span class="ident">Analytics</span>, <span class="ident">CapSimState</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>,
+    <span class="ident">DrawCarInput</span>, <span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>, <span class="ident">DrivingSimState</span>, <span class="ident">Event</span>, <span class="ident">GetDrawAgents</span>,
     <span class="ident">IntersectionSimState</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PandemicModel</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSimState</span>, <span class="ident">ParkingSpot</span>,
     <span class="ident">PedestrianID</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">PersonState</span>, <span class="ident">Router</span>, <span class="ident">Scenario</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>,
     <span class="ident">SidewalkSpot</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripManager</span>, <span class="ident">TripPhaseType</span>, <span class="ident">TripResult</span>,
@@ -1297,6 +1310,7 @@
     <span class="ident">walking</span>: <span class="ident">WalkingSimState</span>,
     <span class="ident">intersections</span>: <span class="ident">IntersectionSimState</span>,
     <span class="ident">transit</span>: <span class="ident">TransitSimState</span>,
+    <span class="ident">cap</span>: <span class="ident">CapSimState</span>,
     <span class="ident">trips</span>: <span class="ident">TripManager</span>,
     <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
@@ -1387,6 +1401,7 @@
                 <span class="ident">opts</span>.<span class="ident">handle_uber_turns</span>,
             ),
             <span class="ident">transit</span>: <span class="ident">TransitSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>),
+            <span class="ident">cap</span>: <span class="ident">CapSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>),
             <span class="ident">trips</span>: <span class="ident">TripManager</span>::<span class="ident">new</span>(<span class="ident">opts</span>.<span class="ident">pathfinding_upfront</span>),
             <span class="ident">pandemic</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">rng</span>) <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">enable_pandemic_model</span> {
                 <span class="prelude-val">Some</span>(<span class="ident">PandemicModel</span>::<span class="ident">new</span>(<span class="ident">rng</span>))
@@ -1677,6 +1692,7 @@
                     <span class="ident">maybe_req</span>,
                     <span class="ident">maybe_path</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                     <span class="ident">map</span>,
                 );
@@ -1737,6 +1753,7 @@
                         <span class="ident">trip</span>,
                         <span class="prelude-val">Some</span>(<span class="ident">create_car</span>.<span class="ident">vehicle</span>),
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                         <span class="ident">map</span>,
                     );
@@ -1768,6 +1785,7 @@
                             <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
                             <span class="ident">map</span>,
                             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
+                            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
                             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                         );
                     }
@@ -1791,6 +1809,7 @@
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">transit</span>,
+                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">walking</span>,
                 );
             }
@@ -1813,6 +1832,7 @@
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">transit</span>,
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
                 );
             }
             <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -1838,6 +1858,7 @@
                     <span class="ident">trip</span>,
                     <span class="ident">map</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                 );
             }
@@ -2072,6 +2093,10 @@
             <span class="macro">println</span><span class="macro">!</span>(
                 <span class="string">&quot;- transit: {} bytes&quot;</span>,
                 <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transit</span>))
+            );
+            <span class="macro">println</span><span class="macro">!</span>(
+                <span class="string">&quot;- cap: {} bytes&quot;</span>,
+                <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>))
             );
             <span class="macro">println</span><span class="macro">!</span>(
                 <span class="string">&quot;- trips: {} bytes&quot;</span>,
@@ -2479,6 +2504,7 @@
                 <span class="ident">trip</span>,
                 <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>),
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                 <span class="ident">map</span>,
             );

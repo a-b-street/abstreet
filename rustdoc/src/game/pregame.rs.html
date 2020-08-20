@@ -552,6 +552,9 @@
 <span id="552">552</span>
 <span id="553">553</span>
 <span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::<span class="ident">ChallengesPicker</span>;
@@ -886,6 +889,9 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">proposals</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_tab</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="comment">// If a proposal has fallen out of date, it&#39;ll be skipped with an error logged. Since these</span>
+        <span class="comment">// are under version control, much more likely to notice when they break (or we could add a</span>
+        <span class="comment">// step to data/regen.sh).</span>
         <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">edits</span>) <span class="kw">in</span>
             <span class="ident">abstutil</span>::<span class="ident">load_all_objects</span>::<span class="op">&lt;</span><span class="ident">PermanentMapEdits</span><span class="op">&gt;</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="string">&quot;system/proposals&quot;</span>))
         {

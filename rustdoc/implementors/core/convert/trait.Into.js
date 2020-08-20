@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["sim"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/convert/trait.Into.html\" title=\"trait core::convert::Into\">Into</a>&lt;<a class=\"struct\" href=\"geom/time/struct.Time.html\" title=\"struct geom::time::Time\">Time</a>&gt; for <a class=\"struct\" href=\"sim/pandemic/struct.AnyTime.html\" title=\"struct sim::pandemic::AnyTime\">AnyTime</a>","synthetic":false,"types":["sim::pandemic::AnyTime"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

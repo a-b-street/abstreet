@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["BG_COLOR",""],["DEFAULT_FG_COLOR",""],["DEFAULT_FONT",""],["DEFAULT_FONT_SIZE",""],["INACTIVE_CHOICE_COLOR",""],["MAX_CHAR_WIDTH",""],["SCALE_LINE_HEIGHT",""],["SELECTED_COLOR",""]],"enum":[["Font",""]],"fn":[["Line",""],["render_line",""]],"struct":[["Text",""],["TextSpan",""]],"trait":[["TextExt",""]]});

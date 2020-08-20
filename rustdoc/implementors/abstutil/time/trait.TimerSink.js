@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["ezgui"] = [{"text":"impl&lt;'a&gt; <a class=\"trait\" href=\"abstutil/time/trait.TimerSink.html\" title=\"trait abstutil::time::TimerSink\">TimerSink</a> for <a class=\"struct\" href=\"ezgui/event_ctx/struct.LoadingScreen.html\" title=\"struct ezgui::event_ctx::LoadingScreen\">LoadingScreen</a>&lt;'a&gt;","synthetic":false,"types":["ezgui::event_ctx::LoadingScreen"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
