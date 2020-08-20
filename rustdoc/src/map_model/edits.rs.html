@@ -936,32 +936,13 @@
 <span id="936">936</span>
 <span id="937">937</span>
 <span id="938">938</span>
-<span id="939">939</span>
-<span id="940">940</span>
-<span id="941">941</span>
-<span id="942">942</span>
-<span id="943">943</span>
-<span id="944">944</span>
-<span id="945">945</span>
-<span id="946">946</span>
-<span id="947">947</span>
-<span id="948">948</span>
-<span id="949">949</span>
-<span id="950">950</span>
-<span id="951">951</span>
-<span id="952">952</span>
-<span id="953">953</span>
-<span id="954">954</span>
-<span id="955">955</span>
-<span id="956">956</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">connectivity</span>, <span class="ident">osm</span>, <span class="ident">BusRouteID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionID</span>,
-    <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
+    <span class="ident">connectivity</span>, <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BusRouteID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>,
+    <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">retain_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSet</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
@@ -1018,9 +999,8 @@
     },
     <span class="ident">ChangeAccessRestrictions</span> {
         <span class="ident">id</span>: <span class="ident">RoadID</span>,
-        <span class="comment">// All means it&#39;s not a zone</span>
-        <span class="ident">new_allow_through_traffic</span>: <span class="ident">EnumSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
-        <span class="ident">old_allow_through_traffic</span>: <span class="ident">EnumSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
+        <span class="ident">new</span>: <span class="ident">AccessRestrictions</span>,
+        <span class="ident">old</span>: <span class="ident">AccessRestrictions</span>,
     },
     <span class="ident">ChangeRouteSchedule</span> {
         <span class="ident">id</span>: <span class="ident">BusRouteID</span>,
@@ -1122,7 +1102,7 @@
         });
         <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">changed_access_restrictions</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-            <span class="ident">r</span>.<span class="ident">access_restrictions_from_osm</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">allow_through_traffic</span>
+            <span class="ident">r</span>.<span class="ident">access_restrictions_from_osm</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span>
         });
         <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">changed_routes</span>, <span class="op">|</span><span class="ident">br</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_br</span>(<span class="kw-2">*</span><span class="ident">br</span>);
@@ -1169,8 +1149,8 @@
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">changed_access_restrictions</span> {
             <span class="self">self</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
                 <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">r</span>,
-                <span class="ident">new_allow_through_traffic</span>: <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">allow_through_traffic</span>,
-                <span class="ident">old_allow_through_traffic</span>: <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">access_restrictions_from_osm</span>(),
+                <span class="ident">new</span>: <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">access_restrictions</span>.<span class="ident">clone</span>(),
+                <span class="ident">old</span>: <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">access_restrictions_from_osm</span>(),
             });
         }
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">changed_routes</span> {
@@ -1263,8 +1243,8 @@
     },
     <span class="ident">ChangeAccessRestrictions</span> {
         <span class="ident">id</span>: <span class="ident">OriginalRoad</span>,
-        <span class="ident">new_allow_through_traffic</span>: <span class="ident">EnumSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
-        <span class="ident">old_allow_through_traffic</span>: <span class="ident">EnumSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
+        <span class="ident">new</span>: <span class="ident">AccessRestrictions</span>,
+        <span class="ident">old</span>: <span class="ident">AccessRestrictions</span>,
     },
     <span class="ident">ChangeRouteSchedule</span> {
         <span class="ident">osm_rel_id</span>: <span class="ident">osm</span>::<span class="ident">RelationID</span>,
@@ -1309,15 +1289,13 @@
                             <span class="ident">old</span>: <span class="ident">old</span>.<span class="ident">to_permanent</span>(<span class="ident">map</span>),
                         }
                     }
-                    <span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
-                        <span class="ident">id</span>,
-                        <span class="ident">new_allow_through_traffic</span>,
-                        <span class="ident">old_allow_through_traffic</span>,
-                    } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PermanentEditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
-                        <span class="ident">id</span>: <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">orig_id</span>,
-                        <span class="ident">new_allow_through_traffic</span>: <span class="kw-2">*</span><span class="ident">new_allow_through_traffic</span>,
-                        <span class="ident">old_allow_through_traffic</span>: <span class="kw-2">*</span><span class="ident">old_allow_through_traffic</span>,
-                    },
+                    <span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> { <span class="ident">id</span>, <span class="ident">new</span>, <span class="ident">old</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">PermanentEditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
+                            <span class="ident">id</span>: <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">orig_id</span>,
+                            <span class="ident">new</span>: <span class="ident">new</span>.<span class="ident">clone</span>(),
+                            <span class="ident">old</span>: <span class="ident">old</span>.<span class="ident">clone</span>(),
+                        }
+                    }
                     <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> { <span class="ident">id</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">PermanentEditCmd</span>::<span class="ident">ChangeRouteSchedule</span> {
                             <span class="ident">osm_rel_id</span>: <span class="ident">map</span>.<span class="ident">get_br</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">osm_rel_id</span>,
@@ -1373,17 +1351,9 @@
                                 .<span class="ident">ok_or</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;old ChangeIntersection of {} invalid&quot;</span>, <span class="ident">i</span>))<span class="question-mark">?</span>,
                         })
                     }
-                    <span class="ident">PermanentEditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
-                        <span class="ident">id</span>,
-                        <span class="ident">new_allow_through_traffic</span>,
-                        <span class="ident">old_allow_through_traffic</span>,
-                    } <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">PermanentEditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> { <span class="ident">id</span>, <span class="ident">new</span>, <span class="ident">old</span> } <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">id</span>)<span class="question-mark">?</span>;
-                        <span class="prelude-val">Ok</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
-                            <span class="ident">id</span>,
-                            <span class="ident">new_allow_through_traffic</span>,
-                            <span class="ident">old_allow_through_traffic</span>,
-                        })
+                        <span class="prelude-val">Ok</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> { <span class="ident">id</span>, <span class="ident">new</span>, <span class="ident">old</span> })
                     }
                     <span class="ident">PermanentEditCmd</span>::<span class="ident">ChangeRouteSchedule</span> {
                         <span class="ident">osm_rel_id</span>,
@@ -1611,15 +1581,11 @@
                 }
                 <span class="bool-val">true</span>
             }
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
-                <span class="ident">id</span>,
-                <span class="ident">new_allow_through_traffic</span>,
-                ..
-            } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">allow_through_traffic</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">new_allow_through_traffic</span> {
+            <span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> { <span class="ident">id</span>, <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">access_restrictions</span> <span class="op">=</span><span class="op">=</span> <span class="ident">new</span>.<span class="ident">clone</span>() {
                     <span class="kw">return</span> <span class="bool-val">false</span>;
                 }
-                <span class="ident">map</span>.<span class="ident">roads</span>[<span class="ident">id</span>.<span class="number">0</span>].<span class="ident">allow_through_traffic</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">new_allow_through_traffic</span>;
+                <span class="ident">map</span>.<span class="ident">roads</span>[<span class="ident">id</span>.<span class="number">0</span>].<span class="ident">access_restrictions</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">clone</span>();
                 <span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">id</span>);
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">id</span>);
                 <span class="ident">effects</span>.<span class="ident">changed_intersections</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">src_i</span>);
@@ -1674,16 +1640,14 @@
                 <span class="ident">new</span>: <span class="ident">old</span>.<span class="ident">clone</span>(),
             }
             .<span class="ident">apply</span>(<span class="ident">effects</span>, <span class="ident">map</span>, <span class="ident">timer</span>),
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
-                <span class="ident">id</span>,
-                <span class="ident">old_allow_through_traffic</span>,
-                <span class="ident">new_allow_through_traffic</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
-                <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
-                <span class="ident">old_allow_through_traffic</span>: <span class="kw-2">*</span><span class="ident">new_allow_through_traffic</span>,
-                <span class="ident">new_allow_through_traffic</span>: <span class="kw-2">*</span><span class="ident">old_allow_through_traffic</span>,
+            <span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> { <span class="ident">id</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
+                    <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
+                    <span class="ident">old</span>: <span class="ident">new</span>.<span class="ident">clone</span>(),
+                    <span class="ident">new</span>: <span class="ident">old</span>.<span class="ident">clone</span>(),
+                }
+                .<span class="ident">apply</span>(<span class="ident">effects</span>, <span class="ident">map</span>, <span class="ident">timer</span>)
             }
-            .<span class="ident">apply</span>(<span class="ident">effects</span>, <span class="ident">map</span>, <span class="ident">timer</span>),
             <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> { <span class="ident">id</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> {
                 <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
                 <span class="ident">old</span>: <span class="ident">new</span>.<span class="ident">clone</span>(),

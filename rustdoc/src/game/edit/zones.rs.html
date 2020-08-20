@@ -203,6 +203,20 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">ColorDiscrete</span>;
@@ -214,9 +228,9 @@
 <span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSet</span>;
 <span class="kw">use</span> <span class="ident">ezgui</span>::{
     <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Spinner</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">RoadID</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">EditCmd</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">TripMode</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
@@ -241,10 +255,12 @@
             <span class="macro">btreeset</span><span class="macro">!</span> { <span class="ident">start</span>.<span class="ident">id</span> }
         };
         <span class="kw">let</span> <span class="ident">allow_through_traffic</span> <span class="op">=</span> <span class="ident">start</span>
+            .<span class="ident">access_restrictions</span>
             .<span class="ident">allow_through_traffic</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">TripMode</span>::<span class="ident">from_constraints</span>(<span class="ident">c</span>))
             .<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">cap_vehicles_per_hour</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">access_restrictions</span>.<span class="ident">cap_vehicles_per_hour</span>;
 
         <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="ident">legend</span>) <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">members</span>);
         <span class="kw">let</span> <span class="ident">orig_members</span> <span class="op">=</span> <span class="ident">members</span>.<span class="ident">clone</span>();
@@ -259,6 +275,12 @@
                 <span class="ident">legend</span>,
                 <span class="ident">make_instructions</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">allow_through_traffic</span>),
                 <span class="ident">checkbox_per_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">allow_through_traffic</span>),
+                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="string">&quot;Limit the number of vehicles passing through per hour (0 = unlimited):&quot;</span>
+                        .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Spinner</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">1000</span>), <span class="ident">cap_vehicles_per_hour</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="ident">isize</span>)
+                        .<span class="ident">named</span>(<span class="string">&quot;cap_vehicles&quot;</span>),
+                ]),
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Apply&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
@@ -283,32 +305,38 @@
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Apply&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+
+                    <span class="comment">// Roads deleted from the zone</span>
                     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">orig_members</span>.<span class="ident">difference</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span>) {
                         <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
                             <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">r</span>,
-                            <span class="ident">old_allow_through_traffic</span>: <span class="ident">app</span>
-                                .<span class="ident">primary</span>
-                                .<span class="ident">map</span>
-                                .<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>)
-                                .<span class="ident">allow_through_traffic</span>
-                                .<span class="ident">clone</span>(),
-                            <span class="ident">new_allow_through_traffic</span>: <span class="ident">EnumSet</span>::<span class="ident">all</span>(),
+                            <span class="ident">old</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">access_restrictions</span>.<span class="ident">clone</span>(),
+                            <span class="ident">new</span>: <span class="ident">AccessRestrictions</span>::<span class="ident">new</span>(),
                         });
                     }
 
-                    <span class="kw">let</span> <span class="ident">new_allow_through_traffic</span> <span class="op">=</span> <span class="self">self</span>
-                        .<span class="ident">allow_through_traffic</span>
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">to_constraints</span>())
-                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">EnumSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+                    <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">AccessRestrictions</span> {
+                        <span class="ident">allow_through_traffic</span>: <span class="self">self</span>
+                            .<span class="ident">allow_through_traffic</span>
+                            .<span class="ident">iter</span>()
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">to_constraints</span>())
+                            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">EnumSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+                        <span class="ident">cap_vehicles_per_hour</span>: {
+                            <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">spinner</span>(<span class="string">&quot;cap_vehicles&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+                            <span class="kw">if</span> <span class="ident">n</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                                <span class="prelude-val">None</span>
+                            } <span class="kw">else</span> {
+                                <span class="prelude-val">Some</span>(<span class="ident">n</span>)
+                            }
+                        },
+                    };
                     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span> {
-                        <span class="kw">let</span> <span class="ident">old_allow_through_traffic</span> <span class="op">=</span>
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">allow_through_traffic</span>.<span class="ident">clone</span>();
-                        <span class="kw">if</span> <span class="ident">old_allow_through_traffic</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_allow_through_traffic</span> {
+                        <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">access_restrictions</span>.<span class="ident">clone</span>();
+                        <span class="kw">if</span> <span class="ident">old</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new</span> {
                             <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
                                 <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">r</span>,
-                                <span class="ident">old_allow_through_traffic</span>,
-                                <span class="ident">new_allow_through_traffic</span>: <span class="ident">new_allow_through_traffic</span>.<span class="ident">clone</span>(),
+                                <span class="ident">old</span>,
+                                <span class="ident">new</span>: <span class="ident">new</span>.<span class="ident">clone</span>(),
                             });
                         }
                     }

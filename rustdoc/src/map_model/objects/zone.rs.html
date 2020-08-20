@@ -151,6 +151,21 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::{<span class="ident">driving_cost</span>, <span class="ident">walking_cost</span>, <span class="ident">WalkingNode</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -161,13 +176,28 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AccessRestrictions</span> {
+    <span class="kw">pub</span> <span class="ident">allow_through_traffic</span>: <span class="ident">EnumSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">cap_vehicles_per_hour</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">AccessRestrictions</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AccessRestrictions</span> {
+        <span class="ident">AccessRestrictions</span> {
+            <span class="ident">allow_through_traffic</span>: <span class="ident">EnumSet</span>::<span class="ident">all</span>(),
+            <span class="ident">cap_vehicles_per_hour</span>: <span class="prelude-val">None</span>,
+        }
+    }
+}
+
 <span class="comment">// A contiguous set of roads with access restrictions. This is derived from all the map&#39;s roads and</span>
 <span class="comment">// kept cached for performance.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Zone</span> {
     <span class="kw">pub</span> <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">borders</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">allow_through_traffic</span>: <span class="ident">EnumSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">restrictions</span>: <span class="ident">AccessRestrictions</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Zone</span> {
@@ -278,7 +308,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">floodfill</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">start</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Zone</span> {
-    <span class="kw">let</span> <span class="ident">match_constraints</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start</span>).<span class="ident">allow_through_traffic</span>;
+    <span class="kw">let</span> <span class="ident">match_constraints</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start</span>).<span class="ident">access_restrictions</span>.<span class="ident">clone</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">start</span>];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">members</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borders</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
@@ -290,7 +320,7 @@
         <span class="ident">members</span>.<span class="ident">insert</span>(<span class="ident">current</span>);
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_next_roads</span>(<span class="ident">current</span>) {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">allow_through_traffic</span> <span class="op">=</span><span class="op">=</span> <span class="ident">match_constraints</span> {
+            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span> <span class="op">=</span><span class="op">=</span> <span class="ident">match_constraints</span> {
                 <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">id</span>);
             } <span class="kw">else</span> {
                 <span class="ident">borders</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">current</span>).<span class="ident">common_endpt</span>(<span class="ident">r</span>));
@@ -302,7 +332,7 @@
     <span class="ident">Zone</span> {
         <span class="ident">members</span>,
         <span class="ident">borders</span>,
-        <span class="ident">allow_through_traffic</span>: <span class="ident">match_constraints</span>,
+        <span class="ident">restrictions</span>: <span class="ident">match_constraints</span>,
     }
 }
 </pre></div>
