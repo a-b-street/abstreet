@@ -189,7 +189,7 @@ type WindowAdapter = crate::backend_wasm::WindowAdapter;
 type WindowAdapter = crate::backend_glow_native::WindowAdapter;
 
 pub struct PrerenderInnards {
-    pub(crate) gl: Rc<glow::Context>,
+    gl: Rc<glow::Context>,
     window_adapter: WindowAdapter,
     program: <glow::Context as glow::HasContext>::Program,
 
@@ -210,10 +210,6 @@ impl PrerenderInnards {
             window_adapter,
             total_bytes_uploaded: Cell::new(0),
         }
-    }
-
-    pub fn draw_new_frame(&self) -> GfxCtxInnards {
-        GfxCtxInnards::new(&self.gl, &self.program)
     }
 
     pub fn actually_upload(&self, permanent: bool, batch: GeomBatch) -> Drawable {
@@ -307,18 +303,6 @@ impl PrerenderInnards {
         }
     }
 
-    pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {
-        let physical_size = winit::dpi::LogicalSize::from(new_size).to_physical(scale_factor);
-        self.window_adapter.window_resized(new_size, scale_factor);
-        unsafe {
-            self.gl
-                .viewport(0, 0, physical_size.width, physical_size.height);
-            // I think it's safe to assume there's not a clip right now.
-            self.gl
-                .scissor(0, 0, physical_size.width, physical_size.height);
-        }
-    }
-
     fn window(&self) -> &winit::window::Window {
         self.window_adapter.window()
     }
@@ -329,6 +313,22 @@ impl PrerenderInnards {
 
     pub fn set_cursor_icon(&self, icon: winit::window::CursorIcon) {
         self.window().set_cursor_icon(icon);
+    }
+
+    pub fn draw_new_frame(&self) -> GfxCtxInnards {
+        GfxCtxInnards::new(&self.gl, &self.program)
+    }
+
+    pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {
+        let physical_size = winit::dpi::LogicalSize::from(new_size).to_physical(scale_factor);
+        self.window_adapter.window_resized(new_size, scale_factor);
+        unsafe {
+            self.gl
+                .viewport(0, 0, physical_size.width, physical_size.height);
+            // I think it's safe to assume there's not a clip right now.
+            self.gl
+                .scissor(0, 0, physical_size.width, physical_size.height);
+        }
     }
 
     pub fn window_size(&self, scale_factor: f64) -> ScreenDims {

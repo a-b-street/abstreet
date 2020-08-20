@@ -147,7 +147,6 @@ impl<G: GUI> State<G> {
         }
 
         prerender.inner.draw_finished(g.inner);
-
         naming_hint
     }
 }
