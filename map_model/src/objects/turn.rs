@@ -183,6 +183,14 @@ pub struct TurnGroupID {
     pub crosswalk: bool,
 }
 
+// This is cheaper to store than a TurnGroupID. It simply indexes into the list of turn_groups.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct CompressedTurnGroupID {
+    pub i: IntersectionID,
+    // There better not be any intersection with more than 256 turn groups...
+    pub idx: u8,
+}
+
 // TODO Unclear how this plays with different lane types
 // This is only useful for traffic signals currently.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

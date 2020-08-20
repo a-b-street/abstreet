@@ -303,8 +303,11 @@ impl IntersectionSimState {
             .entry(req.clone())
             .or_insert(now);
 
+        let shared_sidewalk_corner =
+            map.get_t(req.turn).turn_type == TurnType::SharedSidewalkCorner;
+
         let readonly_pair = maybe_cars_and_queues.as_ref().map(|(_, c, q)| (*c, &**q));
-        let allowed = if map.get_t(req.turn).turn_type == TurnType::SharedSidewalkCorner {
+        let allowed = if shared_sidewalk_corner {
             // SharedSidewalkCorner doesn't conflict with anything -- fastpath!
             true
         } else if !self.handle_accepted_conflicts(&req, map, readonly_pair) {
@@ -413,9 +416,15 @@ impl IntersectionSimState {
         // for stop signs too.
         let state = self.state.get_mut(&turn.parent).unwrap();
         let delay = now - state.waiting.remove(&req).unwrap();
-        if map.maybe_get_traffic_signal(state.id).is_some() {
-            self.events
-                .push(Event::IntersectionDelayMeasured(turn.parent, delay, agent));
+        // SharedSidewalkCorner are always no-conflict, immediate turns; they're not interesting.
+        if !shared_sidewalk_corner {
+            if let Some(ts) = map.maybe_get_traffic_signal(state.id) {
+                self.events.push(Event::IntersectionDelayMeasured(
+                    ts.compressed_id(turn),
+                    delay,
+                    agent,
+                ));
+            }
         }
         state.accepted.insert(req);
         if self.break_turn_conflict_cycles {
