@@ -266,6 +266,7 @@ impl Manifest {
                 "huge_seattle" => map == "huge_seattle",
                 "krakow" => map == "krakow_center",
                 "berlin" => map == "berlin_center",
+                "xian" => map == "xian",
                 _ => panic!("Unknown city {}. Check your data/config", city),
             }
         }
