@@ -10,7 +10,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, Text, TextExt,
     UpdateType, VerticalAlignment, Widget, GUI,
 };
-use geom::{Angle, Duration, Polygon, Pt2D, Time};
+use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
@@ -100,7 +100,7 @@ impl App {
         ]))
         // Don't let the panel exceed this percentage of the window. Scrollbars appear
         // automatically if needed.
-        .max_size_percent(30, 40)
+        .max_size(Percent::int(30), Percent::int(40))
         // We take up 30% width, and we want to leave 10% window width as buffer.
         .aligned(HorizontalAlignment::Percent(0.6), VerticalAlignment::Center)
         .build(ctx);

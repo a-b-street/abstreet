@@ -5,7 +5,7 @@ use ezgui::{
     Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
     TextExt, Widget,
 };
-use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D, Time};
+use geom::{ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
 use maplit::btreemap;
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
@@ -52,7 +52,7 @@ pub fn ongoing(
         .get_trip_phases(id, &app.primary.map);
     let trip = app.primary.sim.trip_info(id);
 
-    let col_width = 7;
+    let col_width = Percent::int(7);
     let props = app.primary.sim.agent_properties(agent);
     let activity = agent.to_type().ongoing_verb();
     let time_so_far = app.primary.sim.time() - trip.departure;
@@ -282,7 +282,7 @@ pub fn finished(
     }
 
     {
-        let col_width = 15;
+        let col_width = Percent::int(15);
 
         let total_trip_time =
             phases.last().as_ref().and_then(|p| p.end_time).unwrap() - trip.departure;

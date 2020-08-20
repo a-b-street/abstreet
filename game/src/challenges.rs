@@ -6,7 +6,7 @@ use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, TextExt, Widget,
 };
-use geom::{Duration, Time};
+use geom::{Duration, Percent, Time};
 use map_model::Map;
 use sim::{AlertHandler, OrigPersonID, Scenario, Sim, SimFlags, SimOptions};
 use std::collections::{BTreeMap, HashSet};
@@ -161,7 +161,7 @@ impl ChallengesPicker {
         }
         master_col.push(
             Widget::custom_row(flex_row)
-                .flex_wrap(ctx, 80)
+                .flex_wrap(ctx, Percent::int(80))
                 .bg(app.cs.panel_bg)
                 .padding(16)
                 .outline(2.0, Color::BLACK),

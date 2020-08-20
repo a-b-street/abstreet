@@ -3,7 +3,9 @@ use crate::{
     ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 use abstutil::prettyprint_usize;
-use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Polygon, Pt2D, Time};
+use geom::{
+    Angle, Bounds, Circle, Distance, Duration, FindClosest, Percent, PolyLine, Polygon, Pt2D, Time,
+};
 use std::collections::HashSet;
 
 // The X is always time
@@ -343,7 +345,7 @@ pub fn make_legend<T: Yvalue<T>>(
             ]));
         }
     }
-    Widget::custom_row(row).flex_wrap(ctx, 24)
+    Widget::custom_row(row).flex_wrap(ctx, Percent::int(24))
 }
 
 // TODO If this proves useful, lift to geom

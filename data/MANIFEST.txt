@@ -69,7 +69,6 @@ data/system/maps/huge_seattle.bin,0d39e0b2ebdac0cb51b83271e6f60d75,https://www.d
 data/system/maps/krakow_center.bin,bbd3465c1942a64edbf379ba04dd6b43,https://www.dropbox.com/s/y14pywaoc1ziw1c/krakow_center.bin.zip?dl=0
 data/system/maps/lakeslice.bin,7489d94e804c43d05e63534a4e9923f0,https://www.dropbox.com/s/22ncb1qo0no2qzq/lakeslice.bin.zip?dl=0
 data/system/maps/montlake.bin,be359bd5fa0f3f90d854940fc36c4d34,https://www.dropbox.com/s/02b7ty6deae327m/montlake.bin.zip?dl=0
-data/system/maps/shinjuku.bin,181d694a813ecf5744314138f0f8459c,https://www.dropbox.com/s/j9hkfw0eprfvaut/shinjuku.bin.zip?dl=0
 data/system/maps/south_seattle.bin,87815aaddcc294c0cd30f0b7db97d0d4,https://www.dropbox.com/s/fqg4roo7jqib8fb/south_seattle.bin.zip?dl=0
 data/system/maps/udistrict.bin,ae9163526dcd1b4f15d4cee2b3a2f91f,https://www.dropbox.com/s/hb6yxpvkums7mtt/udistrict.bin.zip?dl=0
 data/system/maps/west_seattle.bin,d91214290adac1f8d8db63f6d680f2d1,https://www.dropbox.com/s/qk0kxreqjpoghwh/west_seattle.bin.zip?dl=0

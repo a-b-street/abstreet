@@ -5,7 +5,7 @@ use crate::{
     RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox,
     VerticalAlignment, WidgetImpl, WidgetOutput,
 };
-use geom::{Distance, Polygon};
+use geom::{Distance, Percent, Polygon};
 use std::collections::HashSet;
 use stretch::geometry::{Rect, Size};
 use stretch::node::{Node, Stretch};
@@ -71,11 +71,9 @@ impl Widget {
     // This one is really weird. percent_width should be LESS than the max_size_percent given to
     // the overall Composite, otherwise weird things happen.
     // Only makes sense for rows/columns.
-    pub fn flex_wrap(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
+    pub fn flex_wrap(mut self, ctx: &EventCtx, width: Percent) -> Widget {
         self.layout.style.size = Size {
-            width: Dimension::Points(
-                (ctx.canvas.window_width * (percent_width as f64) / 100.0) as f32,
-            ),
+            width: Dimension::Points((ctx.canvas.window_width * width.inner()) as f32),
             height: Dimension::Undefined,
         };
         self.layout.style.flex_wrap = FlexWrap::Wrap;
@@ -87,9 +85,9 @@ impl Widget {
         self.layout.style.size.width = Dimension::Points(width as f32);
         self
     }
-    pub fn force_width_pct(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
+    pub fn force_width_pct(mut self, ctx: &EventCtx, width: Percent) -> Widget {
         self.layout.style.size.width =
-            Dimension::Points((ctx.canvas.window_width * (percent_width as f64) / 100.0) as f32);
+            Dimension::Points((ctx.canvas.window_width * width.inner()) as f32);
         self
     }
 
@@ -594,7 +592,7 @@ impl Widget {
 }
 
 enum Dims {
-    MaxPercent(f64, f64),
+    MaxPercent(Percent, Percent),
     ExactPercent(f64, f64),
 }
 
@@ -624,7 +622,7 @@ impl Composite {
             top_level,
             horiz: HorizontalAlignment::Center,
             vert: VerticalAlignment::Center,
-            dims: Dims::MaxPercent(1.0, 1.0),
+            dims: Dims::MaxPercent(Percent::int(100), Percent::int(100)),
         }
     }
 
@@ -969,8 +967,12 @@ impl CompositeBuilder {
         c.contents_dims = ScreenDims::new(c.top_level.rect.width(), c.top_level.rect.height());
         c.container_dims = match c.dims {
             Dims::MaxPercent(w, h) => ScreenDims::new(
-                c.contents_dims.width.min(w * ctx.canvas.window_width),
-                c.contents_dims.height.min(h * ctx.canvas.window_height),
+                c.contents_dims
+                    .width
+                    .min(w.inner() * ctx.canvas.window_width),
+                c.contents_dims
+                    .height
+                    .min(h.inner() * ctx.canvas.window_height),
             ),
             Dims::ExactPercent(w, h) => {
                 ScreenDims::new(w * ctx.canvas.window_width, h * ctx.canvas.window_height)
@@ -1029,11 +1031,11 @@ impl CompositeBuilder {
         self
     }
 
-    pub fn max_size_percent(mut self, pct_width: usize, pct_height: usize) -> CompositeBuilder {
-        if pct_width == 100 && pct_height == 100 {
+    pub fn max_size(mut self, width: Percent, height: Percent) -> CompositeBuilder {
+        if width == Percent::int(100) && height == Percent::int(100) {
             panic!("By default, Composites are capped at 100% of the screen. This is redundant.");
         }
-        self.dims = Dims::MaxPercent((pct_width as f64) / 100.0, (pct_height as f64) / 100.0);
+        self.dims = Dims::MaxPercent(width, height);
         self
     }
 

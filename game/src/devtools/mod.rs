@@ -14,7 +14,7 @@ use ezgui::{
     hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     TextExt, VerticalAlignment, Widget,
 };
-use geom::LonLat;
+use geom::{LonLat, Percent};
 
 pub struct DevToolsMode {
     composite: Composite,
@@ -45,7 +45,7 @@ impl DevToolsMode {
                     Btn::text_fg("view KML").build_def(ctx, hotkey(Key::K)),
                     Btn::text_fg("story maps").build_def(ctx, hotkey(Key::S)),
                 ])
-                .flex_wrap(ctx, 60),
+                .flex_wrap(ctx, Percent::int(60)),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),

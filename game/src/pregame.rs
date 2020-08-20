@@ -11,7 +11,7 @@ use ezgui::{
     hotkey, hotkeys, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, RewriteColor,
     Text, UpdateType, Widget,
 };
-use geom::{Duration, Line, Pt2D, Speed};
+use geom::{Duration, Line, Percent, Pt2D, Speed};
 use instant::Instant;
 use map_model::PermanentMapEdits;
 use rand::Rng;
@@ -380,7 +380,7 @@ impl Proposals {
                 txt.add(Line("Contact dabreegster@gmail.com to add your idea here!"));
                 txt.draw(ctx).centered_horiz().margin_below(20)
             },
-            Widget::custom_row(buttons).flex_wrap(ctx, 80),
+            Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(80)),
         ];
         col.extend(current_tab);
 
