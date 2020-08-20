@@ -82,7 +82,15 @@ impl SimFlags {
 
             let mut map = Map::new(abstutil::path_map(&sim.map_name), timer);
             if sim.edits_name != "untitled edits" {
-                map.must_apply_edits(MapEdits::load(&map, &sim.edits_name, timer).unwrap(), timer);
+                map.must_apply_edits(
+                    MapEdits::load(
+                        &map,
+                        abstutil::path_edits(map.get_name(), &sim.edits_name),
+                        timer,
+                    )
+                    .unwrap(),
+                    timer,
+                );
                 map.recalculate_pathfinding_after_edits(timer);
             }
             sim.restore_paths(&map, timer);

@@ -447,57 +447,59 @@ impl LoadEdits {
 impl State for LoadEdits {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => Transition::Pop,
-                "Start over with blank edits" => {
-                    apply_map_edits(ctx, app, MapEdits::new());
-                    Transition::Pop
-                }
-                name => {
-                    // TODO Kind of a hack. If it ends with .json, it's already a path. Otherwise
-                    // it's a result from the menu.
-                    let path = if name.ends_with(".json") {
-                        name.to_string()
-                    } else {
-                        abstutil::path_edits(app.primary.map.get_name(), name)
-                    };
-
-                    match abstutil::maybe_read_json::<PermanentMapEdits>(
-                        path.clone(),
-                        &mut Timer::throwaway(),
-                    )
-                    .map_err(|err| err.to_string())
-                    .and_then(|perma| PermanentMapEdits::from_permanent(perma, &app.primary.map))
-                    .and_then(|edits| {
-                        if self.mode.allows(&edits) {
-                            Ok(edits)
+            Outcome::Clicked(x) => {
+                match x.as_ref() {
+                    "close" => Transition::Pop,
+                    "Start over with blank edits" => {
+                        apply_map_edits(ctx, app, MapEdits::new());
+                        Transition::Pop
+                    }
+                    path => {
+                        // TODO Kind of a hack. If it ends with .json, it's already a path.
+                        // Otherwise it's a result from the menu.
+                        let path = if path.ends_with(".json") {
+                            path.to_string()
                         } else {
-                            Err(
-                                "The current gameplay mode restricts edits. These edits have a \
-                                 banned command."
-                                    .to_string(),
-                            )
+                            abstutil::path_edits(app.primary.map.get_name(), path)
+                        };
+
+                        match MapEdits::load(
+                            &app.primary.map,
+                            path.clone(),
+                            &mut Timer::throwaway(),
+                        )
+                        .and_then(|edits| {
+                            if self.mode.allows(&edits) {
+                                Ok(edits)
+                            } else {
+                                Err(
+                                    "The current gameplay mode restricts edits. These edits have \
+                                     a banned command."
+                                        .to_string(),
+                                )
+                            }
+                        }) {
+                            Ok(edits) => {
+                                apply_map_edits(ctx, app, edits);
+                                Transition::Pop
+                            }
+                            // TODO Hack. Have to replace ourselves, because the Menu might be
+                            // invalidated now that something was chosen.
+                            Err(err) => Transition::Multi(vec![
+                                Transition::Replace(LoadEdits::new(ctx, app, self.mode.clone())),
+                                // TODO Menu draws at a weird Z-order to deal with tooltips, so now
+                                // the menu underneath bleeds
+                                // through
+                                Transition::Push(PopupMsg::new(
+                                    ctx,
+                                    "Error",
+                                    vec![format!("Can't load {}", path), err.clone()],
+                                )),
+                            ]),
                         }
-                    }) {
-                        Ok(edits) => {
-                            apply_map_edits(ctx, app, edits);
-                            Transition::Pop
-                        }
-                        // TODO Hack. Have to replace ourselves, because the Menu might be
-                        // invalidated now that something was chosen.
-                        Err(err) => Transition::Multi(vec![
-                            Transition::Replace(LoadEdits::new(ctx, app, self.mode.clone())),
-                            // TODO Menu draws at a weird Z-order to deal with tooltips, so now the
-                            // menu underneath bleeds through
-                            Transition::Push(PopupMsg::new(
-                                ctx,
-                                "Error",
-                                vec![format!("Can't load {}", path), err.clone()],
-                            )),
-                        ]),
                     }
                 }
-            },
+            }
             _ => Transition::Keep,
         }
     }

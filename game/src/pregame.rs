@@ -331,6 +331,9 @@ impl Proposals {
         let mut proposals = HashMap::new();
         let mut buttons = Vec::new();
         let mut current_tab = Vec::new();
+        // If a proposal has fallen out of date, it'll be skipped with an error logged. Since these
+        // are under version control, much more likely to notice when they break (or we could add a
+        // step to data/regen.sh).
         for (name, edits) in
             abstutil::load_all_objects::<PermanentMapEdits>(abstutil::path("system/proposals"))
         {

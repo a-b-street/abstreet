@@ -96,12 +96,10 @@ impl MapEdits {
         }
     }
 
-    pub fn load(map: &Map, edits_name: &str, timer: &mut Timer) -> Result<MapEdits, String> {
-        if edits_name == "untitled edits" {
-            return Ok(MapEdits::new());
-        }
+    pub fn load(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits, String> {
+        // TODO If this fails, attempt to upgrade an older version of the edit format.
         PermanentMapEdits::from_permanent(
-            abstutil::read_json(abstutil::path_edits(map.get_name(), edits_name), timer),
+            abstutil::maybe_read_json(path, timer).map_err(|x| x.to_string())?,
             map,
         )
     }
