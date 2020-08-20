@@ -27,7 +27,10 @@ jobs:
 
       - name: Generate rustdoc
         run: |
-            cargo doc --no-deps
+            cargo doc --no-deps --workspace --exclude ezgui --document-private-items
+            cd ezgui
+            cargo doc --no-deps --document-private-items
+            cd ..
             mv target/doc book/book/rustdoc
 
       - name: Publish HTML
