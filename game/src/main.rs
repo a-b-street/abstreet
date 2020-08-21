@@ -31,6 +31,10 @@ fn main() {
         smoke_test();
         return;
     }
+    if args.enabled("--check_proposals") {
+        check_proposals();
+        return;
+    }
 
     let mut flags = Flags {
         sim_flags: SimFlags::from_args(&mut args),
@@ -135,5 +139,25 @@ fn smoke_test() {
         let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
         scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
         sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
+    }
+}
+
+fn check_proposals() {
+    let mut timer = Timer::new("check all proposals");
+    for name in abstutil::list_all_objects(abstutil::path("system/proposals")) {
+        match abstutil::maybe_read_json::<map_model::PermanentMapEdits>(
+            abstutil::path(format!("system/proposals/{}.json", name)),
+            &mut timer,
+        ) {
+            Ok(perma) => {
+                let map = map_model::Map::new(abstutil::path_map(&perma.map_name), &mut timer);
+                if let Err(err) = map_model::PermanentMapEdits::from_permanent(perma, &map) {
+                    timer.error(format!("{} is out-of-date: {}", name, err));
+                }
+            }
+            Err(err) => {
+                timer.error(format!("{} JSON is broken: {}", name, err));
+            }
+        }
     }
 }

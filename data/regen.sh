@@ -11,3 +11,4 @@ rm -fv data/system/maps/huge_seattle.bin data/input/raw_maps/huge_seattle.bin da
 
 cargo run --release --bin game -- --prebake
 cargo run --release --bin game -- --smoketest
+cargo run --release --bin game -- --check_proposals
