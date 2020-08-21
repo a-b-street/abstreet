@@ -1,3 +1,4 @@
+mod compat;
 mod perma;
 
 use crate::{
@@ -97,11 +98,16 @@ impl MapEdits {
     }
 
     pub fn load(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits, String> {
-        // TODO If this fails, attempt to upgrade an older version of the edit format.
-        PermanentMapEdits::from_permanent(
-            abstutil::maybe_read_json(path, timer).map_err(|x| x.to_string())?,
-            map,
-        )
+        match abstutil::maybe_read_json(path.clone(), timer) {
+            Ok(perma) => PermanentMapEdits::from_permanent(perma, map),
+            Err(_) => {
+                let bytes = abstutil::slurp_file(&path).map_err(|err| err.to_string())?;
+                let contents = std::str::from_utf8(&bytes).map_err(|err| err.to_string())?;
+                let value = serde_json::from_str(contents).map_err(|err| err.to_string())?;
+                let perma = compat::upgrade(value)?;
+                PermanentMapEdits::from_permanent(perma, map)
+            }
+        }
     }
 
     // TODO Version these? Or it's unnecessary, since we have a command stack.

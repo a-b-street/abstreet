@@ -272,7 +272,12 @@ impl OriginalLane {
         let r = map.get_r(map.find_r_by_osm_id(self.parent)?);
         if r.children_forwards.len() != self.num_fwd || r.children_backwards.len() != self.num_back
         {
-            return Err(format!("number of lanes has changed in {:?}", self));
+            return Err(format!(
+                "number of lanes has changed in {:?} to {} fwd, {} back",
+                self,
+                r.children_forwards.len(),
+                r.children_backwards.len()
+            ));
         }
         Ok(r.children(self.fwd)[self.idx].0)
     }

@@ -1810,6 +1810,7 @@ dependencies = [
  "rand_xorshift 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "seattle_traffic_signals 0.1.0 (git+https://github.com/dabreegster/seattle_traffic_signals)",
  "serde 1.0.110 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 1.0.51 (registry+https://github.com/rust-lang/crates.io-index)",
  "thread_local 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
