@@ -88,6 +88,7 @@
 <span id="88">88</span>
 <span id="89">89</span>
 <span id="90">90</span>
+<span id="91">91</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glow</span>::<span class="ident">Drawable</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glow</span>::{<span class="ident">GfxCtxInnards</span>, <span class="ident">PrerenderInnards</span>};
@@ -99,8 +100,9 @@
     <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">winit</span>::<span class="ident">window</span>::<span class="ident">WindowBuilder</span>::<span class="ident">new</span>()
         .<span class="ident">with_title</span>(<span class="ident">window_title</span>)
         .<span class="ident">with_maximized</span>(<span class="bool-val">true</span>);
-    <span class="comment">// TODO Need the same fallback as backend_glium</span>
-    <span class="comment">// multisampling: 2 looks bad, 4 looks fine</span>
+    <span class="comment">// TODO If people are hitting problems with context not matching what their GPU provides, dig up</span>
+    <span class="comment">// backend_glium.rs from git and bring the fallback behavior here. (Ideally, there&#39;d be</span>
+    <span class="comment">// something in glutin to directly express this.) multisampling: 2 looks bad, 4 looks fine</span>
     <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">glutin</span>::<span class="ident">ContextBuilder</span>::<span class="ident">new</span>()
         .<span class="ident">with_multisampling</span>(<span class="number">4</span>)
         .<span class="ident">with_depth_buffer</span>(<span class="number">2</span>)

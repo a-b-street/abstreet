@@ -157,11 +157,6 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # Widgets</span>
 <span class="doccomment">//!</span>
@@ -190,8 +185,6 @@
 <span class="comment">//#![warn(missing_docs)]</span>
 
 <span class="kw">mod</span> <span class="ident">assets</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glium-backend&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">backend_glium</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glow-backend&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">backend_glow</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glow-backend&quot;</span>)]</span>
@@ -215,9 +208,6 @@
 <span class="kw">mod</span> <span class="ident">widgets</span>;
 
 <span class="kw">mod</span> <span class="ident">backend</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glium-backend&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glium</span>::<span class="kw-2">*</span>;
-
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glow-backend&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glow</span>::<span class="kw-2">*</span>;
 }
