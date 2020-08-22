@@ -36,8 +36,8 @@ fn main() {
         scenario: args.enabled("--scenario"),
         // Produce a variation of the weekday scenario including off-map trips.
         scenario_everyone: args.enabled("--scenario_everyone"),
-        // Skip the most expensive step of --map, building contraction hierarchies. The resulting
-        // map won't be usable for simulation; as soon as you try to pathfind, it'll crash.
+        // Skip the most expensive step of --map, building contraction hierarchies. The simulation
+        // will use a slower method to pathfind.
         skip_ch: args.enabled("--skip_ch"),
 
         // Only process one map. If not specified, process all maps defined by clipping polygons in

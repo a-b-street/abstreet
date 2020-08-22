@@ -3,7 +3,7 @@ use crate::{
     osm, Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID,
     LaneType, Map, MapEdits, OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints,
-    PathRequest, Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType, Zone,
+    PathRequest, Pathfinder, Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType, Zone,
 };
 use abstutil::Timer;
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring, Time};
@@ -141,7 +141,7 @@ impl Map {
                 driving_side: DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
             },
-            pathfinder: None,
+            pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,
             city_name: "blank city".to_string(),
             name: "blank".to_string(),
@@ -522,7 +522,7 @@ impl Map {
 
     pub fn pathfind(&self, req: PathRequest) -> Option<Path> {
         assert!(!self.pathfinder_dirty);
-        self.pathfinder.as_ref().unwrap().pathfind(req, self)
+        self.pathfinder.pathfind(req, self)
     }
 
     pub fn should_use_transit(
@@ -530,10 +530,7 @@ impl Map {
         start: Position,
         end: Position,
     ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
-        self.pathfinder
-            .as_ref()
-            .unwrap()
-            .should_use_transit(self, start, end)
+        self.pathfinder.should_use_transit(self, start, end)
     }
 
     // None for SharedSidewalkCorners

@@ -74,8 +74,7 @@ pub struct Map {
     bounds: Bounds,
     config: MapConfig,
 
-    // TODO Argh, hack, initialization order is hard!
-    pathfinder: Option<Pathfinder>,
+    pathfinder: Pathfinder,
     pathfinder_dirty: bool,
     // Not the source of truth, just cached.
     zones: Vec<Zone>,

@@ -3,7 +3,8 @@ mod perma;
 
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal,
-    IntersectionID, IntersectionType, LaneID, LaneType, Map, PathConstraints, RoadID, TurnID, Zone,
+    IntersectionID, IntersectionType, LaneID, LaneType, Map, PathConstraints, Pathfinder, RoadID,
+    TurnID, Zone,
 };
 use abstutil::{retain_btreemap, retain_btreeset, Timer};
 use geom::{Speed, Time};
@@ -637,9 +638,9 @@ impl Map {
             return;
         }
 
-        let mut pathfinder = self.pathfinder.take().unwrap();
+        let mut pathfinder = std::mem::replace(&mut self.pathfinder, Pathfinder::Dijkstra);
         pathfinder.apply_edits(self, timer);
-        self.pathfinder = Some(pathfinder);
+        self.pathfinder = pathfinder;
 
         // Also recompute blackholes. This is cheap enough to do from scratch.
         timer.start("recompute blackholes");

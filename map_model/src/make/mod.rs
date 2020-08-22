@@ -47,7 +47,7 @@ impl Map {
             gps_bounds,
             bounds,
             config: raw.config.clone(),
-            pathfinder: None,
+            pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,
             city_name: raw.city_name.clone(),
             name: raw.name.clone(),
@@ -334,9 +334,13 @@ impl Map {
         // Here's a fun one: we can't set up walking_using_transit yet, because we haven't
         // finalized bus stops and routes. We need the bus graph in place for that. So setup
         // pathfinding in two stages.
+        // TODO When the A* pathfinder is ready, then we can stop this weird dance while building
+        // the CH one.
         if build_ch {
             timer.start("setup (most of) Pathfinder");
-            map.pathfinder = Some(Pathfinder::new_without_transit(&map, timer));
+            map.pathfinder = Pathfinder::CH(
+                crate::pathfind::ContractionHierarchyPathfinder::new_without_transit(&map, timer),
+            );
             timer.stop("setup (most of) Pathfinder");
 
             transit::make_stops_and_routes(&mut map, &raw.bus_routes, timer);
@@ -345,9 +349,11 @@ impl Map {
             }
 
             timer.start("setup rest of Pathfinder (walking with transit)");
-            let mut pathfinder = map.pathfinder.take().unwrap();
-            pathfinder.setup_walking_with_transit(&map);
-            map.pathfinder = Some(pathfinder);
+            let mut pathfinder = std::mem::replace(&mut map.pathfinder, Pathfinder::Dijkstra);
+            if let Pathfinder::CH(ref mut p) = pathfinder {
+                p.setup_walking_with_transit(&map);
+            }
+            map.pathfinder = pathfinder;
             timer.stop("setup rest of Pathfinder (walking with transit)");
         }
 
