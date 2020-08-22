@@ -277,6 +277,11 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edits</span>::{<span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">MapEdits</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
@@ -552,7 +557,12 @@
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="self">self</span>.<span class="ident">parent</span>)<span class="question-mark">?</span>);
         <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">children_forwards</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">num_fwd</span> <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">children_backwards</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">num_back</span>
         {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;number of lanes has changed in {:?}&quot;</span>, <span class="self">self</span>));
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;number of lanes has changed in {:?} to {} fwd, {} back&quot;</span>,
+                <span class="self">self</span>,
+                <span class="ident">r</span>.<span class="ident">children_forwards</span>.<span class="ident">len</span>(),
+                <span class="ident">r</span>.<span class="ident">children_backwards</span>.<span class="ident">len</span>()
+            ));
         }
         <span class="prelude-val">Ok</span>(<span class="ident">r</span>.<span class="ident">children</span>(<span class="self">self</span>.<span class="ident">fwd</span>)[<span class="self">self</span>.<span class="ident">idx</span>].<span class="number">0</span>)
     }
