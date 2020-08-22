@@ -12,10 +12,11 @@
 use abstutil::{serialize_btreemap, CmdArgs, Timer};
 use geom::{Duration, Time};
 use hyper::{Body, Request, Response, Server};
-use map_model::{ControlTrafficSignal, IntersectionID, Map, TurnGroupID};
+use map_model::{CompressedTurnGroupID, ControlTrafficSignal, IntersectionID, Map, TurnGroupID};
 use serde::Serialize;
 use sim::{AlertHandler, Sim, SimFlags, SimOptions, TripID, TripMode};
 use std::collections::{BTreeMap, HashMap};
+use std::convert::TryFrom;
 use std::error::Error;
 use std::sync::RwLock;
 
@@ -147,6 +148,30 @@ fn handle_command(
             }
             Ok(abstutil::to_json(&delays))
         }
+        "/traffic-signals/get-cumulative-thruput" => {
+            let i = IntersectionID(params["id"].parse::<usize>()?);
+            let ts = if let Some(ts) = map.maybe_get_traffic_signal(i) {
+                ts
+            } else {
+                return Err(format!("{} isn't a traffic signal", i).into());
+            };
+
+            let mut thruput = Throughput {
+                per_direction: BTreeMap::new(),
+            };
+            for (idx, tg) in ts.turn_groups.keys().enumerate() {
+                thruput.per_direction.insert(
+                    tg.clone(),
+                    sim.get_analytics()
+                        .traffic_signal_thruput
+                        .total_for(CompressedTurnGroupID {
+                            i,
+                            idx: u8::try_from(idx).unwrap(),
+                        }),
+                );
+            }
+            Ok(abstutil::to_json(&thruput))
+        }
         // Querying data
         "/data/get-finished-trips" => Ok(abstutil::to_json(&FinishedTrips {
             trips: sim.get_analytics().finished_trips.clone(),
@@ -168,4 +193,10 @@ struct FinishedTrips {
 struct Delays {
     #[serde(serialize_with = "serialize_btreemap")]
     per_direction: BTreeMap<TurnGroupID, Vec<Duration>>,
+}
+
+#[derive(Serialize)]
+struct Throughput {
+    #[serde(serialize_with = "serialize_btreemap")]
+    per_direction: BTreeMap<TurnGroupID, usize>,
 }

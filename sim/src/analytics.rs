@@ -2,8 +2,8 @@ use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMod
 use abstutil::Counter;
 use geom::{Distance, Duration, Time};
 use map_model::{
-    BusRouteID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Path, PathRequest, RoadID,
-    Traversable, TurnGroupID,
+    BusRouteID, BusStopID, CompressedTurnGroupID, IntersectionID, LaneID, Map, ParkingLotID, Path,
+    PathRequest, RoadID, Traversable, TurnGroupID,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -12,6 +12,10 @@ use std::collections::{BTreeMap, VecDeque};
 pub struct Analytics {
     pub road_thruput: TimeSeriesCount<RoadID>,
     pub intersection_thruput: TimeSeriesCount<IntersectionID>,
+    // TODO For traffic signals, intersection_thruput could theoretically use this. But that
+    // requires occasionally expensive or complicated summing or merging over all directions of an
+    // intersection. So for now, eat the file size cost.
+    pub traffic_signal_thruput: TimeSeriesCount<CompressedTurnGroupID>,
 
     // Unlike everything else in Analytics, this is just for a moment in time.
     pub demand: BTreeMap<TurnGroupID, usize>,
@@ -50,6 +54,7 @@ impl Analytics {
         Analytics {
             road_thruput: TimeSeriesCount::new(),
             intersection_thruput: TimeSeriesCount::new(),
+            traffic_signal_thruput: TimeSeriesCount::new(),
             demand: BTreeMap::new(),
             bus_arrivals: Vec::new(),
             passengers_boarding: BTreeMap::new(),
@@ -99,6 +104,17 @@ impl Analytics {
 
                     if let Some(id) = map.get_turn_group(t) {
                         *self.demand.entry(id).or_insert(0) -= 1;
+
+                        let tg = map.get_traffic_signal(t.parent).compressed_id(t);
+                        self.traffic_signal_thruput.record(time, tg, a.to_type(), 1);
+                        if let Some(n) = passengers {
+                            self.traffic_signal_thruput.record(
+                                time,
+                                tg,
+                                AgentType::TransitRider,
+                                n,
+                            );
+                        }
                     }
                 }
             };

@@ -106,6 +106,10 @@ impl App {
                     prettyprint_usize(serialized_size_bytes(&a.intersection_thruput))
                 );
                 println!(
+                    "- traffic_signal_thruput: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.traffic_signal_thruput))
+                );
+                println!(
                     "- demand : {} bytes",
                     prettyprint_usize(serialized_size_bytes(&a.demand))
                 );
