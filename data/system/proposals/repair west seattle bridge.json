@@ -1,6 +1,7 @@
 {
   "map_name": "west_seattle",
   "edits_name": "repair west seattle bridge",
+  "version": 0,
   "commands": [
     {
       "ChangeLaneType": {

@@ -1,6 +1,7 @@
 {
   "map_name": "downtown",
   "edits_name": "cap hill superblock",
+  "version": 0,
   "commands": [
     {
       "ChangeLaneType": {

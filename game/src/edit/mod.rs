@@ -31,7 +31,7 @@ use ezgui::{
     Widget,
 };
 use geom::Speed;
-use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits, PermanentMapEdits};
+use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use maplit::btreeset;
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
@@ -414,15 +414,10 @@ impl LoadEdits {
         // common use case.
         let mut proposals = vec![Line("Community proposals").small_heading().draw(ctx)];
         // Up-front filter out proposals that definitely don't fit the current map
-        for (name, perma) in
-            abstutil::load_all_objects::<PermanentMapEdits>(abstutil::path("system/proposals"))
-        {
-            if PermanentMapEdits::from_permanent(perma, &app.primary.map).is_ok() {
-                proposals.push(Btn::text_fg(&name).build(
-                    ctx,
-                    abstutil::path(format!("system/proposals/{}.json", name)),
-                    None,
-                ));
+        for name in abstutil::list_all_objects(abstutil::path("system/proposals")) {
+            let path = abstutil::path(format!("system/proposals/{}.json", name));
+            if MapEdits::load(&app.primary.map, path.clone(), &mut Timer::throwaway()).is_ok() {
+                proposals.push(Btn::text_fg(&name).build(ctx, path, None));
             }
         }
 
