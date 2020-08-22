@@ -16,12 +16,11 @@ pub struct ContractionHierarchyPathfinder {
     bus_graph: VehiclePathfinder,
     train_graph: VehiclePathfinder,
     walking_graph: SidewalkPathfinder,
-    // TODO Option just during initialization! Ewww.
-    walking_with_transit_graph: Option<SidewalkPathfinder>,
+    walking_with_transit_graph: SidewalkPathfinder,
 }
 
 impl ContractionHierarchyPathfinder {
-    pub fn new_without_transit(map: &Map, timer: &mut Timer) -> ContractionHierarchyPathfinder {
+    pub fn new(map: &Map, timer: &mut Timer) -> ContractionHierarchyPathfinder {
         timer.start("prepare pathfinding for cars");
         let car_graph = VehiclePathfinder::new(map, PathConstraints::Car, None);
         timer.stop("prepare pathfinding for cars");
@@ -44,23 +43,19 @@ impl ContractionHierarchyPathfinder {
         let walking_graph = SidewalkPathfinder::new(map, false, &bus_graph, &train_graph);
         timer.stop("prepare pathfinding for pedestrians");
 
+        timer.start("prepare pathfinding for pedestrians using transit");
+        let walking_with_transit_graph =
+            SidewalkPathfinder::new(map, true, &bus_graph, &train_graph);
+        timer.stop("prepare pathfinding for pedestrians using transit");
+
         ContractionHierarchyPathfinder {
             car_graph,
             bike_graph,
             bus_graph,
             train_graph,
             walking_graph,
-            walking_with_transit_graph: None,
+            walking_with_transit_graph,
         }
-    }
-
-    pub fn setup_walking_with_transit(&mut self, map: &Map) {
-        self.walking_with_transit_graph = Some(SidewalkPathfinder::new(
-            map,
-            true,
-            &self.bus_graph,
-            &self.train_graph,
-        ));
     }
 
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
@@ -324,8 +319,6 @@ impl ContractionHierarchyPathfinder {
         end: Position,
     ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
         self.walking_with_transit_graph
-            .as_ref()
-            .unwrap()
             .should_use_transit(map, start, end)
     }
 
@@ -351,8 +344,6 @@ impl ContractionHierarchyPathfinder {
 
         timer.start("apply edits to pedestrian using transit pathfinding");
         self.walking_with_transit_graph
-            .as_mut()
-            .unwrap()
             .apply_edits(map, &self.bus_graph, &self.train_graph);
         timer.stop("apply edits to pedestrian using transit pathfinding");
     }

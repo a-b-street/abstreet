@@ -1,4 +1,5 @@
 mod ch;
+mod dijkstra;
 mod driving;
 mod node_map;
 // TODO tmp
@@ -596,7 +597,7 @@ pub enum Pathfinder {
 impl Pathfinder {
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
         match self {
-            Pathfinder::Dijkstra => unimplemented!(),
+            Pathfinder::Dijkstra => dijkstra::pathfind(req, map),
             Pathfinder::CH(ref p) => p.pathfind(req, map),
         }
     }
@@ -608,7 +609,8 @@ impl Pathfinder {
         end: Position,
     ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
         match self {
-            Pathfinder::Dijkstra => unimplemented!(),
+            // TODO Implement this
+            Pathfinder::Dijkstra => None,
             Pathfinder::CH(ref p) => p.should_use_transit(map, start, end),
         }
     }

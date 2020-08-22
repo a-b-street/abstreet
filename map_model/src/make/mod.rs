@@ -331,30 +331,18 @@ impl Map {
 
         traffic_signals::synchronize(&mut map);
 
-        // Here's a fun one: we can't set up walking_using_transit yet, because we haven't
-        // finalized bus stops and routes. We need the bus graph in place for that. So setup
-        // pathfinding in two stages.
-        // TODO When the A* pathfinder is ready, then we can stop this weird dance while building
-        // the CH one.
+        // Note this will always use the slower Pathfinder::Dijkstra.
+        transit::make_stops_and_routes(&mut map, &raw.bus_routes, timer);
+        for id in map.bus_stops.keys() {
+            assert!(!map.get_routes_serving_stop(*id).is_empty());
+        }
+
         if build_ch {
-            timer.start("setup (most of) Pathfinder");
-            map.pathfinder = Pathfinder::CH(
-                crate::pathfind::ContractionHierarchyPathfinder::new_without_transit(&map, timer),
-            );
-            timer.stop("setup (most of) Pathfinder");
-
-            transit::make_stops_and_routes(&mut map, &raw.bus_routes, timer);
-            for id in map.bus_stops.keys() {
-                assert!(!map.get_routes_serving_stop(*id).is_empty());
-            }
-
-            timer.start("setup rest of Pathfinder (walking with transit)");
-            let mut pathfinder = std::mem::replace(&mut map.pathfinder, Pathfinder::Dijkstra);
-            if let Pathfinder::CH(ref mut p) = pathfinder {
-                p.setup_walking_with_transit(&map);
-            }
-            map.pathfinder = pathfinder;
-            timer.stop("setup rest of Pathfinder (walking with transit)");
+            timer.start("setup ContractionHierarchyPathfinder");
+            map.pathfinder = Pathfinder::CH(crate::pathfind::ContractionHierarchyPathfinder::new(
+                &map, timer,
+            ));
+            timer.stop("setup ContractionHierarchyPathfinder");
         }
 
         map
