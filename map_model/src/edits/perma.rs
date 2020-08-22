@@ -12,6 +12,7 @@ use std::collections::{BTreeMap, BTreeSet};
 pub struct PermanentMapEdits {
     pub map_name: String,
     pub edits_name: String,
+    pub version: usize,
     commands: Vec<PermanentEditCmd>,
 
     // Edits without these are player generated.
@@ -82,6 +83,8 @@ impl PermanentMapEdits {
         PermanentMapEdits {
             map_name: map.get_name().to_string(),
             edits_name: edits.edits_name.clone(),
+            // Increase this every time there's a schema change
+            version: 0,
             proposal_description: edits.proposal_description.clone(),
             proposal_link: edits.proposal_link.clone(),
             commands: edits
