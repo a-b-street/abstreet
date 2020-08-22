@@ -9,10 +9,11 @@ import json
 import requests
 
 
-def main():
-    api = 'http://localhost:1234'
-    hours_to_sim = '12:00:00'
+api = 'http://localhost:1234'
+hours_to_sim = '12:00:00'
 
+
+def main():
     # Make sure to start the simulation from the beginning
     print('Did you just start the simulation? Time is currently', requests.get(api + '/sim/get-time').text)
     print('Reset the simulation:', requests.get(api + '/sim/reset').text)
@@ -20,13 +21,12 @@ def main():
 
     # Run a few hours to get a baseline
     print('Simulating before any edits')
-    print(requests.get(api + '/sim/goto-time', params={'t': hours_to_sim}).text)
-    baseline_trips = process_trips(requests.get(api + '/data/get-finished-trips').json()['trips'])
-    baseline_delays = requests.get(api + '/traffic-signals/get-delays', params={'id': 67, 't1': '00:00:00', 't2': hours_to_sim}).json()
-    print('Baseline: {} finished trips, total of {} seconds'.format(len(baseline_trips), sum(baseline_trips.values())))
+    trips1, delays1, thruput1 = run_experiment()
+    print('Baseline: {} finished trips, total of {} seconds'.format(len(trips1), sum(trips1.values())))
     print()
 
     # Modify one traffic signal, doubling the duration of its second phase
+    print('Modify a traffic signal')
     ts = requests.get(api + '/traffic-signals/get', params={'id': 67}).json()
     ts['phases'][1]['phase_type']['Fixed'] *= 2
     # Reset the simulation before applying the edit, since reset also clears edits.
@@ -36,42 +36,61 @@ def main():
 
     # Repeat the experiment
     print('Simulating after the edits')
-    print(requests.get(api + '/sim/goto-time', params={'t': hours_to_sim}).text)
-    experimental_trips = process_trips(requests.get(api + '/data/get-finished-trips').json()['trips'])
-    experimental_delays = requests.get(api + '/traffic-signals/get-delays', params={'id': 67, 't1': '00:00:00', 't2': hours_to_sim}).json()
-    print('Experiment: {} finished trips, total of {} seconds'.format(len(experimental_trips), sum(experimental_trips.values())))
+    trips2, delays2, thruput2 = run_experiment()
+    print('Experiment: {} finished trips, total of {} seconds'.format(len(trips2), sum(trips2.values())))
     print()
 
     # Compare -- did this help or not?
-    print('{} more trips finished after the edits (higher is better)'.format(len(experimental_trips) - len(baseline_trips)))
-    print('Experiment was {} seconds faster, over all trips'.format(sum(baseline_trips.values()) - sum(experimental_trips.values())))
+    print('{} more trips finished after the edits (higher is better)'.format(len(trips2) - len(trips1)))
+    print('Experiment was {} seconds faster, over all trips'.format(sum(trips1.values()) - sum(trips2.values())))
     print()
 
-    # How much delay difference was there for each direction of travel?
-    print('Average delay per direction of travel at this intersection BEFORE edits:')
-    for direction, delays1 in baseline_delays['per_direction']:
-        # Skip empty cases and crosswalks
-        if delays1 and not direction['crosswalk']:
-            print('- {} -> {}: {:.1f} seconds'.format(print_road(direction['from']), print_road(direction['to']), sum(delays1) / len(delays1)))
-    # TODO Hard to group these together to compare, because Python can't handle dicts as keys. Stringify it first.
-    print('Average delay per direction of travel at this intersection AFTER edits:')
-    for direction, delays2 in experimental_delays['per_direction']:
-        # Skip empty cases and crosswalks
-        if delays2 and not direction['crosswalk']:
-            print('- {} -> {}: {:.1f} seconds'.format(print_road(direction['from']), print_road(direction['to']), sum(delays2) / len(delays2)))
+    # Now we'll print some before/after stats per direction of travel through
+    # the intersection
+    col = '{:<40} {:>20} {:>20} {:>17} {:>17}'
+    print(col.format('Direction', 'avg delay before', 'avg delay after', 'thruput before', 'thruput after'))
+    for k in delays1.keys():
+        print(col.format(k, delays1[k], delays2[k], thruput1[k], thruput2[k]))
 
 
-# Return a map from trip ID to the duration (in seconds) of the trip. Filter
-# out aborted (failed) trips.
-def process_trips(trips):
-    results = {}
-    for (_, trip, mode, duration) in trips:
+# Returns (trips, delay, throughput)
+def run_experiment():
+    print(requests.get(api + '/sim/goto-time', params={'t': hours_to_sim}).text)
+    raw_trips = requests.get(api + '/data/get-finished-trips').json()['trips']
+    raw_delays = requests.get(api + '/traffic-signals/get-delays', params={'id': 67, 't1': '00:00:00', 't2': hours_to_sim}).json()
+    raw_thruput = requests.get(api + '/traffic-signals/get-cumulative-thruput', params={'id': 67}).json()
+
+    # Map trip ID to the duration (in seconds) of the trip. Filter out aborted
+    # (failed) trips.
+    trips = {}
+    for (_, trip, mode, duration) in raw_trips:
         if mode is not None:
-            results[trip] = duration
-    return results
+            trips[trip] = duration
+
+    # The direction is a dict, but Python can't handle dicts as keys. Stringify
+    # the keys, also filtering out crosswalks and empty directions.
+    delays = {}
+    for k, v in raw_delays['per_direction']:
+        k = stringify_direction(k)
+        if k and v:
+            delays[k] = '{:.1f}'.format(sum(v) / len(v))
+
+    thruput = {}
+    for k, v in raw_thruput['per_direction']:
+        k = stringify_direction(k)
+        if k:
+            thruput[k] = v
+
+    return (trips, delays, thruput)
 
 
-def print_road(directed_road):
+def stringify_direction(direxn):
+    if direxn['crosswalk']:
+        return None
+    return '{} -> {}'.format(stringify_road(direxn['from']), stringify_road(direxn['to']))
+
+
+def stringify_road(directed_road):
     if directed_road['forwards']:
         direxn = 'fwd'
     else:

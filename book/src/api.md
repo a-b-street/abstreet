@@ -34,6 +34,9 @@ are missing, etc. A summary of the commands available so far:
   - **GET /traffic-signals/get-delays?id=42&t1=03:00:00&t2=03:30:00**: Returns
     the delay experienced by every agent passing through intersection #42 from
     3am to 3:30, grouped by direction of travel.
+  - **GET /traffic-signals/get-cumulative-thruput?id=42**: Returns the number of
+    agents passing through intersection #42 since midnight, grouped by direction
+    of travel.
 - **/data**
   - **GET /data/get-finished-trips**: Returns a JSON list of all finished trips.
     Each tuple is (time the trip finished in seconds after midnight, trip ID,
