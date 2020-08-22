@@ -722,34 +722,6 @@
 <span id="722">722</span>
 <span id="723">723</span>
 <span id="724">724</span>
-<span id="725">725</span>
-<span id="726">726</span>
-<span id="727">727</span>
-<span id="728">728</span>
-<span id="729">729</span>
-<span id="730">730</span>
-<span id="731">731</span>
-<span id="732">732</span>
-<span id="733">733</span>
-<span id="734">734</span>
-<span id="735">735</span>
-<span id="736">736</span>
-<span id="737">737</span>
-<span id="738">738</span>
-<span id="739">739</span>
-<span id="740">740</span>
-<span id="741">741</span>
-<span id="742">742</span>
-<span id="743">743</span>
-<span id="744">744</span>
-<span id="745">745</span>
-<span id="746">746</span>
-<span id="747">747</span>
-<span id="748">748</span>
-<span id="749">749</span>
-<span id="750">750</span>
-<span id="751">751</span>
-<span id="752">752</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">floodfill</span>;
 <span class="kw">mod</span> <span class="ident">objects</span>;
@@ -771,8 +743,6 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Sim</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">Error</span>, <span class="ident">Write</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DebugMode</span> {
     <span class="ident">composite</span>: <span class="ident">Composite</span>,
@@ -979,8 +949,6 @@
                     <span class="self">self</span>.<span class="ident">reset_info</span>(<span class="ident">ctx</span>);
                 }
                 <span class="string">&quot;screenshot everything&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">dump_route_goldenfile</span>(<span class="ident">app</span>).<span class="ident">unwrap</span>();
-
                     <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>();
                     <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">bounds</span>.<span class="ident">min_x</span> <span class="op">=</span><span class="op">=</span> <span class="number">0.0</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">bounds</span>.<span class="ident">min_y</span> <span class="op">=</span><span class="op">=</span> <span class="number">0.0</span>);
                     <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">ScreenCaptureEverything</span> {
@@ -1478,30 +1446,6 @@
             <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
         }
     }
-}
-
-<span class="kw">fn</span> <span class="ident">dump_route_goldenfile</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
-        <span class="string">&quot;route_goldenfiles/{}.txt&quot;</span>,
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()
-    ));
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-    <span class="kw">for</span> <span class="ident">br</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_bus_routes</span>() {
-        <span class="macro">writeln</span><span class="macro">!</span>(
-            <span class="ident">f</span>,
-            <span class="string">&quot;{} from {} to {:?}&quot;</span>,
-            <span class="ident">br</span>.<span class="ident">osm_rel_id</span>, <span class="ident">br</span>.<span class="ident">start</span>, <span class="ident">br</span>.<span class="ident">end_border</span>
-        )<span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">bs</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">br</span>.<span class="ident">stops</span> {
-            <span class="kw">let</span> <span class="ident">bs</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">bs</span>);
-            <span class="macro">writeln</span><span class="macro">!</span>(
-                <span class="ident">f</span>,
-                <span class="string">&quot;  {}: {} driving, {} sidewalk&quot;</span>,
-                <span class="ident">bs</span>.<span class="ident">name</span>, <span class="ident">bs</span>.<span class="ident">driving_pos</span>, <span class="ident">bs</span>.<span class="ident">sidewalk_pos</span>
-            )<span class="question-mark">?</span>;
-        }
-    }
-    <span class="prelude-val">Ok</span>(())
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "game";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

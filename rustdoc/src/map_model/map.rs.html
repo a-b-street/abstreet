@@ -656,16 +656,13 @@
 <span id="656">656</span>
 <span id="657">657</span>
 <span id="658">658</span>
-<span id="659">659</span>
-<span id="660">660</span>
-<span id="661">661</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">DrivingSide</span>, <span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">BusRoute</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStop</span>,
     <span class="ident">BusStopID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>,
     <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>, <span class="ident">OffstreetParking</span>, <span class="ident">ParkingLot</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
-    <span class="ident">PathRequest</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">Turn</span>, <span class="ident">TurnGroupID</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>, <span class="ident">Zone</span>,
+    <span class="ident">PathRequest</span>, <span class="ident">Pathfinder</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">Turn</span>, <span class="ident">TurnGroupID</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>, <span class="ident">Zone</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
@@ -803,7 +800,7 @@
                 <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>::<span class="ident">Right</span>,
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
             },
-            <span class="ident">pathfinder</span>: <span class="prelude-val">None</span>,
+            <span class="ident">pathfinder</span>: <span class="ident">Pathfinder</span>::<span class="ident">Dijkstra</span>,
             <span class="ident">pathfinder_dirty</span>: <span class="bool-val">false</span>,
             <span class="ident">city_name</span>: <span class="string">&quot;blank city&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">name</span>: <span class="string">&quot;blank&quot;</span>.<span class="ident">to_string</span>(),
@@ -1184,7 +1181,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
-        <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="self">self</span>)
+        <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="self">self</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">should_use_transit</span>(
@@ -1192,10 +1189,7 @@
         <span class="ident">start</span>: <span class="ident">Position</span>,
         <span class="ident">end</span>: <span class="ident">Position</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BusStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">pathfinder</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">should_use_transit</span>(<span class="self">self</span>, <span class="ident">start</span>, <span class="ident">end</span>)
+        <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">should_use_transit</span>(<span class="self">self</span>, <span class="ident">start</span>, <span class="ident">end</span>)
     }
 
     <span class="comment">// None for SharedSidewalkCorners</span>

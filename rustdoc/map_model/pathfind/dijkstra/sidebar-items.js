@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["pathfind",""],["pathfind_walking",""]]});

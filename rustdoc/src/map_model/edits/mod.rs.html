@@ -668,13 +668,15 @@
 <span id="668">668</span>
 <span id="669">669</span>
 <span id="670">670</span>
+<span id="671">671</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">compat</span>;
 <span class="kw">mod</span> <span class="ident">perma</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">connectivity</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BusRouteID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>,
-    <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
+    <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Pathfinder</span>, <span class="ident">RoadID</span>,
+    <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Speed</span>, <span class="ident">Time</span>};
@@ -1308,9 +1310,9 @@
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pathfinder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">pathfinder</span>, <span class="ident">Pathfinder</span>::<span class="ident">Dijkstra</span>);
         <span class="ident">pathfinder</span>.<span class="ident">apply_edits</span>(<span class="self">self</span>, <span class="ident">timer</span>);
-        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pathfinder</span>);
+        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">pathfinder</span>;
 
         <span class="comment">// Also recompute blackholes. This is cheap enough to do from scratch.</span>
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;recompute blackholes&quot;</span>);

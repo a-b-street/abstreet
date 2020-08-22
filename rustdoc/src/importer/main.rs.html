@@ -250,8 +250,8 @@
         <span class="ident">scenario</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--scenario&quot;</span>),
         <span class="comment">// Produce a variation of the weekday scenario including off-map trips.</span>
         <span class="ident">scenario_everyone</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--scenario_everyone&quot;</span>),
-        <span class="comment">// Skip the most expensive step of --map, building contraction hierarchies. The resulting</span>
-        <span class="comment">// map won&#39;t be usable for simulation; as soon as you try to pathfind, it&#39;ll crash.</span>
+        <span class="comment">// Skip the most expensive step of --map, building contraction hierarchies. The simulation</span>
+        <span class="comment">// will use a slower method to pathfind.</span>
         <span class="ident">skip_ch</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--skip_ch&quot;</span>),
 
         <span class="comment">// Only process one map. If not specified, process all maps defined by clipping polygons in</span>

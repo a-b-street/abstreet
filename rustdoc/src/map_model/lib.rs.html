@@ -84,7 +84,6 @@
 <span id="84">84</span>
 <span id="85">85</span>
 <span id="86">86</span>
-<span id="87">87</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">city</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">connectivity</span>;
@@ -162,8 +161,7 @@
     <span class="ident">bounds</span>: <span class="ident">Bounds</span>,
     <span class="ident">config</span>: <span class="ident">MapConfig</span>,
 
-    <span class="comment">// TODO Argh, hack, initialization order is hard!</span>
-    <span class="ident">pathfinder</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pathfinder</span><span class="op">&gt;</span>,
+    <span class="ident">pathfinder</span>: <span class="ident">Pathfinder</span>,
     <span class="ident">pathfinder_dirty</span>: <span class="ident">bool</span>,
     <span class="comment">// Not the source of truth, just cached.</span>
     <span class="ident">zones</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Zone</span><span class="op">&gt;</span>,

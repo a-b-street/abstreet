@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["PathConstraints",""],["PathStep",""]],"fn":[["validate_continuity",""],["validate_restrictions",""]],"mod":[["driving",""],["node_map",""],["uber_turns",""],["walking",""]],"struct":[["Path",""],["PathRequest",""],["Pathfinder",""]]});
+initSidebarItems({"enum":[["PathConstraints",""],["PathStep",""],["Pathfinder",""]],"fn":[["validate_continuity",""],["validate_restrictions",""]],"mod":[["ch",""],["dijkstra",""],["driving",""],["node_map",""],["uber_turns",""],["walking",""]],"struct":[["Path",""],["PathRequest",""]]});
