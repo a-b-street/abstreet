@@ -169,6 +169,37 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. The</span>
 <span class="comment">// API is not documented yet. To run this:</span>
@@ -184,10 +215,11 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">serialize_btreemap</span>, <span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">hyper</span>::{<span class="ident">Body</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">Server</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">TurnGroupID</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">CompressedTurnGroupID</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">TurnGroupID</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AlertHandler</span>, <span class="ident">Sim</span>, <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">RwLock</span>;
 
@@ -319,6 +351,30 @@
             }
             <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">delays</span>))
         }
+        <span class="string">&quot;/traffic-signals/get-cumulative-thruput&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">params</span>[<span class="string">&quot;id&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
+            <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">i</span>) {
+                <span class="ident">ts</span>
+            } <span class="kw">else</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t a traffic signal&quot;</span>, <span class="ident">i</span>).<span class="ident">into</span>());
+            };
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">thruput</span> <span class="op">=</span> <span class="ident">Throughput</span> {
+                <span class="ident">per_direction</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
+            };
+            <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">tg</span>) <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">turn_groups</span>.<span class="ident">keys</span>().<span class="ident">enumerate</span>() {
+                <span class="ident">thruput</span>.<span class="ident">per_direction</span>.<span class="ident">insert</span>(
+                    <span class="ident">tg</span>.<span class="ident">clone</span>(),
+                    <span class="ident">sim</span>.<span class="ident">get_analytics</span>()
+                        .<span class="ident">traffic_signal_thruput</span>
+                        .<span class="ident">total_for</span>(<span class="ident">CompressedTurnGroupID</span> {
+                            <span class="ident">i</span>,
+                            <span class="ident">idx</span>: <span class="ident">u8</span>::<span class="ident">try_from</span>(<span class="ident">idx</span>).<span class="ident">unwrap</span>(),
+                        }),
+                );
+            }
+            <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">thruput</span>))
+        }
         <span class="comment">// Querying data</span>
         <span class="string">&quot;/data/get-finished-trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">FinishedTrips</span> {
             <span class="ident">trips</span>: <span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span>.<span class="ident">clone</span>(),
@@ -340,6 +396,12 @@
 <span class="kw">struct</span> <span class="ident">Delays</span> {
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>)]</span>
     <span class="ident">per_direction</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TurnGroupID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Throughput</span> {
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>)]</span>
+    <span class="ident">per_direction</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TurnGroupID</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "headless";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

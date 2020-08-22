@@ -1912,6 +1912,9 @@ JSON format.</li>
 <li><strong>GET /traffic-signals/get-delays?id=42&amp;t1=03:00:00&amp;t2=03:30:00</strong>: Returns
 the delay experienced by every agent passing through intersection #42 from
 3am to 3:30, grouped by direction of travel.</li>
+<li><strong>GET /traffic-signals/get-cumulative-thruput?id=42</strong>: Returns the number of
+agents passing through intersection #42 since midnight, grouped by direction
+of travel.</li>
 </ul>
 </li>
 <li><strong>/data</strong>

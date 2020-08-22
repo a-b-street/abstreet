@@ -638,6 +638,10 @@
 <span id="638">638</span>
 <span id="639">639</span>
 <span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::<span class="ident">HighScore</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -745,6 +749,10 @@
                 <span class="macro">println</span><span class="macro">!</span>(
                     <span class="string">&quot;- intersection_thruput: {} bytes&quot;</span>,
                     <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">intersection_thruput</span>))
+                );
+                <span class="macro">println</span><span class="macro">!</span>(
+                    <span class="string">&quot;- traffic_signal_thruput: {} bytes&quot;</span>,
+                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">traffic_signal_thruput</span>))
                 );
                 <span class="macro">println</span><span class="macro">!</span>(
                     <span class="string">&quot;- demand : {} bytes&quot;</span>,
