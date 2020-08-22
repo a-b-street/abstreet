@@ -139,7 +139,43 @@ fn smoke_test() {
         let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
         scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
         sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
+
+        if vec![
+            "downtown",
+            "krakow_center",
+            "lakeslice",
+            "montlake",
+            "udistrict",
+        ]
+        .contains(&name.as_str())
+        {
+            dump_route_goldenfile(&map).unwrap();
+        }
     }
+}
+
+fn dump_route_goldenfile(map: &map_model::Map) -> Result<(), std::io::Error> {
+    use std::fs::File;
+    use std::io::Write;
+
+    let path = abstutil::path(format!("route_goldenfiles/{}.txt", map.get_name()));
+    let mut f = File::create(path)?;
+    for br in map.all_bus_routes() {
+        writeln!(
+            f,
+            "{} from {} to {:?}",
+            br.osm_rel_id, br.start, br.end_border
+        )?;
+        for bs in &br.stops {
+            let bs = map.get_bs(*bs);
+            writeln!(
+                f,
+                "  {}: {} driving, {} sidewalk",
+                bs.name, bs.driving_pos, bs.sidewalk_pos
+            )?;
+        }
+    }
+    Ok(())
 }
 
 fn check_proposals() {
