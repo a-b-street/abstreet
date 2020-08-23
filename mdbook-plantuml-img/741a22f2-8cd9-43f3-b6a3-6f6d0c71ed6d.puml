@@ -1,0 +1,12 @@
+@startuml
+
+[*] --> FromBuilding
+[*] --> FromBorder
+FromBuilding --> Walk
+FromBorder --> Walk
+Walk --> ToBuilding
+Walk --> ToBorder
+ToBuilding --> [*]
+ToBorder --> [*]
+
+@enduml

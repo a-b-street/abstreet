@@ -1,0 +1,28 @@
+@startuml
+
+[*] --> FromBuilding
+FromBuilding --> Walk1
+
+Walk1 --> ToParkedCar
+ToParkedCar --> Drive
+Drive --> ToBorder
+Drive --> ParkSomewhere
+ParkSomewhere --> Walk2
+Walk2 --> ToBuilding
+
+Walk1 --> ToBike
+ToBike --> Bike
+Bike --> ToBorder
+Bike --> ParkSomewhere
+
+Walk1 --> ToBusStop1
+ToBusStop1 --> WaitForBus
+WaitForBus --> RideBus
+RideBus --> ToBorder
+RideBus --> ToBusStop2
+ToBusStop2 --> Walk2
+
+ToBuilding --> [*]
+ToBorder --> [*]
+
+@enduml
