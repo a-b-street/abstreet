@@ -4,6 +4,13 @@ use map_model::{LaneID, Map, Path, PathConstraints, PathStep};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
+// TODO When do we increase the counter for a zone, and when do we enforce the check? If we check
+// when the trip starts and increase when the car enters the zone, then lots of cars starting at
+// the same time can exceed the cap. If we check AND reserve when the trip starts, then the cap is
+// obeyed, but the "reservation" applies immediately, even if the car is far away from the zone.
+// This seems more reasonable for now, but leave it as a flag until GLT clarifies.
+const RESERVE_WHEN_STARTING_TRIP: bool = true;
+
 // Note this only indexes into the zones we track here, not all of them in the map.
 type ZoneIdx = usize;
 
@@ -49,6 +56,9 @@ impl CapSimState {
     }
 
     pub fn car_entering_lane(&mut self, now: Time, car: CarID, lane: LaneID) {
+        if RESERVE_WHEN_STARTING_TRIP {
+            return;
+        }
         if car.1 != VehicleType::Car {
             return;
         }
@@ -65,19 +75,19 @@ impl CapSimState {
         zone.entered_in_last_hour.insert(car);
     }
 
-    // TODO This is only called when the trip starts. So if a bunch of drivers all spawn at the
-    // same time, they'll all pass the check, but wind up exceeding the cap. Should there be some
-    // kind of reservation instead?
-    pub fn allow_trip(&self, car: CarID, path: &Path) -> bool {
+    pub fn allow_trip(&mut self, car: CarID, path: &Path) -> bool {
         if car.1 != VehicleType::Car {
             return true;
         }
         for step in path.get_steps() {
             if let PathStep::Lane(l) = step {
                 if let Some(idx) = self.lane_to_zone.get(l) {
-                    let zone = &self.zones[*idx];
+                    let zone = &mut self.zones[*idx];
                     if zone.entered_in_last_hour.len() >= zone.cap {
                         return false;
+                    }
+                    if RESERVE_WHEN_STARTING_TRIP {
+                        zone.entered_in_last_hour.insert(car);
                     }
                 }
             }
