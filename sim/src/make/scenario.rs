@@ -272,7 +272,7 @@ fn seed_parked_cars(
                 map.get_l(map.get_b(b).sidewalk()).parent,
                 match map.get_b(b).parking {
                     OffstreetParking::PublicGarage(_, _) => None,
-                    OffstreetParking::Private(_) => Some(b),
+                    OffstreetParking::Private(_, _) => Some(b),
                 },
             ),
             ParkingSpot::Lot(pl, _) => (map.get_l(map.get_pl(pl).driving_pos.lane()).parent, None),

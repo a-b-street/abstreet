@@ -301,7 +301,7 @@ impl ParkingSimState {
         }
 
         for (b, bldg_dist) in self.driving_to_offstreet.get(driving_pos.lane()) {
-            if let OffstreetParking::Private(_) = map.get_b(*b).parking {
+            if let OffstreetParking::Private(_, _) = map.get_b(*b).parking {
                 if target != *b {
                     continue;
                 }

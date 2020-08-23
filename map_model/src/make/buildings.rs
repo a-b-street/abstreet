@@ -70,7 +70,10 @@ pub fn make_all_buildings(
                 parking: if let Some(n) = b.public_garage_name.clone() {
                     OffstreetParking::PublicGarage(n, b.num_parking_spots)
                 } else {
-                    OffstreetParking::Private(b.num_parking_spots)
+                    OffstreetParking::Private(
+                        b.num_parking_spots,
+                        b.osm_tags.is("building", "parking") || b.osm_tags.is("amenity", "parking"),
+                    )
                 },
 
                 sidewalk_pos: *sidewalk_pos,

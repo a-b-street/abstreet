@@ -614,14 +614,14 @@ impl Map {
     // TODO Sort of a temporary hack
     pub fn hack_override_offstreet_spots(&mut self, spots_per_bldg: usize) {
         for b in &mut self.buildings {
-            if let OffstreetParking::Private(ref mut num_spots) = b.parking {
+            if let OffstreetParking::Private(ref mut num_spots, _) = b.parking {
                 *num_spots = spots_per_bldg;
             }
         }
     }
     pub fn hack_override_offstreet_spots_individ(&mut self, b: BuildingID, spots: usize) {
         let b = &mut self.buildings[b.0];
-        if let OffstreetParking::Private(ref mut num_spots) = b.parking {
+        if let OffstreetParking::Private(ref mut num_spots, _) = b.parking {
             *num_spots = spots;
         }
     }

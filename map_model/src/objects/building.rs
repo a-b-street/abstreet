@@ -45,12 +45,13 @@ pub struct Building {
     pub driveway_geom: PolyLine,
 }
 
-// Represent None as Private(0).
+// Represent None as Private(0, false).
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum OffstreetParking {
     // (Name, spots)
     PublicGarage(String, usize),
-    Private(usize),
+    // (Spots, explicitly tagged as a garage)
+    Private(usize, bool),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -178,7 +179,7 @@ impl Building {
     pub fn num_parking_spots(&self) -> usize {
         match self.parking {
             OffstreetParking::PublicGarage(_, n) => n,
-            OffstreetParking::Private(n) => n,
+            OffstreetParking::Private(n, _) => n,
         }
     }
 }

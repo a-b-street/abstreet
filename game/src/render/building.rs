@@ -45,9 +45,7 @@ impl DrawBuilding {
 
         let parking_icon = match bldg.parking {
             OffstreetParking::PublicGarage(_, _) => true,
-            // TODO Might need to keep adjusting this. Really it's if the building was explicitly
-            // tagged as having parking in OSM.
-            OffstreetParking::Private(n) => n > 10,
+            OffstreetParking::Private(_, garage) => garage,
         };
         if parking_icon {
             // Might need to scale down more for some buildings, but so far, this works everywhere.
