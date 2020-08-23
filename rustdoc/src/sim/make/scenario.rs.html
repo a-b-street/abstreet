@@ -998,7 +998,7 @@
                 <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk</span>()).<span class="ident">parent</span>,
                 <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">parking</span> {
                     <span class="ident">OffstreetParking</span>::<span class="ident">PublicGarage</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                    <span class="ident">OffstreetParking</span>::<span class="ident">Private</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>),
+                    <span class="ident">OffstreetParking</span>::<span class="ident">Private</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>),
                 },
             ),
             <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">driving_pos</span>.<span class="ident">lane</span>()).<span class="ident">parent</span>, <span class="prelude-val">None</span>),

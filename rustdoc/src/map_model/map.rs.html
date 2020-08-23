@@ -1273,14 +1273,14 @@
     <span class="comment">// TODO Sort of a temporary hack</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hack_override_offstreet_spots</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">spots_per_bldg</span>: <span class="ident">usize</span>) {
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buildings</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OffstreetParking</span>::<span class="ident">Private</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">num_spots</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">parking</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OffstreetParking</span>::<span class="ident">Private</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">num_spots</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">parking</span> {
                 <span class="kw-2">*</span><span class="ident">num_spots</span> <span class="op">=</span> <span class="ident">spots_per_bldg</span>;
             }
         }
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hack_override_offstreet_spots_individ</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>, <span class="ident">spots</span>: <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buildings</span>[<span class="ident">b</span>.<span class="number">0</span>];
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OffstreetParking</span>::<span class="ident">Private</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">num_spots</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">parking</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OffstreetParking</span>::<span class="ident">Private</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">num_spots</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">parking</span> {
             <span class="kw-2">*</span><span class="ident">num_spots</span> <span class="op">=</span> <span class="ident">spots</span>;
         }
     }

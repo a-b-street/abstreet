@@ -195,6 +195,9 @@
 <span id="195">195</span>
 <span id="196">196</span>
 <span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">match_points_to_lanes</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">RawBuilding</span>;
@@ -268,7 +271,10 @@
                 <span class="ident">parking</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">public_garage_name</span>.<span class="ident">clone</span>() {
                     <span class="ident">OffstreetParking</span>::<span class="ident">PublicGarage</span>(<span class="ident">n</span>, <span class="ident">b</span>.<span class="ident">num_parking_spots</span>)
                 } <span class="kw">else</span> {
-                    <span class="ident">OffstreetParking</span>::<span class="ident">Private</span>(<span class="ident">b</span>.<span class="ident">num_parking_spots</span>)
+                    <span class="ident">OffstreetParking</span>::<span class="ident">Private</span>(
+                        <span class="ident">b</span>.<span class="ident">num_parking_spots</span>,
+                        <span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;building&quot;</span>, <span class="string">&quot;parking&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>),
+                    )
                 },
 
                 <span class="ident">sidewalk_pos</span>: <span class="kw-2">*</span><span class="ident">sidewalk_pos</span>,
