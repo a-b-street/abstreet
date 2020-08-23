@@ -282,6 +282,9 @@
 <span id="282">282</span>
 <span id="283">283</span>
 <span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edits</span>::{<span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">MapEdits</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
@@ -297,6 +300,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PermanentMapEdits</span> {
     <span class="kw">pub</span> <span class="ident">map_name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">edits_name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">version</span>: <span class="ident">usize</span>,
     <span class="ident">commands</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PermanentEditCmd</span><span class="op">&gt;</span>,
 
     <span class="comment">// Edits without these are player generated.</span>
@@ -367,6 +371,8 @@
         <span class="ident">PermanentMapEdits</span> {
             <span class="ident">map_name</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">to_string</span>(),
             <span class="ident">edits_name</span>: <span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">clone</span>(),
+            <span class="comment">// Increase this every time there&#39;s a schema change</span>
+            <span class="ident">version</span>: <span class="number">0</span>,
             <span class="ident">proposal_description</span>: <span class="ident">edits</span>.<span class="ident">proposal_description</span>.<span class="ident">clone</span>(),
             <span class="ident">proposal_link</span>: <span class="ident">edits</span>.<span class="ident">proposal_link</span>.<span class="ident">clone</span>(),
             <span class="ident">commands</span>: <span class="ident">edits</span>
