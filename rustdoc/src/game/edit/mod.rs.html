@@ -753,6 +753,10 @@
 <span id="753">753</span>
 <span id="754">754</span>
 <span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">bulk</span>;
 <span class="kw">mod</span> <span class="ident">cluster_traffic_signals</span>;
@@ -1471,6 +1475,10 @@
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{} speed limits changed&quot;</span>,
                 <span class="ident">edits</span>.<span class="ident">changed_speed_limits</span>.<span class="ident">len</span>()
+            )),
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;{} access restrictions changed&quot;</span>,
+                <span class="ident">edits</span>.<span class="ident">changed_access_restrictions</span>.<span class="ident">len</span>()
             )),
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{} intersections changed&quot;</span>,
