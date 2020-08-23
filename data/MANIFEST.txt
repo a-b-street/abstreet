@@ -20,11 +20,11 @@ data/input/raw_maps/south_seattle.bin,f054b9154cedcbfdbbcbdb0cab0c54c3,https://w
 data/input/raw_maps/udistrict.bin,71003936f3489e55c3b680ea97b120c1,https://www.dropbox.com/s/l5991cxq2arndw6/udistrict.bin.zip?dl=0
 data/input/raw_maps/west_seattle.bin,7ca4cbfa182c3f323ea5fa949a01ba25,https://www.dropbox.com/s/ix59akxeu3dg6lp/west_seattle.bin.zip?dl=0
 data/input/raw_maps/xian.bin,45d3dff4d99821f387e550950fb5669d,https://www.dropbox.com/s/kjeu0q8ey93l11h/xian.bin.zip?dl=0
-data/input/screenshots/downtown.zip,e44586d67bf431848566807d369f9b5f,https://www.dropbox.com/s/qawd35wz62m2acl/downtown.zip.zip?dl=0
-data/input/screenshots/krakow_center.zip,0ff75e25969b6f04cf620187221c8913,https://www.dropbox.com/s/azea6v6mnxbe0vc/krakow_center.zip.zip?dl=0
-data/input/screenshots/lakeslice.zip,4317dd44decdeed844de313d9aceea5a,https://www.dropbox.com/s/06mwgdt6orow3rk/lakeslice.zip.zip?dl=0
-data/input/screenshots/montlake.zip,6937d1deb219b34a2ba5bdc1271d40c8,https://www.dropbox.com/s/eblgq5zj3gflhwx/montlake.zip.zip?dl=0
-data/input/screenshots/udistrict.zip,91f39fda6228e8478cddacab98ce0b36,https://www.dropbox.com/s/ecnt1tyza48y9o2/udistrict.zip.zip?dl=0
+data/input/screenshots/downtown.zip,99255cbf2fd218343d3bbcda27de88d3,https://www.dropbox.com/s/qawd35wz62m2acl/downtown.zip.zip?dl=0
+data/input/screenshots/krakow_center.zip,17f614c811d8e805cb6d0220380d2796,https://www.dropbox.com/s/azea6v6mnxbe0vc/krakow_center.zip.zip?dl=0
+data/input/screenshots/lakeslice.zip,e4d1e838ec52ef1b7fdfaced614bea03,https://www.dropbox.com/s/06mwgdt6orow3rk/lakeslice.zip.zip?dl=0
+data/input/screenshots/montlake.zip,b7cd8c868967cf1be0e5e7250de2ffc2,https://www.dropbox.com/s/eblgq5zj3gflhwx/montlake.zip.zip?dl=0
+data/input/screenshots/udistrict.zip,b5ba0f28899f6ad6351f6b00ead0863c,https://www.dropbox.com/s/ecnt1tyza48y9o2/udistrict.zip.zip?dl=0
 data/input/seattle/N47W122.hgt,0db4e23e51f7680538b0bbbc72208e07,https://www.dropbox.com/s/mmb4mgutwotijdw/N47W122.hgt.zip?dl=0
 data/input/seattle/blockface.bin,add872bab9040ae911366328a230f8b5,https://www.dropbox.com/s/rxd2care60tbe75/blockface.bin.zip?dl=0
 data/input/seattle/blockface.kml,350bd9e59bf2af4e885a7c0741e6ee6b,https://www.dropbox.com/s/ukknmpjdvilncq9/blockface.kml.zip?dl=0

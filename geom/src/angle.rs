@@ -106,3 +106,16 @@ impl std::ops::Div<f64> for Angle {
         Angle::new_rads(self.0 / scalar)
     }
 }
+
+impl std::iter::Sum for Angle {
+    fn sum<I>(iter: I) -> Angle
+    where
+        I: Iterator<Item = Angle>,
+    {
+        let mut sum = Angle::ZERO;
+        for x in iter {
+            sum = sum + x;
+        }
+        sum
+    }
+}

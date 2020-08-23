@@ -3,8 +3,9 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Drawable, GeomBatch, GfxCtx, RewriteColor};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{Lane, LaneID, LaneType, Map, Road, PARKING_SPOT_LENGTH};
+use map_model::{Lane, LaneID, LaneType, Map, Road, RoadID, TurnID, PARKING_SPOT_LENGTH};
 use std::cell::RefCell;
+use std::collections::HashMap;
 
 pub struct DrawLane {
     pub id: LaneID,
@@ -279,22 +280,39 @@ fn calculate_driving_lines(map: &Map, lane: &Lane, parent: &Road) -> Vec<Polygon
 }
 
 fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
-    let mut results = Vec::new();
-
-    // Are there multiple driving lanes on this side of the road?
-    let r = map.get_parent(lane.id);
-    if r.children(r.dir_and_offset(lane.id).0)
-        .iter()
-        .filter(|(_, lt)| *lt == LaneType::Driving)
-        .count()
-        <= 1
-    {
-        return results;
-    }
     if lane.length() < Distance::meters(7.0) {
-        return results;
+        return Vec::new();
     }
 
+    // Does this lane connect to every other possible outbound lane of the same type, excluding
+    // U-turns to the same road? If so, then there's nothing unexpected to communicate.
+    let i = map.get_i(lane.dst_i);
+    if i.outgoing_lanes.iter().all(|l| {
+        let l = map.get_l(*l);
+        l.lane_type != lane.lane_type
+            || l.parent == lane.parent
+            || map
+                .maybe_get_t(TurnID {
+                    parent: i.id,
+                    src: lane.id,
+                    dst: l.id,
+                })
+                .is_some()
+    }) {
+        return Vec::new();
+    }
+
+    // Don't call out the strange lane-changing in intersections. Per target road, find the average
+    // turn angle.
+    let mut angles_per_road: HashMap<RoadID, Vec<Angle>> = HashMap::new();
+    for turn in map.get_turns_from_lane(lane.id) {
+        angles_per_road
+            .entry(map.get_l(turn.id.dst).parent)
+            .or_insert_with(Vec::new)
+            .push(turn.angle());
+    }
+
+    let mut results = Vec::new();
     let thickness = Distance::meters(0.2);
 
     let common_base = lane.lane_center_pts.exact_slice(
@@ -303,24 +321,18 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
     );
     results.push(common_base.make_polygons(thickness));
 
-    // TODO Maybe draw arrows per target road, not lane
-    for turn in map.get_turns_from_lane(lane.id) {
-        // TODO We used to skip straight-with-LCing
+    for (_, angles) in angles_per_road.into_iter() {
+        let n = angles.len() as f64;
+        let avg = angles.into_iter().sum::<Angle>() / n;
         results.push(
             PolyLine::must_new(vec![
                 common_base.last_pt(),
-                common_base
-                    .last_pt()
-                    .project_away(lane.width / 2.0, turn.angle()),
+                common_base.last_pt().project_away(lane.width / 2.0, avg),
             ])
             .make_arrow(thickness, ArrowCap::Triangle),
         );
     }
 
-    // Just lane-changing turns after all (common base + 2 for the arrow)
-    if results.len() == 3 {
-        return Vec::new();
-    }
     results
 }
 
@@ -337,8 +349,8 @@ fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
     let arrow_len = Distance::meters(4.0);
     let btwn = Distance::meters(30.0);
     let thickness = Distance::meters(0.25);
-    // TODO Stop early to avoid clashing with calculate_turn_markings...
-    let len = lane.length();
+    // Stop 1m before the calculate_turn_markings() stuff starts
+    let len = lane.length() - Distance::meters(8.0);
 
     let mut dist = arrow_len;
     while dist + arrow_len <= len {
