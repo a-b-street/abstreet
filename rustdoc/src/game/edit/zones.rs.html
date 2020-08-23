@@ -217,6 +217,10 @@
 <span id="217">217</span>
 <span id="218">218</span>
 <span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">ColorDiscrete</span>;
@@ -230,7 +234,7 @@
     <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
     <span class="ident">Outcome</span>, <span class="ident">Spinner</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">EditCmd</span>, <span class="ident">RoadID</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">EditCmd</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">TripMode</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
@@ -315,12 +319,16 @@
                         });
                     }
 
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">allow_through_traffic</span> <span class="op">=</span> <span class="self">self</span>
+                        .<span class="ident">allow_through_traffic</span>
+                        .<span class="ident">iter</span>()
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">to_constraints</span>())
+                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">EnumSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+                    <span class="comment">// The original allow_through_traffic always includes this, and there&#39;s no way</span>
+                    <span class="comment">// to exclude it, so stay consistent.</span>
+                    <span class="ident">allow_through_traffic</span>.<span class="ident">insert</span>(<span class="ident">PathConstraints</span>::<span class="ident">Train</span>);
                     <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">AccessRestrictions</span> {
-                        <span class="ident">allow_through_traffic</span>: <span class="self">self</span>
-                            .<span class="ident">allow_through_traffic</span>
-                            .<span class="ident">iter</span>()
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">to_constraints</span>())
-                            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">EnumSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+                        <span class="ident">allow_through_traffic</span>,
                         <span class="ident">cap_vehicles_per_hour</span>: {
                             <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">spinner</span>(<span class="string">&quot;cap_vehicles&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span>;
                             <span class="kw">if</span> <span class="ident">n</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {

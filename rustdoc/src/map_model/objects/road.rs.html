@@ -831,7 +831,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_private</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">access_restrictions</span>.<span class="ident">allow_through_traffic</span> <span class="op">!</span><span class="op">=</span> <span class="ident">EnumSet</span>::<span class="ident">all</span>()
+        <span class="self">self</span>.<span class="ident">access_restrictions</span> <span class="op">!</span><span class="op">=</span> <span class="ident">AccessRestrictions</span>::<span class="ident">new</span>()
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">access_restrictions_from_osm</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AccessRestrictions</span> {
