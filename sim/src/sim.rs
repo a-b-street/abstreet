@@ -1199,6 +1199,10 @@ impl Sim {
     pub fn generate_scenario(&self, map: &Map, name: String) -> Scenario {
         self.trips.generate_scenario(map, name)
     }
+
+    pub fn get_cap_counter(&self, l: LaneID) -> usize {
+        self.cap.get_cap_counter(l)
+    }
 }
 
 // Invasive debugging

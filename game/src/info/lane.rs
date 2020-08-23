@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
 use ezgui::{Btn, EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Widget};
-use map_model::LaneID;
+use map_model::{LaneID, PathConstraints};
 use std::collections::HashSet;
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec<Widget> {
@@ -17,8 +17,25 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
         kv.push(("Type", l.lane_type.describe().to_string()));
     }
     if r.is_private() {
-        // TODO Ideally the area name, and be more specific about access restrictions
-        kv.push(("Access", "Private".to_string()));
+        let mut ban = Vec::new();
+        for p in PathConstraints::all() {
+            if !r.access_restrictions.allow_through_traffic.contains(p) {
+                ban.push(format!("{:?}", p).to_ascii_lowercase());
+            }
+        }
+        if !ban.is_empty() {
+            kv.push(("No through-traffic for", ban.join(", ")));
+        }
+        if let Some(cap) = r.access_restrictions.cap_vehicles_per_hour {
+            kv.push((
+                "Cap for vehicles this hour",
+                format!(
+                    "{} / {}",
+                    prettyprint_usize(app.primary.sim.get_cap_counter(l.id)),
+                    prettyprint_usize(cap)
+                ),
+            ));
+        }
     }
 
     if l.is_parking() {

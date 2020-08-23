@@ -397,7 +397,7 @@ impl Road {
     }
 
     pub fn is_private(&self) -> bool {
-        self.access_restrictions.allow_through_traffic != EnumSet::all()
+        self.access_restrictions != AccessRestrictions::new()
     }
 
     pub(crate) fn access_restrictions_from_osm(&self) -> AccessRestrictions {

@@ -10,7 +10,7 @@ use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
-use map_model::{AccessRestrictions, EditCmd, RoadID};
+use map_model::{AccessRestrictions, EditCmd, PathConstraints, RoadID};
 use maplit::btreeset;
 use sim::TripMode;
 use std::collections::BTreeSet;
@@ -95,12 +95,16 @@ impl State for ZoneEditor {
                         });
                     }
 
+                    let mut allow_through_traffic = self
+                        .allow_through_traffic
+                        .iter()
+                        .map(|m| m.to_constraints())
+                        .collect::<EnumSet<_>>();
+                    // The original allow_through_traffic always includes this, and there's no way
+                    // to exclude it, so stay consistent.
+                    allow_through_traffic.insert(PathConstraints::Train);
                     let new = AccessRestrictions {
-                        allow_through_traffic: self
-                            .allow_through_traffic
-                            .iter()
-                            .map(|m| m.to_constraints())
-                            .collect::<EnumSet<_>>(),
+                        allow_through_traffic,
                         cap_vehicles_per_hour: {
                             let n = self.composite.spinner("cap_vehicles") as usize;
                             if n == 0 {

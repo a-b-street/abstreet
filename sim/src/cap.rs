@@ -84,4 +84,12 @@ impl CapSimState {
         }
         true
     }
+
+    pub fn get_cap_counter(&self, l: LaneID) -> usize {
+        if let Some(idx) = self.lane_to_zone.get(&l) {
+            self.zones[*idx].entered_in_last_hour.len()
+        } else {
+            0
+        }
+    }
 }
