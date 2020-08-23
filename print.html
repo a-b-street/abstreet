@@ -160,14 +160,14 @@ hit problems.</p>
 <a href="http://old.reddit.com/r/abstreet">r/abstreet</a>:</p>
 <ul>
 <li>Windows:
-https://github.com/dabreegster/abstreet/releases/download/v0.2.8/abstreet_windows_v0_2_8.zip
+https://github.com/dabreegster/abstreet/releases/download/v0.2.9/abstreet_windows_v0_2_9.zip
 <ul>
 <li>Unzip the folder, then run <code>play_abstreet.bat</code>. You'll probably getting a
 warning about running software from an unknown publisher.</li>
 </ul>
 </li>
 <li>Mac:
-https://github.com/dabreegster/abstreet/releases/download/v0.2.8/abstreet_mac_v0_2_8.zip
+https://github.com/dabreegster/abstreet/releases/download/v0.2.9/abstreet_mac_v0_2_9.zip
 <ul>
 <li>Unzip the directory, then run <code>play_abstreet.sh</code>.</li>
 <li>If that just opens a text file instead of running the game, then instead
@@ -178,7 +178,7 @@ this as a Mac .app, to make this process simpler</li>
 </ul>
 </li>
 <li>Linux:
-https://github.com/dabreegster/abstreet/releases/download/v0.2.8/abstreet_linux_v0_2_8.zip
+https://github.com/dabreegster/abstreet/releases/download/v0.2.9/abstreet_linux_v0_2_9.zip
 <ul>
 <li>Unzip the directory, then run <code>play_abstreet.sh</code>.</li>
 </ul>
@@ -2923,6 +2923,20 @@ changes here.</p>
 <li>epic ezgui fix by Michael to consolidate handling of HiDPI scaling</li>
 <li>got a bunch of huge cities importing and loading quickly</li>
 <li>you can now save the trips you manually spawn in freeform mode, then replay them later</li>
+</ul>
+<p>0.2.9</p>
+<ul>
+<li>import Xi'an, add a Chinese font, and add a tool for that group to import their external demand data</li>
+<li>control A/B Street through a graphics-less API, with a Python example</li>
+<li>improve UI for per-direction traffic signal demand</li>
+<li>on/off ramp geometry fixed in a few more cases</li>
+<li>fix some missing parking lot aisles, handle parking lots with 0 spots, and extract parking garages from OSM</li>
+<li>switch road/building language in settings, if OSM data exists</li>
+<li>congestion capping prototype: declare a max number of vehicles that can pass through a zone per hour, view/edit it, and very simple implementation in the sim layer</li>
+<li>add custom-drawn trips to the main scenario, for exploring new demand from a new building</li>
+<li>mkirk fixed up the glow/wasm ezgui backends, letting us remove glium</li>
+<li>make map edit JSON backwards compatible</li>
+<li>better lane/turn markings</li>
 </ul>
 <h1><a class="header" href="#references" id="references">References</a></h1>
 <h2><a class="header" href="#example-use-cases" id="example-use-cases">Example use cases</a></h2>
