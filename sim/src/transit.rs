@@ -1,6 +1,7 @@
+use crate::sim::Ctx;
 use crate::{
-    CapSimState, CarID, Event, ParkingSimState, PedestrianID, PersonID, Router, Scheduler, TripID,
-    TripManager, TripPhaseType, VehicleType, WalkingSimState,
+    CarID, Event, PedestrianID, PersonID, Router, TripID, TripManager, TripPhaseType, VehicleType,
+    WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
@@ -173,10 +174,7 @@ impl TransitSimState {
         id: CarID,
         trips: &mut TripManager,
         walking: &mut WalkingSimState,
-        parking: &mut ParkingSimState,
-        cap: &CapSimState,
-        scheduler: &mut Scheduler,
-        map: &Map,
+        ctx: &mut Ctx,
     ) -> bool {
         let mut bus = self.buses.get_mut(&id).unwrap();
         match bus.state {
@@ -190,7 +188,7 @@ impl TransitSimState {
                 let mut still_riding = Vec::new();
                 for (person, maybe_stop2) in bus.passengers.drain(..) {
                     if Some(stop1) == maybe_stop2 {
-                        trips.person_left_bus(now, person, bus.car, map, scheduler);
+                        trips.person_left_bus(now, person, bus.car, ctx);
                         self.events.push(Event::PassengerAlightsTransit(
                             person, bus.car, bus.route, stop1,
                         ));
@@ -224,9 +222,9 @@ impl TransitSimState {
                             trip,
                             person,
                             Some(PathRequest {
-                                start: map.get_bs(stop1).driving_pos,
+                                start: ctx.map.get_bs(stop1).driving_pos,
                                 end: if let Some(stop2) = maybe_stop2 {
-                                    map.get_bs(stop2).driving_pos
+                                    ctx.map.get_bs(stop2).driving_pos
                                 } else {
                                     self.routes[&route].end_at_border.as_ref().unwrap().0.end
                                 },
@@ -257,9 +255,7 @@ impl TransitSimState {
                             person, bus.car, stop2
                         );
                     }
-                    trips.transit_rider_reached_border(
-                        now, person, id, map, parking, cap, scheduler,
-                    );
+                    trips.transit_rider_reached_border(now, person, id, ctx);
                 }
                 false
             }

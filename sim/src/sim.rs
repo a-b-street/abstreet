@@ -61,6 +61,14 @@ pub struct Sim {
     alerts: AlertHandler,
 }
 
+pub struct Ctx<'a> {
+    pub parking: &'a mut ParkingSimState,
+    pub intersections: &'a mut IntersectionSimState,
+    pub cap: &'a mut CapSimState,
+    pub scheduler: &'a mut Scheduler,
+    pub map: &'a Map,
+}
+
 #[derive(Clone)]
 pub struct SimOptions {
     pub run_name: String,
@@ -405,19 +413,19 @@ impl Sim {
         self.time = time;
         let mut events = Vec::new();
         let mut halt = false;
+
+        let mut ctx = Ctx {
+            parking: &mut self.parking,
+            intersections: &mut self.intersections,
+            cap: &mut self.cap,
+            scheduler: &mut self.scheduler,
+            map,
+        };
+
         match cmd {
             Command::StartTrip(id, trip_spec, maybe_req, maybe_path) => {
-                self.trips.start_trip(
-                    self.time,
-                    id,
-                    trip_spec,
-                    maybe_req,
-                    maybe_path,
-                    &mut self.parking,
-                    &self.cap,
-                    &mut self.scheduler,
-                    map,
-                );
+                self.trips
+                    .start_trip(self.time, id, trip_spec, maybe_req, maybe_path, &mut ctx);
             }
             Command::SpawnCar(create_car, retry_if_no_room) => {
                 if self.driving.start_car_on_lane(
@@ -470,15 +478,16 @@ impl Sim {
                         "No room to spawn car for {} by {}. Not retrying!",
                         trip, person
                     );
-                    self.trips.abort_trip(
-                        self.time,
-                        trip,
-                        Some(create_car.vehicle),
-                        &mut self.parking,
-                        &self.cap,
-                        &mut self.scheduler,
+                    // Have to redeclare for the borrow checker
+                    let mut ctx = Ctx {
+                        parking: &mut self.parking,
+                        intersections: &mut self.intersections,
+                        cap: &mut self.cap,
+                        scheduler: &mut self.scheduler,
                         map,
-                    );
+                    };
+                    self.trips
+                        .abort_trip(self.time, trip, Some(create_car.vehicle), &mut ctx);
                 }
             }
             Command::SpawnPed(create_ped) => {
@@ -505,10 +514,7 @@ impl Sim {
                             create_ped.id,
                             ParkingSpot::Offstreet(*b2, *idx),
                             Duration::ZERO,
-                            map,
-                            &mut self.parking,
-                            &self.cap,
-                            &mut self.scheduler,
+                            &mut ctx,
                         );
                     }
                     _ => {
@@ -525,13 +531,9 @@ impl Sim {
                 self.driving.update_car(
                     car,
                     self.time,
-                    map,
-                    &mut self.parking,
-                    &mut self.intersections,
+                    &mut ctx,
                     &mut self.trips,
-                    &mut self.scheduler,
                     &mut self.transit,
-                    &mut self.cap,
                     &mut self.walking,
                 );
             }
@@ -548,13 +550,9 @@ impl Sim {
                 self.walking.update_ped(
                     ped,
                     self.time,
-                    map,
-                    &mut self.intersections,
-                    &mut self.parking,
-                    &mut self.scheduler,
+                    &mut ctx,
                     &mut self.trips,
                     &mut self.transit,
-                    &self.cap,
                 );
             }
             Command::UpdateIntersection(i) => {
@@ -575,14 +573,7 @@ impl Sim {
                     .handle_cmd(self.time, cmd, &mut self.scheduler);
             }
             Command::FinishRemoteTrip(trip) => {
-                self.trips.remote_trip_finished(
-                    self.time,
-                    trip,
-                    map,
-                    &mut self.parking,
-                    &self.cap,
-                    &mut self.scheduler,
-                );
+                self.trips.remote_trip_finished(self.time, trip, &mut ctx);
             }
             Command::StartBus(r, _) => {
                 self.start_bus(map.get_br(r), map);
@@ -1221,15 +1212,15 @@ impl Sim {
                 &mut self.scheduler,
                 &mut self.intersections,
             );
-            self.trips.abort_trip(
-                self.time,
-                trip,
-                Some(vehicle),
-                &mut self.parking,
-                &self.cap,
-                &mut self.scheduler,
+            let mut ctx = Ctx {
+                parking: &mut self.parking,
+                intersections: &mut self.intersections,
+                cap: &mut self.cap,
+                scheduler: &mut self.scheduler,
                 map,
-            );
+            };
+            self.trips
+                .abort_trip(self.time, trip, Some(vehicle), &mut ctx);
             println!("Forcibly killed {}", id);
         } else {
             println!("{} has no trip?!", id);

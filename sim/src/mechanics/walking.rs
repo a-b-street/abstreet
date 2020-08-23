@@ -1,8 +1,9 @@
+use crate::sim::Ctx;
 use crate::{
-    AgentID, AgentProperties, CapSimState, Command, CreatePedestrian, DistanceInterval,
-    DrawPedCrowdInput, DrawPedestrianInput, Event, IntersectionSimState, ParkingSimState,
-    ParkingSpot, PedCrowdLocation, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot,
-    TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent,
+    AgentID, AgentProperties, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput,
+    DrawPedestrianInput, Event, IntersectionSimState, ParkingSpot, PedCrowdLocation, PedestrianID,
+    PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState, TripID,
+    TripManager, UnzoomedAgent,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
@@ -115,13 +116,9 @@ impl WalkingSimState {
         &mut self,
         id: PedestrianID,
         now: Time,
-        map: &Map,
-        intersections: &mut IntersectionSimState,
-        parking: &mut ParkingSimState,
-        scheduler: &mut Scheduler,
+        ctx: &mut Ctx,
         trips: &mut TripManager,
         transit: &mut TransitSimState,
-        cap: &CapSimState,
     ) {
         let mut ped = self.peds.get_mut(&id).unwrap();
         match ped.state {
@@ -134,10 +131,10 @@ impl WalkingSimState {
                                     pl,
                                     TimeInterval::new(
                                         now,
-                                        now + map.get_pl(pl).sidewalk_line.length() / ped.speed,
+                                        now + ctx.map.get_pl(pl).sidewalk_line.length() / ped.speed,
                                     ),
                                 );
-                                scheduler
+                                ctx.scheduler
                                     .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                             } else {
                                 self.peds_per_traversable
@@ -147,10 +144,7 @@ impl WalkingSimState {
                                     ped.id,
                                     spot,
                                     ped.total_blocked_time,
-                                    map,
-                                    parking,
-                                    cap,
-                                    scheduler,
+                                    ctx,
                                 );
                                 self.peds.remove(&id);
                             }
@@ -160,10 +154,11 @@ impl WalkingSimState {
                                 b,
                                 TimeInterval::new(
                                     now,
-                                    now + map.get_b(b).driveway_geom.length() / ped.speed,
+                                    now + ctx.map.get_b(b).driveway_geom.length() / ped.speed,
                                 ),
                             );
-                            scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                            ctx.scheduler
+                                .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                         }
                         SidewalkPOI::BusStop(stop) => {
                             if let Some(route) = trips.ped_reached_bus_stop(
@@ -171,7 +166,7 @@ impl WalkingSimState {
                                 ped.id,
                                 stop,
                                 ped.total_blocked_time,
-                                map,
+                                ctx,
                                 transit,
                             ) {
                                 ped.state = PedState::WaitingForBus(route, now);
@@ -184,52 +179,45 @@ impl WalkingSimState {
                         SidewalkPOI::Border(i, _) => {
                             self.peds_per_traversable
                                 .remove(ped.path.current_step().as_traversable(), ped.id);
-                            trips.ped_reached_border(
-                                now,
-                                ped.id,
-                                i,
-                                ped.total_blocked_time,
-                                map,
-                                parking,
-                                cap,
-                                scheduler,
-                            );
+                            trips.ped_reached_border(now, ped.id, i, ped.total_blocked_time, ctx);
                             self.peds.remove(&id);
                         }
                         SidewalkPOI::BikeRack(driving_pos) => {
-                            let pt1 = ped.goal.sidewalk_pos.pt(map);
-                            let pt2 = driving_pos.pt(map);
+                            let pt1 = ped.goal.sidewalk_pos.pt(ctx.map);
+                            let pt2 = driving_pos.pt(ctx.map);
                             ped.state = PedState::StartingToBike(
                                 ped.goal.clone(),
                                 Line::must_new(pt1, pt2),
                                 TimeInterval::new(now, now + TIME_TO_START_BIKING),
                             );
-                            scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                            ctx.scheduler
+                                .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                         }
                         SidewalkPOI::SuddenlyAppear => unreachable!(),
                         SidewalkPOI::DeferredParkingSpot => unreachable!(),
                     }
                 } else {
                     if let PathStep::Turn(t) = ped.path.current_step() {
-                        intersections.turn_finished(
+                        ctx.intersections.turn_finished(
                             now,
                             AgentID::Pedestrian(ped.id),
                             t,
-                            scheduler,
-                            map,
+                            ctx.scheduler,
+                            ctx.map,
                         );
                     }
 
                     let dist = dist_int.end;
                     if ped.maybe_transition(
                         now,
-                        map,
-                        intersections,
+                        ctx.map,
+                        ctx.intersections,
                         &mut self.peds_per_traversable,
                         &mut self.events,
-                        scheduler,
+                        ctx.scheduler,
                     ) {
-                        scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                        ctx.scheduler
+                            .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                     } else {
                         // Must've failed because we can't turn yet. Don't schedule a retry here.
                         ped.state = PedState::WaitingToTurn(dist, now);
@@ -239,38 +227,34 @@ impl WalkingSimState {
             PedState::WaitingToTurn(_, blocked_since) => {
                 if ped.maybe_transition(
                     now,
-                    map,
-                    intersections,
+                    ctx.map,
+                    ctx.intersections,
                     &mut self.peds_per_traversable,
                     &mut self.events,
-                    scheduler,
+                    ctx.scheduler,
                 ) {
-                    scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                    ctx.scheduler
+                        .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                     ped.total_blocked_time += now - blocked_since;
                 }
             }
             PedState::LeavingBuilding(b, _) => {
-                ped.state = ped.crossing_state(map.get_b(b).sidewalk_pos.dist_along(), now, map);
-                scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                ped.state =
+                    ped.crossing_state(ctx.map.get_b(b).sidewalk_pos.dist_along(), now, ctx.map);
+                ctx.scheduler
+                    .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
             }
             PedState::EnteringBuilding(bldg, _) => {
                 self.peds_per_traversable
                     .remove(ped.path.current_step().as_traversable(), ped.id);
-                trips.ped_reached_building(
-                    now,
-                    ped.id,
-                    bldg,
-                    ped.total_blocked_time,
-                    map,
-                    parking,
-                    cap,
-                    scheduler,
-                );
+                trips.ped_reached_building(now, ped.id, bldg, ped.total_blocked_time, ctx);
                 self.peds.remove(&id);
             }
             PedState::LeavingParkingLot(pl, _) => {
-                ped.state = ped.crossing_state(map.get_pl(pl).sidewalk_pos.dist_along(), now, map);
-                scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                ped.state =
+                    ped.crossing_state(ctx.map.get_pl(pl).sidewalk_pos.dist_along(), now, ctx.map);
+                ctx.scheduler
+                    .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
             }
             PedState::EnteringParkingLot(_, _) => {
                 self.peds_per_traversable
@@ -283,31 +267,20 @@ impl WalkingSimState {
                         _ => unreachable!(),
                     },
                     ped.total_blocked_time,
-                    map,
-                    parking,
-                    cap,
-                    scheduler,
+                    ctx,
                 );
                 self.peds.remove(&id);
             }
             PedState::StartingToBike(ref spot, _, _) => {
                 self.peds_per_traversable
                     .remove(ped.path.current_step().as_traversable(), ped.id);
-                trips.ped_ready_to_bike(
-                    now,
-                    ped.id,
-                    spot.clone(),
-                    ped.total_blocked_time,
-                    map,
-                    parking,
-                    cap,
-                    scheduler,
-                );
+                trips.ped_ready_to_bike(now, ped.id, spot.clone(), ped.total_blocked_time, ctx);
                 self.peds.remove(&id);
             }
             PedState::FinishingBiking(ref spot, _, _) => {
-                ped.state = ped.crossing_state(spot.sidewalk_pos.dist_along(), now, map);
-                scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                ped.state = ped.crossing_state(spot.sidewalk_pos.dist_along(), now, ctx.map);
+                ctx.scheduler
+                    .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
             }
             PedState::WaitingForBus(_, _) => unreachable!(),
         }
