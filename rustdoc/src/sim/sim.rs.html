@@ -1266,15 +1266,6 @@
 <span id="1266">1266</span>
 <span id="1267">1267</span>
 <span id="1268">1268</span>
-<span id="1269">1269</span>
-<span id="1270">1270</span>
-<span id="1271">1271</span>
-<span id="1272">1272</span>
-<span id="1273">1273</span>
-<span id="1274">1274</span>
-<span id="1275">1275</span>
-<span id="1276">1276</span>
-<span id="1277">1277</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">analytics</span>::<span class="ident">Window</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1337,6 +1328,14 @@
     <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>,
+}
+
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Ctx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">ParkingSimState</span>,
+    <span class="kw">pub</span> <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">IntersectionSimState</span>,
+    <span class="kw">pub</span> <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">CapSimState</span>,
+    <span class="kw">pub</span> <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
+    <span class="kw">pub</span> <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Map</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
@@ -1683,19 +1682,19 @@
         <span class="self">self</span>.<span class="ident">time</span> <span class="op">=</span> <span class="ident">time</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">events</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">halt</span> <span class="op">=</span> <span class="bool-val">false</span>;
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Ctx</span> {
+            <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
+            <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span>,
+            <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
+            <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
+            <span class="ident">map</span>,
+        };
+
         <span class="kw">match</span> <span class="ident">cmd</span> {
             <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="ident">id</span>, <span class="ident">trip_spec</span>, <span class="ident">maybe_req</span>, <span class="ident">maybe_path</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">start_trip</span>(
-                    <span class="self">self</span>.<span class="ident">time</span>,
-                    <span class="ident">id</span>,
-                    <span class="ident">trip_spec</span>,
-                    <span class="ident">maybe_req</span>,
-                    <span class="ident">maybe_path</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
-                    <span class="ident">map</span>,
-                );
+                <span class="self">self</span>.<span class="ident">trips</span>
+                    .<span class="ident">start_trip</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">id</span>, <span class="ident">trip_spec</span>, <span class="ident">maybe_req</span>, <span class="ident">maybe_path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
             }
             <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="ident">create_car</span>, <span class="ident">retry_if_no_room</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">start_car_on_lane</span>(
@@ -1748,15 +1747,16 @@
                         <span class="string">&quot;No room to spawn car for {} by {}. Not retrying!&quot;</span>,
                         <span class="ident">trip</span>, <span class="ident">person</span>
                     );
-                    <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">abort_trip</span>(
-                        <span class="self">self</span>.<span class="ident">time</span>,
-                        <span class="ident">trip</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">create_car</span>.<span class="ident">vehicle</span>),
-                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
-                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
-                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
+                    <span class="comment">// Have to redeclare for the borrow checker</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Ctx</span> {
+                        <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
+                        <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span>,
+                        <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
+                        <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                         <span class="ident">map</span>,
-                    );
+                    };
+                    <span class="self">self</span>.<span class="ident">trips</span>
+                        .<span class="ident">abort_trip</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">trip</span>, <span class="prelude-val">Some</span>(<span class="ident">create_car</span>.<span class="ident">vehicle</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
                 }
             }
             <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="ident">create_ped</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -1783,10 +1783,7 @@
                             <span class="ident">create_ped</span>.<span class="ident">id</span>,
                             <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="kw-2">*</span><span class="ident">b2</span>, <span class="kw-2">*</span><span class="ident">idx</span>),
                             <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
-                            <span class="ident">map</span>,
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
-                            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
+                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
                         );
                     }
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1803,13 +1800,9 @@
                 <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">update_car</span>(
                     <span class="ident">car</span>,
                     <span class="self">self</span>.<span class="ident">time</span>,
-                    <span class="ident">map</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span>,
+                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">transit</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">walking</span>,
                 );
             }
@@ -1826,13 +1819,9 @@
                 <span class="self">self</span>.<span class="ident">walking</span>.<span class="ident">update_ped</span>(
                     <span class="ident">ped</span>,
                     <span class="self">self</span>.<span class="ident">time</span>,
-                    <span class="ident">map</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
+                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">transit</span>,
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
                 );
             }
             <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -1853,14 +1842,7 @@
                     .<span class="ident">handle_cmd</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>);
             }
             <span class="ident">Command</span>::<span class="ident">FinishRemoteTrip</span>(<span class="ident">trip</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">remote_trip_finished</span>(
-                    <span class="self">self</span>.<span class="ident">time</span>,
-                    <span class="ident">trip</span>,
-                    <span class="ident">map</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
-                );
+                <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">remote_trip_finished</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">trip</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
             }
             <span class="ident">Command</span>::<span class="ident">StartBus</span>(<span class="ident">r</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">start_bus</span>(<span class="ident">map</span>.<span class="ident">get_br</span>(<span class="ident">r</span>), <span class="ident">map</span>);
@@ -2499,15 +2481,15 @@
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span>,
             );
-            <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">abort_trip</span>(
-                <span class="self">self</span>.<span class="ident">time</span>,
-                <span class="ident">trip</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>),
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Ctx</span> {
+                <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
+                <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span>,
+                <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
+                <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                 <span class="ident">map</span>,
-            );
+            };
+            <span class="self">self</span>.<span class="ident">trips</span>
+                .<span class="ident">abort_trip</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">trip</span>, <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
             <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Forcibly killed {}&quot;</span>, <span class="ident">id</span>);
         } <span class="kw">else</span> {
             <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{} has no trip?!&quot;</span>, <span class="ident">id</span>);

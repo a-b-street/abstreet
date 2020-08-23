@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["BLIND_RETRY_TO_SPAWN",""]],"enum":[["AlertHandler",""]],"struct":[["AgentProperties",""],["Sim",""],["SimOptions",""]],"trait":[["SimCallback",""]]});
+initSidebarItems({"constant":[["BLIND_RETRY_TO_SPAWN",""]],"enum":[["AlertHandler",""]],"struct":[["AgentProperties",""],["Ctx",""],["Sim",""],["SimOptions",""]],"trait":[["SimCallback",""]]});
