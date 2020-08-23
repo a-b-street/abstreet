@@ -4,3 +4,5 @@ language = "en"
 multilingual = false
 src = "src"
 title = "A/B Street"
+
+[preprocessor.plantuml]

@@ -18,6 +18,7 @@
   - [Discrete event simulation](trafficsim/discrete_event.md)
   - [Travel demand](trafficsim/travel_demand.md)
   - [Gridlock](trafficsim/gridlock.md)
+  - [Multi-modal trips](trafficsim/trips.md)
 - [Case studies](case_studies/README.md)
   - [Lake Washington Blvd Stay Healthy Street](case_studies/lake_wash.md)
   - [West Seattle mitigations](case_studies/west_seattle.md)

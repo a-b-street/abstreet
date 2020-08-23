@@ -17,13 +17,21 @@ jobs:
         with:
           mdbook-version: "0.3.7"
 
+      - name: Install Rust
+        uses: hecrj/setup-rust-action@v1
+
+      - name: Update apt
+        run: sudo apt-get update
+      - name: Install plantuml
+        run: sudo apt-get install plantuml
+
+      - name: Install mdbook-plantuml
+        run: cargo install mdbook-plantuml
+
       - name: Generate book from markdown
         run: |
             cd book
             mdbook build
-
-      - name: Install Rust
-        uses: hecrj/setup-rust-action@v1
 
       - name: Generate rustdoc
         run: |
