@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CapSimState",""],["Zone",""]],"type":[["ZoneIdx",""]]});
+initSidebarItems({"constant":[["RESERVE_WHEN_STARTING_TRIP",""]],"struct":[["CapSimState",""],["Zone",""]],"type":[["ZoneIdx",""]]});
