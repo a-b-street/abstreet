@@ -557,3 +557,17 @@ changes here.
 - epic ezgui fix by Michael to consolidate handling of HiDPI scaling
 - got a bunch of huge cities importing and loading quickly
 - you can now save the trips you manually spawn in freeform mode, then replay them later
+
+0.2.9
+
+- import Xi'an, add a Chinese font, and add a tool for that group to import their external demand data
+- control A/B Street through a graphics-less API, with a Python example
+- improve UI for per-direction traffic signal demand
+- on/off ramp geometry fixed in a few more cases
+- fix some missing parking lot aisles, handle parking lots with 0 spots, and extract parking garages from OSM
+- switch road/building language in settings, if OSM data exists
+- congestion capping prototype: declare a max number of vehicles that can pass through a zone per hour, view/edit it, and very simple implementation in the sim layer
+- add custom-drawn trips to the main scenario, for exploring new demand from a new building
+- mkirk fixed up the glow/wasm ezgui backends, letting us remove glium
+- make map edit JSON backwards compatible
+- better lane/turn markings
