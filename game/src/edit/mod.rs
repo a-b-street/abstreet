@@ -717,6 +717,10 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
                 edits.changed_speed_limits.len()
             )),
             Line(format!(
+                "{} access restrictions changed",
+                edits.changed_access_restrictions.len()
+            )),
+            Line(format!(
                 "{} intersections changed",
                 edits.original_intersections.len()
             )),

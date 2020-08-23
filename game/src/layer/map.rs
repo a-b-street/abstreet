@@ -225,6 +225,9 @@ impl Static {
         for r in &edits.changed_speed_limits {
             colorer.add_r(*r, "modified lane/intersection");
         }
+        for r in &edits.changed_access_restrictions {
+            colorer.add_r(*r, "modified lane/intersection");
+        }
 
         Static::new(
             ctx,
@@ -237,6 +240,10 @@ impl Static {
                 Line(format!(
                     "{} speed limits changed",
                     edits.changed_speed_limits.len()
+                )),
+                Line(format!(
+                    "{} access restrictions changed",
+                    edits.changed_access_restrictions.len()
                 )),
                 Line(format!(
                     "{} intersections changed",
