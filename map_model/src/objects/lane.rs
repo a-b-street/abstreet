@@ -222,7 +222,7 @@ impl Lane {
         let r = map.get_r(self.parent);
         DirectedRoadID {
             id: r.id,
-            dir: r.get_dir(self.id),
+            dir: r.dir(self.id),
         }
     }
 

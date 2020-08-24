@@ -171,14 +171,9 @@ impl Road {
     }
 
     // TODO Deprecated
-    pub fn get_dir(&self, lane: LaneID) -> Direction {
-        self.dir_and_offset(lane).0
-    }
-
-    // TODO Deprecated
     // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
     // it counts up from there.
-    pub fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
+    pub(crate) fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
         for &dir in [Direction::Fwd, Direction::Back].iter() {
             if let Some(idx) = self.children(dir).iter().position(|pair| pair.0 == lane) {
                 return (dir, idx);
@@ -281,15 +276,25 @@ impl Road {
             .collect()
     }
 
-    // TODO Deprecated
-    // This is the yellow line where the direction of the road changes.
-    pub fn get_current_center(&self, map: &Map) -> PolyLine {
-        let lane = map.get_l(if !self.children_forwards.is_empty() {
-            self.children_forwards[0].0
+    // This is the FIRST yellow line where the direction of the road changes. If multiple direction
+    // changes happen, the result is kind of arbitrary.
+    pub fn get_dir_change_pl(&self, map: &Map) -> PolyLine {
+        let mut found: Option<LaneID> = None;
+        for pair in self.lanes_ltr().windows(2) {
+            let ((l1, dir1, _), (_, dir2, _)) = (pair[0], pair[1]);
+            if dir1 != dir2 {
+                found = Some(l1);
+                break;
+            }
+        }
+        let lane = map.get_l(found.unwrap_or(self.lanes_ltr()[0].0));
+        if self.dir(lane.id) == Direction::Fwd {
+            lane.lane_center_pts.must_shift_left(lane.width / 2.0)
         } else {
-            self.children_backwards[0].0
-        });
-        map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
+            lane.lane_center_pts
+                .must_shift_left(lane.width / 2.0)
+                .reversed()
+        }
     }
 
     pub fn get_half_width(&self, map: &Map) -> Distance {
