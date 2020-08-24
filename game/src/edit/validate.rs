@@ -136,8 +136,7 @@ pub fn try_change_lt(
     // TODO Ban two adjacent parking lanes (What about dppd though?)
 
     // A parking lane must have a driving lane somewhere on the road.
-    let (fwd, back) = r.get_lane_types();
-    let all_types: BTreeSet<LaneType> = fwd.chain(back).collect();
+    let all_types: BTreeSet<LaneType> = r.lanes_ltr().into_iter().map(|(_, _, lt)| lt).collect();
     if all_types.contains(&LaneType::Parking) && !all_types.contains(&LaneType::Driving) {
         errors.push(format!(
             "A parking lane needs a driving lane somewhere on the same road"
