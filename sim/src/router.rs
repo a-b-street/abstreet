@@ -352,24 +352,25 @@ impl Router {
 
         // Look for other candidates, and assign a cost to each.
         let constraints = self.owner.1.to_constraints();
+        let dir = parent.dir(orig_target_lane);
         let (_, turn1, best_lane, turn2) = parent
-            .children(parent.get_dir(orig_target_lane))
-            .iter()
-            .filter(|(l, _)| constraints.can_use(map.get_l(*l), map))
-            .filter_map(|(l, _)| {
+            .lanes_ltr()
+            .into_iter()
+            .filter(|(l, d, _)| dir == *d && constraints.can_use(map.get_l(*l), map))
+            .filter_map(|(l, _, _)| {
                 let t1 = TurnID {
                     parent: current_turn.parent,
                     src: current_turn.src,
-                    dst: *l,
+                    dst: l,
                 };
                 if let Some(turn1) = map.maybe_get_t(t1) {
                     // Make sure we can go from this lane to next_lane.
                     if let Some(turn2) = map.maybe_get_t(TurnID {
                         parent: next_parent,
-                        src: *l,
+                        src: l,
                         dst: next_lane,
                     }) {
-                        Some((turn1, *l, turn2))
+                        Some((turn1, l, turn2))
                     } else {
                         None
                     }

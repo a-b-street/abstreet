@@ -239,16 +239,19 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
     corners
 }
 
+// TODO This assumes the lanes change direction only at one point. A two-way cycletrack right at
+// the border will look a bit off.
 fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon> {
     let mut result = Vec::new();
 
     let mut width_fwd = Distance::ZERO;
     let mut width_back = Distance::ZERO;
-    for (l, _) in r.children(Direction::Fwd) {
-        width_fwd += map.get_l(*l).width;
-    }
-    for (l, _) in r.children(Direction::Back) {
-        width_back += map.get_l(*l).width;
+    for (l, dir, _) in r.lanes_ltr() {
+        if dir == Direction::Fwd {
+            width_fwd += map.get_l(l).width;
+        } else {
+            width_back += map.get_l(l).width;
+        }
     }
     let center = r.get_current_center(map);
 

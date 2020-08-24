@@ -148,10 +148,9 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
             l.length()
         ),
     ));
-    let pair = r.dir_and_offset(l.id);
     kv.push((
         "Dir and offset".to_string(),
-        format!("fwd={}, {}", pair.0, pair.1),
+        format!("{}, {}", r.dir(l.id), r.offset(l.id)),
     ));
 
     rows.extend(make_table(ctx, kv.into_iter()));

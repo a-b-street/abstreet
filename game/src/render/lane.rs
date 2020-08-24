@@ -267,15 +267,26 @@ fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
     result
 }
 
+// TODO Because the stripe straddles two lanes, it might be hidden on one side. Should split into
+// two z-orders.
 fn calculate_driving_lines(map: &Map, lane: &Lane, parent: &Road) -> Vec<Polygon> {
-    // The leftmost lanes don't have dashed lines.
-    let (dir, idx) = parent.dir_and_offset(lane.id);
-    if idx == 0
-        || (dir == Direction::Fwd && !parent.children_forwards[idx - 1].1.is_for_moving_vehicles())
+    let lanes = parent.lanes_ltr();
+    let idx = parent.offset(lane.id);
+
+    // If the lane to the right of us isn't in the same direction or isn't the same type, don't
+    // need dashed lines.
+    if idx == lanes.len() - 1
+        || lanes[idx].1 != lanes[idx + 1].1
+        || lanes[idx].2 != lanes[idx + 1].2
     {
         return Vec::new();
     }
-    let lane_edge_pts = map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0);
+
+    let lane_edge_pts = if lanes[idx].1 == Direction::Fwd {
+        map.must_right_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
+    } else {
+        map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
+    };
     lane_edge_pts.dashed_lines(
         Distance::meters(0.25),
         Distance::meters(1.0),

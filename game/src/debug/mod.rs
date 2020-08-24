@@ -671,27 +671,14 @@ fn find_degenerate_roads(app: &App) {
             continue;
         }
         if r1
-            .children_forwards
-            .iter()
-            .map(|(_, lt)| *lt)
+            .lanes_ltr()
+            .into_iter()
+            .map(|(_, dir, lt)| (dir, lt))
             .collect::<Vec<_>>()
             != r2
-                .children_forwards
-                .iter()
-                .map(|(_, lt)| *lt)
-                .collect::<Vec<_>>()
-        {
-            continue;
-        }
-        if r1
-            .children_backwards
-            .iter()
-            .map(|(_, lt)| *lt)
-            .collect::<Vec<_>>()
-            != r2
-                .children_backwards
-                .iter()
-                .map(|(_, lt)| *lt)
+                .lanes_ltr()
+                .into_iter()
+                .map(|(_, dir, lt)| (dir, lt))
                 .collect::<Vec<_>>()
         {
             continue;
