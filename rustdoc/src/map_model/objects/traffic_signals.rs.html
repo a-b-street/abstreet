@@ -382,12 +382,16 @@
 <span id="382">382</span>
 <span id="383">383</span>
 <span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">traffic_signals</span>::{<span class="ident">brute_force</span>, <span class="ident">get_possible_policies</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">CompressedTurnGroupID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">TurnGroup</span>, <span class="ident">TurnGroupID</span>,
-    <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
+    <span class="ident">osm</span>, <span class="ident">CompressedTurnGroupID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">TurnGroup</span>,
+    <span class="ident">TurnGroupID</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
@@ -732,13 +736,13 @@
             <span class="ident">osm_way_id</span>: <span class="ident">from</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>,
             <span class="ident">osm_node1</span>: <span class="ident">from</span>.<span class="ident">i1</span>.<span class="number">0</span>,
             <span class="ident">osm_node2</span>: <span class="ident">from</span>.<span class="ident">i2</span>.<span class="number">0</span>,
-            <span class="ident">is_forwards</span>: <span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">forwards</span>,
+            <span class="ident">is_forwards</span>: <span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span>,
         },
         <span class="ident">to</span>: <span class="ident">seattle_traffic_signals</span>::<span class="ident">DirectedRoad</span> {
             <span class="ident">osm_way_id</span>: <span class="ident">to</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>,
             <span class="ident">osm_node1</span>: <span class="ident">to</span>.<span class="ident">i1</span>.<span class="number">0</span>,
             <span class="ident">osm_node2</span>: <span class="ident">to</span>.<span class="ident">i2</span>.<span class="number">0</span>,
-            <span class="ident">is_forwards</span>: <span class="ident">id</span>.<span class="ident">to</span>.<span class="ident">forwards</span>,
+            <span class="ident">is_forwards</span>: <span class="ident">id</span>.<span class="ident">to</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span>,
         },
         <span class="ident">intersection_osm_node_id</span>: <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>.<span class="ident">parent</span>).<span class="ident">orig_id</span>.<span class="number">0</span>,
         <span class="ident">is_crosswalk</span>: <span class="ident">id</span>.<span class="ident">crosswalk</span>,
@@ -764,7 +768,11 @@
                 (<span class="ident">id</span>.<span class="ident">osm_node1</span>, <span class="ident">id</span>.<span class="ident">osm_node2</span>),
             ))
             .<span class="ident">ok</span>()<span class="question-mark">?</span>,
-        <span class="ident">forwards</span>: <span class="ident">id</span>.<span class="ident">is_forwards</span>,
+        <span class="ident">dir</span>: <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">is_forwards</span> {
+            <span class="ident">Direction</span>::<span class="ident">Fwd</span>
+        } <span class="kw">else</span> {
+            <span class="ident">Direction</span>::<span class="ident">Back</span>
+        },
     })
 }
 </pre></div>

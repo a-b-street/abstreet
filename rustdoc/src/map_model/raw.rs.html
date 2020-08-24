@@ -430,7 +430,7 @@
 <span id="430">430</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>::<span class="ident">lane_specs</span>::<span class="ident">get_lane_specs</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">AreaType</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>, <span class="ident">NamePerLanguage</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">AreaType</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>, <span class="ident">NamePerLanguage</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">petgraph</span>::<span class="ident">graphmap</span>::<span class="ident">DiGraphMap</span>;
@@ -854,8 +854,8 @@
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="comment">// Probably not an intersection, but this type is more convenient.</span>
     <span class="kw">pub</span> <span class="ident">vehicle_pos</span>: (<span class="ident">osm</span>::<span class="ident">NodeID</span>, <span class="ident">Pt2D</span>),
-    <span class="comment">// Guaranteed to be filled out when RawMap is fully written. True for forwards.</span>
-    <span class="kw">pub</span> <span class="ident">matched_road</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">bool</span>)<span class="op">&gt;</span>,
+    <span class="comment">// Guaranteed to be filled out when RawMap is fully written.</span>
+    <span class="kw">pub</span> <span class="ident">matched_road</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>)<span class="op">&gt;</span>,
     <span class="comment">// If it&#39;s not explicitly mapped, we&#39;ll do equiv_pos.</span>
     <span class="kw">pub</span> <span class="ident">ped_pos</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
 }

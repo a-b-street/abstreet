@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["fix_intersection_ids",""],["fix_offset",""],["upgrade",""]]});
+initSidebarItems({"fn":[["fix_intersection_ids",""],["fix_offset",""],["fix_road_direction",""],["upgrade",""],["walk",""]]});

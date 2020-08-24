@@ -290,7 +290,8 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnType</span>,
+    <span class="ident">osm</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
+    <span class="ident">TurnType</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
@@ -507,12 +508,11 @@
     }
 
     <span class="comment">// TODO Store this natively if this winds up being useful.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_directed_parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DirectedRoadID</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_directed_parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DirectedRoadID</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">parent</span>);
-        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_forwards</span>(<span class="self">self</span>.<span class="ident">id</span>) {
-            <span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">forwards</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">backwards</span>()
+        <span class="ident">DirectedRoadID</span> {
+            <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
+            <span class="ident">dir</span>: <span class="ident">r</span>.<span class="ident">get_dir</span>(<span class="self">self</span>.<span class="ident">id</span>),
         }
     }
 
@@ -525,11 +525,11 @@
         }
 
         <span class="kw">let</span> (<span class="ident">dir</span>, <span class="ident">offset</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">dir_and_offset</span>(<span class="self">self</span>.<span class="ident">id</span>);
-        <span class="kw">let</span> <span class="ident">all</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">ENDPT_FWD</span>) {
+        <span class="kw">let</span> <span class="ident">all</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">ENDPT_FWD</span>) {
             <span class="ident">road</span>.<span class="ident">osm_tags</span>
                 .<span class="ident">get</span>(<span class="string">&quot;turn:lanes:forward&quot;</span>)
                 .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;turn:lanes&quot;</span>))<span class="question-mark">?</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">dir</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">ENDPT_BACK</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Back</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">ENDPT_BACK</span>) {
             <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;turn:lanes:backward&quot;</span>)<span class="question-mark">?</span>
         } <span class="kw">else</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;

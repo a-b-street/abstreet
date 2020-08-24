@@ -1447,6 +1447,8 @@
 <span id="1447">1447</span>
 <span id="1448">1448</span>
 <span id="1449">1449</span>
+<span id="1450">1450</span>
+<span id="1451">1451</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">Minimap</span>, <span class="ident">Warping</span>};
@@ -1466,7 +1468,7 @@
 };
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">OriginalLane</span>, <span class="ident">Position</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">Map</span>, <span class="ident">OriginalLane</span>, <span class="ident">Position</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{
     <span class="ident">AgentID</span>, <span class="ident">Analytics</span>, <span class="ident">BorderSpawnOverTime</span>, <span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>, <span class="ident">IndividTrip</span>, <span class="ident">OriginDestination</span>,
     <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnOverTime</span>, <span class="ident">SpawnTrip</span>, <span class="ident">VehicleType</span>,
@@ -2094,10 +2096,12 @@
         <span class="ident">percent_use_transit</span>: <span class="number">0.0</span>,
         <span class="ident">start_time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
         <span class="ident">stop_time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">10.0</span>),
-        <span class="ident">start_from_border</span>: <span class="ident">map</span>
-            .<span class="ident">find_r_by_osm_id</span>(<span class="ident">OriginalRoad</span>::<span class="ident">new</span>(<span class="number">263665925</span>, (<span class="number">2499826475</span>, <span class="number">53096959</span>)))
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">backwards</span>(),
+        <span class="ident">start_from_border</span>: <span class="ident">DirectedRoadID</span> {
+            <span class="ident">id</span>: <span class="ident">map</span>
+                .<span class="ident">find_r_by_osm_id</span>(<span class="ident">OriginalRoad</span>::<span class="ident">new</span>(<span class="number">263665925</span>, (<span class="number">2499826475</span>, <span class="number">53096959</span>)))
+                .<span class="ident">unwrap</span>(),
+            <span class="ident">dir</span>: <span class="ident">Direction</span>::<span class="ident">Back</span>,
+        },
         <span class="ident">goal</span>: <span class="ident">OriginDestination</span>::<span class="ident">GotoBldg</span>(<span class="ident">map</span>.<span class="ident">find_b_by_osm_id</span>(<span class="ident">bldg</span>(<span class="number">217699501</span>)).<span class="ident">unwrap</span>()),
     });
     <span class="ident">s</span>
@@ -2489,7 +2493,7 @@
                         <span class="ident">parent</span>: <span class="ident">OriginalRoad</span>::<span class="ident">new</span>(<span class="number">158782224</span>, (<span class="number">1709145066</span>, <span class="number">53128052</span>)),
                         <span class="ident">num_fwd</span>: <span class="number">3</span>,
                         <span class="ident">num_back</span>: <span class="number">3</span>,
-                        <span class="ident">fwd</span>: <span class="bool-val">false</span>,
+                        <span class="ident">dir</span>: <span class="ident">Direction</span>::<span class="ident">Back</span>,
                         <span class="ident">idx</span>: <span class="number">0</span>,
                     }
                     .<span class="ident">from_permanent</span>(<span class="ident">map</span>)
@@ -2498,7 +2502,7 @@
                         <span class="ident">parent</span>: <span class="ident">OriginalRoad</span>::<span class="ident">new</span>(<span class="number">6484869</span>, (<span class="number">53163501</span>, <span class="number">53069236</span>)),
                         <span class="ident">num_fwd</span>: <span class="number">3</span>,
                         <span class="ident">num_back</span>: <span class="number">3</span>,
-                        <span class="ident">fwd</span>: <span class="bool-val">true</span>,
+                        <span class="ident">dir</span>: <span class="ident">Direction</span>::<span class="ident">Fwd</span>,
                         <span class="ident">idx</span>: <span class="number">0</span>,
                     }
                     .<span class="ident">from_permanent</span>(<span class="ident">map</span>)

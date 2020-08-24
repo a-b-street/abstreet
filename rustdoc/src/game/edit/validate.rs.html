@@ -327,7 +327,7 @@
     <span class="comment">// Don&#39;t let players orphan a bus stop.</span>
     <span class="kw">if</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">all_bus_stops</span>(<span class="ident">map</span>).<span class="ident">is_empty</span>()
         <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="ident">r</span>
-            .<span class="ident">children</span>(<span class="ident">r</span>.<span class="ident">is_forwards</span>(<span class="ident">l</span>))
+            .<span class="ident">children</span>(<span class="ident">r</span>.<span class="ident">get_dir</span>(<span class="ident">l</span>))
             .<span class="ident">iter</span>()
             .<span class="ident">any</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span>)
     {

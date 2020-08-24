@@ -428,6 +428,10 @@
 <span id="428">428</span>
 <span id="429">429</span>
 <span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">bridges</span>;
 <span class="kw">mod</span> <span class="ident">buildings</span>;
@@ -443,8 +447,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">connectivity</span>, <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>,
-    <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>, <span class="ident">PathConstraints</span>,
-    <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnGroup</span>, <span class="ident">Zone</span>,
+    <span class="ident">Direction</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>,
+    <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnGroup</span>, <span class="ident">Zone</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>};
@@ -583,8 +587,12 @@
                 <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">src_i</span>.<span class="number">0</span>].<span class="ident">outgoing_lanes</span>.<span class="ident">push</span>(<span class="ident">id</span>);
                 <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">dst_i</span>.<span class="number">0</span>].<span class="ident">incoming_lanes</span>.<span class="ident">push</span>(<span class="ident">id</span>);
 
-                <span class="ident">road</span>.<span class="ident">children_mut</span>(<span class="op">!</span><span class="ident">lane</span>.<span class="ident">reverse_pts</span>)
-                    .<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">lane</span>.<span class="ident">lane_type</span>));
+                <span class="ident">road</span>.<span class="ident">children_mut</span>(<span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">reverse_pts</span> {
+                    <span class="ident">Direction</span>::<span class="ident">Back</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">Direction</span>::<span class="ident">Fwd</span>
+                })
+                .<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">lane</span>.<span class="ident">lane_type</span>));
 
                 <span class="comment">// Careful about order here. lane_specs are all of the forwards from center to</span>
                 <span class="comment">// sidewalk, then all the backwards from center to sidewalk.</span>

@@ -785,7 +785,7 @@
         <span class="comment">// Look for other candidates, and assign a cost to each.</span>
         <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="number">1</span>.<span class="ident">to_constraints</span>();
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">turn1</span>, <span class="ident">best_lane</span>, <span class="ident">turn2</span>) <span class="op">=</span> <span class="ident">parent</span>
-            .<span class="ident">children</span>(<span class="ident">parent</span>.<span class="ident">is_forwards</span>(<span class="ident">orig_target_lane</span>))
+            .<span class="ident">children</span>(<span class="ident">parent</span>.<span class="ident">get_dir</span>(<span class="ident">orig_target_lane</span>))
             .<span class="ident">iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>), <span class="ident">map</span>))
             .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>)<span class="op">|</span> {

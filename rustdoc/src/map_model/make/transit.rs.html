@@ -348,11 +348,6 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">match_points_to_lanes</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">RawBusRoute</span>, <span class="ident">RawBusStop</span>};
@@ -604,21 +599,16 @@
         }
 
         <span class="comment">// We already figured out what side of the road we&#39;re on</span>
-        <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">fwds</span>) <span class="op">=</span> <span class="ident">stop</span>.<span class="ident">matched_road</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">dir</span>) <span class="op">=</span> <span class="ident">stop</span>.<span class="ident">matched_road</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">r</span>)<span class="question-mark">?</span>);
         <span class="comment">// Prefer the rightmost match. DON&#39;T use find_closest_lane here; we only want one side of</span>
         <span class="comment">// the road.</span>
         <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(
-            <span class="ident">r</span>.<span class="ident">children</span>(<span class="ident">fwds</span>)
+            <span class="ident">r</span>.<span class="ident">children</span>(<span class="ident">dir</span>)
                 .<span class="ident">iter</span>()
                 .<span class="ident">rev</span>()
                 .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">route_type</span>.<span class="ident">can_use</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>), <span class="ident">map</span>))
-                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="macro">format</span><span class="macro">!</span>(
-                        <span class="string">&quot;{}, fwds={}, doesn&#39;t have a bus or driving lane&quot;</span>,
-                        <span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">fwds</span>
-                    )
-                })<span class="question-mark">?</span>
+                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} {}, doesn&#39;t have a bus or driving lane&quot;</span>, <span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">dir</span>))<span class="question-mark">?</span>
                 .<span class="number">0</span>,
         );
 

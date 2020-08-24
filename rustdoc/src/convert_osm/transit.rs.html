@@ -309,13 +309,20 @@
 <span id="309">309</span>
 <span id="310">310</span>
 <span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">reader</span>::{<span class="ident">Document</span>, <span class="ident">Relation</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">HashablePt2D</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>::{<span class="ident">NodeID</span>, <span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawBusRoute</span>, <span class="ident">RawBusStop</span>, <span class="ident">RawMap</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">Direction</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_route</span>(
@@ -573,10 +580,10 @@
 
         <span class="kw">let</span> <span class="ident">i1</span> <span class="op">=</span> <span class="ident">i1</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">i2</span> <span class="op">=</span> <span class="ident">i2</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">fwds</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i1</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">road</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i2</span> {
-            <span class="bool-val">true</span>
+        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i1</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">road</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i2</span> {
+            <span class="ident">Direction</span>::<span class="ident">Fwd</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i2</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">road</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i1</span> {
-            <span class="bool-val">false</span>
+            <span class="ident">Direction</span>::<span class="ident">Back</span>
         } <span class="kw">else</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;Can&#39;t figure out where {} is along route. At {}, between {:?} and {:?}. {} of {}&quot;</span>,
@@ -589,9 +596,9 @@
             ));
         };
 
-        <span class="ident">stop</span>.<span class="ident">matched_road</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">road</span>, <span class="ident">fwds</span>));
+        <span class="ident">stop</span>.<span class="ident">matched_road</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">road</span>, <span class="ident">dir</span>));
         <span class="kw">if</span> <span class="bool-val">false</span> {
-            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{} matched to {}, fwds={}&quot;</span>, <span class="ident">stop</span>.<span class="ident">vehicle_pos</span>.<span class="number">0</span>, <span class="ident">road</span>, <span class="ident">fwds</span>);
+            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{} matched to {}, {}&quot;</span>, <span class="ident">stop</span>.<span class="ident">vehicle_pos</span>.<span class="number">0</span>, <span class="ident">road</span>, <span class="ident">dir</span>);
         }
 
         <span class="comment">// If this road is missing a sidewalk (likely because it&#39;s a motorway), add one.</span>
@@ -605,10 +612,17 @@
         <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_SIDEWALKS</span>, <span class="string">&quot;true&quot;</span>) {
             <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>).<span class="ident">unwrap</span>();
             <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;none&quot;</span> {
-                <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="kw">if</span> <span class="ident">fwds</span> { <span class="string">&quot;right&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;left&quot;</span> });
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;right&quot;</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="ident">fwds</span> {
+                <span class="ident">tags</span>.<span class="ident">insert</span>(
+                    <span class="ident">osm</span>::<span class="ident">SIDEWALK</span>,
+                    <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
+                        <span class="string">&quot;right&quot;</span>
+                    } <span class="kw">else</span> {
+                        <span class="string">&quot;left&quot;</span>
+                    },
+                );
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;right&quot;</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Back</span> {
                 <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;both&quot;</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;left&quot;</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">fwds</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;left&quot;</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
                 <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;both&quot;</span>);
             } <span class="kw">else</span> {
                 <span class="kw">continue</span>;

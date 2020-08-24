@@ -669,12 +669,16 @@
 <span id="669">669</span>
 <span id="670">670</span>
 <span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">compat</span>;
 <span class="kw">mod</span> <span class="ident">perma</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">connectivity</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BusRouteID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>,
+    <span class="ident">connectivity</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BusRouteID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">Direction</span>,
     <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Pathfinder</span>, <span class="ident">RoadID</span>,
     <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
 };
@@ -990,8 +994,12 @@
 
                 <span class="comment">// We can only reverse the lane closest to the center.</span>
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span>[<span class="ident">lane</span>.<span class="ident">parent</span>.<span class="number">0</span>];
-                <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">dst_i</span>;
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">children_mut</span>(<span class="op">!</span><span class="ident">dir</span>).<span class="ident">remove</span>(<span class="number">0</span>).<span class="number">0</span>, <span class="ident">l</span>);
+                <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">dst_i</span> {
+                    <span class="ident">Direction</span>::<span class="ident">Fwd</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">Direction</span>::<span class="ident">Back</span>
+                };
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">children_mut</span>(<span class="ident">dir</span>.<span class="ident">opposite</span>()).<span class="ident">remove</span>(<span class="number">0</span>).<span class="number">0</span>, <span class="ident">l</span>);
                 <span class="ident">r</span>.<span class="ident">children_mut</span>(<span class="ident">dir</span>).<span class="ident">insert</span>(<span class="number">0</span>, (<span class="ident">l</span>, <span class="ident">lane</span>.<span class="ident">lane_type</span>));
                 <span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
                 <span class="ident">effects</span>.<span class="ident">changed_intersections</span>.<span class="ident">insert</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>);

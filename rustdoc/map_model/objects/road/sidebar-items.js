@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DirectedRoadID",""],["Road",""],["RoadID",""]],"type":[["HomogenousTuple2",""]]});
+initSidebarItems({"enum":[["Direction",""]],"struct":[["DirectedRoadID",""],["Road",""],["RoadID",""]],"type":[["HomogenousTuple2",""]]});
