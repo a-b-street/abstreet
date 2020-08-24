@@ -253,7 +253,7 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon
             width_back += map.get_l(l).width;
         }
     }
-    let center = r.get_current_center(map);
+    let center = r.get_dir_change_pl(map);
 
     // These arrows should point from the void to the road
     if !i.outgoing_lanes.is_empty() {

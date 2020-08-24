@@ -165,16 +165,21 @@ pub fn try_change_lt(
 
 pub fn try_reverse(ctx: &mut EventCtx, map: &Map, l: LaneID) -> Result<EditCmd, Box<dyn State>> {
     let lane = map.get_l(l);
-    if map.get_r(lane.parent).dir_and_offset(l).1 != 0 {
+    let r = map.get_r(lane.parent);
+    let lanes = r.lanes_ltr();
+    let idx = r.offset(l);
+    let dir = lanes[idx].1;
+    if (idx != 0 && lanes[idx - 1].1 != dir) || (idx != lanes.len() - 1 && lanes[idx + 1].1 != dir)
+    {
+        Ok(EditCmd::ReverseLane {
+            l,
+            dst_i: lane.src_i,
+        })
+    } else {
         Err(PopupMsg::new(
             ctx,
             "Error",
             vec!["You can only reverse the lanes next to the road's yellow center line"],
         ))
-    } else {
-        Ok(EditCmd::ReverseLane {
-            l,
-            dst_i: lane.src_i,
-        })
     }
 }

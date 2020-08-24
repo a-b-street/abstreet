@@ -541,7 +541,7 @@ fn build_shape_for_border(
     let start = border.polygon.center();
 
     let road = map.get_r(*border.roads.iter().next().unwrap());
-    let center_line = road.get_current_center(map);
+    let center_line = road.get_dir_change_pl(map);
     let angle = if road.src_i == border.id {
         center_line.first_line().angle().opposite()
     } else {

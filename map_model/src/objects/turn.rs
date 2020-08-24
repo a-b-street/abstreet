@@ -119,7 +119,7 @@ impl Turn {
         let from_idx = {
             let mut cnt = 0;
             let r = map.get_r(from.parent);
-            for (l, lt) in r.children(r.get_dir(from.id)).iter().rev() {
+            for (l, lt) in r.children(r.dir(from.id)).iter().rev() {
                 if from.lane_type != *lt {
                     continue;
                 }
@@ -142,7 +142,7 @@ impl Turn {
         let to_idx = {
             let mut cnt = 0;
             let r = map.get_r(to.parent);
-            for (l, lt) in r.children(r.get_dir(to.id)).iter().rev() {
+            for (l, lt) in r.children(r.dir(to.id)).iter().rev() {
                 if to.lane_type != *lt {
                     continue;
                 }
