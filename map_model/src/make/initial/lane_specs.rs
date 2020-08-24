@@ -182,22 +182,27 @@ pub fn get_lane_specs(tags: &Tags) -> Vec<LaneSpec> {
         }
     }
 
-    if tags.is("cycleway", "lane") {
+    if tags.is_any("cycleway", vec!["lane", "track"]) {
         fwd_side.push(LaneType::Biking);
         if !back_side.is_empty() {
             back_side.push(LaneType::Biking);
         }
-    } else if tags.is("cycleway:both", "lane") {
+    } else if tags.is_any("cycleway:both", vec!["lane", "track"]) {
         fwd_side.push(LaneType::Biking);
         back_side.push(LaneType::Biking);
     } else {
-        if tags.is("cycleway:right", "lane") {
+        if tags.is_any("cycleway:right", vec!["lane", "track"]) {
             fwd_side.push(LaneType::Biking);
         }
-        if tags.is_any("cycleway:left", vec!["lane", "opposite_lane"])
-            || tags.is("cycleway", "opposite_lane")
-        {
+        if tags.is("cycleway:left", "opposite_lane") || tags.is("cycleway", "opposite_lane") {
             back_side.push(LaneType::Biking);
+        }
+        if tags.is_any("cycleway:left", vec!["lane", "track"]) {
+            if oneway {
+                fwd_side.insert(0, LaneType::Biking);
+            } else {
+                back_side.push(LaneType::Biking);
+            }
         }
 
         // Cycleway isn't explicitly specified, but this is a reasonable assumption anyway.
