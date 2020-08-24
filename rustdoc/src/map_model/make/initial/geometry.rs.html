@@ -592,6 +592,13 @@
 <span id="592">592</span>
 <span id="593">593</span>
 <span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>::{<span class="ident">Intersection</span>, <span class="ident">Road</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">osm</span>;
@@ -736,7 +743,12 @@
                 ));
             }
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">hit</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">use_pl1</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">use_pl2</span>) {
+            <span class="comment">// Sometimes two road PLs may hit at multiple points because they&#39;re thick and close</span>
+            <span class="comment">// together. pl1.intersection(pl2) returns the &quot;first&quot; hit from pl1&#39;s</span>
+            <span class="comment">// perspective, so reverse it, ensuring we find the hit closest to the</span>
+            <span class="comment">// intersection we&#39;re working on.</span>
+            <span class="comment">// TODO I hoped this would subsume the second_half() hack above, but it sadly doesn&#39;t.</span>
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">hit</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">use_pl1</span>.<span class="ident">reversed</span>().<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">use_pl2</span>) {
                 <span class="comment">// Find where the perpendicular hits the original road line</span>
                 <span class="kw">let</span> <span class="ident">perp</span> <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(
                     <span class="ident">hit</span>,
@@ -794,7 +806,9 @@
 
         <span class="comment">// Include collisions between polylines of adjacent roads, so the polygon doesn&#39;t cover area</span>
         <span class="comment">// not originally covered by the thick road bands.</span>
-        <span class="comment">// It&#39;s apparently safe to always take the second_half here.</span>
+        <span class="comment">// Always take the second_half here to handle roads that intersect at multiple points.</span>
+        <span class="comment">// TODO Should maybe do reversed() to fwd_pl here too. And why not make all the lines</span>
+        <span class="comment">// passed in point AWAY from the intersection instead?</span>
         <span class="kw">if</span> <span class="ident">fwd_pl</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">EPSILON_DIST</span> <span class="op">*</span> <span class="number">3.0</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">adj_fwd_pl</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">EPSILON_DIST</span> <span class="op">*</span> <span class="number">3.0</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">hit</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">fwd_pl</span>.<span class="ident">second_half</span>().<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">adj_fwd_pl</span>.<span class="ident">second_half</span>()) {
                 <span class="ident">endpoints</span>.<span class="ident">push</span>(<span class="ident">hit</span>);
