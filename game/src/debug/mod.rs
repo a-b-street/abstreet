@@ -9,6 +9,7 @@ use crate::game::{ChooseSomething, DrawBaselayer, PopupMsg, PromptInput, State, 
 use crate::helpers::ID;
 use crate::options::OptionsPanel;
 use crate::render::{calculate_corners, DrawOptions};
+use crate::sandbox::GameplayMode;
 use abstutil::{Parallelism, Tags, Timer};
 use ezgui::{
     hotkey, lctrl, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -375,7 +376,7 @@ fn search_osm(filter: String, ctx: &mut EventCtx, app: &mut App) -> Transition {
 
     // TODO Case insensitive
     let map = &app.primary.map;
-    let color = Color::RED;
+    let color = Color::RED.alpha(0.8);
     for r in map.all_roads() {
         if r.osm_tags
             .inner()
@@ -625,6 +626,11 @@ impl ContextualActions for Actions {
 
     fn is_paused(&self) -> bool {
         true
+    }
+
+    fn gameplay_mode(&self) -> GameplayMode {
+        // Hack so info panels can be opened in DebugMode
+        GameplayMode::Freeform("fake".to_string())
     }
 }
 
