@@ -297,32 +297,27 @@ impl UberTurnGroup {
     // Polyline points FROM intersection
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
         let r = map.get_r(self.from.id);
-        let dir = self.from.dir;
-        // Points towards the intersection
-        let pl = if dir == Direction::Fwd {
-            r.get_current_center(map)
-        } else {
-            r.get_current_center(map).reversed()
-        };
 
-        // TODO Poorly expressed. We just want the first leftmost value, and the last rightmost.
         let mut leftmost = Distance::meters(99999.0);
         let mut rightmost = Distance::ZERO;
         let mut left = Distance::ZERO;
-        let mut right = Distance::ZERO;
 
-        for l in r.lanes_on_side(dir) {
-            right += map.get_l(l).width;
+        for (l, _, _) in r.lanes_ltr() {
+            let right = left + map.get_l(l).width;
 
             if self.members.iter().any(|ut| ut.entry() == l) {
                 leftmost = leftmost.min(left);
                 rightmost = rightmost.max(right);
             }
 
-            left += map.get_l(l).width;
+            left = right;
         }
 
-        let pl = map.must_right_shift(pl, (leftmost + rightmost) / 2.0);
+        let mut pl = map.must_right_shift(r.get_left_side(map), (leftmost + rightmost) / 2.0);
+        // Point towards the intersection
+        if self.from.dir == Direction::Back {
+            pl = pl.reversed();
+        }
         // Flip direction, so we point away from the intersection
         (pl.reversed(), rightmost - leftmost)
     }

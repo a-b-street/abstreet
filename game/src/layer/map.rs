@@ -69,8 +69,14 @@ impl BikeNetwork {
         // Show throughput, broken down by bike lanes or not
         for ((r, agent_type, _), count) in &app.primary.sim.get_analytics().road_thruput.counts {
             if *agent_type == AgentType::Bike {
-                let (mut fwd, mut back) = app.primary.map.get_r(*r).get_lane_types();
-                if fwd.any(|lt| lt == LaneType::Biking) || back.any(|lt| lt == LaneType::Biking) {
+                if app
+                    .primary
+                    .map
+                    .get_r(*r)
+                    .lanes_ltr()
+                    .into_iter()
+                    .any(|(_, _, lt)| lt == LaneType::Biking)
+                {
                     on_bike_lanes.add(*r, *count);
                 } else {
                     off_bike_lanes.add(*r, *count);

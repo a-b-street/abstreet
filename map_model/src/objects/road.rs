@@ -115,8 +115,6 @@ pub struct Road {
     pub dst_i: IntersectionID,
 }
 
-type HomogenousTuple2<T> = (T, T);
-
 impl Road {
     // Returns all lanes from the left side of the road to right. Left/right is determined by the
     // orientation of center_pts.
@@ -170,15 +168,6 @@ impl Road {
         } else {
             &mut self.children_backwards
         }
-    }
-
-    // TODO Deprecated
-    pub fn get_lane_types<'a>(&'a self) -> HomogenousTuple2<impl Iterator<Item = LaneType> + 'a> {
-        let get_lanetype = |(_, lt): &(_, LaneType)| *lt;
-        (
-            self.children_forwards.iter().map(get_lanetype.clone()),
-            self.children_backwards.iter().map(get_lanetype),
-        )
     }
 
     // TODO Deprecated
@@ -293,11 +282,6 @@ impl Road {
     }
 
     // TODO Deprecated
-    pub fn lanes_on_side<'a>(&'a self, dir: Direction) -> impl Iterator<Item = LaneID> + 'a {
-        self.children(dir).iter().map(|(id, _)| *id)
-    }
-
-    // TODO Deprecated
     // This is the yellow line where the direction of the road changes.
     pub fn get_current_center(&self, map: &Map) -> PolyLine {
         let lane = map.get_l(if !self.children_forwards.is_empty() {
@@ -306,12 +290,6 @@ impl Road {
             self.children_backwards[0].0
         });
         map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
-    }
-
-    // TODO Deprecated
-    pub fn any_on_other_side(&self, l: LaneID, lt: LaneType) -> Option<LaneID> {
-        let search = self.children(self.get_dir(l).opposite());
-        search.iter().find(|(_, t)| lt == *t).map(|(id, _)| *id)
     }
 
     pub fn get_half_width(&self, map: &Map) -> Distance {

@@ -131,7 +131,7 @@ impl Car {
                         let driving_offset = r.offset(self.router.head().as_lane());
                         let parking_offset = r.offset(*parking_l);
                         let mut diff = (parking_offset as isize) - (driving_offset as isize);
-                        if r.get_dir(self.router.head().as_lane()) == Direction::Back {
+                        if r.dir(self.router.head().as_lane()) == Direction::Back {
                             diff *= -1;
                         }
                         // TODO Sum widths in between, don't assume they're all the same as the
