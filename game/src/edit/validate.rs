@@ -147,7 +147,7 @@ pub fn try_change_lt(
     // Don't let players orphan a bus stop.
     if !r.all_bus_stops(map).is_empty()
         && !r
-            .children(r.is_forwards(l))
+            .children(r.get_dir(l))
             .iter()
             .any(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Bus)
     {

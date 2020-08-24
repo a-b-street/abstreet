@@ -1,7 +1,7 @@
 {
   "map_name": "lakeslice",
   "edits_name": "stay healthy lake wash blvd",
-  "version": 0,
+  "version": 1,
   "commands": [
     {
       "ChangeLaneType": {
@@ -13,7 +13,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Biking",
@@ -30,7 +30,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": false,
+          "dir": "Back",
           "idx": 0
         },
         "lt": "Biking",
@@ -47,7 +47,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Biking",
@@ -64,7 +64,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": false,
+          "dir": "Back",
           "idx": 0
         },
         "lt": "Biking",
@@ -81,7 +81,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Biking",
@@ -98,7 +98,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": false,
+          "dir": "Back",
           "idx": 0
         },
         "lt": "Biking",
@@ -115,7 +115,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Biking",
@@ -132,7 +132,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": false,
+          "dir": "Back",
           "idx": 0
         },
         "lt": "Biking",
@@ -149,7 +149,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Biking",
@@ -166,7 +166,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": false,
+          "dir": "Back",
           "idx": 0
         },
         "lt": "Biking",
@@ -183,7 +183,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Biking",
@@ -200,7 +200,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": false,
+          "dir": "Back",
           "idx": 0
         },
         "lt": "Biking",
@@ -217,7 +217,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Biking",
@@ -234,7 +234,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": false,
+          "dir": "Back",
           "idx": 0
         },
         "lt": "Biking",

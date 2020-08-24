@@ -1,9 +1,9 @@
 use crate::reader::{Document, Relation};
 use abstutil::Timer;
 use geom::{HashablePt2D, Polygon, Pt2D};
-use map_model::osm;
 use map_model::osm::{NodeID, OsmID, RelationID, WayID};
 use map_model::raw::{OriginalRoad, RawBusRoute, RawBusStop, RawMap};
+use map_model::{osm, Direction};
 use std::collections::HashMap;
 
 pub fn extract_route(
@@ -261,10 +261,10 @@ pub fn snap_bus_stops(
 
         let i1 = i1.unwrap();
         let i2 = i2.unwrap();
-        let fwds = if road.i1 == i1 && road.i2 == i2 {
-            true
+        let dir = if road.i1 == i1 && road.i2 == i2 {
+            Direction::Fwd
         } else if road.i1 == i2 && road.i2 == i1 {
-            false
+            Direction::Back
         } else {
             return Err(format!(
                 "Can't figure out where {} is along route. At {}, between {:?} and {:?}. {} of {}",
@@ -277,9 +277,9 @@ pub fn snap_bus_stops(
             ));
         };
 
-        stop.matched_road = Some((road, fwds));
+        stop.matched_road = Some((road, dir));
         if false {
-            println!("{} matched to {}, fwds={}", stop.vehicle_pos.0, road, fwds);
+            println!("{} matched to {}, {}", stop.vehicle_pos.0, road, dir);
         }
 
         // If this road is missing a sidewalk (likely because it's a motorway), add one.
@@ -293,10 +293,17 @@ pub fn snap_bus_stops(
         if tags.is(osm::INFERRED_SIDEWALKS, "true") {
             let current = tags.get(osm::SIDEWALK).unwrap();
             if current == "none" {
-                tags.insert(osm::SIDEWALK, if fwds { "right" } else { "left" });
-            } else if current == "right" && !fwds {
+                tags.insert(
+                    osm::SIDEWALK,
+                    if dir == Direction::Fwd {
+                        "right"
+                    } else {
+                        "left"
+                    },
+                );
+            } else if current == "right" && dir == Direction::Back {
                 tags.insert(osm::SIDEWALK, "both");
-            } else if current == "left" && fwds {
+            } else if current == "left" && dir == Direction::Fwd {
                 tags.insert(osm::SIDEWALK, "both");
             } else {
                 continue;

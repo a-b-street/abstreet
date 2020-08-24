@@ -1,4 +1,4 @@
-use crate::{DirectedRoadID, IntersectionID, LaneID, Map, TurnID};
+use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map, TurnID};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 use petgraph::graphmap::UnGraphMap;
@@ -297,9 +297,9 @@ impl UberTurnGroup {
     // Polyline points FROM intersection
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
         let r = map.get_r(self.from.id);
-        let dir = self.from.forwards;
+        let dir = self.from.dir;
         // Points towards the intersection
-        let pl = if dir {
+        let pl = if dir == Direction::Fwd {
             r.get_current_center(map)
         } else {
             r.get_current_center(map).reversed()

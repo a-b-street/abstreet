@@ -1,5 +1,5 @@
 use crate::make::initial::lane_specs::get_lane_specs;
-use crate::{osm, AreaType, IntersectionType, LaneType, MapConfig, NamePerLanguage};
+use crate::{osm, AreaType, Direction, IntersectionType, LaneType, MapConfig, NamePerLanguage};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Angle, Circle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use petgraph::graphmap::DiGraphMap;
@@ -423,8 +423,8 @@ pub struct RawBusStop {
     pub name: String,
     // Probably not an intersection, but this type is more convenient.
     pub vehicle_pos: (osm::NodeID, Pt2D),
-    // Guaranteed to be filled out when RawMap is fully written. True for forwards.
-    pub matched_road: Option<(OriginalRoad, bool)>,
+    // Guaranteed to be filled out when RawMap is fully written.
+    pub matched_road: Option<(OriginalRoad, Direction)>,
     // If it's not explicitly mapped, we'll do equiv_pos.
     pub ped_pos: Option<Pt2D>,
 }

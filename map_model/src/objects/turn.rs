@@ -1,4 +1,4 @@
-use crate::{DirectedRoadID, IntersectionID, LaneID, Map};
+use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 use serde::{Deserialize, Serialize};
@@ -119,7 +119,7 @@ impl Turn {
         let from_idx = {
             let mut cnt = 0;
             let r = map.get_r(from.parent);
-            for (l, lt) in r.children(r.is_forwards(from.id)).iter().rev() {
+            for (l, lt) in r.children(r.get_dir(from.id)).iter().rev() {
                 if from.lane_type != *lt {
                     continue;
                 }
@@ -142,7 +142,7 @@ impl Turn {
         let to_idx = {
             let mut cnt = 0;
             let r = map.get_r(to.parent);
-            for (l, lt) in r.children(r.is_forwards(to.id)).iter().rev() {
+            for (l, lt) in r.children(r.get_dir(to.id)).iter().rev() {
                 if to.lane_type != *lt {
                     continue;
                 }
@@ -281,9 +281,9 @@ impl TurnGroup {
     // Polyline points FROM intersection
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
         let r = map.get_r(self.id.from.id);
-        let dir = self.id.from.forwards;
+        let dir = self.id.from.dir;
         // Points towards the intersection
-        let pl = if dir {
+        let pl = if dir == Direction::Fwd {
             r.get_current_center(map)
         } else {
             r.get_current_center(map).reversed()

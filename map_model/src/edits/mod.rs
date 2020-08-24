@@ -2,7 +2,7 @@ mod compat;
 mod perma;
 
 use crate::{
-    connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal,
+    connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
     IntersectionID, IntersectionType, LaneID, LaneType, Map, PathConstraints, Pathfinder, RoadID,
     TurnID, Zone,
 };
@@ -318,8 +318,12 @@ impl EditCmd {
 
                 // We can only reverse the lane closest to the center.
                 let r = &mut map.roads[lane.parent.0];
-                let dir = *dst_i == r.dst_i;
-                assert_eq!(r.children_mut(!dir).remove(0).0, l);
+                let dir = if *dst_i == r.dst_i {
+                    Direction::Fwd
+                } else {
+                    Direction::Back
+                };
+                assert_eq!(r.children_mut(dir.opposite()).remove(0).0, l);
                 r.children_mut(dir).insert(0, (l, lane.lane_type));
                 effects.changed_roads.insert(r.id);
                 effects.changed_intersections.insert(lane.src_i);

@@ -16,7 +16,7 @@ use ezgui::{
 };
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::raw::OriginalRoad;
-use map_model::{osm, BuildingID, Map, OriginalLane, Position};
+use map_model::{osm, BuildingID, DirectedRoadID, Direction, Map, OriginalLane, Position};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
     PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, VehicleType,
@@ -644,10 +644,12 @@ fn make_bike_lane_scenario(map: &Map) -> ScenarioGenerator {
         percent_use_transit: 0.0,
         start_time: Time::START_OF_DAY,
         stop_time: Time::START_OF_DAY + Duration::seconds(10.0),
-        start_from_border: map
-            .find_r_by_osm_id(OriginalRoad::new(263665925, (2499826475, 53096959)))
-            .unwrap()
-            .backwards(),
+        start_from_border: DirectedRoadID {
+            id: map
+                .find_r_by_osm_id(OriginalRoad::new(263665925, (2499826475, 53096959)))
+                .unwrap(),
+            dir: Direction::Back,
+        },
         goal: OriginDestination::GotoBldg(map.find_b_by_osm_id(bldg(217699501)).unwrap()),
     });
     s
@@ -1039,7 +1041,7 @@ impl TutorialState {
                         parent: OriginalRoad::new(158782224, (1709145066, 53128052)),
                         num_fwd: 3,
                         num_back: 3,
-                        fwd: false,
+                        dir: Direction::Back,
                         idx: 0,
                     }
                     .from_permanent(map)
@@ -1048,7 +1050,7 @@ impl TutorialState {
                         parent: OriginalRoad::new(6484869, (53163501, 53069236)),
                         num_fwd: 3,
                         num_back: 3,
-                        fwd: true,
+                        dir: Direction::Fwd,
                         idx: 0,
                     }
                     .from_permanent(map)

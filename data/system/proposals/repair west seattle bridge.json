@@ -1,7 +1,7 @@
 {
   "map_name": "west_seattle",
   "edits_name": "repair west seattle bridge",
-  "version": 0,
+  "version": 1,
   "commands": [
     {
       "ChangeLaneType": {
@@ -13,7 +13,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -30,7 +30,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -47,7 +47,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -64,7 +64,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -81,7 +81,7 @@
           },
           "num_fwd": 2,
           "num_back": 2,
-          "fwd": false,
+          "dir": "Back",
           "idx": 0
         },
         "lt": "Driving",
@@ -98,7 +98,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -115,7 +115,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -132,7 +132,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -149,7 +149,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -166,7 +166,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -183,7 +183,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -200,7 +200,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -217,7 +217,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -234,7 +234,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -251,7 +251,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -268,7 +268,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -285,7 +285,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -302,7 +302,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -319,7 +319,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -336,7 +336,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -353,7 +353,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -370,7 +370,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -387,7 +387,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -404,7 +404,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -421,7 +421,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -438,7 +438,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 2
         },
         "lt": "Driving",
@@ -455,7 +455,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -472,7 +472,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -489,7 +489,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -506,7 +506,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -523,7 +523,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -540,7 +540,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -557,7 +557,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -574,7 +574,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -591,7 +591,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -608,7 +608,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -625,7 +625,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -642,7 +642,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -659,7 +659,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -676,7 +676,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -693,7 +693,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -710,7 +710,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -727,7 +727,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 2
         },
         "lt": "Driving",
@@ -744,7 +744,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -761,7 +761,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -778,7 +778,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 2
         },
         "lt": "Driving",
@@ -795,7 +795,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -812,7 +812,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -829,7 +829,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -846,7 +846,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 2
         },
         "lt": "Driving",
@@ -863,7 +863,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -880,7 +880,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -897,7 +897,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 2
         },
         "lt": "Driving",
@@ -914,7 +914,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -931,7 +931,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -948,7 +948,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 2
         },
         "lt": "Driving",
@@ -965,7 +965,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -982,7 +982,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -999,7 +999,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 2
         },
         "lt": "Driving",
@@ -1016,7 +1016,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1033,7 +1033,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -1050,7 +1050,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1067,7 +1067,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -1084,7 +1084,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 2
         },
         "lt": "Driving",
@@ -1101,7 +1101,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 3
         },
         "lt": "Driving",
@@ -1118,7 +1118,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1135,7 +1135,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -1152,7 +1152,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 2
         },
         "lt": "Driving",
@@ -1169,7 +1169,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 3
         },
         "lt": "Driving",
@@ -1186,7 +1186,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1203,7 +1203,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1220,7 +1220,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1237,7 +1237,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -1254,7 +1254,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 2
         },
         "lt": "Driving",
@@ -1271,7 +1271,7 @@
           },
           "num_fwd": 4,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 3
         },
         "lt": "Driving",
@@ -1288,7 +1288,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1305,7 +1305,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1322,7 +1322,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1339,7 +1339,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -1356,7 +1356,7 @@
           },
           "num_fwd": 3,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 2
         },
         "lt": "Driving",
@@ -1373,7 +1373,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1390,7 +1390,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1407,7 +1407,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",
@@ -1424,7 +1424,7 @@
           },
           "num_fwd": 2,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 1
         },
         "lt": "Driving",
@@ -1441,7 +1441,7 @@
           },
           "num_fwd": 1,
           "num_back": 0,
-          "fwd": true,
+          "dir": "Fwd",
           "idx": 0
         },
         "lt": "Driving",

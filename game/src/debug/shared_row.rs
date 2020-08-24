@@ -1,6 +1,6 @@
 use geojson::feature::Id;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
-use map_model::{Lane, LaneType, Map, RoadID};
+use map_model::{Direction, Lane, LaneType, Map, RoadID};
 
 // Exports to https://github.com/d-wasserman/shared-row/
 pub fn export(roads: Vec<RoadID>, map: &Map) {
@@ -21,7 +21,7 @@ fn road(id: RoadID, map: &Map) -> Feature {
 
     // Left-to-right
     let mut slices = Vec::new();
-    for (l, _) in r.children(false).into_iter().rev() {
+    for (l, _) in r.children(Direction::Back).into_iter().rev() {
         if let Some(mut slice) = lane(map.get_l(*l)) {
             slice
                 .entry("direction".to_string())
@@ -29,7 +29,7 @@ fn road(id: RoadID, map: &Map) -> Feature {
             slices.push(serde_json::value::Value::Object(slice));
         }
     }
-    for (l, _) in r.children(true).into_iter() {
+    for (l, _) in r.children(Direction::Fwd).into_iter() {
         if let Some(mut slice) = lane(map.get_l(*l)) {
             slice
                 .entry("direction".to_string())

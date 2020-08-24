@@ -81,7 +81,7 @@ impl Position {
         let len = map.get_l(lane).length();
         // The two lanes may be on opposite sides of the road; this often happens on one-ways with
         // sidewalks on both sides.
-        if r.is_forwards(lane) == r.is_forwards(self.lane) {
+        if r.get_dir(lane) == r.get_dir(self.lane) {
             Position::new(lane, self.dist_along.min(len))
         } else {
             Position::new(

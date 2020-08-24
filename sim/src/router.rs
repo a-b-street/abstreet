@@ -353,7 +353,7 @@ impl Router {
         // Look for other candidates, and assign a cost to each.
         let constraints = self.owner.1.to_constraints();
         let (_, turn1, best_lane, turn2) = parent
-            .children(parent.is_forwards(orig_target_lane))
+            .children(parent.get_dir(orig_target_lane))
             .iter()
             .filter(|(l, _)| constraints.can_use(map.get_l(*l), map))
             .filter_map(|(l, _)| {

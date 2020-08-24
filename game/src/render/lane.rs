@@ -3,7 +3,9 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Drawable, GeomBatch, GfxCtx, RewriteColor};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{Lane, LaneID, LaneType, Map, Road, RoadID, TurnID, PARKING_SPOT_LENGTH};
+use map_model::{
+    Direction, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID, PARKING_SPOT_LENGTH,
+};
 use std::cell::RefCell;
 use std::collections::HashMap;
 
@@ -268,7 +270,9 @@ fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
 fn calculate_driving_lines(map: &Map, lane: &Lane, parent: &Road) -> Vec<Polygon> {
     // The leftmost lanes don't have dashed lines.
     let (dir, idx) = parent.dir_and_offset(lane.id);
-    if idx == 0 || (dir && !parent.children_forwards[idx - 1].1.is_for_moving_vehicles()) {
+    if idx == 0
+        || (dir == Direction::Fwd && !parent.children_forwards[idx - 1].1.is_for_moving_vehicles())
+    {
         return Vec::new();
     }
     let lane_edge_pts = map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0);

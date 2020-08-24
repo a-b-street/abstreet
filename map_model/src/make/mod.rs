@@ -12,8 +12,8 @@ use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
-    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints,
-    Position, Road, RoadID, TurnGroup, Zone,
+    Direction, Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits,
+    PathConstraints, Position, Road, RoadID, TurnGroup, Zone,
 };
 use abstutil::{Parallelism, Timer};
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
@@ -152,8 +152,12 @@ impl Map {
                 map.intersections[src_i.0].outgoing_lanes.push(id);
                 map.intersections[dst_i.0].incoming_lanes.push(id);
 
-                road.children_mut(!lane.reverse_pts)
-                    .push((id, lane.lane_type));
+                road.children_mut(if lane.reverse_pts {
+                    Direction::Back
+                } else {
+                    Direction::Fwd
+                })
+                .push((id, lane.lane_type));
 
                 // Careful about order here. lane_specs are all of the forwards from center to
                 // sidewalk, then all the backwards from center to sidewalk.

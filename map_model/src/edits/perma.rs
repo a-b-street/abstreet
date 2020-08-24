@@ -1,6 +1,8 @@
 use crate::edits::{EditCmd, EditIntersection, MapEdits};
 use crate::raw::OriginalRoad;
-use crate::{osm, AccessRestrictions, ControlStopSign, IntersectionID, LaneID, LaneType, Map};
+use crate::{
+    osm, AccessRestrictions, ControlStopSign, Direction, IntersectionID, LaneID, LaneType, Map,
+};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Speed, Time};
 use serde::{Deserialize, Serialize};
@@ -40,7 +42,7 @@ pub struct OriginalLane {
     pub parent: OriginalRoad,
     pub num_fwd: usize,
     pub num_back: usize,
-    pub fwd: bool,
+    pub dir: Direction,
     pub idx: usize,
 }
 
@@ -84,7 +86,7 @@ impl PermanentMapEdits {
             map_name: map.get_name().to_string(),
             edits_name: edits.edits_name.clone(),
             // Increase this every time there's a schema change
-            version: 0,
+            version: 1,
             proposal_description: edits.proposal_description.clone(),
             proposal_link: edits.proposal_link.clone(),
             commands: edits
@@ -256,12 +258,12 @@ impl PermanentEditIntersection {
 impl OriginalLane {
     pub fn to_permanent(l: LaneID, map: &Map) -> OriginalLane {
         let r = map.get_parent(l);
-        let (fwd, idx) = r.dir_and_offset(l);
+        let (dir, idx) = r.dir_and_offset(l);
         OriginalLane {
             parent: r.orig_id,
             num_fwd: r.children_forwards.len(),
             num_back: r.children_backwards.len(),
-            fwd,
+            dir,
             idx,
         }
     }
@@ -282,6 +284,6 @@ impl OriginalLane {
                 r.children_backwards.len()
             ));
         }
-        Ok(r.children(self.fwd)[self.idx].0)
+        Ok(r.children(self.dir)[self.idx].0)
     }
 }

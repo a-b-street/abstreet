@@ -8,8 +8,8 @@ use crate::render::{
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
-    Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
-    SIDEWALK_THICKNESS,
+    Direction, Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn,
+    TurnType, SIDEWALK_THICKNESS,
 };
 use std::cell::RefCell;
 
@@ -244,10 +244,10 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon
 
     let mut width_fwd = Distance::ZERO;
     let mut width_back = Distance::ZERO;
-    for (l, _) in r.children(true) {
+    for (l, _) in r.children(Direction::Fwd) {
         width_fwd += map.get_l(*l).width;
     }
-    for (l, _) in r.children(false) {
+    for (l, _) in r.children(Direction::Back) {
         width_back += map.get_l(*l).width;
     }
     let center = r.get_current_center(map);

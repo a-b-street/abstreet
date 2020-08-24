@@ -1,6 +1,7 @@
 use crate::pathfind;
 use crate::{
-    osm, BusStopID, DirectedRoadID, IntersectionID, Map, PathConstraints, Road, RoadID, TurnType,
+    osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, PathConstraints, Road, RoadID,
+    TurnType,
 };
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Line, PolyLine, Pt2D};
@@ -217,12 +218,11 @@ impl Lane {
     }
 
     // TODO Store this natively if this winds up being useful.
-    pub fn get_directed_parent(&self, map: &Map) -> DirectedRoadID {
+    pub(crate) fn get_directed_parent(&self, map: &Map) -> DirectedRoadID {
         let r = map.get_r(self.parent);
-        if r.is_forwards(self.id) {
-            r.id.forwards()
-        } else {
-            r.id.backwards()
+        DirectedRoadID {
+            id: r.id,
+            dir: r.get_dir(self.id),
         }
     }
 
@@ -235,11 +235,11 @@ impl Lane {
         }
 
         let (dir, offset) = road.dir_and_offset(self.id);
-        let all = if dir && road.osm_tags.contains_key(osm::ENDPT_FWD) {
+        let all = if dir == Direction::Fwd && road.osm_tags.contains_key(osm::ENDPT_FWD) {
             road.osm_tags
                 .get("turn:lanes:forward")
                 .or_else(|| road.osm_tags.get("turn:lanes"))?
-        } else if !dir && road.osm_tags.contains_key(osm::ENDPT_BACK) {
+        } else if dir == Direction::Back && road.osm_tags.contains_key(osm::ENDPT_BACK) {
             road.osm_tags.get("turn:lanes:backward")?
         } else {
             return None;

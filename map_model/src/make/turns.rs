@@ -264,7 +264,7 @@ fn lc_penalty(t: &Turn, map: &Map) -> isize {
     let from_idx = {
         let mut cnt = 0;
         let r = map.get_r(from.parent);
-        for (l, lt) in r.children(r.is_forwards(from.id)) {
+        for (l, lt) in r.children(r.get_dir(from.id)) {
             if from.lane_type != *lt {
                 continue;
             }
@@ -279,7 +279,7 @@ fn lc_penalty(t: &Turn, map: &Map) -> isize {
     let to_idx = {
         let mut cnt = 0;
         let r = map.get_r(to.parent);
-        for (l, lt) in r.children(r.is_forwards(to.id)) {
+        for (l, lt) in r.children(r.get_dir(to.id)) {
             if to.lane_type != *lt {
                 continue;
             }

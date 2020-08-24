@@ -248,21 +248,16 @@ impl Matcher {
         }
 
         // We already figured out what side of the road we're on
-        let (r, fwds) = stop.matched_road.unwrap();
+        let (r, dir) = stop.matched_road.unwrap();
         let r = map.get_r(map.find_r_by_osm_id(r)?);
         // Prefer the rightmost match. DON'T use find_closest_lane here; we only want one side of
         // the road.
         let l = map.get_l(
-            r.children(fwds)
+            r.children(dir)
                 .iter()
                 .rev()
                 .find(|(l, _)| route_type.can_use(map.get_l(*l), map))
-                .ok_or_else(|| {
-                    format!(
-                        "{}, fwds={}, doesn't have a bus or driving lane",
-                        r.id, fwds
-                    )
-                })?
+                .ok_or_else(|| format!("{} {}, doesn't have a bus or driving lane", r.id, dir))?
                 .0,
         );
 
