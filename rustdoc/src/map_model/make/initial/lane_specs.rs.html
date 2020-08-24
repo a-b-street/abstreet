@@ -284,6 +284,11 @@
 <span id="284">284</span>
 <span id="285">285</span>
 <span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">LaneType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">SHOULDER_THICKNESS</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Tags</span>;
@@ -469,22 +474,27 @@
         }
     }
 
-    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway&quot;</span>, <span class="string">&quot;lane&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;cycleway&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;track&quot;</span>]) {
         <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="ident">back_side</span>.<span class="ident">is_empty</span>() {
             <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>);
         }
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway:both&quot;</span>, <span class="string">&quot;lane&quot;</span>) {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;cycleway:both&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;track&quot;</span>]) {
         <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>);
         <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>);
     } <span class="kw">else</span> {
-        <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway:right&quot;</span>, <span class="string">&quot;lane&quot;</span>) {
+        <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;cycleway:right&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;track&quot;</span>]) {
             <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>);
         }
-        <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;cycleway:left&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;opposite_lane&quot;</span>])
-            <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway&quot;</span>, <span class="string">&quot;opposite_lane&quot;</span>)
-        {
+        <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway:left&quot;</span>, <span class="string">&quot;opposite_lane&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway&quot;</span>, <span class="string">&quot;opposite_lane&quot;</span>) {
             <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>);
+        }
+        <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;cycleway:left&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;track&quot;</span>]) {
+            <span class="kw">if</span> <span class="ident">oneway</span> {
+                <span class="ident">fwd_side</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">LaneType</span>::<span class="ident">Biking</span>);
+            } <span class="kw">else</span> {
+                <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>);
+            }
         }
 
         <span class="comment">// Cycleway isn&#39;t explicitly specified, but this is a reasonable assumption anyway.</span>
