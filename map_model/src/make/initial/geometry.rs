@@ -141,7 +141,12 @@ fn generalized_trim_back(
                 ));
             }
 
-            if let Some((hit, angle)) = use_pl1.intersection(&use_pl2) {
+            // Sometimes two road PLs may hit at multiple points because they're thick and close
+            // together. pl1.intersection(pl2) returns the "first" hit from pl1's
+            // perspective, so reverse it, ensuring we find the hit closest to the
+            // intersection we're working on.
+            // TODO I hoped this would subsume the second_half() hack above, but it sadly doesn't.
+            if let Some((hit, angle)) = use_pl1.reversed().intersection(&use_pl2) {
                 // Find where the perpendicular hits the original road line
                 let perp = Line::must_new(
                     hit,
@@ -199,7 +204,9 @@ fn generalized_trim_back(
 
         // Include collisions between polylines of adjacent roads, so the polygon doesn't cover area
         // not originally covered by the thick road bands.
-        // It's apparently safe to always take the second_half here.
+        // Always take the second_half here to handle roads that intersect at multiple points.
+        // TODO Should maybe do reversed() to fwd_pl here too. And why not make all the lines
+        // passed in point AWAY from the intersection instead?
         if fwd_pl.length() >= EPSILON_DIST * 3.0 && adj_fwd_pl.length() >= EPSILON_DIST * 3.0 {
             if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
                 endpoints.push(hit);
