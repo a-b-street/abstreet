@@ -128,8 +128,8 @@ impl Car {
                 match spot {
                     ParkingSpot::Onstreet(parking_l, _) => {
                         let r = map.get_parent(*parking_l);
-                        let driving_offset = r.offset_from_left(self.router.head().as_lane());
-                        let parking_offset = r.offset_from_left(*parking_l);
+                        let driving_offset = r.offset(self.router.head().as_lane());
+                        let parking_offset = r.offset(*parking_l);
                         let mut diff = (parking_offset as isize) - (driving_offset as isize);
                         if r.get_dir(self.router.head().as_lane()) == Direction::Back {
                             diff *= -1;

@@ -103,11 +103,13 @@ pub struct Road {
     // Invariant: A road must contain at least one child
     // These are ordered from closest to center lane (left-most when driving on the right) to
     // farthest (sidewalk)
-    pub children_forwards: Vec<(LaneID, LaneType)>,
-    pub children_backwards: Vec<(LaneID, LaneType)>,
+    // TODO Deprecated
+    pub(crate) children_forwards: Vec<(LaneID, LaneType)>,
+    pub(crate) children_backwards: Vec<(LaneID, LaneType)>,
 
     // The physical center of the road, including sidewalks, after trimming. The order implies road
     // orientation. No edits ever change this.
+    // TODO Maybe deprecated in favor of get_left_side?
     pub center_pts: PolyLine,
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
@@ -116,7 +118,44 @@ pub struct Road {
 type HomogenousTuple2<T> = (T, T);
 
 impl Road {
-    pub fn children(&self, dir: Direction) -> &Vec<(LaneID, LaneType)> {
+    // Returns all lanes from the left side of the road to right. Left/right is determined by the
+    // orientation of center_pts.
+    pub fn lanes_ltr(&self) -> Vec<(LaneID, Direction, LaneType)> {
+        let mut lanes = Vec::new();
+        for (l, lt) in self.children_backwards.iter().rev() {
+            lanes.push((*l, Direction::Back, *lt));
+        }
+        for (l, lt) in &self.children_forwards {
+            lanes.push((*l, Direction::Fwd, *lt));
+        }
+        lanes
+    }
+
+    pub fn get_left_side(&self, map: &Map) -> PolyLine {
+        self.center_pts.must_shift_left(self.get_half_width(map))
+    }
+
+    // Counting from the left side of the road
+    pub fn offset(&self, lane: LaneID) -> usize {
+        for (idx, (l, _, _)) in self.lanes_ltr().into_iter().enumerate() {
+            if lane == l {
+                return idx;
+            }
+        }
+        panic!("{} doesn't contain {}", self.id, lane);
+    }
+
+    pub fn dir(&self, lane: LaneID) -> Direction {
+        for (l, dir, _) in self.lanes_ltr() {
+            if lane == l {
+                return dir;
+            }
+        }
+        panic!("{} doesn't contain {}", self.id, lane);
+    }
+
+    // TODO Deprecated
+    pub(crate) fn children(&self, dir: Direction) -> &Vec<(LaneID, LaneType)> {
         if dir == Direction::Fwd {
             &self.children_forwards
         } else {
@@ -124,6 +163,7 @@ impl Road {
         }
     }
 
+    // TODO Deprecated
     pub(crate) fn children_mut(&mut self, dir: Direction) -> &mut Vec<(LaneID, LaneType)> {
         if dir == Direction::Fwd {
             &mut self.children_forwards
@@ -132,6 +172,7 @@ impl Road {
         }
     }
 
+    // TODO Deprecated
     pub fn get_lane_types<'a>(&'a self) -> HomogenousTuple2<impl Iterator<Item = LaneType> + 'a> {
         let get_lanetype = |(_, lt): &(_, LaneType)| *lt;
         (
@@ -140,10 +181,12 @@ impl Road {
         )
     }
 
+    // TODO Deprecated
     pub fn get_dir(&self, lane: LaneID) -> Direction {
         self.dir_and_offset(lane).0
     }
 
+    // TODO Deprecated
     // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
     // it counts up from there.
     pub fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
@@ -209,16 +252,6 @@ impl Road {
         }
     }
 
-    // "Left" depends on the road, so if the lane is Direction::Back, keep that in mind
-    pub fn offset_from_left(&self, lane: LaneID) -> usize {
-        self.children_backwards
-            .iter()
-            .rev()
-            .chain(self.children_forwards.iter())
-            .position(|(l, _)| *l == lane)
-            .unwrap()
-    }
-
     // Includes off-side
     // TODO Specialize a variant for PathConstraints.can_use. Only one caller needs something
     // fancier.
@@ -259,10 +292,12 @@ impl Road {
             .collect()
     }
 
+    // TODO Deprecated
     pub fn lanes_on_side<'a>(&'a self, dir: Direction) -> impl Iterator<Item = LaneID> + 'a {
         self.children(dir).iter().map(|(id, _)| *id)
     }
 
+    // TODO Deprecated
     // This is the yellow line where the direction of the road changes.
     pub fn get_current_center(&self, map: &Map) -> PolyLine {
         let lane = map.get_l(if !self.children_forwards.is_empty() {
@@ -273,6 +308,7 @@ impl Road {
         map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
     }
 
+    // TODO Deprecated
     pub fn any_on_other_side(&self, l: LaneID, lt: LaneType) -> Option<LaneID> {
         let search = self.children(self.get_dir(l).opposite());
         search.iter().find(|(_, t)| lt == *t).map(|(id, _)| *id)

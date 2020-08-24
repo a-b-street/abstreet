@@ -145,11 +145,13 @@ pub fn try_change_lt(
     }
 
     // Don't let players orphan a bus stop.
+    // TODO This allows a bus stop switching sides of the road. Really need to re-do bus matching
+    // and make sure nothing's broken (https://github.com/dabreegster/abstreet/issues/93).
     if !r.all_bus_stops(map).is_empty()
         && !r
-            .children(r.get_dir(l))
-            .iter()
-            .any(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Bus)
+            .lanes_ltr()
+            .into_iter()
+            .any(|(l, _, _)| PathConstraints::Bus.can_use(map.get_l(l), map))
     {
         errors.push(format!("You need a driving or bus lane for the bus stop!"));
     }
