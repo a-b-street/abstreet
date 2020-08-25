@@ -5,6 +5,7 @@ use abstutil::Tags;
 use geom::Distance;
 use std::iter;
 
+#[derive(PartialEq)]
 pub struct LaneSpec {
     pub lt: LaneType,
     pub dir: Direction,
@@ -35,7 +36,6 @@ fn back(lt: LaneType) -> LaneSpec {
     }
 }
 
-// TODO This is ripe for unit testing.
 pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
     // Easy special cases first.
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
@@ -265,4 +265,88 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
     back_side.reverse();
     back_side.extend(fwd_side);
     back_side
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn lt_to_char(lt: LaneType) -> &'static str {
+        match lt {
+            LaneType::Driving => "d",
+            LaneType::Biking => "b",
+            LaneType::Bus => "B",
+            LaneType::Parking => "p",
+            LaneType::Sidewalk => "s",
+            LaneType::Shoulder => "S",
+            LaneType::SharedLeftTurn => "C",
+            LaneType::Construction => "x",
+            LaneType::LightRail => "l",
+        }
+    }
+
+    fn tags(kv: Vec<&str>) -> Tags {
+        let mut tags = Tags::new(std::collections::BTreeMap::new());
+        for pair in kv {
+            let parts = pair.split('=').collect::<Vec<_>>();
+            tags.insert(parts[0], parts[1]);
+        }
+        tags
+    }
+
+    #[test]
+    fn test_osm_to_specs() {
+        let mut ok = true;
+        for (input, expected_lt, expected_dir) in vec![
+            (
+                // https://www.openstreetmap.org/way/428294122
+                vec![
+                    "lanes=2",
+                    "oneway=yes",
+                    "sidewalk=both",
+                    "cycleway:left=lane",
+                ],
+                "sbdds",
+                "v^^^^",
+            ),
+            (
+                // https://www.openstreetmap.org/way/8591383
+                vec![
+                    "lanes=1",
+                    "oneway=yes",
+                    "sidewalk=both",
+                    "cycleway:left=track",
+                    "oneway:bicycle=no",
+                ],
+                "sbbds",
+                "vv^^^",
+            ),
+        ] {
+            let actual = get_lane_specs_ltr(&tags(input.clone()));
+            let actual_lt = actual
+                .iter()
+                .map(|s| lt_to_char(s.lt))
+                .collect::<Vec<_>>()
+                .join("");
+            let actual_dir = actual
+                .iter()
+                .map(|s| if s.dir == Direction::Fwd { "^" } else { "v" })
+                .collect::<Vec<_>>()
+                .join("");
+            if actual_lt != expected_lt || actual_dir != expected_dir {
+                ok = false;
+                println!("For input:");
+                for kv in input {
+                    println!("    {}", kv);
+                }
+                println!("Got:");
+                println!("    {}", actual_lt);
+                println!("    {}", actual_dir);
+                println!("Expected:");
+                println!("    {}", expected_lt);
+                println!("    {}", expected_dir);
+            }
+        }
+        assert!(ok);
+    }
 }
