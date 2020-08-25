@@ -1,6 +1,7 @@
 use crate::raw::DrivingSide;
 use crate::{
-    Intersection, IntersectionID, Lane, LaneID, LaneType, Map, Road, Turn, TurnID, TurnType,
+    Direction, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, Road, Turn, TurnID,
+    TurnType,
 };
 use abstutil::{wraparound_get, Timer};
 use geom::{Distance, Line, PolyLine, Pt2D, Ring};
@@ -156,8 +157,17 @@ fn _new_make_walking_turns(
     let mut num_sidewalks = 0;
     for r in i.get_roads_sorted_by_incoming_angle(all_roads) {
         let r = &all_roads[r.0];
-        let fwd = get_sidewalk(all_lanes, &r.children_forwards);
-        let back = get_sidewalk(all_lanes, &r.children_backwards);
+        let mut fwd = None;
+        let mut back = None;
+        for (l, dir, lt) in r.lanes_ltr() {
+            if lt == LaneType::Sidewalk || lt == LaneType::Shoulder {
+                if dir == Direction::Fwd {
+                    fwd = Some(&all_lanes[l.0]);
+                } else {
+                    back = Some(&all_lanes[l.0]);
+                }
+            }
+        }
         if fwd.is_some() {
             num_sidewalks += 1;
         }
