@@ -101,11 +101,7 @@ pub struct Road {
     pub zorder: isize,
 
     // Invariant: A road must contain at least one child
-    // These are ordered from closest to center lane (left-most when driving on the right) to
-    // farthest (sidewalk)
-    // TODO Deprecated
-    pub(crate) children_forwards: Vec<(LaneID, LaneType)>,
-    pub(crate) children_backwards: Vec<(LaneID, LaneType)>,
+    pub(crate) lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
 
     // The physical center of the road, including sidewalks, after trimming. The order implies road
     // orientation. No edits ever change this.
@@ -119,14 +115,8 @@ impl Road {
     // Returns all lanes from the left side of the road to right. Left/right is determined by the
     // orientation of center_pts.
     pub fn lanes_ltr(&self) -> Vec<(LaneID, Direction, LaneType)> {
-        let mut lanes = Vec::new();
-        for (l, lt) in self.children_backwards.iter().rev() {
-            lanes.push((*l, Direction::Back, *lt));
-        }
-        for (l, lt) in &self.children_forwards {
-            lanes.push((*l, Direction::Fwd, *lt));
-        }
-        lanes
+        // TODO Change this to return &Vec
+        self.lanes_ltr.clone()
     }
 
     pub fn get_left_side(&self, map: &Map) -> PolyLine {
@@ -384,23 +374,36 @@ impl Road {
 
 // TODO All of this is kind of deprecated? During the transiton towards lanes_ltr, some pieces
 // seemed to really need to still handle lanes going outward from the "center" line. Should keep
-// whittling this down, probably.
+// whittling this down, probably. These very much don't handle multiple direction changes.
 impl Road {
-    // TODO Deprecated
-    pub(crate) fn children(&self, dir: Direction) -> &Vec<(LaneID, LaneType)> {
-        if dir == Direction::Fwd {
-            &self.children_forwards
-        } else {
-            &self.children_backwards
+    // These are ordered from closest to center lane (left-most when driving on the right) to
+    // farthest (sidewalk)
+    pub(crate) fn children_forwards(&self) -> Vec<(LaneID, LaneType)> {
+        let mut result = Vec::new();
+        for (l, dir, lt) in self.lanes_ltr() {
+            if dir == Direction::Fwd {
+                result.push((l, lt));
+            }
         }
+        result
+    }
+    pub(crate) fn children_backwards(&self) -> Vec<(LaneID, LaneType)> {
+        let mut result = Vec::new();
+        for (l, dir, lt) in self.lanes_ltr() {
+            if dir == Direction::Back {
+                result.push((l, lt));
+            }
+        }
+        result.reverse();
+        result
     }
 
     // TODO Deprecated
-    pub(crate) fn children_mut(&mut self, dir: Direction) -> &mut Vec<(LaneID, LaneType)> {
+    pub(crate) fn children(&self, dir: Direction) -> Vec<(LaneID, LaneType)> {
         if dir == Direction::Fwd {
-            &mut self.children_forwards
+            self.children_forwards()
         } else {
-            &mut self.children_backwards
+            self.children_backwards()
         }
     }
 
@@ -417,22 +420,22 @@ impl Road {
     }
 
     // Returns lanes from the "center" going out
-    pub(crate) fn incoming_lanes(&self, i: IntersectionID) -> &Vec<(LaneID, LaneType)> {
+    pub(crate) fn incoming_lanes(&self, i: IntersectionID) -> Vec<(LaneID, LaneType)> {
         if self.src_i == i {
-            &self.children_backwards
+            self.children_backwards()
         } else if self.dst_i == i {
-            &self.children_forwards
+            self.children_forwards()
         } else {
             panic!("{} doesn't have an endpoint at {}", self.id, i);
         }
     }
 
     // Returns lanes from the "center" going out
-    pub(crate) fn outgoing_lanes(&self, i: IntersectionID) -> &Vec<(LaneID, LaneType)> {
+    pub(crate) fn outgoing_lanes(&self, i: IntersectionID) -> Vec<(LaneID, LaneType)> {
         if self.src_i == i {
-            &self.children_forwards
+            self.children_forwards()
         } else if self.dst_i == i {
-            &self.children_backwards
+            self.children_backwards()
         } else {
             panic!("{} doesn't have an endpoint at {}", self.id, i);
         }

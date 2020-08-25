@@ -261,8 +261,8 @@ impl OriginalLane {
         let (dir, idx) = r.dir_and_offset(l);
         OriginalLane {
             parent: r.orig_id,
-            num_fwd: r.children_forwards.len(),
-            num_back: r.children_backwards.len(),
+            num_fwd: r.children_forwards().len(),
+            num_back: r.children_backwards().len(),
             dir,
             idx,
         }
@@ -275,13 +275,14 @@ impl OriginalLane {
     // - Is it inevitable? Maybe we need to apply edits as we convert.
     pub fn from_permanent(self, map: &Map) -> Result<LaneID, String> {
         let r = map.get_r(map.find_r_by_osm_id(self.parent)?);
-        if r.children_forwards.len() != self.num_fwd || r.children_backwards.len() != self.num_back
+        if r.children_forwards().len() != self.num_fwd
+            || r.children_backwards().len() != self.num_back
         {
             return Err(format!(
                 "number of lanes has changed in {:?} to {} fwd, {} back",
                 self,
-                r.children_forwards.len(),
-                r.children_backwards.len()
+                r.children_forwards().len(),
+                r.children_backwards().len()
             ));
         }
         Ok(r.children(self.dir)[self.idx].0)

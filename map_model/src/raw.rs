@@ -1,4 +1,4 @@
-use crate::make::initial::lane_specs::get_lane_specs;
+use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{osm, AreaType, Direction, IntersectionType, LaneType, MapConfig, NamePerLanguage};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Angle, Circle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
@@ -251,7 +251,7 @@ impl RawRoad {
         id: OriginalRoad,
         driving_side: DrivingSide,
     ) -> (PolyLine, Distance) {
-        let lane_specs = get_lane_specs(&self.osm_tags);
+        let lane_specs = get_lane_specs_ltr(&self.osm_tags);
         let mut total_width = Distance::ZERO;
         let mut sidewalk_right = None;
         let mut sidewalk_left = None;

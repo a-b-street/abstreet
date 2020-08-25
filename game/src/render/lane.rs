@@ -267,25 +267,23 @@ fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
     result
 }
 
-// TODO Because the stripe straddles two lanes, it might be hidden on one side. Should split into
-// two z-orders.
+// Because the stripe straddles two lanes, it'll be partly hidden on one side. There are a bunch of
+// ways to work around this z-order issue. The current approach is to rely on the fact that
+// quadtrees return LaneIDs in order, and lanes are always created from left->right.
 fn calculate_driving_lines(map: &Map, lane: &Lane, parent: &Road) -> Vec<Polygon> {
     let lanes = parent.lanes_ltr();
     let idx = parent.offset(lane.id);
 
-    // If the lane to the right of us isn't in the same direction or isn't the same type, don't
+    // If the lane to the left of us isn't in the same direction or isn't the same type, don't
     // need dashed lines.
-    if idx == lanes.len() - 1
-        || lanes[idx].1 != lanes[idx + 1].1
-        || lanes[idx].2 != lanes[idx + 1].2
-    {
+    if idx == 0 || lanes[idx].1 != lanes[idx - 1].1 || lanes[idx].2 != lanes[idx - 1].2 {
         return Vec::new();
     }
 
     let lane_edge_pts = if lanes[idx].1 == Direction::Fwd {
-        map.must_right_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
-    } else {
         map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
+    } else {
+        map.must_right_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
     };
     lane_edge_pts.dashed_lines(
         Distance::meters(0.25),
