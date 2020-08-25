@@ -428,6 +428,9 @@
 <span id="428">428</span>
 <span id="429">429</span>
 <span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -670,18 +673,21 @@
     <span class="ident">corners</span>
 }
 
+<span class="comment">// TODO This assumes the lanes change direction only at one point. A two-way cycletrack right at</span>
+<span class="comment">// the border will look a bit off.</span>
 <span class="kw">fn</span> <span class="ident">calculate_border_arrows</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width_fwd</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width_back</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
-    <span class="kw">for</span> (<span class="ident">l</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">children</span>(<span class="ident">Direction</span>::<span class="ident">Fwd</span>) {
-        <span class="ident">width_fwd</span> <span class="op">+</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">width</span>;
+    <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">dir</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>() {
+        <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
+            <span class="ident">width_fwd</span> <span class="op">+</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">width</span>;
+        } <span class="kw">else</span> {
+            <span class="ident">width_back</span> <span class="op">+</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">width</span>;
+        }
     }
-    <span class="kw">for</span> (<span class="ident">l</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">children</span>(<span class="ident">Direction</span>::<span class="ident">Back</span>) {
-        <span class="ident">width_back</span> <span class="op">+</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">width</span>;
-    }
-    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_current_center</span>(<span class="ident">map</span>);
+    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_dir_change_pl</span>(<span class="ident">map</span>);
 
     <span class="comment">// These arrows should point from the void to the road</span>
     <span class="kw">if</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">outgoing_lanes</span>.<span class="ident">is_empty</span>() {

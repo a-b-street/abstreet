@@ -181,13 +181,13 @@
     <span class="comment">// The true center of the road, including sidewalks</span>
     <span class="kw">pub</span> <span class="ident">trimmed_center_pts</span>: <span class="ident">PolyLine</span>,
     <span class="kw">pub</span> <span class="ident">half_width</span>: <span class="ident">Distance</span>,
-    <span class="kw">pub</span> <span class="ident">lane_specs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">lane_specs_ltr</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Road</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">id</span>: <span class="ident">OriginalRoad</span>, <span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="ident">RawRoad</span>, <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Road</span> {
-        <span class="kw">let</span> <span class="ident">lane_specs</span> <span class="op">=</span> <span class="ident">lane_specs</span>::<span class="ident">get_lane_specs</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">osm_tags</span>);
+        <span class="kw">let</span> <span class="ident">lane_specs_ltr</span> <span class="op">=</span> <span class="ident">lane_specs</span>::<span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">osm_tags</span>);
         <span class="kw">let</span> (<span class="ident">trimmed_center_pts</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_geometry</span>(<span class="ident">id</span>, <span class="ident">driving_side</span>);
 
         <span class="ident">Road</span> {
@@ -196,7 +196,7 @@
             <span class="ident">dst_i</span>: <span class="ident">id</span>.<span class="ident">i2</span>,
             <span class="ident">trimmed_center_pts</span>,
             <span class="ident">half_width</span>: <span class="ident">total_width</span> <span class="op">/</span> <span class="number">2.0</span>,
-            <span class="ident">lane_specs</span>,
+            <span class="ident">lane_specs_ltr</span>,
             <span class="ident">osm_tags</span>: <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">clone</span>(),
         }
     }

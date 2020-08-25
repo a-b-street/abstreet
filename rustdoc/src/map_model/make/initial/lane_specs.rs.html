@@ -278,17 +278,6 @@
 <span id="278">278</span>
 <span id="279">279</span>
 <span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">LaneType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">SHOULDER_THICKNESS</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Tags</span>;
@@ -328,25 +317,19 @@
 
     <span class="kw">fn</span> <span class="ident">normal</span>(<span class="ident">fwd</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span>, <span class="ident">back</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">specs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">lt</span> <span class="kw">in</span> <span class="ident">back</span>.<span class="ident">into_iter</span>().<span class="ident">rev</span>() {
+            <span class="ident">specs</span>.<span class="ident">push</span>(<span class="ident">LaneSpec</span>::<span class="ident">back</span>(<span class="ident">lt</span>));
+        }
         <span class="kw">for</span> <span class="ident">lt</span> <span class="kw">in</span> <span class="ident">fwd</span> {
             <span class="ident">specs</span>.<span class="ident">push</span>(<span class="ident">LaneSpec</span>::<span class="ident">fwds</span>(<span class="ident">lt</span>));
-        }
-        <span class="kw">for</span> <span class="ident">lt</span> <span class="kw">in</span> <span class="ident">back</span> {
-            <span class="ident">specs</span>.<span class="ident">push</span>(<span class="ident">LaneSpec</span>::<span class="ident">back</span>(<span class="ident">lt</span>));
         }
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">specs</span>.<span class="ident">is_empty</span>());
         <span class="ident">specs</span>
     }
 }
 
-<span class="comment">// All the forwards from center-&gt;outer, then all the backwards from center-&gt;outer</span>
-<span class="comment">//</span>
-<span class="comment">// TODO Eventually this should just be all the lanes from left-&gt;right. Need to handle things like</span>
-<span class="comment">// two-way cycleways on one side of a two-way driving road -- there&#39;s not always one line where the</span>
-<span class="comment">// direction flips.</span>
-<span class="comment">//</span>
 <span class="comment">// TODO This is ripe for unit testing.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lane_specs</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lane_specs_ltr</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> {
     <span class="comment">// Easy special cases first.</span>
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;railway&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;light_rail&quot;</span>, <span class="string">&quot;rail&quot;</span>]) {
         <span class="kw">return</span> <span class="ident">LaneSpec</span>::<span class="ident">normal</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">LaneType</span>::<span class="ident">LightRail</span>], <span class="ident">Vec</span>::<span class="ident">new</span>());
@@ -555,28 +538,23 @@
         <span class="ident">need_back_shoulder</span> <span class="op">=</span> <span class="bool-val">false</span>;
     }
 
-    <span class="comment">// TODO Now I&#39;m regretting the weird order this returns...</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">specs</span> <span class="op">=</span> <span class="ident">LaneSpec</span>::<span class="ident">normal</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>);
     <span class="kw">if</span> <span class="ident">need_fwd_shoulder</span> {
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">specs</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">reverse_pts</span>)
-            .<span class="ident">unwrap_or</span>(<span class="ident">specs</span>.<span class="ident">len</span>());
+        <span class="ident">specs</span>.<span class="ident">push</span>(<span class="ident">LaneSpec</span> {
+            <span class="ident">lane_type</span>: <span class="ident">LaneType</span>::<span class="ident">Shoulder</span>,
+            <span class="ident">reverse_pts</span>: <span class="bool-val">false</span>,
+            <span class="ident">width</span>: <span class="ident">SHOULDER_THICKNESS</span>,
+        });
+    }
+    <span class="kw">if</span> <span class="ident">need_back_shoulder</span> {
         <span class="ident">specs</span>.<span class="ident">insert</span>(
-            <span class="ident">idx</span>,
+            <span class="number">0</span>,
             <span class="ident">LaneSpec</span> {
                 <span class="ident">lane_type</span>: <span class="ident">LaneType</span>::<span class="ident">Shoulder</span>,
-                <span class="ident">reverse_pts</span>: <span class="bool-val">false</span>,
+                <span class="ident">reverse_pts</span>: <span class="bool-val">true</span>,
                 <span class="ident">width</span>: <span class="ident">SHOULDER_THICKNESS</span>,
             },
         );
-    }
-    <span class="kw">if</span> <span class="ident">need_back_shoulder</span> {
-        <span class="ident">specs</span>.<span class="ident">push</span>(<span class="ident">LaneSpec</span> {
-            <span class="ident">lane_type</span>: <span class="ident">LaneType</span>::<span class="ident">Shoulder</span>,
-            <span class="ident">reverse_pts</span>: <span class="bool-val">true</span>,
-            <span class="ident">width</span>: <span class="ident">SHOULDER_THICKNESS</span>,
-        });
     }
 
     <span class="ident">specs</span>

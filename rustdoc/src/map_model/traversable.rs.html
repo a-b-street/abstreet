@@ -294,7 +294,7 @@
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">lane</span>).<span class="ident">length</span>();
         <span class="comment">// The two lanes may be on opposite sides of the road; this often happens on one-ways with</span>
         <span class="comment">// sidewalks on both sides.</span>
-        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">get_dir</span>(<span class="ident">lane</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_dir</span>(<span class="self">self</span>.<span class="ident">lane</span>) {
+        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dir</span>(<span class="ident">lane</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">dir</span>(<span class="self">self</span>.<span class="ident">lane</span>) {
             <span class="ident">Position</span>::<span class="ident">new</span>(<span class="ident">lane</span>, <span class="self">self</span>.<span class="ident">dist_along</span>.<span class="ident">min</span>(<span class="ident">len</span>))
         } <span class="kw">else</span> {
             <span class="ident">Position</span>::<span class="ident">new</span>(

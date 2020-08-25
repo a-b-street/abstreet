@@ -429,6 +429,7 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
+<span id="432">432</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -784,24 +785,25 @@
 
         <span class="comment">// Look for other candidates, and assign a cost to each.</span>
         <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="number">1</span>.<span class="ident">to_constraints</span>();
+        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">dir</span>(<span class="ident">orig_target_lane</span>);
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">turn1</span>, <span class="ident">best_lane</span>, <span class="ident">turn2</span>) <span class="op">=</span> <span class="ident">parent</span>
-            .<span class="ident">children</span>(<span class="ident">parent</span>.<span class="ident">get_dir</span>(<span class="ident">orig_target_lane</span>))
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>), <span class="ident">map</span>))
-            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>)<span class="op">|</span> {
+            .<span class="ident">lanes_ltr</span>()
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="ident">d</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">d</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>), <span class="ident">map</span>))
+            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">TurnID</span> {
                     <span class="ident">parent</span>: <span class="ident">current_turn</span>.<span class="ident">parent</span>,
                     <span class="ident">src</span>: <span class="ident">current_turn</span>.<span class="ident">src</span>,
-                    <span class="ident">dst</span>: <span class="kw-2">*</span><span class="ident">l</span>,
+                    <span class="ident">dst</span>: <span class="ident">l</span>,
                 };
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">turn1</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_t</span>(<span class="ident">t1</span>) {
                     <span class="comment">// Make sure we can go from this lane to next_lane.</span>
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">turn2</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_t</span>(<span class="ident">TurnID</span> {
                         <span class="ident">parent</span>: <span class="ident">next_parent</span>,
-                        <span class="ident">src</span>: <span class="kw-2">*</span><span class="ident">l</span>,
+                        <span class="ident">src</span>: <span class="ident">l</span>,
                         <span class="ident">dst</span>: <span class="ident">next_lane</span>,
                     }) {
-                        <span class="prelude-val">Some</span>((<span class="ident">turn1</span>, <span class="kw-2">*</span><span class="ident">l</span>, <span class="ident">turn2</span>))
+                        <span class="prelude-val">Some</span>((<span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>))
                     } <span class="kw">else</span> {
                         <span class="prelude-val">None</span>
                     }

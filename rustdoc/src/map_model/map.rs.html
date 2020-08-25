@@ -1154,14 +1154,14 @@
             }
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">roads_queue</span>.<span class="ident">pop_front</span>().<span class="ident">unwrap</span>());
 
-            <span class="kw">for</span> (<span class="ident">lane</span>, <span class="ident">lane_type</span>) <span class="kw">in</span> <span class="ident">r</span>
-                .<span class="ident">children_forwards</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">chain</span>(<span class="ident">r</span>.<span class="ident">children_backwards</span>.<span class="ident">iter</span>())
+            <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">r</span>
+                .<span class="ident">children_forwards</span>()
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">chain</span>(<span class="ident">r</span>.<span class="ident">children_backwards</span>().<span class="ident">into_iter</span>())
             {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> {
-                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">lane</span>).<span class="ident">driving_blackhole</span> {
-                        <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">lane</span>;
+                <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> {
+                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">driving_blackhole</span> {
+                        <span class="kw">return</span> <span class="ident">l</span>;
                     }
                 }
             }

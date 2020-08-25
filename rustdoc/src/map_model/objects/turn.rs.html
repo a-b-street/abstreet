@@ -363,16 +363,6 @@
 <span id="363">363</span>
 <span id="364">364</span>
 <span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
@@ -495,7 +485,7 @@
         <span class="kw">let</span> <span class="ident">from_idx</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">from</span>.<span class="ident">parent</span>);
-            <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">children</span>(<span class="ident">r</span>.<span class="ident">get_dir</span>(<span class="ident">from</span>.<span class="ident">id</span>)).<span class="ident">iter</span>().<span class="ident">rev</span>() {
+            <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">children</span>(<span class="ident">r</span>.<span class="ident">dir</span>(<span class="ident">from</span>.<span class="ident">id</span>)).<span class="ident">iter</span>().<span class="ident">rev</span>() {
                 <span class="kw">if</span> <span class="ident">from</span>.<span class="ident">lane_type</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">lt</span> {
                     <span class="kw">continue</span>;
                 }
@@ -518,7 +508,7 @@
         <span class="kw">let</span> <span class="ident">to_idx</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">to</span>.<span class="ident">parent</span>);
-            <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">children</span>(<span class="ident">r</span>.<span class="ident">get_dir</span>(<span class="ident">to</span>.<span class="ident">id</span>)).<span class="ident">iter</span>().<span class="ident">rev</span>() {
+            <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">children</span>(<span class="ident">r</span>.<span class="ident">dir</span>(<span class="ident">to</span>.<span class="ident">id</span>)).<span class="ident">iter</span>().<span class="ident">rev</span>() {
                 <span class="kw">if</span> <span class="ident">to</span>.<span class="ident">lane_type</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">lt</span> {
                     <span class="kw">continue</span>;
                 }
@@ -657,39 +647,29 @@
     <span class="comment">// Polyline points FROM intersection</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">src_center_and_width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">PolyLine</span>, <span class="ident">Distance</span>) {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">id</span>);
-        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">dir</span>;
-        <span class="comment">// Points towards the intersection</span>
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
-            <span class="ident">r</span>.<span class="ident">get_current_center</span>(<span class="ident">map</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">r</span>.<span class="ident">get_current_center</span>(<span class="ident">map</span>).<span class="ident">reversed</span>()
-        };
 
-        <span class="comment">// TODO Poorly expressed. We just want the first leftmost value, and the last rightmost.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">leftmost</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">99999.0</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rightmost</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">left</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
 
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_on_side</span>(<span class="ident">dir</span>) {
-            <span class="ident">right</span> <span class="op">+</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">width</span>;
+        <span class="kw">for</span> (<span class="ident">l</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>() {
+            <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">left</span> <span class="op">+</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">width</span>;
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">src</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l</span>) {
                 <span class="ident">leftmost</span> <span class="op">=</span> <span class="ident">leftmost</span>.<span class="ident">min</span>(<span class="ident">left</span>);
                 <span class="ident">rightmost</span> <span class="op">=</span> <span class="ident">rightmost</span>.<span class="ident">max</span>(<span class="ident">right</span>);
             }
 
-            <span class="ident">left</span> <span class="op">+</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">width</span>;
+            <span class="ident">left</span> <span class="op">=</span> <span class="ident">right</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">must_right_shift</span>(<span class="ident">pl</span>, (<span class="ident">leftmost</span> <span class="op">+</span> <span class="ident">rightmost</span>) <span class="op">/</span> <span class="number">2.0</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">must_right_shift</span>(<span class="ident">r</span>.<span class="ident">get_left_side</span>(<span class="ident">map</span>), (<span class="ident">leftmost</span> <span class="op">+</span> <span class="ident">rightmost</span>) <span class="op">/</span> <span class="number">2.0</span>);
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Back</span> {
+            <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>();
+        }
         <span class="comment">// Flip direction, so we point away from the intersection</span>
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">crosswalk</span>
-            <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">members</span>[<span class="number">0</span>].<span class="ident">src</span>).<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">members</span>[<span class="number">0</span>].<span class="ident">parent</span>
-        {
-            <span class="ident">pl</span>
-        } <span class="kw">else</span> {
-            <span class="ident">pl</span>.<span class="ident">reversed</span>()
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">id</span>.<span class="ident">crosswalk</span> <span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">members</span>[<span class="number">0</span>].<span class="ident">src</span>).<span class="ident">src_i</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">members</span>[<span class="number">0</span>].<span class="ident">parent</span> {
+            <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>()
         };
         (<span class="ident">pl</span>, <span class="ident">rightmost</span> <span class="op">-</span> <span class="ident">leftmost</span>)
     }

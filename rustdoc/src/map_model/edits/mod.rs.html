@@ -673,6 +673,7 @@
 <span id="673">673</span>
 <span id="674">674</span>
 <span id="675">675</span>
+<span id="676">676</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">compat</span>;
 <span class="kw">mod</span> <span class="ident">perma</span>;
@@ -959,8 +960,8 @@
 
                 <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">=</span> <span class="ident">lt</span>;
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span>[<span class="ident">lane</span>.<span class="ident">parent</span>.<span class="number">0</span>];
-                <span class="kw">let</span> (<span class="ident">fwds</span>, <span class="ident">idx</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">dir_and_offset</span>(<span class="ident">id</span>);
-                <span class="ident">r</span>.<span class="ident">children_mut</span>(<span class="ident">fwds</span>)[<span class="ident">idx</span>] <span class="op">=</span> (<span class="ident">id</span>, <span class="ident">lt</span>);
+                <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">id</span>);
+                <span class="ident">r</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="number">2</span> <span class="op">=</span> <span class="ident">lt</span>;
 
                 <span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">insert</span>(<span class="ident">lane</span>.<span class="ident">parent</span>);
                 <span class="ident">effects</span>.<span class="ident">changed_intersections</span>.<span class="ident">insert</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>);
@@ -999,8 +1000,9 @@
                 } <span class="kw">else</span> {
                     <span class="ident">Direction</span>::<span class="ident">Back</span>
                 };
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">children_mut</span>(<span class="ident">dir</span>.<span class="ident">opposite</span>()).<span class="ident">remove</span>(<span class="number">0</span>).<span class="number">0</span>, <span class="ident">l</span>);
-                <span class="ident">r</span>.<span class="ident">children_mut</span>(<span class="ident">dir</span>).<span class="ident">insert</span>(<span class="number">0</span>, (<span class="ident">l</span>, <span class="ident">lane</span>.<span class="ident">lane_type</span>));
+                <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">l</span>);
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="number">1</span>, <span class="ident">dir</span>.<span class="ident">opposite</span>());
+                <span class="ident">r</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="number">1</span> <span class="op">=</span> <span class="ident">dir</span>;
                 <span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
                 <span class="ident">effects</span>.<span class="ident">changed_intersections</span>.<span class="ident">insert</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>);
                 <span class="ident">effects</span>.<span class="ident">changed_intersections</span>.<span class="ident">insert</span>(<span class="ident">lane</span>.<span class="ident">dst_i</span>);

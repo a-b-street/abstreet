@@ -512,7 +512,7 @@
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">parent</span>);
         <span class="ident">DirectedRoadID</span> {
             <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
-            <span class="ident">dir</span>: <span class="ident">r</span>.<span class="ident">get_dir</span>(<span class="self">self</span>.<span class="ident">id</span>),
+            <span class="ident">dir</span>: <span class="ident">r</span>.<span class="ident">dir</span>(<span class="self">self</span>.<span class="ident">id</span>),
         }
     }
 

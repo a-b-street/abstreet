@@ -251,7 +251,6 @@
 <span id="251">251</span>
 <span id="252">252</span>
 <span id="253">253</span>
-<span id="254">254</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">header_btns</span>, <span class="ident">make_table</span>, <span class="ident">make_tabs</span>, <span class="ident">throughput</span>, <span class="ident">DataOptions</span>, <span class="ident">Details</span>, <span class="ident">Tab</span>};
@@ -403,10 +402,9 @@
             <span class="ident">l</span>.<span class="ident">length</span>()
         ),
     ));
-    <span class="kw">let</span> <span class="ident">pair</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">dir_and_offset</span>(<span class="ident">l</span>.<span class="ident">id</span>);
     <span class="ident">kv</span>.<span class="ident">push</span>((
         <span class="string">&quot;Dir and offset&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;fwd={}, {}&quot;</span>, <span class="ident">pair</span>.<span class="number">0</span>, <span class="ident">pair</span>.<span class="number">1</span>),
+        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}, {}&quot;</span>, <span class="ident">r</span>.<span class="ident">dir</span>(<span class="ident">l</span>.<span class="ident">id</span>), <span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">l</span>.<span class="ident">id</span>)),
     ));
 
     <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(<span class="ident">ctx</span>, <span class="ident">kv</span>.<span class="ident">into_iter</span>()));
