@@ -183,12 +183,15 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
         back_side.push(back(LaneType::Biking));
     } else {
         if tags.is_any("cycleway:right", vec!["lane", "track"]) {
+            if tags.is("cycleway:right:oneway", "no") || tags.is("oneway:bicycle", "no") {
+                fwd_side.push(back(LaneType::Biking));
+            }
             fwd_side.push(fwd(LaneType::Biking));
         }
         if tags.is("cycleway:left", "opposite_lane") || tags.is("cycleway", "opposite_lane") {
             back_side.push(back(LaneType::Biking));
         }
-        if tags.is_any("cycleway:left", vec!["lane", "track"]) {
+        if tags.is_any("cycleway:left", vec!["lane", "opposite_track", "track"]) {
             if oneway {
                 fwd_side.insert(0, fwd(LaneType::Biking));
             } else {
@@ -297,9 +300,9 @@ mod tests {
     #[test]
     fn test_osm_to_specs() {
         let mut ok = true;
-        for (input, expected_lt, expected_dir) in vec![
+        for (url, input, expected_lt, expected_dir) in vec![
             (
-                // https://www.openstreetmap.org/way/428294122
+                "https://www.openstreetmap.org/way/428294122",
                 vec![
                     "lanes=2",
                     "oneway=yes",
@@ -310,7 +313,7 @@ mod tests {
                 "v^^^^",
             ),
             (
-                // https://www.openstreetmap.org/way/8591383
+                "https://www.openstreetmap.org/way/8591383",
                 vec![
                     "lanes=1",
                     "oneway=yes",
@@ -320,6 +323,45 @@ mod tests {
                 ],
                 "sbbds",
                 "vv^^^",
+            ),
+            (
+                "https://www.openstreetmap.org/way/353690151",
+                vec![
+                    "lanes=4",
+                    "sidewalk=both",
+                    "parking:lane:both=parallel",
+                    "cycleway:right=track",
+                    "cycleway:right:oneway=no",
+                ],
+                "spddddbbps",
+                "vvvv^^v^^^",
+            ),
+            (
+                "https://www.openstreetmap.org/way/389654080",
+                vec![
+                    "lanes=2",
+                    "sidewalk=both",
+                    "parking:lane:left=parallel",
+                    "parking:lane:right=no_stopping",
+                    "centre_turn_lane=yes",
+                    "cycleway:right=track",
+                    "cycleway:right:oneway=no",
+                ],
+                "spdCdbbs",
+                "vvv^^v^^",
+            ),
+            (
+                "https://www.openstreetmap.org/way/369623526",
+                vec![
+                    "lanes=1",
+                    "oneway=yes",
+                    "sidewalk=both",
+                    "parking:lane:right=diagonal",
+                    "cycleway:left=opposite_track",
+                    "oneway:bicycle=no",
+                ],
+                "sbbdps",
+                "vv^^^^",
             ),
         ] {
             let actual = get_lane_specs_ltr(&tags(input.clone()));
@@ -335,7 +377,7 @@ mod tests {
                 .join("");
             if actual_lt != expected_lt || actual_dir != expected_dir {
                 ok = false;
-                println!("For input:");
+                println!("For input (example from {}):", url);
                 for kv in input {
                     println!("    {}", kv);
                 }
@@ -345,6 +387,7 @@ mod tests {
                 println!("Expected:");
                 println!("    {}", expected_lt);
                 println!("    {}", expected_dir);
+                println!("");
             }
         }
         assert!(ok);
