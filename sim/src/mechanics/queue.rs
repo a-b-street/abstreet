@@ -11,6 +11,11 @@ pub struct Queue {
     pub cars: VecDeque<CarID>,
     // This car's back is still partly in this queue.
     pub laggy_head: Option<CarID>,
+    //  ╚════════
+    // 🚗🚗🚗
+    // ^--- laggy head
+    //  ╔════════
+    //  ║
 
     pub geom_len: Distance,
     // When a car's turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the
