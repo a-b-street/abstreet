@@ -257,8 +257,8 @@ impl RawRoad {
         let mut sidewalk_left = None;
         for l in &lane_specs {
             total_width += l.width;
-            if l.lane_type == LaneType::Sidewalk || l.lane_type == LaneType::Shoulder {
-                if l.reverse_pts {
+            if l.lt == LaneType::Sidewalk || l.lt == LaneType::Shoulder {
+                if l.dir == Direction::Back {
                     sidewalk_left = Some(l.width);
                 } else {
                     sidewalk_right = Some(l.width);

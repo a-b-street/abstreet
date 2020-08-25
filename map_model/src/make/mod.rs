@@ -132,7 +132,7 @@ impl Map {
 
             let mut total_back_width = Distance::ZERO;
             for lane in &r.lane_specs_ltr {
-                if lane.reverse_pts {
+                if lane.dir == Direction::Back {
                     total_back_width += lane.width;
                 }
             }
@@ -146,19 +146,15 @@ impl Map {
             for lane in &r.lane_specs_ltr {
                 let id = LaneID(map.lanes.len());
 
-                let (src_i, dst_i) = if lane.reverse_pts { (i2, i1) } else { (i1, i2) };
+                let (src_i, dst_i) = if lane.dir == Direction::Fwd {
+                    (i1, i2)
+                } else {
+                    (i2, i1)
+                };
                 map.intersections[src_i.0].outgoing_lanes.push(id);
                 map.intersections[dst_i.0].incoming_lanes.push(id);
 
-                road.lanes_ltr.push((
-                    id,
-                    if lane.reverse_pts {
-                        Direction::Back
-                    } else {
-                        Direction::Fwd
-                    },
-                    lane.lane_type,
-                ));
+                road.lanes_ltr.push((id, lane.dir, lane.lt));
 
                 let pl = if let Ok(pl) =
                     map.right_shift(road_left_pts.clone(), width_so_far + (lane.width / 2.0))
@@ -168,7 +164,11 @@ impl Map {
                     timer.error(format!("{} geometry broken; lane not shifted!", id));
                     road_left_pts.clone()
                 };
-                let lane_center_pts = if lane.reverse_pts { pl.reversed() } else { pl };
+                let lane_center_pts = if lane.dir == Direction::Fwd {
+                    pl
+                } else {
+                    pl.reversed()
+                };
                 width_so_far += lane.width;
 
                 map.lanes.push(Lane {
@@ -177,7 +177,7 @@ impl Map {
                     width: lane.width,
                     src_i,
                     dst_i,
-                    lane_type: lane.lane_type,
+                    lane_type: lane.lt,
                     parent: road_id,
                     bus_stops: BTreeSet::new(),
                     driving_blackhole: false,

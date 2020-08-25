@@ -1,49 +1,37 @@
-use crate::{osm, LaneType, NORMAL_LANE_THICKNESS, SHOULDER_THICKNESS, SIDEWALK_THICKNESS};
+use crate::{
+    osm, Direction, LaneType, NORMAL_LANE_THICKNESS, SHOULDER_THICKNESS, SIDEWALK_THICKNESS,
+};
 use abstutil::Tags;
 use geom::Distance;
 use std::iter;
 
 pub struct LaneSpec {
-    pub lane_type: LaneType,
-    pub reverse_pts: bool,
+    pub lt: LaneType,
+    pub dir: Direction,
     pub width: Distance,
 }
 
-impl LaneSpec {
-    pub fn fwds(lane_type: LaneType) -> LaneSpec {
-        LaneSpec {
-            lane_type,
-            reverse_pts: false,
-            width: if lane_type == LaneType::Sidewalk {
-                SIDEWALK_THICKNESS
-            } else {
-                NORMAL_LANE_THICKNESS
-            },
-        }
+fn fwd(lt: LaneType) -> LaneSpec {
+    LaneSpec {
+        lt,
+        dir: Direction::Fwd,
+        width: match lt {
+            LaneType::Sidewalk => SIDEWALK_THICKNESS,
+            LaneType::Shoulder => SHOULDER_THICKNESS,
+            _ => NORMAL_LANE_THICKNESS,
+        },
     }
+}
 
-    pub fn back(lane_type: LaneType) -> LaneSpec {
-        LaneSpec {
-            lane_type,
-            reverse_pts: true,
-            width: if lane_type == LaneType::Sidewalk {
-                SIDEWALK_THICKNESS
-            } else {
-                NORMAL_LANE_THICKNESS
-            },
-        }
-    }
-
-    fn normal(fwd: Vec<LaneType>, back: Vec<LaneType>) -> Vec<LaneSpec> {
-        let mut specs: Vec<LaneSpec> = Vec::new();
-        for lt in back.into_iter().rev() {
-            specs.push(LaneSpec::back(lt));
-        }
-        for lt in fwd {
-            specs.push(LaneSpec::fwds(lt));
-        }
-        assert!(!specs.is_empty());
-        specs
+fn back(lt: LaneType) -> LaneSpec {
+    LaneSpec {
+        lt,
+        dir: Direction::Back,
+        width: match lt {
+            LaneType::Sidewalk => SIDEWALK_THICKNESS,
+            LaneType::Shoulder => SHOULDER_THICKNESS,
+            _ => NORMAL_LANE_THICKNESS,
+        },
     }
 }
 
@@ -51,10 +39,10 @@ impl LaneSpec {
 pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
     // Easy special cases first.
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
-        return LaneSpec::normal(vec![LaneType::LightRail], Vec::new());
+        return vec![fwd(LaneType::LightRail)];
     }
     if tags.is(osm::HIGHWAY, "footway") {
-        return LaneSpec::normal(vec![LaneType::Sidewalk], Vec::new());
+        return vec![fwd(LaneType::Sidewalk)];
     }
 
     // TODO Reversible roads should be handled differently?
@@ -121,15 +109,24 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
             LaneType::Driving
         };
 
-    let mut fwd_side: Vec<LaneType> = iter::repeat(driving_lane).take(num_driving_fwd).collect();
-    let mut back_side: Vec<LaneType> = iter::repeat(driving_lane).take(num_driving_back).collect();
+    // These are ordered from the road center, going outwards. Most of the members of fwd_side will
+    // have Direction::Fwd, but there can be exceptions with two-way cycletracks.
+    let mut fwd_side: Vec<LaneSpec> = iter::repeat_with(|| fwd(driving_lane))
+        .take(num_driving_fwd)
+        .collect();
+    let mut back_side: Vec<LaneSpec> = iter::repeat_with(|| back(driving_lane))
+        .take(num_driving_back)
+        .collect();
     // TODO Fix upstream. https://wiki.openstreetmap.org/wiki/Key:centre_turn_lane
     if tags.is("lanes:both_ways", "1") || tags.is("centre_turn_lane", "yes") {
-        fwd_side.insert(0, LaneType::SharedLeftTurn);
+        fwd_side.insert(0, fwd(LaneType::SharedLeftTurn));
     }
 
     if driving_lane == LaneType::Construction {
-        return LaneSpec::normal(fwd_side, back_side);
+        // Assemble left-to-right
+        back_side.reverse();
+        back_side.extend(fwd_side);
+        return back_side;
     }
 
     let fwd_bus_spec = if let Some(s) = tags.get("bus:lanes:forward") {
@@ -149,7 +146,7 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
     };
     {
         let parts: Vec<&str> = fwd_bus_spec.split("|").collect();
-        let offset = if fwd_side[0] == LaneType::SharedLeftTurn {
+        let offset = if fwd_side[0].lt == LaneType::SharedLeftTurn {
             1
         } else {
             0
@@ -157,7 +154,7 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
         if parts.len() == fwd_side.len() - offset {
             for (idx, part) in parts.into_iter().enumerate() {
                 if part == "designated" {
-                    fwd_side[idx + offset] = LaneType::Bus;
+                    fwd_side[idx + offset].lt = LaneType::Bus;
                 }
             }
         }
@@ -170,38 +167,38 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
         if parts.len() == back_side.len() {
             for (idx, part) in parts.into_iter().enumerate() {
                 if part == "designated" {
-                    back_side[idx] = LaneType::Bus;
+                    back_side[idx].lt = LaneType::Bus;
                 }
             }
         }
     }
 
     if tags.is_any("cycleway", vec!["lane", "track"]) {
-        fwd_side.push(LaneType::Biking);
+        fwd_side.push(fwd(LaneType::Biking));
         if !back_side.is_empty() {
-            back_side.push(LaneType::Biking);
+            back_side.push(back(LaneType::Biking));
         }
     } else if tags.is_any("cycleway:both", vec!["lane", "track"]) {
-        fwd_side.push(LaneType::Biking);
-        back_side.push(LaneType::Biking);
+        fwd_side.push(fwd(LaneType::Biking));
+        back_side.push(back(LaneType::Biking));
     } else {
         if tags.is_any("cycleway:right", vec!["lane", "track"]) {
-            fwd_side.push(LaneType::Biking);
+            fwd_side.push(fwd(LaneType::Biking));
         }
         if tags.is("cycleway:left", "opposite_lane") || tags.is("cycleway", "opposite_lane") {
-            back_side.push(LaneType::Biking);
+            back_side.push(back(LaneType::Biking));
         }
         if tags.is_any("cycleway:left", vec!["lane", "track"]) {
             if oneway {
-                fwd_side.insert(0, LaneType::Biking);
+                fwd_side.insert(0, fwd(LaneType::Biking));
             } else {
-                back_side.push(LaneType::Biking);
+                back_side.push(back(LaneType::Biking));
             }
         }
 
         // Cycleway isn't explicitly specified, but this is a reasonable assumption anyway.
         if back_side.is_empty() && tags.is("oneway:bicycle", "no") {
-            back_side.push(LaneType::Biking);
+            back_side.push(back(LaneType::Biking));
         }
     }
 
@@ -212,35 +209,35 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
         let parking_lane_back = tags.is_any(osm::PARKING_LEFT, has_parking.clone())
             || tags.is_any(osm::PARKING_BOTH, has_parking);
         if parking_lane_fwd {
-            fwd_side.push(LaneType::Parking);
+            fwd_side.push(fwd(LaneType::Parking));
         }
         if parking_lane_back {
-            back_side.push(LaneType::Parking);
+            back_side.push(back(LaneType::Parking));
         }
     }
 
     if tags.is(osm::SIDEWALK, "both") {
-        fwd_side.push(LaneType::Sidewalk);
-        back_side.push(LaneType::Sidewalk);
+        fwd_side.push(fwd(LaneType::Sidewalk));
+        back_side.push(back(LaneType::Sidewalk));
     } else if tags.is(osm::SIDEWALK, "separate") {
         // TODO Need to snap separate sidewalks to ways. Until then, just do this.
-        fwd_side.push(LaneType::Sidewalk);
+        fwd_side.push(fwd(LaneType::Sidewalk));
         if !back_side.is_empty() {
-            back_side.push(LaneType::Sidewalk);
+            back_side.push(back(LaneType::Sidewalk));
         }
     } else if tags.is(osm::SIDEWALK, "right") {
-        fwd_side.push(LaneType::Sidewalk);
+        fwd_side.push(fwd(LaneType::Sidewalk));
     } else if tags.is(osm::SIDEWALK, "left") {
-        back_side.push(LaneType::Sidewalk);
+        back_side.push(back(LaneType::Sidewalk));
     }
 
     let mut need_fwd_shoulder = fwd_side
         .last()
-        .map(|lt| *lt != LaneType::Sidewalk)
+        .map(|spec| spec.lt != LaneType::Sidewalk)
         .unwrap_or(true);
     let mut need_back_shoulder = back_side
         .last()
-        .map(|lt| *lt != LaneType::Sidewalk)
+        .map(|spec| spec.lt != LaneType::Sidewalk)
         .unwrap_or(true);
     if tags.is_any(
         osm::HIGHWAY,
@@ -257,24 +254,15 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
         need_back_shoulder = false;
     }
 
-    let mut specs = LaneSpec::normal(fwd_side, back_side);
     if need_fwd_shoulder {
-        specs.push(LaneSpec {
-            lane_type: LaneType::Shoulder,
-            reverse_pts: false,
-            width: SHOULDER_THICKNESS,
-        });
+        fwd_side.push(fwd(LaneType::Shoulder));
     }
     if need_back_shoulder {
-        specs.insert(
-            0,
-            LaneSpec {
-                lane_type: LaneType::Shoulder,
-                reverse_pts: true,
-                width: SHOULDER_THICKNESS,
-            },
-        );
+        back_side.push(back(LaneType::Shoulder));
     }
 
-    specs
+    // Assemble left-to-right
+    back_side.reverse();
+    back_side.extend(fwd_side);
+    back_side
 }
