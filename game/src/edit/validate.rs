@@ -169,6 +169,8 @@ pub fn try_reverse(ctx: &mut EventCtx, map: &Map, l: LaneID) -> Result<EditCmd, 
     let lanes = r.lanes_ltr();
     let idx = r.offset(l);
     let dir = lanes[idx].1;
+    // TODO Handle a road with a single lane. Actually find a case and try it; I don't trust that
+    // there aren't weird side effects elsewhere of doing this.
     if (idx != 0 && lanes[idx - 1].1 != dir) || (idx != lanes.len() - 1 && lanes[idx + 1].1 != dir)
     {
         Ok(EditCmd::ReverseLane {

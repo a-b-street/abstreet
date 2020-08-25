@@ -36,25 +36,19 @@ impl LaneSpec {
 
     fn normal(fwd: Vec<LaneType>, back: Vec<LaneType>) -> Vec<LaneSpec> {
         let mut specs: Vec<LaneSpec> = Vec::new();
+        for lt in back.into_iter().rev() {
+            specs.push(LaneSpec::back(lt));
+        }
         for lt in fwd {
             specs.push(LaneSpec::fwds(lt));
-        }
-        for lt in back {
-            specs.push(LaneSpec::back(lt));
         }
         assert!(!specs.is_empty());
         specs
     }
 }
 
-// All the forwards from center->outer, then all the backwards from center->outer
-//
-// TODO Eventually this should just be all the lanes from left->right. Need to handle things like
-// two-way cycleways on one side of a two-way driving road -- there's not always one line where the
-// direction flips.
-//
 // TODO This is ripe for unit testing.
-pub fn get_lane_specs(tags: &Tags) -> Vec<LaneSpec> {
+pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
     // Easy special cases first.
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return LaneSpec::normal(vec![LaneType::LightRail], Vec::new());
@@ -263,28 +257,23 @@ pub fn get_lane_specs(tags: &Tags) -> Vec<LaneSpec> {
         need_back_shoulder = false;
     }
 
-    // TODO Now I'm regretting the weird order this returns...
     let mut specs = LaneSpec::normal(fwd_side, back_side);
     if need_fwd_shoulder {
-        let idx = specs
-            .iter()
-            .position(|s| s.reverse_pts)
-            .unwrap_or(specs.len());
+        specs.push(LaneSpec {
+            lane_type: LaneType::Shoulder,
+            reverse_pts: false,
+            width: SHOULDER_THICKNESS,
+        });
+    }
+    if need_back_shoulder {
         specs.insert(
-            idx,
+            0,
             LaneSpec {
                 lane_type: LaneType::Shoulder,
-                reverse_pts: false,
+                reverse_pts: true,
                 width: SHOULDER_THICKNESS,
             },
         );
-    }
-    if need_back_shoulder {
-        specs.push(LaneSpec {
-            lane_type: LaneType::Shoulder,
-            reverse_pts: true,
-            width: SHOULDER_THICKNESS,
-        });
     }
 
     specs

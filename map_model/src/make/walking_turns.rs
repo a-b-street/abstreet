@@ -443,9 +443,9 @@ fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
     TurnID { parent, src, dst }
 }
 
-fn get_sidewalk<'a>(lanes: &'a Vec<Lane>, children: &Vec<(LaneID, LaneType)>) -> Option<&'a Lane> {
+fn get_sidewalk<'a>(lanes: &'a Vec<Lane>, children: Vec<(LaneID, LaneType)>) -> Option<&'a Lane> {
     for (id, lt) in children {
-        if *lt == LaneType::Sidewalk || *lt == LaneType::Shoulder {
+        if lt == LaneType::Sidewalk || lt == LaneType::Shoulder {
             return Some(&lanes[id.0]);
         }
     }
