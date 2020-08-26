@@ -363,8 +363,8 @@ mod tests {
                 "sbbdps",
                 "vv^^^^",
             ),
-            // TODO I have a fix for this, but somehow the fallout gridlocked lakeslice, so holding
-            // off...
+            /* TODO I have a fix for this, but somehow the fallout gridlocked lakeslice, so
+             * holding off... */
             /*(
                 "https://www.openstreetmap.org/way/534549104",
                 vec![

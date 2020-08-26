@@ -172,6 +172,11 @@ impl GameplayMode {
                         return false;
                     }
                 }
+                EditCmd::ChangeRoad { .. } => {
+                    if !self.can_edit_lanes() {
+                        return false;
+                    }
+                }
                 EditCmd::ChangeIntersection { ref new, .. } => match new {
                     // TODO Conflating construction
                     EditIntersection::StopSign(_) | EditIntersection::Closed => {

@@ -41,6 +41,8 @@ pub struct Intersection {
 
     // Note that a lane may belong to both incoming_lanes and outgoing_lanes.
     // TODO narrow down when and why. is it just sidewalks in weird cases?
+    // TODO Change to BTreeSet, or otherwise emphasize to callers that the order of these isn't
+    // meaningful
     pub incoming_lanes: Vec<LaneID>,
     pub outgoing_lanes: Vec<LaneID>,
 
