@@ -228,7 +228,7 @@ fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool, build_c
 fn are_dependencies_callable(job: &Job, config: &ImporterConfiguration) -> bool {
     let mut result = true;
     if job.osm_to_raw {
-        for command in [&config.osmconvert, &config.unzip, &config.gunzip].iter() {
+        for command in [&config.curl, &config.osmconvert, &config.unzip, &config.gunzip].iter() {
             println!("- Testing if {} is callable", command);
             if !is_program_callable(command) {
                 println!("Failed to run {}", command);
