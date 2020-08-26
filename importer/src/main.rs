@@ -3,6 +3,7 @@ mod krakow;
 mod seattle;
 #[cfg(feature = "scenarios")]
 mod soundcast;
+mod tel_aviv;
 mod utils;
 mod xian;
 
@@ -111,6 +112,7 @@ fn main() {
                 "berlin" => berlin::osm_to_raw(&name, &mut timer),
                 "krakow" => krakow::osm_to_raw(&name, &mut timer),
                 "seattle" => seattle::osm_to_raw(&name, &mut timer),
+                "tel_aviv" => tel_aviv::osm_to_raw(&name, &mut timer),
                 "xian" => xian::osm_to_raw(&name, &mut timer),
                 x => panic!("Unknown city {}", x),
             }
