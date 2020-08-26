@@ -22,7 +22,7 @@ pub fn load_configuration() -> ImporterConfiguration {
 
     match fs::read_to_string("importer.toml") {
         Ok(text) => {
-            match toml::from_str::<RawImporterConfiguration>(&text[..]) {
+            match toml::from_str::<RawImporterConfiguration>(&text) {
                 Ok(config) => fill_in_defaults(config),
                 Err(_) => default_configuration(),
             }
