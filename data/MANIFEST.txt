@@ -17,6 +17,7 @@ data/input/raw_maps/krakow_center.bin,8e3e1bc8837630e27f9e0b969a05f5a4,https://w
 data/input/raw_maps/lakeslice.bin,5880904248b2d01ffc7f7fe7d67726e3,https://www.dropbox.com/s/vk1l3gouuijfkfi/lakeslice.bin.zip?dl=0
 data/input/raw_maps/montlake.bin,a92ea24eff562c6d99ec4878e12e24c1,https://www.dropbox.com/s/au92ul0a8jg931l/montlake.bin.zip?dl=0
 data/input/raw_maps/south_seattle.bin,b044bda30b5adeed129820b284334599,https://www.dropbox.com/s/zbwsoq893tnlcaq/south_seattle.bin.zip?dl=0
+data/input/raw_maps/tel_aviv.bin,4c216ea8da5d71ae118076e38790cebe,https://www.dropbox.com/s/oskvw6ukgoa8p2z/tel_aviv.bin.zip?dl=0
 data/input/raw_maps/udistrict.bin,4441415d1f8b6fc32293fde688ecc40d,https://www.dropbox.com/s/p4oscm85fj1mxgb/udistrict.bin.zip?dl=0
 data/input/raw_maps/west_seattle.bin,121ae8600b101dea7fafcc8786a3a5e0,https://www.dropbox.com/s/45c2slhwmmn3jkn/west_seattle.bin.zip?dl=0
 data/input/raw_maps/xian.bin,45d3dff4d99821f387e550950fb5669d,https://www.dropbox.com/s/kjeu0q8ey93l11h/xian.bin.zip?dl=0
@@ -57,6 +58,10 @@ data/input/seattle/parcels_urbansim.txt,db63d7d606e8702d12f9399e87e6a00f,https:/
 data/input/seattle/popdat.bin,3708e3473869079013af4749cab96d46,https://www.dropbox.com/s/33vxec2c374xl3o/popdat.bin.zip?dl=0
 data/input/seattle/service_roads.bin,65445311303f055536fa1bd99fba2952,https://www.dropbox.com/s/s44rjupc7dw40bs/service_roads.bin.zip?dl=0
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
+data/input/tel_aviv/footways.bin,4fb70e32d0cc3ddeaa8924c240bc9d5b,https://www.dropbox.com/s/ka38f1kwjgm0fpo/footways.bin.zip?dl=0
+data/input/tel_aviv/osm/israel-and-palestine-latest.osm.pbf,d5b0d6a26bfdedd32cc5c9c26e6fd426,https://www.dropbox.com/s/ehwhbhp03zuy1qn/israel-and-palestine-latest.osm.pbf.zip?dl=0
+data/input/tel_aviv/osm/tel_aviv.osm,eeb7f3813a33f754eceed13766a3c236,https://www.dropbox.com/s/kqvn0iifhmmcjve/tel_aviv.osm.zip?dl=0
+data/input/tel_aviv/service_roads.bin,a392a61e1cc51e38e6d7e53e2593e545,https://www.dropbox.com/s/69jq3nxzfd9c12r/service_roads.bin.zip?dl=0
 data/input/xian/footways.bin,425becbab867631415fe49edcf8f9694,https://www.dropbox.com/s/6hf4t4ovk1m1wi3/footways.bin.zip?dl=0
 data/input/xian/osm/china-latest.osm.pbf,0108807f1dc321d5de5579622ac3f4cf,https://www.dropbox.com/s/qewwxtioocbv3ld/china-latest.osm.pbf.zip?dl=0
 data/input/xian/osm/xian.osm,4084c665ad947bb40173a43cb33fdec8,https://www.dropbox.com/s/j5qwt33bs077sd2/xian.osm.zip?dl=0
@@ -70,6 +75,7 @@ data/system/maps/krakow_center.bin,356df3ac5650ccd607792cbec8809200,https://www.
 data/system/maps/lakeslice.bin,5311c3728a76fd78916faeae8fddd572,https://www.dropbox.com/s/ipcdlm1m2rumwyo/lakeslice.bin.zip?dl=0
 data/system/maps/montlake.bin,6ca284783ce83e915282476cf99e04cc,https://www.dropbox.com/s/wyybiw5y7z3gdoc/montlake.bin.zip?dl=0
 data/system/maps/south_seattle.bin,47096a54d508341170e909b09f814dd7,https://www.dropbox.com/s/92a2s0iyt95u2b2/south_seattle.bin.zip?dl=0
+data/system/maps/tel_aviv.bin,b906e5ca6d5ac88693dd6b3a3fd8cb45,https://www.dropbox.com/s/3kzhy67iucy8s2d/tel_aviv.bin.zip?dl=0
 data/system/maps/udistrict.bin,d2773d20a171843b7b6c805f350d4cf5,https://www.dropbox.com/s/y03l06emjmtjp32/udistrict.bin.zip?dl=0
 data/system/maps/west_seattle.bin,df580b7566bb9d57a2605cf4affa741d,https://www.dropbox.com/s/a9ws18sar0l5tns/west_seattle.bin.zip?dl=0
 data/system/maps/xian.bin,fe0b3775cc141c735870104b70339db0,https://www.dropbox.com/s/w7g13kgn8a1girv/xian.bin.zip?dl=0
