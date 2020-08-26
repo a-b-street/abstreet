@@ -1686,11 +1686,11 @@ ends at a border or building, there are many combinations of these sequences.
 This is a way to categorize them into three groups. I'm not sure it's the
 simplest way to express all the state transitons.</p>
 <h2><a class="header" href="#walking-only-trips" id="walking-only-trips">Walking-only trips</a></h2>
-<p><img src="trafficsim/../mdbook-plantuml-img/3d307c2e-7e70-4136-b049-98681b939bd4.svg" alt="../mdbook-plantuml-img/3d307c2e-7e70-4136-b049-98681b939bd4.svg" /></p>
+<p><img src="trafficsim/../mdbook-plantuml-img/5a44dab5-0a5d-4c60-a806-c3640d64758e.svg" alt="../mdbook-plantuml-img/5a44dab5-0a5d-4c60-a806-c3640d64758e.svg" /></p>
 <h2><a class="header" href="#trips-starting-from-a-border" id="trips-starting-from-a-border">Trips starting from a border</a></h2>
-<p><img src="trafficsim/../mdbook-plantuml-img/e72caed5-65bd-4394-9413-1684112920fe.svg" alt="../mdbook-plantuml-img/e72caed5-65bd-4394-9413-1684112920fe.svg" /></p>
+<p><img src="trafficsim/../mdbook-plantuml-img/bcdd9170-57e5-44dc-b0af-4a121316d2fc.svg" alt="../mdbook-plantuml-img/bcdd9170-57e5-44dc-b0af-4a121316d2fc.svg" /></p>
 <h2><a class="header" href="#trips-starting-from-a-building" id="trips-starting-from-a-building">Trips starting from a building</a></h2>
-<p><img src="trafficsim/../mdbook-plantuml-img/c5f89c46-6a55-40b4-844c-6baa5ae5b1d0.svg" alt="../mdbook-plantuml-img/c5f89c46-6a55-40b4-844c-6baa5ae5b1d0.svg" /></p>
+<p><img src="trafficsim/../mdbook-plantuml-img/8f2e3331-e758-4ef2-aab6-10f74eff67f2.svg" alt="../mdbook-plantuml-img/8f2e3331-e758-4ef2-aab6-10f74eff67f2.svg" /></p>
 <h1><a class="header" href="#case-studies" id="case-studies">Case studies</a></h1>
 <p>Note: Most of these still aren't started, because the baseline simulation in the
 relevant area isn't working. Unknown traffic signal timing, bad guesses at the
@@ -1937,6 +1937,8 @@ Each tuple is (time the trip finished in seconds after midnight, trip ID,
 mode, duration of trip in seconds). The mode is either a string like &quot;Walk&quot;
 or &quot;Drive&quot;, or null if the trip was aborted (due to a simulation bug or
 disconnected map).</li>
+<li><strong>GET /data/get-agent-positions</strong>: Returns a JSON list of all active agents.
+Vehicle type (or pedestrian), person ID, and position is included.</li>
 </ul>
 </li>
 </ul>

@@ -200,6 +200,33 @@
 <span id="200">200</span>
 <span id="201">201</span>
 <span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. The</span>
 <span class="comment">// API is not documented yet. To run this:</span>
@@ -213,11 +240,13 @@
 <span class="comment">// ... huge JSON blob</span>
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">serialize_btreemap</span>, <span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">hyper</span>::{<span class="ident">Body</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">Server</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">CompressedTurnGroupID</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">TurnGroupID</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AlertHandler</span>, <span class="ident">Sim</span>, <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{
+    <span class="ident">AlertHandler</span>, <span class="ident">GetDrawAgents</span>, <span class="ident">PersonID</span>, <span class="ident">Sim</span>, <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>, <span class="ident">VehicleType</span>,
+};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
@@ -379,6 +408,17 @@
         <span class="string">&quot;/data/get-finished-trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">FinishedTrips</span> {
             <span class="ident">trips</span>: <span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span>.<span class="ident">clone</span>(),
         })),
+        <span class="string">&quot;/data/get-agent-positions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">AgentPositions</span> {
+            <span class="ident">agents</span>: <span class="ident">sim</span>
+                .<span class="ident">get_unzoomed_agents</span>(<span class="ident">map</span>)
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">AgentPosition</span> {
+                    <span class="ident">vehicle_type</span>: <span class="ident">a</span>.<span class="ident">vehicle_type</span>,
+                    <span class="ident">pos</span>: <span class="ident">a</span>.<span class="ident">pos</span>.<span class="ident">to_gps</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
+                    <span class="ident">person</span>: <span class="ident">a</span>.<span class="ident">person</span>,
+                })
+                .<span class="ident">collect</span>(),
+        })),
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Unknown command&quot;</span>.<span class="ident">into</span>()),
     }
 }
@@ -402,6 +442,20 @@
 <span class="kw">struct</span> <span class="ident">Throughput</span> {
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>)]</span>
     <span class="ident">per_direction</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TurnGroupID</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">AgentPositions</span> {
+    <span class="ident">agents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AgentPosition</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">AgentPosition</span> {
+    <span class="comment">// None for pedestrians</span>
+    <span class="ident">vehicle_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VehicleType</span><span class="op">&gt;</span>,
+    <span class="ident">pos</span>: <span class="ident">LonLat</span>,
+    <span class="comment">// None for buses</span>
+    <span class="ident">person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>,
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "headless";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
