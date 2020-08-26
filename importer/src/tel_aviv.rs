@@ -30,7 +30,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer) {
                 bikes_can_use_bus_lanes: true,
             },
 
-            onstreet_parking: convert_osm::OnstreetParking::JustOSM,
+            onstreet_parking: convert_osm::OnstreetParking::SomeAdditionalWhereNoData { pct: 50 },
             public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(10),
             elevation: None,
