@@ -480,17 +480,24 @@ impl State for LoadEdits {
                             }
                             // TODO Hack. Have to replace ourselves, because the Menu might be
                             // invalidated now that something was chosen.
-                            Err(err) => Transition::Multi(vec![
-                                Transition::Replace(LoadEdits::new(ctx, app, self.mode.clone())),
-                                // TODO Menu draws at a weird Z-order to deal with tooltips, so now
-                                // the menu underneath bleeds
-                                // through
-                                Transition::Push(PopupMsg::new(
-                                    ctx,
-                                    "Error",
-                                    vec![format!("Can't load {}", path), err.clone()],
-                                )),
-                            ]),
+                            Err(err) => {
+                                println!("Can't load {}: {}", path, err);
+                                Transition::Multi(vec![
+                                    Transition::Replace(LoadEdits::new(
+                                        ctx,
+                                        app,
+                                        self.mode.clone(),
+                                    )),
+                                    // TODO Menu draws at a weird Z-order to deal with tooltips, so
+                                    // now the menu underneath
+                                    // bleeds through
+                                    Transition::Push(PopupMsg::new(
+                                        ctx,
+                                        "Error",
+                                        vec![format!("Can't load {}", path), err.clone()],
+                                    )),
+                                ])
+                            }
                         }
                     }
                 }
@@ -747,6 +754,7 @@ fn cmd_to_id(cmd: &EditCmd) -> Option<ID> {
         EditCmd::ChangeLaneType { id, .. } => Some(ID::Lane(*id)),
         EditCmd::ReverseLane { l, .. } => Some(ID::Lane(*l)),
         EditCmd::ChangeSpeedLimit { id, .. } => Some(ID::Road(*id)),
+        EditCmd::ChangeRoad { r, .. } => Some(ID::Road(*r)),
         EditCmd::ChangeIntersection { i, .. } => Some(ID::Intersection(*i)),
         EditCmd::ChangeAccessRestrictions { id, .. } => Some(ID::Road(*id)),
         EditCmd::ChangeRouteSchedule { .. } => None,

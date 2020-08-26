@@ -1,4 +1,4 @@
-use crate::edits::{EditCmd, EditIntersection, MapEdits};
+use crate::edits::{EditCmd, EditIntersection, EditRoad, MapEdits};
 use crate::raw::OriginalRoad;
 use crate::{
     osm, AccessRestrictions, ControlStopSign, Direction, IntersectionID, LaneID, LaneType, Map,
@@ -36,6 +36,7 @@ enum PermanentEditIntersection {
     Closed,
 }
 
+// TODO Deprecated
 // Enough data to notice when lanes along a road have changed
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct OriginalLane {
@@ -62,6 +63,11 @@ enum PermanentEditCmd {
         id: OriginalRoad,
         new: Speed,
         old: Speed,
+    },
+    ChangeRoad {
+        r: OriginalRoad,
+        new: EditRoad,
+        old: EditRoad,
     },
     ChangeIntersection {
         i: osm::NodeID,
@@ -111,6 +117,11 @@ impl PermanentMapEdits {
                             old: *old,
                         }
                     }
+                    EditCmd::ChangeRoad { r, new, old } => PermanentEditCmd::ChangeRoad {
+                        r: map.get_r(*r).orig_id,
+                        new: new.clone(),
+                        old: old.clone(),
+                    },
                     EditCmd::ChangeIntersection { i, new, old } => {
                         PermanentEditCmd::ChangeIntersection {
                             i: map.get_i(*i).orig_id,
@@ -168,6 +179,19 @@ impl PermanentMapEdits {
                         let id = map.find_r_by_osm_id(id)?;
                         Ok(EditCmd::ChangeSpeedLimit { id, new, old })
                     }
+                    PermanentEditCmd::ChangeRoad { r, new, old } => {
+                        let id = map.find_r_by_osm_id(r)?;
+                        let num_current = map.get_r(id).lanes_ltr().len();
+                        if num_current != new.lanes_ltr.len() {
+                            return Err(format!(
+                                "number of lanes in {} is {} now, but {} in the edits",
+                                r,
+                                num_current,
+                                new.lanes_ltr.len()
+                            ));
+                        }
+                        Ok(EditCmd::ChangeRoad { r: id, new, old })
+                    }
                     PermanentEditCmd::ChangeIntersection { i, new, old } => {
                         let id = map.find_i_by_osm_id(i)?;
                         Ok(EditCmd::ChangeIntersection {
@@ -199,6 +223,7 @@ impl PermanentMapEdits {
 
             original_lts: BTreeMap::new(),
             reversed_lanes: BTreeSet::new(),
+            original_roads: BTreeMap::new(),
             original_intersections: BTreeMap::new(),
             changed_speed_limits: BTreeSet::new(),
             changed_access_restrictions: BTreeSet::new(),
