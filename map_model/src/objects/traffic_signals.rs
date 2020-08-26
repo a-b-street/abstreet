@@ -15,6 +15,7 @@ pub struct ControlTrafficSignal {
     pub id: IntersectionID,
     pub phases: Vec<Phase>,
     pub offset: Duration,
+    pub control_type: TrafficControlType,
 
     #[serde(
         serialize_with = "serialize_btreemap",
@@ -28,6 +29,12 @@ pub struct Phase {
     pub protected_groups: BTreeSet<TurnGroupID>,
     pub yield_groups: BTreeSet<TurnGroupID>,
     pub phase_type: PhaseType,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub enum TrafficControlType {
+    Actuated,
+    PreTimed,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -331,6 +338,7 @@ impl ControlTrafficSignal {
         ControlTrafficSignal {
             id,
             phases,
+            control_type: TrafficControlType::PreTimed,
             offset: Duration::seconds(raw.offset_seconds as f64),
             turn_groups: TurnGroup::for_i(id, map).unwrap(),
         }

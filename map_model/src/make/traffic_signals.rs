@@ -1,6 +1,6 @@
 use crate::{
     ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Phase, PhaseType, RoadID,
-    TurnGroup, TurnGroupID, TurnPriority, TurnType,
+    TurnGroup, TurnGroupID, TurnPriority, TurnType, TrafficControlType,
 };
 use abstutil::Timer;
 use geom::Duration;
@@ -69,6 +69,7 @@ fn new(id: IntersectionID, map: &Map) -> ControlTrafficSignal {
     ControlTrafficSignal {
         id,
         phases: Vec::new(),
+        control_type: TrafficControlType::PreTimed,
         offset: Duration::ZERO,
         turn_groups: TurnGroup::for_i(id, map).unwrap(),
     }

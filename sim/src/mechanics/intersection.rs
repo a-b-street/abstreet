@@ -5,7 +5,7 @@ use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Duration, Time};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, PhaseType, RoadID,
-    Traversable, TurnID, TurnPriority, TurnType,
+    Traversable, TurnID, TurnPriority, TurnType, TrafficControlType,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -234,8 +234,24 @@ impl IntersectionSimState {
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
-        let state = self.state.get_mut(&id).unwrap();
         let signal = map.get_traffic_signal(id);
+
+        match signal.control_type {
+            TrafficControlType::PreTimed => self.classic_update_intersection(now, id, signal, scheduler),
+            TrafficControlType::Actuated => {},
+        }
+
+        self.wakeup_waiting(now, id, scheduler, map);
+    }
+
+    fn classic_update_intersection(
+        &mut self,
+        now: Time,
+        id: IntersectionID,
+        signal: &ControlTrafficSignal,
+        scheduler: &mut Scheduler,
+    ) {
+        let state = self.state.get_mut(&id).unwrap();
 
         // Switch to a new phase?
         assert_eq!(now, state.phase_ends_at);
@@ -271,7 +287,6 @@ impl IntersectionSimState {
                 .phase_type
                 .simple_duration();
         scheduler.push(state.phase_ends_at, Command::UpdateIntersection(id));
-        self.wakeup_waiting(now, id, scheduler, map);
     }
 
     // For cars: The head car calls this when they're at the end of the lane WaitingToAdvance. If
