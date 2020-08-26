@@ -251,6 +251,7 @@ impl Static {
                     "{} access restrictions changed",
                     edits.changed_access_restrictions.len()
                 )),
+                Line(format!("{} roads changed", edits.original_roads.len())),
                 Line(format!(
                     "{} intersections changed",
                     edits.original_intersections.len()

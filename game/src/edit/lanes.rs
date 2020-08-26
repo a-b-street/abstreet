@@ -198,15 +198,12 @@ impl State for LaneEditor {
                 }
             },
             Outcome::Changed => {
-                let parent = app.primary.map.get_parent(self.l);
-                let new = self.composite.dropdown_value("speed limit");
-                let old = parent.speed_limit;
+                let r = app.primary.map.get_l(self.l).parent;
+                let old = app.primary.map.get_r_edit(r);
+                let mut new = old.clone();
+                new.speed_limit = self.composite.dropdown_value("speed limit");
                 let mut edits = app.primary.map.get_edits().clone();
-                edits.commands.push(EditCmd::ChangeSpeedLimit {
-                    id: parent.id,
-                    new,
-                    old,
-                });
+                edits.commands.push(EditCmd::ChangeRoad { r, new, old });
                 apply_map_edits(ctx, app, edits);
                 return Transition::Replace(LaneEditor::new(ctx, app, self.l, self.mode.clone()));
             }

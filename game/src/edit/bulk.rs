@@ -172,11 +172,10 @@ impl State for BulkEdit {
                     let speed = self.composite.dropdown_value("speed limit");
                     let mut edits = app.primary.map.get_edits().clone();
                     for r in &self.roads {
-                        edits.commands.push(EditCmd::ChangeSpeedLimit {
-                            id: *r,
-                            new: speed,
-                            old: app.primary.map.get_r(*r).speed_limit,
-                        });
+                        let old = app.primary.map.get_r_edit(*r);
+                        let mut new = old.clone();
+                        new.speed_limit = speed;
+                        edits.commands.push(EditCmd::ChangeRoad { r: *r, old, new });
                     }
                     apply_map_edits(ctx, app, edits);
                     return Transition::Keep;

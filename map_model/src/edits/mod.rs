@@ -45,9 +45,9 @@ pub enum EditIntersection {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EditRoad {
-    lanes_ltr: Vec<(LaneType, Direction)>,
-    speed_limit: Speed,
-    access_restrictions: AccessRestrictions,
+    pub lanes_ltr: Vec<(LaneType, Direction)>,
+    pub speed_limit: Speed,
+    pub access_restrictions: AccessRestrictions,
 }
 
 impl EditRoad {
