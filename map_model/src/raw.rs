@@ -1,5 +1,5 @@
-use crate::make::initial::lane_specs::get_lane_specs;
-use crate::{osm, AreaType, IntersectionType, LaneType, MapConfig, NamePerLanguage};
+use crate::make::initial::lane_specs::get_lane_specs_ltr;
+use crate::{osm, AreaType, Direction, IntersectionType, LaneType, MapConfig, NamePerLanguage};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Angle, Circle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use petgraph::graphmap::DiGraphMap;
@@ -251,14 +251,14 @@ impl RawRoad {
         id: OriginalRoad,
         driving_side: DrivingSide,
     ) -> (PolyLine, Distance) {
-        let lane_specs = get_lane_specs(&self.osm_tags);
+        let lane_specs = get_lane_specs_ltr(&self.osm_tags);
         let mut total_width = Distance::ZERO;
         let mut sidewalk_right = None;
         let mut sidewalk_left = None;
         for l in &lane_specs {
             total_width += l.width;
-            if l.lane_type == LaneType::Sidewalk || l.lane_type == LaneType::Shoulder {
-                if l.reverse_pts {
+            if l.lt == LaneType::Sidewalk || l.lt == LaneType::Shoulder {
+                if l.dir == Direction::Back {
                     sidewalk_left = Some(l.width);
                 } else {
                     sidewalk_right = Some(l.width);
@@ -423,8 +423,8 @@ pub struct RawBusStop {
     pub name: String,
     // Probably not an intersection, but this type is more convenient.
     pub vehicle_pos: (osm::NodeID, Pt2D),
-    // Guaranteed to be filled out when RawMap is fully written. True for forwards.
-    pub matched_road: Option<(OriginalRoad, bool)>,
+    // Guaranteed to be filled out when RawMap is fully written.
+    pub matched_road: Option<(OriginalRoad, Direction)>,
     // If it's not explicitly mapped, we'll do equiv_pos.
     pub ped_pos: Option<Pt2D>,
 }

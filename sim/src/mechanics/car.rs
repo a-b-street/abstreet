@@ -3,7 +3,7 @@ use crate::{
     TransitSimState, TripID, Vehicle, VehicleType,
 };
 use geom::{Distance, Duration, PolyLine, Time};
-use map_model::{Map, Traversable};
+use map_model::{Direction, Map, Traversable};
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
@@ -128,10 +128,10 @@ impl Car {
                 match spot {
                     ParkingSpot::Onstreet(parking_l, _) => {
                         let r = map.get_parent(*parking_l);
-                        let driving_offset = r.offset_from_left(self.router.head().as_lane());
-                        let parking_offset = r.offset_from_left(*parking_l);
+                        let driving_offset = r.offset(self.router.head().as_lane());
+                        let parking_offset = r.offset(*parking_l);
                         let mut diff = (parking_offset as isize) - (driving_offset as isize);
-                        if !r.is_forwards(self.router.head().as_lane()) {
+                        if r.dir(self.router.head().as_lane()) == Direction::Back {
                             diff *= -1;
                         }
                         // TODO Sum widths in between, don't assume they're all the same as the

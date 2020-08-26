@@ -24,18 +24,26 @@ impl fmt::Display for RoadID {
     }
 }
 
-impl RoadID {
-    pub fn forwards(self) -> DirectedRoadID {
-        DirectedRoadID {
-            id: self,
-            forwards: true,
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Direction {
+    Fwd,
+    Back,
+}
+
+impl Direction {
+    pub fn opposite(self) -> Direction {
+        match self {
+            Direction::Fwd => Direction::Back,
+            Direction::Back => Direction::Fwd,
         }
     }
+}
 
-    pub fn backwards(self) -> DirectedRoadID {
-        DirectedRoadID {
-            id: self,
-            forwards: false,
+impl fmt::Display for Direction {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Direction::Fwd => write!(f, "forwards"),
+            Direction::Back => write!(f, "backwards"),
         }
     }
 }
@@ -43,28 +51,19 @@ impl RoadID {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct DirectedRoadID {
     pub id: RoadID,
-    pub forwards: bool,
+    pub dir: Direction,
 }
 
 impl fmt::Display for DirectedRoadID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "DirectedRoadID({}, {})",
-            self.id.0,
-            if self.forwards {
-                "forwards"
-            } else {
-                "backwards"
-            }
-        )
+        write!(f, "DirectedRoadID({}, {})", self.id.0, self.dir,)
     }
 }
 
 impl DirectedRoadID {
     pub fn src_i(self, map: &Map) -> IntersectionID {
         let r = map.get_r(self.id);
-        if self.forwards {
+        if self.dir == Direction::Fwd {
             r.src_i
         } else {
             r.dst_i
@@ -73,7 +72,7 @@ impl DirectedRoadID {
 
     pub fn dst_i(self, map: &Map) -> IntersectionID {
         let r = map.get_r(self.id);
-        if self.forwards {
+        if self.dir == Direction::Fwd {
             r.dst_i
         } else {
             r.src_i
@@ -83,7 +82,7 @@ impl DirectedRoadID {
     // Strict for bikes. If there are bike lanes, not allowed to use other lanes.
     pub fn lanes(self, constraints: PathConstraints, map: &Map) -> Vec<LaneID> {
         let r = map.get_r(self.id);
-        constraints.filter_lanes(r.children(self.forwards).iter().map(|(l, _)| *l), map)
+        constraints.filter_lanes(r.children(self.dir).iter().map(|(l, _)| *l).collect(), map)
     }
 }
 
@@ -102,59 +101,42 @@ pub struct Road {
     pub zorder: isize,
 
     // Invariant: A road must contain at least one child
-    // These are ordered from closest to center lane (left-most when driving on the right) to
-    // farthest (sidewalk)
-    pub children_forwards: Vec<(LaneID, LaneType)>,
-    pub children_backwards: Vec<(LaneID, LaneType)>,
+    pub(crate) lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
 
     // The physical center of the road, including sidewalks, after trimming. The order implies road
     // orientation. No edits ever change this.
+    // TODO Maybe deprecated in favor of get_left_side?
     pub center_pts: PolyLine,
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
 }
 
-type HomogenousTuple2<T> = (T, T);
-
 impl Road {
-    pub fn children(&self, fwds: bool) -> &Vec<(LaneID, LaneType)> {
-        if fwds {
-            &self.children_forwards
-        } else {
-            &self.children_backwards
+    // Returns all lanes from the left side of the road to right. Left/right is determined by the
+    // orientation of center_pts.
+    pub fn lanes_ltr(&self) -> Vec<(LaneID, Direction, LaneType)> {
+        // TODO Change this to return &Vec
+        self.lanes_ltr.clone()
+    }
+
+    pub fn get_left_side(&self, map: &Map) -> PolyLine {
+        self.center_pts.must_shift_left(self.get_half_width(map))
+    }
+
+    // Counting from the left side of the road
+    pub fn offset(&self, lane: LaneID) -> usize {
+        for (idx, (l, _, _)) in self.lanes_ltr().into_iter().enumerate() {
+            if lane == l {
+                return idx;
+            }
         }
+        panic!("{} doesn't contain {}", self.id, lane);
     }
 
-    pub(crate) fn children_mut(&mut self, fwds: bool) -> &mut Vec<(LaneID, LaneType)> {
-        if fwds {
-            &mut self.children_forwards
-        } else {
-            &mut self.children_backwards
-        }
-    }
-
-    pub fn get_lane_types<'a>(&'a self) -> HomogenousTuple2<impl Iterator<Item = LaneType> + 'a> {
-        let get_lanetype = |(_, lt): &(_, LaneType)| *lt;
-        (
-            self.children_forwards.iter().map(get_lanetype.clone()),
-            self.children_backwards.iter().map(get_lanetype),
-        )
-    }
-
-    pub fn is_forwards(&self, lane: LaneID) -> bool {
-        self.dir_and_offset(lane).0
-    }
-
-    pub fn is_backwards(&self, lane: LaneID) -> bool {
-        !self.dir_and_offset(lane).0
-    }
-
-    // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
-    // it counts up from there. Returns true for the forwards direction, false for backwards.
-    pub fn dir_and_offset(&self, lane: LaneID) -> (bool, usize) {
-        for &fwds in [true, false].iter() {
-            if let Some(idx) = self.children(fwds).iter().position(|pair| pair.0 == lane) {
-                return (fwds, idx);
+    pub fn dir(&self, lane: LaneID) -> Direction {
+        for (l, dir, _) in self.lanes_ltr() {
+            if lane == l {
+                return dir;
             }
         }
         panic!("{} doesn't contain {}", self.id, lane);
@@ -194,36 +176,6 @@ impl Road {
         Speed::miles_per_hour(20.0)
     }
 
-    pub fn incoming_lanes(&self, i: IntersectionID) -> &Vec<(LaneID, LaneType)> {
-        if self.src_i == i {
-            &self.children_backwards
-        } else if self.dst_i == i {
-            &self.children_forwards
-        } else {
-            panic!("{} doesn't have an endpoint at {}", self.id, i);
-        }
-    }
-
-    pub fn outgoing_lanes(&self, i: IntersectionID) -> &Vec<(LaneID, LaneType)> {
-        if self.src_i == i {
-            &self.children_forwards
-        } else if self.dst_i == i {
-            &self.children_backwards
-        } else {
-            panic!("{} doesn't have an endpoint at {}", self.id, i);
-        }
-    }
-
-    // "Left" depends on the road, so if the lane !is_forwards(), keep that in mind
-    pub fn offset_from_left(&self, lane: LaneID) -> usize {
-        self.children_backwards
-            .iter()
-            .rev()
-            .chain(self.children_forwards.iter())
-            .position(|(l, _)| *l == lane)
-            .unwrap()
-    }
-
     // Includes off-side
     // TODO Specialize a variant for PathConstraints.can_use. Only one caller needs something
     // fancier.
@@ -233,19 +185,11 @@ impl Road {
         filter: F,
         map: &Map,
     ) -> Option<LaneID> {
-        // Lanes from left to right over the whole road
-        let mut all = Vec::new();
-        for (l, _) in self.children_backwards.iter().rev() {
-            all.push(*l);
-        }
-        for (l, _) in &self.children_forwards {
-            all.push(*l);
-        }
-        let our_idx = all.iter().position(|l| *l == from).unwrap() as isize;
-
-        all.into_iter()
+        let our_idx = self.offset(from) as isize;
+        self.lanes_ltr()
+            .into_iter()
             .enumerate()
-            .filter_map(|(idx, l)| {
+            .filter_map(|(idx, (l, _, _))| {
                 if (idx as isize) != our_idx && filter(map.get_l(l)) {
                     Some((idx, l))
                 } else {
@@ -257,30 +201,28 @@ impl Road {
     }
 
     pub fn all_lanes(&self) -> Vec<LaneID> {
-        self.children_forwards
-            .iter()
-            .chain(self.children_backwards.iter())
-            .map(|(id, _)| *id)
-            .collect()
+        self.lanes_ltr().into_iter().map(|(l, _, _)| l).collect()
     }
 
-    pub fn lanes_on_side<'a>(&'a self, dir: bool) -> impl Iterator<Item = LaneID> + 'a {
-        self.children(dir).iter().map(|(id, _)| *id)
-    }
-
-    // This is the yellow line where the direction of the road changes.
-    pub fn get_current_center(&self, map: &Map) -> PolyLine {
-        let lane = map.get_l(if !self.children_forwards.is_empty() {
-            self.children_forwards[0].0
+    // This is the FIRST yellow line where the direction of the road changes. If multiple direction
+    // changes happen, the result is kind of arbitrary.
+    pub fn get_dir_change_pl(&self, map: &Map) -> PolyLine {
+        let mut found: Option<LaneID> = None;
+        for pair in self.lanes_ltr().windows(2) {
+            let ((l1, dir1, _), (_, dir2, _)) = (pair[0], pair[1]);
+            if dir1 != dir2 {
+                found = Some(l1);
+                break;
+            }
+        }
+        let lane = map.get_l(found.unwrap_or(self.lanes_ltr()[0].0));
+        if self.dir(lane.id) == Direction::Fwd {
+            lane.lane_center_pts.must_shift_left(lane.width / 2.0)
         } else {
-            self.children_backwards[0].0
-        });
-        map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
-    }
-
-    pub fn any_on_other_side(&self, l: LaneID, lt: LaneType) -> Option<LaneID> {
-        let search = self.children(!self.is_forwards(l));
-        search.iter().find(|(_, t)| lt == *t).map(|(id, _)| *id)
+            lane.lane_center_pts
+                .must_shift_left(lane.width / 2.0)
+                .reversed()
+        }
     }
 
     pub fn get_half_width(&self, map: &Map) -> Distance {
@@ -377,13 +319,11 @@ impl Road {
     }
 
     pub fn is_light_rail(&self) -> bool {
-        !self.children_forwards.is_empty() && self.children_forwards[0].1 == LaneType::LightRail
+        self.lanes_ltr().len() == 1 && self.lanes_ltr()[0].2 == LaneType::LightRail
     }
 
     pub fn is_footway(&self) -> bool {
-        self.children_forwards.len() == 1
-            && self.children_forwards[0].1 == LaneType::Sidewalk
-            && self.children_backwards.is_empty()
+        self.lanes_ltr().len() == 1 && self.lanes_ltr()[0].2 == LaneType::Sidewalk
     }
 
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {
@@ -429,5 +369,75 @@ impl Road {
                 .find(|z| z.members.contains(&self.id))
                 .unwrap(),
         )
+    }
+}
+
+// TODO All of this is kind of deprecated? During the transiton towards lanes_ltr, some pieces
+// seemed to really need to still handle lanes going outward from the "center" line. Should keep
+// whittling this down, probably. These very much don't handle multiple direction changes.
+impl Road {
+    // These are ordered from closest to center lane (left-most when driving on the right) to
+    // farthest (sidewalk)
+    pub(crate) fn children_forwards(&self) -> Vec<(LaneID, LaneType)> {
+        let mut result = Vec::new();
+        for (l, dir, lt) in self.lanes_ltr() {
+            if dir == Direction::Fwd {
+                result.push((l, lt));
+            }
+        }
+        result
+    }
+    pub(crate) fn children_backwards(&self) -> Vec<(LaneID, LaneType)> {
+        let mut result = Vec::new();
+        for (l, dir, lt) in self.lanes_ltr() {
+            if dir == Direction::Back {
+                result.push((l, lt));
+            }
+        }
+        result.reverse();
+        result
+    }
+
+    // TODO Deprecated
+    pub(crate) fn children(&self, dir: Direction) -> Vec<(LaneID, LaneType)> {
+        if dir == Direction::Fwd {
+            self.children_forwards()
+        } else {
+            self.children_backwards()
+        }
+    }
+
+    // TODO Deprecated
+    // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
+    // it counts up from there.
+    pub(crate) fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
+        for &dir in [Direction::Fwd, Direction::Back].iter() {
+            if let Some(idx) = self.children(dir).iter().position(|pair| pair.0 == lane) {
+                return (dir, idx);
+            }
+        }
+        panic!("{} doesn't contain {}", self.id, lane);
+    }
+
+    // Returns lanes from the "center" going out
+    pub(crate) fn incoming_lanes(&self, i: IntersectionID) -> Vec<(LaneID, LaneType)> {
+        if self.src_i == i {
+            self.children_backwards()
+        } else if self.dst_i == i {
+            self.children_forwards()
+        } else {
+            panic!("{} doesn't have an endpoint at {}", self.id, i);
+        }
+    }
+
+    // Returns lanes from the "center" going out
+    pub(crate) fn outgoing_lanes(&self, i: IntersectionID) -> Vec<(LaneID, LaneType)> {
+        if self.src_i == i {
+            self.children_forwards()
+        } else if self.dst_i == i {
+            self.children_backwards()
+        } else {
+            panic!("{} doesn't have an endpoint at {}", self.id, i);
+        }
     }
 }

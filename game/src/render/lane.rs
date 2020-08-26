@@ -3,7 +3,9 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Drawable, GeomBatch, GfxCtx, RewriteColor};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{Lane, LaneID, LaneType, Map, Road, RoadID, TurnID, PARKING_SPOT_LENGTH};
+use map_model::{
+    Direction, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID, PARKING_SPOT_LENGTH,
+};
 use std::cell::RefCell;
 use std::collections::HashMap;
 
@@ -265,13 +267,24 @@ fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
     result
 }
 
+// Because the stripe straddles two lanes, it'll be partly hidden on one side. There are a bunch of
+// ways to work around this z-order issue. The current approach is to rely on the fact that
+// quadtrees return LaneIDs in order, and lanes are always created from left->right.
 fn calculate_driving_lines(map: &Map, lane: &Lane, parent: &Road) -> Vec<Polygon> {
-    // The leftmost lanes don't have dashed lines.
-    let (dir, idx) = parent.dir_and_offset(lane.id);
-    if idx == 0 || (dir && !parent.children_forwards[idx - 1].1.is_for_moving_vehicles()) {
+    let lanes = parent.lanes_ltr();
+    let idx = parent.offset(lane.id);
+
+    // If the lane to the left of us isn't in the same direction or isn't the same type, don't
+    // need dashed lines.
+    if idx == 0 || lanes[idx].1 != lanes[idx - 1].1 || lanes[idx].2 != lanes[idx - 1].2 {
         return Vec::new();
     }
-    let lane_edge_pts = map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0);
+
+    let lane_edge_pts = if lanes[idx].1 == Direction::Fwd {
+        map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
+    } else {
+        map.must_right_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
+    };
     lane_edge_pts.dashed_lines(
         Distance::meters(0.25),
         Distance::meters(1.0),
@@ -338,9 +351,11 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
 
 fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
     let mut results = Vec::new();
-    if parent
-        .any_on_other_side(lane.id, LaneType::Driving)
-        .is_some()
+    let lanes = parent.lanes_ltr();
+    let dir = parent.dir(lane.id);
+    if lanes
+        .into_iter()
+        .any(|(_, d, lt)| dir != d && lt == LaneType::Driving)
     {
         // Not a one-way
         return results;

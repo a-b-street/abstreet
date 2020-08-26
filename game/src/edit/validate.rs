@@ -136,8 +136,7 @@ pub fn try_change_lt(
     // TODO Ban two adjacent parking lanes (What about dppd though?)
 
     // A parking lane must have a driving lane somewhere on the road.
-    let (fwd, back) = r.get_lane_types();
-    let all_types: BTreeSet<LaneType> = fwd.chain(back).collect();
+    let all_types: BTreeSet<LaneType> = r.lanes_ltr().into_iter().map(|(_, _, lt)| lt).collect();
     if all_types.contains(&LaneType::Parking) && !all_types.contains(&LaneType::Driving) {
         errors.push(format!(
             "A parking lane needs a driving lane somewhere on the same road"
@@ -145,11 +144,13 @@ pub fn try_change_lt(
     }
 
     // Don't let players orphan a bus stop.
+    // TODO This allows a bus stop switching sides of the road. Really need to re-do bus matching
+    // and make sure nothing's broken (https://github.com/dabreegster/abstreet/issues/93).
     if !r.all_bus_stops(map).is_empty()
         && !r
-            .children(r.is_forwards(l))
-            .iter()
-            .any(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Bus)
+            .lanes_ltr()
+            .into_iter()
+            .any(|(l, _, _)| PathConstraints::Bus.can_use(map.get_l(l), map))
     {
         errors.push(format!("You need a driving or bus lane for the bus stop!"));
     }
@@ -164,16 +165,23 @@ pub fn try_change_lt(
 
 pub fn try_reverse(ctx: &mut EventCtx, map: &Map, l: LaneID) -> Result<EditCmd, Box<dyn State>> {
     let lane = map.get_l(l);
-    if map.get_r(lane.parent).dir_and_offset(l).1 != 0 {
+    let r = map.get_r(lane.parent);
+    let lanes = r.lanes_ltr();
+    let idx = r.offset(l);
+    let dir = lanes[idx].1;
+    // TODO Handle a road with a single lane. Actually find a case and try it; I don't trust that
+    // there aren't weird side effects elsewhere of doing this.
+    if (idx != 0 && lanes[idx - 1].1 != dir) || (idx != lanes.len() - 1 && lanes[idx + 1].1 != dir)
+    {
+        Ok(EditCmd::ReverseLane {
+            l,
+            dst_i: lane.src_i,
+        })
+    } else {
         Err(PopupMsg::new(
             ctx,
             "Error",
             vec!["You can only reverse the lanes next to the road's yellow center line"],
         ))
-    } else {
-        Ok(EditCmd::ReverseLane {
-            l,
-            dst_i: lane.src_i,
-        })
     }
 }

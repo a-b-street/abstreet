@@ -12,8 +12,8 @@ use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
-    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints,
-    Position, Road, RoadID, TurnGroup, Zone,
+    Direction, Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits,
+    PathConstraints, Position, Road, RoadID, TurnGroup, Zone,
 };
 use abstutil::{Parallelism, Timer};
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
@@ -115,8 +115,7 @@ impl Map {
                     })
                     .collect(),
                 orig_id: r.id,
-                children_forwards: Vec::new(),
-                children_backwards: Vec::new(),
+                lanes_ltr: Vec::new(),
                 center_pts: r.trimmed_center_pts.clone(),
                 src_i: i1,
                 dst_i: i2,
@@ -132,8 +131,8 @@ impl Map {
             road.access_restrictions = road.access_restrictions_from_osm();
 
             let mut total_back_width = Distance::ZERO;
-            for lane in &r.lane_specs {
-                if lane.reverse_pts {
+            for lane in &r.lane_specs_ltr {
+                if lane.dir == Direction::Back {
                     total_back_width += lane.width;
                 }
             }
@@ -143,45 +142,34 @@ impl Map {
                 .left_shift(road.center_pts.clone(), r.half_width)
                 .unwrap_or_else(|_| road.center_pts.clone());
 
-            let mut fwd_width_so_far = Distance::ZERO;
-            let mut back_width_so_far = Distance::ZERO;
-            for lane in &r.lane_specs {
+            let mut width_so_far = Distance::ZERO;
+            for lane in &r.lane_specs_ltr {
                 let id = LaneID(map.lanes.len());
 
-                let (src_i, dst_i) = if lane.reverse_pts { (i2, i1) } else { (i1, i2) };
+                let (src_i, dst_i) = if lane.dir == Direction::Fwd {
+                    (i1, i2)
+                } else {
+                    (i2, i1)
+                };
                 map.intersections[src_i.0].outgoing_lanes.push(id);
                 map.intersections[dst_i.0].incoming_lanes.push(id);
 
-                road.children_mut(!lane.reverse_pts)
-                    .push((id, lane.lane_type));
+                road.lanes_ltr.push((id, lane.dir, lane.lt));
 
-                // Careful about order here. lane_specs are all of the forwards from center to
-                // sidewalk, then all the backwards from center to sidewalk.
-                let lane_center_pts = if !lane.reverse_pts {
-                    let pl = if let Ok(pl) = map.right_shift(
-                        road_left_pts.clone(),
-                        total_back_width + fwd_width_so_far + (lane.width / 2.0),
-                    ) {
-                        pl
-                    } else {
-                        timer.error(format!("{} geometry broken; lane not shifted!", id));
-                        road_left_pts.clone()
-                    };
-                    fwd_width_so_far += lane.width;
+                let pl = if let Ok(pl) =
+                    map.right_shift(road_left_pts.clone(), width_so_far + (lane.width / 2.0))
+                {
                     pl
                 } else {
-                    let pl = if let Ok(pl) = map.right_shift(
-                        road_left_pts.clone(),
-                        total_back_width - back_width_so_far - (lane.width / 2.0),
-                    ) {
-                        pl
-                    } else {
-                        timer.error(format!("{} geometry broken; lane not shifted!", id));
-                        road_left_pts.clone()
-                    };
-                    back_width_so_far += lane.width;
+                    timer.error(format!("{} geometry broken; lane not shifted!", id));
+                    road_left_pts.clone()
+                };
+                let lane_center_pts = if lane.dir == Direction::Fwd {
+                    pl
+                } else {
                     pl.reversed()
                 };
+                width_so_far += lane.width;
 
                 map.lanes.push(Lane {
                     id,
@@ -189,7 +177,7 @@ impl Map {
                     width: lane.width,
                     src_i,
                     dst_i,
-                    lane_type: lane.lane_type,
+                    lane_type: lane.lt,
                     parent: road_id,
                     bus_stops: BTreeSet::new(),
                     driving_blackhole: false,

@@ -495,14 +495,14 @@ impl Map {
             }
             let r = self.get_r(roads_queue.pop_front().unwrap());
 
-            for (lane, lane_type) in r
-                .children_forwards
-                .iter()
-                .chain(r.children_backwards.iter())
+            for (l, lt) in r
+                .children_forwards()
+                .into_iter()
+                .chain(r.children_backwards().into_iter())
             {
-                if *lane_type == LaneType::Driving {
-                    if !self.get_l(*lane).driving_blackhole {
-                        return *lane;
+                if lt == LaneType::Driving {
+                    if !self.get_l(l).driving_blackhole {
+                        return l;
                     }
                 }
             }

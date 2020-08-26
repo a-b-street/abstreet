@@ -2,7 +2,7 @@ mod compat;
 mod perma;
 
 use crate::{
-    connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal,
+    connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
     IntersectionID, IntersectionType, LaneID, LaneType, Map, PathConstraints, Pathfinder, RoadID,
     TurnID, Zone,
 };
@@ -283,8 +283,8 @@ impl EditCmd {
 
                 lane.lane_type = lt;
                 let r = &mut map.roads[lane.parent.0];
-                let (fwds, idx) = r.dir_and_offset(id);
-                r.children_mut(fwds)[idx] = (id, lt);
+                let idx = r.offset(id);
+                r.lanes_ltr[idx].2 = lt;
 
                 effects.changed_roads.insert(lane.parent);
                 effects.changed_intersections.insert(lane.src_i);
@@ -318,9 +318,14 @@ impl EditCmd {
 
                 // We can only reverse the lane closest to the center.
                 let r = &mut map.roads[lane.parent.0];
-                let dir = *dst_i == r.dst_i;
-                assert_eq!(r.children_mut(!dir).remove(0).0, l);
-                r.children_mut(dir).insert(0, (l, lane.lane_type));
+                let dir = if *dst_i == r.dst_i {
+                    Direction::Fwd
+                } else {
+                    Direction::Back
+                };
+                let idx = r.offset(l);
+                assert_eq!(r.lanes_ltr[idx].1, dir.opposite());
+                r.lanes_ltr[idx].1 = dir;
                 effects.changed_roads.insert(r.id);
                 effects.changed_intersections.insert(lane.src_i);
                 effects.changed_intersections.insert(lane.dst_i);

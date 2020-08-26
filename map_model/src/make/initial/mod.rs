@@ -24,13 +24,13 @@ pub struct Road {
     // The true center of the road, including sidewalks
     pub trimmed_center_pts: PolyLine,
     pub half_width: Distance,
-    pub lane_specs: Vec<LaneSpec>,
+    pub lane_specs_ltr: Vec<LaneSpec>,
     pub osm_tags: Tags,
 }
 
 impl Road {
     pub fn new(id: OriginalRoad, r: &RawRoad, driving_side: DrivingSide) -> Road {
-        let lane_specs = lane_specs::get_lane_specs(&r.osm_tags);
+        let lane_specs_ltr = lane_specs::get_lane_specs_ltr(&r.osm_tags);
         let (trimmed_center_pts, total_width) = r.get_geometry(id, driving_side);
 
         Road {
@@ -39,7 +39,7 @@ impl Road {
             dst_i: id.i2,
             trimmed_center_pts,
             half_width: total_width / 2.0,
-            lane_specs,
+            lane_specs_ltr,
             osm_tags: r.osm_tags.clone(),
         }
     }

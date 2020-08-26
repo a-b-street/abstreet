@@ -1,8 +1,8 @@
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
 use crate::raw::OriginalRoad;
 use crate::{
-    osm, CompressedTurnGroupID, DirectedRoadID, IntersectionID, Map, TurnGroup, TurnGroupID,
-    TurnID, TurnPriority, TurnType,
+    osm, CompressedTurnGroupID, DirectedRoadID, Direction, IntersectionID, Map, TurnGroup,
+    TurnGroupID, TurnID, TurnPriority, TurnType,
 };
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
 use geom::Duration;
@@ -356,13 +356,13 @@ fn export_turn_group(id: &TurnGroupID, map: &Map) -> seattle_traffic_signals::Tu
             osm_way_id: from.osm_way_id.0,
             osm_node1: from.i1.0,
             osm_node2: from.i2.0,
-            is_forwards: id.from.forwards,
+            is_forwards: id.from.dir == Direction::Fwd,
         },
         to: seattle_traffic_signals::DirectedRoad {
             osm_way_id: to.osm_way_id.0,
             osm_node1: to.i1.0,
             osm_node2: to.i2.0,
-            is_forwards: id.to.forwards,
+            is_forwards: id.to.dir == Direction::Fwd,
         },
         intersection_osm_node_id: map.get_i(id.parent).orig_id.0,
         is_crosswalk: id.crosswalk,
@@ -388,6 +388,10 @@ fn find_r(id: seattle_traffic_signals::DirectedRoad, map: &Map) -> Option<Direct
                 (id.osm_node1, id.osm_node2),
             ))
             .ok()?,
-        forwards: id.is_forwards,
+        dir: if id.is_forwards {
+            Direction::Fwd
+        } else {
+            Direction::Back
+        },
     })
 }

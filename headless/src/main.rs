@@ -10,11 +10,13 @@
 // ... huge JSON blob
 
 use abstutil::{serialize_btreemap, CmdArgs, Timer};
-use geom::{Duration, Time};
+use geom::{Duration, LonLat, Time};
 use hyper::{Body, Request, Response, Server};
 use map_model::{CompressedTurnGroupID, ControlTrafficSignal, IntersectionID, Map, TurnGroupID};
 use serde::Serialize;
-use sim::{AlertHandler, Sim, SimFlags, SimOptions, TripID, TripMode};
+use sim::{
+    AlertHandler, GetDrawAgents, PersonID, Sim, SimFlags, SimOptions, TripID, TripMode, VehicleType,
+};
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
 use std::error::Error;
@@ -176,6 +178,17 @@ fn handle_command(
         "/data/get-finished-trips" => Ok(abstutil::to_json(&FinishedTrips {
             trips: sim.get_analytics().finished_trips.clone(),
         })),
+        "/data/get-agent-positions" => Ok(abstutil::to_json(&AgentPositions {
+            agents: sim
+                .get_unzoomed_agents(map)
+                .into_iter()
+                .map(|a| AgentPosition {
+                    vehicle_type: a.vehicle_type,
+                    pos: a.pos.to_gps(map.get_gps_bounds()),
+                    person: a.person,
+                })
+                .collect(),
+        })),
         _ => Err("Unknown command".into()),
     }
 }
@@ -199,4 +212,18 @@ struct Delays {
 struct Throughput {
     #[serde(serialize_with = "serialize_btreemap")]
     per_direction: BTreeMap<TurnGroupID, usize>,
+}
+
+#[derive(Serialize)]
+struct AgentPositions {
+    agents: Vec<AgentPosition>,
+}
+
+#[derive(Serialize)]
+struct AgentPosition {
+    // None for pedestrians
+    vehicle_type: Option<VehicleType>,
+    pos: LonLat,
+    // None for buses
+    person: Option<PersonID>,
 }

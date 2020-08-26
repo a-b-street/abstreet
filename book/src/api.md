@@ -43,6 +43,8 @@ are missing, etc. A summary of the commands available so far:
     mode, duration of trip in seconds). The mode is either a string like "Walk"
     or "Drive", or null if the trip was aborted (due to a simulation bug or
     disconnected map).
+  - **GET /data/get-agent-positions**: Returns a JSON list of all active agents.
+    Vehicle type (or pedestrian), person ID, and position is included.
 
 ## Related tools
 

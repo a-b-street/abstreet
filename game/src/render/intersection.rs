@@ -8,8 +8,8 @@ use crate::render::{
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
-    Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
-    SIDEWALK_THICKNESS,
+    Direction, Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn,
+    TurnType, SIDEWALK_THICKNESS,
 };
 use std::cell::RefCell;
 
@@ -239,18 +239,21 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
     corners
 }
 
+// TODO This assumes the lanes change direction only at one point. A two-way cycletrack right at
+// the border will look a bit off.
 fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon> {
     let mut result = Vec::new();
 
     let mut width_fwd = Distance::ZERO;
     let mut width_back = Distance::ZERO;
-    for (l, _) in r.children(true) {
-        width_fwd += map.get_l(*l).width;
+    for (l, dir, _) in r.lanes_ltr() {
+        if dir == Direction::Fwd {
+            width_fwd += map.get_l(l).width;
+        } else {
+            width_back += map.get_l(l).width;
+        }
     }
-    for (l, _) in r.children(false) {
-        width_back += map.get_l(*l).width;
-    }
-    let center = r.get_current_center(map);
+    let center = r.get_dir_change_pl(map);
 
     // These arrows should point from the void to the road
     if !i.outgoing_lanes.is_empty() {

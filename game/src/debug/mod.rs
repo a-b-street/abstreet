@@ -54,6 +54,7 @@ impl DebugMode {
                     vec![
                         (lctrl(Key::H), "unhide everything"),
                         (None, "screenshot everything"),
+                        (None, "screenshot all of the everything"),
                         (hotkey(Key::Slash), "search OSM metadata"),
                         (lctrl(Key::Slash), "clear OSM search results"),
                         (hotkey(Key::O), "save sim state"),
@@ -225,15 +226,19 @@ impl State for DebugMode {
                     self.reset_info(ctx);
                 }
                 "screenshot everything" => {
-                    let bounds = app.primary.map.get_bounds();
-                    assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
-                    ctx.request_update(UpdateType::ScreenCaptureEverything {
-                        dir: format!("screenshots_{}", app.primary.map.get_name()),
-                        zoom: 3.0,
-                        max_x: bounds.max_x,
-                        max_y: bounds.max_y,
-                    });
+                    screenshot_everything(ctx, app);
                     return Transition::Keep;
+                }
+                "screenshot all of the everything" => {
+                    return Transition::Push(Box::new(ScreenshotTest {
+                        todo_maps: vec![
+                            "downtown",
+                            "krakow_center",
+                            "lakeslice",
+                            "montlake",
+                            "udistrict",
+                        ],
+                    }));
                 }
                 "find bad traffic signals" => {
                     find_bad_signals(app);
@@ -671,27 +676,14 @@ fn find_degenerate_roads(app: &App) {
             continue;
         }
         if r1
-            .children_forwards
-            .iter()
-            .map(|(_, lt)| *lt)
+            .lanes_ltr()
+            .into_iter()
+            .map(|(_, dir, lt)| (dir, lt))
             .collect::<Vec<_>>()
             != r2
-                .children_forwards
-                .iter()
-                .map(|(_, lt)| *lt)
-                .collect::<Vec<_>>()
-        {
-            continue;
-        }
-        if r1
-            .children_backwards
-            .iter()
-            .map(|(_, lt)| *lt)
-            .collect::<Vec<_>>()
-            != r2
-                .children_backwards
-                .iter()
-                .map(|(_, lt)| *lt)
+                .lanes_ltr()
+                .into_iter()
+                .map(|(_, dir, lt)| (dir, lt))
                 .collect::<Vec<_>>()
         {
             continue;
@@ -727,4 +719,35 @@ fn find_large_intersections(app: &App) {
             seen.insert(t.id.parent);
         }
     }
+}
+
+// Because of the slightly odd control flow needed to ask ezgui to ScreenCaptureEverything, a
+// separate state is the easiest way to automatically screenshot multiple maps.
+struct ScreenshotTest {
+    todo_maps: Vec<&'static str>,
+}
+
+impl State for ScreenshotTest {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if let Some(name) = self.todo_maps.pop() {
+            app.switch_map(ctx, abstutil::path_map(name));
+            screenshot_everything(ctx, app);
+            // TODO Sometimes this still gets stuck and needs a mouse wiggle for input event?
+            Transition::Keep
+        } else {
+            Transition::Pop
+        }
+    }
+    fn draw(&self, _: &mut GfxCtx, _: &App) {}
+}
+
+fn screenshot_everything(ctx: &mut EventCtx, app: &App) {
+    let bounds = app.primary.map.get_bounds();
+    assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
+    ctx.request_update(UpdateType::ScreenCaptureEverything {
+        dir: format!("screenshots_{}", app.primary.map.get_name()),
+        zoom: 3.0,
+        max_x: bounds.max_x,
+        max_y: bounds.max_y,
+    });
 }

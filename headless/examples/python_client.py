@@ -25,6 +25,13 @@ def main():
     print('Baseline: {} finished trips, total of {} seconds'.format(len(trips1), sum(trips1.values())))
     print()
 
+    # Find the average position of all active pedestrians
+    agents = [x['pos'] for x in requests.get(api + '/data/get-agent-positions').json()['agents'] if x['vehicle_type'] is None]
+    avg_lon = sum([x['longitude'] for x in agents]) / len(agents)
+    avg_lat = sum([x['latitude'] for x in agents]) / len(agents)
+    print('Average position of all active pedestrians: {}, {}'.format(avg_lon, avg_lat))
+    print()
+
     # Modify one traffic signal, doubling the duration of its second phase
     print('Modify a traffic signal')
     ts = requests.get(api + '/traffic-signals/get', params={'id': 67}).json()
@@ -91,11 +98,7 @@ def stringify_direction(direxn):
 
 
 def stringify_road(directed_road):
-    if directed_road['forwards']:
-        direxn = 'fwd'
-    else:
-        direxn = 'back'
-    return 'Road #{} ({})'.format(directed_road['id'], direxn)
+    return 'Road #{} ({})'.format(directed_road['id'], directed_road['dir'])
 
 
 if __name__ == '__main__':

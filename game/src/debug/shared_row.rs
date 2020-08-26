@@ -1,6 +1,6 @@
 use geojson::feature::Id;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
-use map_model::{Lane, LaneType, Map, RoadID};
+use map_model::{Direction, Lane, LaneType, Map, RoadID};
 
 // Exports to https://github.com/d-wasserman/shared-row/
 pub fn export(roads: Vec<RoadID>, map: &Map) {
@@ -19,21 +19,16 @@ fn road(id: RoadID, map: &Map) -> Feature {
     properties.insert("OID".to_string(), id.0.into());
     properties.insert("sharedstreetid".to_string(), id.0.into());
 
-    // Left-to-right
     let mut slices = Vec::new();
-    for (l, _) in r.children(false).into_iter().rev() {
-        if let Some(mut slice) = lane(map.get_l(*l)) {
+    for (l, dir, _) in r.lanes_ltr() {
+        if let Some(mut slice) = lane(map.get_l(l)) {
             slice
                 .entry("direction".to_string())
-                .or_insert("reverse".into());
-            slices.push(serde_json::value::Value::Object(slice));
-        }
-    }
-    for (l, _) in r.children(true).into_iter() {
-        if let Some(mut slice) = lane(map.get_l(*l)) {
-            slice
-                .entry("direction".to_string())
-                .or_insert("forward".into());
+                .or_insert(if dir == Direction::Fwd {
+                    "forward".into()
+                } else {
+                    "reverse".into()
+                });
             slices.push(serde_json::value::Value::Object(slice));
         }
     }

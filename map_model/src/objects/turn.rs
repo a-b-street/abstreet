@@ -1,4 +1,4 @@
-use crate::{DirectedRoadID, IntersectionID, LaneID, Map};
+use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 use serde::{Deserialize, Serialize};
@@ -119,7 +119,7 @@ impl Turn {
         let from_idx = {
             let mut cnt = 0;
             let r = map.get_r(from.parent);
-            for (l, lt) in r.children(r.is_forwards(from.id)).iter().rev() {
+            for (l, lt) in r.children(r.dir(from.id)).iter().rev() {
                 if from.lane_type != *lt {
                     continue;
                 }
@@ -142,7 +142,7 @@ impl Turn {
         let to_idx = {
             let mut cnt = 0;
             let r = map.get_r(to.parent);
-            for (l, lt) in r.children(r.is_forwards(to.id)).iter().rev() {
+            for (l, lt) in r.children(r.dir(to.id)).iter().rev() {
                 if to.lane_type != *lt {
                     continue;
                 }
@@ -281,39 +281,29 @@ impl TurnGroup {
     // Polyline points FROM intersection
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
         let r = map.get_r(self.id.from.id);
-        let dir = self.id.from.forwards;
-        // Points towards the intersection
-        let pl = if dir {
-            r.get_current_center(map)
-        } else {
-            r.get_current_center(map).reversed()
-        };
 
-        // TODO Poorly expressed. We just want the first leftmost value, and the last rightmost.
         let mut leftmost = Distance::meters(99999.0);
         let mut rightmost = Distance::ZERO;
         let mut left = Distance::ZERO;
-        let mut right = Distance::ZERO;
 
-        for l in r.lanes_on_side(dir) {
-            right += map.get_l(l).width;
+        for (l, _, _) in r.lanes_ltr() {
+            let right = left + map.get_l(l).width;
 
             if self.members.iter().any(|t| t.src == l) {
                 leftmost = leftmost.min(left);
                 rightmost = rightmost.max(right);
             }
 
-            left += map.get_l(l).width;
+            left = right;
         }
 
-        let pl = map.must_right_shift(pl, (leftmost + rightmost) / 2.0);
+        let mut pl = map.must_right_shift(r.get_left_side(map), (leftmost + rightmost) / 2.0);
+        if self.id.from.dir == Direction::Back {
+            pl = pl.reversed();
+        }
         // Flip direction, so we point away from the intersection
-        let pl = if self.id.crosswalk
-            && map.get_l(self.members[0].src).src_i == self.members[0].parent
-        {
-            pl
-        } else {
-            pl.reversed()
+        if !self.id.crosswalk || map.get_l(self.members[0].src).src_i != self.members[0].parent {
+            pl = pl.reversed()
         };
         (pl, rightmost - leftmost)
     }

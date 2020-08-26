@@ -40,26 +40,28 @@ impl Renderable for DrawRoad {
         if draw_center_line.is_none() {
             let mut batch = GeomBatch::new();
             let r = app.primary.map.get_r(self.id);
+            let color = if r.is_private() {
+                app.cs.road_center_line.lerp(app.cs.private_road, 0.5)
+            } else {
+                app.cs.road_center_line
+            };
 
-            // Only draw a center line if it straddles two driving/bike/bus lanes of opposite
-            // directions
-            if let (Some((_, lt1)), Some((_, lt2))) =
-                (r.children_forwards.get(0), r.children_backwards.get(0))
-            {
-                if lt1.is_for_moving_vehicles() && lt2.is_for_moving_vehicles() {
-                    let width = Distance::meters(0.25);
-                    let color = if r.is_private() {
-                        app.cs.road_center_line.lerp(app.cs.private_road, 0.5)
-                    } else {
-                        app.cs.road_center_line
-                    };
+            // Draw a center line every time two driving/bike/bus lanes of opposite direction are
+            // adjacent.
+            let mut width = Distance::ZERO;
+            for pair in r.lanes_ltr().windows(2) {
+                let ((l1, dir1, lt1), (_, dir2, lt2)) = (pair[0], pair[1]);
+                width += app.primary.map.get_l(l1).width;
+                if dir1 != dir2 && lt1.is_for_moving_vehicles() && lt2.is_for_moving_vehicles() {
                     batch.extend(
                         color,
-                        r.get_current_center(&app.primary.map).dashed_lines(
-                            width,
-                            Distance::meters(2.0),
-                            Distance::meters(1.0),
-                        ),
+                        r.get_left_side(&app.primary.map)
+                            .must_shift_right(width)
+                            .dashed_lines(
+                                Distance::meters(0.25),
+                                Distance::meters(2.0),
+                                Distance::meters(1.0),
+                            ),
                     );
                 }
             }

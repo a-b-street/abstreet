@@ -22,36 +22,50 @@ pub fn upgrade(mut value: Value) -> Result<PermanentMapEdits, String> {
             .unwrap()
             .insert("version".to_string(), Value::Number(0.into()));
     }
+    if value["version"] == Value::Number(0.into()) {
+        fix_road_direction(&mut value);
+    }
 
     abstutil::from_json(&value.to_string().into_bytes()).map_err(|x| x.to_string())
 }
 
-// eee179ce8a6c1e6133dc212b73c3f79b11603e82 added an offset_seconds field
-fn fix_offset(value: &mut Value) {
+// Recursively walks the entire JSON object. Will call transform on all of the map objects. If the
+// callback returns true, won't recurse into that map.
+fn walk<F: Fn(&mut serde_json::Map<String, Value>) -> bool>(value: &mut Value, transform: &F) {
     match value {
         Value::Array(list) => {
             for x in list {
-                fix_offset(x);
+                walk(x, transform);
             }
         }
         Value::Object(map) => {
-            if map.len() == 1 && map.contains_key("TrafficSignal") {
-                let ts = map
-                    .get_mut("TrafficSignal")
-                    .unwrap()
-                    .as_object_mut()
-                    .unwrap();
-                if ts.get("offset_seconds").is_none() {
-                    ts.insert("offset_seconds".to_string(), Value::Number(0.into()));
-                }
-            } else {
+            if !(transform)(map) {
                 for x in map.values_mut() {
-                    fix_offset(x);
+                    walk(x, transform);
                 }
             }
         }
         _ => {}
     }
+}
+
+// eee179ce8a6c1e6133dc212b73c3f79b11603e82 added an offset_seconds field
+fn fix_offset(value: &mut Value) {
+    walk(value, &|map| {
+        if map.len() == 1 && map.contains_key("TrafficSignal") {
+            let ts = map
+                .get_mut("TrafficSignal")
+                .unwrap()
+                .as_object_mut()
+                .unwrap();
+            if ts.get("offset_seconds").is_none() {
+                ts.insert("offset_seconds".to_string(), Value::Number(0.into()));
+            }
+            true
+        } else {
+            false
+        }
+    })
 }
 
 // 11cefb118ab353d2e7fa5dceaab614a9b775e6ec changed { "osm_node_id": 123 } to just 123
@@ -73,4 +87,23 @@ fn fix_intersection_ids(value: &mut Value) {
         }
         _ => {}
     }
+}
+
+// b137735e019adbe0f2a7372a579aa987f8496e19 changed direction from a boolean to an enum.
+fn fix_road_direction(value: &mut Value) {
+    walk(value, &|map| {
+        if map.contains_key("num_fwd") {
+            map.insert(
+                "dir".to_string(),
+                if map["fwd"].as_bool().unwrap() {
+                    "Fwd".into()
+                } else {
+                    "Back".into()
+                },
+            );
+            true
+        } else {
+            false
+        }
+    });
 }
