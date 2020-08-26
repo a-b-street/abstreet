@@ -122,10 +122,12 @@ pub fn try_change_lt(
     let orig_edits = map.get_edits().clone();
 
     let mut edits = orig_edits.clone();
-    let cmd = EditCmd::ChangeLaneType {
-        id: l,
-        lt: new_lt,
-        orig_lt: map.get_l(l).lane_type,
+    let cmd = {
+        let r = map.get_l(l).parent;
+        let old = map.get_r_edit(r);
+        let mut new = old.clone();
+        new.lanes_ltr[map.get_r(r).offset(l)].0 = new_lt;
+        EditCmd::ChangeRoad { r, old, new }
     };
     edits.commands.push(cmd.clone());
     map.try_apply_edits(edits, &mut Timer::throwaway());
@@ -164,8 +166,7 @@ pub fn try_change_lt(
 }
 
 pub fn try_reverse(ctx: &mut EventCtx, map: &Map, l: LaneID) -> Result<EditCmd, Box<dyn State>> {
-    let lane = map.get_l(l);
-    let r = map.get_r(lane.parent);
+    let r = map.get_parent(l);
     let lanes = r.lanes_ltr();
     let idx = r.offset(l);
     let dir = lanes[idx].1;
@@ -173,10 +174,10 @@ pub fn try_reverse(ctx: &mut EventCtx, map: &Map, l: LaneID) -> Result<EditCmd, 
     // there aren't weird side effects elsewhere of doing this.
     if (idx != 0 && lanes[idx - 1].1 != dir) || (idx != lanes.len() - 1 && lanes[idx + 1].1 != dir)
     {
-        Ok(EditCmd::ReverseLane {
-            l,
-            dst_i: lane.src_i,
-        })
+        let old = map.get_r_edit(r.id);
+        let mut new = old.clone();
+        new.lanes_ltr[idx].1 = dir.opposite();
+        Ok(EditCmd::ChangeRoad { r: r.id, old, new })
     } else {
         Err(PopupMsg::new(
             ctx,

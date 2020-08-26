@@ -88,11 +88,10 @@ impl State for ZoneEditor {
 
                     // Roads deleted from the zone
                     for r in self.orig_members.difference(&self.selector.roads) {
-                        edits.commands.push(EditCmd::ChangeAccessRestrictions {
-                            id: *r,
-                            old: app.primary.map.get_r(*r).access_restrictions.clone(),
-                            new: AccessRestrictions::new(),
-                        });
+                        let old = app.primary.map.get_r_edit(*r);
+                        let mut new = old.clone();
+                        new.access_restrictions = AccessRestrictions::new();
+                        edits.commands.push(EditCmd::ChangeRoad { r: *r, old, new });
                     }
 
                     let mut allow_through_traffic = self
@@ -103,7 +102,7 @@ impl State for ZoneEditor {
                     // The original allow_through_traffic always includes this, and there's no way
                     // to exclude it, so stay consistent.
                     allow_through_traffic.insert(PathConstraints::Train);
-                    let new = AccessRestrictions {
+                    let new_access_restrictions = AccessRestrictions {
                         allow_through_traffic,
                         cap_vehicles_per_hour: {
                             let n = self.composite.spinner("cap_vehicles") as usize;
@@ -115,13 +114,13 @@ impl State for ZoneEditor {
                         },
                     };
                     for r in &self.selector.roads {
-                        let old = app.primary.map.get_r(*r).access_restrictions.clone();
-                        if old != new {
-                            edits.commands.push(EditCmd::ChangeAccessRestrictions {
-                                id: *r,
-                                old,
-                                new: new.clone(),
-                            });
+                        let old_access_restrictions =
+                            app.primary.map.get_r(*r).access_restrictions.clone();
+                        if old_access_restrictions != new_access_restrictions {
+                            let old = app.primary.map.get_r_edit(*r);
+                            let mut new = old.clone();
+                            new.access_restrictions = new_access_restrictions.clone();
+                            edits.commands.push(EditCmd::ChangeRoad { r: *r, old, new });
                         }
                     }
 
