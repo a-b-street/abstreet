@@ -363,6 +363,21 @@ mod tests {
                 "sbbdps",
                 "vv^^^^",
             ),
+            // TODO I have a fix for this, but somehow the fallout gridlocked lakeslice, so holding
+            // off...
+            /*(
+                "https://www.openstreetmap.org/way/534549104",
+                vec![
+                    "lanes=2",
+                    "oneway=yes",
+                    "sidewalk=both",
+                    "cycleway:right=track",
+                    "cycleway:right:oneway=no",
+                    "oneway:bicycle=no",
+                ],
+                "sddbbs",
+                "v^^v^^",
+            ),*/
         ] {
             let actual = get_lane_specs_ltr(&tags(input.clone()));
             let actual_lt = actual

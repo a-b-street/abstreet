@@ -79,17 +79,18 @@ impl DrawLane {
             }
             LaneType::Biking => {}
             LaneType::SharedLeftTurn => {
+                let thickness = Distance::meters(0.25);
                 draw.push(
                     app.cs.road_center_line,
                     lane.lane_center_pts
-                        .must_shift_right(lane.width / 2.0)
-                        .make_polygons(Distance::meters(0.25)),
+                        .must_shift_right((lane.width - thickness) / 2.0)
+                        .make_polygons(thickness),
                 );
                 draw.push(
                     app.cs.road_center_line,
                     lane.lane_center_pts
-                        .must_shift_left(lane.width / 2.0)
-                        .make_polygons(Distance::meters(0.25)),
+                        .must_shift_left((lane.width - thickness) / 2.0)
+                        .make_polygons(thickness),
                 );
             }
             LaneType::Construction => {}
@@ -124,8 +125,12 @@ impl DrawLane {
             }
         }
 
-        if lane.is_bus() || lane.is_biking() || lane.lane_type == LaneType::Construction {
-            let buffer = Distance::meters(2.0);
+        if lane.is_bus()
+            || lane.is_biking()
+            || lane.lane_type == LaneType::Construction
+            || lane.lane_type == LaneType::SharedLeftTurn
+        {
+            let buffer = Distance::meters(5.0);
             let btwn = Distance::meters(30.0);
             let len = lane.lane_center_pts.length();
 
@@ -143,6 +148,14 @@ impl DrawLane {
                     draw.append(
                         GeomBatch::load_svg(g.prerender, "system/assets/meters/bike.svg")
                             .scale(0.06)
+                            .centered_on(pt)
+                            .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
+                    );
+                } else if lane.lane_type == LaneType::SharedLeftTurn {
+                    draw.append(
+                        GeomBatch::load_svg(g.prerender, "system/assets/map/shared_left_turn.svg")
+                            .autocrop()
+                            .scale(0.003)
                             .centered_on(pt)
                             .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
                     );
