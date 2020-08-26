@@ -1,14 +1,16 @@
 use crate::utils::{download, osmconvert};
+use crate::configuration::ImporterConfiguration;
 
-fn input() {
+fn input(config: &ImporterConfiguration) {
     download(
+        config,
         "input/xian/osm/china-latest.osm.pbf",
         "http://download.geofabrik.de/asia/china-latest.osm.pbf",
     );
 }
 
-pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer) {
-    input();
+pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConfiguration) {
+    input(config);
     osmconvert(
         "input/xian/osm/china-latest.osm.pbf",
         format!("input/xian/polygons/{}.poly", name),

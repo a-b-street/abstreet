@@ -1,14 +1,16 @@
 use crate::utils::{download, osmconvert};
+use crate::configuration::ImporterConfiguration;
 
-fn input() {
+fn input(config: &ImporterConfiguration) {
     download(
+        config,
         "input/tel_aviv/osm/israel-and-palestine-latest.osm.pbf",
         "http://download.geofabrik.de/asia/israel-and-palestine-latest.osm.pbf",
     );
 }
 
-pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer) {
-    input();
+pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConfiguration) {
+    input(config);
     osmconvert(
         "input/tel_aviv/osm/israel-and-palestine-latest.osm.pbf",
         format!("input/tel_aviv/polygons/{}.poly", name),

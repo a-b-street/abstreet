@@ -1468,6 +1468,7 @@ dependencies = [
  "rand_xorshift 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.110 (registry+https://github.com/rust-lang/crates.io-index)",
  "sim 0.1.0",
+ "toml 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

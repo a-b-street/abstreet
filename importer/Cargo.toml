@@ -20,3 +20,4 @@ rand = "0.7.0"
 rand_xorshift = "0.2.0"
 serde = "1.0.110"
 sim = { path = "../sim" }
+toml = "0.5.6"

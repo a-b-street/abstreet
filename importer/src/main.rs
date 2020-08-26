@@ -1,4 +1,5 @@
 mod berlin;
+mod configuration;
 mod krakow;
 mod seattle;
 #[cfg(feature = "scenarios")]
@@ -6,6 +7,9 @@ mod soundcast;
 mod tel_aviv;
 mod utils;
 mod xian;
+use std::ffi::OsStr;
+use std::process::Command;
+use configuration::{ImporterConfiguration, load_configuration};
 
 // TODO Might be cleaner to express as a dependency graph?
 
@@ -64,6 +68,13 @@ fn main() {
         std::process::exit(1);
     }
 
+    let config: ImporterConfiguration = load_configuration();
+
+    if !are_dependencies_callable(&job, &config) {
+        println!("One or more dependencies aren't callable. Add them to the path and try again.");
+        std::process::exit(1);
+    }
+
     if let Some(path) = job.oneshot {
         oneshot(
             path,
@@ -109,11 +120,11 @@ fn main() {
     for name in names {
         if job.osm_to_raw {
             match job.city.as_ref() {
-                "berlin" => berlin::osm_to_raw(&name, &mut timer),
-                "krakow" => krakow::osm_to_raw(&name, &mut timer),
-                "seattle" => seattle::osm_to_raw(&name, &mut timer),
-                "tel_aviv" => tel_aviv::osm_to_raw(&name, &mut timer),
-                "xian" => xian::osm_to_raw(&name, &mut timer),
+                "berlin" => berlin::osm_to_raw(&name, &mut timer, &config),
+                "krakow" => krakow::osm_to_raw(&name, &mut timer, &config),
+                "seattle" => seattle::osm_to_raw(&name, &mut timer, &config),
+                "tel_aviv" => tel_aviv::osm_to_raw(&name, &mut timer, &config),
+                "xian" => xian::osm_to_raw(&name, &mut timer, &config),
                 x => panic!("Unknown city {}", x),
             }
         }
@@ -212,4 +223,28 @@ fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool, build_c
     map.save();
     timer.stop("save map");
     println!("{} has been created", abstutil::path_map(&name));
+}
+
+fn are_dependencies_callable(job: &Job, config: &ImporterConfiguration) -> bool {
+    let mut result = true;
+    if job.osm_to_raw {
+        for command in [&config.osmconvert, &config.unzip, &config.gunzip].iter() {
+            println!("- Testing if {} is callable", command);
+            if !is_program_callable(command) {
+                println!("Failed to run {}", command);
+                result = false;
+            }
+        }
+    }
+    return result;
+}
+
+fn is_program_callable<S: AsRef<OsStr>>(name: S) -> bool {
+    let output = Command::new(name)
+                         .arg("-h") // most command line programs return 0 with -h option
+                         .output(); // suppress output
+    match output {
+        Ok(_) => true,
+        Err(_) => false,
+    }
 }
