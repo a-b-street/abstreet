@@ -1,5 +1,6 @@
 use crate::mechanics::car::Car;
 use crate::mechanics::Queue;
+use crate::mechanics::traffic_signals::{TrafficSignalState, update_traffic_signal};
 use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Duration, Time};
@@ -16,6 +17,7 @@ const WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL: Duration = Duration::const_seconds(0.
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct IntersectionSimState {
     state: BTreeMap<IntersectionID, State>,
+    traffic_signal_state: BTreeMap<IntersectionID, TrafficSignalState>,
     use_freeform_policy_everywhere: bool,
     dont_block_the_box: bool,
     break_turn_conflict_cycles: bool,
@@ -63,6 +65,7 @@ impl IntersectionSimState {
     ) -> IntersectionSimState {
         let mut sim = IntersectionSimState {
             state: BTreeMap::new(),
+            traffic_signal_state: BTreeMap::new(),
             use_freeform_policy_everywhere,
             dont_block_the_box,
             break_turn_conflict_cycles,
@@ -80,24 +83,16 @@ impl IntersectionSimState {
                 phase_ends_at: Time::START_OF_DAY,
             };
             if i.is_traffic_signal() && !use_freeform_policy_everywhere {
+
                 let signal = map.get_traffic_signal(i.id);
-                // What phase are we starting with?
-                let mut offset = signal.offset;
-                loop {
-                    let dt = signal.phases[state.current_phase]
-                        .phase_type
-                        .simple_duration();
-                    if offset >= dt {
-                        offset -= dt;
-                        state.current_phase += 1;
-                        if state.current_phase == signal.phases.len() {
-                            state.current_phase = 0;
-                        }
-                    } else {
-                        state.phase_ends_at = Time::START_OF_DAY + dt - offset;
-                        break;
-                    }
-                }
+                state.initialize(signal);
+
+                let traffic_signal_state = TrafficSignalState {
+                    current_phase: state.current_phase,
+                    phase_ends_at: state.phase_ends_at,
+                };
+                sim.traffic_signal_state.insert(i.id, traffic_signal_state);
+
                 scheduler.push(state.phase_ends_at, Command::UpdateIntersection(i.id));
             }
             sim.state.insert(i.id, state);
@@ -237,14 +232,22 @@ impl IntersectionSimState {
         let signal = map.get_traffic_signal(id);
 
         match signal.control_type {
-            TrafficControlType::PreTimed => self.classic_update_intersection(now, id, signal, scheduler),
-            TrafficControlType::Actuated => {},
+            TrafficControlType::Original => self.update_original_type_intersection(now, id, signal, scheduler),
+            _ => {
+                let signal_state = self.traffic_signal_state.get_mut(&id).unwrap();
+                update_traffic_signal(now, id, signal_state, signal, scheduler);
+
+                // TODO: A temporary hack until I can encapsulate gets of current_phase
+                let state = self.state.get_mut(&id).unwrap();
+                state.current_phase = signal_state.current_phase;
+                state.phase_ends_at = signal_state.phase_ends_at;
+            },
         }
 
         self.wakeup_waiting(now, id, scheduler, map);
     }
 
-    fn classic_update_intersection(
+    fn update_original_type_intersection(
         &mut self,
         now: Time,
         id: IntersectionID,
@@ -791,4 +794,26 @@ fn allow_block_the_box(osm_node_id: i64) -> bool {
         || osm_node_id == 281487826
         || osm_node_id == 53209840
         || osm_node_id == 4249361353
+}
+
+impl State {
+    fn initialize(&mut self, signal: &ControlTrafficSignal) {
+        // What phase are we starting with?
+        let mut offset = signal.offset;
+        loop {
+            let dt = signal.phases[self.current_phase]
+                .phase_type
+                .simple_duration();
+            if offset >= dt {
+                offset -= dt;
+                self.current_phase += 1;
+                if self.current_phase == signal.phases.len() {
+                    self.current_phase = 0;
+                }
+            } else {
+                self.phase_ends_at = Time::START_OF_DAY + dt - offset;
+                break;
+            }
+        }
+    }
 }

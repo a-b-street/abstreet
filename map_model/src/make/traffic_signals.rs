@@ -69,7 +69,7 @@ fn new(id: IntersectionID, map: &Map) -> ControlTrafficSignal {
     ControlTrafficSignal {
         id,
         phases: Vec::new(),
-        control_type: TrafficControlType::PreTimed,
+        control_type: TrafficControlType::Original,
         offset: Duration::ZERO,
         turn_groups: TurnGroup::for_i(id, map).unwrap(),
     }

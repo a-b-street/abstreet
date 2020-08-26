@@ -33,6 +33,7 @@ pub struct Phase {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum TrafficControlType {
+    Original,
     Actuated,
     PreTimed,
 }
@@ -338,7 +339,7 @@ impl ControlTrafficSignal {
         ControlTrafficSignal {
             id,
             phases,
-            control_type: TrafficControlType::PreTimed,
+            control_type: TrafficControlType::Original,
             offset: Duration::seconds(raw.offset_seconds as f64),
             turn_groups: TurnGroup::for_i(id, map).unwrap(),
         }

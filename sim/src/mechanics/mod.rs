@@ -3,6 +3,7 @@ mod driving;
 mod intersection;
 mod parking;
 mod queue;
+mod traffic_signals;
 mod walking;
 
 pub use self::driving::DrivingSimState;
