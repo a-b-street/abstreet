@@ -15,6 +15,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
         "input/xian/osm/china-latest.osm.pbf",
         format!("input/xian/polygons/{}.poly", name),
         format!("input/xian/osm/{}.osm", name),
+        config,
     );
 
     let map = convert_osm::convert(

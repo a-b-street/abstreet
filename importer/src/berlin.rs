@@ -53,6 +53,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
         "input/berlin/osm/berlin-latest.osm.pbf",
         format!("input/berlin/polygons/{}.poly", name),
         format!("input/berlin/osm/{}.osm", name),
+        config,
     );
 
     let map = convert_osm::convert(

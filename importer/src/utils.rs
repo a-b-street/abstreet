@@ -93,7 +93,7 @@ pub fn download_kml(
 
 // Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.
 // Skips if the output exists.
-pub fn osmconvert(input: &str, clipping_polygon: String, output: String) {
+pub fn osmconvert(input: &str, clipping_polygon: String, output: String, config: &ImporterConfiguration) {
     let input = abstutil::path(input);
     let clipping_polygon = abstutil::path(clipping_polygon);
     let output = abstutil::path(output);
@@ -104,7 +104,7 @@ pub fn osmconvert(input: &str, clipping_polygon: String, output: String) {
     }
     println!("- Clipping {} to {}", input, clipping_polygon);
 
-    run(Command::new("osmconvert")
+    run(Command::new(&config.osmconvert)
         .arg(input)
         .arg(format!("-B={}", clipping_polygon))
         .arg("--complete-ways")

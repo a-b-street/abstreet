@@ -15,6 +15,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
         "input/krakow/osm/malopolskie-latest.osm.pbf",
         format!("input/krakow/polygons/{}.poly", name),
         format!("input/krakow/osm/{}.osm", name),
+        config,
     );
 
     let map = convert_osm::convert(

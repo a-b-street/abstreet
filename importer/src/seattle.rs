@@ -62,6 +62,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
         "input/seattle/osm/washington-latest.osm.pbf",
         format!("input/seattle/polygons/{}.poly", name),
         format!("input/seattle/osm/{}.osm", name),
+        config,
     );
 
     let map = convert_osm::convert(

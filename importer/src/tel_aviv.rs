@@ -15,6 +15,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
         "input/tel_aviv/osm/israel-and-palestine-latest.osm.pbf",
         format!("input/tel_aviv/polygons/{}.poly", name),
         format!("input/tel_aviv/osm/{}.osm", name),
+        config,
     );
 
     let map = convert_osm::convert(
