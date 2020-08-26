@@ -381,6 +381,19 @@
 <span id="381">381</span>
 <span id="382">382</span>
 <span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
@@ -463,17 +476,18 @@
             }
             <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> {}
             <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.25</span>);
                 <span class="ident">draw</span>.<span class="ident">push</span>(
                     <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">road_center_line</span>,
                     <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>
-                        .<span class="ident">must_shift_right</span>(<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
-                        .<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.25</span>)),
+                        .<span class="ident">must_shift_right</span>((<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">thickness</span>) <span class="op">/</span> <span class="number">2.0</span>)
+                        .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
                 );
                 <span class="ident">draw</span>.<span class="ident">push</span>(
                     <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">road_center_line</span>,
                     <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>
-                        .<span class="ident">must_shift_left</span>(<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
-                        .<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.25</span>)),
+                        .<span class="ident">must_shift_left</span>((<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">thickness</span>) <span class="op">/</span> <span class="number">2.0</span>)
+                        .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
                 );
             }
             <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> {}
@@ -508,8 +522,12 @@
             }
         }
 
-        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">is_biking</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span> {
-            <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>);
+        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>()
+            <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">is_biking</span>()
+            <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span>
+            <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span>
+        {
+            <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>);
             <span class="kw">let</span> <span class="ident">btwn</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">30.0</span>);
             <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">length</span>();
 
@@ -527,6 +545,14 @@
                     <span class="ident">draw</span>.<span class="ident">append</span>(
                         <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)
                             .<span class="ident">scale</span>(<span class="number">0.06</span>)
+                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
+                            .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="op">-</span><span class="number">90.0</span>))),
+                    );
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> {
+                    <span class="ident">draw</span>.<span class="ident">append</span>(
+                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>)
+                            .<span class="ident">autocrop</span>()
+                            .<span class="ident">scale</span>(<span class="number">0.003</span>)
                             .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
                             .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="op">-</span><span class="number">90.0</span>))),
                     );
