@@ -17,7 +17,7 @@ data/input/raw_maps/krakow_center.bin,8e3e1bc8837630e27f9e0b969a05f5a4,https://w
 data/input/raw_maps/lakeslice.bin,5880904248b2d01ffc7f7fe7d67726e3,https://www.dropbox.com/s/vk1l3gouuijfkfi/lakeslice.bin.zip?dl=0
 data/input/raw_maps/montlake.bin,a92ea24eff562c6d99ec4878e12e24c1,https://www.dropbox.com/s/au92ul0a8jg931l/montlake.bin.zip?dl=0
 data/input/raw_maps/south_seattle.bin,b044bda30b5adeed129820b284334599,https://www.dropbox.com/s/zbwsoq893tnlcaq/south_seattle.bin.zip?dl=0
-data/input/raw_maps/tel_aviv.bin,4c216ea8da5d71ae118076e38790cebe,https://www.dropbox.com/s/oskvw6ukgoa8p2z/tel_aviv.bin.zip?dl=0
+data/input/raw_maps/tel_aviv.bin,8dd2fa0428728c4e3a503ca143c7d0d2,https://www.dropbox.com/s/smg85gj5bak1agb/tel_aviv.bin.zip?dl=0
 data/input/raw_maps/udistrict.bin,4441415d1f8b6fc32293fde688ecc40d,https://www.dropbox.com/s/p4oscm85fj1mxgb/udistrict.bin.zip?dl=0
 data/input/raw_maps/west_seattle.bin,121ae8600b101dea7fafcc8786a3a5e0,https://www.dropbox.com/s/45c2slhwmmn3jkn/west_seattle.bin.zip?dl=0
 data/input/raw_maps/xian.bin,45d3dff4d99821f387e550950fb5669d,https://www.dropbox.com/s/kjeu0q8ey93l11h/xian.bin.zip?dl=0
@@ -75,7 +75,7 @@ data/system/maps/krakow_center.bin,356df3ac5650ccd607792cbec8809200,https://www.
 data/system/maps/lakeslice.bin,5311c3728a76fd78916faeae8fddd572,https://www.dropbox.com/s/ipcdlm1m2rumwyo/lakeslice.bin.zip?dl=0
 data/system/maps/montlake.bin,6ca284783ce83e915282476cf99e04cc,https://www.dropbox.com/s/wyybiw5y7z3gdoc/montlake.bin.zip?dl=0
 data/system/maps/south_seattle.bin,47096a54d508341170e909b09f814dd7,https://www.dropbox.com/s/92a2s0iyt95u2b2/south_seattle.bin.zip?dl=0
-data/system/maps/tel_aviv.bin,b906e5ca6d5ac88693dd6b3a3fd8cb45,https://www.dropbox.com/s/3kzhy67iucy8s2d/tel_aviv.bin.zip?dl=0
+data/system/maps/tel_aviv.bin,cd6b5be033b413472fab59f16d9994e5,https://www.dropbox.com/s/8yjv0f9xzqnmwhb/tel_aviv.bin.zip?dl=0
 data/system/maps/udistrict.bin,d2773d20a171843b7b6c805f350d4cf5,https://www.dropbox.com/s/y03l06emjmtjp32/udistrict.bin.zip?dl=0
 data/system/maps/west_seattle.bin,df580b7566bb9d57a2605cf4affa741d,https://www.dropbox.com/s/a9ws18sar0l5tns/west_seattle.bin.zip?dl=0
 data/system/maps/xian.bin,fe0b3775cc141c735870104b70339db0,https://www.dropbox.com/s/w7g13kgn8a1girv/xian.bin.zip?dl=0
