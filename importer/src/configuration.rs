@@ -1,62 +1,55 @@
 use serde::Deserialize;
 use std::fs;
+use abstutil::maybe_read_json_without_timer;
 
+#[derive(Deserialize)]
 pub struct ImporterConfiguration {
+    #[serde(default = "default_curl")]
     pub curl: String,
+    #[serde(default = "default_osmconvert")]
     pub osmconvert: String,
+    #[serde(default = "default_unzip")]
     pub unzip: String,
+    #[serde(default = "default_gunzip")]
     pub gunzip: String,
+    #[serde(default = "default_gunzip_args")]
     pub gunzip_args: Option<String>,
 }
 
-#[derive(Deserialize)]
-struct RawImporterConfiguration {
-    pub curl: Option<String>,
-    pub osmconvert: Option<String>,
-    pub unzip: Option<String>,
-    pub gunzip: Option<String>,
-    pub gunzip_args: Option<String>,
+fn default_curl() -> String {
+    String::from("curl")
+}
+
+fn default_osmconvert() -> String {
+    String::from("osmconvert")
+}
+
+fn default_unzip() -> String {
+    String::from("unzip")
+}
+
+fn default_gunzip() -> String {
+    String::from("gunzip")
+}
+
+fn default_gunzip_args() -> Option<String> {
+    None
 }
 
 pub fn load_configuration() -> ImporterConfiguration {
 
-    match fs::read_to_string("importer.toml") {
-        Ok(text) => {
-            match toml::from_str::<RawImporterConfiguration>(&text) {
-                Ok(config) => fill_in_defaults(config),
-                Err(_) => default_configuration(),
-            }
-        },
+    match maybe_read_json_without_timer::<ImporterConfiguration>(&String::from("importer.json")) {
+        Ok(config) => config,
         Err(_) => default_configuration(),
     }
 }
 
 fn default_configuration() -> ImporterConfiguration {
     ImporterConfiguration {
-        curl: String::from("curl"),
-        osmconvert: String::from("osmconvert"),
-        unzip: String::from("unzip"),
-        gunzip: String::from("gunzip"),
-        gunzip_args: Option::None,
+        curl: default_curl(),
+        osmconvert: default_osmconvert(),
+        unzip: default_unzip(),
+        gunzip: default_gunzip(),
+        gunzip_args: default_gunzip_args(),
     }
-}
-
-fn fill_in_defaults(config: RawImporterConfiguration) -> ImporterConfiguration {
-    let mut result = default_configuration();
-
-    result.curl = value_or_default(config.curl, result.curl);
-    result.osmconvert = value_or_default(config.osmconvert, result.osmconvert);
-    result.unzip = value_or_default(config.unzip, result.unzip);
-    result.gunzip = value_or_default(config.gunzip, result.gunzip);
-
-    result.gunzip_args = config.gunzip_args;
-
-    return result;
-}
-
-fn value_or_default<T>(maybe_value: Option<T>, default: T) -> T {
-    if let Some(value) = maybe_value {
-        return value;
-    }
-    return default;
 }
