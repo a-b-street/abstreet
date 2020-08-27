@@ -6,8 +6,8 @@ use geom::{Circle, Distance, Pt2D, Time};
 use sim::{GetDrawAgents, PersonState};
 use std::collections::HashSet;
 use widgetry::{
-    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, VerticalAlignment, Widget,
 };
 
 // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
@@ -16,7 +16,7 @@ pub struct PopulationMap {
     time: Time,
     opts: Options,
     draw: Drawable,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl Layer for PopulationMap {
@@ -27,17 +27,17 @@ impl Layer for PopulationMap {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        minimap: &Composite,
+        minimap: &Panel,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             let mut new = PopulationMap::new(ctx, app, self.opts.clone());
-            new.composite.align_above(ctx, minimap);
-            new.composite.restore(ctx, &self.composite);
+            new.panel.align_above(ctx, minimap);
+            new.panel.restore(ctx, &self.panel);
             *self = new;
         }
 
-        self.composite.align_above(ctx, minimap);
-        match self.composite.event(ctx) {
+        self.panel.align_above(ctx, minimap);
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Some(LayerOutcome::Close);
@@ -48,14 +48,14 @@ impl Layer for PopulationMap {
                 let new_opts = self.options();
                 if self.opts != new_opts {
                     *self = PopulationMap::new(ctx, app, new_opts);
-                    self.composite.align_above(ctx, minimap);
+                    self.panel.align_above(ctx, minimap);
                 }
             }
         }
         None
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.draw);
         }
@@ -120,13 +120,13 @@ impl PopulationMap {
             time: app.primary.sim.time(),
             opts,
             draw: ctx.upload(batch),
-            composite: controls,
+            panel: controls,
         }
     }
 
     fn options(&self) -> Options {
-        let heatmap = if self.composite.is_checked("Show heatmap") {
-            Some(HeatmapOptions::from_controls(&self.composite))
+        let heatmap = if self.panel.is_checked("Show heatmap") {
+            Some(HeatmapOptions::from_controls(&self.panel))
         } else {
             None
         };
@@ -140,12 +140,7 @@ pub struct Options {
     pub heatmap: Option<HeatmapOptions>,
 }
 
-fn make_controls(
-    ctx: &mut EventCtx,
-    app: &App,
-    opts: &Options,
-    legend: Option<Widget>,
-) -> Composite {
+fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<Widget>) -> Panel {
     let (total_ppl, ppl_in_bldg, ppl_off_map) = app.primary.sim.num_ppl();
 
     let mut col = vec![
@@ -178,7 +173,7 @@ fn make_controls(
         col.extend(o.to_controls(ctx, legend.unwrap()));
     }
 
-    Composite::new(Widget::col(col))
+    Panel::new(Widget::col(col))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }

@@ -21,7 +21,7 @@ use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use rand_xorshift::XorShiftRng;
 use sim::{Analytics, OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
 use widgetry::{
-    lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, TextExt, Widget,
+    lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget,
 };
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
@@ -297,7 +297,7 @@ fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
 }
 
 pub struct FinalScore {
-    composite: Composite,
+    panel: Panel,
     retry: GameplayMode,
     next_mode: Option<GameplayMode>,
 
@@ -314,7 +314,7 @@ impl FinalScore {
         next_mode: Option<GameplayMode>,
     ) -> Box<dyn State> {
         Box::new(FinalScore {
-            composite: Composite::new(
+            panel: Panel::new(
                 Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
@@ -353,7 +353,7 @@ impl FinalScore {
 
 impl State for FinalScore {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Keep simulating" => {
                     return Transition::Pop;
@@ -429,6 +429,6 @@ impl State for FinalScore {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         // Happens to be a nice background color too ;)
         g.clear(app.cs.grass);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }

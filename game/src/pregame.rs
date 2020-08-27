@@ -15,12 +15,12 @@ use rand_xorshift::XorShiftRng;
 use sim::ScenarioGenerator;
 use std::collections::HashMap;
 use widgetry::{
-    hotkey, hotkeys, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, RewriteColor,
-    Text, UpdateType, Widget,
+    hotkey, hotkeys, Btn, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, RewriteColor, Text,
+    UpdateType, Widget,
 };
 
 pub struct TitleScreen {
-    composite: Composite,
+    panel: Panel,
     screensaver: Screensaver,
     rng: XorShiftRng,
 }
@@ -34,7 +34,7 @@ impl TitleScreen {
             .instantiate(&mut app.primary.sim, &app.primary.map, &mut rng, &mut timer);
 
         TitleScreen {
-            composite: Composite::new(
+            panel: Panel::new(
                 Widget::col(vec![
                     Widget::draw_svg(ctx, "system/assets/pregame/logo.svg"),
                     // TODO that nicer font
@@ -59,7 +59,7 @@ impl TitleScreen {
 
 impl State for TitleScreen {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "start game" => {
                     app.primary.clear_sim();
@@ -76,12 +76,12 @@ impl State for TitleScreen {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
 pub struct MainMenu {
-    composite: Composite,
+    panel: Panel,
 }
 
 impl MainMenu {
@@ -161,7 +161,7 @@ impl MainMenu {
         ];
 
         Box::new(MainMenu {
-            composite: Composite::new(Widget::col(col).evenly_spaced())
+            panel: Panel::new(Widget::col(col).evenly_spaced())
                 .exact_size_percent(90, 85)
                 .build_custom(ctx),
         })
@@ -170,7 +170,7 @@ impl MainMenu {
 
 impl State for MainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "quit" => {
                     // TODO before_quit?
@@ -236,12 +236,12 @@ impl State for MainMenu {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
 struct About {
-    composite: Composite,
+    panel: Panel,
 }
 
 impl About {
@@ -285,7 +285,7 @@ impl About {
         ];
 
         Box::new(About {
-            composite: Composite::new(Widget::custom_col(col))
+            panel: Panel::new(Widget::custom_col(col))
                 .exact_size_percent(90, 85)
                 .build_custom(ctx),
         })
@@ -294,7 +294,7 @@ impl About {
 
 impl State for About {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "back" => {
                     return Transition::Pop;
@@ -316,12 +316,12 @@ impl State for About {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
 struct Proposals {
-    composite: Composite,
+    panel: Panel,
     proposals: HashMap<String, PermanentMapEdits>,
     current: Option<String>,
 }
@@ -389,7 +389,7 @@ impl Proposals {
 
         Box::new(Proposals {
             proposals,
-            composite: Composite::new(Widget::custom_col(vec![
+            panel: Panel::new(Widget::custom_col(vec![
                 Btn::svg_def("system/assets/pregame/back.svg")
                     .build(ctx, "back", hotkey(Key::Escape))
                     .align_left()
@@ -405,7 +405,7 @@ impl Proposals {
 
 impl State for Proposals {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "back" => {
                     return Transition::Pop;
@@ -473,7 +473,7 @@ impl State for Proposals {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 

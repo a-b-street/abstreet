@@ -51,17 +51,15 @@ for precise mouseover.
 ### GUI
 
 Widgets like buttons (with keybindings), checkboxes, sliders, pop-up menus, text
-entry, and some data viz things. You can combine these in `Composite`s to
-dispatch event handling and drawing. Styling (background colors, outline,
-padding) and Flexbox-ish layouting via
-[stretch](https://vislyhq.github.io/stretch/).
+entry, and some data viz things. You can combine these in `Panel`s to dispatch
+event handling and drawing. Styling (background colors, outline, padding) and
+Flexbox-ish layouting via [stretch](https://vislyhq.github.io/stretch/).
 
 The API / programming style is kind of funny; see the [demo](examples/demo.rs)
-to get a sense of it. No callbacks. You manually feed events into your
-`Composite`s of widgets and ask about what happened. There's no smart diffing of
-widget trees; most of the time it's fine to completely recreate a `Composite`
-from scratch when something changes, or replace a single widget in an existing
-`Composite`.
+to get a sense of it. No callbacks. You manually feed events into your `Panel`s
+of widgets and ask about what happened. There's no smart diffing of widget
+trees; most of the time it's fine to completely recreate a `Panel` from scratch
+when something changes, or replace a single widget in an existing `Panel`.
 
 (This is not a performance critical library. The perf bottlenecks in A/B Street
 are not in the GUI, and I probably won't invest much time speeding things up
@@ -76,9 +74,9 @@ mouseover points, so here it is.
 
 ## Big problems to solve before release
 
-When you ask a `Composite` what action happened (what button was clicked), it
-hands you back `Option<String>`. Not so typesafe. How boilerplatey is it to
-associate buttons with a user-provided enum?
+When you ask a `Panel` what action happened (what button was clicked), it hands
+you back `Option<String>`. Not so typesafe. How boilerplatey is it to associate
+buttons with a user-provided enum?
 
 There are hardcoded colors / padding in lots of places. Need to make style
 easily configurable, with good defaults.

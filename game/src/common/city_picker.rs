@@ -5,12 +5,12 @@ use crate::render::DrawArea;
 use geom::{Distance, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
-    hotkey, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenPt, Text,
+    hotkey, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenPt, Text,
     Widget,
 };
 
 pub struct CityPicker {
-    composite: Composite,
+    panel: Panel,
     // In untranslated screen-space
     regions: Vec<(String, Color, Polygon)>,
     selected: Option<usize>,
@@ -85,7 +85,7 @@ impl CityPicker {
             regions,
             selected: None,
             on_load,
-            composite: Composite::new(
+            panel: Panel::new(
                 Widget::col(vec![
                     Widget::row(vec![
                         Line("Select a region").small_heading().draw(ctx),
@@ -108,7 +108,7 @@ impl CityPicker {
 
 impl State for CityPicker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -126,7 +126,7 @@ impl State for CityPicker {
         if ctx.redo_mouseover() {
             self.selected = None;
             if let Some(cursor) = ctx.canvas.get_cursor_in_screen_space() {
-                let rect = self.composite.rect_of("picker");
+                let rect = self.panel.rect_of("picker");
                 if rect.contains(cursor) {
                     let pt = Pt2D::new(cursor.x - rect.x1, cursor.y - rect.y1);
                     for (idx, (name, _, poly)) in self.regions.iter().enumerate() {
@@ -135,7 +135,7 @@ impl State for CityPicker {
                             break;
                         }
                     }
-                } else if let Some(btn) = self.composite.currently_hovering() {
+                } else if let Some(btn) = self.panel.currently_hovering() {
                     for (idx, (name, _, _)) in self.regions.iter().enumerate() {
                         if name != app.primary.map.get_name() && name == btn {
                             self.selected = Some(idx);
@@ -167,11 +167,11 @@ impl State for CityPicker {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
 
         if let Some(idx) = self.selected {
             let (name, color, poly) = &self.regions[idx];
-            let rect = self.composite.rect_of("picker");
+            let rect = self.panel.rect_of("picker");
             g.fork(
                 Pt2D::new(0.0, 0.0),
                 ScreenPt::new(rect.x1, rect.y1),

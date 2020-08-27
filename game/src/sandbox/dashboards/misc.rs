@@ -6,12 +6,12 @@ use crate::sandbox::SandboxMode;
 use abstutil::{prettyprint_usize, Counter};
 use map_model::BusRouteID;
 use widgetry::{
-    Autocomplete, Btn, Composite, EventCtx, GfxCtx, Line, LinePlot, Outcome, PlotOptions, Series,
+    Autocomplete, Btn, EventCtx, GfxCtx, Line, LinePlot, Outcome, Panel, PlotOptions, Series,
     TextExt, Widget,
 };
 
 pub struct ActiveTraffic {
-    composite: Composite,
+    panel: Panel,
 }
 
 impl ActiveTraffic {
@@ -36,7 +36,7 @@ impl ActiveTraffic {
         }
 
         Box::new(ActiveTraffic {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 DashTab::ActiveTraffic.picker(ctx, app),
                 LinePlot::new(ctx, active_agents, PlotOptions::fixed()),
             ]))
@@ -48,7 +48,7 @@ impl ActiveTraffic {
 
 impl State for ActiveTraffic {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => DashTab::TripSummaries.transition(ctx, app, &x),
             _ => Transition::Keep,
         }
@@ -60,12 +60,12 @@ impl State for ActiveTraffic {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
 pub struct TransitRoutes {
-    composite: Composite,
+    panel: Panel,
 }
 
 impl TransitRoutes {
@@ -147,7 +147,7 @@ impl TransitRoutes {
         ];
 
         Box::new(TransitRoutes {
-            composite: Composite::new(Widget::col(col))
+            panel: Panel::new(Widget::col(col))
                 .exact_size_percent(90, 90)
                 .build(ctx),
         })
@@ -156,7 +156,7 @@ impl TransitRoutes {
 
 impl State for TransitRoutes {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let route = match self.composite.event(ctx) {
+        let route = match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if let Some(x) = x.strip_prefix("BusRoute #") {
                     BusRouteID(x.parse::<usize>().unwrap())
@@ -165,7 +165,7 @@ impl State for TransitRoutes {
                 }
             }
             _ => {
-                if let Some(routes) = self.composite.autocomplete_done("search") {
+                if let Some(routes) = self.panel.autocomplete_done("search") {
                     if !routes.is_empty() {
                         routes[0]
                     } else {
@@ -195,6 +195,6 @@ impl State for TransitRoutes {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }

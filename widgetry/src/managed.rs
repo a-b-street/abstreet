@@ -69,7 +69,7 @@ impl Widget {
     }
 
     // This one is really weird. percent_width should be LESS than the max_size_percent given to
-    // the overall Composite, otherwise weird things happen.
+    // the overall Panel, otherwise weird things happen.
     // Only makes sense for rows/columns.
     pub fn flex_wrap(mut self, ctx: &EventCtx, width: Percent) -> Widget {
         self.layout.style.size = Size {
@@ -302,14 +302,14 @@ impl Widget {
     // Also returns the hitbox of the entire widget
     pub fn to_geom(mut self, ctx: &EventCtx, exact_pct_width: Option<f64>) -> (GeomBatch, Polygon) {
         if let Some(w) = exact_pct_width {
-            // TODO 35 is a sad magic number. By default, Composites have padding of 16, so assuming
+            // TODO 35 is a sad magic number. By default, Panels have padding of 16, so assuming
             // this geometry is going in one of those, it makes sense to subtract 32. But that still
             // caused some scrolling in a test, so snip away a few more pixels.
             self.layout.style.min_size.width =
                 Dimension::Points((w * ctx.canvas.window_width) as f32 - 35.0);
         }
 
-        // Pretend we're in a Composite and basically copy recompute_layout
+        // Pretend we're in a Panel and basically copy recompute_layout
         {
             let mut stretch = Stretch::new();
             let root = stretch
@@ -483,10 +483,7 @@ impl Widget {
     fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
         if let Some(btn) = self.widget.downcast_ref::<Button>() {
             if actions.contains(&btn.action) {
-                panic!(
-                    "Two buttons in one Composite both use action {}",
-                    btn.action
-                );
+                panic!("Two buttons in one Panel both use action {}", btn.action);
             }
             actions.insert(btn.action.clone());
         } else if let Some(container) = self.widget.downcast_ref::<Container>() {
@@ -511,7 +508,7 @@ impl Widget {
         None
     }
 
-    fn restore(&mut self, ctx: &mut EventCtx, prev: &Composite) {
+    fn restore(&mut self, ctx: &mut EventCtx, prev: &Panel) {
         if let Some(container) = self.widget.downcast_mut::<Container>() {
             for w in &mut container.members {
                 w.restore(ctx, prev);
@@ -596,14 +593,14 @@ enum Dims {
     ExactPercent(f64, f64),
 }
 
-pub struct CompositeBuilder {
+pub struct PanelBuilder {
     top_level: Widget,
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
     dims: Dims,
 }
 
-pub struct Composite {
+pub struct Panel {
     top_level: Widget,
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
@@ -616,9 +613,9 @@ pub struct Composite {
     clip_rect: Option<ScreenRectangle>,
 }
 
-impl Composite {
-    pub fn new(top_level: Widget) -> CompositeBuilder {
-        CompositeBuilder {
+impl Panel {
+    pub fn new(top_level: Widget) -> PanelBuilder {
+        PanelBuilder {
             top_level,
             horiz: HorizontalAlignment::Center,
             vert: VerticalAlignment::Center,
@@ -798,7 +795,7 @@ impl Composite {
         actions
     }
 
-    pub fn restore(&mut self, ctx: &mut EventCtx, prev: &Composite) {
+    pub fn restore(&mut self, ctx: &mut EventCtx, prev: &Panel) {
         self.set_scroll_offset(ctx, prev.scroll_offset());
 
         self.top_level.restore(ctx, &prev);
@@ -898,7 +895,7 @@ impl Composite {
         self.top_level.rect.center()
     }
 
-    pub fn align_above(&mut self, ctx: &mut EventCtx, other: &Composite) {
+    pub fn align_above(&mut self, ctx: &mut EventCtx, other: &Panel) {
         // Small padding
         self.vert = VerticalAlignment::Above(other.top_level.rect.y1 - 5.0);
         self.recompute_layout(ctx, false);
@@ -906,7 +903,7 @@ impl Composite {
         // Since we just moved things around, let all widgets respond to the mouse being somewhere
         ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));
     }
-    pub fn align_below(&mut self, ctx: &mut EventCtx, other: &Composite, pad: f64) {
+    pub fn align_below(&mut self, ctx: &mut EventCtx, other: &Panel, pad: f64) {
         self.vert = VerticalAlignment::Below(other.top_level.rect.y2 + pad);
         self.recompute_layout(ctx, false);
 
@@ -934,14 +931,14 @@ impl Composite {
     }
 }
 
-impl CompositeBuilder {
-    pub fn build(mut self, ctx: &mut EventCtx) -> Composite {
+impl PanelBuilder {
+    pub fn build(mut self, ctx: &mut EventCtx) -> Panel {
         self.top_level = self.top_level.padding(16).bg(ctx.style.panel_bg);
         self.build_custom(ctx)
     }
 
-    pub fn build_custom(self, ctx: &mut EventCtx) -> Composite {
-        let mut c = Composite {
+    pub fn build_custom(self, ctx: &mut EventCtx) -> Panel {
+        let mut c = Panel {
             top_level: self.top_level,
 
             horiz: self.horiz,
@@ -1021,25 +1018,21 @@ impl CompositeBuilder {
         c
     }
 
-    pub fn aligned(
-        mut self,
-        horiz: HorizontalAlignment,
-        vert: VerticalAlignment,
-    ) -> CompositeBuilder {
+    pub fn aligned(mut self, horiz: HorizontalAlignment, vert: VerticalAlignment) -> PanelBuilder {
         self.horiz = horiz;
         self.vert = vert;
         self
     }
 
-    pub fn max_size(mut self, width: Percent, height: Percent) -> CompositeBuilder {
+    pub fn max_size(mut self, width: Percent, height: Percent) -> PanelBuilder {
         if width == Percent::int(100) && height == Percent::int(100) {
-            panic!("By default, Composites are capped at 100% of the screen. This is redundant.");
+            panic!("By default, Panels are capped at 100% of the screen. This is redundant.");
         }
         self.dims = Dims::MaxPercent(width, height);
         self
     }
 
-    pub fn exact_size_percent(mut self, pct_width: usize, pct_height: usize) -> CompositeBuilder {
+    pub fn exact_size_percent(mut self, pct_width: usize, pct_height: usize) -> PanelBuilder {
         self.dims = Dims::ExactPercent((pct_width as f64) / 100.0, (pct_height as f64) / 100.0);
         self
     }

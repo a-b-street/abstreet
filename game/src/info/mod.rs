@@ -22,16 +22,15 @@ use sim::{
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 use widgetry::{
-    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, TextExt,
-    VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct InfoPanel {
     tab: Tab,
     time: Time,
     is_paused: bool,
-    composite: Composite,
+    panel: Panel,
 
     unzoomed: Drawable,
     zoomed: Drawable,
@@ -217,7 +216,7 @@ impl Tab {
         }
     }
 
-    fn changed_settings(&self, c: &Composite) -> Option<Tab> {
+    fn changed_settings(&self, c: &Panel) -> Option<Tab> {
         // Avoid an occasionally expensive clone.
         match self {
             Tab::IntersectionTraffic(_, _)
@@ -435,7 +434,7 @@ impl InfoPanel {
             tab,
             time: app.primary.sim.time(),
             is_paused: ctx_actions.is_paused(),
-            composite: Composite::new(Widget::col(col).bg(Color::hex("#5B5B5B")).padding(16))
+            panel: Panel::new(Widget::col(col).bg(Color::hex("#5B5B5B")).padding(16))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
@@ -470,13 +469,13 @@ impl InfoPanel {
         // Live update?
         if app.primary.sim.time() != self.time || ctx_actions.is_paused() != self.is_paused {
             let mut new = InfoPanel::new(ctx, app, self.tab.clone(), ctx_actions);
-            new.composite.restore(ctx, &self.composite);
+            new.panel.restore(ctx, &self.panel);
             *self = new;
             return (false, None);
         }
 
         let maybe_id = self.tab.to_id(app);
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(action) => {
                 if let Some(new_tab) = self.hyperlinks.get(&action).cloned() {
                     let mut new = InfoPanel::new(ctx, app, new_tab, ctx_actions);
@@ -486,7 +485,7 @@ impl InfoPanel {
                         (&self.tab, &new.tab)
                     {
                         if p1 == p2 {
-                            new.composite.restore(ctx, &self.composite);
+                            new.panel.restore(ctx, &self.panel);
                         }
                     }
                     *self = new;
@@ -578,9 +577,9 @@ impl InfoPanel {
             _ => {
                 // Maybe a non-click action should change the tab. Aka, checkboxes/dropdowns/etc on
                 // a tab.
-                if let Some(new_tab) = self.tab.changed_settings(&self.composite) {
+                if let Some(new_tab) = self.tab.changed_settings(&self.panel) {
                     let mut new = InfoPanel::new(ctx, app, new_tab, ctx_actions);
-                    new.composite.restore(ctx, &self.composite);
+                    new.panel.restore(ctx, &self.panel);
                     *self = new;
                 }
 
@@ -590,7 +589,7 @@ impl InfoPanel {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
@@ -749,7 +748,7 @@ impl DataOptions {
         .evenly_spaced()
     }
 
-    pub fn from_controls(c: &Composite) -> DataOptions {
+    pub fn from_controls(c: &Panel) -> DataOptions {
         let show_before = c.maybe_is_checked("Show before changes").unwrap_or(false);
         let mut disabled_types = BTreeSet::new();
         for a in AgentType::all() {

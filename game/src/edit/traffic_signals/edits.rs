@@ -9,19 +9,19 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType,
 };
 use widgetry::{
-    hotkey, Btn, Checkbox, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Spinner,
-    TextExt, Widget,
+    hotkey, Btn, Checkbox, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner, TextExt,
+    Widget,
 };
 
 pub struct ChangeDuration {
-    composite: Composite,
+    panel: Panel,
     idx: usize,
 }
 
 impl ChangeDuration {
     pub fn new(ctx: &mut EventCtx, current: PhaseType, idx: usize) -> Box<dyn State> {
         Box::new(ChangeDuration {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("How long should this phase last?")
                         .small_heading()
@@ -63,12 +63,12 @@ impl ChangeDuration {
 
 impl State for ChangeDuration {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
                 "Apply" => {
-                    let dt = Duration::seconds(self.composite.spinner("duration") as f64);
-                    let new_type = if self.composite.is_checked("phase type") {
+                    let dt = Duration::seconds(self.panel.spinner("duration") as f64);
+                    let new_type = if self.panel.is_checked("phase type") {
                         PhaseType::Fixed(dt)
                     } else {
                         PhaseType::Adaptive(dt)
@@ -97,7 +97,7 @@ impl State for ChangeDuration {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 

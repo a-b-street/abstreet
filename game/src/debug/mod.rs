@@ -16,14 +16,14 @@ use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
 use std::collections::HashSet;
 use widgetry::{
-    hotkey, lctrl, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget,
+    hotkey, lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, Text, UpdateType, VerticalAlignment, Widget,
 };
 
 pub struct DebugMode {
-    composite: Composite,
+    panel: Panel,
     common: CommonState,
-    tool_panel: Composite,
+    tool_panel: Panel,
     objects: objects::ObjectDebugger,
     hidden: HashSet<ID>,
     layers: ShowLayers,
@@ -36,7 +36,7 @@ pub struct DebugMode {
 impl DebugMode {
     pub fn new(ctx: &mut EventCtx) -> DebugMode {
         DebugMode {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Debug Mode").small_heading().draw(ctx),
                     Btn::text_fg("X")
@@ -106,7 +106,7 @@ impl DebugMode {
                 abstutil::prettyprint_usize(n)
             )));
         }
-        self.composite
+        self.panel
             .replace(ctx, "current info", txt.draw(ctx).named("current info"));
     }
 }
@@ -120,7 +120,7 @@ impl State for DebugMode {
                 app.calculate_current_selection(ctx, &app.primary.sim, self, true, false, false);
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -253,12 +253,12 @@ impl State for DebugMode {
             },
             Outcome::Changed => {
                 // TODO We should really recalculate current_selection when these change. Meh.
-                self.layers.show_buildings = self.composite.is_checked("show buildings");
-                self.layers.show_intersections = self.composite.is_checked("show intersections");
-                self.layers.show_lanes = self.composite.is_checked("show lanes");
-                self.layers.show_areas = self.composite.is_checked("show areas");
-                self.layers.show_labels = self.composite.is_checked("show labels");
-                if self.composite.is_checked("show route for all agents") {
+                self.layers.show_buildings = self.panel.is_checked("show buildings");
+                self.layers.show_intersections = self.panel.is_checked("show intersections");
+                self.layers.show_lanes = self.panel.is_checked("show lanes");
+                self.layers.show_areas = self.panel.is_checked("show areas");
+                self.layers.show_labels = self.panel.is_checked("show labels");
+                if self.panel.is_checked("show route for all agents") {
                     if self.all_routes.is_none() {
                         self.all_routes = Some(calc_all_routes(ctx, app));
                         self.reset_info(ctx);
@@ -348,7 +348,7 @@ impl State for DebugMode {
         }
 
         if !g.is_screencap() {
-            self.composite.draw(g);
+            self.panel.draw(g);
             self.common.draw(g, app);
             self.tool_panel.draw(g);
         }

@@ -17,16 +17,15 @@ use map_model::{
 };
 use std::collections::{BTreeSet, HashMap, VecDeque};
 use widgetry::{
-    hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Spinner, Text, TextExt,
-    VerticalAlignment, Widget,
+    hotkey, lctrl, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, RewriteColor, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 
 // Welcome to one of the most overwhelmingly complicated parts of the UI...
 
 pub struct TrafficSignalEditor {
-    side_panel: Composite,
-    top_panel: Composite,
+    side_panel: Panel,
+    top_panel: Panel,
 
     mode: GameplayMode,
     members: BTreeSet<IntersectionID>,
@@ -503,7 +502,7 @@ impl State for TrafficSignalEditor {
     }
 }
 
-fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Composite {
+fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
     let row = vec![
         Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
         Btn::text_fg("Preview").build_def(ctx, lctrl(Key::P)),
@@ -547,7 +546,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             Widget::nothing()
         },
     ];
-    Composite::new(Widget::col(vec![
+    Panel::new(Widget::col(vec![
         Line("Traffic signal editor").small_heading().draw(ctx),
         Widget::row(row),
     ]))
@@ -561,7 +560,7 @@ fn make_side_panel(
     members: &BTreeSet<IntersectionID>,
     selected: usize,
     hovering: Option<IntersectionID>,
-) -> Composite {
+) -> Panel {
     let map = &app.primary.map;
     // Use any member for phase duration
     let canonical_signal = map.get_traffic_signal(*members.iter().next().unwrap());
@@ -718,7 +717,7 @@ fn make_side_panel(
         col.push(Btn::text_bg2("Apply").build(ctx, "Apply offsets", None));
     }
 
-    Composite::new(Widget::col(col))
+    Panel::new(Widget::col(col))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .exact_size_percent(30, 85)
         .build(ctx)

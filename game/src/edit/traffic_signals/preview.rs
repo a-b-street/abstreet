@@ -6,14 +6,14 @@ use geom::Duration;
 use map_model::IntersectionID;
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, TextExt,
+    hotkey, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, TextExt,
     UpdateType, VerticalAlignment, Widget,
 };
 
 // TODO Show diagram, auto-sync the phase.
 // TODO Auto quit after things are gone?
 struct PreviewTrafficSignal {
-    composite: Composite,
+    panel: Panel,
     speed: SpeedControls,
     time_panel: TimePanel,
 }
@@ -21,7 +21,7 @@ struct PreviewTrafficSignal {
 impl PreviewTrafficSignal {
     fn new(ctx: &mut EventCtx, app: &App) -> PreviewTrafficSignal {
         PreviewTrafficSignal {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 "Previewing traffic signal".draw_text(ctx),
                 Btn::text_fg("back to editing").build_def(ctx, hotkey(Key::Escape)),
             ]))
@@ -37,7 +37,7 @@ impl State for PreviewTrafficSignal {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "back to editing" => {
                     app.primary.clear_sim();
@@ -62,7 +62,7 @@ impl State for PreviewTrafficSignal {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         self.speed.draw(g);
         self.time_panel.draw(g);
     }

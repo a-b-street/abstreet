@@ -10,12 +10,12 @@ use maplit::btreeset;
 use sim::{ScenarioModifier, TripMode};
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, lctrl, AreaSlider, Btn, Choice, Color, Composite, EventCtx, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, lctrl, AreaSlider, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct PlayScenario {
-    top_center: Composite,
+    top_center: Panel,
     scenario_name: String,
     modifiers: Vec<ScenarioModifier>,
 }
@@ -112,7 +112,7 @@ fn make_top_center(
     app: &App,
     scenario_name: &str,
     modifiers: &Vec<ScenarioModifier>,
-) -> Composite {
+) -> Panel {
     let rows = vec![
         Widget::row(vec![
             Line("Sandbox").small_heading().draw(ctx),
@@ -147,7 +147,7 @@ fn make_top_center(
         },
     ];
 
-    Composite::new(Widget::col(rows))
+    Panel::new(Widget::col(rows))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -155,7 +155,7 @@ fn make_top_center(
 struct EditScenarioModifiers {
     scenario_name: String,
     modifiers: Vec<ScenarioModifier>,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl EditScenarioModifiers {
@@ -216,7 +216,7 @@ impl EditScenarioModifiers {
         Box::new(EditScenarioModifiers {
             scenario_name,
             modifiers,
-            composite: Composite::new(Widget::col(rows))
+            panel: Panel::new(Widget::col(rows))
                 .exact_size_percent(80, 80)
                 .build(ctx),
         })
@@ -225,7 +225,7 @@ impl EditScenarioModifiers {
 
 impl State for EditScenarioModifiers {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Discard changes" => {
                     return Transition::Pop;
@@ -279,7 +279,7 @@ impl State for EditScenarioModifiers {
                 }
                 "Repeat schedule multiple days" => {
                     self.modifiers.push(ScenarioModifier::RepeatDays(
-                        self.composite.spinner("repeat_days") as usize,
+                        self.panel.spinner("repeat_days") as usize,
                     ));
                     return Transition::Replace(EditScenarioModifiers::new(
                         ctx,
@@ -289,7 +289,7 @@ impl State for EditScenarioModifiers {
                 }
                 "Cancel all trips for some percent of people" => {
                     self.modifiers.push(ScenarioModifier::CancelPeople(
-                        self.composite.spinner("cancel_pct") as usize,
+                        self.panel.spinner("cancel_pct") as usize,
                     ));
                     return Transition::Replace(EditScenarioModifiers::new(
                         ctx,
@@ -318,12 +318,12 @@ impl State for EditScenarioModifiers {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
 struct ChangeMode {
-    composite: Composite,
+    panel: Panel,
     scenario_name: String,
     modifiers: Vec<ScenarioModifier>,
 }
@@ -338,7 +338,7 @@ impl ChangeMode {
         Box::new(ChangeMode {
             scenario_name,
             modifiers,
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Line("Change trip mode").small_heading().draw(ctx),
                 Widget::row(vec![
                     "Change to trip type:".draw_text(ctx),
@@ -382,15 +382,15 @@ impl ChangeMode {
 
 impl State for ChangeMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Discard changes" => Transition::Pop,
                 "Apply" => {
-                    let to_mode = self.composite.dropdown_value::<TripMode>("to_mode");
-                    let pct_ppl = self.composite.spinner("pct_ppl") as usize;
+                    let to_mode = self.panel.dropdown_value::<TripMode>("to_mode");
+                    let pct_ppl = self.panel.spinner("pct_ppl") as usize;
                     let (p1, p2) = (
-                        self.composite.area_slider("depart from").get_percent(),
-                        self.composite.area_slider("depart to").get_percent(),
+                        self.panel.area_slider("depart from").get_percent(),
+                        self.panel.area_slider("depart to").get_percent(),
                     );
                     let departure_filter = (
                         app.primary.sim.get_end_of_day().percent_of(p1),
@@ -398,7 +398,7 @@ impl State for ChangeMode {
                     );
                     let mut from_modes = TripMode::all()
                         .into_iter()
-                        .filter(|m| self.composite.is_checked(m.ongoing_verb()))
+                        .filter(|m| self.panel.is_checked(m.ongoing_verb()))
                         .collect::<BTreeSet<_>>();
                     from_modes.remove(&to_mode);
 
@@ -441,6 +441,6 @@ impl State for ChangeMode {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }

@@ -6,8 +6,8 @@ use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use serde::{Deserialize, Serialize};
 use sim::DontDrawAgents;
 use widgetry::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, VerticalAlignment, Widget,
+    hotkey, lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, Panel, RewriteColor, Text, VerticalAlignment, Widget,
 };
 
 // TODO This is a really great example of things that widgetry ought to make easier. Maybe a radio
@@ -17,7 +17,7 @@ use widgetry::{
 // https://storymap.knightlab.com/
 
 pub struct StoryMapEditor {
-    composite: Composite,
+    panel: Panel,
     story: StoryMap,
     mode: Mode,
     dirty: bool,
@@ -31,7 +31,7 @@ enum Mode {
     View,
     PlacingMarker,
     Dragging(Pt2D, usize),
-    Editing(usize, Composite),
+    Editing(usize, Panel),
     Freehand(Option<Lasso>),
 }
 
@@ -41,7 +41,7 @@ impl StoryMapEditor {
         let mode = Mode::View;
         let dirty = false;
         Box::new(StoryMapEditor {
-            composite: make_panel(ctx, &story, &mode, dirty),
+            panel: make_panel(ctx, &story, &mode, dirty),
             story,
             mode,
             dirty,
@@ -50,7 +50,7 @@ impl StoryMapEditor {
     }
 
     fn redo_panel(&mut self, ctx: &mut EventCtx) {
-        self.composite = make_panel(ctx, &self.story, &self.mode, self.dirty);
+        self.panel = make_panel(ctx, &self.story, &self.mode, self.dirty);
     }
 }
 
@@ -122,9 +122,9 @@ impl State for StoryMapEditor {
                     self.mode = Mode::View;
                 }
             }
-            Mode::Editing(idx, ref mut composite) => {
+            Mode::Editing(idx, ref mut panel) => {
                 ctx.canvas_movement();
-                match composite.event(ctx) {
+                match panel.event(ctx) {
                     Outcome::Clicked(x) => match x.as_ref() {
                         "close" => {
                             self.mode = Mode::View;
@@ -134,7 +134,7 @@ impl State for StoryMapEditor {
                             self.story.markers[idx] = Marker::new(
                                 ctx,
                                 self.story.markers[idx].pts.clone(),
-                                composite.text_box("event"),
+                                panel.text_box("event"),
                             );
                             self.dirty = true;
                             self.mode = Mode::View;
@@ -172,7 +172,7 @@ impl State for StoryMapEditor {
             }
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     // TODO autosave
@@ -222,7 +222,7 @@ impl State for StoryMapEditor {
 
                     return Transition::Push(ChooseSomething::new_below(
                         ctx,
-                        self.composite.rect_of("load"),
+                        self.panel.rect_of("load"),
                         choices,
                         Box::new(|story, _, _| {
                             Transition::PopWithData(Box::new(move |state, ctx, _| {
@@ -277,8 +277,8 @@ impl State for StoryMapEditor {
                     g.unfork();
                 }
             }
-            Mode::Editing(_, ref composite) => {
-                composite.draw(g);
+            Mode::Editing(_, ref panel) => {
+                panel.draw(g);
             }
             Mode::Freehand(Some(ref lasso)) => {
                 lasso.draw(g);
@@ -294,13 +294,13 @@ impl State for StoryMapEditor {
             }
         }
 
-        self.composite.draw(g);
+        self.panel.draw(g);
         CommonState::draw_osd(g, app);
     }
 }
 
-fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) -> Composite {
-    Composite::new(Widget::col(vec![
+fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) -> Panel {
+    Panel::new(Widget::col(vec![
         Widget::row(vec![
             Line("Story map editor").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 30.0),
@@ -498,8 +498,8 @@ impl Marker {
         batch.draw(g);
     }
 
-    fn make_editor(&self, ctx: &mut EventCtx) -> Composite {
-        Composite::new(Widget::col(vec![
+    fn make_editor(&self, ctx: &mut EventCtx) -> Panel {
+        Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Line("Editing marker").small_heading().draw(ctx),
                 Btn::plaintext("X")

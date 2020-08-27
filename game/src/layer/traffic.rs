@@ -7,15 +7,15 @@ use map_model::{IntersectionID, Map, Traversable};
 use maplit::btreeset;
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct Backpressure {
     time: Time,
     unzoomed: Drawable,
     zoomed: Drawable,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl Layer for Backpressure {
@@ -26,16 +26,16 @@ impl Layer for Backpressure {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        minimap: &Composite,
+        minimap: &Panel,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = Backpressure::new(ctx, app);
         }
 
-        Layer::simple_event(ctx, minimap, &mut self.composite)
+        Layer::simple_event(ctx, minimap, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
@@ -64,7 +64,7 @@ impl Backpressure {
             }
         }
 
-        let composite = Composite::new(Widget::col(vec![
+        let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Backpressure".draw_text(ctx),
@@ -96,7 +96,7 @@ impl Backpressure {
             time: app.primary.sim.time(),
             unzoomed,
             zoomed,
-            composite,
+            panel,
         }
     }
 }
@@ -107,7 +107,7 @@ pub struct Throughput {
     compare: bool,
     unzoomed: Drawable,
     zoomed: Drawable,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl Layer for Throughput {
@@ -118,14 +118,14 @@ impl Layer for Throughput {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        minimap: &Composite,
+        minimap: &Panel,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = Throughput::new(ctx, app, self.compare);
         }
 
-        self.composite.align_above(ctx, minimap);
-        match self.composite.event(ctx) {
+        self.panel.align_above(ctx, minimap);
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Some(LayerOutcome::Close);
@@ -136,18 +136,18 @@ impl Layer for Throughput {
                 *self = Throughput::new(
                     ctx,
                     app,
-                    self.composite
+                    self.panel
                         .maybe_is_checked("Compare before edits")
                         .unwrap_or(false),
                 );
-                self.composite.align_above(ctx, minimap);
+                self.panel.align_above(ctx, minimap);
             }
             _ => {}
         }
         None
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
@@ -164,7 +164,7 @@ impl Throughput {
         if compare {
             return Throughput::compare_throughput(ctx, app);
         }
-        let composite = Composite::new(Widget::col(vec![
+        let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Throughput".draw_text(ctx),
@@ -206,7 +206,7 @@ impl Throughput {
             compare: false,
             unzoomed,
             zoomed,
-            composite,
+            panel,
         }
     }
 
@@ -259,7 +259,7 @@ impl Throughput {
             }
         }
 
-        let composite = Composite::new(Widget::col(vec![
+        let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Relative Throughput".draw_text(ctx),
@@ -279,7 +279,7 @@ impl Throughput {
             compare: true,
             unzoomed,
             zoomed,
-            composite,
+            panel,
         }
     }
 }
@@ -289,7 +289,7 @@ pub struct Delay {
     compare: bool,
     unzoomed: Drawable,
     zoomed: Drawable,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl Layer for Delay {
@@ -300,14 +300,14 @@ impl Layer for Delay {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        minimap: &Composite,
+        minimap: &Panel,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = Delay::new(ctx, app, self.compare);
         }
 
-        self.composite.align_above(ctx, minimap);
-        match self.composite.event(ctx) {
+        self.panel.align_above(ctx, minimap);
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Some(LayerOutcome::Close);
@@ -318,18 +318,18 @@ impl Layer for Delay {
                 *self = Delay::new(
                     ctx,
                     app,
-                    self.composite
+                    self.panel
                         .maybe_is_checked("Compare before edits")
                         .unwrap_or(false),
                 );
-                self.composite.align_above(ctx, minimap);
+                self.panel.align_above(ctx, minimap);
             }
             _ => {}
         }
         None
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
@@ -371,7 +371,7 @@ impl Delay {
             colorer.add_i(i, color);
         }
 
-        let composite = Composite::new(Widget::col(vec![
+        let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Delay (minutes)".draw_text(ctx),
@@ -395,7 +395,7 @@ impl Delay {
             compare: false,
             unzoomed,
             zoomed,
-            composite,
+            panel,
         }
     }
 
@@ -424,7 +424,7 @@ impl Delay {
             }
         }
 
-        let composite = Composite::new(Widget::col(vec![
+        let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Delay".draw_text(ctx),
@@ -448,7 +448,7 @@ impl Delay {
             compare: true,
             unzoomed,
             zoomed,
-            composite,
+            panel,
         }
     }
 }
@@ -457,7 +457,7 @@ pub struct TrafficJams {
     time: Time,
     unzoomed: Drawable,
     zoomed: Drawable,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl Layer for TrafficJams {
@@ -468,16 +468,16 @@ impl Layer for TrafficJams {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        minimap: &Composite,
+        minimap: &Panel,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = TrafficJams::new(ctx, app);
         }
 
-        Layer::simple_event(ctx, minimap, &mut self.composite)
+        Layer::simple_event(ctx, minimap, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
@@ -519,7 +519,7 @@ impl TrafficJams {
             zoomed.push(Color::WHITE.alpha(0.4), epicenter);
         }
 
-        let composite = Composite::new(Widget::col(vec![
+        let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Traffic jams".draw_text(ctx),
@@ -541,7 +541,7 @@ impl TrafficJams {
             time: app.primary.sim.time(),
             unzoomed: ctx.upload(unzoomed),
             zoomed: ctx.upload(zoomed),
-            composite,
+            panel,
         }
     }
 }

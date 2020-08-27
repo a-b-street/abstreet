@@ -9,13 +9,13 @@ use map_model::{IntersectionCluster, IntersectionID};
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct UberTurnPicker {
     members: BTreeSet<IntersectionID>,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl UberTurnPicker {
@@ -29,7 +29,7 @@ impl UberTurnPicker {
 
         Box::new(UberTurnPicker {
             members,
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Select multiple intersections")
                         .small_heading()
@@ -64,7 +64,7 @@ impl State for UberTurnPicker {
             }
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -114,7 +114,7 @@ impl State for UberTurnPicker {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         CommonState::draw_osd(g, app);
 
         let mut batch = GeomBatch::new();
@@ -130,7 +130,7 @@ impl State for UberTurnPicker {
 }
 
 struct UberTurnViewer {
-    composite: Composite,
+    panel: Panel,
     draw: Drawable,
     ic: IntersectionCluster,
     idx: usize,
@@ -168,7 +168,7 @@ impl UberTurnViewer {
 
         Box::new(UberTurnViewer {
             draw: ctx.upload(batch),
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Uber-turn viewer").small_heading().draw(ctx),
                     Widget::vert_separator(ctx, 50.0),
@@ -212,7 +212,7 @@ impl State for UberTurnViewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -243,7 +243,7 @@ impl State for UberTurnViewer {
                     app,
                     self.ic.members.clone(),
                     0,
-                    self.composite.is_checked("legal / illegal movements"),
+                    self.panel.is_checked("legal / illegal movements"),
                 ));
             }
             _ => {}
@@ -262,7 +262,7 @@ impl State for UberTurnViewer {
             .extend(self.ic.members.clone());
         app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
 
-        self.composite.draw(g);
+        self.panel.draw(g);
         g.redraw(&self.draw);
     }
 }

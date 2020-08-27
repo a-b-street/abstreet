@@ -1,6 +1,6 @@
 use crate::common::{ColorLegend, ColorScale};
 use geom::{Bounds, Histogram, Polygon, Pt2D, Statistic};
-use widgetry::{Checkbox, Choice, Color, Composite, EventCtx, GeomBatch, Spinner, TextExt, Widget};
+use widgetry::{Checkbox, Choice, Color, EventCtx, GeomBatch, Panel, Spinner, TextExt, Widget};
 
 const NEIGHBORS: [[isize; 2]; 9] = [
     [0, 0],
@@ -70,7 +70,7 @@ impl HeatmapOptions {
         ]
     }
 
-    pub fn from_controls(c: &Composite) -> HeatmapOptions {
+    pub fn from_controls(c: &Panel) -> HeatmapOptions {
         // Did we just change?
         if c.has_widget("resolution") {
             HeatmapOptions {

@@ -6,28 +6,25 @@ use geom::Speed;
 use map_model::{LaneType, RoadID};
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Choice, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Choice, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct BulkSelect {
-    composite: Composite,
+    panel: Panel,
     selector: RoadSelector,
 }
 
 impl BulkSelect {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
         let selector = RoadSelector::new(app, BTreeSet::new());
-        let composite = make_select_composite(ctx, app, &selector);
-        Box::new(BulkSelect {
-            composite,
-            selector,
-        })
+        let panel = make_select_panel(ctx, app, &selector);
+        Box::new(BulkSelect { panel, selector })
     }
 }
 
-fn make_select_composite(ctx: &mut EventCtx, app: &App, selector: &RoadSelector) -> Composite {
-    Composite::new(Widget::col(vec![
+fn make_select_panel(ctx: &mut EventCtx, app: &App, selector: &RoadSelector) -> Panel {
+    Panel::new(Widget::col(vec![
         Line("Edit many roads").small_heading().draw(ctx),
         selector.make_controls(ctx),
         Widget::row(vec![
@@ -59,7 +56,7 @@ fn make_select_composite(ctx: &mut EventCtx, app: &App, selector: &RoadSelector)
 
 impl State for BulkSelect {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Cancel" => {
                     return Transition::Pop;
@@ -79,13 +76,13 @@ impl State for BulkSelect {
                 }
                 x => {
                     if self.selector.event(ctx, app, Some(x)) {
-                        self.composite = make_select_composite(ctx, app, &self.selector);
+                        self.panel = make_select_panel(ctx, app, &self.selector);
                     }
                 }
             },
             _ => {
                 if self.selector.event(ctx, app, None) {
-                    self.composite = make_select_composite(ctx, app, &self.selector);
+                    self.panel = make_select_panel(ctx, app, &self.selector);
                 }
             }
         }
@@ -94,13 +91,13 @@ impl State for BulkSelect {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         self.selector.draw(g, app, true);
     }
 }
 
 struct BulkEdit {
-    composite: Composite,
+    panel: Panel,
     roads: Vec<RoadID>,
     preview: Drawable,
 }
@@ -108,7 +105,7 @@ struct BulkEdit {
 impl BulkEdit {
     fn new(ctx: &mut EventCtx, roads: Vec<RoadID>, preview: Drawable) -> Box<dyn State> {
         Box::new(BulkEdit {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Line(format!("Editing {} roads", roads.len()))
                     .small_heading()
                     .draw(ctx),
@@ -163,13 +160,13 @@ impl State for BulkEdit {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Quit" => {
                     return Transition::Pop;
                 }
                 "confirm speed limit" => {
-                    let speed = self.composite.dropdown_value("speed limit");
+                    let speed = self.panel.dropdown_value("speed limit");
                     let mut edits = app.primary.map.get_edits().clone();
                     for r in &self.roads {
                         edits
@@ -186,8 +183,8 @@ impl State for BulkEdit {
                         ctx,
                         app,
                         &self.roads,
-                        self.composite.dropdown_value("from lt"),
-                        self.composite.dropdown_value("to lt"),
+                        self.panel.dropdown_value("from lt"),
+                        self.panel.dropdown_value("to lt"),
                     ));
                 }
                 _ => unreachable!(),
@@ -199,7 +196,7 @@ impl State for BulkEdit {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         g.redraw(&self.preview);
     }
 }

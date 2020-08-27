@@ -130,7 +130,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
         self.btn.draw(g);
         if let Some(ref m) = self.menu {
             // We need a background too! Add some padding and an outline.
-            // TODO Little embedded Composite could make more sense?
+            // TODO Little embedded Panel could make more sense?
             let pad = 5.0;
             let width = m.get_dims().width + 2.0 * pad;
             let height = m.get_dims().height + 2.0 * pad;
@@ -154,7 +154,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
 
             m.draw(g);
 
-            // Dropdown menus often leak out of their Composite
+            // Dropdown menus often leak out of their Panel
             g.canvas
                 .mark_covered_area(ScreenRectangle::top_left(m.top_left, m.get_dims()));
         }

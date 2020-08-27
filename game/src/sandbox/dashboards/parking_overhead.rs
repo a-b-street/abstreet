@@ -8,7 +8,7 @@ use abstutil::prettyprint_usize;
 use geom::Duration;
 use sim::{TripEndpoint, TripID, TripPhaseType};
 use widgetry::{
-    Btn, Checkbox, Composite, EventCtx, Filler, GfxCtx, Line, Outcome, Text, TextExt, Widget,
+    Btn, Checkbox, EventCtx, Filler, GfxCtx, Line, Outcome, Panel, Text, TextExt, Widget,
 };
 
 const ROWS: usize = 20;
@@ -18,7 +18,7 @@ const ROWS: usize = 20;
 // TODO Filter out border trips
 
 pub struct ParkingOverhead {
-    composite: Composite,
+    panel: Panel,
     opts: Options,
 }
 
@@ -61,21 +61,21 @@ impl ParkingOverhead {
             skip: 0,
         };
         Box::new(ParkingOverhead {
-            composite: make(ctx, app, &opts),
+            panel: make(ctx, app, &opts),
             opts,
         })
     }
 
     fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut new = make(ctx, app, &self.opts);
-        new.restore(ctx, &self.composite);
-        self.composite = new;
+        new.restore(ctx, &self.panel);
+        self.panel = new;
     }
 }
 
 impl State for ParkingOverhead {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Total duration" => {
                     self.opts.change(SortBy::TotalDuration);
@@ -124,8 +124,8 @@ impl State for ParkingOverhead {
                 }
             },
             Outcome::Changed => {
-                self.opts.off_map_starts = self.composite.is_checked("starting off-map");
-                self.opts.off_map_ends = self.composite.is_checked("ending off-map");
+                self.opts.off_map_starts = self.panel.is_checked("starting off-map");
+                self.opts.off_map_ends = self.panel.is_checked("ending off-map");
                 self.opts.skip = 0;
                 self.recalc(ctx, app);
             }
@@ -141,8 +141,8 @@ impl State for ParkingOverhead {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
-        self.composite.draw(g);
-        preview_trip(g, app, &self.composite);
+        self.panel.draw(g);
+        preview_trip(g, app, &self.panel);
     }
 }
 
@@ -155,7 +155,7 @@ struct Entry {
     percent_overhead: usize,
 }
 
-fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
+fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
     // Gather raw data
     let mut data = Vec::new();
     for (id, phases) in app.primary.sim.get_analytics().get_all_trip_phases() {
@@ -324,7 +324,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         0.88 * ctx.canvas.window_width,
     ));
 
-    Composite::new(Widget::col(col))
+    Panel::new(Widget::col(col))
         .exact_size_percent(90, 90)
         .build(ctx)
 }

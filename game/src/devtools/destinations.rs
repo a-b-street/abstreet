@@ -6,13 +6,13 @@ use abstutil::Counter;
 use map_model::BuildingID;
 use sim::{DontDrawAgents, Scenario, TripEndpoint};
 use widgetry::{
-    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, Text, VerticalAlignment, Widget,
 };
 
 pub struct PopularDestinations {
     per_bldg: Counter<BuildingID>,
-    composite: Composite,
+    panel: Panel,
     draw: Drawable,
 }
 
@@ -90,7 +90,7 @@ impl PopularDestinations {
         Box::new(PopularDestinations {
             per_bldg,
             draw: ctx.upload(batch),
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Most popular destinations").small_heading().draw(ctx),
                     Btn::text_fg("X")
@@ -125,7 +125,7 @@ impl State for PopularDestinations {
             }
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -137,8 +137,8 @@ impl State for PopularDestinations {
                     ctx,
                     app,
                     self.per_bldg.clone(),
-                    if self.composite.is_checked("Show heatmap") {
-                        Some(HeatmapOptions::from_controls(&self.composite))
+                    if self.panel.is_checked("Show heatmap") {
+                        Some(HeatmapOptions::from_controls(&self.panel))
                     } else {
                         None
                     },
@@ -152,7 +152,7 @@ impl State for PopularDestinations {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.redraw(&self.draw);
-        self.composite.draw(g);
+        self.panel.draw(g);
 
         if let Some(ID::Building(b)) = app.primary.current_selection {
             let mut txt = Text::new();

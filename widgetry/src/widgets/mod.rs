@@ -30,7 +30,7 @@ pub trait WidgetImpl: downcast_rs::Downcast {
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput);
     /// Draw the widget. Be sure to draw relative to the top-left specified by `set_pos`.
     fn draw(&self, g: &mut GfxCtx);
-    /// If a new Composite is being created to replace an older one, all widgets have the chance to
+    /// If a new Panel is being created to replace an older one, all widgets have the chance to
     /// preserve state from the previous version.
     fn can_restore(&self) -> bool {
         false

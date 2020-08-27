@@ -11,12 +11,12 @@ use maplit::btreeset;
 use sim::TripMode;
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct ZoneEditor {
-    composite: Composite,
+    panel: Panel,
     selector: RoadSelector,
     allow_through_traffic: BTreeSet<TripMode>,
     unzoomed: Drawable,
@@ -47,7 +47,7 @@ impl ZoneEditor {
         let selector = RoadSelector::new(app, members);
 
         Box::new(ZoneEditor {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Line("Editing restricted access zone")
                     .small_heading()
                     .draw(ctx),
@@ -81,7 +81,7 @@ impl ZoneEditor {
 // TODO Handle splitting/merging zones.
 impl State for ZoneEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Apply" => {
                     let mut edits = app.primary.map.get_edits().clone();
@@ -106,7 +106,7 @@ impl State for ZoneEditor {
                     let new_access_restrictions = AccessRestrictions {
                         allow_through_traffic,
                         cap_vehicles_per_hour: {
-                            let n = self.composite.spinner("cap_vehicles") as usize;
+                            let n = self.panel.spinner("cap_vehicles") as usize;
                             if n == 0 {
                                 None
                             } else {
@@ -135,7 +135,7 @@ impl State for ZoneEditor {
                 x => {
                     if self.selector.event(ctx, app, Some(x)) {
                         let new_controls = self.selector.make_controls(ctx).named("selector");
-                        self.composite.replace(ctx, "selector", new_controls);
+                        self.panel.replace(ctx, "selector", new_controls);
                         let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.selector.roads);
                         self.unzoomed = unzoomed;
                         self.zoomed = zoomed;
@@ -145,18 +145,18 @@ impl State for ZoneEditor {
             Outcome::Changed => {
                 let mut new_allow_through_traffic = BTreeSet::new();
                 for m in TripMode::all() {
-                    if self.composite.is_checked(m.ongoing_verb()) {
+                    if self.panel.is_checked(m.ongoing_verb()) {
                         new_allow_through_traffic.insert(m);
                     }
                 }
                 let instructions = make_instructions(ctx, &new_allow_through_traffic);
-                self.composite.replace(ctx, "instructions", instructions);
+                self.panel.replace(ctx, "instructions", instructions);
                 self.allow_through_traffic = new_allow_through_traffic;
             }
             _ => {
                 if self.selector.event(ctx, app, None) {
                     let new_controls = self.selector.make_controls(ctx).named("selector");
-                    self.composite.replace(ctx, "selector", new_controls);
+                    self.panel.replace(ctx, "selector", new_controls);
                     let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.selector.roads);
                     self.unzoomed = unzoomed;
                     self.zoomed = zoomed;
@@ -174,7 +174,7 @@ impl State for ZoneEditor {
         } else {
             g.redraw(&self.zoomed);
         }
-        self.composite.draw(g);
+        self.panel.draw(g);
         self.selector.draw(g, app, false);
         CommonState::draw_osd(g, app);
     }

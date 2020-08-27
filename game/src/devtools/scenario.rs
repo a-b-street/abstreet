@@ -5,12 +5,12 @@ use crate::game::{State, Transition};
 use abstutil::prettyprint_usize;
 use sim::Scenario;
 use widgetry::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Text, VerticalAlignment, Widget,
+    hotkey, Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    Text, VerticalAlignment, Widget,
 };
 
 pub struct ScenarioManager {
-    composite: Composite,
+    panel: Panel,
     scenario: Scenario,
     unzoomed: Drawable,
     zoomed: Drawable,
@@ -46,7 +46,7 @@ impl ScenarioManager {
 
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         ScenarioManager {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line(format!("Scenario {}", scenario.scenario_name))
                         .small_heading()
@@ -86,7 +86,7 @@ impl ScenarioManager {
 
 impl State for ScenarioManager {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -113,7 +113,7 @@ impl State for ScenarioManager {
         } else {
             g.redraw(&self.zoomed);
         }
-        self.composite.draw(g);
+        self.panel.draw(g);
         CommonState::draw_osd(g, app);
     }
 }

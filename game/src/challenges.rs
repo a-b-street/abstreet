@@ -8,7 +8,7 @@ use map_model::Map;
 use sim::{AlertHandler, OrigPersonID, Scenario, Sim, SimFlags, SimOptions};
 use std::collections::{BTreeMap, HashSet};
 use widgetry::{
-    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, TextExt, Widget,
+    hotkey, Btn, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, Widget,
 };
 
 // TODO Also have some kind of screenshot to display for each challenge
@@ -111,7 +111,7 @@ impl Challenge {
 }
 
 pub struct ChallengesPicker {
-    composite: Composite,
+    panel: Panel,
     links: BTreeMap<String, (String, usize)>,
     challenge: Option<Challenge>,
 }
@@ -235,7 +235,7 @@ impl ChallengesPicker {
         master_col.push(Widget::row(main_row));
 
         Box::new(ChallengesPicker {
-            composite: Composite::new(Widget::col(master_col))
+            panel: Panel::new(Widget::col(master_col))
                 .exact_size_percent(90, 85)
                 .build_custom(ctx),
             links,
@@ -246,7 +246,7 @@ impl ChallengesPicker {
 
 impl State for ChallengesPicker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "back" => {
                     return Transition::Pop;
@@ -285,7 +285,7 @@ impl State for ChallengesPicker {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 

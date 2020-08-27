@@ -11,14 +11,14 @@ use crate::render::Renderable;
 use crate::sandbox::GameplayMode;
 use map_model::{LaneID, LaneType};
 use widgetry::{
-    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome,
-    RewriteColor, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, RewriteColor,
+    TextExt, VerticalAlignment, Widget,
 };
 
 pub struct LaneEditor {
     l: LaneID,
     mode: GameplayMode,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl LaneEditor {
@@ -87,11 +87,11 @@ impl LaneEditor {
             Btn::text_bg2("Finish").build_def(ctx, hotkey(Key::Escape)),
         ];
 
-        let composite = Composite::new(Widget::col(col))
+        let panel = Panel::new(Widget::col(col))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 
-        Box::new(LaneEditor { l, mode, composite })
+        Box::new(LaneEditor { l, mode, panel })
     }
 }
 
@@ -126,7 +126,7 @@ impl State for LaneEditor {
             }
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Change access restrictions" => {
                     return Transition::Push(ZoneEditor::new(
@@ -183,7 +183,7 @@ impl State for LaneEditor {
                 edits.commands.push(app.primary.map.edit_road_cmd(
                     app.primary.map.get_l(self.l).parent,
                     |new| {
-                        new.speed_limit = self.composite.dropdown_value("speed limit");
+                        new.speed_limit = self.panel.dropdown_value("speed limit");
                     },
                 ));
                 apply_map_edits(ctx, app, edits);
@@ -203,7 +203,7 @@ impl State for LaneEditor {
                 .get_l(self.l)
                 .get_outline(&app.primary.map),
         );
-        self.composite.draw(g);
+        self.panel.draw(g);
         CommonState::draw_osd(g, app);
     }
 }

@@ -3,30 +3,25 @@ use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
 use geom::{ArrowCap, Distance, PolyLine};
 use widgetry::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct Elevation {
     unzoomed: Drawable,
     zoomed: Drawable,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl Layer for Elevation {
     fn name(&self) -> Option<&'static str> {
         Some("elevation")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        _: &mut App,
-        minimap: &Composite,
-    ) -> Option<LayerOutcome> {
-        Layer::simple_event(ctx, minimap, &mut self.composite)
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App, minimap: &Panel) -> Option<LayerOutcome> {
+        Layer::simple_event(ctx, minimap, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
@@ -91,7 +86,7 @@ impl Elevation {
         }
         colorer.unzoomed.append(batch);
 
-        let composite = Composite::new(Widget::col(vec![
+        let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Elevation change".draw_text(ctx),
@@ -112,7 +107,7 @@ impl Elevation {
         Elevation {
             unzoomed: ctx.upload(colorer.unzoomed),
             zoomed: ctx.upload(colorer.zoomed),
-            composite,
+            panel,
         }
     }
 }

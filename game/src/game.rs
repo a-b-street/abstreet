@@ -6,8 +6,8 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use geom::Polygon;
 use map_model::PermanentMapEdits;
 use widgetry::{
-    hotkey, hotkeys, Btn, Canvas, Choice, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Menu, Outcome, ScreenRectangle, Text, VerticalAlignment,
+    hotkey, hotkeys, Btn, Canvas, Choice, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Menu, Outcome, Panel, ScreenRectangle, Text, VerticalAlignment,
     Widget, GUI,
 };
 
@@ -289,7 +289,7 @@ pub enum Transition {
 }
 
 pub struct ChooseSomething<T> {
-    composite: Composite,
+    panel: Panel,
     cb: Box<dyn Fn(T, &mut EventCtx, &mut App) -> Transition>,
 }
 
@@ -301,7 +301,7 @@ impl<T: 'static> ChooseSomething<T> {
         cb: Box<dyn Fn(T, &mut EventCtx, &mut App) -> Transition>,
     ) -> Box<dyn State> {
         Box::new(ChooseSomething {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line(query).small_heading().draw(ctx),
                     Btn::plaintext("X")
@@ -322,7 +322,7 @@ impl<T: 'static> ChooseSomething<T> {
         cb: Box<dyn Fn(T, &mut EventCtx, &mut App) -> Transition>,
     ) -> Box<dyn State> {
         Box::new(ChooseSomething {
-            composite: Composite::new(Menu::new(ctx, choices).named("menu").container())
+            panel: Panel::new(Menu::new(ctx, choices).named("menu").container())
                 .aligned(
                     HorizontalAlignment::Centered(rect.center().x),
                     VerticalAlignment::Below(rect.y2 + 15.0),
@@ -335,11 +335,11 @@ impl<T: 'static> ChooseSomething<T> {
 
 impl<T: 'static> State for ChooseSomething<T> {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
                 _ => {
-                    let data = self.composite.take_menu_choice::<T>("menu");
+                    let data = self.panel.take_menu_choice::<T>("menu");
                     (self.cb)(data, ctx, app)
                 }
             },
@@ -362,12 +362,12 @@ impl<T: 'static> State for ChooseSomething<T> {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
 pub struct PromptInput {
-    composite: Composite,
+    panel: Panel,
     cb: Box<dyn Fn(String, &mut EventCtx, &mut App) -> Transition>,
 }
 
@@ -378,7 +378,7 @@ impl PromptInput {
         cb: Box<dyn Fn(String, &mut EventCtx, &mut App) -> Transition>,
     ) -> Box<dyn State> {
         Box::new(PromptInput {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line(query).small_heading().draw(ctx),
                     Btn::plaintext("X")
@@ -396,11 +396,11 @@ impl PromptInput {
 
 impl State for PromptInput {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
                 "confirm" => {
-                    let data = self.composite.text_box("input");
+                    let data = self.panel.text_box("input");
                     (self.cb)(data, ctx, app)
                 }
                 _ => unreachable!(),
@@ -420,12 +420,12 @@ impl State for PromptInput {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
 pub struct PopupMsg {
-    composite: Composite,
+    panel: Panel,
     unzoomed: Drawable,
     zoomed: Drawable,
 }
@@ -454,7 +454,7 @@ impl PopupMsg {
             txt.add(Line(l));
         }
         Box::new(PopupMsg {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 txt.draw(ctx),
                 Btn::text_bg2("OK").build_def(ctx, hotkeys(vec![Key::Enter, Key::Escape])),
             ]))
@@ -467,7 +467,7 @@ impl PopupMsg {
 
 impl State for PopupMsg {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "OK" => Transition::Pop,
                 _ => unreachable!(),
@@ -487,7 +487,7 @@ impl State for PopupMsg {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {

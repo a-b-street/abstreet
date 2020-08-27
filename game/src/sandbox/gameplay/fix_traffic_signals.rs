@@ -10,7 +10,7 @@ use crate::sandbox::{SandboxControls, SandboxMode};
 use geom::{Duration, Time};
 use map_model::IntersectionID;
 use widgetry::{
-    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
+    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
     Text, VerticalAlignment, Widget,
 };
 
@@ -19,8 +19,8 @@ const THRESHOLD: Duration = Duration::const_seconds(20.0 * 60.0);
 const METER_HACK: f64 = -15.0;
 
 pub struct FixTrafficSignals {
-    top_center: Composite,
-    meter: Composite,
+    top_center: Panel,
+    meter: Panel,
     time: Time,
     done: bool,
     mode: GameplayMode,
@@ -29,7 +29,7 @@ pub struct FixTrafficSignals {
 impl FixTrafficSignals {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
-            top_center: Composite::new(Widget::col(vec![
+            top_center: Panel::new(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),
                 Widget::row(vec![
                     Line(format!(
@@ -108,7 +108,7 @@ impl GameplayState for FixTrafficSignals {
     ) -> Option<Transition> {
         self.meter.align_below(
             ctx,
-            &controls.agent_meter.as_ref().unwrap().composite,
+            &controls.agent_meter.as_ref().unwrap().panel,
             METER_HACK,
         );
 
@@ -141,7 +141,7 @@ impl GameplayState for FixTrafficSignals {
                 self.meter = make_meter(ctx, app, Some((i, dt)));
                 if dt >= THRESHOLD {
                     self.done = true;
-                    self.top_center = Composite::new(Widget::col(vec![
+                    self.top_center = Panel::new(Widget::col(vec![
                         challenge_header(ctx, "Traffic signal survivor"),
                         Widget::row(vec![
                             Line(format!(
@@ -174,7 +174,7 @@ impl GameplayState for FixTrafficSignals {
             }
             self.meter.align_below(
                 ctx,
-                &controls.agent_meter.as_ref().unwrap().composite,
+                &controls.agent_meter.as_ref().unwrap().panel,
                 METER_HACK,
             );
 
@@ -282,12 +282,8 @@ impl GameplayState for FixTrafficSignals {
     }
 }
 
-fn make_meter(
-    ctx: &mut EventCtx,
-    app: &App,
-    worst: Option<(IntersectionID, Duration)>,
-) -> Composite {
-    Composite::new(Widget::col(vec![
+fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Duration)>) -> Panel {
+    Panel::new(Widget::col(vec![
         Widget::horiz_separator(ctx, 0.2),
         if let Some((_, delay)) = worst {
             Widget::row(vec![

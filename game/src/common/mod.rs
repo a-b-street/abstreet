@@ -20,8 +20,8 @@ pub use crate::info::{ContextualActions, Tab};
 use geom::Polygon;
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ScreenDims, ScreenPt, ScreenRectangle, Text, VerticalAlignment, Widget,
+    hotkey, lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    ScreenDims, ScreenPt, ScreenRectangle, Text, VerticalAlignment, Widget,
 };
 
 // TODO This is now just used in two modes...
@@ -294,8 +294,8 @@ impl CommonState {
 }
 
 // TODO Kinda misnomer
-pub fn tool_panel(ctx: &mut EventCtx) -> Composite {
-    Composite::new(Widget::row(vec![
+pub fn tool_panel(ctx: &mut EventCtx) -> Panel {
+    Panel::new(Widget::row(vec![
         Btn::svg_def("system/assets/tools/home.svg").build(ctx, "back", hotkey(Key::Escape)),
         Btn::svg_def("system/assets/tools/settings.svg").build(ctx, "settings", None),
     ]))

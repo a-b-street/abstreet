@@ -9,13 +9,13 @@ use geom::{Duration, Polygon, Pt2D, Ring, Time};
 use instant::Instant;
 use sim::AlertLocation;
 use widgetry::{
-    hotkey, AreaSlider, Btn, Checkbox, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Text, UpdateType,
-    VerticalAlignment, Widget,
+    hotkey, AreaSlider, Btn, Checkbox, Choice, Color, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, PersistentSplit, RewriteColor, Text,
+    UpdateType, VerticalAlignment, Widget,
 };
 
 pub struct SpeedControls {
-    pub composite: Composite,
+    pub panel: Panel,
 
     paused: bool,
     setting: SpeedSetting,
@@ -34,7 +34,7 @@ enum SpeedSetting {
 }
 
 impl SpeedControls {
-    fn make_panel(ctx: &mut EventCtx, app: &App, paused: bool, setting: SpeedSetting) -> Composite {
+    fn make_panel(ctx: &mut EventCtx, app: &App, paused: bool, setting: SpeedSetting) -> Panel {
         let mut row = Vec::new();
         row.push(
             if paused {
@@ -120,7 +120,7 @@ impl SpeedControls {
             .bg(app.cs.section_bg),
         );
 
-        Composite::new(Widget::custom_row(row))
+        Panel::new(Widget::custom_row(row))
             .aligned(
                 HorizontalAlignment::Center,
                 VerticalAlignment::BottomAboveOSD,
@@ -129,9 +129,9 @@ impl SpeedControls {
     }
 
     pub fn new(ctx: &mut EventCtx, app: &App) -> SpeedControls {
-        let composite = SpeedControls::make_panel(ctx, app, false, SpeedSetting::Realtime);
+        let panel = SpeedControls::make_panel(ctx, app, false, SpeedSetting::Realtime);
         SpeedControls {
-            composite,
+            panel,
             paused: false,
             setting: SpeedSetting::Realtime,
         }
@@ -143,31 +143,31 @@ impl SpeedControls {
         app: &mut App,
         maybe_mode: Option<&GameplayMode>,
     ) -> Option<Transition> {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "real-time speed" => {
                     self.setting = SpeedSetting::Realtime;
-                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "5x speed" => {
                     self.setting = SpeedSetting::Fast;
-                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "30x speed" => {
                     self.setting = SpeedSetting::Faster;
-                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "3600x speed" => {
                     self.setting = SpeedSetting::Fastest;
-                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "play" => {
                     self.paused = false;
-                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "pause" => {
@@ -196,7 +196,7 @@ impl SpeedControls {
                     ))));
                 }
                 "step forwards" => {
-                    let dt = self.composite.persistent_split_value("step forwards");
+                    let dt = self.panel.persistent_split_value("step forwards");
                     if dt == Duration::seconds(0.1) {
                         app.primary
                             .sim
@@ -216,22 +216,22 @@ impl SpeedControls {
             _ => {}
         }
         // Just kind of constantly scrape this
-        app.opts.time_increment = self.composite.persistent_split_value("step forwards");
+        app.opts.time_increment = self.panel.persistent_split_value("step forwards");
 
         if ctx.input.key_pressed(Key::LeftArrow) {
             match self.setting {
                 SpeedSetting::Realtime => self.pause(ctx, app),
                 SpeedSetting::Fast => {
                     self.setting = SpeedSetting::Realtime;
-                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Faster => {
                     self.setting = SpeedSetting::Fast;
-                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Fastest => {
                     self.setting = SpeedSetting::Faster;
-                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
             }
         }
@@ -240,21 +240,19 @@ impl SpeedControls {
                 SpeedSetting::Realtime => {
                     if self.paused {
                         self.paused = false;
-                        self.composite =
-                            SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                        self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     } else {
                         self.setting = SpeedSetting::Fast;
-                        self.composite =
-                            SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                        self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     }
                 }
                 SpeedSetting::Fast => {
                     self.setting = SpeedSetting::Faster;
-                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Faster => {
                     self.setting = SpeedSetting::Fastest;
-                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Fastest => {}
             }
@@ -326,13 +324,13 @@ impl SpeedControls {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 
     pub fn pause(&mut self, ctx: &mut EventCtx, app: &App) {
         if !self.paused {
             self.paused = true;
-            self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+            self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
         }
     }
 
@@ -340,7 +338,7 @@ impl SpeedControls {
         if self.paused || self.setting != SpeedSetting::Realtime {
             self.paused = false;
             self.setting = SpeedSetting::Realtime;
-            self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+            self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
         }
     }
 
@@ -351,7 +349,7 @@ impl SpeedControls {
 
 // TODO Text entry would be great
 struct JumpToTime {
-    composite: Composite,
+    panel: Panel,
     target: Time,
     maybe_mode: Option<GameplayMode>,
 }
@@ -363,7 +361,7 @@ impl JumpToTime {
         JumpToTime {
             target,
             maybe_mode,
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Jump to what time?").small_heading().draw(ctx),
                     Btn::plaintext("X")
@@ -417,7 +415,7 @@ impl JumpToTime {
 
 impl State for JumpToTime {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -450,7 +448,7 @@ impl State for JumpToTime {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                app.opts.dont_draw_time_warp = self.composite.is_checked("don't draw");
+                app.opts.dont_draw_time_warp = self.panel.is_checked("don't draw");
             }
             _ => {}
         }
@@ -458,11 +456,11 @@ impl State for JumpToTime {
             .primary
             .sim
             .get_end_of_day()
-            .percent_of(self.composite.area_slider("time slider").get_percent())
+            .percent_of(self.panel.area_slider("time slider").get_percent())
             .round_seconds(600.0);
         if target != self.target {
             self.target = target;
-            self.composite.replace(
+            self.panel.replace(
                 ctx,
                 "jump to time",
                 Btn::text_bg2(format!("Jump to {}", target.ampm_tostring()))
@@ -471,7 +469,7 @@ impl State for JumpToTime {
                     .named("jump to time"),
             );
         }
-        if self.composite.clicked_outside(ctx) {
+        if self.panel.clicked_outside(ctx) {
             return Transition::Pop;
         }
 
@@ -480,7 +478,7 @@ impl State for JumpToTime {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
@@ -489,7 +487,7 @@ pub struct TimeWarpScreen {
     target: Time,
     started: Instant,
     traffic_jams: bool,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl TimeWarpScreen {
@@ -517,7 +515,7 @@ impl TimeWarpScreen {
             target,
             started: Instant::now(),
             traffic_jams,
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Text::new().draw(ctx).named("text"),
                 Btn::text_bg2("stop now")
                     .build_def(ctx, hotkey(Key::Escape))
@@ -606,14 +604,13 @@ impl State for TimeWarpScreen {
                 },
             ]);
 
-            self.composite
-                .replace(ctx, "text", txt.draw(ctx).named("text"));
+            self.panel.replace(ctx, "text", txt.draw(ctx).named("text"));
         }
         if app.primary.sim.time() == self.target {
             return Transition::Pop;
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "stop now" => {
                     return Transition::Pop;
@@ -622,7 +619,7 @@ impl State for TimeWarpScreen {
             },
             _ => {}
         }
-        if self.composite.clicked_outside(ctx) {
+        if self.panel.clicked_outside(ctx) {
             return Transition::Pop;
         }
 
@@ -647,7 +644,7 @@ impl State for TimeWarpScreen {
             State::grey_out_map(g, app);
         }
 
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
@@ -661,14 +658,14 @@ impl State for TimeWarpScreen {
 
 pub struct TimePanel {
     time: Time,
-    pub composite: Composite,
+    pub panel: Panel,
 }
 
 impl TimePanel {
     pub fn new(ctx: &mut EventCtx, app: &App) -> TimePanel {
         TimePanel {
             time: app.primary.sim.time(),
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Text::from(Line(app.primary.sim.time().ampm_tostring()).big_monospaced())
                     .draw(ctx)
                     .centered_horiz(),
@@ -723,11 +720,11 @@ impl TimePanel {
         if self.time != app.primary.sim.time() {
             *self = TimePanel::new(ctx, app);
         }
-        self.composite.event(ctx);
+        self.panel.event(ctx);
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 

@@ -12,12 +12,12 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 use widgetry::{
-    hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Menu, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Menu, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct ParkingMapper {
-    composite: Composite,
+    panel: Panel,
     draw_layer: Drawable,
     show: Show,
     selected: Option<(HashSet<RoadID>, Drawable)>,
@@ -121,7 +121,7 @@ impl ParkingMapper {
         Box::new(ParkingMapper {
             draw_layer: ctx.upload(batch),
             show,
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Parking mapper").small_heading().draw(ctx),
                     Btn::text_fg("X")
@@ -263,12 +263,11 @@ impl State for ParkingMapper {
                             txt.add(Line(format!("{} = {}", k, v)).secondary());
                         }
                     }
-                    self.composite
-                        .replace(ctx, "info", txt.draw(ctx).named("info"));
+                    self.panel.replace(ctx, "info", txt.draw(ctx).named("info"));
                 }
             } else if self.selected.is_some() {
                 self.selected = None;
-                self.composite
+                self.panel
                     .replace(ctx, "info", "Select a road".draw_text(ctx).named("info"));
             }
         }
@@ -315,7 +314,7 @@ impl State for ParkingMapper {
             }
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     app.opts.min_zoom_for_detail =
@@ -333,7 +332,7 @@ impl State for ParkingMapper {
                     return match ctx.loading_screen("generate OsmChange file", |_, timer| {
                         generate_osmc(
                             &self.data,
-                            self.composite
+                            self.panel
                                 .is_checked("max 3 days parking (default in Seattle)"),
                             timer,
                         )
@@ -371,7 +370,7 @@ impl State for ParkingMapper {
                 return Transition::Replace(ParkingMapper::make(
                     ctx,
                     app,
-                    self.composite.dropdown_value("Show"),
+                    self.panel.dropdown_value("Show"),
                     self.data.clone(),
                 ));
             }
@@ -386,12 +385,12 @@ impl State for ParkingMapper {
         if let Some((_, ref roads)) = self.selected {
             g.redraw(roads);
         }
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
 struct ChangeWay {
-    composite: Composite,
+    panel: Panel,
     draw: Drawable,
     osm_way_id: WayID,
     data: BTreeMap<WayID, Value>,
@@ -429,7 +428,7 @@ impl ChangeWay {
         }
 
         Box::new(ChangeWay {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("What kind of parking does this road have?")
                         .small_heading()
@@ -466,11 +465,11 @@ impl ChangeWay {
 impl State for ChangeWay {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
                 _ => {
-                    let value = self.composite.take_menu_choice::<Value>("menu");
+                    let value = self.panel.take_menu_choice::<Value>("menu");
                     if value == Value::Complicated {
                         Transition::Replace(PopupMsg::new(
                             ctx,
@@ -505,7 +504,7 @@ impl State for ChangeWay {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.draw);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
