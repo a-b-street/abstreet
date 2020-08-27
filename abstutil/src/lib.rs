@@ -14,7 +14,7 @@ pub use crate::io::{
     find_next_file, find_prev_file, from_json, list_all_objects, list_dir, load_all_objects,
     maybe_read_binary, maybe_read_json, read_binary, read_json, serialize_btreemap,
     serialize_multimap, serialize_usize, serialized_size_bytes, slurp_file, to_json, write_binary,
-    write_json, FileWithProgress, maybe_read_json_without_timer,
+    write_json, FileWithProgress,
 };
 pub use crate::random::{fork_rng, WeightedUsizeChoice};
 pub use crate::time::{

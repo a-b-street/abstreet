@@ -1,54 +1,35 @@
-use serde::Deserialize;
-use abstutil::maybe_read_json_without_timer;
+use serde::{Deserialize};
+use serde_json;
 
 #[derive(Deserialize)]
+#[serde(default)]
 pub struct ImporterConfiguration {
-    #[serde(default = "default_curl")]
     pub curl: String,
-    #[serde(default = "default_osmconvert")]
     pub osmconvert: String,
-    #[serde(default = "default_unzip")]
     pub unzip: String,
-    #[serde(default = "default_gunzip")]
     pub gunzip: String,
-    #[serde(default = "default_gunzip_args")]
     pub gunzip_args: Option<String>,
 }
 
-fn default_curl() -> String {
-    String::from("curl")
-}
-
-fn default_osmconvert() -> String {
-    String::from("osmconvert")
-}
-
-fn default_unzip() -> String {
-    String::from("unzip")
-}
-
-fn default_gunzip() -> String {
-    String::from("gunzip")
-}
-
-fn default_gunzip_args() -> Option<String> {
-    None
-}
-
-pub fn load_configuration() -> ImporterConfiguration {
-
-    match maybe_read_json_without_timer::<ImporterConfiguration>(&String::from("importer.json")) {
-        Ok(config) => config,
-        Err(_) => default_configuration(),
+impl Default for ImporterConfiguration {
+    fn default() -> ImporterConfiguration {
+        ImporterConfiguration {
+            curl: String::from("curl"),
+            osmconvert: String::from("osmconvert"),
+            unzip: String::from("unzip"),
+            gunzip: String::from("gunzip"),
+            gunzip_args: None,
+        }
     }
 }
 
-fn default_configuration() -> ImporterConfiguration {
-    ImporterConfiguration {
-        curl: default_curl(),
-        osmconvert: default_osmconvert(),
-        unzip: default_unzip(),
-        gunzip: default_gunzip(),
-        gunzip_args: default_gunzip_args(),
+pub fn load_configuration() -> ImporterConfiguration {
+    
+    // Safe to assume that {} can be parsed given struct-level Default implementation.
+    let default = serde_json::from_str("{}").unwrap();
+
+    match std::fs::read_to_string("importer.json") {
+        Ok(contents) => serde_json::from_str(&contents).unwrap_or(default),
+        Err(_) => default,
     }
 }

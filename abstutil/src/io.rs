@@ -72,16 +72,12 @@ pub fn maybe_read_json<T: DeserializeOwned>(path: String, timer: &mut Timer) -> 
     }
 
     timer.start(format!("parse {}", path));
-    let result = maybe_read_json_without_timer(&path);
+    // TODO timer.read_file isn't working here. And we need to call stop() if there's no file.
+    let result: Result<T, Error> = slurp_file(&path).and_then(|raw| {
+        serde_json::from_slice(&raw).map_err(|err| Error::new(ErrorKind::Other, err))
+    });
     timer.stop(format!("parse {}", path));
     result
-}
-
-pub fn maybe_read_json_without_timer<T: DeserializeOwned>(path: &String) -> Result<T, Error> {
-    // TODO timer.read_file isn't working here. And we need to call stop() if there's no file.
-    slurp_file(&path).and_then(|raw| {
-        serde_json::from_slice(&raw).map_err(|err| Error::new(ErrorKind::Other, err))
-    })
 }
 
 pub fn read_json<T: DeserializeOwned>(path: String, timer: &mut Timer) -> T {
