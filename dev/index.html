@@ -151,7 +151,7 @@
 <h2><a class="header" href="#getting-started" id="getting-started">Getting started</a></h2>
 <p>You will first need:</p>
 <ul>
-<li>Stable Rust, at least 1.46. https://www.rust-lang.org/tools/install.
+<li>Stable Rust, at least 1.46. <a href="https://www.rust-lang.org/tools/install">https://www.rust-lang.org/tools/install</a>.
 <ul>
 <li>On Windows, you may need
 <a href="https://visualstudio.microsoft.com/de/downloads/">Visual Studio 2019</a>.</li>
@@ -207,7 +207,6 @@ experience, so they're hidden for now.</li>
 <li>Adding <code>--edits='name of edits'</code> starts with edits applied to the map.</li>
 </ul>
 </li>
-<li>More random notes <a href="/docs/misc_dev_tricks.html">here</a></li>
 </ul>
 <h2><a class="header" href="#downloading-more-cities" id="downloading-more-cities">Downloading more cities</a></h2>
 <p>As data formats change over time, things in the <code>data/</code> directory not under
@@ -226,9 +225,9 @@ for building those maps -- see below.</p>
 and <code>sim</code>.</p>
 <p>To run all pieces of the importer, you'll need some extra dependencies:</p>
 <ul>
-<li><code>osmconvert</code>: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download or
-https://github.com/interline-io/homebrew-planetutils#installation for Mac</li>
-<li><code>libgdal-dev</code>: See https://gdal.org/ if your OS package manager doesn't have
+<li><code>osmconvert</code>: See <a href="https://wiki.openstreetmap.org/wiki/Osmconvert#Download">https://wiki.openstreetmap.org/wiki/Osmconvert#Download</a> or
+<a href="https://github.com/interline-io/homebrew-planetutils#installation">https://github.com/interline-io/homebrew-planetutils#installation</a> for Mac</li>
+<li><code>libgdal-dev</code>: See <a href="https://gdal.org">https://gdal.org</a> if your OS package manager doesn't have
 this. If you keep hitting linking errors, then just remove
 <code>--features scenarios</code> from <code>import.sh</code>. You won't be able to build the
 Seattle scenarios.</li>
@@ -251,8 +250,8 @@ just need <code>./import.sh --map</code>.</li>
 </ul>
 <p>You can also make the importer <a href="new_city.html">import a new city</a>.</p>
 <h2><a class="header" href="#understanding-stuff" id="understanding-stuff">Understanding stuff</a></h2>
-<p>The docs listed at https://github.com/dabreegster/abstreet#documentation explain
-things like map importing and how the traffic simulation works.</p>
+<p>The docs listed at <a href="https://github.com/dabreegster/abstreet#documentation">https://github.com/dabreegster/abstreet#documentation</a>
+explain things like map importing and how the traffic simulation works.</p>
 <h3><a class="header" href="#code-organization" id="code-organization">Code organization</a></h3>
 <p>If you're going to dig into the code, it helps to know what all the crates are.
 The most interesting crates are <code>map_model</code>, <code>sim</code>, and <code>game</code>.</p>
@@ -287,9 +286,9 @@ polygons, circles, durations, speeds</li>
 <li><code>iotool</code>: a catch-all tool to import/export data</li>
 </ul>
 <h2><a class="header" href="#code-conventions" id="code-conventions">Code conventions</a></h2>
-<p>All code is automatically formatted using https://github.com/rust-lang/rustfmt;
-please run <code>cargo +nightly fmt</code> before sending a PR. (You have to install the
-nightly toolchain just for fmt)</p>
+<p>All code is automatically formatted using
+<a href="https://github.com/rust-lang/rustfmt">https://github.com/rust-lang/rustfmt</a>; please run <code>cargo +nightly fmt</code> before
+sending a PR. (You have to install the nightly toolchain just for fmt)</p>
 <p>The error handling is unfortunately inconsistent. The goal is to gracefully
 degrade instead of crashing the game. If a crash does happen, make sure the logs
 will have enough context to reproduce and debug. For example, giving up when

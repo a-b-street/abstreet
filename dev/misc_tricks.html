@@ -151,9 +151,9 @@
 <p>Find packages to upgrade: <code>cargo outdated -R</code></p>
 <p>Deal with compile tile: <code>cargo bloat --time</code></p>
 <p>Find why two binary crates aren't sharing dependencies:
-https://old.reddit.com/r/rust/comments/cqceu4/common_crates_in_cargo_workspace_recompiled/</p>
+<a href="https://old.reddit.com/r/rust/comments/cqceu4/common_crates_in_cargo_workspace_recompiled/">https://old.reddit.com/r/rust/comments/cqceu4/common_crates_in_cargo_workspace_recompiled/</a></p>
 <p>Where's a dependency coming from? <code>cargo tree -i -p syn</code></p>
-<p>Diff screencaps: http://www.imagemagick.org/Usage/compare/#methods</p>
+<p>Diff screencaps: <a href="http://www.imagemagick.org/Usage/compare/#methods">http://www.imagemagick.org/Usage/compare/#methods</a></p>
 <p>Debug OpenGL calls:</p>
 <pre><code>apitrace trace --api gl ../target/debug/game
 qapitrace game.trace
@@ -161,9 +161,9 @@ apitrace dump game.trace
 </code></pre>
 <p>Understand XML: just use firefox</p>
 <h2><a class="header" href="#profiling" id="profiling">Profiling</a></h2>
-<p>Actually, https://github.com/flamegraph-rs/flamegraph is pretty cool too.</p>
+<p>Actually, <a href="https://github.com/flamegraph-rs/flamegraph">https://github.com/flamegraph-rs/flamegraph</a> is pretty cool too.</p>
 <p><code>apt-get install google-perftools libgoogle-perftools-dev</code></p>
-<p>Follow Usage from https://crates.io/crates/cpuprofiler</p>
+<p>Follow Usage from <a href="https://crates.io/crates/cpuprofiler">https://crates.io/crates/cpuprofiler</a></p>
 <p>Modify <code>game/Cargo.toml</code> to include the <code>abstutil/profiler</code> feature. Then run
 game or headless with <code>--enable_profiler</code></p>
 <pre><code>google-pprof --no_strip_temp ../target/debug/game profile
@@ -171,10 +171,10 @@ google-pprof --no_strip_temp ../target/release/headless profile
 top30 --cum
 </code></pre>
 <p>Why aren't the columns labelled?
-https://groups.google.com/d/msg/golang-nuts/qkDWqFKj8og/tWfYAaWRYqkJ</p>
+<a href="https://groups.google.com/d/msg/golang-nuts/qkDWqFKj8og/tWfYAaWRYqkJ">https://groups.google.com/d/msg/golang-nuts/qkDWqFKj8og/tWfYAaWRYqkJ</a></p>
 <h2><a class="header" href="#building-releases" id="building-releases">Building releases</a></h2>
-<p>Cross-compilation notes: https://github.com/rust-embedded/cross Or use
-https://github.com/japaric/trust</p>
+<p>Cross-compilation notes: <a href="https://github.com/rust-embedded/cross">https://github.com/rust-embedded/cross</a> Or use
+<a href="https://github.com/japaric/trust">https://github.com/japaric/trust</a></p>
 <p>Initially have to:</p>
 <pre><code class="language-shell">cargo install cross
 sudo apt-get install docker.io
@@ -192,10 +192,6 @@ cd ~; mkdir npm; cd npm
 npm init --yes
 npm install prettier --save-dev --save-exact
 </code></pre>
-<p>Use https://github.com/joeyespo/grip to render. Doesn't seem to work with the
-graphviz image.</p>
-<p>https://github.com/ekalinin/github-markdown-toc for table of contents (stashed
-in ~/Downloads/gh-md-toc)</p>
 <h2><a class="header" href="#videos" id="videos">Videos</a></h2>
 <pre><code># Fullscreen
 ffmpeg -f x11grab -r 25 -s 1920x960 -i :0.0+0,55 -vcodec huffyuv raw.avi
@@ -206,9 +202,9 @@ ffmpeg -ss 10.0 -t 5.0 -i raw.avi -f gif -filter_complex &quot;[0:v] fps=12,scal
 <pre><code>sudo apt-get install lld
 </code></pre>
 <p>Stick this in ~/.cargo/config:</p>
-<pre><code>[target.x86_64-unknown-linux-gnu]                                                                   
-rustflags = [                                                                                       
-    &quot;-C&quot;, &quot;link-arg=-fuse-ld=lld&quot;,                                                    
+<pre><code>[target.x86_64-unknown-linux-gnu]
+rustflags = [
+    &quot;-C&quot;, &quot;link-arg=-fuse-ld=lld&quot;,
 ]
 </code></pre>
 <h2><a class="header" href="#git" id="git">git</a></h2>
@@ -221,7 +217,8 @@ git merge upstream/master
 git diff upstream/master
 </code></pre>
 <h2><a class="header" href="#refactoring" id="refactoring">Refactoring</a></h2>
-<p>perl -pi -e 's/WrappedComposite::text_button(ctx, (.+?), (.+?))/Btn::text_fg(\1).build_def(ctx, \2)/' <code>find|grep rs|xargs</code></p>
+<pre><code>perl -pi -e 's/WrappedComposite::text_button\(ctx, (.+?), (.+?)\)/Btn::text_fg(\1).build_def\(ctx, \2\)/' `find|grep rs|xargs`
+</code></pre>
 <h2><a class="header" href="#stack-overflow" id="stack-overflow">Stack overflow</a></h2>
 <p>rust-gdb --args ../target/release/game --dev</p>
 <h2><a class="header" href="#drawing-diagrams" id="drawing-diagrams">Drawing diagrams</a></h2>
