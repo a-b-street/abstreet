@@ -8,7 +8,9 @@
 - [Case studies](case_studies/README.md)
   - [Lake Washington Blvd Stay Healthy Street](case_studies/lake_wash.md)
   - [West Seattle mitigations](case_studies/west_seattle.md)
+
 ---
+
 - [Developer guide](dev/README.md)
   - [Misc developer tricks](dev/misc_tricks.md)
   - [API](dev/api.md)
@@ -24,7 +26,9 @@
   - [Travel demand](trafficsim/travel_demand.md)
   - [Gridlock](trafficsim/gridlock.md)
   - [Multi-modal trips](trafficsim/trips.md)
+
 ---
+
 - [Project](project/README.md)
   - [Roadmap](project/roadmap.md)
   - [Motivations](project/motivations.md)

@@ -31,10 +31,10 @@ touch if you need these fixed soon or want to help.
 ### How to get .osm files
 
 If the area is small enough, try the "export" tool on
-https://www.openstreetmap.org. You can download larger areas from
-https://download.bbbike.org/ or http://download.geofabrik.de/index.html, then
-clip them to a smaller area. You can draw a clipping polygon using
-http://geojson.io or https://geoman.io/geojson-editor. You have to turn the
+<https://www.openstreetmap.org>. You can download larger areas from
+<https://download.bbbike.org/> or <http://download.geofabrik.de/index.html>,
+then clip them to a smaller area. You can draw a clipping polygon using
+<http://geojson.io> or <https://geoman.io/geojson-editor>. You have to turn the
 coordinates from that polygon into the
 [Osmosis format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format).
 The `data/geojson_to_osmosis.py` script can help with the formatting.
@@ -90,6 +90,6 @@ You may notice issues with OSM data while using A/B Street. Some of these are
 bugs in A/B Street itself, but others are incorrectly tagged lanes. Some
 resources for fixing OSM:
 
-- https://learnosm.org
-- https://wiki.openstreetmap.org/wiki/StreetComplete
-- https://dabreegster.github.io/abstreet/map_parking.html
+- <https://learnosm.org>
+- <https://wiki.openstreetmap.org/wiki/StreetComplete>
+- <https://dabreegster.github.io/abstreet/map_parking.html>

@@ -119,10 +119,10 @@ modify the mode for some people (change 50% of all driving trips between 7 and
 
 ## Research
 
-- https://github.com/replicahq/doppelganger
-- https://github.com/stasmix/popsynth
-- https://zephyrtransport.github.io/zephyr-directory/projects/
-- https://activitysim.github.io
-- https://github.com/BayAreaMetro/travel-model-one
-- https://github.com/RSGInc/DaySim
-- https://github.com/arup-group/pam
+- <https://github.com/replicahq/doppelganger>
+- <https://github.com/stasmix/popsynth>
+- <https://zephyrtransport.github.io/zephyr-directory/projects/>
+- <https://activitysim.github.io>
+- <https://github.com/BayAreaMetro/travel-model-one>
+- <https://github.com/RSGInc/DaySim>
+- <https://github.com/arup-group/pam>
