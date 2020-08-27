@@ -1,5 +1,5 @@
-use crate::utils::{download, osmconvert};
 use crate::configuration::ImporterConfiguration;
+use crate::utils::{download, osmconvert};
 
 fn input(config: &ImporterConfiguration) {
     download(

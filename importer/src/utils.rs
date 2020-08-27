@@ -1,7 +1,7 @@
+use crate::configuration::ImporterConfiguration;
 use abstutil::Timer;
 use std::path::Path;
 use std::process::Command;
-use crate::configuration::ImporterConfiguration;
 
 // If the output file doesn't already exist, downloads the URL into that location. Automatically
 // uncompresses .zip and .gz files.
@@ -91,7 +91,12 @@ pub fn download_kml(
 
 // Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.
 // Skips if the output exists.
-pub fn osmconvert(input: &str, clipping_polygon: String, output: String, config: &ImporterConfiguration) {
+pub fn osmconvert(
+    input: &str,
+    clipping_polygon: String,
+    output: String,
+    config: &ImporterConfiguration,
+) {
     let input = abstutil::path(input);
     let clipping_polygon = abstutil::path(clipping_polygon);
     let output = abstutil::path(output);

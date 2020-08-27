@@ -1,5 +1,5 @@
-use crate::utils::{download, download_kml, osmconvert};
 use crate::configuration::ImporterConfiguration;
+use crate::utils::{download, download_kml, osmconvert};
 use abstutil::MultiMap;
 use geom::{Duration, Time};
 use map_model::{BusRouteID, Map};

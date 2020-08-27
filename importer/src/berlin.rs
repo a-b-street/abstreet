@@ -1,5 +1,5 @@
-use crate::utils::{download, download_kml, osmconvert};
 use crate::configuration::ImporterConfiguration;
+use crate::utils::{download, download_kml, osmconvert};
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Polygon, Ring};
 use kml::ExtraShapes;

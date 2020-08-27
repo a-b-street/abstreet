@@ -1,4 +1,4 @@
-use serde::{Deserialize};
+use serde::Deserialize;
 use serde_json;
 
 #[derive(Deserialize)]
@@ -24,7 +24,6 @@ impl Default for ImporterConfiguration {
 }
 
 pub fn load_configuration() -> ImporterConfiguration {
-
     // Safe to assume that {} can be parsed given struct-level Default implementation.
     let default = serde_json::from_str("{}").unwrap();
 

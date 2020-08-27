@@ -8,7 +8,8 @@ mod soundcast;
 mod tel_aviv;
 mod utils;
 mod xian;
-use configuration::{ImporterConfiguration, load_configuration};
+
+use configuration::{load_configuration, ImporterConfiguration};
 use dependencies::are_dependencies_callable;
 
 // TODO Might be cleaner to express as a dependency graph?
@@ -72,7 +73,9 @@ fn main() {
 
     if job.osm_to_raw {
         if !are_dependencies_callable(&config) {
-            println!("One or more dependencies aren't callable. Add them to the path and try again.");
+            println!(
+                "One or more dependencies aren't callable. Add them to the path and try again."
+            );
             std::process::exit(1);
         }
     }
@@ -102,7 +105,7 @@ fn main() {
 
         #[cfg(feature = "scenarios")]
         {
-            let (popdat, huge_map) = seattle::ensure_popdat_exists(&mut timer);
+            let (popdat, huge_map) = seattle::ensure_popdat_exists(&mut timer, &config);
             (Some(popdat), Some(huge_map))
         }
 
