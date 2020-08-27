@@ -84,17 +84,7 @@ impl LaneEditor {
             Widget::custom_row(row).centered(),
             change_speed_limit(ctx, parent.speed_limit),
             Btn::text_fg("Change access restrictions").build_def(ctx, hotkey(Key::A)),
-            Widget::custom_row(vec![
-                Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
-                // TODO Handle reverting speed limit too...
-                // TODO Woops, we need an easy way to figure this out
-                if false {
-                    Btn::text_fg("Revert").build_def(ctx, hotkey(Key::R))
-                } else {
-                    Btn::text_fg("Revert").inactive(ctx)
-                },
-            ])
-            .centered(),
+            Btn::text_bg2("Finish").build_def(ctx, hotkey(Key::Escape)),
         ];
 
         let composite = Composite::new(Widget::col(col))
@@ -151,9 +141,6 @@ impl State for LaneEditor {
                 x => {
                     let map = &mut app.primary.map;
                     let result = match x {
-                        "Revert" => {
-                            panic!("need to implement this again");
-                        }
                         "reverse lane direction" => try_reverse(ctx, map, self.l),
                         "convert to a driving lane" => {
                             try_change_lt(ctx, map, self.l, LaneType::Driving)

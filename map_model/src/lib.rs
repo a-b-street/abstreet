@@ -10,7 +10,9 @@ pub mod raw;
 mod traversable;
 
 pub use crate::city::City;
-pub use crate::edits::{EditCmd, EditEffects, EditIntersection, MapEdits, PermanentMapEdits};
+pub use crate::edits::{
+    EditCmd, EditEffects, EditIntersection, EditRoad, MapEdits, PermanentMapEdits,
+};
 pub use crate::map::MapConfig;
 pub use crate::objects::area::{Area, AreaID, AreaType};
 pub use crate::objects::building::{

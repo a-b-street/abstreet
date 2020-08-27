@@ -8,7 +8,7 @@ use ezgui::{
     Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Distance, Time};
-use map_model::LaneType;
+use map_model::{EditRoad, LaneType};
 use sim::AgentType;
 
 pub struct BikeNetwork {
@@ -222,10 +222,22 @@ impl Static {
         );
 
         let edits = app.primary.map.get_edits();
-        // TODO Actually this loses tons of information; we really should highlight just the
-        // changed lanes
         for r in &edits.changed_roads {
-            colorer.add_r(*r, "modified road/intersection");
+            let r = app.primary.map.get_r(*r);
+            let orig = EditRoad::get_orig_from_osm(r);
+            // What exactly changed?
+            if r.speed_limit != orig.speed_limit
+                || r.access_restrictions != orig.access_restrictions
+            {
+                colorer.add_r(r.id, "modified road/intersection");
+            } else {
+                let lanes = r.lanes_ltr();
+                for (idx, (lt, dir)) in orig.lanes_ltr.into_iter().enumerate() {
+                    if lanes[idx].1 != dir || lanes[idx].2 != lt {
+                        colorer.add_l(lanes[idx].0, "modified road/intersection");
+                    }
+                }
+            }
         }
         for i in edits.original_intersections.keys() {
             colorer.add_i(*i, "modified lane/intersection");

@@ -46,7 +46,7 @@ pub struct EditRoad {
 }
 
 impl EditRoad {
-    fn get_orig_from_osm(r: &Road) -> EditRoad {
+    pub fn get_orig_from_osm(r: &Road) -> EditRoad {
         EditRoad {
             lanes_ltr: get_lane_specs_ltr(&r.osm_tags)
                 .into_iter()
