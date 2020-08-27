@@ -2,7 +2,7 @@ use crate::make::traffic_signals::{brute_force, get_possible_policies};
 use crate::raw::OriginalRoad;
 use crate::{
     osm, CompressedTurnGroupID, DirectedRoadID, Direction, IntersectionID, Map, TurnGroup,
-    TurnGroupID, TurnID, TurnPriority, TurnType,
+    TurnGroupID, TurnID, TurnPriority, TurnType, YELLOW_DURATION,
 };
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
 use geom::Duration;
@@ -341,7 +341,7 @@ impl ControlTrafficSignal {
             phases,
             control_type: TrafficControlType::Actuated,
             offset: Duration::seconds(raw.offset_seconds as f64),
-            yellow_duration: Duration::seconds(5.0),
+            yellow_duration: YELLOW_DURATION,
             turn_groups: TurnGroup::for_i(id, map).unwrap(),
         }
         .validate()
