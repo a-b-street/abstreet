@@ -4,16 +4,16 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::checkbox_per_mode;
 use crate::render::DrawOptions;
 use abstutil::{prettyprint_usize, Counter, MultiMap};
-use ezgui::{
-    hotkey, AreaSlider, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, VerticalAlignment,
-    Widget,
-};
 use geom::{Distance, PolyLine, Polygon, Time};
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use maplit::hashset;
 use sim::{DontDrawAgents, TripEndpoint, TripInfo, TripMode};
 use std::collections::{BTreeSet, HashMap, HashSet};
+use widgetry::{
+    hotkey, AreaSlider, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, VerticalAlignment,
+    Widget,
+};
 
 pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,

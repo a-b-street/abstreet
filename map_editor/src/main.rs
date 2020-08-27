@@ -2,14 +2,14 @@ mod model;
 mod world;
 
 use abstutil::{CmdArgs, Timer};
-use ezgui::{
-    hotkey, Btn, Canvas, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, ScreenPt, Text, VerticalAlignment, Widget, GUI,
-};
 use geom::{Distance, Line, Polygon};
 use map_model::osm;
 use map_model::raw::OriginalRoad;
 use model::{Model, ID};
+use widgetry::{
+    hotkey, Btn, Canvas, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, ScreenPt, Text, VerticalAlignment, Widget, GUI,
+};
 
 struct UI {
     model: Model,
@@ -366,7 +366,7 @@ fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
 }
 
 fn main() {
-    ezgui::run(ezgui::Settings::new("Synthetic map editor"), |ctx| {
+    widgetry::run(widgetry::Settings::new("Synthetic map editor"), |ctx| {
         UI::new(ctx)
     });
 }

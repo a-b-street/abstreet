@@ -69,8 +69,8 @@ for building those maps -- see below.
 
 ## Building map data
 
-You can skip this section if you're just touching code in `game`, `ezgui`, and
-`sim`.
+You can skip this section if you're just touching code in `game`, `widgetry`,
+and `sim`.
 
 To run all pieces of the importer, you'll need some extra dependencies:
 
@@ -130,7 +130,8 @@ Traffic simulation:
 Graphics:
 
 - `game`: the GUI and main gameplay
-- `ezgui`: a GUI and 2D OpenGL rendering library, using glium + winit + glutin
+- `widgetry`: a GUI and 2D OpenGL rendering library, using glium + winit +
+  glutin
 
 Common utilities:
 

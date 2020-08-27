@@ -2,13 +2,13 @@ use crate::app::App;
 use crate::edit::select::RoadSelector;
 use crate::edit::{apply_map_edits, change_speed_limit, try_change_lt};
 use crate::game::{PopupMsg, State, Transition};
-use ezgui::{
-    hotkey, Btn, Choice, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, TextExt, VerticalAlignment, Widget,
-};
 use geom::Speed;
 use map_model::{LaneType, RoadID};
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, Btn, Choice, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct BulkSelect {
     composite: Composite,

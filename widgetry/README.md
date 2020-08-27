@@ -1,4 +1,6 @@
-# ezgui notes
+# widgetry notes
+
+Rustwarts School of Glitchcraft and Widgetry.
 
 This is a GUI + 2D drawing + data viz library I've built up for A/B Street. I'm
 considering cleaning up the API surface and making it a proper standalone crate.
@@ -9,7 +11,7 @@ considering cleaning up the API surface and making it a proper standalone crate.
 
 ```
 git clone https://github.com/dabreegster/abstreet.git
-cd abstreet/ezgui
+cd abstreet/widgetry
 cargo run --example demo
 
 # Or for web
@@ -97,17 +99,6 @@ For the moment, I don't have enough time to get something else on-par with this
 library and port A/B Street over, so I'll continue to invest in this library. If
 there's lots of interest in other people using this library, I'll invest much
 more and make it a real contender.
-
-## Naming
-
-I never wanted to call this "ezgui." :(
-
-- Rustwarts School of Glitchcraft and Widgetry...
-- coldbrew (stronger than iced coffee? ;) and what generally powers me )
-- allegro (where most pivotal meetings with my UX designer have happened, but
-  this is also the name of some library)
-- coco (for the geom library)
-- abstgui (too obvious)
 
 ## Future work
 

@@ -1,10 +1,10 @@
 use crate::app::App;
 use crate::game::{State, Transition};
-use ezgui::{
+use geom::{Polygon, Pt2D, Triangle};
+use widgetry::{
     hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Slider, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Polygon, Pt2D, Triangle};
 
 pub struct PolygonDebugger {
     composite: Composite,

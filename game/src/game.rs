@@ -3,13 +3,13 @@ use crate::options::Options;
 use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
-use ezgui::{
+use geom::Polygon;
+use map_model::PermanentMapEdits;
+use widgetry::{
     hotkey, hotkeys, Btn, Canvas, Choice, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Menu, Outcome, ScreenRectangle, Text, VerticalAlignment,
     Widget, GUI,
 };
-use geom::Polygon;
-use map_model::PermanentMapEdits;
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
 // top-level game states.

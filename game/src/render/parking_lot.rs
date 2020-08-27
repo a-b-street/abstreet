@@ -2,10 +2,10 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Drawable, EventCtx, GeomBatch, GfxCtx};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH};
 use std::cell::RefCell;
+use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
 
 pub struct DrawParkingLot {
     pub id: ParkingLotID,

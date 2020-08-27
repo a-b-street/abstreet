@@ -2,12 +2,12 @@ use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::nice_map_name;
 use crate::render::DrawArea;
-use ezgui::{
+use geom::{Distance, Polygon, Pt2D};
+use map_model::City;
+use widgetry::{
     hotkey, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenPt, Text,
     Widget,
 };
-use geom::{Distance, Polygon, Pt2D};
-use map_model::City;
 
 pub struct CityPicker {
     composite: Composite,

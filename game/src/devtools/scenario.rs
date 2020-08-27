@@ -3,11 +3,11 @@ use crate::common::{ColorDiscrete, CommonState};
 use crate::devtools::destinations::PopularDestinations;
 use crate::game::{State, Transition};
 use abstutil::prettyprint_usize;
-use ezgui::{
+use sim::Scenario;
+use widgetry::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Text, VerticalAlignment, Widget,
 };
-use sim::Scenario;
 
 pub struct ScenarioManager {
     composite: Composite,

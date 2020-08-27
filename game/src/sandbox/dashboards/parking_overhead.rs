@@ -5,11 +5,11 @@ use crate::sandbox::dashboards::trip_table::{make_table, preview_trip};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
-use ezgui::{
-    Btn, Checkbox, Composite, EventCtx, Filler, GfxCtx, Line, Outcome, Text, TextExt, Widget,
-};
 use geom::Duration;
 use sim::{TripEndpoint, TripID, TripPhaseType};
+use widgetry::{
+    Btn, Checkbox, Composite, EventCtx, Filler, GfxCtx, Line, Outcome, Text, TextExt, Widget,
+};
 
 const ROWS: usize = 20;
 

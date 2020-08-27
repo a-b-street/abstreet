@@ -7,13 +7,13 @@ use crate::info::{OpenTrip, Tab};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
-use ezgui::{
-    Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome,
-    RewriteColor, ScreenPt, Text, TextExt, Widget,
-};
 use geom::{Distance, Duration, Polygon, Pt2D, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use std::collections::{BTreeSet, HashMap};
+use widgetry::{
+    Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome,
+    RewriteColor, ScreenPt, Text, TextExt, Widget,
+};
 
 const ROWS: usize = 8;
 

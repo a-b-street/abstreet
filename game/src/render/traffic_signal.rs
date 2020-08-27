@@ -2,10 +2,10 @@ use crate::app::App;
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
-use ezgui::{Color, GeomBatch, Prerender, RewriteColor};
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority, SIDEWALK_THICKNESS};
 use std::collections::BTreeSet;
+use widgetry::{Color, GeomBatch, Prerender, RewriteColor};
 
 // Only draws a box when time_left is present
 pub fn draw_signal_phase(

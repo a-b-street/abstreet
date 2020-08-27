@@ -1,11 +1,11 @@
 use crate::app::App;
 use crate::common::ColorDiscrete;
 use crate::layer::{Layer, LayerOutcome};
-use ezgui::{
+use map_model::{PathConstraints, PathStep};
+use widgetry::{
     hotkey, Btn, Checkbox, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
     Outcome, TextExt, VerticalAlignment, Widget,
 };
-use map_model::{PathConstraints, PathStep};
 
 pub struct TransitNetwork {
     composite: Composite,

@@ -1,15 +1,15 @@
 use crate::app::App;
 use crate::helpers::{color_for_trip_phase, ID};
 use crate::info::{make_table, Details, Tab};
-use ezgui::{
-    Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
-    TextExt, Widget,
-};
 use geom::{ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
 use maplit::btreemap;
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use std::collections::BTreeMap;
+use widgetry::{
+    Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
+    TextExt, Widget,
+};
 
 #[derive(Clone)]
 pub struct OpenTrip {

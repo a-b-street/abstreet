@@ -10,11 +10,11 @@ use crate::common::CityPicker;
 use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
 use crate::helpers::nice_map_name;
 use abstutil::Timer;
-use ezgui::{
+use geom::{LonLat, Percent};
+use widgetry::{
     hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     TextExt, VerticalAlignment, Widget,
 };
-use geom::{LonLat, Percent};
 
 pub struct DevToolsMode {
     composite: Composite,

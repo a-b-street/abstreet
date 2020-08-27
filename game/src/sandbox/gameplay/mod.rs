@@ -16,13 +16,13 @@ use crate::helpers::ID;
 use crate::pregame::MainMenu;
 use crate::sandbox::{SandboxControls, SandboxMode};
 use abstutil::Timer;
-use ezgui::{
-    lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, TextExt, Widget,
-};
 use geom::Duration;
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use rand_xorshift::XorShiftRng;
 use sim::{Analytics, OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
+use widgetry::{
+    lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, TextExt, Widget,
+};
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub enum GameplayMode {

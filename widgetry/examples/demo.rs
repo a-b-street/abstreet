@@ -5,20 +5,22 @@
 // > cargo web start --target wasm32-unknown-unknown --no-default-features \
 // --features wasm-backend --example demo
 
-use ezgui::{
-    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, Text, TextExt,
-    UpdateType, VerticalAlignment, Widget, GUI,
-};
 use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
+use widgetry::{
+    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, Text, TextExt,
+    UpdateType, VerticalAlignment, Widget, GUI,
+};
 
 fn main() {
     // Control flow surrendered here. App implements State, which has an event handler and a draw
     // callback.
-    ezgui::run(ezgui::Settings::new("ezgui demo"), |ctx| App::new(ctx));
+    widgetry::run(widgetry::Settings::new("widgetry demo"), |ctx| {
+        App::new(ctx)
+    });
 }
 
 struct App {
@@ -249,7 +251,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 fn make_controls(ctx: &mut EventCtx) -> Composite {
     Composite::new(Widget::col(vec![
         Text::from_multiline(vec![
-            Line("ezgui demo").small_heading(),
+            Line("widgetry demo").small_heading(),
             Line("Click and drag to pan, use touchpad or scroll wheel to zoom"),
         ])
         .draw(ctx),

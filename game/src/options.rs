@@ -1,11 +1,11 @@
 use crate::app::App;
 use crate::colors::ColorSchemeChoice;
 use crate::game::{State, Transition};
-use ezgui::{
+use geom::Duration;
+use widgetry::{
     hotkey, Btn, Checkbox, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Spinner,
     TextExt, Widget,
 };
-use geom::Duration;
 
 // TODO SimOptions stuff too
 #[derive(Clone)]

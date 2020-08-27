@@ -6,14 +6,14 @@ use crate::edit::select::RoadSelector;
 use crate::game::{State, Transition};
 use crate::helpers::{checkbox_per_mode, intersections_from_roads};
 use enumset::EnumSet;
-use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 use map_model::{AccessRestrictions, PathConstraints, RoadID};
 use maplit::btreeset;
 use sim::TripMode;
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct ZoneEditor {
     composite: Composite,

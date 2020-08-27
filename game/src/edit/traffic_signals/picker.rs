@@ -4,12 +4,12 @@ use crate::edit::TrafficSignalEditor;
 use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::GameplayMode;
-use ezgui::{
+use map_model::IntersectionID;
+use std::collections::BTreeSet;
+use widgetry::{
     hotkey, hotkeys, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, VerticalAlignment, Widget,
 };
-use map_model::IntersectionID;
-use std::collections::BTreeSet;
 
 pub struct SignalPicker {
     members: BTreeSet<IntersectionID>,

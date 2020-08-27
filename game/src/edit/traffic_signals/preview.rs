@@ -2,13 +2,13 @@ use crate::app::App;
 use crate::game::{ChooseSomething, State, Transition};
 use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 use abstutil::Timer;
-use ezgui::{
-    hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, TextExt,
-    UpdateType, VerticalAlignment, Widget,
-};
 use geom::Duration;
 use map_model::IntersectionID;
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, TextExt,
+    UpdateType, VerticalAlignment, Widget,
+};
 
 // TODO Show diagram, auto-sync the phase.
 // TODO Auto quit after things are gone?

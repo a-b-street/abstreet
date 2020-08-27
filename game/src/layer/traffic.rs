@@ -2,14 +2,14 @@ use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork, ColorScale, DivergingScale};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
-use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{Distance, Duration, Polygon, Time};
 use map_model::{IntersectionID, Map, Traversable};
 use maplit::btreeset;
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct Backpressure {
     time: Time,

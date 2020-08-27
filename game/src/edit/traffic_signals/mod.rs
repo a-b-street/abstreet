@@ -10,17 +10,17 @@ use crate::options::TrafficSignalStyle;
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::sandbox::GameplayMode;
 use abstutil::Timer;
-use ezgui::{
-    hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Spinner, Text, TextExt,
-    VerticalAlignment, Widget,
-};
 use geom::{ArrowCap, Distance, Duration, Line, Polygon, Pt2D};
 use map_model::{
     ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase, PhaseType, TurnGroup,
     TurnGroupID, TurnPriority,
 };
 use std::collections::{BTreeSet, HashMap, VecDeque};
+use widgetry::{
+    hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Spinner, Text, TextExt,
+    VerticalAlignment, Widget,
+};
 
 // Welcome to one of the most overwhelmingly complicated parts of the UI...
 

@@ -4,14 +4,14 @@ use crate::edit::ClusterTrafficSignalEditor;
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
-use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::ArrowCap;
 use map_model::{IntersectionCluster, IntersectionID};
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct UberTurnPicker {
     members: BTreeSet<IntersectionID>,

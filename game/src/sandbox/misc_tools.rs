@@ -2,13 +2,13 @@ use crate::app::{App, ShowEverything};
 use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
-use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{ArrowCap, Distance, Time};
 use map_model::{LaneID, TurnType};
 use sim::{AgentID, DontDrawAgents};
+use widgetry::{
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct RoutePreview {
     preview: Option<(AgentID, Time, Drawable)>,

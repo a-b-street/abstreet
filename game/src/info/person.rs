@@ -1,9 +1,5 @@
 use crate::app::App;
 use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, OpenTrip, Tab};
-use ezgui::{
-    hotkey, Btn, Color, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan,
-    Widget,
-};
 use geom::{Duration, Time};
 use map_model::Map;
 use rand::seq::SliceRandom;
@@ -14,6 +10,10 @@ use sim::{
     TripMode, TripResult, VehicleType,
 };
 use std::collections::BTreeMap;
+use widgetry::{
+    hotkey, Btn, Color, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan,
+    Widget,
+};
 
 pub fn trips(
     ctx: &mut EventCtx,

@@ -7,7 +7,7 @@ use webgl_stdweb::WebGL2RenderingContext;
 use winit::platform::web::WindowExtStdweb;
 
 pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
-    stdweb::console!(log, "Setting up ezgui");
+    stdweb::console!(log, "Setting up widgetry");
 
     // This doesn't seem to work for the shader panics here, but later it does work. Huh.
     std::panic::set_hook(Box::new(|info| {

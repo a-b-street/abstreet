@@ -2,9 +2,9 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Drawable, EventCtx, GeomBatch, GfxCtx};
 use geom::{Angle, Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BusStop, BusStopID, Map};
+use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
 
 const RADIUS: Distance = Distance::const_meters(1.0);
 

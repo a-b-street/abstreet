@@ -7,10 +7,6 @@ use crate::helpers::open_browser;
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use abstutil::Timer;
-use ezgui::{
-    hotkey, hotkeys, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, RewriteColor,
-    Text, UpdateType, Widget,
-};
 use geom::{Duration, Line, Percent, Pt2D, Speed};
 use instant::Instant;
 use map_model::PermanentMapEdits;
@@ -18,6 +14,10 @@ use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use sim::ScenarioGenerator;
 use std::collections::HashMap;
+use widgetry::{
+    hotkey, hotkeys, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, RewriteColor,
+    Text, UpdateType, Widget,
+};
 
 pub struct TitleScreen {
     composite: Composite,
@@ -530,7 +530,7 @@ impl Screensaver {
 #[cfg(not(target_arch = "wasm32"))]
 #[allow(unused)]
 mod built_info {
-    use ezgui::{Color, Line, Text};
+    use widgetry::{Color, Line, Text};
 
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 
@@ -551,7 +551,7 @@ mod built_info {
 
 #[cfg(target_arch = "wasm32")]
 mod built_info {
-    pub fn time() -> ezgui::Text {
-        ezgui::Text::new()
+    pub fn time() -> widgetry::Text {
+        widgetry::Text::new()
     }
 }

@@ -25,16 +25,16 @@ use crate::options::OptionsPanel;
 use crate::render::DrawMap;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
-use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment,
-    Key, Line, Menu, Outcome, PersistentSplit, RewriteColor, Text, TextExt, VerticalAlignment,
-    Widget,
-};
 use geom::Speed;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use maplit::btreeset;
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment,
+    Key, Line, Menu, Outcome, PersistentSplit, RewriteColor, Text, TextExt, VerticalAlignment,
+    Widget,
+};
 
 pub struct EditMode {
     tool_panel: Composite,
@@ -410,7 +410,7 @@ impl LoadEdits {
                     .collect(),
             ),
         ];
-        // ezgui can't toggle keyboard focus between two menus, so just use buttons for the less
+        // widgetry can't toggle keyboard focus between two menus, so just use buttons for the less
         // common use case.
         let mut proposals = vec![Line("Community proposals").small_heading().draw(ctx)];
         // Up-front filter out proposals that definitely don't fit the current map

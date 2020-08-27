@@ -7,12 +7,12 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{SandboxControls, SandboxMode};
-use ezgui::{
+use geom::{Duration, Time};
+use map_model::IntersectionID;
+use widgetry::{
     Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
     Text, VerticalAlignment, Widget,
 };
-use geom::{Duration, Time};
-use map_model::IntersectionID;
 
 const THRESHOLD: Duration = Duration::const_seconds(20.0 * 60.0);
 // TODO Avoid hack entirely, or tune appearance

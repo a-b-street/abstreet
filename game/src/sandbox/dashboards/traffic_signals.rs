@@ -3,14 +3,14 @@ use crate::common::CommonState;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::DrawOptions;
 use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
-use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{ArrowCap, Distance, Duration, Time};
 use map_model::{IntersectionID, PathStep, TurnGroupID, TurnType};
 use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::HashMap;
+use widgetry::{
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct TrafficSignalDemand {
     composite: Composite,

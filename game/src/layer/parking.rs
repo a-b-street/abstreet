@@ -2,14 +2,14 @@ use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{
-    hotkey, Btn, Checkbox, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::Time;
 use map_model::{BuildingID, Map, OffstreetParking, ParkingLotID, RoadID};
 use sim::{ParkingSpot, VehicleType};
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, Btn, Checkbox, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct Occupancy {
     time: Time,

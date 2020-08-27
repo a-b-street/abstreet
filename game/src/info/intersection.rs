@@ -4,14 +4,14 @@ use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab}
 use crate::options::TrafficSignalStyle;
 use crate::render::draw_signal_phase;
 use abstutil::prettyprint_usize;
-use ezgui::{
-    Btn, Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
-    ScatterPlot, Series, Text, Widget,
-};
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Time};
 use map_model::{IntersectionID, IntersectionType, PhaseType};
 use sim::AgentType;
 use std::collections::{BTreeMap, BTreeSet};
+use widgetry::{
+    Btn, Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
+    ScatterPlot, Series, Text, Widget,
+};
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::IntersectionInfo(id));

@@ -3,14 +3,14 @@ use crate::colors::ColorScheme;
 use crate::game::{ChooseSomething, State, Transition};
 use aabb_quadtree::QuadTree;
 use abstutil::{prettyprint_usize, Parallelism};
-use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::ExtraShapes;
 use map_model::BuildingID;
 use std::collections::{BTreeMap, HashMap, HashSet};
+use widgetry::{
+    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct ViewKML {
     composite: Composite,

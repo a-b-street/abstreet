@@ -1,12 +1,12 @@
 use crate::app::App;
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition};
-use ezgui::{
+use geom::{Duration, Time};
+use map_model::{BusRouteID, EditCmd};
+use widgetry::{
     hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Spinner,
     TextExt, VerticalAlignment, Widget,
 };
-use geom::{Duration, Time};
-use map_model::{BusRouteID, EditCmd};
 
 pub struct RouteEditor {
     composite: Composite,

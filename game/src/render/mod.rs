@@ -23,10 +23,10 @@ pub use crate::render::map::{AgentCache, DrawMap, UnzoomedAgents};
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::traffic_signal::draw_signal_phase;
 pub use crate::render::turn::{DrawTurnGroup, DrawUberTurnGroup};
-use ezgui::{GfxCtx, Prerender};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, VehicleType};
+use widgetry::{GfxCtx, Prerender};
 
 pub const BIG_ARROW_THICKNESS: Distance = Distance::const_meters(0.5);
 

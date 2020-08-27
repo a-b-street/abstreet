@@ -1,9 +1,9 @@
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{Btn, EventCtx, Line, LinePlot, PlotOptions, Series, TextExt, Widget};
 use map_model::ParkingLotID;
 use std::collections::HashSet;
+use widgetry::{Btn, EventCtx, Line, LinePlot, PlotOptions, Series, TextExt, Widget};
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLotID) -> Vec<Widget> {
     let mut rows = header(ctx, details, id, Tab::ParkingLot(id));

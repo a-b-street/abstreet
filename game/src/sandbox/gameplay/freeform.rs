@@ -7,10 +7,6 @@ use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
 use abstutil::Timer;
-use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{Distance, Polygon};
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
 use rand::seq::SliceRandom;
@@ -18,6 +14,10 @@ use rand::Rng;
 use sim::{
     DontDrawAgents, DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot,
     SpawnTrip, TripEndpoint, TripMode, TripSpec,
+};
+use widgetry::{
+    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 
 // TODO Maybe remember what things were spawned, offer to replay this later

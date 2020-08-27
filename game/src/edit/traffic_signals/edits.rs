@@ -4,13 +4,13 @@ use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
 use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
 use crate::sandbox::GameplayMode;
 use abstutil::Timer;
-use ezgui::{
-    hotkey, Btn, Checkbox, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Spinner,
-    TextExt, Widget,
-};
 use geom::Duration;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType,
+};
+use widgetry::{
+    hotkey, Btn, Checkbox, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Spinner,
+    TextExt, Widget,
 };
 
 pub struct ChangeDuration {

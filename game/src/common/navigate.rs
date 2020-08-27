@@ -2,12 +2,12 @@ use crate::app::App;
 use crate::common::Warping;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
-use ezgui::{
+use map_model::RoadID;
+use std::collections::HashSet;
+use widgetry::{
     hotkey, Autocomplete, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line,
     Outcome, Text, Widget,
 };
-use map_model::RoadID;
-use std::collections::HashSet;
 
 // TODO Canonicalize names, handling abbreviations like east/e and street/st
 pub struct Navigator {

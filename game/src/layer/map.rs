@@ -3,13 +3,13 @@ use crate::common::{ColorDiscrete, ColorLegend, ColorNetwork};
 use crate::helpers::amenity_type;
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
-use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{Distance, Time};
 use map_model::{EditRoad, LaneType};
 use sim::AgentType;
+use widgetry::{
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct BikeNetwork {
     composite: Composite,

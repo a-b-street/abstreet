@@ -1,12 +1,12 @@
 use crate::app::App;
 use crate::common::ColorDiscrete;
 use crate::game::{State, Transition};
-use ezgui::{
+use map_model::{connectivity, LaneID, Map, PathConstraints};
+use std::collections::HashSet;
+use widgetry::{
     hotkey, Btn, Choice, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, TextExt, VerticalAlignment, Widget,
 };
-use map_model::{connectivity, LaneID, Map, PathConstraints};
-use std::collections::HashSet;
 
 pub struct Floodfiller {
     composite: Composite,

@@ -13,11 +13,6 @@ use crate::edit::{EditMode, RouteEditor};
 use crate::game::Transition;
 use crate::helpers::{color_for_agent_type, hotkey_btn, open_browser, ID};
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
-use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, TextExt,
-    VerticalAlignment, Widget,
-};
 use geom::{Circle, Distance, Time};
 use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
 use sim::{
@@ -26,6 +21,11 @@ use sim::{
 };
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
+use widgetry::{
+    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, TextExt,
+    VerticalAlignment, Widget,
+};
 
 pub struct InfoPanel {
     tab: Tab,

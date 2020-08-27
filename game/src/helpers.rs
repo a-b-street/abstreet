@@ -1,9 +1,9 @@
 use crate::app::{App, PerMap};
-use ezgui::{hotkey, Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
 use geom::{Duration, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use sim::{AgentID, AgentType, CarID, PedestrianID, TripMode, TripPhaseType};
 use std::collections::BTreeSet;
+use widgetry::{hotkey, Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
 
 // Aside from Road and Trip, everything here can actually be selected.
 #[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]

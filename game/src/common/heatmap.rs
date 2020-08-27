@@ -1,6 +1,6 @@
 use crate::common::{ColorLegend, ColorScale};
-use ezgui::{Checkbox, Choice, Color, Composite, EventCtx, GeomBatch, Spinner, TextExt, Widget};
 use geom::{Bounds, Histogram, Polygon, Pt2D, Statistic};
+use widgetry::{Checkbox, Choice, Color, Composite, EventCtx, GeomBatch, Spinner, TextExt, Widget};
 
 const NEIGHBORS: [[isize; 2]; 9] = [
     [0, 0],

@@ -1,10 +1,10 @@
 use crate::app::App;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Text};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{Map, Road, RoadID};
 use std::cell::RefCell;
+use widgetry::{Drawable, GeomBatch, GfxCtx, Line, Text};
 
 pub struct DrawRoad {
     pub id: RoadID,

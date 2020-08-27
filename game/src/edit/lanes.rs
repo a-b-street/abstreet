@@ -9,11 +9,11 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::Renderable;
 use crate::sandbox::GameplayMode;
-use ezgui::{
+use map_model::{LaneID, LaneType};
+use widgetry::{
     hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome,
     RewriteColor, TextExt, VerticalAlignment, Widget,
 };
-use map_model::{LaneID, LaneType};
 
 pub struct LaneEditor {
     l: LaneID,

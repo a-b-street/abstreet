@@ -1,12 +1,12 @@
 use crate::app::App;
 use crate::common::heatmap::Grid;
 use crate::game::{State, Transition};
-use ezgui::{
+use geom::{Distance, Polygon};
+use map_model::{connectivity, BuildingID};
+use widgetry::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, VerticalAlignment, Widget,
 };
-use geom::{Distance, Polygon};
-use map_model::{connectivity, BuildingID};
 
 // TODO Move cursor live
 pub struct IsochroneViewer {

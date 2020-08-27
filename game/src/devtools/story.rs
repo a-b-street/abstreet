@@ -2,15 +2,15 @@ use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::game::{ChooseSomething, DrawBaselayer, PromptInput, State, Transition};
 use crate::render::DrawOptions;
-use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, VerticalAlignment, Widget,
-};
 use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use serde::{Deserialize, Serialize};
 use sim::DontDrawAgents;
+use widgetry::{
+    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, VerticalAlignment, Widget,
+};
 
-// TODO This is a really great example of things that ezgui ought to make easier. Maybe a radio
+// TODO This is a really great example of things that widgetry ought to make easier. Maybe a radio
 // button-ish thing to start?
 
 // Good inspiration: http://sfo-assess.dha.io/, https://github.com/mapbox/storytelling,
@@ -514,7 +514,7 @@ impl Marker {
     }
 }
 
-// TODO This should totally be an ezgui tool
+// TODO This should totally be an widgetry tool
 // TODO Simplify points
 struct Lasso {
     pl: PolyLine,

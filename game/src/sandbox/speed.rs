@@ -5,14 +5,14 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use abstutil::prettyprint_usize;
-use ezgui::{
+use geom::{Duration, Polygon, Pt2D, Ring, Time};
+use instant::Instant;
+use sim::AlertLocation;
+use widgetry::{
     hotkey, AreaSlider, Btn, Checkbox, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Text, UpdateType,
     VerticalAlignment, Widget,
 };
-use geom::{Duration, Polygon, Pt2D, Ring, Time};
-use instant::Instant;
-use sim::AlertLocation;
 
 pub struct SpeedControls {
     pub composite: Composite,
@@ -270,7 +270,7 @@ impl SpeedControls {
                     SpeedSetting::Fastest => 3600.0,
                 };
                 let dt = multiplier * real_dt;
-                // TODO This should match the update frequency in ezgui. Plumb along the deadline
+                // TODO This should match the update frequency in widgetry. Plumb along the deadline
                 // or frequency to here.
                 app.primary.sim.time_limited_step(
                     &app.primary.map,

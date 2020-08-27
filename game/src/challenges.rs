@@ -3,13 +3,13 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
 use abstutil::{prettyprint_usize, Timer};
-use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, TextExt, Widget,
-};
 use geom::{Duration, Percent, Time};
 use map_model::Map;
 use sim::{AlertHandler, OrigPersonID, Scenario, Sim, SimFlags, SimOptions};
 use std::collections::{BTreeMap, HashSet};
+use widgetry::{
+    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, TextExt, Widget,
+};
 
 // TODO Also have some kind of screenshot to display for each challenge
 pub struct Challenge {

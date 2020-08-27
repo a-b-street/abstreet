@@ -3,12 +3,12 @@ use crate::common::{make_heatmap, HeatmapOptions};
 use crate::game::{State, Transition};
 use crate::helpers::{amenity_type, ID};
 use abstutil::Counter;
-use ezgui::{
+use map_model::BuildingID;
+use sim::{DontDrawAgents, Scenario, TripEndpoint};
+use widgetry::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget,
 };
-use map_model::BuildingID;
-use sim::{DontDrawAgents, Scenario, TripEndpoint};
 
 pub struct PopularDestinations {
     per_bldg: Counter<BuildingID>,

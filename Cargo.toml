@@ -3,7 +3,6 @@
 members = [
   "abstutil",
   "convert_osm",
-  "ezgui",
   "game",
   "geom",
   "headless",
@@ -14,6 +13,7 @@ members = [
   "map_model",
   "sim",
   "updater",
+  "widgetry",
 ]
 
 # See https://doc.rust-lang.org/cargo/reference/profiles.html#overrides. This

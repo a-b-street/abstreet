@@ -4,13 +4,13 @@ use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::info::OpenTrip;
 use crate::sandbox::SandboxMode;
-use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, TextExt, Warper, Widget,
-};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
 use std::collections::BTreeMap;
+use widgetry::{
+    hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, TextExt, Warper, Widget,
+};
 
 const WARP_TO_CAM_ZOOM: f64 = 10.0;
 

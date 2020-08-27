@@ -10,7 +10,7 @@ use crate::app::App;
 use crate::common::HeatmapOptions;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::hotkey_btn;
-use ezgui::{hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextExt, Widget};
+use widgetry::{hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextExt, Widget};
 
 // TODO Good ideas in
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70

@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
-use ezgui::{
+use widgetry::{
     hotkey, hotkeys, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
     RewriteColor, Text, Widget,
 };

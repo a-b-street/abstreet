@@ -10,10 +10,6 @@ use crate::sandbox::{
     SpeedControls, TimePanel,
 };
 use abstutil::Timer;
-use ezgui::{
-    hotkey, hotkeys, lctrl, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, DirectedRoadID, Direction, Map, Position};
@@ -22,6 +18,10 @@ use sim::{
     PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, VehicleType,
 };
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, hotkeys, lctrl, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
+};
 
 const ESCORT: CarID = CarID(0, VehicleType::Car);
 const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(60.0);

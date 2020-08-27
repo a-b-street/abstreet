@@ -11,14 +11,14 @@ use crate::options::OptionsPanel;
 use crate::render::{calculate_corners, DrawOptions};
 use crate::sandbox::GameplayMode;
 use abstutil::{Parallelism, Tags, Timer};
-use ezgui::{
-    hotkey, lctrl, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget,
-};
 use geom::{Distance, Pt2D};
 use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
 use std::collections::HashSet;
+use widgetry::{
+    hotkey, lctrl, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Text, UpdateType, VerticalAlignment, Widget,
+};
 
 pub struct DebugMode {
     composite: Composite,
@@ -721,7 +721,7 @@ fn find_large_intersections(app: &App) {
     }
 }
 
-// Because of the slightly odd control flow needed to ask ezgui to ScreenCaptureEverything, a
+// Because of the slightly odd control flow needed to ask widgetry to ScreenCaptureEverything, a
 // separate state is the easiest way to automatically screenshot multiple maps.
 struct ScreenshotTest {
     todo_maps: Vec<&'static str>,

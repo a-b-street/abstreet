@@ -6,13 +6,13 @@ use crate::helpers::{checkbox_per_mode, nice_map_name};
 use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{SandboxControls, SandboxMode};
-use ezgui::{
-    hotkey, lctrl, AreaSlider, Btn, Choice, Color, Composite, EventCtx, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 use maplit::btreeset;
 use sim::{ScenarioModifier, TripMode};
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, lctrl, AreaSlider, Btn, Choice, Color, Composite, EventCtx, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct PlayScenario {
     top_center: Composite,

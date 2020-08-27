@@ -1,13 +1,13 @@
 use crate::app::App;
 use crate::common::CommonState;
 use crate::game::{State, Transition};
-use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
-    VerticalAlignment, Widget,
-};
 use geom::{Circle, Distance, LonLat, Pt2D, Ring};
 use std::fs::File;
 use std::io::{Error, Write};
+use widgetry::{
+    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
+    VerticalAlignment, Widget,
+};
 
 const POINT_RADIUS: Distance = Distance::const_meters(10.0);
 // Localized and internal, so don't put in ColorScheme.

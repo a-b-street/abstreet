@@ -3,10 +3,6 @@ use crate::common::{CityPicker, ColorLegend};
 use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
 use abstutil::{prettyprint_usize, Tags, Timer};
-use ezgui::{
-    hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Menu, Outcome, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{Distance, FindClosest, PolyLine, Polygon};
 use map_model::{osm, RoadID};
 use osm::WayID;
@@ -15,6 +11,10 @@ use std::collections::{BTreeMap, HashSet};
 use std::error::Error;
 use std::fs::File;
 use std::io::Write;
+use widgetry::{
+    hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Menu, Outcome, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct ParkingMapper {
     composite: Composite,

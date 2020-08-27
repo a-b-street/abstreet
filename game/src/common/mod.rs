@@ -17,12 +17,12 @@ use crate::game::Transition;
 use crate::helpers::{list_names, ID};
 use crate::info::InfoPanel;
 pub use crate::info::{ContextualActions, Tab};
-use ezgui::{
+use geom::Polygon;
+use std::collections::BTreeSet;
+use widgetry::{
     hotkey, lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, ScreenDims, ScreenPt, ScreenRectangle, Text, VerticalAlignment, Widget,
 };
-use geom::Polygon;
-use std::collections::BTreeSet;
 
 // TODO This is now just used in two modes...
 pub struct CommonState {

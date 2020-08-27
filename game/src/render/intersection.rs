@@ -5,13 +5,13 @@ use crate::options::TrafficSignalStyle;
 use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
     Direction, Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn,
     TurnType, SIDEWALK_THICKNESS,
 };
 use std::cell::RefCell;
+use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 
 pub struct DrawIntersection {
     pub id: IntersectionID,

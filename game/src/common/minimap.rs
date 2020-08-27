@@ -3,11 +3,11 @@ use crate::common::{navigate, Warping};
 use crate::game::Transition;
 use crate::layer::PickLayer;
 use abstutil::clamp;
-use ezgui::{
+use geom::{Distance, Polygon, Pt2D, Ring};
+use widgetry::{
     hotkey, Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Outcome, ScreenPt, Spinner, VerticalAlignment, Widget,
 };
-use geom::{Distance, Polygon, Pt2D, Ring};
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
 pub struct Minimap {
@@ -215,7 +215,7 @@ impl Minimap {
         if self.zoomed {
             let inner_rect = self.composite.rect_of("minimap");
 
-            // TODO Not happy about reaching in like this. The minimap logic should be an ezgui
+            // TODO Not happy about reaching in like this. The minimap logic should be an widgetry
             // Widget eventually, a generalization of Canvas.
             let mut pt = ctx.canvas.get_cursor();
             if self.dragging {

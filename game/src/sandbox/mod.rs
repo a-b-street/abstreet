@@ -18,10 +18,6 @@ use crate::layer::PickLayer;
 use crate::options::OptionsPanel;
 use crate::pregame::MainMenu;
 use crate::render::UnzoomedAgents;
-use ezgui::{
-    hotkey, lctrl, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Text, TextExt, UpdateType, VerticalAlignment, Widget,
-};
 pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use geom::Time;
 use map_model::MapEdits;
@@ -29,6 +25,10 @@ use maplit::btreeset;
 use sim::AgentType;
 pub use speed::TimeWarpScreen;
 pub use speed::{SpeedControls, TimePanel};
+use widgetry::{
+    hotkey, lctrl, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+};
 
 pub struct SandboxMode {
     gameplay: Box<dyn gameplay::GameplayState>,

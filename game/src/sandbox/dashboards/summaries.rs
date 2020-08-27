@@ -3,13 +3,13 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::checkbox_per_mode;
 use crate::sandbox::dashboards::DashTab;
 use abstutil::prettyprint_usize;
-use ezgui::{
-    Choice, Color, CompareTimes, Composite, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line,
-    Outcome, Text, Widget,
-};
 use geom::{Distance, Duration, Polygon, Pt2D};
 use sim::TripMode;
 use std::collections::BTreeSet;
+use widgetry::{
+    Choice, Color, CompareTimes, Composite, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line,
+    Outcome, Text, Widget,
+};
 
 pub struct TripSummaries {
     composite: Composite,

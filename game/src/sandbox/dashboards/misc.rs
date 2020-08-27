@@ -4,11 +4,11 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{
+use map_model::BusRouteID;
+use widgetry::{
     Autocomplete, Btn, Composite, EventCtx, GfxCtx, Line, LinePlot, Outcome, PlotOptions, Series,
     TextExt, Widget,
 };
-use map_model::BusRouteID;
 
 pub struct ActiveTraffic {
     composite: Composite,

@@ -8,13 +8,13 @@ use crate::helpers::cmp_duration_shorter;
 use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
-use ezgui::{
-    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
-    Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{Duration, Time};
 use sim::{OrigPersonID, PersonID, TripID};
 use std::collections::BTreeMap;
+use widgetry::{
+    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
+    Text, TextExt, VerticalAlignment, Widget,
+};
 
 // TODO Avoid hack entirely, or tune appearance
 const METER_HACK: f64 = -15.0;

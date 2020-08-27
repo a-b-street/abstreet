@@ -5,16 +5,16 @@ use crate::game::{State, Transition};
 use crate::render::DrawIntersection;
 use crate::sandbox::GameplayMode;
 use abstutil::Timer;
-use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Text, VerticalAlignment, Widget,
-};
 use geom::Polygon;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
 };
 use maplit::btreeset;
 use std::collections::HashMap;
+use widgetry::{
+    hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Text, VerticalAlignment, Widget,
+};
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
 // sure what to do about the player orphaning a section of the map.
