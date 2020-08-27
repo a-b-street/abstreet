@@ -155,8 +155,6 @@
 <span id="155">155</span>
 <span id="156">156</span>
 <span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # Widgets</span>
 <span class="doccomment">//!</span>
@@ -198,7 +196,6 @@
 <span class="kw">mod</span> <span class="ident">event_ctx</span>;
 <span class="kw">mod</span> <span class="ident">geom</span>;
 <span class="kw">mod</span> <span class="ident">input</span>;
-<span class="kw">mod</span> <span class="ident">managed</span>;
 <span class="kw">mod</span> <span class="ident">runner</span>;
 <span class="kw">mod</span> <span class="ident">screen_geom</span>;
 <span class="kw">mod</span> <span class="ident">style</span>;
@@ -220,7 +217,6 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">event_ctx</span>::{<span class="ident">EventCtx</span>, <span class="ident">UpdateType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">geom</span>::{<span class="ident">GeomBatch</span>, <span class="ident">RewriteColor</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">input</span>::<span class="ident">UserInput</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">managed</span>::{<span class="ident">Panel</span>, <span class="ident">Widget</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">runner</span>::{<span class="ident">run</span>, <span class="ident">Settings</span>, <span class="ident">GUI</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">screen_geom</span>::{<span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">style</span>::<span class="ident">Style</span>;
@@ -243,7 +239,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">slider</span>::{<span class="ident">AreaSlider</span>, <span class="ident">Slider</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">spinner</span>::<span class="ident">Spinner</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">text_box</span>::<span class="ident">TextBox</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::{<span class="ident">Outcome</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::{<span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="ident">label</span>: <span class="ident">String</span>,
