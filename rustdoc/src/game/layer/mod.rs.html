@@ -226,10 +226,6 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">elevation</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">map</span>;
@@ -243,19 +239,15 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">HeatmapOptions</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">hotkey_btn</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Composite</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="comment">// TODO Good ideas in</span>
 <span class="comment">// https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70</span>
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Layer</span> {
     <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">event</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
-        <span class="ident">minimap</span>: <span class="kw-2">&amp;</span><span class="ident">Composite</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">minimap</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>)
+        <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span>;
     <span class="comment">// Draw both controls and, if zoomed, the layer contents</span>
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>);
     <span class="comment">// Just draw contents and do it always</span>
@@ -265,11 +257,11 @@
 <span class="kw">impl</span> <span class="kw">dyn</span> <span class="ident">Layer</span> {
     <span class="kw">fn</span> <span class="ident">simple_event</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">minimap</span>: <span class="kw-2">&amp;</span><span class="ident">Composite</span>,
-        <span class="ident">composite</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Composite</span>,
+        <span class="ident">minimap</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
+        <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Panel</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
-        <span class="ident">composite</span>.<span class="ident">align_above</span>(<span class="ident">ctx</span>, <span class="ident">minimap</span>);
-        <span class="kw">match</span> <span class="ident">composite</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="ident">panel</span>.<span class="ident">align_above</span>(<span class="ident">ctx</span>, <span class="ident">minimap</span>);
+        <span class="kw">match</span> <span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome</span>::<span class="ident">Close</span>),
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
@@ -286,11 +278,11 @@
 
 <span class="comment">// TODO Maybe overkill, but could embed a minimap and preview the layer on hover</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PickLayer</span> {
-    <span class="ident">composite</span>: <span class="ident">Composite</span>,
+    <span class="ident">panel</span>: <span class="ident">Panel</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">PickLayer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">minimap</span>: <span class="kw-2">&amp;</span><span class="ident">Composite</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">minimap</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">layer</span>.<span class="ident">is_none</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -368,7 +360,7 @@
         }
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PickLayer</span> {
-            <span class="ident">composite</span>: <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
                 .<span class="ident">exact_size_percent</span>(<span class="number">35</span>, <span class="number">70</span>)
                 .<span class="ident">build</span>(<span class="ident">ctx</span>),
         })
@@ -377,7 +369,7 @@
 
 <span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">PickLayer</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {}
                 <span class="string">&quot;None&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -445,7 +437,7 @@
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">clicked_outside</span>(<span class="ident">ctx</span>) {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">clicked_outside</span>(<span class="ident">ctx</span>) {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
@@ -460,7 +452,7 @@
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="ident">State</span>::<span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }
 </pre></div>

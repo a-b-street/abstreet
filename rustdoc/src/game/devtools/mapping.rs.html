@@ -694,7 +694,6 @@
 <span id="694">694</span>
 <span id="695">695</span>
 <span id="696">696</span>
-<span id="697">697</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>};
@@ -710,12 +709,12 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ParkingMapper</span> {
-    <span class="ident">composite</span>: <span class="ident">Composite</span>,
+    <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">draw_layer</span>: <span class="ident">Drawable</span>,
     <span class="ident">show</span>: <span class="ident">Show</span>,
     <span class="ident">selected</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
@@ -819,7 +818,7 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ParkingMapper</span> {
             <span class="ident">draw_layer</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
             <span class="ident">show</span>,
-            <span class="ident">composite</span>: <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Parking mapper&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>)
@@ -961,12 +960,11 @@
                             <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>)).<span class="ident">secondary</span>());
                         }
                     }
-                    <span class="self">self</span>.<span class="ident">composite</span>
-                        .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;info&quot;</span>, <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;info&quot;</span>));
+                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;info&quot;</span>, <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;info&quot;</span>));
                 }
             } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">is_some</span>() {
                 <span class="self">self</span>.<span class="ident">selected</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="self">self</span>.<span class="ident">composite</span>
+                <span class="self">self</span>.<span class="ident">panel</span>
                     .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;info&quot;</span>, <span class="string">&quot;Select a road&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;info&quot;</span>));
             }
         }
@@ -1013,7 +1011,7 @@
             }
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span>
@@ -1031,7 +1029,7 @@
                     <span class="kw">return</span> <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;generate OsmChange file&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
                         <span class="ident">generate_osmc</span>(
                             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>,
-                            <span class="self">self</span>.<span class="ident">composite</span>
+                            <span class="self">self</span>.<span class="ident">panel</span>
                                 .<span class="ident">is_checked</span>(<span class="string">&quot;max 3 days parking (default in Seattle)&quot;</span>),
                             <span class="ident">timer</span>,
                         )
@@ -1069,7 +1067,7 @@
                 <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">ParkingMapper</span>::<span class="ident">make</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
-                    <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;Show&quot;</span>),
+                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;Show&quot;</span>),
                     <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">clone</span>(),
                 ));
             }
@@ -1084,12 +1082,12 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">roads</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">selected</span> {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">roads</span>);
         }
-        <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }
 
 <span class="kw">struct</span> <span class="ident">ChangeWay</span> {
-    <span class="ident">composite</span>: <span class="ident">Composite</span>,
+    <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">draw</span>: <span class="ident">Drawable</span>,
     <span class="ident">osm_way_id</span>: <span class="ident">WayID</span>,
     <span class="ident">data</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">WayID</span>, <span class="ident">Value</span><span class="op">&gt;</span>,
@@ -1127,7 +1125,7 @@
         }
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ChangeWay</span> {
-            <span class="ident">composite</span>: <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;What kind of parking does this road have?&quot;</span>)
                         .<span class="ident">small_heading</span>()
@@ -1164,11 +1162,11 @@
 <span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">ChangeWay</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">take_menu_choice</span>::<span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>(<span class="string">&quot;menu&quot;</span>);
+                    <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">take_menu_choice</span>::<span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>(<span class="string">&quot;menu&quot;</span>);
                     <span class="kw">if</span> <span class="ident">value</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Value</span>::<span class="ident">Complicated</span> {
                         <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
                             <span class="ident">ctx</span>,
@@ -1203,7 +1201,7 @@
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
-        <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }
 

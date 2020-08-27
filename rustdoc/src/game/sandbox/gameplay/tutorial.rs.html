@@ -1472,18 +1472,18 @@
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">const</span> <span class="ident">ESCORT</span>: <span class="ident">CarID</span> <span class="op">=</span> <span class="ident">CarID</span>(<span class="number">0</span>, <span class="ident">VehicleType</span>::<span class="ident">Car</span>);
 <span class="kw">const</span> <span class="ident">CAR_BIKE_CONTENTION_GOAL</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">60.0</span>);
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Tutorial</span> {
-    <span class="ident">top_center</span>: <span class="ident">Composite</span>,
+    <span class="ident">top_center</span>: <span class="ident">Panel</span>,
     <span class="ident">last_finished_task</span>: <span class="ident">Task</span>,
 
-    <span class="ident">msg_panel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Composite</span><span class="op">&gt;</span>,
+    <span class="ident">msg_panel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Panel</span><span class="op">&gt;</span>,
     <span class="ident">warped</span>: <span class="ident">bool</span>,
 }
 
@@ -2175,7 +2175,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">make_top_center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">edit_map</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Composite</span> {
+    <span class="kw">fn</span> <span class="ident">make_top_center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">edit_map</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Tutorial&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
@@ -2229,7 +2229,7 @@
             ));
         }
 
-        <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
+        <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>)
     }
@@ -2316,7 +2316,7 @@
                 <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">controls</span>).<span class="ident">align_bottom</span>());
 
                 <span class="prelude-val">Some</span>(
-                    <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">outline</span>(<span class="number">5.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>))
+                    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">outline</span>(<span class="number">5.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>))
                         .<span class="ident">exact_size_percent</span>(<span class="number">40</span>, <span class="number">40</span>)
                         .<span class="ident">aligned</span>(<span class="kw-2">*</span><span class="ident">horiz_align</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>)
                         .<span class="ident">build</span>(<span class="ident">ctx</span>),
@@ -2431,11 +2431,11 @@
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;You&#39;ll work day and night, watching traffic patterns unfold.&quot;</span>,
                     ],
-                    <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">composite</span>.<span class="ident">center_of_panel</span>()),
+                    <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of_panel</span>()),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;You can pause or resume time&quot;</span>],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">composite</span>.<span class="ident">center_of</span>(<span class="string">&quot;pause&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;pause&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[
@@ -2443,15 +2443,15 @@
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;(The keyboard shortcuts are very helpful here!)&quot;</span>,
                     ],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">composite</span>.<span class="ident">center_of</span>(<span class="string">&quot;30x speed&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;30x speed&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Advance time by certain amounts&quot;</span>],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">composite</span>.<span class="ident">center_of</span>(<span class="string">&quot;step forwards&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;step forwards&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;And jump to the beginning of the day&quot;</span>],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">composite</span>.<span class="ident">center_of</span>(<span class="string">&quot;reset to midnight&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;reset to midnight&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Let&#39;s try these controls out. Wait until 5pm or later.&quot;</span>],
@@ -2470,7 +2470,7 @@
                         <span class="string">&quot;You might&#39;ve figured it out already,&quot;</span>,
                         <span class="string">&quot;But you&#39;ll be pausing/resuming time VERY frequently&quot;</span>,
                     ],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">composite</span>.<span class="ident">center_of</span>(<span class="string">&quot;pause&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;pause&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Just reassure me and pause/resume time a few times, alright?&quot;</span>],
@@ -2575,7 +2575,7 @@
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;You can see the number of them here.&quot;</span>],
-                    <span class="ident">arrow</span>(<span class="ident">agent_meter</span>.<span class="ident">composite</span>.<span class="ident">center_of_panel</span>()),
+                    <span class="ident">arrow</span>(<span class="ident">agent_meter</span>.<span class="ident">panel</span>.<span class="ident">center_of_panel</span>()),
                 )
                 .<span class="ident">left_aligned_msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[
@@ -2599,7 +2599,7 @@
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;(If you do lose track of them, just reset)&quot;</span>,
                     ],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">composite</span>.<span class="ident">center_of</span>(<span class="string">&quot;reset to midnight&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;reset to midnight&quot;</span>)),
                 ),
         );
 
@@ -2641,7 +2641,7 @@
                          overview of all activity. You can click and drag it just like the normal \
                          map.&quot;</span>,
                     ],
-                    <span class="ident">arrow</span>(<span class="ident">minimap</span>.<span class="ident">composite</span>.<span class="ident">center_of</span>(<span class="string">&quot;minimap&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">minimap</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;minimap&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[
@@ -2651,7 +2651,7 @@
                         <span class="string">&quot;- bus stops&quot;</span>,
                         <span class="string">&quot;- how much parking is filled up&quot;</span>,
                     ],
-                    <span class="ident">arrow</span>(<span class="ident">minimap</span>.<span class="ident">composite</span>.<span class="ident">center_of</span>(<span class="string">&quot;change layers&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">minimap</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;change layers&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[
@@ -2733,7 +2733,7 @@
                          you&#39;ll get your final score.&quot;</span>
                             .<span class="ident">to_string</span>(),
                     ],
-                    <span class="ident">arrow</span>(<span class="ident">agent_meter</span>.<span class="ident">composite</span>.<span class="ident">center_of</span>(<span class="string">&quot;more data&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">agent_meter</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;more data&quot;</span>)),
                 ),
         );
 

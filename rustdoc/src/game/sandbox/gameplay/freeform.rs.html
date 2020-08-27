@@ -582,13 +582,13 @@
     <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripSpec</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Spinner</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">hotkey</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Spinner</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="comment">// TODO Maybe remember what things were spawned, offer to replay this later</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Freeform</span> {
-    <span class="ident">top_center</span>: <span class="ident">Composite</span>,
+    <span class="ident">top_center</span>: <span class="ident">Panel</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Freeform</span> {
@@ -675,7 +675,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_top_center</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Composite</span> {
+<span class="kw">fn</span> <span class="ident">make_top_center</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Sandbox&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
@@ -704,7 +704,7 @@
         .<span class="ident">draw</span>(<span class="ident">ctx</span>),
     ];
 
-    <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>))
+    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
@@ -777,7 +777,7 @@
 }
 
 <span class="kw">struct</span> <span class="ident">AgentSpawner</span> {
-    <span class="ident">composite</span>: <span class="ident">Composite</span>,
+    <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">source</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>,
     <span class="ident">goal</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripEndpoint</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
     <span class="ident">confirmed</span>: <span class="ident">bool</span>,
@@ -789,7 +789,7 @@
             <span class="ident">source</span>: <span class="prelude-val">None</span>,
             <span class="ident">goal</span>: <span class="prelude-val">None</span>,
             <span class="ident">confirmed</span>: <span class="bool-val">false</span>,
-            <span class="ident">composite</span>: <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;New trip&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
@@ -822,7 +822,7 @@
         };
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">start</span> {
             <span class="ident">spawner</span>.<span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>));
-            <span class="ident">spawner</span>.<span class="ident">composite</span>.<span class="ident">replace</span>(
+            <span class="ident">spawner</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;instructions&quot;</span>,
                 <span class="string">&quot;Click a building or border to specify end&quot;</span>
@@ -836,7 +836,7 @@
 
 <span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">AgentSpawner</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
@@ -846,11 +846,11 @@
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario</span>::<span class="ident">empty</span>(<span class="ident">map</span>, <span class="string">&quot;one-shot&quot;</span>);
                     <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
                     <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="number">0</span>;
-                    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">spinner</span>(<span class="string">&quot;number&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span> {
+                    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;number&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span> {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">trip</span>) <span class="op">=</span> <span class="ident">SpawnTrip</span>::<span class="ident">new</span>(
                             <span class="ident">from</span>.<span class="ident">clone</span>(),
                             <span class="ident">to</span>.<span class="ident">clone</span>(),
-                            <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;mode&quot;</span>),
+                            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;mode&quot;</span>),
                             <span class="ident">map</span>,
                         ) {
                             <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
@@ -881,7 +881,7 @@
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint</span>::<span class="ident">path_req</span>(
                         <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>(),
                         <span class="ident">to</span>.<span class="ident">clone</span>(),
-                        <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;mode&quot;</span>),
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;mode&quot;</span>),
                         <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
                     )
                     .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>))
@@ -894,14 +894,14 @@
                     } <span class="kw">else</span> {
                         <span class="self">self</span>.<span class="ident">goal</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                         <span class="self">self</span>.<span class="ident">confirmed</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                        <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">replace</span>(
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;instructions&quot;</span>,
                             <span class="string">&quot;Click a building or border to specify end&quot;</span>
                                 .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
                                 .<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
                         );
-                        <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">replace</span>(
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Confirm&quot;</span>,
                             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Confirm&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;Confirm&quot;</span>),
@@ -944,7 +944,7 @@
         } {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">is_none</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;start here&quot;</span>) {
                 <span class="self">self</span>.<span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">hovering</span>);
-                <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">replace</span>(
+                <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;instructions&quot;</span>,
                     <span class="string">&quot;Click a building or border to specify end&quot;</span>
@@ -961,7 +961,7 @@
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint</span>::<span class="ident">path_req</span>(
                         <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>(),
                         <span class="ident">hovering</span>.<span class="ident">clone</span>(),
-                        <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;mode&quot;</span>),
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;mode&quot;</span>),
                         <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
                     )
                     .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>))
@@ -979,14 +979,14 @@
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">is_some</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;end here&quot;</span>) {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                     <span class="self">self</span>.<span class="ident">confirmed</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">replace</span>(
+                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;instructions&quot;</span>,
                         <span class="string">&quot;Confirm the trip settings&quot;</span>
                             .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
                             .<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
                     );
-                    <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">replace</span>(
+                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Confirm&quot;</span>,
                         <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Confirm&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)),
@@ -1001,7 +1001,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">CommonState</span>::<span class="ident">draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">endpt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">source</span> {

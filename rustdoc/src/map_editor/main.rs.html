@@ -380,14 +380,14 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
 <span class="kw">use</span> <span class="ident">model</span>::{<span class="ident">Model</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">GUI</span>,
+    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
+    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">GUI</span>,
 };
 
 <span class="kw">struct</span> <span class="ident">UI</span> {
     <span class="ident">model</span>: <span class="ident">Model</span>,
     <span class="ident">state</span>: <span class="ident">State</span>,
-    <span class="ident">composite</span>: <span class="ident">Composite</span>,
+    <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">popup</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span>,
     <span class="ident">info_key_held</span>: <span class="ident">bool</span>,
 
@@ -425,7 +425,7 @@
         <span class="ident">UI</span> {
             <span class="ident">model</span>,
             <span class="ident">state</span>: <span class="ident">State</span>::<span class="ident">Viewing</span>,
-            <span class="ident">composite</span>: <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Map Editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current info&quot;</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(
@@ -537,7 +537,7 @@
                         }
                     }
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+                        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
                             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                                 <span class="string">&quot;quit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="self">self</span>.<span class="ident">before_quit</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>);
@@ -681,7 +681,7 @@
             }
         };
 
-        <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">popup</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">popup</span> {
             <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">popup</span>);
         }

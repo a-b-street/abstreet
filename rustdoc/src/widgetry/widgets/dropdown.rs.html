@@ -315,7 +315,7 @@
         <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">m</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">menu</span> {
             <span class="comment">// We need a background too! Add some padding and an outline.</span>
-            <span class="comment">// TODO Little embedded Composite could make more sense?</span>
+            <span class="comment">// TODO Little embedded Panel could make more sense?</span>
             <span class="kw">let</span> <span class="ident">pad</span> <span class="op">=</span> <span class="number">5.0</span>;
             <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">get_dims</span>().<span class="ident">width</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>;
             <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>;
@@ -339,7 +339,7 @@
 
             <span class="ident">m</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
 
-            <span class="comment">// Dropdown menus often leak out of their Composite</span>
+            <span class="comment">// Dropdown menus often leak out of their Panel</span>
             <span class="ident">g</span>.<span class="ident">canvas</span>
                 .<span class="ident">mark_covered_area</span>(<span class="ident">ScreenRectangle</span>::<span class="ident">top_left</span>(<span class="ident">m</span>.<span class="ident">top_left</span>, <span class="ident">m</span>.<span class="ident">get_dims</span>()));
         }

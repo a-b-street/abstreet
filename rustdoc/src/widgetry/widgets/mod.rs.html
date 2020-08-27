@@ -104,7 +104,7 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WidgetOutput</span>);
     <span class="doccomment">/// Draw the widget. Be sure to draw relative to the top-left specified by `set_pos`.</span>
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>);
-    <span class="doccomment">/// If a new Composite is being created to replace an older one, all widgets have the chance to</span>
+    <span class="doccomment">/// If a new Panel is being created to replace an older one, all widgets have the chance to</span>
     <span class="doccomment">/// preserve state from the previous version.</span>
     <span class="kw">fn</span> <span class="ident">can_restore</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="bool-val">false</span>

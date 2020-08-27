@@ -971,7 +971,6 @@
 <span id="971">971</span>
 <span id="972">972</span>
 <span id="973">973</span>
-<span id="974">974</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">edits</span>;
 <span class="kw">mod</span> <span class="ident">picker</span>;
@@ -992,16 +991,15 @@
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>, <span class="ident">Spinner</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">hotkey</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
+    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">Spinner</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="comment">// Welcome to one of the most overwhelmingly complicated parts of the UI...</span>
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TrafficSignalEditor</span> {
-    <span class="ident">side_panel</span>: <span class="ident">Composite</span>,
-    <span class="ident">top_panel</span>: <span class="ident">Composite</span>,
+    <span class="ident">side_panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
 
     <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
     <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
@@ -1478,7 +1476,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">can_undo</span>: <span class="ident">bool</span>, <span class="ident">can_redo</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Composite</span> {
+<span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">can_undo</span>: <span class="ident">bool</span>, <span class="ident">can_redo</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
         <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Preview&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">P</span>)),
@@ -1522,7 +1520,7 @@
             <span class="ident">Widget</span>::<span class="ident">nothing</span>()
         },
     ];
-    <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Line</span>(<span class="string">&quot;Traffic signal editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="ident">row</span>),
     ]))
@@ -1536,7 +1534,7 @@
     <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="ident">selected</span>: <span class="ident">usize</span>,
     <span class="ident">hovering</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Composite</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
     <span class="comment">// Use any member for phase duration</span>
     <span class="kw">let</span> <span class="ident">canonical_signal</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>());
@@ -1693,7 +1691,7 @@
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Apply&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;Apply offsets&quot;</span>, <span class="prelude-val">None</span>));
     }
 
-    <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
+    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
         .<span class="ident">exact_size_percent</span>(<span class="number">30</span>, <span class="number">85</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>)

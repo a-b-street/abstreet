@@ -734,8 +734,8 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">DontDrawAgents</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripInfo</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">AreaSlider</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>,
+    <span class="ident">hotkey</span>, <span class="ident">AreaSlider</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>,
     <span class="ident">Widget</span>,
 };
 
@@ -750,7 +750,7 @@
     <span class="ident">trips_from_block</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripInfo</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">trips_to_block</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripInfo</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
-    <span class="ident">composite</span>: <span class="ident">Composite</span>,
+    <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">draw_all_blocks</span>: <span class="ident">Drawable</span>,
 }
 
@@ -764,7 +764,7 @@
     },
 }
 
-<span class="kw">struct</span> <span class="ident">CompositeState</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">struct</span> <span class="ident">PanelState</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">building_counts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">u32</span>)<span class="op">&gt;</span>,
     <span class="ident">max_count</span>: <span class="ident">usize</span>,
     <span class="ident">total_trips</span>: <span class="ident">usize</span>,
@@ -841,7 +841,7 @@
             },
 
             <span class="ident">draw_all_blocks</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">all_blocks</span>),
-            <span class="ident">composite</span>: <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">panel</span>: <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
         })
     }
 
@@ -898,7 +898,7 @@
         <span class="ident">block_selection</span>: <span class="ident">BlockSelection</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Drawable</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CompositeState</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
+    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Drawable</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PanelState</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
 
         <span class="kw">let</span> <span class="ident">base_block_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">block_selection</span> {
@@ -1013,17 +1013,17 @@
                     }
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
                 };
-                <span class="kw">let</span> <span class="ident">composite_data</span> <span class="op">=</span> <span class="ident">CompositeState</span> {
+                <span class="kw">let</span> <span class="ident">panel_data</span> <span class="op">=</span> <span class="ident">PanelState</span> {
                     <span class="ident">building_counts</span>,
                     <span class="ident">total_trips</span>,
                     <span class="ident">max_count</span>,
                 };
-                (<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>), <span class="prelude-val">Some</span>(<span class="ident">composite_data</span>))
+                (<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>), <span class="prelude-val">Some</span>(<span class="ident">panel_data</span>))
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">redraw_composite</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">CompositeState</span><span class="op">&gt;</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+    <span class="kw">fn</span> <span class="ident">redraw_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PanelState</span><span class="op">&gt;</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span> <span class="ident">state</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
             <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -1037,7 +1037,7 @@
                 }
             }
 
-            <span class="self">self</span>.<span class="ident">composite</span>
+            <span class="self">self</span>.<span class="ident">panel</span>
                 .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current&quot;</span>, <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current&quot;</span>));
 
             <span class="kw">let</span> <span class="ident">new_scale</span> <span class="op">=</span> <span class="ident">ColorLegend</span>::<span class="ident">gradient</span>(
@@ -1049,9 +1049,9 @@
                 ],
             )
             .<span class="ident">named</span>(<span class="string">&quot;scale&quot;</span>);
-            <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;scale&quot;</span>, <span class="ident">new_scale</span>);
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;scale&quot;</span>, <span class="ident">new_scale</span>);
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">replace</span>(
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;current&quot;</span>,
                 <span class="string">&quot;None selected&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current&quot;</span>),
@@ -1064,7 +1064,7 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
@@ -1130,22 +1130,22 @@
         };
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filter</span> <span class="op">=</span> <span class="ident">Filter</span> {
-            <span class="ident">from_block</span>: <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">is_checked</span>(<span class="string">&quot;from / to this block&quot;</span>),
-            <span class="ident">include_borders</span>: <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">is_checked</span>(<span class="string">&quot;include borders&quot;</span>),
+            <span class="ident">from_block</span>: <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;from / to this block&quot;</span>),
+            <span class="ident">include_borders</span>: <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;include borders&quot;</span>),
             <span class="ident">depart_from</span>: <span class="ident">app</span>
                 .<span class="ident">primary</span>
                 .<span class="ident">sim</span>
                 .<span class="ident">get_end_of_day</span>()
-                .<span class="ident">percent_of</span>(<span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">area_slider</span>(<span class="string">&quot;depart from&quot;</span>).<span class="ident">get_percent</span>()),
+                .<span class="ident">percent_of</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">area_slider</span>(<span class="string">&quot;depart from&quot;</span>).<span class="ident">get_percent</span>()),
             <span class="ident">depart_until</span>: <span class="ident">app</span>
                 .<span class="ident">primary</span>
                 .<span class="ident">sim</span>
                 .<span class="ident">get_end_of_day</span>()
-                .<span class="ident">percent_of</span>(<span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">area_slider</span>(<span class="string">&quot;depart until&quot;</span>).<span class="ident">get_percent</span>()),
+                .<span class="ident">percent_of</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">area_slider</span>(<span class="string">&quot;depart until&quot;</span>).<span class="ident">get_percent</span>()),
             <span class="ident">modes</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
         };
         <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">TripMode</span>::<span class="ident">all</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">is_checked</span>(<span class="ident">m</span>.<span class="ident">ongoing_verb</span>()) {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="ident">m</span>.<span class="ident">ongoing_verb</span>()) {
                 <span class="ident">filter</span>.<span class="ident">modes</span>.<span class="ident">insert</span>(<span class="ident">m</span>);
             }
         }
@@ -1153,7 +1153,7 @@
         <span class="kw">if</span> <span class="ident">filter</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">filter</span> <span class="op">|</span><span class="op">|</span> <span class="ident">block_selection</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">current_block</span>.<span class="number">0</span> {
             <span class="self">self</span>.<span class="ident">filter</span> <span class="op">=</span> <span class="ident">filter</span>;
             <span class="kw">let</span> (<span class="ident">drawable</span>, <span class="ident">per_block_counts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">build_block_drawable</span>(<span class="ident">block_selection</span>, <span class="ident">ctx</span>, <span class="ident">app</span>);
-            <span class="self">self</span>.<span class="ident">redraw_composite</span>(<span class="ident">per_block_counts</span>.<span class="ident">as_ref</span>(), <span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="self">self</span>.<span class="ident">redraw_panel</span>(<span class="ident">per_block_counts</span>.<span class="ident">as_ref</span>(), <span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="self">self</span>.<span class="ident">current_block</span> <span class="op">=</span> (<span class="ident">block_selection</span>, <span class="ident">drawable</span>);
         }
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
@@ -1174,7 +1174,7 @@
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_all_blocks</span>);
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current_block</span>.<span class="number">1</span>);
 
-        <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">CommonState</span>::<span class="ident">draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
     }
 }
@@ -1413,8 +1413,8 @@
     <span class="ident">groups</span>
 }
 
-<span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Composite</span> {
-    <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+<span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Commute map by block&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>)

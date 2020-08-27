@@ -405,7 +405,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">OrigPersonID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>,
+    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>,
     <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -415,8 +415,8 @@
 <span class="comment">// TODO A nice level to unlock: specifying your own commute, getting to work on it</span>
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OptimizeCommute</span> {
-    <span class="ident">top_center</span>: <span class="ident">Composite</span>,
-    <span class="ident">meter</span>: <span class="ident">Composite</span>,
+    <span class="ident">top_center</span>: <span class="ident">Panel</span>,
+    <span class="ident">meter</span>: <span class="ident">Panel</span>,
     <span class="ident">person</span>: <span class="ident">PersonID</span>,
     <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
     <span class="ident">goal</span>: <span class="ident">Duration</span>,
@@ -439,7 +439,7 @@
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">find_person_by_orig_id</span>(<span class="ident">orig_person</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">person</span>).<span class="ident">trips</span>.<span class="ident">clone</span>();
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">OptimizeCommute</span> {
-            <span class="ident">top_center</span>: <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">top_center</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Optimize the VIP&#39;s commute&quot;</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Speed up the VIP&#39;s trips by {}&quot;</span>, <span class="ident">goal</span>)
@@ -531,7 +531,7 @@
 
         <span class="self">self</span>.<span class="ident">meter</span>.<span class="ident">align_below</span>(
             <span class="ident">ctx</span>,
-            <span class="kw-2">&amp;</span><span class="ident">controls</span>.<span class="ident">agent_meter</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">composite</span>,
+            <span class="kw-2">&amp;</span><span class="ident">controls</span>.<span class="ident">agent_meter</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">panel</span>,
             <span class="ident">METER_HACK</span>,
         );
 
@@ -542,7 +542,7 @@
             <span class="self">self</span>.<span class="ident">meter</span> <span class="op">=</span> <span class="ident">make_meter</span>(<span class="ident">ctx</span>, <span class="ident">before</span>, <span class="ident">after</span>, <span class="ident">done</span>, <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>());
             <span class="self">self</span>.<span class="ident">meter</span>.<span class="ident">align_below</span>(
                 <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;</span><span class="ident">controls</span>.<span class="ident">agent_meter</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">composite</span>,
+                <span class="kw-2">&amp;</span><span class="ident">controls</span>.<span class="ident">agent_meter</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">panel</span>,
                 <span class="ident">METER_HACK</span>,
             );
 
@@ -630,12 +630,12 @@
     <span class="ident">after</span>: <span class="ident">Duration</span>,
     <span class="ident">done</span>: <span class="ident">usize</span>,
     <span class="ident">trips</span>: <span class="ident">usize</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Composite</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Total time: {} (&quot;</span>, <span class="ident">after</span>)));
     <span class="ident">txt</span>.<span class="ident">append_all</span>(<span class="ident">cmp_duration_shorter</span>(<span class="ident">after</span>, <span class="ident">before</span>));
     <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;)&quot;</span>));
 
-    <span class="ident">Composite</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;locate VIP&quot;</span>, <span class="prelude-val">None</span>),

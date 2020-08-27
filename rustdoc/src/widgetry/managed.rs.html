@@ -1037,13 +1037,6 @@
 <span id="1037">1037</span>
 <span id="1038">1038</span>
 <span id="1039">1039</span>
-<span id="1040">1040</span>
-<span id="1041">1041</span>
-<span id="1042">1042</span>
-<span id="1043">1043</span>
-<span id="1044">1044</span>
-<span id="1045">1045</span>
-<span id="1046">1046</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">containers</span>::{<span class="ident">Container</span>, <span class="ident">Nothing</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1116,7 +1109,7 @@
     }
 
     <span class="comment">// This one is really weird. percent_width should be LESS than the max_size_percent given to</span>
-    <span class="comment">// the overall Composite, otherwise weird things happen.</span>
+    <span class="comment">// the overall Panel, otherwise weird things happen.</span>
     <span class="comment">// Only makes sense for rows/columns.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flex_wrap</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">width</span>: <span class="ident">Percent</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">size</span> <span class="op">=</span> <span class="ident">Size</span> {
@@ -1349,14 +1342,14 @@
     <span class="comment">// Also returns the hitbox of the entire widget</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geom</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">exact_pct_width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">GeomBatch</span>, <span class="ident">Polygon</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">exact_pct_width</span> {
-            <span class="comment">// TODO 35 is a sad magic number. By default, Composites have padding of 16, so assuming</span>
+            <span class="comment">// TODO 35 is a sad magic number. By default, Panels have padding of 16, so assuming</span>
             <span class="comment">// this geometry is going in one of those, it makes sense to subtract 32. But that still</span>
             <span class="comment">// caused some scrolling in a test, so snip away a few more pixels.</span>
             <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span>.<span class="ident">width</span> <span class="op">=</span>
                 <span class="ident">Dimension</span>::<span class="ident">Points</span>((<span class="ident">w</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>) <span class="kw">as</span> <span class="ident">f32</span> <span class="op">-</span> <span class="number">35.0</span>);
         }
 
-        <span class="comment">// Pretend we&#39;re in a Composite and basically copy recompute_layout</span>
+        <span class="comment">// Pretend we&#39;re in a Panel and basically copy recompute_layout</span>
         {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stretch</span> <span class="op">=</span> <span class="ident">Stretch</span>::<span class="ident">new</span>();
             <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">stretch</span>
@@ -1530,10 +1523,7 @@
     <span class="kw">fn</span> <span class="ident">get_all_click_actions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">actions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">btn</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Button</span><span class="op">&gt;</span>() {
             <span class="kw">if</span> <span class="ident">actions</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">btn</span>.<span class="ident">action</span>) {
-                <span class="macro">panic</span><span class="macro">!</span>(
-                    <span class="string">&quot;Two buttons in one Composite both use action {}&quot;</span>,
-                    <span class="ident">btn</span>.<span class="ident">action</span>
-                );
+                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Two buttons in one Panel both use action {}&quot;</span>, <span class="ident">btn</span>.<span class="ident">action</span>);
             }
             <span class="ident">actions</span>.<span class="ident">insert</span>(<span class="ident">btn</span>.<span class="ident">action</span>.<span class="ident">clone</span>());
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">container</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Container</span><span class="op">&gt;</span>() {
@@ -1558,7 +1548,7 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">restore</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="ident">Composite</span>) {
+    <span class="kw">fn</span> <span class="ident">restore</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">container</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">Container</span><span class="op">&gt;</span>() {
             <span class="kw">for</span> <span class="ident">w</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">container</span>.<span class="ident">members</span> {
                 <span class="ident">w</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="ident">prev</span>);
@@ -1643,14 +1633,14 @@
     <span class="ident">ExactPercent</span>(<span class="ident">f64</span>, <span class="ident">f64</span>),
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompositeBuilder</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PanelBuilder</span> {
     <span class="ident">top_level</span>: <span class="ident">Widget</span>,
     <span class="ident">horiz</span>: <span class="ident">HorizontalAlignment</span>,
     <span class="ident">vert</span>: <span class="ident">VerticalAlignment</span>,
     <span class="ident">dims</span>: <span class="ident">Dims</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Composite</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Panel</span> {
     <span class="ident">top_level</span>: <span class="ident">Widget</span>,
     <span class="ident">horiz</span>: <span class="ident">HorizontalAlignment</span>,
     <span class="ident">vert</span>: <span class="ident">VerticalAlignment</span>,
@@ -1663,9 +1653,9 @@
     <span class="ident">clip_rect</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ScreenRectangle</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Composite</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">top_level</span>: <span class="ident">Widget</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CompositeBuilder</span> {
-        <span class="ident">CompositeBuilder</span> {
+<span class="kw">impl</span> <span class="ident">Panel</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">top_level</span>: <span class="ident">Widget</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
+        <span class="ident">PanelBuilder</span> {
             <span class="ident">top_level</span>,
             <span class="ident">horiz</span>: <span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>,
             <span class="ident">vert</span>: <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>,
@@ -1845,7 +1835,7 @@
         <span class="ident">actions</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="ident">Composite</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
         <span class="self">self</span>.<span class="ident">set_scroll_offset</span>(<span class="ident">ctx</span>, <span class="ident">prev</span>.<span class="ident">scroll_offset</span>());
 
         <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">prev</span>);
@@ -1945,7 +1935,7 @@
         <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">center</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">align_above</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Composite</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">align_above</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
         <span class="comment">// Small padding</span>
         <span class="self">self</span>.<span class="ident">vert</span> <span class="op">=</span> <span class="ident">VerticalAlignment</span>::<span class="ident">Above</span>(<span class="ident">other</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">y1</span> <span class="op">-</span> <span class="number">5.0</span>);
         <span class="self">self</span>.<span class="ident">recompute_layout</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
@@ -1953,7 +1943,7 @@
         <span class="comment">// Since we just moved things around, let all widgets respond to the mouse being somewhere</span>
         <span class="ident">ctx</span>.<span class="ident">no_op_event</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">event</span>(<span class="ident">ctx</span>), <span class="ident">Outcome</span>::<span class="ident">Nothing</span>));
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">align_below</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Composite</span>, <span class="ident">pad</span>: <span class="ident">f64</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">align_below</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>, <span class="ident">pad</span>: <span class="ident">f64</span>) {
         <span class="self">self</span>.<span class="ident">vert</span> <span class="op">=</span> <span class="ident">VerticalAlignment</span>::<span class="ident">Below</span>(<span class="ident">other</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">y2</span> <span class="op">+</span> <span class="ident">pad</span>);
         <span class="self">self</span>.<span class="ident">recompute_layout</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
 
@@ -1981,14 +1971,14 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">CompositeBuilder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Composite</span> {
+<span class="kw">impl</span> <span class="ident">PanelBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
         <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">padding</span>(<span class="number">16</span>).<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">panel_bg</span>);
         <span class="self">self</span>.<span class="ident">build_custom</span>(<span class="ident">ctx</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_custom</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Composite</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Composite</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_custom</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Panel</span> {
             <span class="ident">top_level</span>: <span class="self">self</span>.<span class="ident">top_level</span>,
 
             <span class="ident">horiz</span>: <span class="self">self</span>.<span class="ident">horiz</span>,
@@ -2068,25 +2058,21 @@
         <span class="ident">c</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aligned</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">horiz</span>: <span class="ident">HorizontalAlignment</span>,
-        <span class="ident">vert</span>: <span class="ident">VerticalAlignment</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CompositeBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aligned</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">horiz</span>: <span class="ident">HorizontalAlignment</span>, <span class="ident">vert</span>: <span class="ident">VerticalAlignment</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
         <span class="self">self</span>.<span class="ident">horiz</span> <span class="op">=</span> <span class="ident">horiz</span>;
         <span class="self">self</span>.<span class="ident">vert</span> <span class="op">=</span> <span class="ident">vert</span>;
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Percent</span>, <span class="ident">height</span>: <span class="ident">Percent</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CompositeBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Percent</span>, <span class="ident">height</span>: <span class="ident">Percent</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
         <span class="kw">if</span> <span class="ident">width</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">100</span>) <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">height</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">100</span>) {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;By default, Composites are capped at 100% of the screen. This is redundant.&quot;</span>);
+            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;By default, Panels are capped at 100% of the screen. This is redundant.&quot;</span>);
         }
         <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims</span>::<span class="ident">MaxPercent</span>(<span class="ident">width</span>, <span class="ident">height</span>);
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_size_percent</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pct_width</span>: <span class="ident">usize</span>, <span class="ident">pct_height</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CompositeBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_size_percent</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pct_width</span>: <span class="ident">usize</span>, <span class="ident">pct_height</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
         <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims</span>::<span class="ident">ExactPercent</span>((<span class="ident">pct_width</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>, (<span class="ident">pct_height</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>);
         <span class="self">self</span>
     }

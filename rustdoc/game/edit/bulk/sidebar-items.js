@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["change_lane_types",""],["make_select_composite",""]],"struct":[["BulkEdit",""],["BulkSelect",""]]});
+initSidebarItems({"fn":[["change_lane_types",""],["make_select_panel",""]],"struct":[["BulkEdit",""],["BulkSelect",""]]});

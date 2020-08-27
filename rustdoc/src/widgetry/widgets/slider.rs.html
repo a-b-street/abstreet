@@ -596,7 +596,7 @@
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
         <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
-        <span class="comment">// TODO Since the sliders in Composites are scrollbars outside of the clipping rectangle,</span>
+        <span class="comment">// TODO Since the sliders in Panels are scrollbars outside of the clipping rectangle,</span>
         <span class="comment">// this stays for now.</span>
         <span class="ident">g</span>.<span class="ident">canvas</span>
             .<span class="ident">mark_covered_area</span>(<span class="ident">ScreenRectangle</span>::<span class="ident">top_left</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="self">self</span>.<span class="ident">dims</span>));
