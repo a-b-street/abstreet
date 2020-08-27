@@ -463,11 +463,11 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">PickLayer</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">clamp</span>;
-<span class="kw">use</span> <span class="ident">ezgui</span>::{
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
 <span class="comment">// TODO Some of the math in here might assume map bound minimums start at (0, 0).</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Minimap</span> {
@@ -675,7 +675,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoomed</span> {
             <span class="kw">let</span> <span class="ident">inner_rect</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">rect_of</span>(<span class="string">&quot;minimap&quot;</span>);
 
-            <span class="comment">// TODO Not happy about reaching in like this. The minimap logic should be an ezgui</span>
+            <span class="comment">// TODO Not happy about reaching in like this. The minimap logic should be an widgetry</span>
             <span class="comment">// Widget eventually, a generalization of Canvas.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>();
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dragging</span> {

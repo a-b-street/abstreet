@@ -222,8 +222,8 @@ input: seattle,huge_seattle,krakow,berlin,xian,tel_aviv
 <p><code>runtime</code> downloads new maps and scenarios in <code>data/system/</code>. <code>input</code> is used
 for building those maps -- see below.</p>
 <h2><a class="header" href="#building-map-data" id="building-map-data">Building map data</a></h2>
-<p>You can skip this section if you're just touching code in <code>game</code>, <code>ezgui</code>, and
-<code>sim</code>.</p>
+<p>You can skip this section if you're just touching code in <code>game</code>, <code>widgetry</code>,
+and <code>sim</code>.</p>
 <p>To run all pieces of the importer, you'll need some extra dependencies:</p>
 <ul>
 <li><code>osmconvert</code>: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download or
@@ -276,7 +276,8 @@ scratch. pretty abandoned as of June 2020</li>
 <p>Graphics:</p>
 <ul>
 <li><code>game</code>: the GUI and main gameplay</li>
-<li><code>ezgui</code>: a GUI and 2D OpenGL rendering library, using glium + winit + glutin</li>
+<li><code>widgetry</code>: a GUI and 2D OpenGL rendering library, using glium + winit +
+glutin</li>
 </ul>
 <p>Common utilities:</p>
 <ul>

@@ -1139,7 +1139,7 @@
                 <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">req</span>) <span class="kw">in</span> <span class="ident">requests</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
                     <span class="kw">let</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">clone</span>();
                     <span class="ident">scope</span>.<span class="ident">execute</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-                        <span class="comment">// TODO Can we catch panics here, dump a better stacktrace? ezgui runner</span>
+                        <span class="comment">// TODO Can we catch panics here, dump a better stacktrace? widgetry runner</span>
                         <span class="comment">// does this</span>
                         <span class="ident">tx</span>.<span class="ident">send</span>((<span class="ident">idx</span>, <span class="ident">cb</span>(<span class="ident">req</span>))).<span class="ident">unwrap</span>();
                     });

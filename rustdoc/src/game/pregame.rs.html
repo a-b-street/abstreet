@@ -565,10 +565,6 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::<span class="ident">Tutorial</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
-<span class="kw">use</span> <span class="ident">ezgui</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>,
-    <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
-};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Percent</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">PermanentMapEdits</span>;
@@ -576,6 +572,10 @@
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">ScenarioGenerator</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>,
+    <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
+};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TitleScreen</span> {
     <span class="ident">composite</span>: <span class="ident">Composite</span>,
@@ -1088,7 +1088,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
 <span class="kw">mod</span> <span class="ident">built_info</span> {
-    <span class="kw">use</span> <span class="ident">ezgui</span>::{<span class="ident">Color</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
+    <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
 
     <span class="macro">include</span><span class="macro">!</span>(<span class="macro">concat</span><span class="macro">!</span>(<span class="macro">env</span><span class="macro">!</span>(<span class="string">&quot;OUT_DIR&quot;</span>), <span class="string">&quot;/built.rs&quot;</span>));
 
@@ -1109,8 +1109,8 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">built_info</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ezgui</span>::<span class="ident">Text</span> {
-        <span class="ident">ezgui</span>::<span class="ident">Text</span>::<span class="ident">new</span>()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">widgetry</span>::<span class="ident">Text</span> {
+        <span class="ident">widgetry</span>::<span class="ident">Text</span>::<span class="ident">new</span>()
     }
 }
 </pre></div>

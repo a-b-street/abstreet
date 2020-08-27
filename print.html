@@ -856,8 +856,8 @@ input: seattle,huge_seattle,krakow,berlin,xian,tel_aviv
 <p><code>runtime</code> downloads new maps and scenarios in <code>data/system/</code>. <code>input</code> is used
 for building those maps -- see below.</p>
 <h2><a class="header" href="#building-map-data" id="building-map-data">Building map data</a></h2>
-<p>You can skip this section if you're just touching code in <code>game</code>, <code>ezgui</code>, and
-<code>sim</code>.</p>
+<p>You can skip this section if you're just touching code in <code>game</code>, <code>widgetry</code>,
+and <code>sim</code>.</p>
 <p>To run all pieces of the importer, you'll need some extra dependencies:</p>
 <ul>
 <li><code>osmconvert</code>: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download or
@@ -910,7 +910,8 @@ scratch. pretty abandoned as of June 2020</li>
 <p>Graphics:</p>
 <ul>
 <li><code>game</code>: the GUI and main gameplay</li>
-<li><code>ezgui</code>: a GUI and 2D OpenGL rendering library, using glium + winit + glutin</li>
+<li><code>widgetry</code>: a GUI and 2D OpenGL rendering library, using glium + winit +
+glutin</li>
 </ul>
 <p>Common utilities:</p>
 <ul>
@@ -1947,11 +1948,11 @@ ends at a border or building, there are many combinations of these sequences.
 This is a way to categorize them into three groups. I'm not sure it's the
 simplest way to express all the state transitons.</p>
 <h2><a class="header" href="#walking-only-trips" id="walking-only-trips">Walking-only trips</a></h2>
-<p><img src="trafficsim/../mdbook-plantuml-img/e6a96285-9939-4235-9529-ffaaf67ffa59.svg" alt="../mdbook-plantuml-img/e6a96285-9939-4235-9529-ffaaf67ffa59.svg" /></p>
+<p><img src="trafficsim/../mdbook-plantuml-img/a47da11d-52ed-41a5-a107-a7a3d1abecbe.svg" alt="../mdbook-plantuml-img/a47da11d-52ed-41a5-a107-a7a3d1abecbe.svg" /></p>
 <h2><a class="header" href="#trips-starting-from-a-border" id="trips-starting-from-a-border">Trips starting from a border</a></h2>
-<p><img src="trafficsim/../mdbook-plantuml-img/08583509-e191-45b6-b938-a3b141208c61.svg" alt="../mdbook-plantuml-img/08583509-e191-45b6-b938-a3b141208c61.svg" /></p>
+<p><img src="trafficsim/../mdbook-plantuml-img/50344591-3fa2-4dbd-bbc9-e504a9fa12e0.svg" alt="../mdbook-plantuml-img/50344591-3fa2-4dbd-bbc9-e504a9fa12e0.svg" /></p>
 <h2><a class="header" href="#trips-starting-from-a-building" id="trips-starting-from-a-building">Trips starting from a building</a></h2>
-<p><img src="trafficsim/../mdbook-plantuml-img/f37128c2-94d3-457f-a9bf-a933dd855e7c.svg" alt="../mdbook-plantuml-img/f37128c2-94d3-457f-a9bf-a933dd855e7c.svg" /></p>
+<p><img src="trafficsim/../mdbook-plantuml-img/a41ce5bb-12d1-431f-99ed-da5e095be4bd.svg" alt="../mdbook-plantuml-img/a41ce5bb-12d1-431f-99ed-da5e095be4bd.svg" /></p>
 <h1><a class="header" href="#project-logistics" id="project-logistics">Project logistics</a></h1>
 <p>This has some background/logistics about the project.</p>
 <h1><a class="header" href="#roadmap" id="roadmap">Roadmap</a></h1>

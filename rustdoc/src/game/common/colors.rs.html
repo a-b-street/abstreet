@@ -363,13 +363,17 @@
 <span id="363">363</span>
 <span id="364">364</span>
 <span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Counter</span>;
-<span class="kw">use</span> <span class="ident">ezgui</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">FancyColor</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">LinearGradient</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">FancyColor</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">LinearGradient</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ColorDiscrete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Map</span>,
@@ -707,7 +711,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_scale</span>() {
         <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">ColorScale</span>;
-        <span class="kw">use</span> <span class="ident">ezgui</span>::<span class="ident">Color</span>;
+        <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">Color</span>;
 
         <span class="kw">let</span> <span class="ident">two</span> <span class="op">=</span> <span class="ident">ColorScale</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>]);
         <span class="ident">assert_same</span>((<span class="number">0</span>, <span class="number">0.0</span>), <span class="ident">two</span>.<span class="ident">inner_eval</span>(<span class="number">0.0</span>));

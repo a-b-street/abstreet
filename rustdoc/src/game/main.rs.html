@@ -265,7 +265,7 @@
             );
         }
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">ezgui</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;A/B Street&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;A/B Street&quot;</span>);
     <span class="ident">settings</span>.<span class="ident">window_icon</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="string">&quot;system/assets/pregame/icon.png&quot;</span>));
     <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--enable_profiler&quot;</span>) {
         <span class="ident">settings</span>.<span class="ident">enable_profiling</span>();
@@ -316,7 +316,7 @@
 
     <span class="ident">args</span>.<span class="ident">done</span>();
 
-    <span class="ident">ezgui</span>::<span class="ident">run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
+    <span class="ident">widgetry</span>::<span class="ident">run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
         <span class="ident">game</span>::<span class="ident">Game</span>::<span class="ident">new</span>(<span class="ident">flags</span>, <span class="ident">opts</span>, <span class="ident">start_with_edits</span>, <span class="ident">mode</span>, <span class="ident">ctx</span>)
     });
 }

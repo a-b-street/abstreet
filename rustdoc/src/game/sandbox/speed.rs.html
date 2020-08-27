@@ -772,14 +772,14 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">DrawOptions</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">ezgui</span>::{
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
+<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AlertLocation</span>;
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">hotkey</span>, <span class="ident">AreaSlider</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Composite</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">PersistentSplit</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AlertLocation</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SpeedControls</span> {
     <span class="kw">pub</span> <span class="ident">composite</span>: <span class="ident">Composite</span>,
@@ -1037,7 +1037,7 @@
                     <span class="ident">SpeedSetting</span>::<span class="ident">Fastest</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">3600.0</span>,
                 };
                 <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">multiplier</span> <span class="op">*</span> <span class="ident">real_dt</span>;
-                <span class="comment">// TODO This should match the update frequency in ezgui. Plumb along the deadline</span>
+                <span class="comment">// TODO This should match the update frequency in widgetry. Plumb along the deadline</span>
                 <span class="comment">// or frequency to here.</span>
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time_limited_step</span>(
                     <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
