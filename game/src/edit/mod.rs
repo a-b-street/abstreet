@@ -712,7 +712,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
             Btn::text_fg("Autosaved!").inactive(ctx)
         },
         Text::from_multiline(vec![
-            Line(format!("{} roads changed", edits.original_roads.len())),
+            Line(format!("{} roads changed", edits.changed_roads.len())),
             Line(format!(
                 "{} intersections changed",
                 edits.original_intersections.len()

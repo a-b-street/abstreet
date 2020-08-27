@@ -224,7 +224,7 @@ impl Static {
         let edits = app.primary.map.get_edits();
         // TODO Actually this loses tons of information; we really should highlight just the
         // changed lanes
-        for r in edits.original_roads.keys() {
+        for r in &edits.changed_roads {
             colorer.add_r(*r, "modified road/intersection");
         }
         for i in edits.original_intersections.keys() {
@@ -237,7 +237,7 @@ impl Static {
             "map edits",
             format!("Map edits ({})", edits.edits_name),
             Text::from_multiline(vec![
-                Line(format!("{} roads changed", edits.original_roads.len())),
+                Line(format!("{} roads changed", edits.changed_roads.len())),
                 Line(format!(
                     "{} intersections changed",
                     edits.original_intersections.len()
