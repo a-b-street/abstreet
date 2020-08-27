@@ -568,6 +568,13 @@
 <span id="568">568</span>
 <span id="569">569</span>
 <span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">compat</span>;
 <span class="kw">mod</span> <span class="ident">perma</span>;
@@ -979,6 +986,13 @@
             <span class="ident">speed_limit</span>: <span class="ident">r</span>.<span class="ident">speed_limit</span>,
             <span class="ident">access_restrictions</span>: <span class="ident">r</span>.<span class="ident">access_restrictions</span>.<span class="ident">clone</span>(),
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edit_road_cmd</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditRoad</span>)<span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EditCmd</span> {
+        <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">old</span>.<span class="ident">clone</span>();
+        <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">new</span>);
+        <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> }
     }
 
     <span class="comment">// Panics on borders</span>
