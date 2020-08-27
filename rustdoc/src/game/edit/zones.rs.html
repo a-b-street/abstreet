@@ -220,7 +220,6 @@
 <span id="220">220</span>
 <span id="221">221</span>
 <span id="222">222</span>
-<span id="223">223</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">ColorDiscrete</span>;
@@ -312,11 +311,10 @@
 
                     <span class="comment">// Roads deleted from the zone</span>
                     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">orig_members</span>.<span class="ident">difference</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span>) {
-                        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
-                            <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">r</span>,
-                            <span class="ident">old</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">access_restrictions</span>.<span class="ident">clone</span>(),
-                            <span class="ident">new</span>: <span class="ident">AccessRestrictions</span>::<span class="ident">new</span>(),
-                        });
+                        <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">old</span>.<span class="ident">clone</span>();
+                        <span class="ident">new</span>.<span class="ident">access_restrictions</span> <span class="op">=</span> <span class="ident">AccessRestrictions</span>::<span class="ident">new</span>();
+                        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">r</span>: <span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> });
                     }
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">allow_through_traffic</span> <span class="op">=</span> <span class="self">self</span>
@@ -327,7 +325,7 @@
                     <span class="comment">// The original allow_through_traffic always includes this, and there&#39;s no way</span>
                     <span class="comment">// to exclude it, so stay consistent.</span>
                     <span class="ident">allow_through_traffic</span>.<span class="ident">insert</span>(<span class="ident">PathConstraints</span>::<span class="ident">Train</span>);
-                    <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">AccessRestrictions</span> {
+                    <span class="kw">let</span> <span class="ident">new_access_restrictions</span> <span class="op">=</span> <span class="ident">AccessRestrictions</span> {
                         <span class="ident">allow_through_traffic</span>,
                         <span class="ident">cap_vehicles_per_hour</span>: {
                             <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">composite</span>.<span class="ident">spinner</span>(<span class="string">&quot;cap_vehicles&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span>;
@@ -339,13 +337,13 @@
                         },
                     };
                     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span> {
-                        <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">access_restrictions</span>.<span class="ident">clone</span>();
-                        <span class="kw">if</span> <span class="ident">old</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new</span> {
-                            <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeAccessRestrictions</span> {
-                                <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">r</span>,
-                                <span class="ident">old</span>,
-                                <span class="ident">new</span>: <span class="ident">new</span>.<span class="ident">clone</span>(),
-                            });
+                        <span class="kw">let</span> <span class="ident">old_access_restrictions</span> <span class="op">=</span>
+                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">access_restrictions</span>.<span class="ident">clone</span>();
+                        <span class="kw">if</span> <span class="ident">old_access_restrictions</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_access_restrictions</span> {
+                            <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">old</span>.<span class="ident">clone</span>();
+                            <span class="ident">new</span>.<span class="ident">access_restrictions</span> <span class="op">=</span> <span class="ident">new_access_restrictions</span>.<span class="ident">clone</span>();
+                            <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">r</span>: <span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> });
                         }
                     }
 

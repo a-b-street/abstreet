@@ -342,7 +342,6 @@
 <span id="342">342</span>
 <span id="343">343</span>
 <span id="344">344</span>
-<span id="345">345</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>};
@@ -354,7 +353,7 @@
     <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">LaneType</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditRoad</span>, <span class="ident">LaneType</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AgentType</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BikeNetwork</span> {
@@ -564,21 +563,29 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edits</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Static</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete</span>::<span class="ident">new</span>(
             <span class="ident">app</span>,
-            <span class="macro">vec</span><span class="macro">!</span>[(<span class="string">&quot;modified lane/intersection&quot;</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">edits_layer</span>)],
+            <span class="macro">vec</span><span class="macro">!</span>[(<span class="string">&quot;modified road/intersection&quot;</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">edits_layer</span>)],
         );
 
         <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">edits</span>.<span class="ident">original_lts</span>.<span class="ident">keys</span>().<span class="ident">chain</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">reversed_lanes</span>) {
-            <span class="ident">colorer</span>.<span class="ident">add_l</span>(<span class="kw-2">*</span><span class="ident">l</span>, <span class="string">&quot;modified lane/intersection&quot;</span>);
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">changed_roads</span> {
+            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+            <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="ident">EditRoad</span>::<span class="ident">get_orig_from_osm</span>(<span class="ident">r</span>);
+            <span class="comment">// What exactly changed?</span>
+            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">speed_limit</span> <span class="op">!</span><span class="op">=</span> <span class="ident">orig</span>.<span class="ident">speed_limit</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span> <span class="op">!</span><span class="op">=</span> <span class="ident">orig</span>.<span class="ident">access_restrictions</span>
+            {
+                <span class="ident">colorer</span>.<span class="ident">add_r</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="string">&quot;modified road/intersection&quot;</span>);
+            } <span class="kw">else</span> {
+                <span class="kw">let</span> <span class="ident">lanes</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>();
+                <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">lt</span>, <span class="ident">dir</span>)) <span class="kw">in</span> <span class="ident">orig</span>.<span class="ident">lanes_ltr</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                    <span class="kw">if</span> <span class="ident">lanes</span>[<span class="ident">idx</span>].<span class="number">1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">dir</span> <span class="op">|</span><span class="op">|</span> <span class="ident">lanes</span>[<span class="ident">idx</span>].<span class="number">2</span> <span class="op">!</span><span class="op">=</span> <span class="ident">lt</span> {
+                        <span class="ident">colorer</span>.<span class="ident">add_l</span>(<span class="ident">lanes</span>[<span class="ident">idx</span>].<span class="number">0</span>, <span class="string">&quot;modified road/intersection&quot;</span>);
+                    }
+                }
+            }
         }
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">edits</span>.<span class="ident">original_intersections</span>.<span class="ident">keys</span>() {
             <span class="ident">colorer</span>.<span class="ident">add_i</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="string">&quot;modified lane/intersection&quot;</span>);
-        }
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">changed_speed_limits</span> {
-            <span class="ident">colorer</span>.<span class="ident">add_r</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="string">&quot;modified lane/intersection&quot;</span>);
-        }
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">changed_access_restrictions</span> {
-            <span class="ident">colorer</span>.<span class="ident">add_r</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="string">&quot;modified lane/intersection&quot;</span>);
         }
 
         <span class="ident">Static</span>::<span class="ident">new</span>(
@@ -587,16 +594,7 @@
             <span class="string">&quot;map edits&quot;</span>,
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Map edits ({})&quot;</span>, <span class="ident">edits</span>.<span class="ident">edits_name</span>),
             <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} lane types changed&quot;</span>, <span class="ident">edits</span>.<span class="ident">original_lts</span>.<span class="ident">len</span>())),
-                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} lanes reversed&quot;</span>, <span class="ident">edits</span>.<span class="ident">reversed_lanes</span>.<span class="ident">len</span>())),
-                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{} speed limits changed&quot;</span>,
-                    <span class="ident">edits</span>.<span class="ident">changed_speed_limits</span>.<span class="ident">len</span>()
-                )),
-                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{} access restrictions changed&quot;</span>,
-                    <span class="ident">edits</span>.<span class="ident">changed_access_restrictions</span>.<span class="ident">len</span>()
-                )),
+                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} roads changed&quot;</span>, <span class="ident">edits</span>.<span class="ident">changed_roads</span>.<span class="ident">len</span>())),
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;{} intersections changed&quot;</span>,
                     <span class="ident">edits</span>.<span class="ident">original_intersections</span>.<span class="ident">len</span>()

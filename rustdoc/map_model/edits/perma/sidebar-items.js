@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["PermanentEditCmd",""],["PermanentEditIntersection",""]],"struct":[["OriginalLane",""],["PermanentMapEdits",""]]});
+initSidebarItems({"enum":[["PermanentEditCmd",""],["PermanentEditIntersection",""]],"struct":[["PermanentMapEdits",""]]});

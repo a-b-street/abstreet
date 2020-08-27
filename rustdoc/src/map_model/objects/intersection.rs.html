@@ -151,6 +151,8 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
@@ -195,6 +197,8 @@
 
     <span class="comment">// Note that a lane may belong to both incoming_lanes and outgoing_lanes.</span>
     <span class="comment">// TODO narrow down when and why. is it just sidewalks in weird cases?</span>
+    <span class="comment">// TODO Change to BTreeSet, or otherwise emphasize to callers that the order of these isn&#39;t</span>
+    <span class="comment">// meaningful</span>
     <span class="kw">pub</span> <span class="ident">incoming_lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">outgoing_lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
 
