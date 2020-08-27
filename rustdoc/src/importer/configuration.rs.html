@@ -32,9 +32,8 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
-<span id="35">35</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>};
+<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
 <span class="kw">use</span> <span class="ident">serde_json</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
@@ -60,7 +59,6 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_configuration</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ImporterConfiguration</span> {
-
     <span class="comment">// Safe to assume that {} can be parsed given struct-level Default implementation.</span>
     <span class="kw">let</span> <span class="ident">default</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="string">&quot;{}&quot;</span>).<span class="ident">unwrap</span>();
 

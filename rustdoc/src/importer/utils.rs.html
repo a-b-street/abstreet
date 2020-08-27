@@ -146,11 +146,16 @@
 <span id="146">146</span>
 <span id="147">147</span>
 <span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">Command</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
 
 <span class="comment">// If the output file doesn&#39;t already exist, downloads the URL into that location. Automatically</span>
 <span class="comment">// uncompresses .zip and .gz files.</span>
@@ -240,7 +245,12 @@
 
 <span class="comment">// Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.</span>
 <span class="comment">// Skips if the output exists.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">osmconvert</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">clipping_polygon</span>: <span class="ident">String</span>, <span class="ident">output</span>: <span class="ident">String</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">osmconvert</span>(
+    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+    <span class="ident">clipping_polygon</span>: <span class="ident">String</span>,
+    <span class="ident">output</span>: <span class="ident">String</span>,
+    <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
+) {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="ident">input</span>);
     <span class="kw">let</span> <span class="ident">clipping_polygon</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="ident">clipping_polygon</span>);
     <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="ident">output</span>);
