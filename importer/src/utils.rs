@@ -39,10 +39,8 @@ pub fn download(config: &ImporterConfiguration, output: &str, url: &str) {
         std::fs::rename(tmp, format!("{}.gz", output)).unwrap();
 
         let mut gunzip_cmd = Command::new(&config.gunzip);
-        if let Some(gunzip_args) = &config.gunzip_args {
-            for arg in gunzip_args.split_ascii_whitespace() {
-                gunzip_cmd.arg(arg);
-            }
+        for arg in config.gunzip_args.split_ascii_whitespace() {
+            gunzip_cmd.arg(arg);
         }
         run(gunzip_cmd.arg(format!("{}.gz", output)));
     } else {

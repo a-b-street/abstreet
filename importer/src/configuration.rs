@@ -8,7 +8,7 @@ pub struct ImporterConfiguration {
     pub osmconvert: String,
     pub unzip: String,
     pub gunzip: String,
-    pub gunzip_args: Option<String>,
+    pub gunzip_args: String,
 }
 
 impl Default for ImporterConfiguration {
@@ -18,13 +18,13 @@ impl Default for ImporterConfiguration {
             osmconvert: String::from("osmconvert"),
             unzip: String::from("unzip"),
             gunzip: String::from("gunzip"),
-            gunzip_args: None,
+            gunzip_args: String::from(""),
         }
     }
 }
 
 pub fn load_configuration() -> ImporterConfiguration {
-    
+
     // Safe to assume that {} can be parsed given struct-level Default implementation.
     let default = serde_json::from_str("{}").unwrap();
 
