@@ -712,16 +712,6 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
             Btn::text_fg("Autosaved!").inactive(ctx)
         },
         Text::from_multiline(vec![
-            Line(format!("{} lane types changed", edits.original_lts.len())),
-            Line(format!("{} lanes reversed", edits.reversed_lanes.len())),
-            Line(format!(
-                "{} speed limits changed",
-                edits.changed_speed_limits.len()
-            )),
-            Line(format!(
-                "{} access restrictions changed",
-                edits.changed_access_restrictions.len()
-            )),
             Line(format!("{} roads changed", edits.original_roads.len())),
             Line(format!(
                 "{} intersections changed",
@@ -752,12 +742,8 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
 // TODO Ideally a Tab.
 fn cmd_to_id(cmd: &EditCmd) -> Option<ID> {
     match cmd {
-        EditCmd::ChangeLaneType { id, .. } => Some(ID::Lane(*id)),
-        EditCmd::ReverseLane { l, .. } => Some(ID::Lane(*l)),
-        EditCmd::ChangeSpeedLimit { id, .. } => Some(ID::Road(*id)),
         EditCmd::ChangeRoad { r, .. } => Some(ID::Road(*r)),
         EditCmd::ChangeIntersection { i, .. } => Some(ID::Intersection(*i)),
-        EditCmd::ChangeAccessRestrictions { id, .. } => Some(ID::Road(*id)),
         EditCmd::ChangeRouteSchedule { .. } => None,
     }
 }

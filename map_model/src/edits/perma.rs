@@ -1,10 +1,8 @@
 use crate::edits::{EditCmd, EditIntersection, EditRoad, MapEdits};
 use crate::raw::OriginalRoad;
-use crate::{
-    osm, AccessRestrictions, ControlStopSign, Direction, IntersectionID, LaneID, LaneType, Map,
-};
+use crate::{osm, ControlStopSign, IntersectionID, Map};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Speed, Time};
+use geom::Time;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -36,34 +34,8 @@ enum PermanentEditIntersection {
     Closed,
 }
 
-// TODO Deprecated
-// Enough data to notice when lanes along a road have changed
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct OriginalLane {
-    pub parent: OriginalRoad,
-    pub num_fwd: usize,
-    pub num_back: usize,
-    pub dir: Direction,
-    pub idx: usize,
-}
-
 #[derive(Serialize, Deserialize, Clone)]
 enum PermanentEditCmd {
-    ChangeLaneType {
-        id: OriginalLane,
-        lt: LaneType,
-        orig_lt: LaneType,
-    },
-    ReverseLane {
-        l: OriginalLane,
-        // New intended dst_i
-        dst_i: osm::NodeID,
-    },
-    ChangeSpeedLimit {
-        id: OriginalRoad,
-        new: Speed,
-        old: Speed,
-    },
     ChangeRoad {
         r: OriginalRoad,
         new: EditRoad,
@@ -73,11 +45,6 @@ enum PermanentEditCmd {
         i: osm::NodeID,
         new: PermanentEditIntersection,
         old: PermanentEditIntersection,
-    },
-    ChangeAccessRestrictions {
-        id: OriginalRoad,
-        new: AccessRestrictions,
-        old: AccessRestrictions,
     },
     ChangeRouteSchedule {
         osm_rel_id: osm::RelationID,
@@ -99,24 +66,6 @@ impl PermanentMapEdits {
                 .commands
                 .iter()
                 .map(|cmd| match cmd {
-                    EditCmd::ChangeLaneType { id, lt, orig_lt } => {
-                        PermanentEditCmd::ChangeLaneType {
-                            id: OriginalLane::to_permanent(*id, map),
-                            lt: *lt,
-                            orig_lt: *orig_lt,
-                        }
-                    }
-                    EditCmd::ReverseLane { l, dst_i } => PermanentEditCmd::ReverseLane {
-                        l: OriginalLane::to_permanent(*l, map),
-                        dst_i: map.get_i(*dst_i).orig_id,
-                    },
-                    EditCmd::ChangeSpeedLimit { id, new, old } => {
-                        PermanentEditCmd::ChangeSpeedLimit {
-                            id: map.get_r(*id).orig_id,
-                            new: *new,
-                            old: *old,
-                        }
-                    }
                     EditCmd::ChangeRoad { r, new, old } => PermanentEditCmd::ChangeRoad {
                         r: map.get_r(*r).orig_id,
                         new: new.clone(),
@@ -127,13 +76,6 @@ impl PermanentMapEdits {
                             i: map.get_i(*i).orig_id,
                             new: new.to_permanent(map),
                             old: old.to_permanent(map),
-                        }
-                    }
-                    EditCmd::ChangeAccessRestrictions { id, new, old } => {
-                        PermanentEditCmd::ChangeAccessRestrictions {
-                            id: map.get_r(*id).orig_id,
-                            new: new.clone(),
-                            old: old.clone(),
                         }
                     }
                     EditCmd::ChangeRouteSchedule { id, old, new } => {
@@ -157,28 +99,6 @@ impl PermanentMapEdits {
                 .commands
                 .into_iter()
                 .map(|cmd| match cmd {
-                    PermanentEditCmd::ChangeLaneType { id, lt, orig_lt } => {
-                        let l = id.clone().from_permanent(map)?;
-                        // This validation doesn't need previous commands to be applied, because
-                        // compress() creates only one ChangeLaneType per lane.
-                        let now = map.get_l(l).lane_type;
-                        if now != orig_lt {
-                            return Err(format!(
-                                "basemap lanetype of {:?} has changed from {:?} to {:?}",
-                                id, orig_lt, now
-                            ));
-                        }
-                        Ok(EditCmd::ChangeLaneType { id: l, lt, orig_lt })
-                    }
-                    PermanentEditCmd::ReverseLane { l, dst_i } => {
-                        let l = l.from_permanent(map)?;
-                        let dst_i = map.find_i_by_osm_id(dst_i)?;
-                        Ok(EditCmd::ReverseLane { l, dst_i })
-                    }
-                    PermanentEditCmd::ChangeSpeedLimit { id, new, old } => {
-                        let id = map.find_r_by_osm_id(id)?;
-                        Ok(EditCmd::ChangeSpeedLimit { id, new, old })
-                    }
                     PermanentEditCmd::ChangeRoad { r, new, old } => {
                         let id = map.find_r_by_osm_id(r)?;
                         let num_current = map.get_r(id).lanes_ltr().len();
@@ -204,10 +124,6 @@ impl PermanentMapEdits {
                                 .ok_or(format!("old ChangeIntersection of {} invalid", i))?,
                         })
                     }
-                    PermanentEditCmd::ChangeAccessRestrictions { id, new, old } => {
-                        let id = map.find_r_by_osm_id(id)?;
-                        Ok(EditCmd::ChangeAccessRestrictions { id, new, old })
-                    }
                     PermanentEditCmd::ChangeRouteSchedule {
                         osm_rel_id,
                         old,
@@ -221,12 +137,8 @@ impl PermanentMapEdits {
                 })
                 .collect::<Result<Vec<EditCmd>, String>>()?,
 
-            original_lts: BTreeMap::new(),
-            reversed_lanes: BTreeSet::new(),
             original_roads: BTreeMap::new(),
             original_intersections: BTreeMap::new(),
-            changed_speed_limits: BTreeSet::new(),
-            changed_access_restrictions: BTreeSet::new(),
             changed_routes: BTreeSet::new(),
         };
         edits.update_derived(map);
@@ -277,39 +189,5 @@ impl PermanentEditIntersection {
             }
             PermanentEditIntersection::Closed => Some(EditIntersection::Closed),
         }
-    }
-}
-
-impl OriginalLane {
-    pub fn to_permanent(l: LaneID, map: &Map) -> OriginalLane {
-        let r = map.get_parent(l);
-        let (dir, idx) = r.dir_and_offset(l);
-        OriginalLane {
-            parent: r.orig_id,
-            num_fwd: r.children_forwards().len(),
-            num_back: r.children_backwards().len(),
-            dir,
-            idx,
-        }
-    }
-
-    // TODO Will fail unless we apply ReverseLane's as we convert PermanentMapEdits.
-    // - Could make an indexing scheme that refers to lanes from one side or the other and ignores
-    //   fwd/back.
-    // - Some validation happens in the lane editor, not even here.
-    // - Is it inevitable? Maybe we need to apply edits as we convert.
-    pub fn from_permanent(self, map: &Map) -> Result<LaneID, String> {
-        let r = map.get_r(map.find_r_by_osm_id(self.parent)?);
-        if r.children_forwards().len() != self.num_fwd
-            || r.children_backwards().len() != self.num_back
-        {
-            return Err(format!(
-                "number of lanes has changed in {:?} to {} fwd, {} back",
-                self,
-                r.children_forwards().len(),
-                r.children_backwards().len()
-            ));
-        }
-        Ok(r.children(self.dir)[self.idx].0)
     }
 }

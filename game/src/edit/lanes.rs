@@ -87,9 +87,8 @@ impl LaneEditor {
             Widget::custom_row(vec![
                 Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
                 // TODO Handle reverting speed limit too...
-                if app.primary.map.get_edits().original_lts.contains_key(&l)
-                    || app.primary.map.get_edits().reversed_lanes.contains(&l)
-                {
+                // TODO Woops, we need an easy way to figure this out
+                if false {
                     Btn::text_fg("Revert").build_def(ctx, hotkey(Key::R))
                 } else {
                     Btn::text_fg("Revert").inactive(ctx)
@@ -153,12 +152,7 @@ impl State for LaneEditor {
                     let map = &mut app.primary.map;
                     let result = match x {
                         "Revert" => {
-                            // TODO It's hard to revert both changes at once.
-                            if let Some(lt) = map.get_edits().original_lts.get(&self.l).cloned() {
-                                try_change_lt(ctx, map, self.l, lt)
-                            } else {
-                                try_reverse(ctx, map, self.l)
-                            }
+                            panic!("need to implement this again");
                         }
                         "reverse lane direction" => try_reverse(ctx, map, self.l),
                         "convert to a driving lane" => {
