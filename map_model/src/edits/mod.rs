@@ -19,8 +19,7 @@ pub struct MapEdits {
     pub commands: Vec<EditCmd>,
 
     // Derived from commands, kept up to date by update_derived
-    // TODO Do we need to store the original? We can just do EditRoad::get_orig_from_osm.
-    pub original_roads: BTreeMap<RoadID, EditRoad>,
+    pub changed_roads: BTreeSet<RoadID>,
     pub original_intersections: BTreeMap<IntersectionID, EditIntersection>,
     pub changed_routes: BTreeSet<BusRouteID>,
 
@@ -94,7 +93,7 @@ impl MapEdits {
             proposal_link: None,
             commands: Vec::new(),
 
-            original_roads: BTreeMap::new(),
+            changed_roads: BTreeSet::new(),
             original_intersections: BTreeMap::new(),
             changed_routes: BTreeSet::new(),
         }
@@ -124,16 +123,14 @@ impl MapEdits {
     }
 
     fn update_derived(&mut self, map: &Map) {
-        self.original_roads.clear();
+        self.changed_roads.clear();
         self.original_intersections.clear();
         self.changed_routes.clear();
 
         for cmd in &self.commands {
             match cmd {
-                EditCmd::ChangeRoad { r, ref old, .. } => {
-                    if !self.original_roads.contains_key(r) {
-                        self.original_roads.insert(*r, old.clone());
-                    }
+                EditCmd::ChangeRoad { r, .. } => {
+                    self.changed_roads.insert(*r);
                 }
                 EditCmd::ChangeIntersection { i, ref old, .. } => {
                     if !self.original_intersections.contains_key(i) {
@@ -146,8 +143,8 @@ impl MapEdits {
             }
         }
 
-        retain_btreemap(&mut self.original_roads, |r, orig| {
-            map.get_r_edit(*r) != orig.clone()
+        retain_btreeset(&mut self.changed_roads, |r| {
+            map.get_r_edit(*r) != EditRoad::get_orig_from_osm(map.get_r(*r))
         });
         retain_btreemap(&mut self.original_intersections, |i, orig| {
             map.get_i_edit(*i) != orig.clone()
@@ -160,10 +157,10 @@ impl MapEdits {
 
     // Assumes update_derived has been called.
     fn compress(&mut self, map: &Map) {
-        for (r, old) in &self.original_roads {
+        for r in &self.changed_roads {
             self.commands.push(EditCmd::ChangeRoad {
                 r: *r,
-                old: old.clone(),
+                old: EditRoad::get_orig_from_osm(map.get_r(*r)),
                 new: map.get_r_edit(*r),
             });
         }

@@ -137,7 +137,7 @@ impl PermanentMapEdits {
                 })
                 .collect::<Result<Vec<EditCmd>, String>>()?,
 
-            original_roads: BTreeMap::new(),
+            changed_roads: BTreeSet::new(),
             original_intersections: BTreeMap::new(),
             changed_routes: BTreeSet::new(),
         };
