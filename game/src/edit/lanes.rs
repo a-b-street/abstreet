@@ -13,7 +13,7 @@ use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome,
     RewriteColor, TextExt, VerticalAlignment, Widget,
 };
-use map_model::{EditCmd, LaneID, LaneType};
+use map_model::{LaneID, LaneType};
 
 pub struct LaneEditor {
     l: LaneID,
@@ -179,12 +179,13 @@ impl State for LaneEditor {
                 }
             },
             Outcome::Changed => {
-                let r = app.primary.map.get_l(self.l).parent;
-                let old = app.primary.map.get_r_edit(r);
-                let mut new = old.clone();
-                new.speed_limit = self.composite.dropdown_value("speed limit");
                 let mut edits = app.primary.map.get_edits().clone();
-                edits.commands.push(EditCmd::ChangeRoad { r, new, old });
+                edits.commands.push(app.primary.map.edit_road_cmd(
+                    app.primary.map.get_l(self.l).parent,
+                    |new| {
+                        new.speed_limit = self.composite.dropdown_value("speed limit");
+                    },
+                ));
                 apply_map_edits(ctx, app, edits);
                 return Transition::Replace(LaneEditor::new(ctx, app, self.l, self.mode.clone()));
             }

@@ -410,6 +410,13 @@ impl Map {
         }
     }
 
+    pub fn edit_road_cmd<F: Fn(&mut EditRoad)>(&self, r: RoadID, f: F) -> EditCmd {
+        let old = self.get_r_edit(r);
+        let mut new = old.clone();
+        f(&mut new);
+        EditCmd::ChangeRoad { r, old, new }
+    }
+
     // Panics on borders
     pub fn get_i_edit(&self, i: IntersectionID) -> EditIntersection {
         match self.get_i(i).intersection_type {

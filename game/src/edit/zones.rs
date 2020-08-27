@@ -10,7 +10,7 @@ use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
-use map_model::{AccessRestrictions, EditCmd, PathConstraints, RoadID};
+use map_model::{AccessRestrictions, PathConstraints, RoadID};
 use maplit::btreeset;
 use sim::TripMode;
 use std::collections::BTreeSet;
@@ -88,10 +88,11 @@ impl State for ZoneEditor {
 
                     // Roads deleted from the zone
                     for r in self.orig_members.difference(&self.selector.roads) {
-                        let old = app.primary.map.get_r_edit(*r);
-                        let mut new = old.clone();
-                        new.access_restrictions = AccessRestrictions::new();
-                        edits.commands.push(EditCmd::ChangeRoad { r: *r, old, new });
+                        edits
+                            .commands
+                            .push(app.primary.map.edit_road_cmd(*r, |new| {
+                                new.access_restrictions = AccessRestrictions::new();
+                            }));
                     }
 
                     let mut allow_through_traffic = self
@@ -117,10 +118,11 @@ impl State for ZoneEditor {
                         let old_access_restrictions =
                             app.primary.map.get_r(*r).access_restrictions.clone();
                         if old_access_restrictions != new_access_restrictions {
-                            let old = app.primary.map.get_r_edit(*r);
-                            let mut new = old.clone();
-                            new.access_restrictions = new_access_restrictions.clone();
-                            edits.commands.push(EditCmd::ChangeRoad { r: *r, old, new });
+                            edits
+                                .commands
+                                .push(app.primary.map.edit_road_cmd(*r, |new| {
+                                    new.access_restrictions = new_access_restrictions.clone();
+                                }));
                         }
                     }
 

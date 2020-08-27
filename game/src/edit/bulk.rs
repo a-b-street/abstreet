@@ -7,7 +7,7 @@ use ezgui::{
     Outcome, TextExt, VerticalAlignment, Widget,
 };
 use geom::Speed;
-use map_model::{EditCmd, LaneType, RoadID};
+use map_model::{LaneType, RoadID};
 use std::collections::BTreeSet;
 
 pub struct BulkSelect {
@@ -172,10 +172,11 @@ impl State for BulkEdit {
                     let speed = self.composite.dropdown_value("speed limit");
                     let mut edits = app.primary.map.get_edits().clone();
                     for r in &self.roads {
-                        let old = app.primary.map.get_r_edit(*r);
-                        let mut new = old.clone();
-                        new.speed_limit = speed;
-                        edits.commands.push(EditCmd::ChangeRoad { r: *r, old, new });
+                        edits
+                            .commands
+                            .push(app.primary.map.edit_road_cmd(*r, |new| {
+                                new.speed_limit = speed;
+                            }));
                     }
                     apply_map_edits(ctx, app, edits);
                     return Transition::Keep;
