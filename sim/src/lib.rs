@@ -22,6 +22,7 @@ pub use self::make::{
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
 };
+pub use crate::mechanics::YellowChecker;
 pub(crate) use self::pandemic::PandemicModel;
 pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};

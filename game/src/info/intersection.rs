@@ -281,6 +281,7 @@ pub fn traffic_signal(
                 phase,
                 id,
                 None,
+                None,
                 &mut orig_batch,
                 app,
                 TrafficSignalStyle::Sidewalks,

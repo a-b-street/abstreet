@@ -145,6 +145,10 @@ impl Scheduler {
         }
     }
 
+    pub fn push_now(&mut self, cmd: Command) {
+        self.push(self.last_time, cmd);
+    }
+
     pub fn update(&mut self, new_time: Time, cmd: Command) {
         if new_time < self.latest_time {
             panic!(

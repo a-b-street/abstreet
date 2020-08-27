@@ -6,7 +6,7 @@ use crate::{
     PedestrianID, Person, PersonID, PersonState, Router, Scenario, Scheduler, SidewalkPOI,
     SidewalkSpot, TransitSimState, TripID, TripInfo, TripManager, TripPhaseType, TripResult,
     TripSpawner, UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
-    LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
+    LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST, YellowChecker,
 };
 use abstutil::{prettyprint_usize, serialized_size_bytes, Counter, Parallelism, Timer};
 use derivative::Derivative;
@@ -1138,7 +1138,7 @@ impl Sim {
             .max(Time::START_OF_DAY + Duration::hours(24))
     }
 
-    pub fn current_phase_and_remaining_time(&self, i: IntersectionID) -> (usize, Duration) {
+    pub fn current_phase_and_remaining_time(&self, i: IntersectionID) -> (usize, Duration, &dyn YellowChecker) {
         self.intersections
             .current_phase_and_remaining_time(self.time, i)
     }

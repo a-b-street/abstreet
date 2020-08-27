@@ -1,12 +1,12 @@
 use crate::mechanics::car::Car;
 use crate::mechanics::Queue;
-use crate::mechanics::traffic_signals::{TrafficSignalState, update_traffic_signal};
+use crate::mechanics::traffic_signals::{TrafficSignalState, update_traffic_signal, YellowChecker};
 use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Duration, Time};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, PhaseType, RoadID,
-    Traversable, TurnID, TurnPriority, TurnType, TrafficControlType,
+    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, RoadID,
+    Traversable, TurnID, TurnPriority, TurnType,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -42,10 +42,6 @@ struct State {
     // complete the entire sequence. This is especially necessary since groups of traffic signals
     // are not yet configured as one.
     reserved: BTreeSet<Request>,
-
-    // Only relevant for traffic signals
-    current_phase: usize,
-    phase_ends_at: Time,
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Clone, Debug)]
@@ -74,26 +70,21 @@ impl IntersectionSimState {
             events: Vec::new(),
         };
         for i in map.all_intersections() {
-            let mut state = State {
+            let state = State {
                 id: i.id,
                 accepted: BTreeSet::new(),
                 waiting: BTreeMap::new(),
                 reserved: BTreeSet::new(),
-                current_phase: 0,
-                phase_ends_at: Time::START_OF_DAY,
             };
+
             if i.is_traffic_signal() && !use_freeform_policy_everywhere {
 
                 let signal = map.get_traffic_signal(i.id);
-                state.initialize(signal);
+                let traffic_signal_state = TrafficSignalState::new(signal);
 
-                let traffic_signal_state = TrafficSignalState {
-                    current_phase: state.current_phase,
-                    phase_ends_at: state.phase_ends_at,
-                };
+                scheduler.push_now(Command::UpdateIntersection(i.id));
+
                 sim.traffic_signal_state.insert(i.id, traffic_signal_state);
-
-                scheduler.push(state.phase_ends_at, Command::UpdateIntersection(i.id));
             }
             sim.state.insert(i.id, state);
         }
@@ -180,7 +171,7 @@ impl IntersectionSimState {
                 protected.push(req);
             }
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(i) {
-            let phase = &signal.phases[self.state[&i].current_phase];
+            let phase = &signal.phases[self.traffic_signal_state[&i].current_phase];
             for (req, _) in all {
                 match phase.get_priority_of_turn(req.turn, signal) {
                     TurnPriority::Protected => {
@@ -231,65 +222,11 @@ impl IntersectionSimState {
     ) {
         let signal = map.get_traffic_signal(id);
 
-        match signal.control_type {
-            TrafficControlType::Original => self.update_original_type_intersection(now, id, signal, scheduler),
-            _ => {
-                let signal_state = self.traffic_signal_state.get_mut(&id).unwrap();
-                update_traffic_signal(now, id, signal_state, signal, scheduler);
+        let signal_state = self.traffic_signal_state.get_mut(&id).unwrap();
 
-                // TODO: A temporary hack until I can encapsulate gets of current_phase
-                let state = self.state.get_mut(&id).unwrap();
-                state.current_phase = signal_state.current_phase;
-                state.phase_ends_at = signal_state.phase_ends_at;
-            },
-        }
+        update_traffic_signal(now, id, signal_state, signal, scheduler);
 
         self.wakeup_waiting(now, id, scheduler, map);
-    }
-
-    fn update_original_type_intersection(
-        &mut self,
-        now: Time,
-        id: IntersectionID,
-        signal: &ControlTrafficSignal,
-        scheduler: &mut Scheduler,
-    ) {
-        let state = self.state.get_mut(&id).unwrap();
-
-        // Switch to a new phase?
-        assert_eq!(now, state.phase_ends_at);
-        let old_phase = &signal.phases[state.current_phase];
-        match old_phase.phase_type {
-            PhaseType::Fixed(_) => {
-                state.current_phase += 1;
-            }
-            PhaseType::Adaptive(_) => {
-                // TODO Make a better policy here. For now, if there's _anyone_ waiting to start a
-                // protected turn, repeat this phase for the full duration. Note that "waiting" is
-                // only defined as "at the end of the lane, ready to start the turn." If a
-                // vehicle/ped is a second away from the intersection, this won't detect that. We
-                // could pass in all of the Queues here and use that to count all incoming agents,
-                // even ones a little farther away.
-                if state.waiting.keys().all(|req| {
-                    old_phase.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
-                }) {
-                    state.current_phase += 1;
-                    self.events.push(Event::Alert(
-                        AlertLocation::Intersection(id),
-                        "Repeating an adaptive phase".to_string(),
-                    ));
-                }
-            }
-        }
-        if state.current_phase == signal.phases.len() {
-            state.current_phase = 0;
-        }
-
-        state.phase_ends_at = now
-            + signal.phases[state.current_phase]
-                .phase_type
-                .simple_duration();
-        scheduler.push(state.phase_ends_at, Command::UpdateIntersection(id));
     }
 
     // For cars: The head car calls this when they're at the end of the lane WaitingToAdvance. If
@@ -545,19 +482,19 @@ impl IntersectionSimState {
         &self,
         now: Time,
         i: IntersectionID,
-    ) -> (usize, Duration) {
-        let state = &self.state[&i];
-        if now > state.phase_ends_at {
+    ) -> (usize, Duration, &dyn YellowChecker) {
+        let signal_state = &self.traffic_signal_state[&i];
+        if now > signal_state.phase_ends_at {
             panic!(
                 "At {}, but {} should have advanced its phase at {}",
-                now, i, state.phase_ends_at
+                now, i, signal_state.phase_ends_at
             );
         }
-        (state.current_phase, state.phase_ends_at - now)
+        (signal_state.current_phase, signal_state.phase_ends_at - now, signal_state)
     }
 
     pub fn handle_live_edited_traffic_signals(&mut self, map: &Map) {
-        for state in self.state.values_mut() {
+        for state in self.traffic_signal_state.values_mut() {
             if let Some(ts) = map.maybe_get_traffic_signal(state.id) {
                 if state.current_phase >= ts.phases.len() {
                     // Just jump back to the first one. Shrug.
@@ -627,9 +564,10 @@ impl IntersectionSimState {
         let turn = map.get_t(req.turn);
 
         let state = &self.state[&req.turn.parent];
-        let phase = &signal.phases[state.current_phase];
+        let signal_state = &self.traffic_signal_state[&req.turn.parent];
+        let phase = &signal.phases[signal_state.current_phase];
         let full_phase_duration = phase.phase_type.simple_duration();
-        let remaining_phase_time = state.phase_ends_at - now;
+        let remaining_phase_time = signal_state.phase_ends_at - now;
         let our_time = state.waiting[req];
 
         // Can't go at all this phase.
@@ -794,26 +732,4 @@ fn allow_block_the_box(osm_node_id: i64) -> bool {
         || osm_node_id == 281487826
         || osm_node_id == 53209840
         || osm_node_id == 4249361353
-}
-
-impl State {
-    fn initialize(&mut self, signal: &ControlTrafficSignal) {
-        // What phase are we starting with?
-        let mut offset = signal.offset;
-        loop {
-            let dt = signal.phases[self.current_phase]
-                .phase_type
-                .simple_duration();
-            if offset >= dt {
-                offset -= dt;
-                self.current_phase += 1;
-                if self.current_phase == signal.phases.len() {
-                    self.current_phase = 0;
-                }
-            } else {
-                self.phase_ends_at = Time::START_OF_DAY + dt - offset;
-                break;
-            }
-        }
-    }
 }

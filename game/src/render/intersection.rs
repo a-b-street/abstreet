@@ -146,7 +146,7 @@ impl Renderable for DrawIntersection {
                     .map(|(t, _)| *t != app.primary.sim.time())
                     .unwrap_or(true);
                 if recalc {
-                    let (idx, remaining) =
+                    let (idx, remaining, yellow_checker) =
                         app.primary.sim.current_phase_and_remaining_time(self.id);
                     let mut batch = GeomBatch::new();
                     draw_signal_phase(
@@ -154,6 +154,7 @@ impl Renderable for DrawIntersection {
                         &signal.phases[idx],
                         self.id,
                         Some(remaining),
+                        Some(yellow_checker),
                         &mut batch,
                         app,
                         app.opts.traffic_signal_style.clone(),

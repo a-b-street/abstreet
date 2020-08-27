@@ -5,6 +5,7 @@ use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
 use ezgui::{Color, GeomBatch, Prerender, RewriteColor};
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority, SIDEWALK_THICKNESS};
+use sim::YellowChecker;
 use std::collections::BTreeSet;
 
 // Only draws a box when time_left is present
@@ -13,6 +14,7 @@ pub fn draw_signal_phase(
     phase: &Phase,
     i: IntersectionID,
     time_left: Option<Duration>,
+    yellow_checker: Option<&dyn YellowChecker>,
     batch: &mut GeomBatch,
     app: &App,
     signal_style: TrafficSignalStyle,
@@ -33,14 +35,12 @@ pub fn draw_signal_phase(
                 }
             }
 
-            let (yellow_light, percent) = if let Some(t) = time_left {
-                (
-                    t <= Duration::seconds(5.0),
-                    (t / phase.phase_type.simple_duration()) as f32,
-                )
+            let percent = if let Some(t) = time_left {
+                (t / phase.phase_type.simple_duration()) as f32
             } else {
-                (false, 1.0)
+                1.0
             };
+
             let yellow = Color::YELLOW;
             for g in &phase.protected_groups {
                 if !g.crosswalk {
@@ -58,10 +58,10 @@ pub fn draw_signal_phase(
 
                     let pl = &signal.turn_groups[g].geom;
                     batch.push(
-                        if yellow_light {
-                            yellow
-                        } else {
+                        if yellow_checker.is_none() || !yellow_checker.unwrap().is_turn_group_yellow(g) {
                             app.cs.signal_protected_turn.alpha(percent)
+                        } else {
+                            yellow
                         },
                         pl.exact_slice(slice_start, pl.length() - slice_end)
                             .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
@@ -104,10 +104,10 @@ pub fn draw_signal_phase(
                     ),
                 );
                 batch.extend(
-                    if yellow_light {
-                        yellow
-                    } else {
+                    if yellow_checker.is_none() || !yellow_checker.unwrap().is_turn_group_yellow(g) {
                         app.cs.signal_protected_turn.alpha(percent)
+                    } else {
+                        yellow
                     },
                     pl.exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
                         .dashed_arrow(
