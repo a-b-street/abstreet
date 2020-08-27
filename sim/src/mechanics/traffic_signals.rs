@@ -138,6 +138,16 @@ impl TrafficSignalState {
                 break;
             }
         }
+
+        // Initialize turn group state
+        for phase in signal.phases.iter() {
+            for turn_group_id in phase.protected_groups.iter() {
+                self.turn_group_state.insert(*turn_group_id, TurnGroupState { is_yellow: false });
+            }
+            for turn_group_id in phase.yield_groups.iter() {
+                self.turn_group_state.insert(*turn_group_id, TurnGroupState { is_yellow: false });
+            }
+        }
     }
 
     fn set_green_all_current_phase(&mut self, signal: &ControlTrafficSignal) {
