@@ -1,5 +1,4 @@
 use serde::Deserialize;
-use std::fs;
 use abstutil::maybe_read_json_without_timer;
 
 #[derive(Deserialize)]
