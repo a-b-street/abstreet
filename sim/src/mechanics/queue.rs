@@ -16,7 +16,6 @@ pub struct Queue {
     // ^--- laggy head
     //  ╔════════
     //  ║
-
     pub geom_len: Distance,
     // When a car's turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the
     // target lane. When the car completely leaves (stops being the laggy_head), free up that

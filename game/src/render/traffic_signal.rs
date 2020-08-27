@@ -58,7 +58,9 @@ pub fn draw_signal_phase(
 
                     let pl = &signal.turn_groups[g].geom;
                     batch.push(
-                        if yellow_checker.is_none() || !yellow_checker.unwrap().is_turn_group_yellow(g) {
+                        if yellow_checker.is_none()
+                            || !yellow_checker.unwrap().is_turn_group_yellow(g)
+                        {
                             app.cs.signal_protected_turn.alpha(percent)
                         } else {
                             yellow
@@ -104,7 +106,8 @@ pub fn draw_signal_phase(
                     ),
                 );
                 batch.extend(
-                    if yellow_checker.is_none() || !yellow_checker.unwrap().is_turn_group_yellow(g) {
+                    if yellow_checker.is_none() || !yellow_checker.unwrap().is_turn_group_yellow(g)
+                    {
                         app.cs.signal_protected_turn.alpha(percent)
                     } else {
                         yellow

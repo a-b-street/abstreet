@@ -1,5 +1,5 @@
 use crate::{Command, Scheduler};
-use geom::{Time, Duration};
+use geom::{Duration, Time};
 use map_model::{ControlTrafficSignal, IntersectionID, TrafficControlType, TurnGroupID};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -58,7 +58,6 @@ fn update_pretimed(
     scheduler: &mut Scheduler,
 ) {
     if now >= state.phase_ends_at {
-
         state.set_green_all_current_phase(signal);
 
         state.current_phase = (state.current_phase + 1) % signal.phases.len();
@@ -145,24 +144,35 @@ impl TrafficSignalState {
         let current_phase = &signal.phases[self.current_phase];
 
         for turn_group in &current_phase.protected_groups {
-            self.turn_group_state.get_mut(&turn_group).unwrap().is_yellow = false;
+            self.turn_group_state
+                .get_mut(&turn_group)
+                .unwrap()
+                .is_yellow = false;
         }
 
         for turn_group in &current_phase.yield_groups {
-            self.turn_group_state.get_mut(&turn_group).unwrap().is_yellow = false;
+            self.turn_group_state
+                .get_mut(&turn_group)
+                .unwrap()
+                .is_yellow = false;
         }
     }
 
-    
     fn set_yellow_all_current_phase(&mut self, signal: &ControlTrafficSignal) {
         let current_phase = &signal.phases[self.current_phase];
 
         for turn_group in &current_phase.protected_groups {
-            self.turn_group_state.get_mut(&turn_group).unwrap().is_yellow = true;
+            self.turn_group_state
+                .get_mut(&turn_group)
+                .unwrap()
+                .is_yellow = true;
         }
 
         for turn_group in &current_phase.yield_groups {
-            self.turn_group_state.get_mut(&turn_group).unwrap().is_yellow = true;
+            self.turn_group_state
+                .get_mut(&turn_group)
+                .unwrap()
+                .is_yellow = true;
         }
     }
 }

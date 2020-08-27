@@ -22,7 +22,6 @@ pub use self::make::{
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
 };
-pub use crate::mechanics::YellowChecker;
 pub(crate) use self::pandemic::PandemicModel;
 pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
@@ -31,6 +30,7 @@ pub(crate) use self::transit::TransitSimState;
 pub use self::trips::{Person, PersonState, TripInfo, TripResult};
 pub use self::trips::{TripEndpoint, TripMode};
 pub(crate) use self::trips::{TripLeg, TripManager};
+pub use crate::mechanics::YellowChecker;
 pub use crate::render::{
     CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents,
     PedCrowdLocation, UnzoomedAgent,

@@ -1,6 +1,6 @@
 use crate::{
     ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Phase, PhaseType, RoadID,
-    TurnGroup, TurnGroupID, TurnPriority, TurnType, TrafficControlType,
+    TrafficControlType, TurnGroup, TurnGroupID, TurnPriority, TurnType,
 };
 use abstutil::Timer;
 use geom::Duration;

@@ -1,12 +1,12 @@
 use crate::mechanics::car::Car;
+use crate::mechanics::traffic_signals::{update_traffic_signal, TrafficSignalState, YellowChecker};
 use crate::mechanics::Queue;
-use crate::mechanics::traffic_signals::{TrafficSignalState, update_traffic_signal, YellowChecker};
 use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Duration, Time};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, RoadID,
-    Traversable, TurnID, TurnPriority, TurnType,
+    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, RoadID, Traversable,
+    TurnID, TurnPriority, TurnType,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -78,7 +78,6 @@ impl IntersectionSimState {
             };
 
             if i.is_traffic_signal() && !use_freeform_policy_everywhere {
-
                 let signal = map.get_traffic_signal(i.id);
                 let traffic_signal_state = TrafficSignalState::new(signal);
 
@@ -490,7 +489,11 @@ impl IntersectionSimState {
                 now, i, signal_state.phase_ends_at
             );
         }
-        (signal_state.current_phase, signal_state.phase_ends_at - now, signal_state)
+        (
+            signal_state.current_phase,
+            signal_state.phase_ends_at - now,
+            signal_state,
+        )
     }
 
     pub fn handle_live_edited_traffic_signals(&mut self, map: &Map) {
