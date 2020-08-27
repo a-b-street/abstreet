@@ -164,14 +164,6 @@ impl GameplayMode {
     pub fn allows(&self, edits: &MapEdits) -> bool {
         for cmd in &edits.commands {
             match cmd {
-                EditCmd::ChangeLaneType { .. }
-                | EditCmd::ReverseLane { .. }
-                | EditCmd::ChangeSpeedLimit { .. }
-                | EditCmd::ChangeAccessRestrictions { .. } => {
-                    if !self.can_edit_lanes() {
-                        return false;
-                    }
-                }
                 EditCmd::ChangeRoad { .. } => {
                     if !self.can_edit_lanes() {
                         return false;

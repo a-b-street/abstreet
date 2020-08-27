@@ -16,7 +16,7 @@ use ezgui::{
 };
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::raw::OriginalRoad;
-use map_model::{osm, BuildingID, DirectedRoadID, Direction, Map, OriginalLane, Position};
+use map_model::{osm, BuildingID, DirectedRoadID, Direction, Map, Position};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
     PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, VehicleType,
@@ -1037,24 +1037,25 @@ impl TutorialState {
                     // parking to force the target to park on-street.
                     let map = &app.primary.map;
                     let goal_bldg = map.find_b_by_osm_id(bldg(217701875)).unwrap();
-                    let start_lane = OriginalLane {
-                        parent: OriginalRoad::new(158782224, (1709145066, 53128052)),
-                        num_fwd: 3,
-                        num_back: 3,
-                        dir: Direction::Back,
-                        idx: 0,
-                    }
-                    .from_permanent(map)
-                    .unwrap();
-                    let lane_near_bldg = OriginalLane {
-                        parent: OriginalRoad::new(6484869, (53163501, 53069236)),
-                        num_fwd: 3,
-                        num_back: 3,
-                        dir: Direction::Fwd,
-                        idx: 0,
-                    }
-                    .from_permanent(map)
-                    .unwrap();
+                    let start_lane = {
+                        let r = map.get_r(
+                            map.find_r_by_osm_id(OriginalRoad::new(
+                                158782224,
+                                (1709145066, 53128052),
+                            ))
+                            .unwrap(),
+                        );
+                        assert_eq!(r.lanes_ltr().len(), 6);
+                        r.lanes_ltr()[2].0
+                    };
+                    let lane_near_bldg = {
+                        let r = map.get_r(
+                            map.find_r_by_osm_id(OriginalRoad::new(6484869, (53163501, 53069236)))
+                                .unwrap(),
+                        );
+                        assert_eq!(r.lanes_ltr().len(), 6);
+                        r.lanes_ltr()[3].0
+                    };
 
                     let mut scenario = Scenario::empty(map, "prank");
                     scenario.people.push(PersonSpec {

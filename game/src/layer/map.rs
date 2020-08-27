@@ -218,21 +218,17 @@ impl Static {
     pub fn edits(ctx: &mut EventCtx, app: &App) -> Static {
         let mut colorer = ColorDiscrete::new(
             app,
-            vec![("modified lane/intersection", app.cs.edits_layer)],
+            vec![("modified road/intersection", app.cs.edits_layer)],
         );
 
         let edits = app.primary.map.get_edits();
-        for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
-            colorer.add_l(*l, "modified lane/intersection");
+        // TODO Actually this loses tons of information; we really should highlight just the
+        // changed lanes
+        for r in edits.original_roads.keys() {
+            colorer.add_r(*r, "modified road/intersection");
         }
         for i in edits.original_intersections.keys() {
             colorer.add_i(*i, "modified lane/intersection");
-        }
-        for r in &edits.changed_speed_limits {
-            colorer.add_r(*r, "modified lane/intersection");
-        }
-        for r in &edits.changed_access_restrictions {
-            colorer.add_r(*r, "modified lane/intersection");
         }
 
         Static::new(
@@ -241,16 +237,6 @@ impl Static {
             "map edits",
             format!("Map edits ({})", edits.edits_name),
             Text::from_multiline(vec![
-                Line(format!("{} lane types changed", edits.original_lts.len())),
-                Line(format!("{} lanes reversed", edits.reversed_lanes.len())),
-                Line(format!(
-                    "{} speed limits changed",
-                    edits.changed_speed_limits.len()
-                )),
-                Line(format!(
-                    "{} access restrictions changed",
-                    edits.changed_access_restrictions.len()
-                )),
                 Line(format!("{} roads changed", edits.original_roads.len())),
                 Line(format!(
                     "{} intersections changed",
