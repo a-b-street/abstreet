@@ -1,4 +1,5 @@
 use crate::utils::{download, download_kml, osmconvert};
+use crate::configuration::ImporterConfiguration;
 use abstutil::MultiMap;
 use geom::{Duration, Time};
 use map_model::{BusRouteID, Map};
@@ -7,17 +8,20 @@ use sim::Scenario;
 use std::collections::BTreeMap;
 use std::fs::File;
 
-fn input(timer: &mut abstutil::Timer) {
+fn input(config: &ImporterConfiguration, timer: &mut abstutil::Timer) {
     download(
+        config,
         "input/seattle/N47W122.hgt",
         "https://dds.cr.usgs.gov/srtm/version2_1/SRTM1/Region_01/N47W122.hgt.zip",
     );
     download(
+        config,
         "input/seattle/osm/washington-latest.osm.pbf",
         "http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf",
     );
     // Soundcast data comes from https://github.com/psrc/soundcast/releases
     download(
+        config,
         "input/seattle/parcels_urbansim.txt",
         "https://www.dropbox.com/s/t9oug9lwhdwfc04/psrc_2014.zip?dl=0",
     );
@@ -46,17 +50,19 @@ fn input(timer: &mut abstutil::Timer) {
     );
 
     download(
+        config,
         "input/seattle/google_transit/",
         "http://metro.kingcounty.gov/gtfs/google_transit.zip",
     );
 }
 
-pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer) {
-    input(timer);
+pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConfiguration) {
+    input(config, timer);
     osmconvert(
         "input/seattle/osm/washington-latest.osm.pbf",
         format!("input/seattle/polygons/{}.poly", name),
         format!("input/seattle/osm/{}.osm", name),
+        config,
     );
 
     let map = convert_osm::convert(
@@ -104,6 +110,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer) {
 #[cfg(feature = "scenarios")]
 pub fn ensure_popdat_exists(
     timer: &mut abstutil::Timer,
+    config: &ImporterConfiguration,
 ) -> (crate::soundcast::PopDat, map_model::Map) {
     if abstutil::file_exists(abstutil::path_popdat()) {
         println!("- {} exists, not regenerating it", abstutil::path_popdat());
@@ -114,7 +121,7 @@ pub fn ensure_popdat_exists(
     }
 
     if !abstutil::file_exists(abstutil::path_raw_map("huge_seattle")) {
-        osm_to_raw("huge_seattle", timer);
+        osm_to_raw("huge_seattle", timer, config);
     }
     let huge_map = if abstutil::file_exists(abstutil::path_map("huge_seattle")) {
         map_model::Map::new(abstutil::path_map("huge_seattle"), timer)

@@ -1,10 +1,11 @@
 use abstutil::Timer;
 use std::path::Path;
 use std::process::Command;
+use crate::configuration::ImporterConfiguration;
 
 // If the output file doesn't already exist, downloads the URL into that location. Automatically
 // uncompresses .zip and .gz files.
-pub fn download(output: &str, url: &str) {
+pub fn download(config: &ImporterConfiguration, output: &str, url: &str) {
     let output = abstutil::path(output);
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
@@ -31,12 +32,17 @@ pub fn download(output: &str, url: &str) {
             Path::new(&output).parent().unwrap().display().to_string()
         };
         println!("- Unzipping into {}", unzip_to);
-        run(Command::new("unzip").arg(tmp).arg("-d").arg(unzip_to));
+        run(Command::new(&config.unzip).arg(tmp).arg("-d").arg(unzip_to));
         std::fs::remove_file(tmp).unwrap();
     } else if url.ends_with(".gz") {
         println!("- Gunzipping");
         std::fs::rename(tmp, format!("{}.gz", output)).unwrap();
-        run(Command::new("gunzip").arg(format!("{}.gz", output)));
+
+        let mut gunzip_cmd = Command::new(&config.gunzip);
+        for arg in config.gunzip_args.split_ascii_whitespace() {
+            gunzip_cmd.arg(arg);
+        }
+        run(gunzip_cmd.arg(format!("{}.gz", output)));
     } else {
         std::fs::rename(tmp, output).unwrap();
     }
@@ -85,7 +91,7 @@ pub fn download_kml(
 
 // Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.
 // Skips if the output exists.
-pub fn osmconvert(input: &str, clipping_polygon: String, output: String) {
+pub fn osmconvert(input: &str, clipping_polygon: String, output: String, config: &ImporterConfiguration) {
     let input = abstutil::path(input);
     let clipping_polygon = abstutil::path(clipping_polygon);
     let output = abstutil::path(output);
@@ -96,7 +102,7 @@ pub fn osmconvert(input: &str, clipping_polygon: String, output: String) {
     }
     println!("- Clipping {} to {}", input, clipping_polygon);
 
-    run(Command::new("osmconvert")
+    run(Command::new(&config.osmconvert)
         .arg(input)
         .arg(format!("-B={}", clipping_polygon))
         .arg("--complete-ways")
