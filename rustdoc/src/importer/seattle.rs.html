@@ -207,8 +207,16 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">download</span>, <span class="ident">download_kml</span>, <span class="ident">osmconvert</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BusRouteID</span>, <span class="ident">Map</span>};
@@ -217,17 +225,20 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 
-<span class="kw">fn</span> <span class="ident">input</span>(<span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>) {
+<span class="kw">fn</span> <span class="ident">input</span>(<span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>) {
     <span class="ident">download</span>(
+        <span class="ident">config</span>,
         <span class="string">&quot;input/seattle/N47W122.hgt&quot;</span>,
         <span class="string">&quot;https://dds.cr.usgs.gov/srtm/version2_1/SRTM1/Region_01/N47W122.hgt.zip&quot;</span>,
     );
     <span class="ident">download</span>(
+        <span class="ident">config</span>,
         <span class="string">&quot;input/seattle/osm/washington-latest.osm.pbf&quot;</span>,
         <span class="string">&quot;http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf&quot;</span>,
     );
     <span class="comment">// Soundcast data comes from https://github.com/psrc/soundcast/releases</span>
     <span class="ident">download</span>(
+        <span class="ident">config</span>,
         <span class="string">&quot;input/seattle/parcels_urbansim.txt&quot;</span>,
         <span class="string">&quot;https://www.dropbox.com/s/t9oug9lwhdwfc04/psrc_2014.zip?dl=0&quot;</span>,
     );
@@ -256,17 +267,19 @@
     );
 
     <span class="ident">download</span>(
+        <span class="ident">config</span>,
         <span class="string">&quot;input/seattle/google_transit/&quot;</span>,
         <span class="string">&quot;http://metro.kingcounty.gov/gtfs/google_transit.zip&quot;</span>,
     );
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">osm_to_raw</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>) {
-    <span class="ident">input</span>(<span class="ident">timer</span>);
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">osm_to_raw</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>) {
+    <span class="ident">input</span>(<span class="ident">config</span>, <span class="ident">timer</span>);
     <span class="ident">osmconvert</span>(
         <span class="string">&quot;input/seattle/osm/washington-latest.osm.pbf&quot;</span>,
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/seattle/polygons/{}.poly&quot;</span>, <span class="ident">name</span>),
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/seattle/osm/{}.osm&quot;</span>, <span class="ident">name</span>),
+        <span class="ident">config</span>,
     );
 
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">convert_osm</span>::<span class="ident">convert</span>(
@@ -314,6 +327,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ensure_popdat_exists</span>(
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>,
+    <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="kw">crate</span>::<span class="ident">soundcast</span>::<span class="ident">PopDat</span>, <span class="ident">map_model</span>::<span class="ident">Map</span>) {
     <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path_popdat</span>()) {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- {} exists, not regenerating it&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">path_popdat</span>());
@@ -324,7 +338,7 @@
     }
 
     <span class="kw">if</span> <span class="op">!</span><span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path_raw_map</span>(<span class="string">&quot;huge_seattle&quot;</span>)) {
-        <span class="ident">osm_to_raw</span>(<span class="string">&quot;huge_seattle&quot;</span>, <span class="ident">timer</span>);
+        <span class="ident">osm_to_raw</span>(<span class="string">&quot;huge_seattle&quot;</span>, <span class="ident">timer</span>, <span class="ident">config</span>);
     }
     <span class="kw">let</span> <span class="ident">huge_map</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="string">&quot;huge_seattle&quot;</span>)) {
         <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="string">&quot;huge_seattle&quot;</span>), <span class="ident">timer</span>)
