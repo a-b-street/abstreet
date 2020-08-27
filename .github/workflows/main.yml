@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.45.0
+          rust-version: 1.46.0
       - name: Build game
         run: cargo build --release --bin game
       - name: Build importer
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.45.0
+          rust-version: 1.46.0
       - name: Build game
         run: cargo build --release --bin game
       - name: Build importer
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.45.0
+          rust-version: 1.46.0
       - name: Update apt
         run: sudo apt-get update
       - name: Install dependencies
