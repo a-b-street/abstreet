@@ -496,7 +496,8 @@ impl State for JumpToTime {
 // Display a nicer screen for jumping forwards in time, allowing cancellation.
 pub struct TimeWarpScreen {
     target: Time,
-    started: Instant,
+    wall_time_started: Instant,
+    sim_time_started: geom::Time,
     halt_upon_delay: Option<Duration>,
     panel: Panel,
 }
@@ -524,7 +525,8 @@ impl TimeWarpScreen {
 
         Box::new(TimeWarpScreen {
             target,
-            started: Instant::now(),
+            wall_time_started: Instant::now(),
+            sim_time_started: app.primary.sim.time(),
             halt_upon_delay,
             panel: Panel::new(Widget::col(vec![
                 Text::new().draw(ctx).named("text"),
@@ -587,6 +589,9 @@ impl State for TimeWarpScreen {
             } else {
                 None
             };
+
+            let elapsed_sim_time = now - self.sim_time_started;
+            let elapsed_wall_time = Duration::realtime_elapsed(self.wall_time_started);
             let txt = Text::from_multiline(vec![
                 // I'm covered in shame for not doing this from the start.
                 Line("Let's do the time warp again!").small_heading(),
@@ -596,8 +601,8 @@ impl State for TimeWarpScreen {
                     self.target.ampm_tostring()
                 )),
                 Line(format!(
-                    "Elapsed simulation time: {}",
-                    Duration::realtime_elapsed(self.started)
+                    "Speed: {}x",
+                    prettyprint_usize((elapsed_sim_time / elapsed_wall_time) as usize)
                 )),
                 if let Some(n) = finished_before {
                     // TODO Underline
