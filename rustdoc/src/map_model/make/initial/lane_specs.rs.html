@@ -404,10 +404,6 @@
 <span id="404">404</span>
 <span id="405">405</span>
 <span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">Direction</span>, <span class="ident">LaneType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">SHOULDER_THICKNESS</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
@@ -605,14 +601,12 @@
         <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;cycleway:left&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;opposite_track&quot;</span>, <span class="string">&quot;track&quot;</span>]) {
             <span class="kw">if</span> <span class="ident">oneway</span> {
                 <span class="ident">fwd_side</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>));
+                <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway:bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>) {
+                    <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>));
+                }
             } <span class="kw">else</span> {
                 <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>));
             }
-        }
-
-        <span class="comment">// Cycleway isn&#39;t explicitly specified, but this is a reasonable assumption anyway.</span>
-        <span class="kw">if</span> <span class="ident">back_side</span>.<span class="ident">is_empty</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway:bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>) {
-            <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>));
         }
     }
 
@@ -774,21 +768,19 @@
                 <span class="string">&quot;sbbdps&quot;</span>,
                 <span class="string">&quot;vv^^^^&quot;</span>,
             ),
-            <span class="comment">/* TODO I have a fix for this, but somehow the fallout gridlocked lakeslice, so
-             * holding off... */</span>
-            <span class="comment">/*(
-                &quot;https://www.openstreetmap.org/way/534549104&quot;,
-                vec![
-                    &quot;lanes=2&quot;,
-                    &quot;oneway=yes&quot;,
-                    &quot;sidewalk=both&quot;,
-                    &quot;cycleway:right=track&quot;,
-                    &quot;cycleway:right:oneway=no&quot;,
-                    &quot;oneway:bicycle=no&quot;,
+            (
+                <span class="string">&quot;https://www.openstreetmap.org/way/534549104&quot;</span>,
+                <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="string">&quot;lanes=2&quot;</span>,
+                    <span class="string">&quot;oneway=yes&quot;</span>,
+                    <span class="string">&quot;sidewalk=both&quot;</span>,
+                    <span class="string">&quot;cycleway:right=track&quot;</span>,
+                    <span class="string">&quot;cycleway:right:oneway=no&quot;</span>,
+                    <span class="string">&quot;oneway:bicycle=no&quot;</span>,
                 ],
-                &quot;sddbbs&quot;,
-                &quot;v^^v^^&quot;,
-            ),*/</span>
+                <span class="string">&quot;sddbbs&quot;</span>,
+                <span class="string">&quot;v^^v^^&quot;</span>,
+            ),
         ] {
             <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">tags</span>(<span class="ident">input</span>.<span class="ident">clone</span>()));
             <span class="kw">let</span> <span class="ident">actual_lt</span> <span class="op">=</span> <span class="ident">actual</span>
