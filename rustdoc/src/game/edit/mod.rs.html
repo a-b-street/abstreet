@@ -848,7 +848,7 @@
                     <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Transition</span>::<span class="ident">Pop</span>,
                         <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>())),
-                        <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">TimeWarpScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">old_sim</span>.<span class="ident">time</span>(), <span class="bool-val">false</span>)),
+                        <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">TimeWarpScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">old_sim</span>.<span class="ident">time</span>(), <span class="prelude-val">None</span>)),
                     ])
                 } <span class="kw">else</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">old_sim</span>;

@@ -777,6 +777,8 @@
 <span id="777">777</span>
 <span id="778">778</span>
 <span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::<span class="ident">Car</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
@@ -1251,6 +1253,8 @@
         <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
     }
 
+    <span class="doccomment">/// returns intersections with travelers waiting for at least `threshold` since `now`, ordered</span>
+    <span class="doccomment">/// so the longest delayed intersection is first.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delayed_intersections</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,
