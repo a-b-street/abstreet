@@ -528,12 +528,16 @@ impl TimeWarpScreen {
             wall_time_started: Instant::now(),
             sim_time_started: app.primary.sim.time(),
             halt_upon_delay,
-            panel: Panel::new(Widget::col(vec![
-                Text::new().draw(ctx).named("text"),
-                Btn::text_bg2("stop now")
-                    .build_def(ctx, hotkey(Key::Escape))
-                    .centered_horiz(),
-            ]))
+            panel: Panel::new(
+                Widget::col(vec![
+                    Text::new().draw(ctx).named("text"),
+                    Btn::text_bg2("stop now")
+                        .build_def(ctx, hotkey(Key::Escape))
+                        .centered_horiz(),
+                ])
+                // hardcoded width avoids jiggle due to text updates
+                .force_width(700.0),
+            )
             .build(ctx),
         })
     }
