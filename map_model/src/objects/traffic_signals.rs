@@ -30,6 +30,11 @@ pub struct Phase {
     pub protected_groups: BTreeSet<TurnGroupID>,
     pub yield_groups: BTreeSet<TurnGroupID>,
     pub phase_type: PhaseType,
+    pub minimum_green: Duration,
+    pub maximum_green: Duration,
+    pub passage_time: Duration,
+    pub walk_time: Duration,
+    pub crosswalk_clearance_time: Duration,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -212,6 +217,13 @@ impl Phase {
             protected_groups: BTreeSet::new(),
             yield_groups: BTreeSet::new(),
             phase_type: PhaseType::Fixed(Duration::seconds(30.0)),
+            minimum_green: Duration::seconds(5.0),
+            maximum_green: Duration::seconds(60.0),
+            passage_time: Duration::seconds(4.0),
+            // TODO: walk_time and crosswalk_clearance_time should be calculated based on crosswalk
+            // length.
+            walk_time: Duration::seconds(5.0),
+            crosswalk_clearance_time: Duration::seconds(10.0),
         }
     }
 
@@ -328,6 +340,13 @@ impl ControlTrafficSignal {
                             PhaseType::Adaptive(Duration::seconds(d as f64))
                         }
                     },
+                    minimum_green: Duration::seconds(5.0),
+                    maximum_green: Duration::seconds(60.0),
+                    passage_time: Duration::seconds(4.0),
+                    // TODO: walk_time and crosswalk_clearance_time should be calculated based on
+                    // crosswalk length.
+                    walk_time: Duration::seconds(5.0),
+                    crosswalk_clearance_time: Duration::seconds(10.0),
                 });
             } else {
                 return Err(format!(

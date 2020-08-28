@@ -1,5 +1,7 @@
 use crate::mechanics::car::Car;
-use crate::mechanics::traffic_signals::{update_traffic_signal, TrafficSignalState, YellowChecker};
+use crate::mechanics::traffic_signals::{
+    actuate_traffic_signal, update_traffic_signal, TrafficSignalState, YellowChecker,
+};
 use crate::mechanics::Queue;
 use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
@@ -250,6 +252,12 @@ impl IntersectionSimState {
         )>,
     ) -> bool {
         let req = Request { agent, turn };
+
+        if let Some(traffic_signal_state) = self.traffic_signal_state.get_mut(&turn.parent) {
+            let signal = map.get_traffic_signal(turn.parent);
+            actuate_traffic_signal(now, traffic_signal_state, signal, turn, scheduler);
+        }
+
         self.state
             .get_mut(&turn.parent)
             .unwrap()
