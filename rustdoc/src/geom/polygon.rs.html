@@ -472,6 +472,8 @@
 <span id="472">472</span>
 <span id="473">473</span>
 <span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">HashablePt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">area</span>::<span class="ident">Area</span>;
@@ -599,7 +601,9 @@
             <span class="ident">rings</span>: <span class="self">self</span>.<span class="ident">rings</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">rings</span><span class="op">|</span> {
                 <span class="ident">rings</span>
                     .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ring</span><span class="op">|</span> <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">ring</span>.<span class="ident">points</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="kw-2">&amp;</span><span class="ident">f</span>).<span class="ident">collect</span>()))
+                    <span class="comment">// When scaling, rings may collapse entirely; just give up on preserving in</span>
+                    <span class="comment">// that case.</span>
+                    .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">ring</span><span class="op">|</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">ring</span>.<span class="ident">points</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="kw-2">&amp;</span><span class="ident">f</span>).<span class="ident">collect</span>()).<span class="ident">ok</span>())
                     .<span class="ident">collect</span>()
             }),
         }
