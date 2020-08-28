@@ -28,8 +28,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
         );
     }
     for r in road_names {
-        // TODO The spacing is ignored, so use -
-        txt.add(Line(format!("- {}", r)));
+        txt.add(Line(format!("  {}", r)));
     }
     rows.push(txt.draw(ctx));
 
