@@ -11,7 +11,7 @@ use map_model::{
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
 
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct ParkingSimState {
     #[serde(
         serialize_with = "serialize_btreemap",
@@ -465,7 +465,7 @@ impl ParkingSimState {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 struct ParkingLane {
     parking_lane: LaneID,
     driving_lane: LaneID,

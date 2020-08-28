@@ -7,7 +7,7 @@ use map_model::{Direction, Map, Traversable};
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Car {
     pub vehicle: Vehicle,
     pub state: CarState,
@@ -242,7 +242,7 @@ impl Car {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum CarState {
     Crossing(TimeInterval, DistanceInterval),
     Queued { blocked_since: Time },

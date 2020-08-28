@@ -6,7 +6,6 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-derivative = "2.1.1"
 downcast-rs = "1.1.1"
 geom = { path = "../geom" }
 instant = "0.1.2"

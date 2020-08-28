@@ -9,7 +9,6 @@ use crate::{
     LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
 use abstutil::{prettyprint_usize, serialized_size_bytes, Counter, Parallelism, Timer};
-use derivative::Derivative;
 use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};
 use instant::Instant;
 use map_model::{
@@ -24,8 +23,7 @@ use std::panic;
 // TODO Do something else.
 const BLIND_RETRY_TO_SPAWN: Duration = Duration::const_seconds(5.0);
 
-#[derive(Serialize, Deserialize, Clone, Derivative)]
-#[derivative(PartialEq)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Sim {
     driving: DrivingSimState,
     parking: ParkingSimState,
@@ -34,7 +32,6 @@ pub struct Sim {
     transit: TransitSimState,
     cap: CapSimState,
     trips: TripManager,
-    #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     pandemic: Option<PandemicModel>,
     scheduler: Scheduler,
@@ -45,18 +42,14 @@ pub struct Sim {
     pub(crate) edits_name: String,
     // Some tests deliberately set different scenario names for comparisons.
     // TODO Maybe get rid of this, now that savestates aren't used
-    #[derivative(PartialEq = "ignore")]
     run_name: String,
-    #[derivative(PartialEq = "ignore")]
     step_count: usize,
 
     // Don't serialize, to reduce prebaked savestate size. Analytics are saved once covering the
     // full day and can be trimmed to any time.
-    #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     analytics: Analytics,
 
-    #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     alerts: AlertHandler,
 }
