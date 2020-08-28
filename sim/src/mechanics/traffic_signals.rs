@@ -2,7 +2,7 @@ use crate::{Command, Scheduler};
 use geom::{Duration, Time};
 use map_model::{
     ControlTrafficSignal, IntersectionID, SignalTimerType, TrafficControlType, Turn, TurnGroupID, TurnID,
-    TurnPriority,
+    TurnPriority, TurnType,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -149,6 +149,10 @@ fn actuate(
     turn: &Turn,
     scheduler: &mut Scheduler,
 ) {
+    if turn.turn_type == TurnType::SharedSidewalkCorner {
+        return;
+    }
+
     // Find phase to actuate, if there is one.
     let maybe_phase_index = match maybe_get_protected_phase_index(turn.id, state, signal) {
         Some(phase) => Some(phase),
