@@ -23,7 +23,7 @@ impl ChangeDuration {
         Box::new(ChangeDuration {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("How long should this phase last?")
+                    Line("How long should this stage last?")
                         .small_heading()
                         .draw(ctx),
                     Btn::plaintext("X")
@@ -77,7 +77,7 @@ impl State for ChangeDuration {
                     return Transition::PopWithData(Box::new(move |state, ctx, app| {
                         let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
                         editor.add_new_edit(ctx, app, idx, |ts| {
-                            ts.phases[idx].phase_type = new_type.clone();
+                            ts.stages[idx].phase_type = new_type.clone();
                         });
                     }));
                 }
@@ -115,7 +115,7 @@ pub fn edit_entire_signal(
         .any(|t| t.between_sidewalks());
 
     let use_template = "use template";
-    let all_walk = "add an all-walk phase at the end";
+    let all_walk = "add an all-walk stage at the end";
     let stop_sign = "convert to stop signs";
     let close = "close intersection for construction";
     let reset = "reset to default";

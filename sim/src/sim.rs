@@ -1131,9 +1131,9 @@ impl Sim {
             .max(Time::START_OF_DAY + Duration::hours(24))
     }
 
-    pub fn current_phase_and_remaining_time(&self, i: IntersectionID) -> (usize, Duration) {
+    pub fn current_stage_and_remaining_time(&self, i: IntersectionID) -> (usize, Duration) {
         self.intersections
-            .current_phase_and_remaining_time(self.time, i)
+            .current_stage_and_remaining_time(self.time, i)
     }
 
     // TODO This is an awkward copy of raw_throughput

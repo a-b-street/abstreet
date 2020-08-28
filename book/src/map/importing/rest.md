@@ -66,11 +66,11 @@ Still in the `map_model` crate.
       an all way stop.
 - `traffic_signals.rs`: Instantiate default traffic signal policies
   - Apply the first predefined policy that works.
-    - 4-way 4 phase, 4-way 2 phase, 3-way 3-phase, degenerate policy for 2
-      roads, 2-phase for 4 one-ways
-    - Fallback to a greedy assignment that just randomly starts a new phase,
+    - 4-way 4 stage, 4-way 2 stage, 3-way 3-stage, degenerate policy for 2
+      roads, 2-stage for 4 one-ways
+    - Fallback to a greedy assignment that just randomly starts a new stage,
       adds all compatible turns, and repeats until all turns are present
-      priority in some phase.
+      priority in some stage.
 - `pathfind/mod.rs`: Prepare pathfinding
   - A/B Street uses contraction hierarchies (CH) for fast routing, using the
     `fast_paths` crate.
