@@ -998,7 +998,7 @@
         };
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;- Spends {} at {}&quot;</span>,
+                <span class="string">&quot;  Spends {} at {}&quot;</span>,
                 <span class="ident">trip</span>.<span class="ident">departure</span> <span class="op">-</span> <span class="ident">last_t</span>,
                 <span class="ident">at</span>
             )))
@@ -1027,7 +1027,7 @@
     };
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;- Spends {} at {}&quot;</span>,
+            <span class="string">&quot;  Spends {} at {}&quot;</span>,
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>() <span class="op">-</span> <span class="ident">last_trip</span>.<span class="ident">departure</span>,
             <span class="ident">at</span>
         )))
