@@ -1,8 +1,8 @@
 use crate::{Command, Scheduler};
 use geom::{Duration, Time};
 use map_model::{
-    ControlTrafficSignal, IntersectionID, SignalTimerType, TrafficControlType, Turn, TurnGroupID, TurnID,
-    TurnPriority, TurnType,
+    ControlTrafficSignal, IntersectionID, SignalTimerType, TrafficControlType, Turn, TurnGroupID,
+    TurnID, TurnPriority, TurnType,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -104,7 +104,7 @@ fn update_pretimed(
             Command::UpdateIntersection(intersection_id, None, None),
         );
     } else {
-        // Should only get here on the very first call for this signal.
+        // Should only get here on the very first update for this signal.
         state.set_green_all_current_phase(signal);
 
         scheduler.update(
@@ -191,7 +191,7 @@ fn actuate(
     // if not already activated.
     if state.current_phase != i {
         let new_green_expiration = now + signal.phases[i].maximum_green;
-        
+
         if new_green_expiration < state.green_must_end_at {
             state.green_must_end_at = new_green_expiration;
 
