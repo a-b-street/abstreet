@@ -162,7 +162,7 @@ impl State for PopularDestinations {
             )));
             for (names, amenity) in &app.primary.map.get_b(b).amenities {
                 txt.add(Line(format!(
-                    "- {} ({})",
+                    "  {} ({})",
                     names.get(app.opts.language.as_ref()),
                     amenity
                 )));

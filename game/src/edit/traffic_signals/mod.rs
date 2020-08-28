@@ -580,7 +580,7 @@ fn make_side_panel(
             );
         }
         for r in road_names {
-            txt.add(Line(format!("- {}", r)));
+            txt.add(Line(format!("  {}", r)));
         }
     } else {
         txt.add(Line(format!("{} intersections", members.len())).big_heading_plain());

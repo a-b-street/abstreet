@@ -362,7 +362,7 @@ pub fn schedule(
         };
         rows.push(
             Text::from(Line(format!(
-                "- Spends {} at {}",
+                "  Spends {} at {}",
                 trip.departure - last_t,
                 at
             )))
@@ -391,7 +391,7 @@ pub fn schedule(
     };
     rows.push(
         Text::from(Line(format!(
-            "- Spends {} at {}",
+            "  Spends {} at {}",
             app.primary.sim.get_end_of_day() - last_trip.departure,
             at
         )))

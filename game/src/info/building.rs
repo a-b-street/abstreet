@@ -45,12 +45,14 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
 
     if !b.amenities.is_empty() {
         txt.add(Line(""));
-        if b.amenities.len() > 1 {
+        if b.amenities.len() == 1 {
+            txt.add(Line("1 amenity:"));
+        } else {
             txt.add(Line(format!("{} amenities:", b.amenities.len())));
         }
         for (names, amenity) in &b.amenities {
             txt.add(Line(format!(
-                "- {} ({})",
+                "  {} ({})",
                 names.get(app.opts.language.as_ref()),
                 amenity
             )));
