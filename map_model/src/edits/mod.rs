@@ -156,7 +156,7 @@ impl MapEdits {
     }
 
     // Assumes update_derived has been called.
-    fn compress(&mut self, map: &Map) {
+    pub fn compress(&mut self, map: &Map) {
         for r in &self.changed_roads {
             self.commands.push(EditCmd::ChangeRoad {
                 r: *r,

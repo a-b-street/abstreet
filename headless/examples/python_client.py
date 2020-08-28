@@ -39,6 +39,9 @@ def main():
     # Reset the simulation before applying the edit, since reset also clears edits.
     print('Reset the simulation:', requests.get(api + '/sim/reset').text)
     print('Update a traffic signal:', requests.post(api + '/traffic-signals/set', json=ts).text)
+    # Sanity check that the edits were applied
+    if False:
+        print('Current map edits:\n', requests.get(api + '/map/get-edits').json())
     print()
 
     # Repeat the experiment

@@ -45,6 +45,11 @@ are missing, etc. A summary of the commands available so far:
     disconnected map).
   - **GET /data/get-agent-positions**: Returns a JSON list of all active agents.
     Vehicle type (or pedestrian), person ID, and position is included.
+- **/map**
+  - **GET /map/get-edits**: Returns the current map edits in JSON. You can save
+    this to a file in `data/player/edits/map_name/` and later use it in-game
+    normally. You can also later run the `headless` server with
+    `--edits=name_of_edits`.
 
 ## Related tools
 
