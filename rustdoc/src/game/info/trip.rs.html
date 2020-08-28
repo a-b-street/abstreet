@@ -1196,20 +1196,20 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">phase_type</span>.<span class="ident">describe</span>(<span class="ident">map</span>)));
         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;- Started at {}&quot;</span>,
+            <span class="string">&quot;  Started at {}&quot;</span>,
             <span class="ident">p</span>.<span class="ident">start_time</span>.<span class="ident">ampm_tostring</span>()
         )));
         <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t2</span>) <span class="op">=</span> <span class="ident">p</span>.<span class="ident">end_time</span> {
             <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">t2</span> <span class="op">-</span> <span class="ident">p</span>.<span class="ident">start_time</span>;
             <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;- Ended at {} (duration: {})&quot;</span>,
+                <span class="string">&quot;  Ended at {} (duration: {})&quot;</span>,
                 <span class="ident">t2</span>.<span class="ident">ampm_tostring</span>(),
                 <span class="ident">d</span>
             )));
             <span class="ident">d</span>
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="ident">p</span>.<span class="ident">start_time</span>;
-            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;- Ongoing (duration so far: {})&quot;</span>, <span class="ident">d</span>)));
+            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;  Ongoing (duration so far: {})&quot;</span>, <span class="ident">d</span>)));
             <span class="ident">d</span>
         };
         <span class="comment">// TODO Problems when this is really low?</span>
@@ -1219,7 +1219,7 @@
             <span class="ident">duration</span> <span class="op">/</span> <span class="ident">total_duration_so_far</span>
         };
         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;- {}% of trip duration&quot;</span>,
+            <span class="string">&quot;  {}% of trip duration&quot;</span>,
             (<span class="number">100.0</span> <span class="op">*</span> <span class="ident">percent_duration</span>) <span class="kw">as</span> <span class="ident">usize</span>
         )));
 

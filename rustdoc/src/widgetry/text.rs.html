@@ -973,7 +973,7 @@
 
     <span class="macro">write</span><span class="macro">!</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>,
-        <span class="string">r##&quot;&lt;text x=&quot;0&quot; y=&quot;0&quot; font-size=&quot;{}&quot; font-family=&quot;{}&quot; {}&gt;&quot;##</span>,
+        <span class="string">r##&quot;&lt;text x=&quot;0&quot; y=&quot;0&quot; xml:space=&quot;preserve&quot; font-size=&quot;{}&quot; font-family=&quot;{}&quot; {}&gt;&quot;##</span>,
         <span class="ident">spans</span>[<span class="number">0</span>].<span class="ident">size</span>,
         <span class="ident">spans</span>[<span class="number">0</span>].<span class="ident">font</span>.<span class="ident">family</span>(),
         <span class="kw">match</span> <span class="ident">spans</span>[<span class="number">0</span>].<span class="ident">font</span> {
@@ -1066,7 +1066,7 @@
             <span class="op">-</span> (<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">text</span>)).<span class="ident">dims</span>(<span class="ident">assets</span>).<span class="ident">width</span> <span class="op">*</span> <span class="ident">scale</span>) <span class="op">/</span> <span class="number">2.0</span>;
         <span class="macro">write</span><span class="macro">!</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>,
-            <span class="string">r##&quot;&lt;text font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; startOffset=&quot;{}&quot;&gt;&quot;##</span>,
+            <span class="string">r##&quot;&lt;text xml:space=&quot;preserve&quot; font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; startOffset=&quot;{}&quot;&gt;&quot;##</span>,
             <span class="comment">// This is seemingly the easiest way to do this. We could .scale() the whole batch</span>
             <span class="comment">// after, but then we have to re-translate it to the proper spot</span>
             (<span class="self">self</span>.<span class="ident">size</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">scale</span>,
