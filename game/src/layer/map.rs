@@ -235,7 +235,7 @@ impl Static {
             }
         }
         for i in edits.original_intersections.keys() {
-            colorer.add_i(*i, "modified lane/intersection");
+            colorer.add_i(*i, "modified road/intersection");
         }
 
         Static::new(
