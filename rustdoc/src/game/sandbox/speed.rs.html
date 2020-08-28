@@ -809,6 +809,11 @@
 <span id="809">809</span>
 <span id="810">810</span>
 <span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">FindDelayedIntersections</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Warping</span>;
@@ -1308,7 +1313,8 @@
 <span class="comment">// Display a nicer screen for jumping forwards in time, allowing cancellation.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimeWarpScreen</span> {
     <span class="ident">target</span>: <span class="ident">Time</span>,
-    <span class="ident">started</span>: <span class="ident">Instant</span>,
+    <span class="ident">wall_time_started</span>: <span class="ident">Instant</span>,
+    <span class="ident">sim_time_started</span>: <span class="ident">geom</span>::<span class="ident">Time</span>,
     <span class="ident">halt_upon_delay</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
 }
@@ -1336,7 +1342,8 @@
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TimeWarpScreen</span> {
             <span class="ident">target</span>,
-            <span class="ident">started</span>: <span class="ident">Instant</span>::<span class="ident">now</span>(),
+            <span class="ident">wall_time_started</span>: <span class="ident">Instant</span>::<span class="ident">now</span>(),
+            <span class="ident">sim_time_started</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
             <span class="ident">halt_upon_delay</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;text&quot;</span>),
@@ -1399,6 +1406,9 @@
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>
             };
+
+            <span class="kw">let</span> <span class="ident">elapsed_sim_time</span> <span class="op">=</span> <span class="ident">now</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">sim_time_started</span>;
+            <span class="kw">let</span> <span class="ident">elapsed_wall_time</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">realtime_elapsed</span>(<span class="self">self</span>.<span class="ident">wall_time_started</span>);
             <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="comment">// I&#39;m covered in shame for not doing this from the start.</span>
                 <span class="ident">Line</span>(<span class="string">&quot;Let&#39;s do the time warp again!&quot;</span>).<span class="ident">small_heading</span>(),
@@ -1408,8 +1418,8 @@
                     <span class="self">self</span>.<span class="ident">target</span>.<span class="ident">ampm_tostring</span>()
                 )),
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;Elapsed simulation time: {}&quot;</span>,
-                    <span class="ident">Duration</span>::<span class="ident">realtime_elapsed</span>(<span class="self">self</span>.<span class="ident">started</span>)
+                    <span class="string">&quot;Speed: {}x&quot;</span>,
+                    <span class="ident">prettyprint_usize</span>((<span class="ident">elapsed_sim_time</span> <span class="op">/</span> <span class="ident">elapsed_wall_time</span>) <span class="kw">as</span> <span class="ident">usize</span>)
                 )),
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">finished_before</span> {
                     <span class="comment">// TODO Underline</span>
