@@ -359,7 +359,7 @@ impl JumpToTime {
     fn new(ctx: &mut EventCtx, app: &App, maybe_mode: Option<GameplayMode>) -> JumpToTime {
         let target = app.primary.sim.time();
         let end_of_day = app.primary.sim.get_end_of_day();
-        let halt_limit = Duration::minutes(5);
+        let halt_limit = app.opts.time_warp_halt_limit;
         JumpToTime {
             target,
             halt_limit,
@@ -444,11 +444,13 @@ impl State for JumpToTime {
                 }
                 "choose delay" => return Transition::Keep,
                 "jump to delay" => {
+                    let halt_limit = self.panel.persistent_split_value("choose delay");
+                    app.opts.time_warp_halt_limit = halt_limit;
                     return Transition::Replace(TimeWarpScreen::new(
                         ctx,
                         app,
                         app.primary.sim.get_end_of_day(),
-                        Some(self.panel.persistent_split_value("choose delay")),
+                        Some(halt_limit),
                     ));
                 }
                 _ => unreachable!(),
