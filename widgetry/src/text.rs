@@ -422,7 +422,7 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
 
     write!(
         &mut svg,
-        r##"<text x="0" y="0" font-size="{}" font-family="{}" {}>"##,
+        r##"<text x="0" y="0" xml:space="preserve" font-size="{}" font-family="{}" {}>"##,
         spans[0].size,
         spans[0].font.family(),
         match spans[0].font {
@@ -515,7 +515,7 @@ impl TextSpan {
             - (Text::from(Line(&self.text)).dims(assets).width * scale) / 2.0;
         write!(
             &mut svg,
-            r##"<text font-size="{}" font-family="{}" {} fill="{}" startOffset="{}">"##,
+            r##"<text xml:space="preserve" font-size="{}" font-family="{}" {} fill="{}" startOffset="{}">"##,
             // This is seemingly the easiest way to do this. We could .scale() the whole batch
             // after, but then we have to re-translate it to the proper spot
             (self.size as f64) * scale,

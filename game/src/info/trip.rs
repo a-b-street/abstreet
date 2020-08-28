@@ -475,20 +475,20 @@ fn make_timeline(
 
         let mut txt = Text::from(Line(&p.phase_type.describe(map)));
         txt.add(Line(format!(
-            "- Started at {}",
+            "  Started at {}",
             p.start_time.ampm_tostring()
         )));
         let duration = if let Some(t2) = p.end_time {
             let d = t2 - p.start_time;
             txt.add(Line(format!(
-                "- Ended at {} (duration: {})",
+                "  Ended at {} (duration: {})",
                 t2.ampm_tostring(),
                 d
             )));
             d
         } else {
             let d = sim.time() - p.start_time;
-            txt.add(Line(format!("- Ongoing (duration so far: {})", d)));
+            txt.add(Line(format!("  Ongoing (duration so far: {})", d)));
             d
         };
         // TODO Problems when this is really low?
@@ -498,7 +498,7 @@ fn make_timeline(
             duration / total_duration_so_far
         };
         txt.add(Line(format!(
-            "- {}% of trip duration",
+            "  {}% of trip duration",
             (100.0 * percent_duration) as usize
         )));
 
