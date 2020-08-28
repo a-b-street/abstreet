@@ -124,7 +124,9 @@ impl Polygon {
             rings: self.rings.as_ref().map(|rings| {
                 rings
                     .iter()
-                    .map(|ring| Ring::must_new(ring.points().iter().map(&f).collect()))
+                    // When scaling, rings may collapse entirely; just give up on preserving in
+                    // that case.
+                    .filter_map(|ring| Ring::new(ring.points().iter().map(&f).collect()).ok())
                     .collect()
             }),
         }
