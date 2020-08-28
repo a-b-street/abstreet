@@ -215,12 +215,12 @@ impl EditCmd {
         }
     }
 
-    // Must be idempotent. True if it actually did anything.
-    fn apply(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) -> bool {
+    // Must be idempotent
+    fn apply(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) {
         match self {
             EditCmd::ChangeRoad { r, ref new, .. } => {
                 if map.get_r_edit(*r) == new.clone() {
-                    return false;
+                    return;
                 }
 
                 let road = &mut map.roads[r.0];
@@ -259,7 +259,6 @@ impl EditCmd {
 
                     recalculate_turns(i.id, map, effects, timer);
                 }
-                true
             }
             EditCmd::ChangeIntersection {
                 i,
@@ -267,7 +266,7 @@ impl EditCmd {
                 ref old,
             } => {
                 if map.get_i_edit(*i) == new.clone() {
-                    return false;
+                    return;
                 }
 
                 map.stop_signs.remove(i);
@@ -296,44 +295,30 @@ impl EditCmd {
                 if old == &EditIntersection::Closed || new == &EditIntersection::Closed {
                     recalculate_turns(*i, map, effects, timer);
                 }
-                true
             }
             EditCmd::ChangeRouteSchedule { id, new, .. } => {
                 map.bus_routes[id.0].spawn_times = new.clone();
-                true
             }
         }
     }
 
-    // Must be idempotent. True if it actually did anything.
-    fn undo(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) -> bool {
+    fn undo(self) -> EditCmd {
         match self {
-            EditCmd::ChangeRoad {
+            EditCmd::ChangeRoad { r, old, new } => EditCmd::ChangeRoad {
                 r,
-                ref old,
-                ref new,
-            } => EditCmd::ChangeRoad {
-                r: *r,
-                old: new.clone(),
-                new: old.clone(),
-            }
-            .apply(effects, map, timer),
-            EditCmd::ChangeIntersection {
+                old: new,
+                new: old,
+            },
+            EditCmd::ChangeIntersection { i, old, new } => EditCmd::ChangeIntersection {
                 i,
-                ref old,
-                ref new,
-            } => EditCmd::ChangeIntersection {
-                i: *i,
-                old: new.clone(),
-                new: old.clone(),
-            }
-            .apply(effects, map, timer),
+                old: new,
+                new: old,
+            },
             EditCmd::ChangeRouteSchedule { id, old, new } => EditCmd::ChangeRouteSchedule {
-                id: *id,
-                old: new.clone(),
-                new: old.clone(),
-            }
-            .apply(effects, map, timer),
+                id,
+                old: new,
+                new: old,
+            },
         }
     }
 }
@@ -469,33 +454,35 @@ impl Map {
         BTreeSet<TurnID>,
         BTreeSet<IntersectionID>,
     ) {
-        // TODO More efficient ways to do this: given two sets of edits, produce a smaller diff.
-        // Simplest strategy: Remove common prefix.
         let mut effects = EditEffects::new();
 
-        // First undo all existing edits.
-        let mut undo = std::mem::replace(&mut self.edits.commands, Vec::new());
-        undo.reverse();
-        let mut undid = 0;
-        for cmd in &undo {
-            if cmd.undo(&mut effects, self, timer) {
-                undid += 1;
+        // We need to undo() all of the current commands in reverse order, then apply() all of the
+        // new commands. But in many cases, new_edits is just the current edits with a few commands
+        // at the end. So a simple optimization with equivalent behavior is to skip the common
+        // prefix of commands.
+        let mut start_at_idx = 0;
+        for (cmd1, cmd2) in self.edits.commands.iter().zip(new_edits.commands.iter()) {
+            if cmd1 == cmd2 {
+                start_at_idx += 1;
+            } else {
+                break;
             }
         }
-        timer.note(format!("Undid {} / {} existing edits", undid, undo.len()));
+
+        // Undo existing edits
+        for _ in start_at_idx..self.edits.commands.len() {
+            self.edits
+                .commands
+                .pop()
+                .unwrap()
+                .undo()
+                .apply(&mut effects, self, timer);
+        }
 
         // Apply new edits.
-        let mut applied = 0;
-        for cmd in &new_edits.commands {
-            if cmd.apply(&mut effects, self, timer) {
-                applied += 1;
-            }
+        for cmd in &new_edits.commands[start_at_idx..] {
+            cmd.apply(&mut effects, self, timer);
         }
-        timer.note(format!(
-            "Applied {} / {} new edits",
-            applied,
-            new_edits.commands.len()
-        ));
 
         // Might need to update bus stops.
         if enforce_valid {
