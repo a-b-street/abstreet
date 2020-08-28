@@ -1263,13 +1263,6 @@
 <span id="1263">1263</span>
 <span id="1264">1264</span>
 <span id="1265">1265</span>
-<span id="1266">1266</span>
-<span id="1267">1267</span>
-<span id="1268">1268</span>
-<span id="1269">1269</span>
-<span id="1270">1270</span>
-<span id="1271">1271</span>
-<span id="1272">1272</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">analytics</span>::<span class="ident">Window</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1282,7 +1275,6 @@
     <span class="ident">LIGHT_RAIL_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>, <span class="ident">SPAWN_DIST</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">Counter</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">derivative</span>::<span class="ident">Derivative</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
@@ -1297,8 +1289,7 @@
 <span class="comment">// TODO Do something else.</span>
 <span class="kw">const</span> <span class="ident">BLIND_RETRY_TO_SPAWN</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">5.0</span>);
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Derivative</span>)]</span>
-<span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sim</span> {
     <span class="ident">driving</span>: <span class="ident">DrivingSimState</span>,
     <span class="ident">parking</span>: <span class="ident">ParkingSimState</span>,
@@ -1307,7 +1298,6 @@
     <span class="ident">transit</span>: <span class="ident">TransitSimState</span>,
     <span class="ident">cap</span>: <span class="ident">CapSimState</span>,
     <span class="ident">trips</span>: <span class="ident">TripManager</span>,
-    <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="ident">pandemic</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PandemicModel</span><span class="op">&gt;</span>,
     <span class="ident">scheduler</span>: <span class="ident">Scheduler</span>,
@@ -1318,18 +1308,14 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">edits_name</span>: <span class="ident">String</span>,
     <span class="comment">// Some tests deliberately set different scenario names for comparisons.</span>
     <span class="comment">// TODO Maybe get rid of this, now that savestates aren&#39;t used</span>
-    <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
     <span class="ident">run_name</span>: <span class="ident">String</span>,
-    <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
     <span class="ident">step_count</span>: <span class="ident">usize</span>,
 
     <span class="comment">// Don&#39;t serialize, to reduce prebaked savestate size. Analytics are saved once covering the</span>
     <span class="comment">// full day and can be trimmed to any time.</span>
-    <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="ident">analytics</span>: <span class="ident">Analytics</span>,
 
-    <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>,
 }

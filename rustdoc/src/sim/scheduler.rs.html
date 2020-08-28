@@ -277,16 +277,10 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">pandemic</span>, <span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">CreateCar</span>, <span class="ident">CreatePedestrian</span>, <span class="ident">PedestrianID</span>, <span class="ident">TripID</span>, <span class="ident">TripSpec</span>,
 };
-<span class="kw">use</span> <span class="ident">derivative</span>::<span class="ident">Derivative</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Histogram</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BusRouteID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -377,17 +371,13 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Derivative</span>)]</span>
-<span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Scheduler</span> {
-    <span class="comment">// TODO Argh, really?!</span>
-    <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
     <span class="ident">items</span>: <span class="ident">BinaryHeap</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">&gt;</span>,
     <span class="ident">queued_commands</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">CommandType</span>, (<span class="ident">Command</span>, <span class="ident">Time</span>)<span class="op">&gt;</span>,
 
     <span class="ident">latest_time</span>: <span class="ident">Time</span>,
     <span class="ident">last_time</span>: <span class="ident">Time</span>,
-    <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="ident">delta_times</span>: <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
 }

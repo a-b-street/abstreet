@@ -121,13 +121,13 @@
 <span class="kw">type</span> <span class="ident">ZoneIdx</span> <span class="op">=</span> <span class="ident">usize</span>;
 
 <span class="comment">// This only caps driving trips.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CapSimState</span> {
     <span class="ident">lane_to_zone</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">ZoneIdx</span><span class="op">&gt;</span>,
     <span class="ident">zones</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Zone</span><span class="op">&gt;</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">struct</span> <span class="ident">Zone</span> {
     <span class="ident">cap</span>: <span class="ident">usize</span>,
     <span class="ident">entered_in_last_hour</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,

@@ -778,7 +778,7 @@
 <span class="kw">const</span> <span class="ident">TIME_TO_START_BIKING</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">30.0</span>);
 <span class="kw">const</span> <span class="ident">TIME_TO_FINISH_BIKING</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">45.0</span>);
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WalkingSimState</span> {
     <span class="comment">// BTreeMap not for deterministic simulation, but to make serialized things easier to compare.</span>
     <span class="ident">peds</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">PedestrianID</span>, <span class="ident">Pedestrian</span><span class="op">&gt;</span>,
@@ -1245,7 +1245,7 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">struct</span> <span class="ident">Pedestrian</span> {
     <span class="ident">id</span>: <span class="ident">PedestrianID</span>,
     <span class="ident">state</span>: <span class="ident">PedState</span>,
@@ -1447,7 +1447,7 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">enum</span> <span class="ident">PedState</span> {
     <span class="ident">Crossing</span>(<span class="ident">DistanceInterval</span>, <span class="ident">TimeInterval</span>),
     <span class="comment">// The Distance is either 0 or the current traversable&#39;s length. The Time is blocked_since.</span>

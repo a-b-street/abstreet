@@ -795,7 +795,7 @@
 <span class="kw">const</span> <span class="ident">WAIT_AT_STOP_SIGN</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">0.5</span>);
 <span class="kw">const</span> <span class="ident">WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">0.2</span>);
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntersectionSimState</span> {
     <span class="ident">state</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">State</span><span class="op">&gt;</span>,
     <span class="ident">use_freeform_policy_everywhere</span>: <span class="ident">bool</span>,
@@ -808,7 +808,7 @@
     <span class="ident">events</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">State</span> {
     <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
     <span class="ident">accepted</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
