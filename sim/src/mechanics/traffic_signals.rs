@@ -186,6 +186,32 @@ fn actuate(
             )
         }
     }
+
+    // If called phase is *not* current phase, activate MaxGreen timer
+    // if not already activated.
+    if state.current_phase != i {
+        let new_green_expiration = now + signal.phases[i].maximum_green;
+        
+        if new_green_expiration < state.green_must_end_at {
+            state.green_must_end_at = new_green_expiration;
+
+            // Set MaxGreenTimer for protected turn groups.
+            // Although the draw routine cares about color of yield turn groups, the control
+            // does not. Not sure if control should support coloring for yield groups.
+            // If yield groups have signal color in real life, it's a flashing yellow.
+            let current_phase = &signal.phases[state.current_phase];
+            for tg in &current_phase.protected_groups {
+                scheduler.update(
+                    new_green_expiration,
+                    Command::UpdateIntersection(
+                        signal.id,
+                        Some(*tg),
+                        Some(SignalTimerType::MaxGreenTimer),
+                    ),
+                );
+            }
+        }
+    }
 }
 
 fn maybe_get_protected_phase_index(
