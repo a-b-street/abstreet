@@ -548,7 +548,7 @@ impl InfoPanel {
                                     &mut actions,
                                 );
 
-                                vec![sandbox, TimeWarpScreen::new(ctx, app, time, false)]
+                                vec![sandbox, TimeWarpScreen::new(ctx, app, time, None)]
                             },
                         ))),
                     )
