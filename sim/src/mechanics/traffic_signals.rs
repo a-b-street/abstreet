@@ -1,7 +1,7 @@
 use crate::{Command, Scheduler};
 use geom::{Duration, Time};
 use map_model::{
-    ControlTrafficSignal, IntersectionID, SignalTimerType, TrafficControlType, TurnGroupID, TurnID,
+    ControlTrafficSignal, IntersectionID, SignalTimerType, TrafficControlType, Turn, TurnGroupID, TurnID,
     TurnPriority,
 };
 use serde::{Deserialize, Serialize};
@@ -133,7 +133,7 @@ pub fn actuate_traffic_signal(
     now: Time,
     state: &mut TrafficSignalState,
     signal: &ControlTrafficSignal,
-    turn: TurnID,
+    turn: &Turn,
     scheduler: &mut Scheduler,
 ) {
     match signal.control_type {
@@ -146,13 +146,13 @@ fn actuate(
     now: Time,
     state: &mut TrafficSignalState,
     signal: &ControlTrafficSignal,
-    turn: TurnID,
+    turn: &Turn,
     scheduler: &mut Scheduler,
 ) {
     // Find phase to actuate, if there is one.
-    let maybe_phase_index = match maybe_get_protected_phase_index(turn, state, signal) {
+    let maybe_phase_index = match maybe_get_protected_phase_index(turn.id, state, signal) {
         Some(phase) => Some(phase),
-        None => maybe_get_yield_phase_index(turn, state, signal),
+        None => maybe_get_yield_phase_index(turn.id, state, signal),
     };
 
     // Exit if there is no phase to actuate.
@@ -166,8 +166,9 @@ fn actuate(
     called_phase_state.is_called = true;
     called_phase_state.last_called = now;
 
-    // If called phase is current phase, set a new timer for passage time "gap out", if needed.
-    if state.current_phase == i {
+    // If caller is vehicle and called phase is current phase,
+    // set a new timer for passage time "gap out", if needed.
+    if !turn.between_sidewalks() && (state.current_phase == i) {
         let new_green_expiration = now + signal.phases[i].passage_time;
 
         if new_green_expiration < state.green_must_end_at {
@@ -175,7 +176,7 @@ fn actuate(
                 new_green_expiration,
                 Command::UpdateIntersection(
                     signal.id,
-                    Some(signal.turn_to_group(turn)),
+                    Some(signal.turn_to_group(turn.id)),
                     Some(SignalTimerType::PassageTimer),
                 ),
             )

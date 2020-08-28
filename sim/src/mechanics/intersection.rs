@@ -255,7 +255,7 @@ impl IntersectionSimState {
 
         if let Some(traffic_signal_state) = self.traffic_signal_state.get_mut(&turn.parent) {
             let signal = map.get_traffic_signal(turn.parent);
-            actuate_traffic_signal(now, traffic_signal_state, signal, turn, scheduler);
+            actuate_traffic_signal(now, traffic_signal_state, signal, map.maybe_get_t(turn).unwrap(), scheduler);
         }
 
         self.state
