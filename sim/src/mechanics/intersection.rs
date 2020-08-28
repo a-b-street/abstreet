@@ -471,6 +471,8 @@ impl IntersectionSimState {
         std::mem::replace(&mut self.events, Vec::new())
     }
 
+    /// returns intersections with travelers waiting for at least `threshold` since `now`, ordered
+    /// so the longest delayed intersection is first.
     pub fn delayed_intersections(
         &self,
         now: Time,

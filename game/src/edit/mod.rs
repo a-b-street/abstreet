@@ -99,7 +99,7 @@ impl EditMode {
                     Transition::Multi(vec![
                         Transition::Pop,
                         Transition::Replace(SandboxMode::new(ctx, app, self.mode.clone())),
-                        Transition::Push(TimeWarpScreen::new(ctx, app, old_sim.time(), false)),
+                        Transition::Push(TimeWarpScreen::new(ctx, app, old_sim.time(), None)),
                     ])
                 } else {
                     app.primary.sim = old_sim;
