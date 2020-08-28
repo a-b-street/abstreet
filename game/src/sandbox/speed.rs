@@ -601,7 +601,7 @@ impl State for TimeWarpScreen {
                     self.target.ampm_tostring()
                 )),
                 Line(format!(
-                    "Speed: {}x speed",
+                    "Speed: {}x",
                     prettyprint_usize((elapsed_sim_time / elapsed_wall_time) as usize)
                 )),
                 if let Some(n) = finished_before {
