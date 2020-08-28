@@ -1,7 +1,8 @@
 use crate::{Command, Scheduler};
 use geom::{Duration, Time};
 use map_model::{
-    ControlTrafficSignal, IntersectionID, TrafficControlType, TurnGroupID, TurnID, TurnPriority,
+    ControlTrafficSignal, IntersectionID, SignalTimerType, TrafficControlType, TurnGroupID, TurnID,
+    TurnPriority,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -91,24 +92,24 @@ fn update_pretimed(
                 .phase_type
                 .simple_duration();
 
-        scheduler.push(
+        scheduler.update(
             state.phase_ends_at - signal.yellow_duration,
-            Command::UpdateIntersection(intersection_id),
+            Command::UpdateIntersection(intersection_id, None, None),
         );
     } else if now >= state.phase_ends_at - signal.yellow_duration {
         state.set_yellow_all_current_phase(signal);
 
-        scheduler.push(
+        scheduler.update(
             state.phase_ends_at,
-            Command::UpdateIntersection(intersection_id),
+            Command::UpdateIntersection(intersection_id, None, None),
         );
     } else {
         // Should only get here on the very first call for this signal.
         state.set_green_all_current_phase(signal);
 
-        scheduler.push(
+        scheduler.update(
             state.phase_ends_at - signal.yellow_duration,
-            Command::UpdateIntersection(intersection_id),
+            Command::UpdateIntersection(intersection_id, None, None),
         );
     }
 }
@@ -122,9 +123,9 @@ fn update_actuated(
 ) {
     state.phase_ends_at = now + Duration::hours(1);
 
-    scheduler.push(
+    scheduler.update(
         state.phase_ends_at,
-        Command::UpdateIntersection(intersection_id),
+        Command::UpdateIntersection(intersection_id, None, None),
     );
 }
 
@@ -170,7 +171,14 @@ fn actuate(
         let new_green_expiration = now + signal.phases[i].passage_time;
 
         if new_green_expiration < state.green_must_end_at {
-            scheduler.push(new_green_expiration, Command::UpdateIntersection(signal.id))
+            scheduler.update(
+                new_green_expiration,
+                Command::UpdateIntersection(
+                    signal.id,
+                    Some(signal.turn_to_group(turn)),
+                    Some(SignalTimerType::PassageTimer),
+                ),
+            )
         }
     }
 }

@@ -27,7 +27,7 @@ pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
 pub use crate::objects::road::{DirectedRoadID, Direction, Road, RoadID};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::objects::traffic_signals::{
-    ControlTrafficSignal, Phase, PhaseType, TrafficControlType,
+    ControlTrafficSignal, Phase, PhaseType, SignalTimerType, TrafficControlType,
 };
 pub use crate::objects::turn::{
     CompressedTurnGroupID, Turn, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType,

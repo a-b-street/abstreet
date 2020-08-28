@@ -43,6 +43,13 @@ pub enum TrafficControlType {
     PreTimed,
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
+pub enum SignalTimerType {
+    PassageTimer,
+    MaxGreenTimer,
+    YellowTimer,
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum PhaseType {
     Fixed(Duration),

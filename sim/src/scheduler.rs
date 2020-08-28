@@ -3,7 +3,7 @@ use crate::{
 };
 use derivative::Derivative;
 use geom::{Duration, Histogram, Time};
-use map_model::{BusRouteID, IntersectionID, Path, PathRequest};
+use map_model::{BusRouteID, IntersectionID, Path, PathRequest, SignalTimerType, TurnGroupID};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::btree_map::Entry;
@@ -19,7 +19,7 @@ pub enum Command {
     // Distinguish this from UpdateCar to avoid confusing things
     UpdateLaggyHead(CarID),
     UpdatePed(PedestrianID),
-    UpdateIntersection(IntersectionID),
+    UpdateIntersection(IntersectionID, Option<TurnGroupID>, Option<SignalTimerType>),
     Callback(Duration),
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),
@@ -44,7 +44,9 @@ impl Command {
             Command::UpdateCar(id) => CommandType::Car(*id),
             Command::UpdateLaggyHead(id) => CommandType::CarLaggyHead(*id),
             Command::UpdatePed(id) => CommandType::Ped(*id),
-            Command::UpdateIntersection(id) => CommandType::Intersection(*id),
+            Command::UpdateIntersection(id, turn_group_id, timer_type) => {
+                CommandType::Intersection(*id, *turn_group_id, *timer_type)
+            }
             Command::Callback(_) => CommandType::Callback,
             Command::Pandemic(ref p) => CommandType::Pandemic(p.clone()),
             Command::FinishRemoteTrip(t) => CommandType::FinishRemoteTrip(*t),
@@ -61,7 +63,7 @@ pub enum CommandType {
     Car(CarID),
     CarLaggyHead(CarID),
     Ped(PedestrianID),
-    Intersection(IntersectionID),
+    Intersection(IntersectionID, Option<TurnGroupID>, Option<SignalTimerType>),
     Callback,
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),

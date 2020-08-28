@@ -83,7 +83,7 @@ impl IntersectionSimState {
                 let signal = map.get_traffic_signal(i.id);
                 let traffic_signal_state = TrafficSignalState::new(signal);
 
-                scheduler.push_now(Command::UpdateIntersection(i.id));
+                scheduler.push_now(Command::UpdateIntersection(i.id, None, None));
 
                 sim.traffic_signal_state.insert(i.id, traffic_signal_state);
             }

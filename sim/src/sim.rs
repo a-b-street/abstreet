@@ -555,7 +555,7 @@ impl Sim {
                     &mut self.transit,
                 );
             }
-            Command::UpdateIntersection(i) => {
+            Command::UpdateIntersection(i, _, _) => {
                 self.intersections
                     .update_intersection(self.time, i, map, &mut self.scheduler);
             }
