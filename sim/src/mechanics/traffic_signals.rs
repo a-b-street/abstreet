@@ -180,12 +180,8 @@ fn maybe_get_protected_phase_index(
     state: &TrafficSignalState,
     signal: &ControlTrafficSignal,
 ) -> Option<usize> {
-    /* First, find the soonest phase with the turn (which might be the current phase).
-    Second, if the following phase also includes the turn, advance until finding the
-    last phase with the turn.
-    (In edge case where every phase has the turn, just call the current phase).
-    This heuristic avoids a straight-bound car calling a phase with a leading left turn
-    when the following phase also has a protected straight. */
+    // Find the soonest phase with the turn (which might be the current phase).
+    // (In edge case where every phase has the turn, just call the current phase).
 
     // TODO: Build a mapping from turn group to phase in advance instead
     // of computing for every call?
@@ -214,25 +210,7 @@ fn maybe_get_protected_phase_index(
 
     let soonest_phase_index = (state.current_phase + num_after_current) % num_phases;
 
-    // Advance to the next phase without the turn group protected.
-    let maybe_next_nonpriority_phase = signal
-        .phases
-        .iter()
-        .cycle()
-        .skip(soonest_phase_index)
-        .take(num_phases)
-        .enumerate()
-        .find(|enumerated_phase| {
-            TurnPriority::Protected != enumerated_phase.1.get_priority_of_group(turn_group_id)
-        });
-
-    if maybe_next_nonpriority_phase == None {
-        return Some(soonest_phase_index);
-    }
-
-    let (num_after_soonest, _) = maybe_next_nonpriority_phase.unwrap();
-
-    return Some((soonest_phase_index + num_after_soonest - 1) % num_phases);
+    return Some(soonest_phase_index);
 }
 
 fn maybe_get_yield_phase_index(
@@ -240,7 +218,7 @@ fn maybe_get_yield_phase_index(
     state: &TrafficSignalState,
     signal: &ControlTrafficSignal,
 ) -> Option<usize> {
-    // See if there is at least one protected turn group with this turn.
+    // See if there is at least one yield turn group with this turn.
     let turn_group_id = signal.turn_to_group(turn);
 
     let num_phases = signal.phases.len();
@@ -264,25 +242,7 @@ fn maybe_get_yield_phase_index(
 
     let soonest_phase_index = (state.current_phase + num_after_current) % num_phases;
 
-    // Advance to the next phase without the turn group protected.
-    let maybe_next_nonyield_phase = signal
-        .phases
-        .iter()
-        .cycle()
-        .skip(soonest_phase_index)
-        .take(num_phases)
-        .enumerate()
-        .find(|enumerated_phase| {
-            TurnPriority::Banned == enumerated_phase.1.get_priority_of_group(turn_group_id)
-        });
-
-    if maybe_next_nonyield_phase == None {
-        return Some(soonest_phase_index);
-    }
-
-    let (num_after_soonest, _) = maybe_next_nonyield_phase.unwrap();
-
-    return Some((soonest_phase_index + num_after_soonest - 1) % num_phases);
+    return Some(soonest_phase_index);
 }
 
 impl TrafficSignalState {
