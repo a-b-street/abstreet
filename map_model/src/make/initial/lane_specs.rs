@@ -194,14 +194,12 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
         if tags.is_any("cycleway:left", vec!["lane", "opposite_track", "track"]) {
             if oneway {
                 fwd_side.insert(0, fwd(LaneType::Biking));
+                if tags.is("oneway:bicycle", "no") {
+                    back_side.push(back(LaneType::Biking));
+                }
             } else {
                 back_side.push(back(LaneType::Biking));
             }
-        }
-
-        // Cycleway isn't explicitly specified, but this is a reasonable assumption anyway.
-        if back_side.is_empty() && tags.is("oneway:bicycle", "no") {
-            back_side.push(back(LaneType::Biking));
         }
     }
 
@@ -363,9 +361,7 @@ mod tests {
                 "sbbdps",
                 "vv^^^^",
             ),
-            /* TODO I have a fix for this, but somehow the fallout gridlocked lakeslice, so
-             * holding off... */
-            /*(
+            (
                 "https://www.openstreetmap.org/way/534549104",
                 vec![
                     "lanes=2",
@@ -377,7 +373,7 @@ mod tests {
                 ],
                 "sddbbs",
                 "v^^v^^",
-            ),*/
+            ),
         ] {
             let actual = get_lane_specs_ltr(&tags(input.clone()));
             let actual_lt = actual
