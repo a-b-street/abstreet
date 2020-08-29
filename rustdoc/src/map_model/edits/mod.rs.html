@@ -562,19 +562,6 @@
 <span id="562">562</span>
 <span id="563">563</span>
 <span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">compat</span>;
 <span class="kw">mod</span> <span class="ident">perma</span>;
@@ -793,12 +780,12 @@
         }
     }
 
-    <span class="comment">// Must be idempotent. True if it actually did anything.</span>
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">effects</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditEffects</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="comment">// Must be idempotent</span>
+    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">effects</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditEffects</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">r</span>, <span class="kw-2">ref</span> <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="kw-2">*</span><span class="ident">r</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">new</span>.<span class="ident">clone</span>() {
-                    <span class="kw">return</span> <span class="bool-val">false</span>;
+                    <span class="kw">return</span>;
                 }
 
                 <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span>[<span class="ident">r</span>.<span class="number">0</span>];
@@ -837,7 +824,6 @@
 
                     <span class="ident">recalculate_turns</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">map</span>, <span class="ident">effects</span>, <span class="ident">timer</span>);
                 }
-                <span class="bool-val">true</span>
             }
             <span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> {
                 <span class="ident">i</span>,
@@ -845,7 +831,7 @@
                 <span class="kw-2">ref</span> <span class="ident">old</span>,
             } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i_edit</span>(<span class="kw-2">*</span><span class="ident">i</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">new</span>.<span class="ident">clone</span>() {
-                    <span class="kw">return</span> <span class="bool-val">false</span>;
+                    <span class="kw">return</span>;
                 }
 
                 <span class="ident">map</span>.<span class="ident">stop_signs</span>.<span class="ident">remove</span>(<span class="ident">i</span>);
@@ -874,44 +860,30 @@
                 <span class="kw">if</span> <span class="ident">old</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">EditIntersection</span>::<span class="ident">Closed</span> <span class="op">|</span><span class="op">|</span> <span class="ident">new</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">EditIntersection</span>::<span class="ident">Closed</span> {
                     <span class="ident">recalculate_turns</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>, <span class="ident">effects</span>, <span class="ident">timer</span>);
                 }
-                <span class="bool-val">true</span>
             }
             <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> { <span class="ident">id</span>, <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">map</span>.<span class="ident">bus_routes</span>[<span class="ident">id</span>.<span class="number">0</span>].<span class="ident">spawn_times</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">clone</span>();
-                <span class="bool-val">true</span>
             }
         }
     }
 
-    <span class="comment">// Must be idempotent. True if it actually did anything.</span>
-    <span class="kw">fn</span> <span class="ident">undo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">effects</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditEffects</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">undo</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EditCmd</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> {
+            <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> {
                 <span class="ident">r</span>,
-                <span class="kw-2">ref</span> <span class="ident">old</span>,
-                <span class="kw-2">ref</span> <span class="ident">new</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> {
-                <span class="ident">r</span>: <span class="kw-2">*</span><span class="ident">r</span>,
-                <span class="ident">old</span>: <span class="ident">new</span>.<span class="ident">clone</span>(),
-                <span class="ident">new</span>: <span class="ident">old</span>.<span class="ident">clone</span>(),
-            }
-            .<span class="ident">apply</span>(<span class="ident">effects</span>, <span class="ident">map</span>, <span class="ident">timer</span>),
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> {
+                <span class="ident">old</span>: <span class="ident">new</span>,
+                <span class="ident">new</span>: <span class="ident">old</span>,
+            },
+            <span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> { <span class="ident">i</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> {
                 <span class="ident">i</span>,
-                <span class="kw-2">ref</span> <span class="ident">old</span>,
-                <span class="kw-2">ref</span> <span class="ident">new</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> {
-                <span class="ident">i</span>: <span class="kw-2">*</span><span class="ident">i</span>,
-                <span class="ident">old</span>: <span class="ident">new</span>.<span class="ident">clone</span>(),
-                <span class="ident">new</span>: <span class="ident">old</span>.<span class="ident">clone</span>(),
-            }
-            .<span class="ident">apply</span>(<span class="ident">effects</span>, <span class="ident">map</span>, <span class="ident">timer</span>),
+                <span class="ident">old</span>: <span class="ident">new</span>,
+                <span class="ident">new</span>: <span class="ident">old</span>,
+            },
             <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> { <span class="ident">id</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> {
-                <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
-                <span class="ident">old</span>: <span class="ident">new</span>.<span class="ident">clone</span>(),
-                <span class="ident">new</span>: <span class="ident">old</span>.<span class="ident">clone</span>(),
-            }
-            .<span class="ident">apply</span>(<span class="ident">effects</span>, <span class="ident">map</span>, <span class="ident">timer</span>),
+                <span class="ident">id</span>,
+                <span class="ident">old</span>: <span class="ident">new</span>,
+                <span class="ident">new</span>: <span class="ident">old</span>,
+            },
         }
     }
 }
@@ -1047,33 +1019,35 @@
         <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
         <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     ) {
-        <span class="comment">// TODO More efficient ways to do this: given two sets of edits, produce a smaller diff.</span>
-        <span class="comment">// Simplest strategy: Remove common prefix.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">effects</span> <span class="op">=</span> <span class="ident">EditEffects</span>::<span class="ident">new</span>();
 
-        <span class="comment">// First undo all existing edits.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">undo</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>, <span class="ident">Vec</span>::<span class="ident">new</span>());
-        <span class="ident">undo</span>.<span class="ident">reverse</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">undid</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">cmd</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">undo</span> {
-            <span class="kw">if</span> <span class="ident">cmd</span>.<span class="ident">undo</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>, <span class="self">self</span>, <span class="ident">timer</span>) {
-                <span class="ident">undid</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// We need to undo() all of the current commands in reverse order, then apply() all of the</span>
+        <span class="comment">// new commands. But in many cases, new_edits is just the current edits with a few commands</span>
+        <span class="comment">// at the end. So a simple optimization with equivalent behavior is to skip the common</span>
+        <span class="comment">// prefix of commands.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start_at_idx</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">for</span> (<span class="ident">cmd1</span>, <span class="ident">cmd2</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">new_edits</span>.<span class="ident">commands</span>.<span class="ident">iter</span>()) {
+            <span class="kw">if</span> <span class="ident">cmd1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">cmd2</span> {
+                <span class="ident">start_at_idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            } <span class="kw">else</span> {
+                <span class="kw">break</span>;
             }
         }
-        <span class="ident">timer</span>.<span class="ident">note</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Undid {} / {} existing edits&quot;</span>, <span class="ident">undid</span>, <span class="ident">undo</span>.<span class="ident">len</span>()));
+
+        <span class="comment">// Undo existing edits</span>
+        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="ident">start_at_idx</span>..<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() {
+            <span class="self">self</span>.<span class="ident">edits</span>
+                .<span class="ident">commands</span>
+                .<span class="ident">pop</span>()
+                .<span class="ident">unwrap</span>()
+                .<span class="ident">undo</span>()
+                .<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>, <span class="self">self</span>, <span class="ident">timer</span>);
+        }
 
         <span class="comment">// Apply new edits.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">applied</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">cmd</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">new_edits</span>.<span class="ident">commands</span> {
-            <span class="kw">if</span> <span class="ident">cmd</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>, <span class="self">self</span>, <span class="ident">timer</span>) {
-                <span class="ident">applied</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            }
+        <span class="kw">for</span> <span class="ident">cmd</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">new_edits</span>.<span class="ident">commands</span>[<span class="ident">start_at_idx</span>..] {
+            <span class="ident">cmd</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>, <span class="self">self</span>, <span class="ident">timer</span>);
         }
-        <span class="ident">timer</span>.<span class="ident">note</span>(<span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;Applied {} / {} new edits&quot;</span>,
-            <span class="ident">applied</span>,
-            <span class="ident">new_edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>()
-        ));
 
         <span class="comment">// Might need to update bus stops.</span>
         <span class="kw">if</span> <span class="ident">enforce_valid</span> {
