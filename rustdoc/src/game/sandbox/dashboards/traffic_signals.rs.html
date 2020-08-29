@@ -196,7 +196,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">DrawOptions</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathStep</span>, <span class="ident">TurnGroupID</span>, <span class="ident">TurnType</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">MovementID</span>, <span class="ident">PathStep</span>, <span class="ident">TurnType</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">DontDrawAgents</span>, <span class="ident">TripEndpoint</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -285,7 +285,7 @@
 
 <span class="kw">struct</span> <span class="ident">Demand</span> {
     <span class="comment">// Unsorted</span>
-    <span class="ident">raw</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">TurnGroupID</span>)<span class="op">&gt;</span>,
+    <span class="ident">raw</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">MovementID</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Demand</span> {
@@ -328,7 +328,7 @@
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">demand</span>) <span class="op">=</span> <span class="ident">all_demand</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">parent</span>) {
                             <span class="ident">demand</span>
                                 .<span class="ident">raw</span>
-                                .<span class="ident">push</span>((<span class="ident">now</span>, <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">turn_to_group</span>(<span class="kw-2">*</span><span class="ident">t</span>)));
+                                .<span class="ident">push</span>((<span class="ident">now</span>, <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">turn_to_movement</span>(<span class="kw-2">*</span><span class="ident">t</span>)));
                         }
                     }
                 }
@@ -338,12 +338,12 @@
         <span class="ident">all_demand</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">TurnGroupID</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">tg</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">raw</span> {
+        <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">m</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">raw</span> {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">start</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">end</span> {
-                <span class="ident">cnt</span>.<span class="ident">inc</span>(<span class="kw-2">*</span><span class="ident">tg</span>);
+                <span class="ident">cnt</span>.<span class="ident">inc</span>(<span class="kw-2">*</span><span class="ident">m</span>);
             }
         }
         <span class="ident">cnt</span>
@@ -362,9 +362,9 @@
             <span class="kw">let</span> <span class="ident">total_demand</span> <span class="op">=</span> <span class="ident">cnt</span>.<span class="ident">sum</span>() <span class="kw">as</span> <span class="ident">f64</span>;
 
             <span class="comment">// TODO Refactor with info/intersection after deciding exactly how to draw this</span>
-            <span class="kw">for</span> (<span class="ident">tg</span>, <span class="ident">demand</span>) <span class="kw">in</span> <span class="ident">cnt</span>.<span class="ident">consume</span>() {
+            <span class="kw">for</span> (<span class="ident">m</span>, <span class="ident">demand</span>) <span class="kw">in</span> <span class="ident">cnt</span>.<span class="ident">consume</span>() {
                 <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> (<span class="ident">demand</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="ident">total_demand</span>;
-                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">turn_groups</span>[<span class="kw-2">&amp;</span><span class="ident">tg</span>].<span class="ident">geom</span>;
+                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">m</span>].<span class="ident">geom</span>;
                 <span class="ident">arrow_batch</span>.<span class="ident">push</span>(
                     <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>),
                     <span class="ident">pl</span>.<span class="ident">make_arrow</span>(<span class="ident">percent</span> <span class="op">*</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>), <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>),

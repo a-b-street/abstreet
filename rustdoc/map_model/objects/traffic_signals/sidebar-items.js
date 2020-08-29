@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["PhaseType",""]],"fn":[["export_turn_group",""],["find_r",""],["import_turn_group",""]],"struct":[["ControlTrafficSignal",""],["Stage",""]]});
+initSidebarItems({"enum":[["PhaseType",""]],"fn":[["export_movement",""],["find_r",""],["import_movement",""]],"struct":[["ControlTrafficSignal",""],["Stage",""]]});

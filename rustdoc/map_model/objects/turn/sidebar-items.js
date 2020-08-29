@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["TurnPriority",""],["TurnType",""]],"fn":[["turn_group_geom",""]],"struct":[["CompressedTurnGroupID",""],["Turn",""],["TurnGroup",""],["TurnGroupID",""],["TurnID",""]]});
+initSidebarItems({"enum":[["TurnPriority",""],["TurnType",""]],"fn":[["movement_geom",""]],"struct":[["CompressedMovementID",""],["Movement",""],["MovementID",""],["Turn",""],["TurnID",""]]});

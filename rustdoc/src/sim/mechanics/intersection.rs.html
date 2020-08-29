@@ -998,7 +998,7 @@
             <span class="comment">// waiting one has a chance to try again.</span>
             <span class="ident">scheduler</span>.<span class="ident">update</span>(<span class="ident">now</span>, <span class="ident">Command</span>::<span class="ident">update_agent</span>(<span class="ident">req</span>.<span class="ident">agent</span>));
         }
-        <span class="comment">// Make sure the protected group gets first dibs. The scheduler arbitrarily (but</span>
+        <span class="comment">// Make sure the protected movement gets first dibs. The scheduler arbitrarily (but</span>
         <span class="comment">// deterministically) orders commands with the same time.</span>
         <span class="kw">for</span> <span class="ident">req</span> <span class="kw">in</span> <span class="ident">yielding</span> {
             <span class="ident">scheduler</span>.<span class="ident">update</span>(

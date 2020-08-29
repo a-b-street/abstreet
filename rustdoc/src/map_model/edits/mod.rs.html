@@ -597,7 +597,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EditIntersection</span> {
     <span class="ident">StopSign</span>(<span class="ident">ControlStopSign</span>),
-    <span class="comment">// Don&#39;t keep ControlTrafficSignal here, because it contains turn groups that should be</span>
+    <span class="comment">// Don&#39;t keep ControlTrafficSignal here, because it contains movements that should be</span>
     <span class="comment">// generated after all lane edits are applied.</span>
     <span class="ident">TrafficSignal</span>(<span class="ident">seattle_traffic_signals</span>::<span class="ident">TrafficSignal</span>),
     <span class="ident">Closed</span>,

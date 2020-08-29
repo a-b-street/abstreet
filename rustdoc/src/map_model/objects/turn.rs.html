@@ -413,7 +413,7 @@
     }
 }
 
-<span class="comment">// TODO This concept may be dated, now that TurnGroups exist. Within a group, the lane-changing</span>
+<span class="comment">// TODO This concept may be dated, now that Movements exist. Within a movement, the lane-changing</span>
 <span class="comment">// turns should be treated as less important.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialOrd</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TurnPriority</span> {
@@ -539,29 +539,29 @@
     }
 }
 
-<span class="comment">// One road usually has 4 crosswalks, each a singleton TurnGroup. We need all of the information</span>
+<span class="comment">// One road usually has 4 crosswalks, each a singleton Movement. We need all of the information</span>
 <span class="comment">// here to keep each crosswalk separate.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TurnGroupID</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MovementID</span> {
     <span class="kw">pub</span> <span class="ident">from</span>: <span class="ident">DirectedRoadID</span>,
     <span class="kw">pub</span> <span class="ident">to</span>: <span class="ident">DirectedRoadID</span>,
     <span class="kw">pub</span> <span class="ident">parent</span>: <span class="ident">IntersectionID</span>,
     <span class="kw">pub</span> <span class="ident">crosswalk</span>: <span class="ident">bool</span>,
 }
 
-<span class="comment">// This is cheaper to store than a TurnGroupID. It simply indexes into the list of turn_groups.</span>
+<span class="comment">// This is cheaper to store than a MovementID. It simply indexes into the list of movements.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompressedTurnGroupID</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompressedMovementID</span> {
     <span class="kw">pub</span> <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-    <span class="comment">// There better not be any intersection with more than 256 turn groups...</span>
+    <span class="comment">// There better not be any intersection with more than 256 movements...</span>
     <span class="kw">pub</span> <span class="ident">idx</span>: <span class="ident">u8</span>,
 }
 
 <span class="comment">// TODO Unclear how this plays with different lane types</span>
 <span class="comment">// This is only useful for traffic signals currently.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TurnGroup</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">TurnGroupID</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Movement</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">MovementID</span>,
     <span class="kw">pub</span> <span class="ident">turn_type</span>: <span class="ident">TurnType</span>,
     <span class="kw">pub</span> <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
     <span class="comment">// The &quot;overall&quot; path of movement, aka, an &quot;average&quot; of the turn geometry</span>
@@ -569,20 +569,20 @@
     <span class="kw">pub</span> <span class="ident">angle</span>: <span class="ident">Angle</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">TurnGroup</span> {
+<span class="kw">impl</span> <span class="ident">Movement</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">for_i</span>(
         <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TurnGroupID</span>, <span class="ident">TurnGroup</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Movement</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">groups</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span>(<span class="ident">DirectedRoadID</span>, <span class="ident">DirectedRoadID</span>), <span class="ident">TurnID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">movements</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span>(<span class="ident">DirectedRoadID</span>, <span class="ident">DirectedRoadID</span>), <span class="ident">TurnID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_in_intersection</span>(<span class="ident">i</span>) {
             <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">get_directed_parent</span>(<span class="ident">map</span>);
             <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">get_directed_parent</span>(<span class="ident">map</span>);
             <span class="kw">match</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> {
                 <span class="ident">TurnType</span>::<span class="ident">SharedSidewalkCorner</span> <span class="op">=</span><span class="op">&gt;</span> {}
                 <span class="ident">TurnType</span>::<span class="ident">Crosswalk</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">TurnGroupID</span> {
+                    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">MovementID</span> {
                         <span class="ident">from</span>,
                         <span class="ident">to</span>,
                         <span class="ident">parent</span>: <span class="ident">i</span>,
@@ -590,7 +590,7 @@
                     };
                     <span class="ident">results</span>.<span class="ident">insert</span>(
                         <span class="ident">id</span>,
-                        <span class="ident">TurnGroup</span> {
+                        <span class="ident">Movement</span> {
                             <span class="ident">id</span>,
                             <span class="ident">turn_type</span>: <span class="ident">TurnType</span>::<span class="ident">Crosswalk</span>,
                             <span class="ident">members</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">turn</span>.<span class="ident">id</span>],
@@ -600,12 +600,12 @@
                     );
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">groups</span>.<span class="ident">insert</span>((<span class="ident">from</span>, <span class="ident">to</span>), <span class="ident">turn</span>.<span class="ident">id</span>);
+                    <span class="ident">movements</span>.<span class="ident">insert</span>((<span class="ident">from</span>, <span class="ident">to</span>), <span class="ident">turn</span>.<span class="ident">id</span>);
                 }
             }
         }
-        <span class="kw">for</span> ((<span class="ident">from</span>, <span class="ident">to</span>), <span class="ident">members</span>) <span class="kw">in</span> <span class="ident">groups</span>.<span class="ident">consume</span>() {
-            <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">turn_group_geom</span>(
+        <span class="kw">for</span> ((<span class="ident">from</span>, <span class="ident">to</span>), <span class="ident">members</span>) <span class="kw">in</span> <span class="ident">movements</span>.<span class="ident">consume</span>() {
+            <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">movement_geom</span>(
                 <span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">geom</span>).<span class="ident">collect</span>(),
                 <span class="ident">from</span>,
                 <span class="ident">to</span>,
@@ -614,12 +614,12 @@
                 <span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">turn_type</span>).<span class="ident">collect</span>();
             <span class="kw">if</span> <span class="ident">turn_types</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
                 <span class="macro">println</span><span class="macro">!</span>(
-                    <span class="string">&quot;TurnGroup between {} and {} has weird turn types! {:?}&quot;</span>,
+                    <span class="string">&quot;Movement between {} and {} has weird turn types! {:?}&quot;</span>,
                     <span class="ident">from</span>, <span class="ident">to</span>, <span class="ident">turn_types</span>
                 );
             }
             <span class="kw">let</span> <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">members</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>();
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">TurnGroupID</span> {
+            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">MovementID</span> {
                 <span class="ident">from</span>,
                 <span class="ident">to</span>,
                 <span class="ident">parent</span>: <span class="ident">i</span>,
@@ -627,7 +627,7 @@
             };
             <span class="ident">results</span>.<span class="ident">insert</span>(
                 <span class="ident">id</span>,
-                <span class="ident">TurnGroup</span> {
+                <span class="ident">Movement</span> {
                     <span class="ident">id</span>,
                     <span class="ident">turn_type</span>: <span class="kw-2">*</span><span class="ident">turn_types</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>(),
                     <span class="ident">angle</span>: <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">members</span>[<span class="number">0</span>]).<span class="ident">angle</span>(),
@@ -638,7 +638,7 @@
         }
         <span class="kw">if</span> <span class="ident">results</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;No TurnGroups! Does the intersection have at least 2 roads?&quot;</span>
+                <span class="string">&quot;No Movements! Does the intersection have at least 2 roads?&quot;</span>
             ));
         }
         <span class="prelude-val">Ok</span>(<span class="ident">results</span>)
@@ -674,7 +674,7 @@
         (<span class="ident">pl</span>, <span class="ident">rightmost</span> <span class="op">-</span> <span class="ident">leftmost</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conflicts_with</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">TurnGroup</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conflicts_with</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Movement</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">id</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
@@ -705,7 +705,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">turn_group_geom</span>(
+<span class="kw">fn</span> <span class="ident">movement_geom</span>(
     <span class="ident">polylines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PolyLine</span><span class="op">&gt;</span>,
     <span class="ident">from</span>: <span class="ident">DirectedRoadID</span>,
     <span class="ident">to</span>: <span class="ident">DirectedRoadID</span>,
@@ -714,7 +714,7 @@
     <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">polylines</span> {
         <span class="kw">if</span> <span class="ident">num_pts</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pl</span>.<span class="ident">points</span>().<span class="ident">len</span>() {
             <span class="macro">println</span><span class="macro">!</span>(
-                <span class="string">&quot;TurnGroup between {} and {} can&#39;t make nice geometry&quot;</span>,
+                <span class="string">&quot;Movement between {} and {} can&#39;t make nice geometry&quot;</span>,
                 <span class="ident">from</span>, <span class="ident">to</span>
             );
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">polylines</span>[<span class="number">0</span>].<span class="ident">clone</span>());

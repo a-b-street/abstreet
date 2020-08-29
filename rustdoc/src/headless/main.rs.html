@@ -266,8 +266,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">hyper</span>::{<span class="ident">Body</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">Server</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">CompressedTurnGroupID</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>,
-    <span class="ident">PermanentMapEdits</span>, <span class="ident">TurnGroupID</span>,
+    <span class="ident">CompressedMovementID</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>,
+    <span class="ident">MovementID</span>, <span class="ident">PermanentMapEdits</span>,
 };
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{
@@ -396,20 +396,20 @@
             } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t a traffic signal&quot;</span>, <span class="ident">i</span>).<span class="ident">into</span>());
             };
-            <span class="kw">let</span> <span class="ident">turn_groups</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TurnGroupID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ts</span>.<span class="ident">turn_groups</span>.<span class="ident">keys</span>().<span class="ident">collect</span>();
+            <span class="kw">let</span> <span class="ident">movements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">keys</span>().<span class="ident">collect</span>();
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">delays</span> <span class="op">=</span> <span class="ident">Delays</span> {
                 <span class="ident">per_direction</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
             };
-            <span class="kw">for</span> <span class="ident">tg</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">turn_groups</span>.<span class="ident">keys</span>() {
-                <span class="ident">delays</span>.<span class="ident">per_direction</span>.<span class="ident">insert</span>(<span class="ident">tg</span>.<span class="ident">clone</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>());
+            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">keys</span>() {
+                <span class="ident">delays</span>.<span class="ident">per_direction</span>.<span class="ident">insert</span>(<span class="ident">m</span>.<span class="ident">clone</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>());
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">intersection_delays</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
                 <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">t</span>, <span class="ident">dt</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">list</span> {
                     <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">t1</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">t2</span> {
                         <span class="ident">delays</span>
                             .<span class="ident">per_direction</span>
-                            .<span class="ident">get_mut</span>(<span class="ident">turn_groups</span>[<span class="kw-2">*</span><span class="ident">idx</span> <span class="kw">as</span> <span class="ident">usize</span>])
+                            .<span class="ident">get_mut</span>(<span class="ident">movements</span>[<span class="kw-2">*</span><span class="ident">idx</span> <span class="kw">as</span> <span class="ident">usize</span>])
                             .<span class="ident">unwrap</span>()
                             .<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">dt</span>);
                     }
@@ -428,12 +428,12 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">thruput</span> <span class="op">=</span> <span class="ident">Throughput</span> {
                 <span class="ident">per_direction</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
             };
-            <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">tg</span>) <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">turn_groups</span>.<span class="ident">keys</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">m</span>) <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">keys</span>().<span class="ident">enumerate</span>() {
                 <span class="ident">thruput</span>.<span class="ident">per_direction</span>.<span class="ident">insert</span>(
-                    <span class="ident">tg</span>.<span class="ident">clone</span>(),
+                    <span class="ident">m</span>.<span class="ident">clone</span>(),
                     <span class="ident">sim</span>.<span class="ident">get_analytics</span>()
                         .<span class="ident">traffic_signal_thruput</span>
-                        .<span class="ident">total_for</span>(<span class="ident">CompressedTurnGroupID</span> {
+                        .<span class="ident">total_for</span>(<span class="ident">CompressedMovementID</span> {
                             <span class="ident">i</span>,
                             <span class="ident">idx</span>: <span class="ident">u8</span>::<span class="ident">try_from</span>(<span class="ident">idx</span>).<span class="ident">unwrap</span>(),
                         }),
@@ -481,13 +481,13 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">Delays</span> {
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>)]</span>
-    <span class="ident">per_direction</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TurnGroupID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">per_direction</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">Throughput</span> {
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>)]</span>
-    <span class="ident">per_direction</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TurnGroupID</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="ident">per_direction</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>

@@ -539,19 +539,19 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab</span>::<span class="ident">IntersectionDemand</span>(<span class="ident">id</span>));
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_demand</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">demand_per_group</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">PolyLine</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">g</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">id</span>).<span class="ident">turn_groups</span>.<span class="ident">values</span>() {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">demand_per_movement</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">PolyLine</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">id</span>).<span class="ident">movements</span>.<span class="ident">values</span>() {
         <span class="kw">let</span> <span class="ident">demand</span> <span class="op">=</span> <span class="ident">app</span>
             .<span class="ident">primary</span>
             .<span class="ident">sim</span>
             .<span class="ident">get_analytics</span>()
             .<span class="ident">demand</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">g</span>.<span class="ident">id</span>)
+            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">id</span>)
             .<span class="ident">cloned</span>()
             .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
         <span class="kw">if</span> <span class="ident">demand</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="ident">total_demand</span> <span class="op">+</span><span class="op">=</span> <span class="ident">demand</span>;
-            <span class="ident">demand_per_group</span>.<span class="ident">push</span>((<span class="kw-2">&amp;</span><span class="ident">g</span>.<span class="ident">geom</span>, <span class="ident">demand</span>));
+            <span class="ident">demand_per_movement</span>.<span class="ident">push</span>((<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">geom</span>, <span class="ident">demand</span>));
         }
     }
 
@@ -566,7 +566,7 @@
     );
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Text</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> (<span class="ident">pl</span>, <span class="ident">demand</span>) <span class="kw">in</span> <span class="ident">demand_per_group</span> {
+    <span class="kw">for</span> (<span class="ident">pl</span>, <span class="ident">demand</span>) <span class="kw">in</span> <span class="ident">demand_per_movement</span> {
         <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> (<span class="ident">demand</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">total_demand</span> <span class="kw">as</span> <span class="ident">f64</span>);
         <span class="kw">let</span> <span class="ident">arrow</span> <span class="op">=</span> <span class="ident">pl</span>
             .<span class="ident">make_arrow</span>(<span class="ident">percent</span> <span class="op">*</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>), <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>)
