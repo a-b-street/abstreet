@@ -1,39 +1,39 @@
 use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon};
-use map_model::{IntersectionCluster, IntersectionID, LaneID, Map, TurnGroupID, UberTurnGroup};
+use map_model::{IntersectionCluster, IntersectionID, LaneID, Map, MovementID, UberTurnGroup};
 use std::collections::{HashMap, HashSet};
 
 const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(1.5);
 
-pub struct DrawTurnGroup {
-    pub id: TurnGroupID,
+pub struct DrawMovement {
+    pub id: MovementID,
     pub block: Polygon,
     pub arrow: Polygon,
 }
 
-impl DrawTurnGroup {
-    pub fn for_i(i: IntersectionID, map: &Map) -> Vec<DrawTurnGroup> {
+impl DrawMovement {
+    pub fn for_i(i: IntersectionID, map: &Map) -> Vec<DrawMovement> {
         // TODO Sort by angle here if we want some consistency
         let mut offset_per_lane: HashMap<LaneID, usize> = HashMap::new();
         let mut draw = Vec::new();
-        for group in map.get_traffic_signal(i).turn_groups.values() {
-            let offset = group
+        for movement in map.get_traffic_signal(i).movements.values() {
+            let offset = movement
                 .members
                 .iter()
                 .map(|t| *offset_per_lane.entry(t.src).or_insert(0))
                 .max()
                 .unwrap();
-            let (pl, width) = group.src_center_and_width(map);
-            let (block, arrow) = make_geom(offset as f64, pl, width, group.angle);
+            let (pl, width) = movement.src_center_and_width(map);
+            let (block, arrow) = make_geom(offset as f64, pl, width, movement.angle);
             let mut seen_lanes = HashSet::new();
-            for t in &group.members {
+            for t in &movement.members {
                 if !seen_lanes.contains(&t.src) {
                     *offset_per_lane.get_mut(&t.src).unwrap() = offset + 1;
                     seen_lanes.insert(t.src);
                 }
             }
 
-            draw.push(DrawTurnGroup {
-                id: group.id,
+            draw.push(DrawMovement {
+                id: movement.id,
                 block,
                 arrow,
             });

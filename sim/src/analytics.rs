@@ -2,8 +2,8 @@ use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMod
 use abstutil::Counter;
 use geom::{Distance, Duration, Time};
 use map_model::{
-    BusRouteID, BusStopID, CompressedTurnGroupID, IntersectionID, LaneID, Map, ParkingLotID, Path,
-    PathRequest, RoadID, Traversable, TurnGroupID,
+    BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
+    ParkingLotID, Path, PathRequest, RoadID, Traversable,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -15,10 +15,10 @@ pub struct Analytics {
     // TODO For traffic signals, intersection_thruput could theoretically use this. But that
     // requires occasionally expensive or complicated summing or merging over all directions of an
     // intersection. So for now, eat the file size cost.
-    pub traffic_signal_thruput: TimeSeriesCount<CompressedTurnGroupID>,
+    pub traffic_signal_thruput: TimeSeriesCount<CompressedMovementID>,
 
     // Unlike everything else in Analytics, this is just for a moment in time.
-    pub demand: BTreeMap<TurnGroupID, usize>,
+    pub demand: BTreeMap<MovementID, usize>,
 
     // TODO Reconsider this one
     pub bus_arrivals: Vec<(Time, CarID, BusRouteID, BusStopID)>,
@@ -34,7 +34,7 @@ pub struct Analytics {
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
 
     // TODO Transit riders aren't represented here yet, just the vehicle they're riding.
-    // Only for traffic signals. The u8 is the turn group index from a CompressedTurnGroupID.
+    // Only for traffic signals. The u8 is the movement index from a CompressedMovementID.
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(u8, Time, Duration, AgentType)>>,
 
     // Per parking lane or lot, when does a spot become filled (true) or free (false)
@@ -102,18 +102,14 @@ impl Analytics {
                         );
                     }
 
-                    if let Some(id) = map.get_turn_group(t) {
+                    if let Some(id) = map.get_movement(t) {
                         *self.demand.entry(id).or_insert(0) -= 1;
 
-                        let tg = map.get_traffic_signal(t.parent).compressed_id(t);
-                        self.traffic_signal_thruput.record(time, tg, a.to_type(), 1);
+                        let m = map.get_traffic_signal(t.parent).compressed_id(t);
+                        self.traffic_signal_thruput.record(time, m, a.to_type(), 1);
                         if let Some(n) = passengers {
-                            self.traffic_signal_thruput.record(
-                                time,
-                                tg,
-                                AgentType::TransitRider,
-                                n,
-                            );
+                            self.traffic_signal_thruput
+                                .record(time, m, AgentType::TransitRider, n);
                         }
                     }
                 }
@@ -232,7 +228,7 @@ impl Analytics {
     pub fn record_demand(&mut self, path: &Path, map: &Map) {
         for step in path.get_steps() {
             if let Traversable::Turn(t) = step.as_traversable() {
-                if let Some(id) = map.get_turn_group(t) {
+                if let Some(id) = map.get_movement(t) {
                     *self.demand.entry(id).or_insert(0) += 1;
                 }
             }

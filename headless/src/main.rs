@@ -13,8 +13,8 @@ use abstutil::{serialize_btreemap, CmdArgs, Timer};
 use geom::{Duration, LonLat, Time};
 use hyper::{Body, Request, Response, Server};
 use map_model::{
-    CompressedTurnGroupID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
-    PermanentMapEdits, TurnGroupID,
+    CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
+    MovementID, PermanentMapEdits,
 };
 use serde::Serialize;
 use sim::{
@@ -143,20 +143,20 @@ fn handle_command(
             } else {
                 return Err(format!("{} isn't a traffic signal", i).into());
             };
-            let turn_groups: Vec<&TurnGroupID> = ts.turn_groups.keys().collect();
+            let movements: Vec<&MovementID> = ts.movements.keys().collect();
 
             let mut delays = Delays {
                 per_direction: BTreeMap::new(),
             };
-            for tg in ts.turn_groups.keys() {
-                delays.per_direction.insert(tg.clone(), Vec::new());
+            for m in ts.movements.keys() {
+                delays.per_direction.insert(m.clone(), Vec::new());
             }
             if let Some(list) = sim.get_analytics().intersection_delays.get(&i) {
                 for (idx, t, dt, _) in list {
                     if *t >= t1 && *t <= t2 {
                         delays
                             .per_direction
-                            .get_mut(turn_groups[*idx as usize])
+                            .get_mut(movements[*idx as usize])
                             .unwrap()
                             .push(*dt);
                     }
@@ -175,12 +175,12 @@ fn handle_command(
             let mut thruput = Throughput {
                 per_direction: BTreeMap::new(),
             };
-            for (idx, tg) in ts.turn_groups.keys().enumerate() {
+            for (idx, m) in ts.movements.keys().enumerate() {
                 thruput.per_direction.insert(
-                    tg.clone(),
+                    m.clone(),
                     sim.get_analytics()
                         .traffic_signal_thruput
-                        .total_for(CompressedTurnGroupID {
+                        .total_for(CompressedMovementID {
                             i,
                             idx: u8::try_from(idx).unwrap(),
                         }),
@@ -228,13 +228,13 @@ struct FinishedTrips {
 #[derive(Serialize)]
 struct Delays {
     #[serde(serialize_with = "serialize_btreemap")]
-    per_direction: BTreeMap<TurnGroupID, Vec<Duration>>,
+    per_direction: BTreeMap<MovementID, Vec<Duration>>,
 }
 
 #[derive(Serialize)]
 struct Throughput {
     #[serde(serialize_with = "serialize_btreemap")]
-    per_direction: BTreeMap<TurnGroupID, usize>,
+    per_direction: BTreeMap<MovementID, usize>,
 }
 
 #[derive(Serialize)]

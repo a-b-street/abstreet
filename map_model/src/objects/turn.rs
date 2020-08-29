@@ -47,7 +47,7 @@ impl TurnType {
     }
 }
 
-// TODO This concept may be dated, now that TurnGroups exist. Within a group, the lane-changing
+// TODO This concept may be dated, now that Movements exist. Within a movement, the lane-changing
 // turns should be treated as less important.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
 pub enum TurnPriority {
@@ -173,29 +173,29 @@ impl Turn {
     }
 }
 
-// One road usually has 4 crosswalks, each a singleton TurnGroup. We need all of the information
+// One road usually has 4 crosswalks, each a singleton Movement. We need all of the information
 // here to keep each crosswalk separate.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct TurnGroupID {
+pub struct MovementID {
     pub from: DirectedRoadID,
     pub to: DirectedRoadID,
     pub parent: IntersectionID,
     pub crosswalk: bool,
 }
 
-// This is cheaper to store than a TurnGroupID. It simply indexes into the list of turn_groups.
+// This is cheaper to store than a MovementID. It simply indexes into the list of movements.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct CompressedTurnGroupID {
+pub struct CompressedMovementID {
     pub i: IntersectionID,
-    // There better not be any intersection with more than 256 turn groups...
+    // There better not be any intersection with more than 256 movements...
     pub idx: u8,
 }
 
 // TODO Unclear how this plays with different lane types
 // This is only useful for traffic signals currently.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct TurnGroup {
-    pub id: TurnGroupID,
+pub struct Movement {
+    pub id: MovementID,
     pub turn_type: TurnType,
     pub members: Vec<TurnID>,
     // The "overall" path of movement, aka, an "average" of the turn geometry
@@ -203,20 +203,20 @@ pub struct TurnGroup {
     pub angle: Angle,
 }
 
-impl TurnGroup {
+impl Movement {
     pub(crate) fn for_i(
         i: IntersectionID,
         map: &Map,
-    ) -> Result<BTreeMap<TurnGroupID, TurnGroup>, String> {
+    ) -> Result<BTreeMap<MovementID, Movement>, String> {
         let mut results = BTreeMap::new();
-        let mut groups: MultiMap<(DirectedRoadID, DirectedRoadID), TurnID> = MultiMap::new();
+        let mut movements: MultiMap<(DirectedRoadID, DirectedRoadID), TurnID> = MultiMap::new();
         for turn in map.get_turns_in_intersection(i) {
             let from = map.get_l(turn.id.src).get_directed_parent(map);
             let to = map.get_l(turn.id.dst).get_directed_parent(map);
             match turn.turn_type {
                 TurnType::SharedSidewalkCorner => {}
                 TurnType::Crosswalk => {
-                    let id = TurnGroupID {
+                    let id = MovementID {
                         from,
                         to,
                         parent: i,
@@ -224,7 +224,7 @@ impl TurnGroup {
                     };
                     results.insert(
                         id,
-                        TurnGroup {
+                        Movement {
                             id,
                             turn_type: TurnType::Crosswalk,
                             members: vec![turn.id],
@@ -234,12 +234,12 @@ impl TurnGroup {
                     );
                 }
                 _ => {
-                    groups.insert((from, to), turn.id);
+                    movements.insert((from, to), turn.id);
                 }
             }
         }
-        for ((from, to), members) in groups.consume() {
-            let geom = turn_group_geom(
+        for ((from, to), members) in movements.consume() {
+            let geom = movement_geom(
                 members.iter().map(|t| &map.get_t(*t).geom).collect(),
                 from,
                 to,
@@ -248,12 +248,12 @@ impl TurnGroup {
                 members.iter().map(|t| map.get_t(*t).turn_type).collect();
             if turn_types.len() > 1 {
                 println!(
-                    "TurnGroup between {} and {} has weird turn types! {:?}",
+                    "Movement between {} and {} has weird turn types! {:?}",
                     from, to, turn_types
                 );
             }
             let members: Vec<TurnID> = members.into_iter().collect();
-            let id = TurnGroupID {
+            let id = MovementID {
                 from,
                 to,
                 parent: i,
@@ -261,7 +261,7 @@ impl TurnGroup {
             };
             results.insert(
                 id,
-                TurnGroup {
+                Movement {
                     id,
                     turn_type: *turn_types.iter().next().unwrap(),
                     angle: map.get_t(members[0]).angle(),
@@ -272,7 +272,7 @@ impl TurnGroup {
         }
         if results.is_empty() {
             return Err(format!(
-                "No TurnGroups! Does the intersection have at least 2 roads?"
+                "No Movements! Does the intersection have at least 2 roads?"
             ));
         }
         Ok(results)
@@ -308,7 +308,7 @@ impl TurnGroup {
         (pl, rightmost - leftmost)
     }
 
-    pub fn conflicts_with(&self, other: &TurnGroup) -> bool {
+    pub fn conflicts_with(&self, other: &Movement) -> bool {
         if self.id == other.id {
             return false;
         }
@@ -339,7 +339,7 @@ impl TurnGroup {
     }
 }
 
-fn turn_group_geom(
+fn movement_geom(
     polylines: Vec<&PolyLine>,
     from: DirectedRoadID,
     to: DirectedRoadID,
@@ -348,7 +348,7 @@ fn turn_group_geom(
     for pl in &polylines {
         if num_pts != pl.points().len() {
             println!(
-                "TurnGroup between {} and {} can't make nice geometry",
+                "Movement between {} and {} can't make nice geometry",
                 from, to
             );
             return Ok(polylines[0].clone());

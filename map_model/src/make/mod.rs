@@ -13,7 +13,7 @@ use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
     Direction, Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits,
-    PathConstraints, Position, Road, RoadID, TurnGroup, Zone,
+    Movement, PathConstraints, Position, Road, RoadID, Zone,
 };
 use abstutil::{Parallelism, Timer};
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
@@ -294,7 +294,7 @@ impl Map {
                 IntersectionType::StopSign => {
                     stop_signs.insert(i.id, ControlStopSign::new(&map, i.id));
                 }
-                IntersectionType::TrafficSignal => match TurnGroup::for_i(i.id, &map) {
+                IntersectionType::TrafficSignal => match Movement::for_i(i.id, &map) {
                     Ok(_) => {
                         traffic_signals.insert(i.id, ControlTrafficSignal::new(&map, i.id, timer));
                     }
