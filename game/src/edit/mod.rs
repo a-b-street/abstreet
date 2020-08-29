@@ -25,21 +25,20 @@ use crate::options::OptionsPanel;
 use crate::render::DrawMap;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
-use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment,
-    Key, Line, Menu, Outcome, PersistentSplit, RewriteColor, Text, TextExt, VerticalAlignment,
-    Widget,
-};
 use geom::Speed;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use maplit::btreeset;
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Menu, Outcome, Panel, PersistentSplit, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct EditMode {
-    tool_panel: Composite,
-    top_center: Composite,
-    changelist: Composite,
+    tool_panel: Panel,
+    top_center: Panel,
+    changelist: Panel,
     orig_edits: MapEdits,
     orig_dirty: bool,
 
@@ -100,7 +99,7 @@ impl EditMode {
                     Transition::Multi(vec![
                         Transition::Pop,
                         Transition::Replace(SandboxMode::new(ctx, app, self.mode.clone())),
-                        Transition::Push(TimeWarpScreen::new(ctx, app, old_sim.time(), false)),
+                        Transition::Push(TimeWarpScreen::new(ctx, app, old_sim.time(), None)),
                     ])
                 } else {
                     app.primary.sim = old_sim;
@@ -288,7 +287,7 @@ impl State for EditMode {
 }
 
 pub struct SaveEdits {
-    composite: Composite,
+    panel: Panel,
     current_name: String,
     cancel: Option<Transition>,
     reset: bool,
@@ -310,7 +309,7 @@ impl SaveEdits {
         let btn = SaveEdits::btn(ctx, app, &initial_name);
         Box::new(SaveEdits {
             current_name: initial_name.clone(),
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Line(title).small_heading().draw(ctx),
                 Widget::row(vec![
                     "Name:".draw_text(ctx),
@@ -351,7 +350,7 @@ impl SaveEdits {
 
 impl State for SaveEdits {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Save" | "Overwrite existing edits" => {
                     let mut edits = app.primary.map.get_edits().clone();
@@ -376,11 +375,11 @@ impl State for SaveEdits {
             },
             _ => {}
         }
-        let name = self.composite.text_box("filename");
+        let name = self.panel.text_box("filename");
         if name != self.current_name {
             self.current_name = name;
             let btn = SaveEdits::btn(ctx, app, &self.current_name);
-            self.composite.replace(ctx, "save", btn);
+            self.panel.replace(ctx, "save", btn);
         }
 
         Transition::Keep
@@ -388,12 +387,12 @@ impl State for SaveEdits {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
 struct LoadEdits {
-    composite: Composite,
+    panel: Panel,
     mode: GameplayMode,
 }
 
@@ -410,7 +409,7 @@ impl LoadEdits {
                     .collect(),
             ),
         ];
-        // ezgui can't toggle keyboard focus between two menus, so just use buttons for the less
+        // widgetry can't toggle keyboard focus between two menus, so just use buttons for the less
         // common use case.
         let mut proposals = vec![Line("Community proposals").small_heading().draw(ctx)];
         // Up-front filter out proposals that definitely don't fit the current map
@@ -423,7 +422,7 @@ impl LoadEdits {
 
         Box::new(LoadEdits {
             mode,
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Load edits").small_heading().draw(ctx),
                     Btn::plaintext("X")
@@ -441,7 +440,7 @@ impl LoadEdits {
 
 impl State for LoadEdits {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
                 match x.as_ref() {
                     "close" => Transition::Pop,
@@ -480,17 +479,24 @@ impl State for LoadEdits {
                             }
                             // TODO Hack. Have to replace ourselves, because the Menu might be
                             // invalidated now that something was chosen.
-                            Err(err) => Transition::Multi(vec![
-                                Transition::Replace(LoadEdits::new(ctx, app, self.mode.clone())),
-                                // TODO Menu draws at a weird Z-order to deal with tooltips, so now
-                                // the menu underneath bleeds
-                                // through
-                                Transition::Push(PopupMsg::new(
-                                    ctx,
-                                    "Error",
-                                    vec![format!("Can't load {}", path), err.clone()],
-                                )),
-                            ]),
+                            Err(err) => {
+                                println!("Can't load {}: {}", path, err);
+                                Transition::Multi(vec![
+                                    Transition::Replace(LoadEdits::new(
+                                        ctx,
+                                        app,
+                                        self.mode.clone(),
+                                    )),
+                                    // TODO Menu draws at a weird Z-order to deal with tooltips, so
+                                    // now the menu underneath
+                                    // bleeds through
+                                    Transition::Push(PopupMsg::new(
+                                        ctx,
+                                        "Error",
+                                        vec![format!("Can't load {}", path), err.clone()],
+                                    )),
+                                ])
+                            }
                         }
                     }
                 }
@@ -501,12 +507,12 @@ impl State for LoadEdits {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
-fn make_topcenter(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Composite {
-    Composite::new(Widget::col(vec![
+fn make_topcenter(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Panel {
+    Panel::new(Widget::col(vec![
         Line("Editing map")
             .small_heading()
             .draw(ctx)
@@ -663,7 +669,7 @@ pub fn maybe_edit_intersection(
     None
 }
 
-fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
+fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
     // TODO Support redo. Bit harder here to reset the redo_stack when the edits
     // change, because nested other places modify it too.
     let edits = app.primary.map.get_edits();
@@ -705,16 +711,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
             Btn::text_fg("Autosaved!").inactive(ctx)
         },
         Text::from_multiline(vec![
-            Line(format!("{} lane types changed", edits.original_lts.len())),
-            Line(format!("{} lanes reversed", edits.reversed_lanes.len())),
-            Line(format!(
-                "{} speed limits changed",
-                edits.changed_speed_limits.len()
-            )),
-            Line(format!(
-                "{} access restrictions changed",
-                edits.changed_access_restrictions.len()
-            )),
+            Line(format!("{} roads changed", edits.changed_roads.len())),
             Line(format!(
                 "{} intersections changed",
                 edits.original_intersections.len()
@@ -736,7 +733,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
         col.push(format!("{} more...", edits.commands.len()).draw_text(ctx));
     }
 
-    Composite::new(Widget::col(col))
+    Panel::new(Widget::col(col))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }
@@ -744,11 +741,8 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
 // TODO Ideally a Tab.
 fn cmd_to_id(cmd: &EditCmd) -> Option<ID> {
     match cmd {
-        EditCmd::ChangeLaneType { id, .. } => Some(ID::Lane(*id)),
-        EditCmd::ReverseLane { l, .. } => Some(ID::Lane(*l)),
-        EditCmd::ChangeSpeedLimit { id, .. } => Some(ID::Road(*id)),
+        EditCmd::ChangeRoad { r, .. } => Some(ID::Road(*r)),
         EditCmd::ChangeIntersection { i, .. } => Some(ID::Intersection(*i)),
-        EditCmd::ChangeAccessRestrictions { id, .. } => Some(ID::Road(*id)),
         EditCmd::ChangeRouteSchedule { .. } => None,
     }
 }

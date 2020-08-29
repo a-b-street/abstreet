@@ -10,19 +10,15 @@ use crate::app::App;
 use crate::common::HeatmapOptions;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::hotkey_btn;
-use ezgui::{hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextExt, Widget};
+use widgetry::{hotkey, Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget};
 
 // TODO Good ideas in
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70
 
 pub trait Layer {
     fn name(&self) -> Option<&'static str>;
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Composite,
-    ) -> Option<LayerOutcome>;
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App, minimap: &Panel)
+        -> Option<LayerOutcome>;
     // Draw both controls and, if zoomed, the layer contents
     fn draw(&self, g: &mut GfxCtx, app: &App);
     // Just draw contents and do it always
@@ -32,11 +28,11 @@ pub trait Layer {
 impl dyn Layer {
     fn simple_event(
         ctx: &mut EventCtx,
-        minimap: &Composite,
-        composite: &mut Composite,
+        minimap: &Panel,
+        panel: &mut Panel,
     ) -> Option<LayerOutcome> {
-        composite.align_above(ctx, minimap);
-        match composite.event(ctx) {
+        panel.align_above(ctx, minimap);
+        match panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Some(LayerOutcome::Close),
                 _ => unreachable!(),
@@ -53,11 +49,11 @@ pub enum LayerOutcome {
 
 // TODO Maybe overkill, but could embed a minimap and preview the layer on hover
 pub struct PickLayer {
-    composite: Composite,
+    panel: Panel,
 }
 
 impl PickLayer {
-    pub fn update(ctx: &mut EventCtx, app: &mut App, minimap: &Composite) -> Option<Transition> {
+    pub fn update(ctx: &mut EventCtx, app: &mut App, minimap: &Panel) -> Option<Transition> {
         if app.layer.is_none() {
             return None;
         }
@@ -135,7 +131,7 @@ impl PickLayer {
         }
 
         Box::new(PickLayer {
-            composite: Composite::new(Widget::col(col))
+            panel: Panel::new(Widget::col(col))
                 .exact_size_percent(35, 70)
                 .build(ctx),
         })
@@ -144,7 +140,7 @@ impl PickLayer {
 
 impl State for PickLayer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {}
                 "None" => {
@@ -212,7 +208,7 @@ impl State for PickLayer {
                 _ => unreachable!(),
             },
             _ => {
-                if self.composite.clicked_outside(ctx) {
+                if self.panel.clicked_outside(ctx) {
                     return Transition::Pop;
                 }
                 return Transition::Keep;
@@ -227,6 +223,6 @@ impl State for PickLayer {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }

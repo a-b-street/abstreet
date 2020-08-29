@@ -7,30 +7,29 @@ use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::options::TrafficSignalStyle;
-use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
+use crate::render::{draw_signal_stage, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::sandbox::GameplayMode;
 use abstutil::Timer;
-use ezgui::{
-    hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Spinner, Text, TextExt,
-    VerticalAlignment, Widget,
-};
 use geom::{ArrowCap, Distance, Duration, Line, Polygon, Pt2D};
 use map_model::{
-    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase, PhaseType, TurnGroup,
+    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType, Stage, TurnGroup,
     TurnGroupID, TurnPriority,
 };
 use std::collections::{BTreeSet, HashMap, VecDeque};
+use widgetry::{
+    hotkey, lctrl, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, RewriteColor, Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
 
 // Welcome to one of the most overwhelmingly complicated parts of the UI...
 
 pub struct TrafficSignalEditor {
-    side_panel: Composite,
-    top_panel: Composite,
+    side_panel: Panel,
+    top_panel: Panel,
 
     mode: GameplayMode,
     members: BTreeSet<IntersectionID>,
-    current_phase: usize,
+    current_stage: usize,
 
     groups: Vec<DrawTurnGroup>,
     // And the next priority to toggle to
@@ -39,7 +38,7 @@ pub struct TrafficSignalEditor {
 
     command_stack: Vec<BundleEdits>,
     redo_stack: Vec<BundleEdits>,
-    // Before synchronizing the number of phases
+    // Before synchronizing the number of stages
     original: BundleEdits,
     warn_changed: bool,
 
@@ -93,7 +92,7 @@ impl TrafficSignalEditor {
             top_panel: make_top_panel(ctx, app, false, false),
             mode,
             members,
-            current_phase: 0,
+            current_stage: 0,
             groups,
             group_selected: None,
             draw_current: ctx.upload(GeomBatch::new()),
@@ -107,20 +106,20 @@ impl TrafficSignalEditor {
         Box::new(editor)
     }
 
-    fn change_phase(&mut self, ctx: &mut EventCtx, app: &App, idx: usize) {
+    fn change_stage(&mut self, ctx: &mut EventCtx, app: &App, idx: usize) {
         let hovering = self.group_selected.map(|(tg, _)| tg.parent);
 
-        if self.current_phase == idx {
-            let mut new = make_side_panel(ctx, app, &self.members, self.current_phase, hovering);
+        if self.current_stage == idx {
+            let mut new = make_side_panel(ctx, app, &self.members, self.current_stage, hovering);
             new.restore(ctx, &self.side_panel);
             self.side_panel = new;
         } else {
-            self.current_phase = idx;
+            self.current_stage = idx;
             self.side_panel =
-                make_side_panel(ctx, app, &self.members, self.current_phase, hovering);
+                make_side_panel(ctx, app, &self.members, self.current_stage, hovering);
             // TODO Maybe center of previous member
             self.side_panel
-                .scroll_to_member(ctx, format!("phase {}", idx + 1));
+                .scroll_to_member(ctx, format!("stage {}", idx + 1));
         }
 
         self.draw_current = self.recalc_draw_current(ctx, app);
@@ -142,7 +141,7 @@ impl TrafficSignalEditor {
         bundle.apply(app);
 
         self.top_panel = make_top_panel(ctx, app, true, false);
-        self.change_phase(ctx, app, idx);
+        self.change_stage(ctx, app, idx);
     }
 
     fn recalc_draw_current(&self, ctx: &mut EventCtx, app: &App) -> Drawable {
@@ -150,15 +149,15 @@ impl TrafficSignalEditor {
 
         for i in &self.members {
             let signal = app.primary.map.get_traffic_signal(*i);
-            let mut phase = signal.phases[self.current_phase].clone();
+            let mut stage = signal.stages[self.current_stage].clone();
             if let Some((id, _)) = self.group_selected {
                 if id.parent == signal.id {
-                    phase.edit_group(&signal.turn_groups[&id], TurnPriority::Banned);
+                    stage.edit_group(&signal.turn_groups[&id], TurnPriority::Banned);
                 }
             }
-            draw_signal_phase(
+            draw_signal_stage(
                 ctx.prerender,
-                &phase,
+                &stage,
                 signal.id,
                 None,
                 None,
@@ -185,8 +184,8 @@ impl TrafficSignalEditor {
                 );
             } else {
                 batch.push(app.cs.signal_turn_block_bg, tg.block.clone());
-                let phase = &signal.phases[self.current_phase];
-                let arrow_color = match phase.get_priority_of_group(tg.id) {
+                let stage = &signal.stages[self.current_stage];
+                let arrow_color = match stage.get_priority_of_group(tg.id) {
                     TurnPriority::Protected => app.cs.signal_protected_turn,
                     TurnPriority::Yield => app.cs.signal_permitted_turn,
                     TurnPriority::Banned => app.cs.signal_banned_turn,
@@ -205,7 +204,7 @@ impl State for TrafficSignalEditor {
             return Transition::Push(PopupMsg::new(
                 ctx,
                 "Note",
-                vec!["Some signals were modified to match the number and duration of phases"],
+                vec!["Some signals were modified to match the number and duration of stages"],
             ));
         }
 
@@ -215,7 +214,7 @@ impl State for TrafficSignalEditor {
             .primary
             .map
             .get_traffic_signal(*self.members.iter().next().unwrap());
-        let num_phases = canonical_signal.phases.len();
+        let num_stages = canonical_signal.stages.len();
 
         match self.side_panel.event(ctx) {
             Outcome::Clicked(x) => {
@@ -241,15 +240,15 @@ impl State for TrafficSignalEditor {
                         self.original.clone(),
                     ));
                 }
-                if x == "Add new phase" {
-                    self.add_new_edit(ctx, app, num_phases, |ts| {
-                        ts.phases.push(Phase::new());
+                if x == "Add new stage" {
+                    self.add_new_edit(ctx, app, num_stages, |ts| {
+                        ts.stages.push(Stage::new());
                     });
                     return Transition::Keep;
                 }
                 if x == "Apply offset" {
                     let offset = Duration::seconds(self.side_panel.spinner("offset") as f64);
-                    self.add_new_edit(ctx, app, self.current_phase, |ts| {
+                    self.add_new_edit(ctx, app, self.current_stage, |ts| {
                         ts.offset = offset;
                     });
                     return Transition::Keep;
@@ -268,43 +267,43 @@ impl State for TrafficSignalEditor {
                             )
                         })
                         .collect();
-                    self.add_new_edit(ctx, app, self.current_phase, |ts| {
+                    self.add_new_edit(ctx, app, self.current_stage, |ts| {
                         ts.offset = offsets[&ts.id];
                     });
                     return Transition::Keep;
                 }
-                if let Some(x) = x.strip_prefix("change duration of phase ") {
+                if let Some(x) = x.strip_prefix("change duration of stage ") {
                     let idx = x.parse::<usize>().unwrap() - 1;
                     return Transition::Push(edits::ChangeDuration::new(
                         ctx,
-                        canonical_signal.phases[idx].phase_type.clone(),
+                        canonical_signal.stages[idx].phase_type.clone(),
                         idx,
                     ));
                 }
-                if let Some(x) = x.strip_prefix("delete phase ") {
+                if let Some(x) = x.strip_prefix("delete stage ") {
                     let idx = x.parse::<usize>().unwrap() - 1;
                     self.add_new_edit(ctx, app, 0, |ts| {
-                        ts.phases.remove(idx);
+                        ts.stages.remove(idx);
                     });
                     return Transition::Keep;
                 }
-                if let Some(x) = x.strip_prefix("move up phase ") {
+                if let Some(x) = x.strip_prefix("move up stage ") {
                     let idx = x.parse::<usize>().unwrap() - 1;
                     self.add_new_edit(ctx, app, idx - 1, |ts| {
-                        ts.phases.swap(idx, idx - 1);
+                        ts.stages.swap(idx, idx - 1);
                     });
                     return Transition::Keep;
                 }
-                if let Some(x) = x.strip_prefix("move down phase ") {
+                if let Some(x) = x.strip_prefix("move down stage ") {
                     let idx = x.parse::<usize>().unwrap() - 1;
                     self.add_new_edit(ctx, app, idx + 1, |ts| {
-                        ts.phases.swap(idx, idx + 1);
+                        ts.stages.swap(idx, idx + 1);
                     });
                     return Transition::Keep;
                 }
-                if let Some(x) = x.strip_prefix("phase ") {
+                if let Some(x) = x.strip_prefix("stage ") {
                     let idx = x.parse::<usize>().unwrap() - 1;
-                    self.change_phase(ctx, app, idx);
+                    self.change_stage(ctx, app, idx);
                     return Transition::Keep;
                 }
                 unreachable!()
@@ -321,14 +320,14 @@ impl State for TrafficSignalEditor {
                         self.redo_stack.clear();
 
                         self.top_panel = make_top_panel(ctx, app, true, false);
-                        self.change_phase(ctx, app, 0);
+                        self.change_stage(ctx, app, 0);
 
                         return Transition::Push(PopupMsg::new(
                             ctx,
                             "Error: missing turns",
                             vec![
                                 "Some turns are missing from this traffic signal",
-                                "They've all been added as a new first phase. Please update your \
+                                "They've all been added as a new first stage. Please update your \
                                  changes to include them.",
                             ],
                         ));
@@ -358,7 +357,7 @@ impl State for TrafficSignalEditor {
                         ctx,
                         app,
                         self.members.clone(),
-                        self.current_phase,
+                        self.current_stage,
                     ));
                 }
                 "undo" => {
@@ -366,7 +365,7 @@ impl State for TrafficSignalEditor {
                         .push(BundleEdits::get_current(app, &self.members));
                     self.command_stack.pop().unwrap().apply(app);
                     self.top_panel = make_top_panel(ctx, app, !self.command_stack.is_empty(), true);
-                    self.change_phase(ctx, app, 0);
+                    self.change_stage(ctx, app, 0);
                     return Transition::Keep;
                 }
                 "redo" => {
@@ -374,7 +373,7 @@ impl State for TrafficSignalEditor {
                         .push(BundleEdits::get_current(app, &self.members));
                     self.redo_stack.pop().unwrap().apply(app);
                     self.top_panel = make_top_panel(ctx, app, true, !self.redo_stack.is_empty());
-                    self.change_phase(ctx, app, 0);
+                    self.change_stage(ctx, app, 0);
                     return Transition::Keep;
                 }
                 _ => unreachable!(),
@@ -383,12 +382,12 @@ impl State for TrafficSignalEditor {
         }
 
         {
-            if self.current_phase != 0 && ctx.input.key_pressed(Key::UpArrow) {
-                self.change_phase(ctx, app, self.current_phase - 1);
+            if self.current_stage != 0 && ctx.input.key_pressed(Key::UpArrow) {
+                self.change_stage(ctx, app, self.current_stage - 1);
             }
 
-            if self.current_phase != num_phases - 1 && ctx.input.key_pressed(Key::DownArrow) {
-                self.change_phase(ctx, app, self.current_phase + 1);
+            if self.current_stage != num_stages - 1 && ctx.input.key_pressed(Key::DownArrow) {
+                self.change_stage(ctx, app, self.current_stage + 1);
             }
         }
 
@@ -400,10 +399,10 @@ impl State for TrafficSignalEditor {
                 for g in &self.groups {
                     let signal = app.primary.map.get_traffic_signal(g.id.parent);
                     if g.block.contains_pt(pt) {
-                        let phase = &signal.phases[self.current_phase];
-                        let next_priority = match phase.get_priority_of_group(g.id) {
+                        let stage = &signal.stages[self.current_stage];
+                        let next_priority = match stage.get_priority_of_group(g.id) {
                             TurnPriority::Banned => {
-                                if phase.could_be_protected(g.id, &signal.turn_groups) {
+                                if stage.could_be_protected(g.id, &signal.turn_groups) {
                                     Some(TurnPriority::Protected)
                                 } else if g.id.crosswalk {
                                     None
@@ -428,7 +427,7 @@ impl State for TrafficSignalEditor {
 
             if self.group_selected != old {
                 self.draw_current = self.recalc_draw_current(ctx, app);
-                self.change_phase(ctx, app, self.current_phase);
+                self.change_stage(ctx, app, self.current_stage);
             }
         }
 
@@ -439,15 +438,15 @@ impl State for TrafficSignalEditor {
                     ctx,
                     format!(
                         "toggle from {:?} to {:?}",
-                        signal.phases[self.current_phase].get_priority_of_group(id),
+                        signal.stages[self.current_stage].get_priority_of_group(id),
                         pri
                     ),
                 ) {
-                    let idx = self.current_phase;
+                    let idx = self.current_stage;
                     let signal = signal.clone();
                     self.add_new_edit(ctx, app, idx, |ts| {
                         if ts.id == id.parent {
-                            ts.phases[idx].edit_group(&signal.turn_groups[&id], pri);
+                            ts.stages[idx].edit_group(&signal.turn_groups[&id], pri);
                         }
                     });
                     return Transition::KeepWithMouseover;
@@ -504,7 +503,7 @@ impl State for TrafficSignalEditor {
     }
 }
 
-fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Composite {
+fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
     let row = vec![
         Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
         Btn::text_fg("Preview").build_def(ctx, lctrl(Key::P)),
@@ -548,7 +547,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             Widget::nothing()
         },
     ];
-    Composite::new(Widget::col(vec![
+    Panel::new(Widget::col(vec![
         Line("Traffic signal editor").small_heading().draw(ctx),
         Widget::row(row),
     ]))
@@ -562,9 +561,9 @@ fn make_side_panel(
     members: &BTreeSet<IntersectionID>,
     selected: usize,
     hovering: Option<IntersectionID>,
-) -> Composite {
+) -> Panel {
     let map = &app.primary.map;
-    // Use any member for phase duration
+    // Use any member for stage duration
     let canonical_signal = map.get_traffic_signal(*members.iter().next().unwrap());
 
     let mut txt = Text::new();
@@ -582,17 +581,17 @@ fn make_side_panel(
             );
         }
         for r in road_names {
-            txt.add(Line(format!("- {}", r)));
+            txt.add(Line(format!("  {}", r)));
         }
     } else {
         txt.add(Line(format!("{} intersections", members.len())).big_heading_plain());
     }
     {
         let mut total = Duration::ZERO;
-        for p in &canonical_signal.phases {
-            total += p.phase_type.simple_duration();
+        for s in &canonical_signal.stages {
+            total += s.phase_type.simple_duration();
         }
-        // TODO Say "normally" to account for adaptive phases?
+        // TODO Say "normally" to account for adaptive stages?
         txt.add(Line(""));
         txt.add(Line(format!("One full cycle lasts {}", total)));
     }
@@ -622,56 +621,56 @@ fn make_side_panel(
             .collect(),
     );
 
-    for (idx, canonical_phase) in canonical_signal.phases.iter().enumerate() {
+    for (idx, canonical_stage) in canonical_signal.stages.iter().enumerate() {
         col.push(Widget::horiz_separator(ctx, 0.2));
 
         let unselected_btn = draw_multiple_signals(ctx, app, members, idx, hovering, &translations);
         let mut selected_btn = unselected_btn.clone();
         let bbox = unselected_btn.get_bounds().get_rectangle();
         selected_btn.push(Color::RED, bbox.to_outline(Distance::meters(5.0)).unwrap());
-        let phase_btn = Btn::custom(unselected_btn, selected_btn, bbox).build(
+        let stage_btn = Btn::custom(unselected_btn, selected_btn, bbox).build(
             ctx,
-            format!("phase {}", idx + 1),
+            format!("stage {}", idx + 1),
             None,
         );
 
-        let phase_col = Widget::col(vec![
+        let stage_col = Widget::col(vec![
             Widget::row(vec![
-                match canonical_phase.phase_type {
-                    PhaseType::Fixed(d) => Line(format!("Phase {}: {}", idx + 1, d)),
-                    PhaseType::Adaptive(d) => Line(format!("Phase {}: {} (adaptive)", idx + 1, d)),
+                match canonical_stage.phase_type {
+                    PhaseType::Fixed(d) => Line(format!("Stage {}: {}", idx + 1, d)),
+                    PhaseType::Adaptive(d) => Line(format!("Stage {}: {} (adaptive)", idx + 1, d)),
                 }
                 .small_heading()
                 .draw(ctx),
                 Btn::svg_def("system/assets/tools/edit.svg").build(
                     ctx,
-                    format!("change duration of phase {}", idx + 1),
+                    format!("change duration of stage {}", idx + 1),
                     if selected == idx {
                         hotkey(Key::X)
                     } else {
                         None
                     },
                 ),
-                if canonical_signal.phases.len() > 1 {
+                if canonical_signal.stages.len() > 1 {
                     Btn::svg_def("system/assets/tools/delete.svg")
-                        .build(ctx, format!("delete phase {}", idx + 1), None)
+                        .build(ctx, format!("delete stage {}", idx + 1), None)
                         .align_right()
                 } else {
                     Widget::nothing()
                 },
             ]),
             Widget::row(vec![
-                phase_btn,
+                stage_btn,
                 Widget::col(vec![
                     if idx == 0 {
                         Btn::text_fg("↑").inactive(ctx)
                     } else {
-                        Btn::text_fg("↑").build(ctx, format!("move up phase {}", idx + 1), None)
+                        Btn::text_fg("↑").build(ctx, format!("move up stage {}", idx + 1), None)
                     },
-                    if idx == canonical_signal.phases.len() - 1 {
+                    if idx == canonical_signal.stages.len() - 1 {
                         Btn::text_fg("↓").inactive(ctx)
                     } else {
-                        Btn::text_fg("↓").build(ctx, format!("move down phase {}", idx + 1), None)
+                        Btn::text_fg("↓").build(ctx, format!("move down stage {}", idx + 1), None)
                     },
                 ])
                 .centered_vert()
@@ -681,14 +680,14 @@ fn make_side_panel(
         .padding(10);
 
         if idx == selected {
-            col.push(phase_col.bg(Color::hex("#2A2A2A")));
+            col.push(stage_col.bg(Color::hex("#2A2A2A")));
         } else {
-            col.push(phase_col);
+            col.push(stage_col);
         }
     }
 
     col.push(Widget::horiz_separator(ctx, 0.2));
-    col.push(Btn::text_fg("Add new phase").build_def(ctx, None));
+    col.push(Btn::text_fg("Add new stage").build_def(ctx, None));
 
     // TODO This doesn't even have a way of knowing which spinner corresponds to which
     // intersection!
@@ -719,7 +718,7 @@ fn make_side_panel(
         col.push(Btn::text_bg2("Apply").build(ctx, "Apply offsets", None));
     }
 
-    Composite::new(Widget::col(col))
+    Panel::new(Widget::col(col))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .exact_size_percent(30, 85)
         .build(ctx)
@@ -758,26 +757,26 @@ impl BundleEdits {
         BundleEdits { signals }
     }
 
-    // If the intersections haven't been edited together before, the number of phases and the
+    // If the intersections haven't been edited together before, the number of stages and the
     // durations might not match up. Just initially force them to align somehow.
     fn synchronize(app: &App, members: &BTreeSet<IntersectionID>) -> BundleEdits {
         let map = &app.primary.map;
-        // Pick one of the members with the most phases as canonical.
+        // Pick one of the members with the most stages as canonical.
         let canonical = map.get_traffic_signal(
             *members
                 .iter()
-                .max_by_key(|i| map.get_traffic_signal(**i).phases.len())
+                .max_by_key(|i| map.get_traffic_signal(**i).stages.len())
                 .unwrap(),
         );
 
         let mut signals = Vec::new();
         for i in members {
             let mut signal = map.get_traffic_signal(*i).clone();
-            for (idx, canonical_phase) in canonical.phases.iter().enumerate() {
-                if signal.phases.len() == idx {
-                    signal.phases.push(Phase::new());
+            for (idx, canonical_stage) in canonical.stages.iter().enumerate() {
+                if signal.stages.len() == idx {
+                    signal.stages.push(Stage::new());
                 }
-                signal.phases[idx].phase_type = canonical_phase.phase_type.clone();
+                signal.stages[idx].phase_type = canonical_stage.phase_type.clone();
             }
             signals.push(signal);
         }
@@ -797,21 +796,21 @@ fn check_for_missing_turns(app: &App, members: &BTreeSet<IntersectionID>) -> Opt
     }
 
     let mut bundle = BundleEdits::get_current(app, members);
-    // Stick all the missing turns in a new phase at the beginning.
+    // Stick all the missing turns in a new stage at the beginning.
     for signal in &mut bundle.signals {
-        let mut phase = Phase::new();
+        let mut stage = Stage::new();
         // TODO Could do this more efficiently
         for g in &all_missing {
             if g.parent != signal.id {
                 continue;
             }
             if g.crosswalk {
-                phase.protected_groups.insert(*g);
+                stage.protected_groups.insert(*g);
             } else {
-                phase.yield_groups.insert(*g);
+                stage.yield_groups.insert(*g);
             }
         }
-        signal.phases.insert(0, phase);
+        signal.stages.insert(0, stage);
     }
     Some(bundle)
 }
@@ -831,9 +830,9 @@ fn draw_multiple_signals(
             app.cs.normal_intersection,
             app.primary.map.get_i(*i).polygon.clone(),
         );
-        draw_signal_phase(
+        draw_signal_stage(
             ctx.prerender,
-            &app.primary.map.get_traffic_signal(*i).phases[idx],
+            &app.primary.map.get_traffic_signal(*i).stages[idx],
             *i,
             None,
             None,

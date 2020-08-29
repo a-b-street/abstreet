@@ -1,14 +1,16 @@
 mod compat;
 mod perma;
 
+use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
-    IntersectionID, IntersectionType, LaneID, LaneType, Map, PathConstraints, Pathfinder, RoadID,
+    IntersectionID, IntersectionType, LaneType, Map, PathConstraints, Pathfinder, Road, RoadID,
     TurnID, Zone,
 };
 use abstutil::{retain_btreemap, retain_btreeset, Timer};
 use geom::{Speed, Time};
-pub use perma::{OriginalLane, PermanentMapEdits};
+pub use perma::PermanentMapEdits;
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -17,11 +19,8 @@ pub struct MapEdits {
     pub commands: Vec<EditCmd>,
 
     // Derived from commands, kept up to date by update_derived
-    pub original_lts: BTreeMap<LaneID, LaneType>,
-    pub reversed_lanes: BTreeSet<LaneID>,
+    pub changed_roads: BTreeSet<RoadID>,
     pub original_intersections: BTreeMap<IntersectionID, EditIntersection>,
-    pub changed_speed_limits: BTreeSet<RoadID>,
-    pub changed_access_restrictions: BTreeSet<RoadID>,
     pub changed_routes: BTreeSet<BusRouteID>,
 
     // Edits without these are player generated.
@@ -39,32 +38,37 @@ pub enum EditIntersection {
     Closed,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct EditRoad {
+    pub lanes_ltr: Vec<(LaneType, Direction)>,
+    pub speed_limit: Speed,
+    pub access_restrictions: AccessRestrictions,
+}
+
+impl EditRoad {
+    pub fn get_orig_from_osm(r: &Road) -> EditRoad {
+        EditRoad {
+            lanes_ltr: get_lane_specs_ltr(&r.osm_tags)
+                .into_iter()
+                .map(|spec| (spec.lt, spec.dir))
+                .collect(),
+            speed_limit: r.speed_limit_from_osm(),
+            access_restrictions: r.access_restrictions_from_osm(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum EditCmd {
-    ChangeLaneType {
-        id: LaneID,
-        lt: LaneType,
-        orig_lt: LaneType,
-    },
-    ReverseLane {
-        l: LaneID,
-        // New intended dst_i
-        dst_i: IntersectionID,
-    },
-    ChangeSpeedLimit {
-        id: RoadID,
-        new: Speed,
-        old: Speed,
+    ChangeRoad {
+        r: RoadID,
+        old: EditRoad,
+        new: EditRoad,
     },
     ChangeIntersection {
         i: IntersectionID,
         new: EditIntersection,
         old: EditIntersection,
-    },
-    ChangeAccessRestrictions {
-        id: RoadID,
-        new: AccessRestrictions,
-        old: AccessRestrictions,
     },
     ChangeRouteSchedule {
         id: BusRouteID,
@@ -89,11 +93,8 @@ impl MapEdits {
             proposal_link: None,
             commands: Vec::new(),
 
-            original_lts: BTreeMap::new(),
-            reversed_lanes: BTreeSet::new(),
+            changed_roads: BTreeSet::new(),
             original_intersections: BTreeMap::new(),
-            changed_speed_limits: BTreeSet::new(),
-            changed_access_restrictions: BTreeSet::new(),
             changed_routes: BTreeSet::new(),
         }
     }
@@ -122,81 +123,45 @@ impl MapEdits {
     }
 
     fn update_derived(&mut self, map: &Map) {
-        let mut orig_lts = BTreeMap::new();
-        let mut reversed_lanes = BTreeSet::new();
-        let mut orig_intersections: BTreeMap<IntersectionID, EditIntersection> = BTreeMap::new();
-        let mut changed_speed_limits = BTreeSet::new();
-        let mut changed_access_restrictions = BTreeSet::new();
-        let mut changed_routes = BTreeSet::new();
+        self.changed_roads.clear();
+        self.original_intersections.clear();
+        self.changed_routes.clear();
 
         for cmd in &self.commands {
             match cmd {
-                EditCmd::ChangeLaneType { id, orig_lt, .. } => {
-                    if !orig_lts.contains_key(id) {
-                        orig_lts.insert(*id, *orig_lt);
-                    }
-                }
-                EditCmd::ReverseLane { l, .. } => {
-                    if reversed_lanes.contains(l) {
-                        reversed_lanes.remove(l);
-                    } else {
-                        reversed_lanes.insert(*l);
-                    }
-                }
-                EditCmd::ChangeSpeedLimit { id, .. } => {
-                    changed_speed_limits.insert(*id);
+                EditCmd::ChangeRoad { r, .. } => {
+                    self.changed_roads.insert(*r);
                 }
                 EditCmd::ChangeIntersection { i, ref old, .. } => {
-                    if !orig_intersections.contains_key(i) {
-                        orig_intersections.insert(*i, old.clone());
+                    if !self.original_intersections.contains_key(i) {
+                        self.original_intersections.insert(*i, old.clone());
                     }
                 }
-                EditCmd::ChangeAccessRestrictions { id, .. } => {
-                    changed_access_restrictions.insert(*id);
-                }
                 EditCmd::ChangeRouteSchedule { id, .. } => {
-                    changed_routes.insert(*id);
+                    self.changed_routes.insert(*id);
                 }
             }
         }
 
-        retain_btreemap(&mut orig_lts, |l, lt| map.get_l(*l).lane_type != *lt);
-        retain_btreemap(&mut orig_intersections, |i, orig| {
+        retain_btreeset(&mut self.changed_roads, |r| {
+            map.get_r_edit(*r) != EditRoad::get_orig_from_osm(map.get_r(*r))
+        });
+        retain_btreemap(&mut self.original_intersections, |i, orig| {
             map.get_i_edit(*i) != orig.clone()
         });
-        retain_btreeset(&mut changed_speed_limits, |r| {
-            map.get_r(*r).speed_limit != map.get_r(*r).speed_limit_from_osm()
-        });
-        retain_btreeset(&mut changed_access_restrictions, |r| {
-            let r = map.get_r(*r);
-            r.access_restrictions_from_osm() != r.access_restrictions
-        });
-        retain_btreeset(&mut changed_routes, |br| {
+        retain_btreeset(&mut self.changed_routes, |br| {
             let r = map.get_br(*br);
             r.spawn_times != r.orig_spawn_times
         });
-
-        self.original_lts = orig_lts;
-        self.reversed_lanes = reversed_lanes;
-        self.original_intersections = orig_intersections;
-        self.changed_speed_limits = changed_speed_limits;
-        self.changed_access_restrictions = changed_access_restrictions;
-        self.changed_routes = changed_routes;
     }
 
     // Assumes update_derived has been called.
-    fn compress(&mut self, map: &Map) {
-        for l in &self.reversed_lanes {
-            self.commands.push(EditCmd::ReverseLane {
-                l: *l,
-                dst_i: map.get_l(*l).dst_i,
-            });
-        }
-        for (l, orig_lt) in &self.original_lts {
-            self.commands.push(EditCmd::ChangeLaneType {
-                id: *l,
-                lt: map.get_l(*l).lane_type,
-                orig_lt: *orig_lt,
+    pub fn compress(&mut self, map: &Map) {
+        for r in &self.changed_roads {
+            self.commands.push(EditCmd::ChangeRoad {
+                r: *r,
+                old: EditRoad::get_orig_from_osm(map.get_r(*r)),
+                new: map.get_r_edit(*r),
             });
         }
         for (i, old) in &self.original_intersections {
@@ -204,20 +169,6 @@ impl MapEdits {
                 i: *i,
                 old: old.clone(),
                 new: map.get_i_edit(*i),
-            });
-        }
-        for r in &self.changed_speed_limits {
-            self.commands.push(EditCmd::ChangeSpeedLimit {
-                id: *r,
-                new: map.get_r(*r).speed_limit,
-                old: map.get_r(*r).speed_limit_from_osm(),
-            });
-        }
-        for r in &self.changed_access_restrictions {
-            self.commands.push(EditCmd::ChangeAccessRestrictions {
-                id: *r,
-                new: map.get_r(*r).access_restrictions.clone(),
-                old: map.get_r(*r).access_restrictions_from_osm(),
             });
         }
         for r in &self.changed_routes {
@@ -251,96 +202,62 @@ impl EditEffects {
 impl EditCmd {
     pub fn short_name(&self, map: &Map) -> String {
         match self {
-            EditCmd::ChangeLaneType { lt, id, .. } => format!("{} on #{}", lt.short_name(), id.0),
-            EditCmd::ReverseLane { l, .. } => format!("reverse {}", l),
-            EditCmd::ChangeSpeedLimit { id, new, .. } => format!("limit {} for {}", new, id),
+            // TODO Way more details
+            EditCmd::ChangeRoad { r, .. } => format!("road #{}", r.0),
             EditCmd::ChangeIntersection { i, new, .. } => match new {
                 EditIntersection::StopSign(_) => format!("stop sign #{}", i.0),
                 EditIntersection::TrafficSignal(_) => format!("traffic signal #{}", i.0),
                 EditIntersection::Closed => format!("close {}", i),
             },
-            // TODO "allow/ban X on Y"
-            EditCmd::ChangeAccessRestrictions { id, .. } => {
-                format!("access restrictions for {}", id)
-            }
             EditCmd::ChangeRouteSchedule { id, .. } => {
                 format!("reschedule route {}", map.get_br(*id).short_name)
             }
         }
     }
 
-    // Must be idempotent. True if it actually did anything.
-    fn apply(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) -> bool {
+    // Must be idempotent
+    fn apply(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) {
         match self {
-            EditCmd::ChangeLaneType { id, lt, .. } => {
-                let id = *id;
-                let lt = *lt;
-
-                let lane = &mut map.lanes[id.0];
-                if lane.lane_type == lt {
-                    return false;
+            EditCmd::ChangeRoad { r, ref new, .. } => {
+                if map.get_r_edit(*r) == new.clone() {
+                    return;
                 }
 
-                lane.lane_type = lt;
-                let r = &mut map.roads[lane.parent.0];
-                let idx = r.offset(id);
-                r.lanes_ltr[idx].2 = lt;
+                let road = &mut map.roads[r.0];
+                road.speed_limit = new.speed_limit;
+                road.access_restrictions = new.access_restrictions.clone();
+                assert_eq!(road.lanes_ltr.len(), new.lanes_ltr.len());
+                for (idx, (lt, dir)) in new.lanes_ltr.clone().into_iter().enumerate() {
+                    let lane = &mut map.lanes[(road.lanes_ltr[idx].0).0];
+                    road.lanes_ltr[idx].2 = lt;
+                    lane.lane_type = lt;
 
-                effects.changed_roads.insert(lane.parent);
-                effects.changed_intersections.insert(lane.src_i);
-                effects.changed_intersections.insert(lane.dst_i);
-                let (src_i, dst_i) = (lane.src_i, lane.dst_i);
-                recalculate_turns(src_i, map, effects, timer);
-                recalculate_turns(dst_i, map, effects, timer);
-                true
-            }
-            EditCmd::ReverseLane { l, dst_i } => {
-                let l = *l;
-                let lane = &mut map.lanes[l.0];
-
-                if lane.dst_i == *dst_i {
-                    return false;
+                    // Direction change?
+                    if road.lanes_ltr[idx].1 != dir {
+                        road.lanes_ltr[idx].1 = dir;
+                        std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
+                        lane.lane_center_pts = lane.lane_center_pts.reversed();
+                    }
                 }
 
-                map.intersections[lane.src_i.0]
-                    .outgoing_lanes
-                    .retain(|x| *x != l);
-                map.intersections[lane.dst_i.0]
-                    .incoming_lanes
-                    .retain(|x| *x != l);
+                effects.changed_roads.insert(road.id);
+                for i in vec![road.src_i, road.dst_i] {
+                    effects.changed_intersections.insert(i);
+                    let i = &mut map.intersections[i.0];
+                    i.outgoing_lanes.clear();
+                    i.incoming_lanes.clear();
+                    for r in &i.roads {
+                        for (l, _, _) in map.roads[r.0].lanes_ltr() {
+                            if map.lanes[l.0].src_i == i.id {
+                                i.outgoing_lanes.push(l);
+                            } else {
+                                assert_eq!(map.lanes[l.0].dst_i, i.id);
+                                i.incoming_lanes.push(l);
+                            }
+                        }
+                    }
 
-                std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
-                assert_eq!(lane.dst_i, *dst_i);
-                lane.lane_center_pts = lane.lane_center_pts.reversed();
-
-                map.intersections[lane.src_i.0].outgoing_lanes.push(l);
-                map.intersections[lane.dst_i.0].incoming_lanes.push(l);
-
-                // We can only reverse the lane closest to the center.
-                let r = &mut map.roads[lane.parent.0];
-                let dir = if *dst_i == r.dst_i {
-                    Direction::Fwd
-                } else {
-                    Direction::Back
-                };
-                let idx = r.offset(l);
-                assert_eq!(r.lanes_ltr[idx].1, dir.opposite());
-                r.lanes_ltr[idx].1 = dir;
-                effects.changed_roads.insert(r.id);
-                effects.changed_intersections.insert(lane.src_i);
-                effects.changed_intersections.insert(lane.dst_i);
-                let (src_i, dst_i) = (lane.src_i, lane.dst_i);
-                recalculate_turns(src_i, map, effects, timer);
-                recalculate_turns(dst_i, map, effects, timer);
-                true
-            }
-            EditCmd::ChangeSpeedLimit { id, new, .. } => {
-                if map.roads[id.0].speed_limit != *new {
-                    map.roads[id.0].speed_limit = *new;
-                    effects.changed_roads.insert(*id);
-                    true
-                } else {
-                    false
+                    recalculate_turns(i.id, map, effects, timer);
                 }
             }
             EditCmd::ChangeIntersection {
@@ -349,7 +266,7 @@ impl EditCmd {
                 ref old,
             } => {
                 if map.get_i_edit(*i) == new.clone() {
-                    return false;
+                    return;
                 }
 
                 map.stop_signs.remove(i);
@@ -378,81 +295,30 @@ impl EditCmd {
                 if old == &EditIntersection::Closed || new == &EditIntersection::Closed {
                     recalculate_turns(*i, map, effects, timer);
                 }
-                true
-            }
-            EditCmd::ChangeAccessRestrictions { id, new, .. } => {
-                if map.get_r(*id).access_restrictions == new.clone() {
-                    return false;
-                }
-                map.roads[id.0].access_restrictions = new.clone();
-                effects.changed_roads.insert(*id);
-                let r = map.get_r(*id);
-                effects.changed_intersections.insert(r.src_i);
-                effects.changed_intersections.insert(r.dst_i);
-                true
             }
             EditCmd::ChangeRouteSchedule { id, new, .. } => {
                 map.bus_routes[id.0].spawn_times = new.clone();
-                true
             }
         }
     }
 
-    // Must be idempotent. True if it actually did anything.
-    fn undo(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) -> bool {
+    fn undo(self) -> EditCmd {
         match self {
-            EditCmd::ChangeLaneType { id, orig_lt, lt } => EditCmd::ChangeLaneType {
-                id: *id,
-                lt: *orig_lt,
-                orig_lt: *lt,
-            }
-            .apply(effects, map, timer),
-            EditCmd::ReverseLane { l, dst_i } => {
-                let lane = map.get_l(*l);
-                let other_i = if lane.src_i == *dst_i {
-                    lane.dst_i
-                } else {
-                    lane.src_i
-                };
-                EditCmd::ReverseLane {
-                    l: *l,
-                    dst_i: other_i,
-                }
-                .apply(effects, map, timer)
-            }
-            EditCmd::ChangeSpeedLimit { id, old, .. } => {
-                if map.roads[id.0].speed_limit != *old {
-                    map.roads[id.0].speed_limit = *old;
-                    effects.changed_roads.insert(*id);
-                    true
-                } else {
-                    false
-                }
-            }
-            EditCmd::ChangeIntersection {
+            EditCmd::ChangeRoad { r, old, new } => EditCmd::ChangeRoad {
+                r,
+                old: new,
+                new: old,
+            },
+            EditCmd::ChangeIntersection { i, old, new } => EditCmd::ChangeIntersection {
                 i,
-                ref old,
-                ref new,
-            } => EditCmd::ChangeIntersection {
-                i: *i,
-                old: new.clone(),
-                new: old.clone(),
-            }
-            .apply(effects, map, timer),
-            EditCmd::ChangeAccessRestrictions { id, old, new } => {
-                EditCmd::ChangeAccessRestrictions {
-                    id: *id,
-                    old: new.clone(),
-                    new: old.clone(),
-                }
-                .apply(effects, map, timer)
-            }
+                old: new,
+                new: old,
+            },
             EditCmd::ChangeRouteSchedule { id, old, new } => EditCmd::ChangeRouteSchedule {
-                id: *id,
-                old: new.clone(),
-                new: old.clone(),
-            }
-            .apply(effects, map, timer),
+                id,
+                old: new,
+                new: old,
+            },
         }
     }
 }
@@ -516,6 +382,26 @@ impl Map {
         &self.edits
     }
 
+    pub fn get_r_edit(&self, r: RoadID) -> EditRoad {
+        let r = self.get_r(r);
+        EditRoad {
+            lanes_ltr: r
+                .lanes_ltr()
+                .into_iter()
+                .map(|(_, dir, lt)| (lt, dir))
+                .collect(),
+            speed_limit: r.speed_limit,
+            access_restrictions: r.access_restrictions.clone(),
+        }
+    }
+
+    pub fn edit_road_cmd<F: Fn(&mut EditRoad)>(&self, r: RoadID, f: F) -> EditCmd {
+        let old = self.get_r_edit(r);
+        let mut new = old.clone();
+        f(&mut new);
+        EditCmd::ChangeRoad { r, old, new }
+    }
+
     // Panics on borders
     pub fn get_i_edit(&self, i: IntersectionID) -> EditIntersection {
         match self.get_i(i).intersection_type {
@@ -568,33 +454,35 @@ impl Map {
         BTreeSet<TurnID>,
         BTreeSet<IntersectionID>,
     ) {
-        // TODO More efficient ways to do this: given two sets of edits, produce a smaller diff.
-        // Simplest strategy: Remove common prefix.
         let mut effects = EditEffects::new();
 
-        // First undo all existing edits.
-        let mut undo = std::mem::replace(&mut self.edits.commands, Vec::new());
-        undo.reverse();
-        let mut undid = 0;
-        for cmd in &undo {
-            if cmd.undo(&mut effects, self, timer) {
-                undid += 1;
+        // We need to undo() all of the current commands in reverse order, then apply() all of the
+        // new commands. But in many cases, new_edits is just the current edits with a few commands
+        // at the end. So a simple optimization with equivalent behavior is to skip the common
+        // prefix of commands.
+        let mut start_at_idx = 0;
+        for (cmd1, cmd2) in self.edits.commands.iter().zip(new_edits.commands.iter()) {
+            if cmd1 == cmd2 {
+                start_at_idx += 1;
+            } else {
+                break;
             }
         }
-        timer.note(format!("Undid {} / {} existing edits", undid, undo.len()));
+
+        // Undo existing edits
+        for _ in start_at_idx..self.edits.commands.len() {
+            self.edits
+                .commands
+                .pop()
+                .unwrap()
+                .undo()
+                .apply(&mut effects, self, timer);
+        }
 
         // Apply new edits.
-        let mut applied = 0;
-        for cmd in &new_edits.commands {
-            if cmd.apply(&mut effects, self, timer) {
-                applied += 1;
-            }
+        for cmd in &new_edits.commands[start_at_idx..] {
+            cmd.apply(&mut effects, self, timer);
         }
-        timer.note(format!(
-            "Applied {} / {} new edits",
-            applied,
-            new_edits.commands.len()
-        ));
 
         // Might need to update bus stops.
         if enforce_valid {

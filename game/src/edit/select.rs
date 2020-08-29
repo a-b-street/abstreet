@@ -1,12 +1,14 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::helpers::{intersections_from_roads, ID};
-use ezgui::{hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
 use geom::Distance;
 use map_model::{IntersectionID, Map, RoadID};
 use petgraph::graphmap::UnGraphMap;
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget,
+};
 
 pub struct RoadSelector {
     pub roads: BTreeSet<RoadID>,

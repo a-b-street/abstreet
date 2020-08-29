@@ -3,16 +3,16 @@ use crate::common::{ColorDiscrete, ColorLegend, ColorNetwork};
 use crate::helpers::amenity_type;
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
-use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{Distance, Time};
-use map_model::LaneType;
+use map_model::{EditRoad, LaneType};
 use sim::AgentType;
+use widgetry::{
+    hotkey, Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, Text,
+    TextExt, VerticalAlignment, Widget,
+};
 
 pub struct BikeNetwork {
-    composite: Composite,
+    panel: Panel,
     time: Time,
     unzoomed: Drawable,
     zoomed: Drawable,
@@ -26,16 +26,16 @@ impl Layer for BikeNetwork {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        minimap: &Composite,
+        minimap: &Panel,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = BikeNetwork::new(ctx, app);
         }
 
-        Layer::simple_event(ctx, minimap, &mut self.composite)
+        Layer::simple_event(ctx, minimap, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
@@ -104,7 +104,7 @@ impl BikeNetwork {
             }
         }
 
-        let composite = Composite::new(Widget::col(vec![
+        let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Bike network".draw_text(ctx),
@@ -144,7 +144,7 @@ impl BikeNetwork {
         let (unzoomed, zoomed) = colorer.build(ctx);
 
         BikeNetwork {
-            composite,
+            panel,
             time: app.primary.sim.time(),
             unzoomed,
             zoomed,
@@ -153,7 +153,7 @@ impl BikeNetwork {
 }
 
 pub struct Static {
-    composite: Composite,
+    panel: Panel,
     pub unzoomed: Drawable,
     pub zoomed: Drawable,
     name: &'static str,
@@ -163,16 +163,11 @@ impl Layer for Static {
     fn name(&self) -> Option<&'static str> {
         Some(self.name)
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        _: &mut App,
-        minimap: &Composite,
-    ) -> Option<LayerOutcome> {
-        Layer::simple_event(ctx, minimap, &mut self.composite)
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App, minimap: &Panel) -> Option<LayerOutcome> {
+        Layer::simple_event(ctx, minimap, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
@@ -193,7 +188,7 @@ impl Static {
         extra: Widget,
     ) -> Static {
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
-        let composite = Composite::new(Widget::col(vec![
+        let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 title.draw_text(ctx),
@@ -208,7 +203,7 @@ impl Static {
         .build(ctx);
 
         Static {
-            composite,
+            panel,
             unzoomed,
             zoomed,
             name,
@@ -218,21 +213,29 @@ impl Static {
     pub fn edits(ctx: &mut EventCtx, app: &App) -> Static {
         let mut colorer = ColorDiscrete::new(
             app,
-            vec![("modified lane/intersection", app.cs.edits_layer)],
+            vec![("modified road/intersection", app.cs.edits_layer)],
         );
 
         let edits = app.primary.map.get_edits();
-        for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
-            colorer.add_l(*l, "modified lane/intersection");
+        for r in &edits.changed_roads {
+            let r = app.primary.map.get_r(*r);
+            let orig = EditRoad::get_orig_from_osm(r);
+            // What exactly changed?
+            if r.speed_limit != orig.speed_limit
+                || r.access_restrictions != orig.access_restrictions
+            {
+                colorer.add_r(r.id, "modified road/intersection");
+            } else {
+                let lanes = r.lanes_ltr();
+                for (idx, (lt, dir)) in orig.lanes_ltr.into_iter().enumerate() {
+                    if lanes[idx].1 != dir || lanes[idx].2 != lt {
+                        colorer.add_l(lanes[idx].0, "modified road/intersection");
+                    }
+                }
+            }
         }
         for i in edits.original_intersections.keys() {
-            colorer.add_i(*i, "modified lane/intersection");
-        }
-        for r in &edits.changed_speed_limits {
-            colorer.add_r(*r, "modified lane/intersection");
-        }
-        for r in &edits.changed_access_restrictions {
-            colorer.add_r(*r, "modified lane/intersection");
+            colorer.add_i(*i, "modified road/intersection");
         }
 
         Static::new(
@@ -241,16 +244,7 @@ impl Static {
             "map edits",
             format!("Map edits ({})", edits.edits_name),
             Text::from_multiline(vec![
-                Line(format!("{} lane types changed", edits.original_lts.len())),
-                Line(format!("{} lanes reversed", edits.reversed_lanes.len())),
-                Line(format!(
-                    "{} speed limits changed",
-                    edits.changed_speed_limits.len()
-                )),
-                Line(format!(
-                    "{} access restrictions changed",
-                    edits.changed_access_restrictions.len()
-                )),
+                Line(format!("{} roads changed", edits.changed_roads.len())),
                 Line(format!(
                     "{} intersections changed",
                     edits.original_intersections.len()

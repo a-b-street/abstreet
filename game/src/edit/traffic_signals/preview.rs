@@ -2,18 +2,18 @@ use crate::app::App;
 use crate::game::{ChooseSomething, State, Transition};
 use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 use abstutil::Timer;
-use ezgui::{
-    hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, TextExt,
-    UpdateType, VerticalAlignment, Widget,
-};
 use geom::Duration;
 use map_model::IntersectionID;
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, TextExt,
+    UpdateType, VerticalAlignment, Widget,
+};
 
-// TODO Show diagram, auto-sync the phase.
+// TODO Show diagram, auto-sync the stage.
 // TODO Auto quit after things are gone?
 struct PreviewTrafficSignal {
-    composite: Composite,
+    panel: Panel,
     speed: SpeedControls,
     time_panel: TimePanel,
 }
@@ -21,7 +21,7 @@ struct PreviewTrafficSignal {
 impl PreviewTrafficSignal {
     fn new(ctx: &mut EventCtx, app: &App) -> PreviewTrafficSignal {
         PreviewTrafficSignal {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 "Previewing traffic signal".draw_text(ctx),
                 Btn::text_fg("back to editing").build_def(ctx, hotkey(Key::Escape)),
             ]))
@@ -37,7 +37,7 @@ impl State for PreviewTrafficSignal {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "back to editing" => {
                     app.primary.clear_sim();
@@ -62,7 +62,7 @@ impl State for PreviewTrafficSignal {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         self.speed.draw(g);
         self.time_panel.draw(g);
     }
@@ -73,7 +73,7 @@ pub fn make_previewer(
     ctx: &mut EventCtx,
     app: &App,
     members: BTreeSet<IntersectionID>,
-    phase: usize,
+    stage: usize,
 ) -> Box<dyn State> {
     let random = "random agents around these intersections".to_string();
     let right_now = format!(
@@ -89,13 +89,13 @@ pub fn make_previewer(
             if x == "random agents around these intersections" {
                 for (idx, i) in members.iter().enumerate() {
                     if idx == 0 {
-                        // Start at the current phase
+                        // Start at the current stage
                         let signal = app.primary.map.get_traffic_signal(*i);
                         // TODO Use the offset correctly
-                        // TODO If there are adaptive phases, this could land anywhere
+                        // TODO If there are adaptive stages, this could land anywhere
                         let mut step = Duration::ZERO;
-                        for idx in 0..phase {
-                            step += signal.phases[idx].phase_type.simple_duration();
+                        for idx in 0..stage {
+                            step += signal.stages[idx].phase_type.simple_duration();
                         }
                         app.primary.sim.timed_step(
                             &app.primary.map,

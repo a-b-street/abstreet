@@ -11,7 +11,7 @@ mod traversable;
 
 pub use crate::city::City;
 pub use crate::edits::{
-    EditCmd, EditEffects, EditIntersection, MapEdits, OriginalLane, PermanentMapEdits,
+    EditCmd, EditEffects, EditIntersection, EditRoad, MapEdits, PermanentMapEdits,
 };
 pub use crate::map::MapConfig;
 pub use crate::objects::area::{Area, AreaID, AreaType};
@@ -27,7 +27,7 @@ pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
 pub use crate::objects::road::{DirectedRoadID, Direction, Road, RoadID};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::objects::traffic_signals::{
-    ControlTrafficSignal, Phase, PhaseType, SignalTimerType, TrafficControlType,
+    ControlTrafficSignal, PhaseType, SignalTimerType, Stage, TrafficControlType,
 };
 pub use crate::objects::turn::{
     CompressedTurnGroupID, Turn, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType,

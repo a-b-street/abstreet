@@ -10,27 +10,27 @@ use crate::sandbox::{
     SpeedControls, TimePanel,
 };
 use abstutil::Timer;
-use ezgui::{
-    hotkey, hotkeys, lctrl, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::raw::OriginalRoad;
-use map_model::{osm, BuildingID, DirectedRoadID, Direction, Map, OriginalLane, Position};
+use map_model::{osm, BuildingID, DirectedRoadID, Direction, Map, Position};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
     PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, VehicleType,
 };
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
+};
 
 const ESCORT: CarID = CarID(0, VehicleType::Car);
 const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(60.0);
 
 pub struct Tutorial {
-    top_center: Composite,
+    top_center: Panel,
     last_finished_task: Task,
 
-    msg_panel: Option<Composite>,
+    msg_panel: Option<Panel>,
     warped: bool,
 }
 
@@ -722,7 +722,7 @@ impl TutorialState {
         }
     }
 
-    fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Composite {
+    fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Panel {
         let mut col = vec![Widget::row(vec![
             Line("Tutorial").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 50.0),
@@ -776,7 +776,7 @@ impl TutorialState {
             ));
         }
 
-        Composite::new(Widget::col(col))
+        Panel::new(Widget::col(col))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }
@@ -863,7 +863,7 @@ impl TutorialState {
                 col.push(Widget::col(controls).align_bottom());
 
                 Some(
-                    Composite::new(Widget::col(col).outline(5.0, Color::WHITE))
+                    Panel::new(Widget::col(col).outline(5.0, Color::WHITE))
                         .exact_size_percent(40, 40)
                         .aligned(*horiz_align, VerticalAlignment::Center)
                         .build(ctx),
@@ -978,11 +978,11 @@ impl TutorialState {
                         "",
                         "You'll work day and night, watching traffic patterns unfold.",
                     ],
-                    arrow(time.composite.center_of_panel()),
+                    arrow(time.panel.center_of_panel()),
                 )
                 .msg(
                     vec!["You can pause or resume time"],
-                    arrow(speed.composite.center_of("pause")),
+                    arrow(speed.panel.center_of("pause")),
                 )
                 .msg(
                     vec![
@@ -990,15 +990,15 @@ impl TutorialState {
                         "",
                         "(The keyboard shortcuts are very helpful here!)",
                     ],
-                    arrow(speed.composite.center_of("30x speed")),
+                    arrow(speed.panel.center_of("30x speed")),
                 )
                 .msg(
                     vec!["Advance time by certain amounts"],
-                    arrow(speed.composite.center_of("step forwards")),
+                    arrow(speed.panel.center_of("step forwards")),
                 )
                 .msg(
                     vec!["And jump to the beginning of the day"],
-                    arrow(speed.composite.center_of("reset to midnight")),
+                    arrow(speed.panel.center_of("reset to midnight")),
                 )
                 .msg(
                     vec!["Let's try these controls out. Wait until 5pm or later."],
@@ -1017,7 +1017,7 @@ impl TutorialState {
                         "You might've figured it out already,",
                         "But you'll be pausing/resuming time VERY frequently",
                     ],
-                    arrow(speed.composite.center_of("pause")),
+                    arrow(speed.panel.center_of("pause")),
                 )
                 .msg(
                     vec!["Just reassure me and pause/resume time a few times, alright?"],
@@ -1037,24 +1037,25 @@ impl TutorialState {
                     // parking to force the target to park on-street.
                     let map = &app.primary.map;
                     let goal_bldg = map.find_b_by_osm_id(bldg(217701875)).unwrap();
-                    let start_lane = OriginalLane {
-                        parent: OriginalRoad::new(158782224, (1709145066, 53128052)),
-                        num_fwd: 3,
-                        num_back: 3,
-                        dir: Direction::Back,
-                        idx: 0,
-                    }
-                    .from_permanent(map)
-                    .unwrap();
-                    let lane_near_bldg = OriginalLane {
-                        parent: OriginalRoad::new(6484869, (53163501, 53069236)),
-                        num_fwd: 3,
-                        num_back: 3,
-                        dir: Direction::Fwd,
-                        idx: 0,
-                    }
-                    .from_permanent(map)
-                    .unwrap();
+                    let start_lane = {
+                        let r = map.get_r(
+                            map.find_r_by_osm_id(OriginalRoad::new(
+                                158782224,
+                                (1709145066, 53128052),
+                            ))
+                            .unwrap(),
+                        );
+                        assert_eq!(r.lanes_ltr().len(), 6);
+                        r.lanes_ltr()[2].0
+                    };
+                    let lane_near_bldg = {
+                        let r = map.get_r(
+                            map.find_r_by_osm_id(OriginalRoad::new(6484869, (53163501, 53069236)))
+                                .unwrap(),
+                        );
+                        assert_eq!(r.lanes_ltr().len(), 6);
+                        r.lanes_ltr()[3].0
+                    };
 
                     let mut scenario = Scenario::empty(map, "prank");
                     scenario.people.push(PersonSpec {
@@ -1121,7 +1122,7 @@ impl TutorialState {
                 )
                 .msg(
                     vec!["You can see the number of them here."],
-                    arrow(agent_meter.composite.center_of_panel()),
+                    arrow(agent_meter.panel.center_of_panel()),
                 )
                 .left_aligned_msg(
                     vec![
@@ -1145,7 +1146,7 @@ impl TutorialState {
                         "",
                         "(If you do lose track of them, just reset)",
                     ],
-                    arrow(speed.composite.center_of("reset to midnight")),
+                    arrow(speed.panel.center_of("reset to midnight")),
                 ),
         );
 
@@ -1187,7 +1188,7 @@ impl TutorialState {
                          overview of all activity. You can click and drag it just like the normal \
                          map.",
                     ],
-                    arrow(minimap.composite.center_of("minimap")),
+                    arrow(minimap.panel.center_of("minimap")),
                 )
                 .msg(
                     vec![
@@ -1197,7 +1198,7 @@ impl TutorialState {
                         "- bus stops",
                         "- how much parking is filled up",
                     ],
-                    arrow(minimap.composite.center_of("change layers")),
+                    arrow(minimap.panel.center_of("change layers")),
                 )
                 .msg(
                     vec![
@@ -1279,7 +1280,7 @@ impl TutorialState {
                          you'll get your final score."
                             .to_string(),
                     ],
-                    arrow(agent_meter.composite.center_of("more data")),
+                    arrow(agent_meter.panel.center_of("more data")),
                 ),
         );
 

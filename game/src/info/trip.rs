@@ -1,15 +1,15 @@
 use crate::app::App;
 use crate::helpers::{color_for_trip_phase, ID};
 use crate::info::{make_table, Details, Tab};
-use ezgui::{
-    Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
-    TextExt, Widget,
-};
 use geom::{ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
 use maplit::btreemap;
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use std::collections::BTreeMap;
+use widgetry::{
+    Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
+    TextExt, Widget,
+};
 
 #[derive(Clone)]
 pub struct OpenTrip {
@@ -475,20 +475,20 @@ fn make_timeline(
 
         let mut txt = Text::from(Line(&p.phase_type.describe(map)));
         txt.add(Line(format!(
-            "- Started at {}",
+            "  Started at {}",
             p.start_time.ampm_tostring()
         )));
         let duration = if let Some(t2) = p.end_time {
             let d = t2 - p.start_time;
             txt.add(Line(format!(
-                "- Ended at {} (duration: {})",
+                "  Ended at {} (duration: {})",
                 t2.ampm_tostring(),
                 d
             )));
             d
         } else {
             let d = sim.time() - p.start_time;
-            txt.add(Line(format!("- Ongoing (duration so far: {})", d)));
+            txt.add(Line(format!("  Ongoing (duration so far: {})", d)));
             d
         };
         // TODO Problems when this is really low?
@@ -498,7 +498,7 @@ fn make_timeline(
             duration / total_duration_so_far
         };
         txt.add(Line(format!(
-            "- {}% of trip duration",
+            "  {}% of trip duration",
             (100.0 * percent_duration) as usize
         )));
 

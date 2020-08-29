@@ -4,16 +4,16 @@ use crate::edit::TrafficSignalEditor;
 use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::GameplayMode;
-use ezgui::{
-    hotkey, hotkeys, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, VerticalAlignment, Widget,
-};
 use map_model::IntersectionID;
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, VerticalAlignment, Widget,
+};
 
 pub struct SignalPicker {
     members: BTreeSet<IntersectionID>,
-    composite: Composite,
+    panel: Panel,
     mode: GameplayMode,
 }
 
@@ -25,7 +25,7 @@ impl SignalPicker {
     ) -> Box<dyn State> {
         Box::new(SignalPicker {
             members,
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Select multiple traffic signals")
                         .small_heading()
@@ -68,7 +68,7 @@ impl State for SignalPicker {
             app.primary.current_selection = None;
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -97,7 +97,7 @@ impl State for SignalPicker {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         CommonState::draw_osd(g, app);
 
         let mut batch = GeomBatch::new();

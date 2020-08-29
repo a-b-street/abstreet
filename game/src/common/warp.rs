@@ -4,13 +4,13 @@ use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::info::OpenTrip;
 use crate::sandbox::SandboxMode;
-use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, TextExt, Warper, Widget,
-};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
 use std::collections::BTreeMap;
+use widgetry::{
+    hotkey, Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, Warper, Widget,
+};
 
 const WARP_TO_CAM_ZOOM: f64 = 10.0;
 
@@ -63,14 +63,14 @@ impl State for Warping {
 }
 
 pub struct DebugWarp {
-    composite: Composite,
+    panel: Panel,
 }
 
 impl DebugWarp {
     pub fn new(ctx: &mut EventCtx) -> Box<dyn State> {
         let c = ctx.style().hotkey_color;
         Box::new(DebugWarp {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Warp to an object by ID").small_heading().draw(ctx),
                     Btn::text_fg("X")
@@ -123,13 +123,13 @@ impl DebugWarp {
 
 impl State for DebugWarp {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 "Go!" => {
-                    let input = self.composite.text_box("input");
+                    let input = self.panel.text_box("input");
                     if let Some(t) = warp_to_id(ctx, app, &input) {
                         t
                     } else {
@@ -148,7 +148,7 @@ impl State for DebugWarp {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 

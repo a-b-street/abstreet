@@ -40,19 +40,20 @@ Or you can [compile from source](/docs/dev.md).
 
 A/B Street binary releases contain pre-built maps that combine data from:
 
-- OpenStreetMap (https://www.openstreetmap.org/copyright)
+- OpenStreetMap (<https://www.openstreetmap.org/copyright>)
 - King County metro
-  (https://www.kingcounty.gov/depts/transportation/metro/travel-options/bus/app-center/terms-of-use.aspx)
+  (<https://www.kingcounty.gov/depts/transportation/metro/travel-options/bus/app-center/terms-of-use.aspx>)
 - City of Seattle GIS program
-  (https://www.opendatacommons.org/licenses/pddl/1.0/)
-- https://github.com/seattleio/seattle-boundaries-data
-  (https://creativecommons.org/publicdomain/zero/1.0/)
+  (<https://www.opendatacommons.org/licenses/pddl/1.0/>)
+- <https://github.com/seattleio/seattle-boundaries-data>
+  (<https://creativecommons.org/publicdomain/zero/1.0/>)
 - Puget Sound Regional Council
-  (https://www.psrc.org/activity-based-travel-model-soundcast)
+  (<https://www.psrc.org/activity-based-travel-model-soundcast>)
 - USGS SRTM
 
 Other binary data bundled in:
 
-- Overpass font (https://fonts.google.com/specimen/Overpass, Open Font License)
-- Bungee fonts (https://fonts.google.com/specimen/Bungee, Open Font License)
-- Material Design icons (https://material.io/resources/icons, Apache license)
+- Overpass font (<https://fonts.google.com/specimen/Overpass>, Open Font
+  License)
+- Bungee fonts (<https://fonts.google.com/specimen/Bungee>, Open Font License)
+- Material Design icons (<https://material.io/resources/icons>, Apache license)

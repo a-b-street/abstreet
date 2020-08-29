@@ -1,4 +1,6 @@
 mod berlin;
+mod configuration;
+mod dependencies;
 mod krakow;
 mod seattle;
 #[cfg(feature = "scenarios")]
@@ -6,6 +8,9 @@ mod soundcast;
 mod tel_aviv;
 mod utils;
 mod xian;
+
+use configuration::{load_configuration, ImporterConfiguration};
+use dependencies::are_dependencies_callable;
 
 // TODO Might be cleaner to express as a dependency graph?
 
@@ -64,6 +69,17 @@ fn main() {
         std::process::exit(1);
     }
 
+    let config: ImporterConfiguration = load_configuration();
+
+    if job.osm_to_raw {
+        if !are_dependencies_callable(&config) {
+            println!(
+                "One or more dependencies aren't callable. Add them to the path and try again."
+            );
+            std::process::exit(1);
+        }
+    }
+
     if let Some(path) = job.oneshot {
         oneshot(
             path,
@@ -89,7 +105,7 @@ fn main() {
 
         #[cfg(feature = "scenarios")]
         {
-            let (popdat, huge_map) = seattle::ensure_popdat_exists(&mut timer);
+            let (popdat, huge_map) = seattle::ensure_popdat_exists(&mut timer, &config);
             (Some(popdat), Some(huge_map))
         }
 
@@ -109,11 +125,11 @@ fn main() {
     for name in names {
         if job.osm_to_raw {
             match job.city.as_ref() {
-                "berlin" => berlin::osm_to_raw(&name, &mut timer),
-                "krakow" => krakow::osm_to_raw(&name, &mut timer),
-                "seattle" => seattle::osm_to_raw(&name, &mut timer),
-                "tel_aviv" => tel_aviv::osm_to_raw(&name, &mut timer),
-                "xian" => xian::osm_to_raw(&name, &mut timer),
+                "berlin" => berlin::osm_to_raw(&name, &mut timer, &config),
+                "krakow" => krakow::osm_to_raw(&name, &mut timer, &config),
+                "seattle" => seattle::osm_to_raw(&name, &mut timer, &config),
+                "tel_aviv" => tel_aviv::osm_to_raw(&name, &mut timer, &config),
+                "xian" => xian::osm_to_raw(&name, &mut timer, &config),
                 x => panic!("Unknown city {}", x),
             }
         }

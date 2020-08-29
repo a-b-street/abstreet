@@ -1,15 +1,15 @@
 use crate::app::App;
 use crate::common::ColorDiscrete;
 use crate::game::{State, Transition};
-use ezgui::{
-    hotkey, Btn, Choice, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, TextExt, VerticalAlignment, Widget,
-};
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use std::collections::HashSet;
+use widgetry::{
+    hotkey, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct Floodfiller {
-    composite: Composite,
+    panel: Panel,
     unzoomed: Drawable,
     zoomed: Drawable,
     source: Source,
@@ -47,7 +47,7 @@ impl Floodfiller {
 
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         Box::new(Floodfiller {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line(title).small_heading().draw(ctx),
                     Btn::text_fg("X")
@@ -85,7 +85,7 @@ impl State for Floodfiller {
         }
         ctx.canvas_movement();
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -97,7 +97,7 @@ impl State for Floodfiller {
                     ctx,
                     app,
                     self.source.clone(),
-                    self.composite.dropdown_value("constraints"),
+                    self.panel.dropdown_value("constraints"),
                 ));
             }
             _ => {}
@@ -112,7 +112,7 @@ impl State for Floodfiller {
         } else {
             g.redraw(&self.zoomed);
         }
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 

@@ -10,7 +10,6 @@ use crate::render::road::DrawRoad;
 use crate::render::{draw_vehicle, DrawArea, DrawPedCrowd, DrawPedestrian, Renderable};
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Polygon, Pt2D, Time};
 use map_model::{
     osm, AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID,
@@ -20,6 +19,7 @@ use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
 
 pub struct DrawMap {
     pub roads: Vec<DrawRoad>,

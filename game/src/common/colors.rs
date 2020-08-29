@@ -1,9 +1,11 @@
 use crate::app::App;
 use abstutil::Counter;
-use ezgui::{Color, Drawable, EventCtx, FancyColor, GeomBatch, Line, LinearGradient, Text, Widget};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use std::collections::HashMap;
+use widgetry::{
+    Color, Drawable, EventCtx, FancyColor, GeomBatch, Line, LinearGradient, Text, Widget,
+};
 
 pub struct ColorDiscrete<'a> {
     map: &'a Map,
@@ -341,7 +343,7 @@ mod tests {
     #[test]
     fn test_scale() {
         use super::ColorScale;
-        use ezgui::Color;
+        use widgetry::Color;
 
         let two = ColorScale(vec![Color::BLACK, Color::WHITE]);
         assert_same((0, 0.0), two.inner_eval(0.0));

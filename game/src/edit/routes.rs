@@ -1,15 +1,15 @@
 use crate::app::App;
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition};
-use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Spinner,
-    TextExt, VerticalAlignment, Widget,
-};
 use geom::{Duration, Time};
 use map_model::{BusRouteID, EditCmd};
+use widgetry::{
+    hotkey, Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner,
+    TextExt, VerticalAlignment, Widget,
+};
 
 pub struct RouteEditor {
-    composite: Composite,
+    panel: Panel,
     route: BusRouteID,
 }
 
@@ -19,7 +19,7 @@ impl RouteEditor {
 
         let route = app.primary.map.get_br(id);
         Box::new(RouteEditor {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Route editor").small_heading().draw(ctx),
                     Btn::plaintext("X")
@@ -45,13 +45,13 @@ impl State for RouteEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 "Apply" => {
-                    let freq = Duration::minutes(self.composite.spinner("freq_mins") as usize);
+                    let freq = Duration::minutes(self.panel.spinner("freq_mins") as usize);
                     let mut now = Time::START_OF_DAY;
                     let mut hourly_times = Vec::new();
                     while now <= Time::START_OF_DAY + Duration::hours(24) {
@@ -78,6 +78,6 @@ impl State for RouteEditor {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }

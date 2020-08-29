@@ -5,21 +5,21 @@ use crate::game::{State, Transition};
 use crate::render::DrawIntersection;
 use crate::sandbox::GameplayMode;
 use abstutil::Timer;
-use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Text, VerticalAlignment, Widget,
-};
 use geom::Polygon;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
 };
 use maplit::btreeset;
 use std::collections::HashMap;
+use widgetry::{
+    hotkey, Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    VerticalAlignment, Widget,
+};
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
 // sure what to do about the player orphaning a section of the map.
 pub struct StopSignEditor {
-    composite: Composite,
+    panel: Panel,
     id: IntersectionID,
     mode: GameplayMode,
     // (octagon, pole)
@@ -48,7 +48,7 @@ impl StopSignEditor {
             })
             .collect();
 
-        let composite = Composite::new(Widget::col(vec![
+        let panel = Panel::new(Widget::col(vec![
             Line("Stop sign editor").small_heading().draw(ctx),
             if ControlStopSign::new(&app.primary.map, id)
                 != app.primary.map.get_stop_sign(id).clone()
@@ -65,7 +65,7 @@ impl StopSignEditor {
         .build(ctx);
 
         Box::new(StopSignEditor {
-            composite,
+            panel,
             id,
             mode,
             geom,
@@ -116,7 +116,7 @@ impl State for StopSignEditor {
             }
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Finish" => {
                     return Transition::Pop;
@@ -205,7 +205,7 @@ impl State for StopSignEditor {
 
         batch.draw(g);
 
-        self.composite.draw(g);
+        self.panel.draw(g);
         if let Some(r) = self.selected_sign {
             let mut osd = Text::new();
             osd.add_appended(vec![

@@ -5,11 +5,11 @@ Find packages to upgrade: `cargo outdated -R`
 Deal with compile tile: `cargo bloat --time`
 
 Find why two binary crates aren't sharing dependencies:
-https://old.reddit.com/r/rust/comments/cqceu4/common_crates_in_cargo_workspace_recompiled/
+<https://old.reddit.com/r/rust/comments/cqceu4/common_crates_in_cargo_workspace_recompiled/>
 
 Where's a dependency coming from? `cargo tree -i -p syn`
 
-Diff screencaps: http://www.imagemagick.org/Usage/compare/#methods
+Diff screencaps: <http://www.imagemagick.org/Usage/compare/#methods>
 
 Debug OpenGL calls:
 
@@ -23,11 +23,11 @@ Understand XML: just use firefox
 
 ## Profiling
 
-Actually, https://github.com/flamegraph-rs/flamegraph is pretty cool too.
+Actually, <https://github.com/flamegraph-rs/flamegraph> is pretty cool too.
 
 `apt-get install google-perftools libgoogle-perftools-dev`
 
-Follow Usage from https://crates.io/crates/cpuprofiler
+Follow Usage from <https://crates.io/crates/cpuprofiler>
 
 Modify `game/Cargo.toml` to include the `abstutil/profiler` feature. Then run
 game or headless with `--enable_profiler`
@@ -39,12 +39,12 @@ top30 --cum
 ```
 
 Why aren't the columns labelled?
-https://groups.google.com/d/msg/golang-nuts/qkDWqFKj8og/tWfYAaWRYqkJ
+<https://groups.google.com/d/msg/golang-nuts/qkDWqFKj8og/tWfYAaWRYqkJ>
 
 ## Building releases
 
-Cross-compilation notes: https://github.com/rust-embedded/cross Or use
-https://github.com/japaric/trust
+Cross-compilation notes: <https://github.com/rust-embedded/cross> Or use
+<https://github.com/japaric/trust>
 
 Initially have to:
 
@@ -73,12 +73,6 @@ npm init --yes
 npm install prettier --save-dev --save-exact
 ```
 
-Use https://github.com/joeyespo/grip to render. Doesn't seem to work with the
-graphviz image.
-
-https://github.com/ekalinin/github-markdown-toc for table of contents (stashed
-in ~/Downloads/gh-md-toc)
-
 ## Videos
 
 ```
@@ -97,9 +91,9 @@ sudo apt-get install lld
 Stick this in ~/.cargo/config:
 
 ```
-[target.x86_64-unknown-linux-gnu]                                                                   
-rustflags = [                                                                                       
-    "-C", "link-arg=-fuse-ld=lld",                                                    
+[target.x86_64-unknown-linux-gnu]
+rustflags = [
+    "-C", "link-arg=-fuse-ld=lld",
 ]
 ```
 
@@ -118,7 +112,9 @@ git diff upstream/master
 
 ## Refactoring
 
+```
 perl -pi -e 's/WrappedComposite::text_button\(ctx, (.+?), (.+?)\)/Btn::text_fg(\1).build_def\(ctx, \2\)/' `find|grep rs|xargs`
+```
 
 ## Stack overflow
 

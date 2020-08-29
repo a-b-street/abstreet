@@ -56,7 +56,7 @@ impl WidgetImpl for Spinner {
     }
 
     fn set_pos(&mut self, top_left: ScreenPt) {
-        // TODO This works, but it'd be kind of cool if we could construct a tiny little Composite
+        // TODO This works, but it'd be kind of cool if we could construct a tiny little Panel
         // here and use that. Wait, why can't we? ...
         self.top_left = top_left;
         self.up

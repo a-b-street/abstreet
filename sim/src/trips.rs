@@ -15,7 +15,7 @@ use map_model::{
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TripManager {
     trips: Vec<Trip>,
     people: Vec<Person>,
@@ -1347,7 +1347,7 @@ impl TripManager {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 struct Trip {
     id: TripID,
     info: TripInfo,
@@ -1360,7 +1360,7 @@ struct Trip {
     person: PersonID,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TripInfo {
     // Scheduled departure; the start may be delayed if the previous trip is taking too long.
     pub departure: Time,
@@ -1607,7 +1607,7 @@ impl<T> TripResult<T> {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Person {
     pub id: PersonID,
     pub orig_id: Option<OrigPersonID>,

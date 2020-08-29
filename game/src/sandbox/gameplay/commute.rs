@@ -8,13 +8,13 @@ use crate::helpers::cmp_duration_shorter;
 use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
-use ezgui::{
-    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
-    Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{Duration, Time};
 use sim::{OrigPersonID, PersonID, TripID};
 use std::collections::BTreeMap;
+use widgetry::{
+    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
+    Text, TextExt, VerticalAlignment, Widget,
+};
 
 // TODO Avoid hack entirely, or tune appearance
 const METER_HACK: f64 = -15.0;
@@ -22,8 +22,8 @@ const METER_HACK: f64 = -15.0;
 // TODO A nice level to unlock: specifying your own commute, getting to work on it
 
 pub struct OptimizeCommute {
-    top_center: Composite,
-    meter: Composite,
+    top_center: Panel,
+    meter: Panel,
     person: PersonID,
     mode: GameplayMode,
     goal: Duration,
@@ -46,7 +46,7 @@ impl OptimizeCommute {
         let person = app.primary.sim.find_person_by_orig_id(orig_person).unwrap();
         let trips = app.primary.sim.get_person(person).trips.clone();
         Box::new(OptimizeCommute {
-            top_center: Composite::new(Widget::col(vec![
+            top_center: Panel::new(Widget::col(vec![
                 challenge_header(ctx, "Optimize the VIP's commute"),
                 Widget::row(vec![
                     format!("Speed up the VIP's trips by {}", goal)
@@ -138,7 +138,7 @@ impl GameplayState for OptimizeCommute {
 
         self.meter.align_below(
             ctx,
-            &controls.agent_meter.as_ref().unwrap().composite,
+            &controls.agent_meter.as_ref().unwrap().panel,
             METER_HACK,
         );
 
@@ -149,7 +149,7 @@ impl GameplayState for OptimizeCommute {
             self.meter = make_meter(ctx, before, after, done, self.trips.len());
             self.meter.align_below(
                 ctx,
-                &controls.agent_meter.as_ref().unwrap().composite,
+                &controls.agent_meter.as_ref().unwrap().panel,
                 METER_HACK,
             );
 
@@ -237,12 +237,12 @@ fn make_meter(
     after: Duration,
     done: usize,
     trips: usize,
-) -> Composite {
+) -> Panel {
     let mut txt = Text::from(Line(format!("Total time: {} (", after)));
     txt.append_all(cmp_duration_shorter(after, before));
     txt.append(Line(")"));
 
-    Composite::new(Widget::col(vec![
+    Panel::new(Widget::col(vec![
         Widget::horiz_separator(ctx, 0.2),
         Widget::row(vec![
             Btn::svg_def("system/assets/tools/location.svg").build(ctx, "locate VIP", None),

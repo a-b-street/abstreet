@@ -1,7 +1,6 @@
 use crate::{
     pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, TripID, TripSpec,
 };
-use derivative::Derivative;
 use geom::{Duration, Histogram, Time};
 use map_model::{BusRouteID, IntersectionID, Path, PathRequest, SignalTimerType, TurnGroupID};
 use serde::{Deserialize, Serialize};
@@ -94,17 +93,13 @@ impl Ord for Item {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize, Derivative)]
-#[derivative(PartialEq)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Scheduler {
-    // TODO Argh, really?!
-    #[derivative(PartialEq = "ignore")]
     items: BinaryHeap<Item>,
     queued_commands: BTreeMap<CommandType, (Command, Time)>,
 
     latest_time: Time,
     last_time: Time,
-    #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     delta_times: Histogram<Duration>,
 }

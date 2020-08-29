@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
-use ezgui::{
-    hotkey, hotkeys, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+use widgetry::{
+    hotkey, hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
     RewriteColor, Text, Widget,
 };
 
@@ -65,7 +65,7 @@ impl CutsceneBuilder {
         make_task: Box<dyn Fn(&mut EventCtx) -> Widget>,
     ) -> Box<dyn State> {
         Box::new(CutscenePlayer {
-            composite: make_panel(ctx, app, &self.name, &self.scenes, &make_task, 0),
+            panel: make_panel(ctx, app, &self.name, &self.scenes, &make_task, 0),
             name: self.name,
             scenes: self.scenes,
             idx: 0,
@@ -78,13 +78,13 @@ struct CutscenePlayer {
     name: String,
     scenes: Vec<Scene>,
     idx: usize,
-    composite: Composite,
+    panel: Panel,
     make_task: Box<dyn Fn(&mut EventCtx) -> Widget>,
 }
 
 impl State for CutscenePlayer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "quit" => {
                     // TODO Should SandboxMode use on_destroy for this?
@@ -94,7 +94,7 @@ impl State for CutscenePlayer {
                 }
                 "back" => {
                     self.idx -= 1;
-                    self.composite = make_panel(
+                    self.panel = make_panel(
                         ctx,
                         app,
                         &self.name,
@@ -105,7 +105,7 @@ impl State for CutscenePlayer {
                 }
                 "next" => {
                     self.idx += 1;
-                    self.composite = make_panel(
+                    self.panel = make_panel(
                         ctx,
                         app,
                         &self.name,
@@ -116,7 +116,7 @@ impl State for CutscenePlayer {
                 }
                 "Skip cutscene" => {
                     self.idx = self.scenes.len();
-                    self.composite = make_panel(
+                    self.panel = make_panel(
                         ctx,
                         app,
                         &self.name,
@@ -132,9 +132,9 @@ impl State for CutscenePlayer {
             },
             _ => {}
         }
-        // TODO Should the Composite for text widgets with wrapping do this instead?
+        // TODO Should the Panel for text widgets with wrapping do this instead?
         if ctx.input.is_window_resized() {
-            self.composite = make_panel(
+            self.panel = make_panel(
                 ctx,
                 app,
                 &self.name,
@@ -154,7 +154,7 @@ impl State for CutscenePlayer {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         // Happens to be a nice background color too ;)
         g.clear(app.cs.grass);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
@@ -165,7 +165,7 @@ fn make_panel(
     scenes: &Vec<Scene>,
     make_task: &Box<dyn Fn(&mut EventCtx) -> Widget>,
     idx: usize,
-) -> Composite {
+) -> Panel {
     let prev = if idx > 0 {
         Btn::svg(
             "system/assets/tools/prev.svg",
@@ -276,19 +276,19 @@ fn make_panel(
             .outline(2.0, Color::BLACK),
     ];
 
-    Composite::new(Widget::custom_col(col))
+    Panel::new(Widget::custom_col(col))
         .exact_size_percent(80, 80)
         .build_custom(ctx)
 }
 
 pub struct FYI {
-    composite: Composite,
+    panel: Panel,
 }
 
 impl FYI {
     pub fn new(ctx: &mut EventCtx, contents: Widget, bg: Color) -> Box<dyn State> {
         Box::new(FYI {
-            composite: Composite::new(
+            panel: Panel::new(
                 Widget::custom_col(vec![
                     contents,
                     Btn::txt("Okay", Text::from(Line("Okay").fg(Color::BLACK)))
@@ -307,7 +307,7 @@ impl FYI {
 
 impl State for FYI {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Okay" => Transition::Pop,
                 _ => unreachable!(),
@@ -318,6 +318,6 @@ impl State for FYI {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }

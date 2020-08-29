@@ -1,8 +1,8 @@
 use crate::app::App;
 use crate::helpers::ID;
-use ezgui::{EventCtx, GfxCtx, Key, Line, Text};
 use map_model::{Map, PathConstraints};
 use sim::{AgentID, Sim};
+use widgetry::{EventCtx, GfxCtx, Key, Line, Text};
 
 pub struct ObjectDebugger {
     debug_tooltip_key_held: bool,

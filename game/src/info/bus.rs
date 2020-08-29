@@ -3,10 +3,10 @@ use crate::common::ColorNetwork;
 use crate::helpers::ID;
 use crate::info::{header_btns, make_tabs, Details, Tab};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
 use geom::{Circle, Distance, Time};
 use map_model::{BusRoute, BusRouteID, BusStopID, PathStep};
 use sim::{AgentID, CarID};
+use widgetry::{hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
 
 pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
     let bs = app.primary.map.get_bs(id);

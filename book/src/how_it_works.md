@@ -109,7 +109,7 @@ add pictures to explain better when I get time.
   - Only fixed timers; no actuated signals or
     [centralized control](https://www.seattle.gov/transportation/projects-and-programs/programs/technology-program/mercer-scoot)
     yet
-  - The timing and phases are automatically guessed, except some intersections
+  - The timing and stages are automatically guessed, except some intersections
     are
     [manually mapped](https://docs.google.com/document/d/1Od_7WvBVYsvpY4etRI0sKmYmZnwXMAXcJxVmm8Iwdcg/edit?usp=sharing)
   - No pedestrian beg buttons; walk signals always come on

@@ -1,13 +1,13 @@
 use crate::app::App;
 use crate::common::CommonState;
 use crate::game::{State, Transition};
-use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
-    VerticalAlignment, Widget,
-};
 use geom::{Circle, Distance, LonLat, Pt2D, Ring};
 use std::fs::File;
 use std::io::{Error, Write};
+use widgetry::{
+    hotkey, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    VerticalAlignment, Widget,
+};
 
 const POINT_RADIUS: Distance = Distance::const_meters(10.0);
 // Localized and internal, so don't put in ColorScheme.
@@ -17,7 +17,7 @@ const POINT_TO_MOVE: Color = Color::CYAN;
 const LAST_PLACED_POINT: Color = Color::GREEN;
 
 pub struct PolygonEditor {
-    composite: Composite,
+    panel: Panel,
     name: String,
     points: Vec<LonLat>,
     mouseover_pt: Option<usize>,
@@ -28,7 +28,7 @@ impl PolygonEditor {
     pub fn new(ctx: &mut EventCtx, name: String, mut points: Vec<LonLat>) -> Box<dyn State> {
         points.pop();
         Box::new(PolygonEditor {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Polygon editor").small_heading().draw(ctx),
                     Btn::text_fg("X")
@@ -64,7 +64,7 @@ impl State for PolygonEditor {
             return Transition::Keep;
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -132,7 +132,7 @@ impl State for PolygonEditor {
             );
         }
 
-        self.composite.draw(g);
+        self.panel.draw(g);
         if self.mouseover_pt.is_some() {
             CommonState::draw_custom_osd(
                 g,

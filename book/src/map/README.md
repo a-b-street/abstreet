@@ -1,6 +1,7 @@
 # Map model
 
-A/B Street builds a rich representation of a city map using OpenStreetMap (OSM) and other sources. This chapter describes how.
+A/B Street builds a rich representation of a city map using OpenStreetMap (OSM)
+and other sources. This chapter describes how.
 
 TODO: Integrate pictures from
 [these slides](https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing).
@@ -86,13 +87,13 @@ For a single mode, each lane is connected to two intersections. Turns connect
 two lanes. There are no turns between sidewalks and driving/bike/bus lanes.
 
 All buildings and parking lots have driveways. This must connect to a sidewalk,
-allowing pedestrians to enter/exit that object. The driveway OPTIONALLY
-connects to the nearest driveable lane. This allows cars to enter/exit that
-object for parking.
+allowing pedestrians to enter/exit that object. The driveway OPTIONALLY connects
+to the nearest driveable lane. This allows cars to enter/exit that object for
+parking.
 
 Public transit stops are located somewhere on a sidewalk. They're associated
-with a driveable position where the bus or train stops. In the future, this
-will need to account for dedicated surface-level platforms and for underground
+with a driveable position where the bus or train stops. In the future, this will
+need to account for dedicated surface-level platforms and for underground
 transit stations, likely associated with a building.
 
 There's a concept of "parking blackholes." If you treat every road as

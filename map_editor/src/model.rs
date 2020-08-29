@@ -1,10 +1,10 @@
 use crate::world::{Object, ObjectID, World};
 use abstutil::{Tags, Timer};
-use ezgui::{Color, EventCtx, Line, Text};
 use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw::{OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad};
 use map_model::{osm, IntersectionType};
 use std::collections::{BTreeMap, BTreeSet};
+use widgetry::{Color, EventCtx, Line, Text};
 
 const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
 const BUILDING_LENGTH: Distance = Distance::const_meters(30.0);

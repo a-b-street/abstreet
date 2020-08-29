@@ -3,17 +3,17 @@ use crate::common::CommonState;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::DrawOptions;
 use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
-use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{ArrowCap, Distance, Duration, Time};
 use map_model::{IntersectionID, PathStep, TurnGroupID, TurnType};
 use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::HashMap;
+use widgetry::{
+    hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct TrafficSignalDemand {
-    composite: Composite,
+    panel: Panel,
     all_demand: HashMap<IntersectionID, Demand>,
     hour: Time,
     draw_all: Drawable,
@@ -30,7 +30,7 @@ impl TrafficSignalDemand {
             all_demand,
             hour,
             draw_all,
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Traffic signal demand over time")
                         .small_heading()
@@ -54,7 +54,7 @@ impl State for TrafficSignalDemand {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -63,7 +63,7 @@ impl State for TrafficSignalDemand {
             },
             Outcome::Changed => {
                 self.hour =
-                    Time::START_OF_DAY + Duration::hours(self.composite.spinner("hour") as usize);
+                    Time::START_OF_DAY + Duration::hours(self.panel.spinner("hour") as usize);
                 self.draw_all = Demand::draw_demand(ctx, app, &self.all_demand, self.hour);
             }
             _ => {}
@@ -86,7 +86,7 @@ impl State for TrafficSignalDemand {
 
         g.redraw(&self.draw_all);
 
-        self.composite.draw(g);
+        self.panel.draw(g);
         CommonState::draw_osd(g, app);
     }
 }

@@ -38,7 +38,6 @@ mod event;
 mod event_ctx;
 mod geom;
 mod input;
-mod managed;
 mod runner;
 mod screen_geom;
 mod style;
@@ -60,7 +59,6 @@ pub use crate::event::{hotkey, hotkeys, lctrl, Event, Key, MultiKey};
 pub use crate::event_ctx::{EventCtx, UpdateType};
 pub use crate::geom::{GeomBatch, RewriteColor};
 pub use crate::input::UserInput;
-pub use crate::managed::{Composite, Widget};
 pub use crate::runner::{run, Settings, GUI};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::style::Style;
@@ -83,7 +81,7 @@ pub use crate::widgets::scatter_plot::ScatterPlot;
 pub use crate::widgets::slider::{AreaSlider, Slider};
 pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;
-pub use crate::widgets::{Outcome, WidgetImpl, WidgetOutput};
+pub use crate::widgets::{Outcome, Panel, Widget, WidgetImpl, WidgetOutput};
 
 pub struct Choice<T> {
     pub label: String,

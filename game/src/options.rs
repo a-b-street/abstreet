@@ -1,11 +1,11 @@
 use crate::app::App;
 use crate::colors::ColorSchemeChoice;
 use crate::game::{State, Transition};
-use ezgui::{
-    hotkey, Btn, Checkbox, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Spinner,
-    TextExt, Widget,
-};
 use geom::Duration;
+use widgetry::{
+    hotkey, Btn, Checkbox, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner, TextExt,
+    Widget,
+};
 
 // TODO SimOptions stuff too
 #[derive(Clone)]
@@ -22,6 +22,7 @@ pub struct Options {
     pub time_increment: Duration,
     pub resume_after_edit: bool,
     pub dont_draw_time_warp: bool,
+    pub time_warp_halt_limit: Duration,
 
     pub language: Option<String>,
 }
@@ -41,6 +42,7 @@ impl Options {
             time_increment: Duration::minutes(10),
             resume_after_edit: true,
             dont_draw_time_warp: false,
+            time_warp_halt_limit: Duration::minutes(5),
 
             language: None,
         }
@@ -57,13 +59,13 @@ pub enum TrafficSignalStyle {
 }
 
 pub struct OptionsPanel {
-    composite: Composite,
+    panel: Panel,
 }
 
 impl OptionsPanel {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(OptionsPanel {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::custom_row(vec![
                     Line("Settings").small_heading().draw(ctx),
                     Btn::plaintext("X")
@@ -208,32 +210,31 @@ impl OptionsPanel {
 
 impl State for OptionsPanel {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 "Apply" => {
-                    app.opts.dev = self.composite.is_checked("Enable developer mode");
+                    app.opts.dev = self.panel.is_checked("Enable developer mode");
                     app.opts.debug_all_agents = self
-                        .composite
+                        .panel
                         .is_checked("Draw all agents to debug geometry (Slow!)");
 
                     ctx.canvas.invert_scroll = self
-                        .composite
+                        .panel
                         .is_checked("Invert direction of vertical scrolling");
                     ctx.canvas.touchpad_to_move = self
-                        .composite
+                        .panel
                         .is_checked("Use touchpad to pan and hold Control to zoom");
                     ctx.canvas.keys_to_pan = self
-                        .composite
+                        .panel
                         .is_checked("Use arrow keys to pan and Q/W to zoom");
-                    ctx.canvas.edge_auto_panning = self.composite.is_checked("autopan");
-                    ctx.canvas.gui_scroll_speed =
-                        self.composite.spinner("gui_scroll_speed") as usize;
+                    ctx.canvas.edge_auto_panning = self.panel.is_checked("autopan");
+                    ctx.canvas.gui_scroll_speed = self.panel.spinner("gui_scroll_speed") as usize;
 
-                    app.opts.label_roads = self.composite.is_checked("Draw road names");
-                    let style = self.composite.dropdown_value("Traffic signal rendering");
+                    app.opts.label_roads = self.panel.is_checked("Draw road names");
+                    let style = self.panel.dropdown_value("Traffic signal rendering");
                     if app.opts.traffic_signal_style != style {
                         app.opts.traffic_signal_style = style;
                         println!("Rerendering traffic signals...");
@@ -242,17 +243,17 @@ impl State for OptionsPanel {
                         }
                     }
 
-                    let scheme = self.composite.dropdown_value("Color scheme");
+                    let scheme = self.panel.dropdown_value("Color scheme");
                     if app.opts.color_scheme != scheme {
                         app.opts.color_scheme = scheme;
                         app.switch_map(ctx, app.primary.current_flags.sim_flags.load.clone());
                     }
 
-                    app.opts.min_zoom_for_detail = self.composite.dropdown_value("min zoom");
+                    app.opts.min_zoom_for_detail = self.panel.dropdown_value("min zoom");
                     app.opts.large_unzoomed_agents =
-                        self.composite.is_checked("Draw enlarged unzoomed agents");
+                        self.panel.is_checked("Draw enlarged unzoomed agents");
 
-                    let language = self.composite.dropdown_value("language");
+                    let language = self.panel.dropdown_value("language");
                     if language != app.opts.language {
                         app.opts.language = language;
                         for r in &mut app.primary.draw_map.roads {
@@ -272,6 +273,6 @@ impl State for OptionsPanel {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g, app);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }

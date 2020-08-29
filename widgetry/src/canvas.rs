@@ -41,7 +41,7 @@ pub struct Canvas {
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
 
-    // Kind of just ezgui state awkwardly stuck here...
+    // Kind of just widgetry state awkwardly stuck here...
     pub(crate) lctrl_held: bool,
     pub(crate) lshift_held: bool,
 }

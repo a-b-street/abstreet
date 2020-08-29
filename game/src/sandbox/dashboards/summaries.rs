@@ -3,16 +3,16 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::checkbox_per_mode;
 use crate::sandbox::dashboards::DashTab;
 use abstutil::prettyprint_usize;
-use ezgui::{
-    Choice, Color, CompareTimes, Composite, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line,
-    Outcome, Text, Widget,
-};
 use geom::{Distance, Duration, Polygon, Pt2D};
 use sim::TripMode;
 use std::collections::BTreeSet;
+use widgetry::{
+    Choice, Color, CompareTimes, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
+    Panel, Text, Widget,
+};
 
 pub struct TripSummaries {
-    composite: Composite,
+    panel: Panel,
 }
 
 impl TripSummaries {
@@ -33,7 +33,7 @@ impl TripSummaries {
         ];
 
         Box::new(TripSummaries {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 DashTab::TripSummaries.picker(ctx, app),
                 Widget::row(filters).centered_horiz(),
                 summary(ctx, app, &filter),
@@ -51,15 +51,15 @@ impl TripSummaries {
 
 impl State for TripSummaries {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => DashTab::TripSummaries.transition(ctx, app, &x),
             Outcome::Changed => {
                 let mut filter = Filter {
-                    changes_pct: self.composite.dropdown_value("filter"),
+                    changes_pct: self.panel.dropdown_value("filter"),
                     modes: BTreeSet::new(),
                 };
                 for m in TripMode::all() {
-                    if self.composite.is_checked(m.ongoing_verb()) {
+                    if self.panel.is_checked(m.ongoing_verb()) {
                         filter.modes.insert(m);
                     }
                 }
@@ -75,7 +75,7 @@ impl State for TripSummaries {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 

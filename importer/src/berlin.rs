@@ -1,3 +1,4 @@
+use crate::configuration::ImporterConfiguration;
 use crate::utils::{download, download_kml, osmconvert};
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Polygon, Ring};
@@ -7,8 +8,9 @@ use rand_xorshift::XorShiftRng;
 use serde::Deserialize;
 use std::fs::File;
 
-fn input(timer: &mut Timer) {
+fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     download(
+        config,
         "input/berlin/osm/berlin-latest.osm.pbf",
         "http://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf",
     );
@@ -32,6 +34,7 @@ fn input(timer: &mut Timer) {
     // From
     // https://daten.berlin.de/datensaetze/einwohnerinnen-und-einwohner-berlin-lor-planungsr%C3%A4umen-am-31122018
     download(
+        config,
         "input/berlin/EWR201812E_Matrix.csv",
         "https://www.statistik-berlin-brandenburg.de/opendata/EWR201812E_Matrix.csv",
     );
@@ -44,12 +47,13 @@ fn input(timer: &mut Timer) {
     );
 }
 
-pub fn osm_to_raw(name: &str, timer: &mut Timer) {
-    input(timer);
+pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration) {
+    input(config, timer);
     osmconvert(
         "input/berlin/osm/berlin-latest.osm.pbf",
         format!("input/berlin/polygons/{}.poly", name),
         format!("input/berlin/osm/{}.osm", name),
+        config,
     );
 
     let map = convert_osm::convert(

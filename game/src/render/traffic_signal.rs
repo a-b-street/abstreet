@@ -2,16 +2,16 @@ use crate::app::App;
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
-use ezgui::{Color, GeomBatch, Prerender, RewriteColor};
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
-use map_model::{IntersectionID, Phase, TurnPriority, SIDEWALK_THICKNESS};
+use map_model::{IntersectionID, Stage, TurnPriority, SIDEWALK_THICKNESS};
 use sim::YellowChecker;
 use std::collections::BTreeSet;
+use widgetry::{Color, GeomBatch, Prerender, RewriteColor};
 
 // Only draws a box when time_left is present
-pub fn draw_signal_phase(
+pub fn draw_signal_stage(
     prerender: &Prerender,
-    phase: &Phase,
+    stage: &Stage,
     i: IntersectionID,
     time_left: Option<Duration>,
     yellow_checker: Option<&dyn YellowChecker>,
@@ -36,13 +36,13 @@ pub fn draw_signal_phase(
             }
 
             let percent = if let Some(t) = time_left {
-                (t / phase.phase_type.simple_duration()) as f32
+                (t / stage.phase_type.simple_duration()) as f32
             } else {
                 1.0
             };
 
             let yellow = Color::YELLOW;
-            for g in &phase.protected_groups {
+            for g in &stage.protected_groups {
                 if !g.crosswalk {
                     // TODO Maybe less if shoulders meet
                     let slice_start = if crossed_roads.contains(&(g.from.id, g.parent)) {
@@ -89,7 +89,7 @@ pub fn draw_signal_phase(
                         .rotate(angle),
                 );
             }
-            for g in &phase.yield_groups {
+            for g in &stage.yield_groups {
                 assert!(!g.crosswalk);
                 let pl = &signal.turn_groups[g].geom;
                 batch.extend(
@@ -126,7 +126,7 @@ pub fn draw_signal_phase(
             return;
         }
         TrafficSignalStyle::GroupArrows => {
-            for g in &phase.yield_groups {
+            for g in &stage.yield_groups {
                 assert!(!g.crosswalk);
                 let arrow = signal.turn_groups[g]
                     .geom
@@ -142,7 +142,7 @@ pub fn draw_signal_phase(
                     dont_walk.insert(g);
                 }
             }
-            for g in &phase.protected_groups {
+            for g in &stage.protected_groups {
                 if !g.crosswalk {
                     batch.push(
                         app.cs.signal_protected_turn,
@@ -172,7 +172,7 @@ pub fn draw_signal_phase(
             }
         }
         TrafficSignalStyle::Sidewalks => {
-            for g in &phase.yield_groups {
+            for g in &stage.yield_groups {
                 assert!(!g.crosswalk);
                 let arrow = signal.turn_groups[g]
                     .geom
@@ -182,7 +182,7 @@ pub fn draw_signal_phase(
                     batch.push(app.cs.signal_permitted_turn, p);
                 }
             }
-            for g in &phase.protected_groups {
+            for g in &stage.protected_groups {
                 if g.crosswalk {
                     make_crosswalk(
                         batch,
@@ -203,7 +203,7 @@ pub fn draw_signal_phase(
         TrafficSignalStyle::Icons => {
             for g in DrawTurnGroup::for_i(i, &app.primary.map) {
                 batch.push(app.cs.signal_turn_block_bg, g.block.clone());
-                let arrow_color = match phase.get_priority_of_group(g.id) {
+                let arrow_color = match stage.get_priority_of_group(g.id) {
                     TurnPriority::Protected => app.cs.signal_protected_turn,
                     TurnPriority::Yield => app.cs.signal_permitted_turn.alpha(1.0),
                     TurnPriority::Banned => app.cs.signal_banned_turn,
@@ -216,7 +216,7 @@ pub fn draw_signal_phase(
                 if turn.between_sidewalks() {
                     continue;
                 }
-                match phase.get_priority_of_turn(turn.id, signal) {
+                match stage.get_priority_of_turn(turn.id, signal) {
                     TurnPriority::Protected => {
                         batch.push(
                             app.cs.signal_protected_turn,
@@ -246,7 +246,7 @@ pub fn draw_signal_phase(
 
     let radius = Distance::meters(2.0);
     let center = app.primary.map.get_i(i).polygon.center();
-    let percent = time_left.unwrap() / phase.phase_type.simple_duration();
+    let percent = time_left.unwrap() / stage.phase_type.simple_duration();
     batch.push(
         app.cs.signal_box,
         Circle::new(center, 1.2 * radius).to_polygon(),

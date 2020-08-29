@@ -4,16 +4,16 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::checkbox_per_mode;
 use crate::render::DrawOptions;
 use abstutil::{prettyprint_usize, Counter, MultiMap};
-use ezgui::{
-    hotkey, AreaSlider, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, VerticalAlignment,
-    Widget,
-};
 use geom::{Distance, PolyLine, Polygon, Time};
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use maplit::hashset;
 use sim::{DontDrawAgents, TripEndpoint, TripInfo, TripMode};
 use std::collections::{BTreeSet, HashMap, HashSet};
+use widgetry::{
+    hotkey, AreaSlider, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment,
+    Widget,
+};
 
 pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,
@@ -26,7 +26,7 @@ pub struct CommuterPatterns {
     trips_from_block: Vec<Vec<TripInfo>>,
     trips_to_block: Vec<Vec<TripInfo>>,
 
-    composite: Composite,
+    panel: Panel,
     draw_all_blocks: Drawable,
 }
 
@@ -40,7 +40,7 @@ enum BlockSelection {
     },
 }
 
-struct CompositeState<'a> {
+struct PanelState<'a> {
     building_counts: Vec<(&'a str, u32)>,
     max_count: usize,
     total_trips: usize,
@@ -117,7 +117,7 @@ impl CommuterPatterns {
             },
 
             draw_all_blocks: ctx.upload(all_blocks),
-            composite: make_panel(ctx, app),
+            panel: make_panel(ctx, app),
         })
     }
 
@@ -174,7 +174,7 @@ impl CommuterPatterns {
         block_selection: BlockSelection,
         ctx: &EventCtx,
         app: &App,
-    ) -> (Drawable, Option<CompositeState<'a>>) {
+    ) -> (Drawable, Option<PanelState<'a>>) {
         let mut batch = GeomBatch::new();
 
         let base_block_id = match block_selection {
@@ -289,17 +289,17 @@ impl CommuterPatterns {
                     }
                     _ => {}
                 };
-                let composite_data = CompositeState {
+                let panel_data = PanelState {
                     building_counts,
                     total_trips,
                     max_count,
                 };
-                (ctx.upload(batch), Some(composite_data))
+                (ctx.upload(batch), Some(panel_data))
             }
         }
     }
 
-    fn redraw_composite(&mut self, state: Option<&CompositeState>, ctx: &mut EventCtx, app: &App) {
+    fn redraw_panel(&mut self, state: Option<&PanelState>, ctx: &mut EventCtx, app: &App) {
         if let Some(state) = state {
             let mut txt = Text::new();
             txt.add(Line(format!(
@@ -313,7 +313,7 @@ impl CommuterPatterns {
                 }
             }
 
-            self.composite
+            self.panel
                 .replace(ctx, "current", txt.draw(ctx).named("current"));
 
             let new_scale = ColorLegend::gradient(
@@ -325,9 +325,9 @@ impl CommuterPatterns {
                 ],
             )
             .named("scale");
-            self.composite.replace(ctx, "scale", new_scale);
+            self.panel.replace(ctx, "scale", new_scale);
         } else {
-            self.composite.replace(
+            self.panel.replace(
                 ctx,
                 "current",
                 "None selected".draw_text(ctx).named("current"),
@@ -340,7 +340,7 @@ impl State for CommuterPatterns {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -406,22 +406,22 @@ impl State for CommuterPatterns {
         };
 
         let mut filter = Filter {
-            from_block: self.composite.is_checked("from / to this block"),
-            include_borders: self.composite.is_checked("include borders"),
+            from_block: self.panel.is_checked("from / to this block"),
+            include_borders: self.panel.is_checked("include borders"),
             depart_from: app
                 .primary
                 .sim
                 .get_end_of_day()
-                .percent_of(self.composite.area_slider("depart from").get_percent()),
+                .percent_of(self.panel.area_slider("depart from").get_percent()),
             depart_until: app
                 .primary
                 .sim
                 .get_end_of_day()
-                .percent_of(self.composite.area_slider("depart until").get_percent()),
+                .percent_of(self.panel.area_slider("depart until").get_percent()),
             modes: BTreeSet::new(),
         };
         for m in TripMode::all() {
-            if self.composite.is_checked(m.ongoing_verb()) {
+            if self.panel.is_checked(m.ongoing_verb()) {
                 filter.modes.insert(m);
             }
         }
@@ -429,7 +429,7 @@ impl State for CommuterPatterns {
         if filter != self.filter || block_selection != self.current_block.0 {
             self.filter = filter;
             let (drawable, per_block_counts) = self.build_block_drawable(block_selection, ctx, app);
-            self.redraw_composite(per_block_counts.as_ref(), ctx, app);
+            self.redraw_panel(per_block_counts.as_ref(), ctx, app);
             self.current_block = (block_selection, drawable);
         }
         Transition::Keep
@@ -450,7 +450,7 @@ impl State for CommuterPatterns {
         g.redraw(&self.draw_all_blocks);
         g.redraw(&self.current_block.1);
 
-        self.composite.draw(g);
+        self.panel.draw(g);
         CommonState::draw_osd(g, app);
     }
 }
@@ -689,8 +689,8 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
     groups
 }
 
-fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
-    Composite::new(Widget::col(vec![
+fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
+    Panel::new(Widget::col(vec![
         Widget::row(vec![
             Line("Commute map by block").small_heading().draw(ctx),
             Btn::text_fg("X")

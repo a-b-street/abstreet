@@ -57,7 +57,7 @@ impl<G: GUI> State<G> {
         // start_drawing call.
         let input = UserInput::new(ev, &self.canvas);
 
-        // Update some ezgui state that's stashed in Canvas for sad reasons.
+        // Update some widgetry state that's stashed in Canvas for sad reasons.
         {
             if let Event::WindowResized(new_size) = input.event {
                 let inner_size = prerender.window_size();

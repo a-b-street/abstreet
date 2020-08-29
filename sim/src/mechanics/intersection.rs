@@ -16,7 +16,7 @@ use std::collections::{BTreeMap, BTreeSet, HashSet};
 const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(0.5);
 const WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL: Duration = Duration::const_seconds(0.2);
 
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct IntersectionSimState {
     state: BTreeMap<IntersectionID, State>,
     traffic_signal_state: BTreeMap<IntersectionID, TrafficSignalState>,
@@ -30,7 +30,7 @@ pub struct IntersectionSimState {
     events: Vec<Event>,
 }
 
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 struct State {
     id: IntersectionID,
     accepted: BTreeSet<Request>,
@@ -172,9 +172,9 @@ impl IntersectionSimState {
                 protected.push(req);
             }
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(i) {
-            let phase = &signal.phases[self.traffic_signal_state[&i].current_phase];
+            let stage = &signal.stages[self.traffic_signal_state[&i].current_stage];
             for (req, _) in all {
-                match phase.get_priority_of_turn(req.turn, signal) {
+                match stage.get_priority_of_turn(req.turn, signal) {
                     TurnPriority::Protected => {
                         protected.push(req);
                     }
@@ -439,6 +439,8 @@ impl IntersectionSimState {
         std::mem::replace(&mut self.events, Vec::new())
     }
 
+    /// returns intersections with travelers waiting for at least `threshold` since `now`, ordered
+    /// so the longest delayed intersection is first.
     pub fn delayed_intersections(
         &self,
         now: Time,
@@ -491,21 +493,21 @@ impl IntersectionSimState {
         (per_road, per_intersection)
     }
 
-    pub fn current_phase_and_remaining_time(
+    pub fn current_stage_and_remaining_time(
         &self,
         now: Time,
         i: IntersectionID,
     ) -> (usize, Duration, &dyn YellowChecker) {
         let signal_state = &self.traffic_signal_state[&i];
-        if now > signal_state.phase_ends_at {
+        if now > signal_state.stage_ends_at {
             panic!(
-                "At {}, but {} should have advanced its phase at {}",
-                now, i, signal_state.phase_ends_at
+                "At {}, but {} should have advanced its stage at {}",
+                now, i, signal_state.stage_ends_at
             );
         }
         (
-            signal_state.current_phase,
-            signal_state.phase_ends_at - now,
+            signal_state.current_stage,
+            signal_state.stage_ends_at - now,
             signal_state,
         )
     }
@@ -513,12 +515,12 @@ impl IntersectionSimState {
     pub fn handle_live_edited_traffic_signals(&mut self, map: &Map) {
         for state in self.traffic_signal_state.values_mut() {
             if let Some(ts) = map.maybe_get_traffic_signal(state.id) {
-                if state.current_phase >= ts.phases.len() {
+                if state.current_stage >= ts.stages.len() {
                     // Just jump back to the first one. Shrug.
-                    state.current_phase = 0;
+                    state.current_stage = 0;
                     println!(
-                        "WARNING: Traffic signal {} was live-edited in the middle of a phase, so \
-                         jumping back to the first phase",
+                        "WARNING: Traffic signal {} was live-edited in the middle of a stage, so \
+                         jumping back to the first stage",
                         state.id
                     );
                 }
@@ -582,13 +584,13 @@ impl IntersectionSimState {
 
         let state = &self.state[&req.turn.parent];
         let signal_state = &self.traffic_signal_state[&req.turn.parent];
-        let phase = &signal.phases[signal_state.current_phase];
-        let full_phase_duration = phase.phase_type.simple_duration();
-        let remaining_phase_time = signal_state.phase_ends_at - now;
+        let stage = &signal.stages[signal_state.current_stage];
+        let full_stage_duration = stage.phase_type.simple_duration();
+        let remaining_stage_time = signal_state.stage_ends_at - now;
         let our_time = state.waiting[req];
 
-        // Can't go at all this phase.
-        let our_priority = phase.get_priority_of_turn(req.turn, signal);
+        // Can't go at all this stage.
+        let our_priority = stage.get_priority_of_turn(req.turn, signal);
         if our_priority == TurnPriority::Banned {
             return false;
         }
@@ -619,14 +621,14 @@ impl IntersectionSimState {
         // turn. Don't start the turn if we won't finish by the time the light changes. If we get
         // it wrong, that's fine -- block the box a bit.
         let time_to_cross = turn.geom.length() / speed;
-        if time_to_cross > remaining_phase_time {
+        if time_to_cross > remaining_stage_time {
             // Actually, we might have bigger problems...
-            if time_to_cross > full_phase_duration {
+            if time_to_cross > full_stage_duration {
                 self.events.push(Event::Alert(
                     AlertLocation::Intersection(req.turn.parent),
                     format!(
-                        "{:?} is impossible to fit into phase duration of {}",
-                        req, full_phase_duration
+                        "{:?} is impossible to fit into stage duration of {}",
+                        req, full_stage_duration
                     ),
                 ));
             } else {

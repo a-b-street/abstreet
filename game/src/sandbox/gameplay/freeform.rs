@@ -7,10 +7,6 @@ use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
 use abstutil::Timer;
-use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{Distance, Polygon};
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
 use rand::seq::SliceRandom;
@@ -19,10 +15,14 @@ use sim::{
     DontDrawAgents, DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot,
     SpawnTrip, TripEndpoint, TripMode, TripSpec,
 };
+use widgetry::{
+    hotkey, lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
 
 // TODO Maybe remember what things were spawned, offer to replay this later
 pub struct Freeform {
-    top_center: Composite,
+    top_center: Panel,
 }
 
 impl Freeform {
@@ -109,7 +109,7 @@ impl GameplayState for Freeform {
     }
 }
 
-fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
+fn make_top_center(ctx: &mut EventCtx, app: &App) -> Panel {
     let rows = vec![
         Widget::row(vec![
             Line("Sandbox").small_heading().draw(ctx),
@@ -138,7 +138,7 @@ fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
         .draw(ctx),
     ];
 
-    Composite::new(Widget::col(rows))
+    Panel::new(Widget::col(rows))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -211,7 +211,7 @@ pub fn make_change_traffic(
 }
 
 struct AgentSpawner {
-    composite: Composite,
+    panel: Panel,
     source: Option<TripEndpoint>,
     goal: Option<(TripEndpoint, Option<Polygon>)>,
     confirmed: bool,
@@ -223,7 +223,7 @@ impl AgentSpawner {
             source: None,
             goal: None,
             confirmed: false,
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("New trip").small_heading().draw(ctx),
                     Btn::plaintext("X")
@@ -256,7 +256,7 @@ impl AgentSpawner {
         };
         if let Some(b) = start {
             spawner.source = Some(TripEndpoint::Bldg(b));
-            spawner.composite.replace(
+            spawner.panel.replace(
                 ctx,
                 "instructions",
                 "Click a building or border to specify end"
@@ -270,7 +270,7 @@ impl AgentSpawner {
 
 impl State for AgentSpawner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -280,11 +280,11 @@ impl State for AgentSpawner {
                     let mut scenario = Scenario::empty(map, "one-shot");
                     let from = self.source.take().unwrap();
                     let to = self.goal.take().unwrap().0;
-                    for i in 0..self.composite.spinner("number") as usize {
+                    for i in 0..self.panel.spinner("number") as usize {
                         if let Some(trip) = SpawnTrip::new(
                             from.clone(),
                             to.clone(),
-                            self.composite.dropdown_value("mode"),
+                            self.panel.dropdown_value("mode"),
                             map,
                         ) {
                             scenario.people.push(PersonSpec {
@@ -315,7 +315,7 @@ impl State for AgentSpawner {
                     if let Some(path) = TripEndpoint::path_req(
                         self.source.clone().unwrap(),
                         to.clone(),
-                        self.composite.dropdown_value("mode"),
+                        self.panel.dropdown_value("mode"),
                         &app.primary.map,
                     )
                     .and_then(|req| app.primary.map.pathfind(req))
@@ -328,14 +328,14 @@ impl State for AgentSpawner {
                     } else {
                         self.goal = None;
                         self.confirmed = false;
-                        self.composite.replace(
+                        self.panel.replace(
                             ctx,
                             "instructions",
                             "Click a building or border to specify end"
                                 .draw_text(ctx)
                                 .named("instructions"),
                         );
-                        self.composite.replace(
+                        self.panel.replace(
                             ctx,
                             "Confirm",
                             Btn::text_fg("Confirm").inactive(ctx).named("Confirm"),
@@ -378,7 +378,7 @@ impl State for AgentSpawner {
         } {
             if self.source.is_none() && app.per_obj.left_click(ctx, "start here") {
                 self.source = Some(hovering);
-                self.composite.replace(
+                self.panel.replace(
                     ctx,
                     "instructions",
                     "Click a building or border to specify end"
@@ -395,7 +395,7 @@ impl State for AgentSpawner {
                     if let Some(path) = TripEndpoint::path_req(
                         self.source.clone().unwrap(),
                         hovering.clone(),
-                        self.composite.dropdown_value("mode"),
+                        self.panel.dropdown_value("mode"),
                         &app.primary.map,
                     )
                     .and_then(|req| app.primary.map.pathfind(req))
@@ -413,14 +413,14 @@ impl State for AgentSpawner {
                 if self.goal.is_some() && app.per_obj.left_click(ctx, "end here") {
                     app.primary.current_selection = None;
                     self.confirmed = true;
-                    self.composite.replace(
+                    self.panel.replace(
                         ctx,
                         "instructions",
                         "Confirm the trip settings"
                             .draw_text(ctx)
                             .named("instructions"),
                     );
-                    self.composite.replace(
+                    self.panel.replace(
                         ctx,
                         "Confirm",
                         Btn::text_fg("Confirm").build_def(ctx, hotkey(Key::Enter)),
@@ -435,7 +435,7 @@ impl State for AgentSpawner {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         CommonState::draw_osd(g, app);
 
         if let Some(ref endpt) = self.source {

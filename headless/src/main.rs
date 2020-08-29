@@ -12,7 +12,10 @@
 use abstutil::{serialize_btreemap, CmdArgs, Timer};
 use geom::{Duration, LonLat, Time};
 use hyper::{Body, Request, Response, Server};
-use map_model::{CompressedTurnGroupID, ControlTrafficSignal, IntersectionID, Map, TurnGroupID};
+use map_model::{
+    CompressedTurnGroupID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
+    PermanentMapEdits, TurnGroupID,
+};
 use serde::Serialize;
 use sim::{
     AlertHandler, GetDrawAgents, PersonID, Sim, SimFlags, SimOptions, TripID, TripMode, VehicleType,
@@ -117,7 +120,18 @@ fn handle_command(
         "/traffic-signals/set" => {
             let ts: ControlTrafficSignal = abstutil::from_json(body)?;
             let id = ts.id;
-            map.incremental_edit_traffic_signal(ts);
+
+            // incremental_edit_traffic_signal is the cheap option, but since we may need to call
+            // get-edits later, go through the proper flow.
+            let mut edits = map.get_edits().clone();
+            edits.commands.push(EditCmd::ChangeIntersection {
+                i: id,
+                old: map.get_i_edit(id),
+                new: EditIntersection::TrafficSignal(ts.export(map)),
+            });
+            map.must_apply_edits(edits, &mut Timer::throwaway());
+            map.recalculate_pathfinding_after_edits(&mut Timer::throwaway());
+
             Ok(format!("{} has been updated", id))
         }
         "/traffic-signals/get-delays" => {
@@ -189,6 +203,15 @@ fn handle_command(
                 })
                 .collect(),
         })),
+        // Querying the map
+        "/map/get-edits" => {
+            let mut edits = map.get_edits().clone();
+            edits.commands.clear();
+            edits.compress(map);
+            Ok(abstutil::to_json(&PermanentMapEdits::to_permanent(
+                &edits, map,
+            )))
+        }
         _ => Err("Unknown command".into()),
     }
 }

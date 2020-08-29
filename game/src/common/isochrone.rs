@@ -1,16 +1,16 @@
 use crate::app::App;
 use crate::common::heatmap::Grid;
 use crate::game::{State, Transition};
-use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, VerticalAlignment, Widget,
-};
 use geom::{Distance, Polygon};
 use map_model::{connectivity, BuildingID};
+use widgetry::{
+    hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, VerticalAlignment, Widget,
+};
 
 // TODO Move cursor live
 pub struct IsochroneViewer {
-    composite: Composite,
+    panel: Panel,
     draw: Drawable,
 }
 
@@ -18,7 +18,7 @@ impl IsochroneViewer {
     pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State> {
         let draw = make_isochrone(ctx, app, start);
         Box::new(IsochroneViewer {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Isochrone").small_heading().draw(ctx),
                     Btn::text_fg("X")
@@ -38,7 +38,7 @@ impl State for IsochroneViewer {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -53,7 +53,7 @@ impl State for IsochroneViewer {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.draw);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 

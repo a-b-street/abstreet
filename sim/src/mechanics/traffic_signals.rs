@@ -16,8 +16,8 @@ pub trait YellowChecker {
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct TrafficSignalState {
     pub id: IntersectionID,
-    pub current_phase: usize,
-    pub phase_ends_at: Time,
+    pub current_stage: usize,
+    pub stage_ends_at: Time,
     pub green_must_end_at: Time,
     turn_group_state: BTreeMap<TurnGroupID, TurnGroupState>,
     phase_state: Vec<PhaseState>,
@@ -82,33 +82,33 @@ fn update_pretimed(
     signal: &ControlTrafficSignal,
     scheduler: &mut Scheduler,
 ) {
-    if now >= state.phase_ends_at {
-        state.set_green_all_current_phase(signal);
+    if now >= state.stage_ends_at {
+        state.set_green_all_current_stage(signal);
 
-        state.current_phase = (state.current_phase + 1) % signal.phases.len();
+        state.current_stage = (state.current_stage + 1) % signal.stages.len();
 
-        state.phase_ends_at = now
-            + signal.phases[state.current_phase]
+        state.stage_ends_at = now
+            + signal.stages[state.current_stage]
                 .phase_type
                 .simple_duration();
 
         scheduler.update(
-            state.phase_ends_at - signal.yellow_duration,
+            state.stage_ends_at - signal.yellow_duration,
             Command::UpdateIntersection(intersection_id, None, None),
         );
-    } else if now >= state.phase_ends_at - signal.yellow_duration {
-        state.set_yellow_all_current_phase(signal);
+    } else if now >= state.stage_ends_at - signal.yellow_duration {
+        state.set_yellow_all_current_stage(signal);
 
         scheduler.update(
-            state.phase_ends_at,
+            state.stage_ends_at,
             Command::UpdateIntersection(intersection_id, None, None),
         );
     } else {
         // Should only get here on the very first update for this signal.
-        state.set_green_all_current_phase(signal);
+        state.set_green_all_current_stage(signal);
 
         scheduler.update(
-            state.phase_ends_at - signal.yellow_duration,
+            state.stage_ends_at - signal.yellow_duration,
             Command::UpdateIntersection(intersection_id, None, None),
         );
     }
@@ -121,10 +121,10 @@ fn update_actuated(
     signal: &ControlTrafficSignal,
     scheduler: &mut Scheduler,
 ) {
-    state.phase_ends_at = now + Duration::hours(1);
+    state.stage_ends_at = now + Duration::hours(1);
 
     scheduler.update(
-        state.phase_ends_at,
+        state.stage_ends_at,
         Command::UpdateIntersection(intersection_id, None, None),
     );
 }
@@ -153,27 +153,29 @@ fn actuate(
         return;
     }
 
-    // Find phase to actuate, if there is one.
-    let maybe_phase_index = match maybe_get_protected_phase_index(turn.id, state, signal) {
-        Some(phase) => Some(phase),
-        None => maybe_get_yield_phase_index(turn.id, state, signal),
+    // TODO Change this to hinge on whether phase is active or not, not which stage it's in.
+
+    // Find stage to actuate, if there is one.
+    let maybe_stage_index = match maybe_get_protected_stage_index(turn.id, state, signal) {
+        Some(stage) => Some(stage),
+        None => maybe_get_yield_stage_index(turn.id, state, signal),
     };
 
-    // Exit if there is no phase to actuate.
-    if maybe_phase_index.is_none() {
+    // Exit if there is no stage to actuate.
+    if maybe_stage_index.is_none() {
         return;
     }
 
-    // Call the phase.
-    let i = maybe_phase_index.unwrap();
+    // Call the stage.
+    let i = maybe_stage_index.unwrap();
     let called_phase_state = &mut state.phase_state[i];
     called_phase_state.is_called = true;
     called_phase_state.last_called = now;
 
-    // If caller is vehicle and called phase is current phase,
+    // If caller is vehicle and called stage is current stage,
     // set a new timer for passage time "gap out", if needed.
-    if !turn.between_sidewalks() && (state.current_phase == i) {
-        let new_green_expiration = now + signal.phases[i].passage_time;
+    if !turn.between_sidewalks() && (state.current_stage == i) {
+        let new_green_expiration = now + signal.stages[i].passage_time;
 
         if new_green_expiration < state.green_must_end_at {
             scheduler.update(
@@ -187,10 +189,11 @@ fn actuate(
         }
     }
 
-    // If called phase is *not* current phase, activate MaxGreen timer
+    // TODO Change to If called phase is not active.
+    // If called stage is *not* active, activate MaxGreen timer
     // if not already activated.
-    if state.current_phase != i {
-        let new_green_expiration = now + signal.phases[i].maximum_green;
+    if state.current_stage != i {
+        let new_green_expiration = now + signal.stages[i].maximum_green;
 
         if new_green_expiration < state.green_must_end_at {
             state.green_must_end_at = new_green_expiration;
@@ -199,8 +202,8 @@ fn actuate(
             // Although the draw routine cares about color of yield turn groups, the control
             // does not. Not sure if control should support coloring for yield groups.
             // If yield groups have signal color in real life, it's a flashing yellow.
-            let current_phase = &signal.phases[state.current_phase];
-            for tg in &current_phase.protected_groups {
+            let current_stage = &signal.stages[state.current_stage];
+            for tg in &current_stage.protected_groups {
                 scheduler.update(
                     new_green_expiration,
                     Command::UpdateIntersection(
@@ -214,45 +217,45 @@ fn actuate(
     }
 }
 
-fn maybe_get_protected_phase_index(
+fn maybe_get_protected_stage_index(
     turn: TurnID,
     state: &TrafficSignalState,
     signal: &ControlTrafficSignal,
 ) -> Option<usize> {
-    // Find the soonest phase with the turn (which might be the current phase).
-    // (In edge case where every phase has the turn, just call the current phase).
+    // Find the soonest stage with the turn (which might be the current stage).
+    // (In edge case where every stage has the turn, just call the current stage).
 
-    // TODO: Build a mapping from turn group to phase in advance instead
+    // TODO: Build a mapping from turn group to stage in advance instead
     // of computing for every call?
 
     // See if there is at least one protected turn group with this turn.
     let turn_group_id = signal.turn_to_group(turn);
 
-    let num_phases = signal.phases.len();
+    let num_stages = signal.stages.len();
 
-    let maybe_soonest_phase = signal
-        .phases
+    let maybe_soonest_stage = signal
+        .stages
         .iter()
         .cycle()
-        .skip(state.current_phase)
-        .take(num_phases)
+        .skip(state.current_stage)
+        .take(num_stages)
         .enumerate()
-        .find(|enumerated_phase| {
-            TurnPriority::Protected == enumerated_phase.1.get_priority_of_group(turn_group_id)
+        .find(|enumerated_stage| {
+            TurnPriority::Protected == enumerated_stage.1.get_priority_of_group(turn_group_id)
         });
 
-    if maybe_soonest_phase == None {
+    if maybe_soonest_stage == None {
         return None;
     }
 
-    let (num_after_current, _) = maybe_soonest_phase.unwrap();
+    let (num_after_current, _) = maybe_soonest_stage.unwrap();
 
-    let soonest_phase_index = (state.current_phase + num_after_current) % num_phases;
+    let soonest_stage_index = (state.current_stage + num_after_current) % num_stages;
 
-    return Some(soonest_phase_index);
+    return Some(soonest_stage_index);
 }
 
-fn maybe_get_yield_phase_index(
+fn maybe_get_yield_stage_index(
     turn: TurnID,
     state: &TrafficSignalState,
     signal: &ControlTrafficSignal,
@@ -260,36 +263,36 @@ fn maybe_get_yield_phase_index(
     // See if there is at least one yield turn group with this turn.
     let turn_group_id = signal.turn_to_group(turn);
 
-    let num_phases = signal.phases.len();
+    let num_stages = signal.stages.len();
 
-    let maybe_soonest_phase = signal
-        .phases
+    let maybe_soonest_stage = signal
+        .stages
         .iter()
         .cycle()
-        .skip(state.current_phase)
-        .take(num_phases)
+        .skip(state.current_stage)
+        .take(num_stages)
         .enumerate()
-        .find(|enumerated_phase| {
-            TurnPriority::Yield == enumerated_phase.1.get_priority_of_group(turn_group_id)
+        .find(|enumerated_stage| {
+            TurnPriority::Yield == enumerated_stage.1.get_priority_of_group(turn_group_id)
         });
 
-    if maybe_soonest_phase == None {
+    if maybe_soonest_stage == None {
         return None;
     }
 
-    let (num_after_current, _) = maybe_soonest_phase.unwrap();
+    let (num_after_current, _) = maybe_soonest_stage.unwrap();
 
-    let soonest_phase_index = (state.current_phase + num_after_current) % num_phases;
+    let soonest_stage_index = (state.current_stage + num_after_current) % num_stages;
 
-    return Some(soonest_phase_index);
+    return Some(soonest_stage_index);
 }
 
 impl TrafficSignalState {
     pub fn new(signal: &ControlTrafficSignal) -> TrafficSignalState {
         let mut state = TrafficSignalState {
             id: IntersectionID(0),
-            current_phase: 0,
-            phase_ends_at: Time::START_OF_DAY,
+            current_stage: 0,
+            stage_ends_at: Time::START_OF_DAY,
             green_must_end_at: Time::START_OF_DAY + Duration::hours(1),
             turn_group_state: BTreeMap::<TurnGroupID, TurnGroupState>::new(),
             phase_state: Vec::<PhaseState>::new(),
@@ -303,31 +306,31 @@ impl TrafficSignalState {
     fn initialize(&mut self, signal: &ControlTrafficSignal) {
         self.id = signal.id;
 
-        // What phase are we starting with?
+        // What stage are we starting with?
         let mut offset = signal.offset;
         loop {
-            let dt = signal.phases[self.current_phase]
+            let dt = signal.stages[self.current_stage]
                 .phase_type
                 .simple_duration();
             if offset >= dt {
                 offset -= dt;
-                self.current_phase += 1;
-                if self.current_phase == signal.phases.len() {
-                    self.current_phase = 0;
+                self.current_stage += 1;
+                if self.current_stage == signal.stages.len() {
+                    self.current_stage = 0;
                 }
             } else {
-                self.phase_ends_at = Time::START_OF_DAY + dt - offset;
+                self.stage_ends_at = Time::START_OF_DAY + dt - offset;
                 break;
             }
         }
 
         // Initialize turn group state
-        for phase in signal.phases.iter() {
-            for turn_group_id in phase.protected_groups.iter() {
+        for stage in signal.stages.iter() {
+            for turn_group_id in stage.protected_groups.iter() {
                 self.turn_group_state
                     .insert(*turn_group_id, TurnGroupState { is_yellow: false });
             }
-            for turn_group_id in phase.yield_groups.iter() {
+            for turn_group_id in stage.yield_groups.iter() {
                 self.turn_group_state
                     .insert(*turn_group_id, TurnGroupState { is_yellow: false });
             }
@@ -335,17 +338,17 @@ impl TrafficSignalState {
         }
     }
 
-    fn set_green_all_current_phase(&mut self, signal: &ControlTrafficSignal) {
-        let current_phase = &signal.phases[self.current_phase];
+    fn set_green_all_current_stage(&mut self, signal: &ControlTrafficSignal) {
+        let current_stage = &signal.stages[self.current_stage];
 
-        for turn_group in &current_phase.protected_groups {
+        for turn_group in &current_stage.protected_groups {
             self.turn_group_state
                 .get_mut(&turn_group)
                 .unwrap()
                 .is_yellow = false;
         }
 
-        for turn_group in &current_phase.yield_groups {
+        for turn_group in &current_stage.yield_groups {
             self.turn_group_state
                 .get_mut(&turn_group)
                 .unwrap()
@@ -353,17 +356,17 @@ impl TrafficSignalState {
         }
     }
 
-    fn set_yellow_all_current_phase(&mut self, signal: &ControlTrafficSignal) {
-        let current_phase = &signal.phases[self.current_phase];
+    fn set_yellow_all_current_stage(&mut self, signal: &ControlTrafficSignal) {
+        let current_stage = &signal.stages[self.current_stage];
 
-        for turn_group in &current_phase.protected_groups {
+        for turn_group in &current_stage.protected_groups {
             self.turn_group_state
                 .get_mut(&turn_group)
                 .unwrap()
                 .is_yellow = true;
         }
 
-        for turn_group in &current_phase.yield_groups {
+        for turn_group in &current_stage.yield_groups {
             self.turn_group_state
                 .get_mut(&turn_group)
                 .unwrap()

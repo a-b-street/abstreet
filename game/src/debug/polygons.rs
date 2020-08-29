@@ -1,13 +1,13 @@
 use crate::app::App;
 use crate::game::{State, Transition};
-use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+use geom::{Polygon, Pt2D, Triangle};
+use widgetry::{
+    hotkey, Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     Slider, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Polygon, Pt2D, Triangle};
 
 pub struct PolygonDebugger {
-    composite: Composite,
+    panel: Panel,
     noun: String,
     items: Vec<Item>,
     center: Option<Pt2D>,
@@ -27,7 +27,7 @@ impl PolygonDebugger {
         center: Option<Pt2D>,
     ) -> Box<dyn State> {
         Box::new(PolygonDebugger {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Geometry debugger").small_heading().draw(ctx),
                     Btn::text_fg("X")
@@ -58,25 +58,25 @@ impl State for PolygonDebugger {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 "previous" => {
-                    let idx = (self.composite.slider("slider").get_percent()
+                    let idx = (self.panel.slider("slider").get_percent()
                         * (self.items.len() - 1) as f64) as usize;
                     if idx != 0 {
-                        self.composite
+                        self.panel
                             .slider_mut("slider")
                             .set_percent(ctx, (idx - 1) as f64 / (self.items.len() - 1) as f64);
                     }
                 }
                 "next" => {
-                    let idx = (self.composite.slider("slider").get_percent()
+                    let idx = (self.panel.slider("slider").get_percent()
                         * (self.items.len() - 1) as f64) as usize;
                     if idx != self.items.len() - 1 {
-                        self.composite
+                        self.panel
                             .slider_mut("slider")
                             .set_percent(ctx, (idx + 1) as f64 / (self.items.len() - 1) as f64);
                     }
@@ -86,9 +86,9 @@ impl State for PolygonDebugger {
             _ => {}
         }
         // TODO Could be more efficient here
-        let idx = (self.composite.slider("slider").get_percent() * (self.items.len() - 1) as f64)
-            as usize;
-        self.composite.replace(
+        let idx =
+            (self.panel.slider("slider").get_percent() * (self.items.len() - 1) as f64) as usize;
+        self.panel.replace(
             ctx,
             "pointer",
             format!("{} {}/{}", self.noun, idx + 1, self.items.len())
@@ -103,8 +103,8 @@ impl State for PolygonDebugger {
         // This is drawn in screen-space, so zooming doesn't affect the text size
         let mut batch = GeomBatch::new();
 
-        let idx = (self.composite.slider("slider").get_percent() * (self.items.len() - 1) as f64)
-            as usize;
+        let idx =
+            (self.panel.slider("slider").get_percent() * (self.items.len() - 1) as f64) as usize;
         match &self.items[idx] {
             Item::Point(pt) => {
                 batch.append(
@@ -149,6 +149,6 @@ impl State for PolygonDebugger {
         g.redraw(&draw);
         g.unfork();
 
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }

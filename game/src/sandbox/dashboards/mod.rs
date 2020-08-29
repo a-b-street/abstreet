@@ -7,8 +7,8 @@ mod trip_table;
 
 use crate::app::App;
 use crate::game::Transition;
-use ezgui::{hotkey, Btn, Color, EventCtx, Key, Widget};
 pub use trip_table::TripTable;
+use widgetry::{hotkey, Btn, Color, EventCtx, Key, Widget};
 
 // Oh the dashboards melted, but we still had the radio
 #[derive(PartialEq)]

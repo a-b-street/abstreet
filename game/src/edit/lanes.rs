@@ -9,16 +9,16 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::Renderable;
 use crate::sandbox::GameplayMode;
-use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome,
-    RewriteColor, TextExt, VerticalAlignment, Widget,
+use map_model::{LaneID, LaneType};
+use widgetry::{
+    hotkey, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, RewriteColor,
+    TextExt, VerticalAlignment, Widget,
 };
-use map_model::{EditCmd, LaneID, LaneType};
 
 pub struct LaneEditor {
     l: LaneID,
     mode: GameplayMode,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl LaneEditor {
@@ -84,25 +84,14 @@ impl LaneEditor {
             Widget::custom_row(row).centered(),
             change_speed_limit(ctx, parent.speed_limit),
             Btn::text_fg("Change access restrictions").build_def(ctx, hotkey(Key::A)),
-            Widget::custom_row(vec![
-                Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
-                // TODO Handle reverting speed limit too...
-                if app.primary.map.get_edits().original_lts.contains_key(&l)
-                    || app.primary.map.get_edits().reversed_lanes.contains(&l)
-                {
-                    Btn::text_fg("Revert").build_def(ctx, hotkey(Key::R))
-                } else {
-                    Btn::text_fg("Revert").inactive(ctx)
-                },
-            ])
-            .centered(),
+            Btn::text_bg2("Finish").build_def(ctx, hotkey(Key::Escape)),
         ];
 
-        let composite = Composite::new(Widget::col(col))
+        let panel = Panel::new(Widget::col(col))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 
-        Box::new(LaneEditor { l, mode, composite })
+        Box::new(LaneEditor { l, mode, panel })
     }
 }
 
@@ -137,7 +126,7 @@ impl State for LaneEditor {
             }
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Change access restrictions" => {
                     return Transition::Push(ZoneEditor::new(
@@ -152,14 +141,6 @@ impl State for LaneEditor {
                 x => {
                     let map = &mut app.primary.map;
                     let result = match x {
-                        "Revert" => {
-                            // TODO It's hard to revert both changes at once.
-                            if let Some(lt) = map.get_edits().original_lts.get(&self.l).cloned() {
-                                try_change_lt(ctx, map, self.l, lt)
-                            } else {
-                                try_reverse(ctx, map, self.l)
-                            }
-                        }
                         "reverse lane direction" => try_reverse(ctx, map, self.l),
                         "convert to a driving lane" => {
                             try_change_lt(ctx, map, self.l, LaneType::Driving)
@@ -198,15 +179,13 @@ impl State for LaneEditor {
                 }
             },
             Outcome::Changed => {
-                let parent = app.primary.map.get_parent(self.l);
-                let new = self.composite.dropdown_value("speed limit");
-                let old = parent.speed_limit;
                 let mut edits = app.primary.map.get_edits().clone();
-                edits.commands.push(EditCmd::ChangeSpeedLimit {
-                    id: parent.id,
-                    new,
-                    old,
-                });
+                edits.commands.push(app.primary.map.edit_road_cmd(
+                    app.primary.map.get_l(self.l).parent,
+                    |new| {
+                        new.speed_limit = self.panel.dropdown_value("speed limit");
+                    },
+                ));
                 apply_map_edits(ctx, app, edits);
                 return Transition::Replace(LaneEditor::new(ctx, app, self.l, self.mode.clone()));
             }
@@ -224,7 +203,7 @@ impl State for LaneEditor {
                 .get_l(self.l)
                 .get_outline(&app.primary.map),
         );
-        self.composite.draw(g);
+        self.panel.draw(g);
         CommonState::draw_osd(g, app);
     }
 }

@@ -6,13 +6,13 @@ use crate::options::Options;
 use crate::render::{AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents};
 use crate::sandbox::{GameplayMode, TutorialState};
 use abstutil::{MeasureMemory, Timer};
-use ezgui::{EventCtx, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable};
 use maplit::btreemap;
 use rand::seq::SliceRandom;
 use sim::{Analytics, GetDrawAgents, Sim, SimCallback, SimFlags};
 use std::collections::BTreeMap;
+use widgetry::{EventCtx, GfxCtx, Prerender};
 
 pub struct App {
     // Naming is from older days when there was an A/B test, "side-by-side" mode. Keeping this
@@ -604,7 +604,7 @@ impl SessionState {
     }
 }
 
-// TODO Reconsider this; maybe it does belong in ezgui.
+// TODO Reconsider this; maybe it does belong in widgetry.
 pub struct PerObjectActions {
     pub click_action: Option<String>,
 }

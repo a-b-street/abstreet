@@ -4,26 +4,26 @@ use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
 use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
 use crate::sandbox::GameplayMode;
 use abstutil::Timer;
-use ezgui::{
-    hotkey, Btn, Checkbox, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Spinner,
-    TextExt, Widget,
-};
 use geom::Duration;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType,
 };
+use widgetry::{
+    hotkey, Btn, Checkbox, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner, TextExt,
+    Widget,
+};
 
 pub struct ChangeDuration {
-    composite: Composite,
+    panel: Panel,
     idx: usize,
 }
 
 impl ChangeDuration {
     pub fn new(ctx: &mut EventCtx, current: PhaseType, idx: usize) -> Box<dyn State> {
         Box::new(ChangeDuration {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("How long should this phase last?")
+                    Line("How long should this stage last?")
                         .small_heading()
                         .draw(ctx),
                     Btn::plaintext("X")
@@ -63,12 +63,12 @@ impl ChangeDuration {
 
 impl State for ChangeDuration {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
                 "Apply" => {
-                    let dt = Duration::seconds(self.composite.spinner("duration") as f64);
-                    let new_type = if self.composite.is_checked("phase type") {
+                    let dt = Duration::seconds(self.panel.spinner("duration") as f64);
+                    let new_type = if self.panel.is_checked("phase type") {
                         PhaseType::Fixed(dt)
                     } else {
                         PhaseType::Adaptive(dt)
@@ -77,7 +77,7 @@ impl State for ChangeDuration {
                     return Transition::PopWithData(Box::new(move |state, ctx, app| {
                         let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
                         editor.add_new_edit(ctx, app, idx, |ts| {
-                            ts.phases[idx].phase_type = new_type.clone();
+                            ts.stages[idx].phase_type = new_type.clone();
                         });
                     }));
                 }
@@ -97,7 +97,7 @@ impl State for ChangeDuration {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
@@ -115,7 +115,7 @@ pub fn edit_entire_signal(
         .any(|t| t.between_sidewalks());
 
     let use_template = "use template";
-    let all_walk = "add an all-walk phase at the end";
+    let all_walk = "add an all-walk stage at the end";
     let stop_sign = "convert to stop signs";
     let close = "close intersection for construction";
     let reset = "reset to default";

@@ -1,11 +1,11 @@
 use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
 use crate::render::DrawPedestrian;
-use ezgui::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
 use geom::{Angle, Circle, Distance, Speed, Time};
 use map_model::{BuildingID, LaneID, OffstreetParking, Traversable, SIDEWALK_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripMode, TripResult};
 use std::collections::BTreeMap;
+use widgetry::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::BldgInfo(id));
@@ -45,12 +45,14 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
 
     if !b.amenities.is_empty() {
         txt.add(Line(""));
-        if b.amenities.len() > 1 {
+        if b.amenities.len() == 1 {
+            txt.add(Line("1 amenity:"));
+        } else {
             txt.add(Line(format!("{} amenities:", b.amenities.len())));
         }
         for (names, amenity) in &b.amenities {
             txt.add(Line(format!(
-                "- {} ({})",
+                "  {} ({})",
                 names.get(app.opts.language.as_ref()),
                 amenity
             )));

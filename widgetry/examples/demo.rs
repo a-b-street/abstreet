@@ -5,25 +5,27 @@
 // > cargo web start --target wasm32-unknown-unknown --no-default-features \
 // --features wasm-backend --example demo
 
-use ezgui::{
-    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, Text, TextExt,
-    UpdateType, VerticalAlignment, Widget, GUI,
-};
 use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
+use widgetry::{
+    hotkey, lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text, TextExt,
+    UpdateType, VerticalAlignment, Widget, GUI,
+};
 
 fn main() {
     // Control flow surrendered here. App implements State, which has an event handler and a draw
     // callback.
-    ezgui::run(ezgui::Settings::new("ezgui demo"), |ctx| App::new(ctx));
+    widgetry::run(widgetry::Settings::new("widgetry demo"), |ctx| {
+        App::new(ctx)
+    });
 }
 
 struct App {
-    controls: Composite,
-    timeseries_panel: Option<(Duration, Composite)>,
+    controls: Panel,
+    timeseries_panel: Option<(Duration, Panel)>,
     scrollable_canvas: Drawable,
     elapsed: Duration,
 }
@@ -38,7 +40,7 @@ impl App {
         }
     }
 
-    fn make_timeseries_panel(&self, ctx: &mut EventCtx) -> Composite {
+    fn make_timeseries_panel(&self, ctx: &mut EventCtx) -> Panel {
         // Make a table with 3 columns.
         let mut col1 = vec![Line("Time").draw(ctx)];
         let mut col = vec![Line("Linear").draw(ctx)];
@@ -53,7 +55,7 @@ impl App {
             col3.push(Line(s.pow(2).to_string()).secondary().draw(ctx));
         }
 
-        let mut c = Composite::new(Widget::col(vec![
+        let mut c = Panel::new(Widget::col(vec![
             Text::from_multiline(vec![
                 Line("Here's a bunch of text to force some scrolling.").small_heading(),
                 Line(
@@ -122,7 +124,7 @@ impl GUI for App {
         // This dispatches event handling to all of the widgets inside.
         match self.controls.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                // These outcomes should probably be a custom enum per Composite, to be more
+                // These outcomes should probably be a custom enum per Panel, to be more
                 // typesafe.
                 "reset the stopwatch" => {
                     self.elapsed = Duration::ZERO;
@@ -246,10 +248,10 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
     batch.upload(ctx)
 }
 
-fn make_controls(ctx: &mut EventCtx) -> Composite {
-    Composite::new(Widget::col(vec![
+fn make_controls(ctx: &mut EventCtx) -> Panel {
+    Panel::new(Widget::col(vec![
         Text::from_multiline(vec![
-            Line("ezgui demo").small_heading(),
+            Line("widgetry demo").small_heading(),
             Line("Click and drag to pan, use touchpad or scroll wheel to zoom"),
         ])
         .draw(ctx),

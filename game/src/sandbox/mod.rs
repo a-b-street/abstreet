@@ -18,10 +18,6 @@ use crate::layer::PickLayer;
 use crate::options::OptionsPanel;
 use crate::pregame::MainMenu;
 use crate::render::UnzoomedAgents;
-use ezgui::{
-    hotkey, lctrl, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Text, TextExt, UpdateType, VerticalAlignment, Widget,
-};
 pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use geom::Time;
 use map_model::MapEdits;
@@ -29,6 +25,10 @@ use maplit::btreeset;
 use sim::AgentType;
 pub use speed::TimeWarpScreen;
 pub use speed::{SpeedControls, TimePanel};
+use widgetry::{
+    hotkey, lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    Text, TextExt, UpdateType, VerticalAlignment, Widget,
+};
 
 pub struct SandboxMode {
     gameplay: Box<dyn gameplay::GameplayState>,
@@ -40,7 +40,7 @@ pub struct SandboxMode {
 pub struct SandboxControls {
     pub common: Option<CommonState>,
     route_preview: Option<RoutePreview>,
-    tool_panel: Option<Composite>,
+    tool_panel: Option<Panel>,
     time_panel: Option<TimePanel>,
     speed: Option<SpeedControls>,
     pub agent_meter: Option<AgentMeter>,
@@ -134,7 +134,7 @@ impl State for SandboxMode {
             if let Some(t) = m.event(ctx, app) {
                 return t;
             }
-            if let Some(t) = PickLayer::update(ctx, app, &m.composite) {
+            if let Some(t) = PickLayer::update(ctx, app, &m.panel) {
                 return t;
             }
         }
@@ -290,7 +290,7 @@ impl State for BackToMainMenu {
 
 pub struct AgentMeter {
     time: Time,
-    pub composite: Composite,
+    pub panel: Panel,
 }
 
 impl AgentMeter {
@@ -348,13 +348,13 @@ impl AgentMeter {
             ]),
         ];
 
-        let composite = Composite::new(Widget::col(rows))
+        let panel = Panel::new(Widget::col(rows))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
 
         AgentMeter {
             time: app.primary.sim.time(),
-            composite,
+            panel,
         }
     }
 
@@ -363,7 +363,7 @@ impl AgentMeter {
             *self = AgentMeter::new(ctx, app);
             return self.event(ctx, app);
         }
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "more data" => {
                     return Some(Transition::Push(dashboards::TripTable::new(ctx, app)));
@@ -377,7 +377,7 @@ impl AgentMeter {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 

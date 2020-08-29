@@ -7,12 +7,12 @@ edition = "2018"
 # TODO Can't toggle based on target_arch. https://github.com/rust-lang/cargo/issues/2524
 # cargo web start --target wasm32-unknown-unknown --no-default-features --features wasm
 [features]
-default = ["ezgui/glow-backend"]
-wasm = ["ezgui/wasm-backend"]
+default = ["widgetry/glow-backend"]
+wasm = ["widgetry/wasm-backend"]
 
 [dependencies]
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
-ezgui = { path = "../ezgui", default-features=false }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
+widgetry = { path = "../widgetry", default-features=false }

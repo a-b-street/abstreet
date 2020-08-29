@@ -4,7 +4,7 @@
 
 You will first need:
 
-- Stable Rust, at least 1.45. https://www.rust-lang.org/tools/install.
+- Stable Rust, at least 1.46. <https://www.rust-lang.org/tools/install>.
   - On Windows, you may need
     [Visual Studio 2019](https://visualstudio.microsoft.com/de/downloads/).
 - On Linux, `sudo apt-get install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev`
@@ -47,7 +47,6 @@ One-time setup:
     experience, so they're hidden for now.
   - `cargo run --bin game -- --tutorial=12` starts somewhere in the tutorial
   - Adding `--edits='name of edits'` starts with edits applied to the map.
-- More random notes [here](/docs/misc_dev_tricks.md)
 
 ## Downloading more cities
 
@@ -69,14 +68,14 @@ for building those maps -- see below.
 
 ## Building map data
 
-You can skip this section if you're just touching code in `game`, `ezgui`, and
-`sim`.
+You can skip this section if you're just touching code in `game`, `widgetry`,
+and `sim`.
 
 To run all pieces of the importer, you'll need some extra dependencies:
 
-- `osmconvert`: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download or
-  https://github.com/interline-io/homebrew-planetutils#installation for Mac
-- `libgdal-dev`: See https://gdal.org/ if your OS package manager doesn't have
+- `osmconvert`: See <https://wiki.openstreetmap.org/wiki/Osmconvert#Download> or
+  <https://github.com/interline-io/homebrew-planetutils#installation> for Mac
+- `libgdal-dev`: See <https://gdal.org> if your OS package manager doesn't have
   this. If you keep hitting linking errors, then just remove
   `--features scenarios` from `import.sh`. You won't be able to build the
   Seattle scenarios.
@@ -102,8 +101,8 @@ You can also make the importer [import a new city](new_city.md).
 
 ## Understanding stuff
 
-The docs listed at https://github.com/dabreegster/abstreet#documentation explain
-things like map importing and how the traffic simulation works.
+The docs listed at <https://github.com/dabreegster/abstreet#documentation>
+explain things like map importing and how the traffic simulation works.
 
 ### Code organization
 
@@ -130,7 +129,8 @@ Traffic simulation:
 Graphics:
 
 - `game`: the GUI and main gameplay
-- `ezgui`: a GUI and 2D OpenGL rendering library, using glium + winit + glutin
+- `widgetry`: a GUI and 2D OpenGL rendering library, using glium + winit +
+  glutin
 
 Common utilities:
 
@@ -141,9 +141,9 @@ Common utilities:
 
 ## Code conventions
 
-All code is automatically formatted using https://github.com/rust-lang/rustfmt;
-please run `cargo +nightly fmt` before sending a PR. (You have to install the
-nightly toolchain just for fmt)
+All code is automatically formatted using
+<https://github.com/rust-lang/rustfmt>; please run `cargo +nightly fmt` before
+sending a PR. (You have to install the nightly toolchain just for fmt)
 
 The error handling is unfortunately inconsistent. The goal is to gracefully
 degrade instead of crashing the game. If a crash does happen, make sure the logs

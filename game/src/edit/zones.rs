@@ -6,17 +6,17 @@ use crate::edit::select::RoadSelector;
 use crate::game::{State, Transition};
 use crate::helpers::{checkbox_per_mode, intersections_from_roads};
 use enumset::EnumSet;
-use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
-use map_model::{AccessRestrictions, EditCmd, PathConstraints, RoadID};
+use map_model::{AccessRestrictions, PathConstraints, RoadID};
 use maplit::btreeset;
 use sim::TripMode;
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct ZoneEditor {
-    composite: Composite,
+    panel: Panel,
     selector: RoadSelector,
     allow_through_traffic: BTreeSet<TripMode>,
     unzoomed: Drawable,
@@ -47,7 +47,7 @@ impl ZoneEditor {
         let selector = RoadSelector::new(app, members);
 
         Box::new(ZoneEditor {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Line("Editing restricted access zone")
                     .small_heading()
                     .draw(ctx),
@@ -81,18 +81,18 @@ impl ZoneEditor {
 // TODO Handle splitting/merging zones.
 impl State for ZoneEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Apply" => {
                     let mut edits = app.primary.map.get_edits().clone();
 
                     // Roads deleted from the zone
                     for r in self.orig_members.difference(&self.selector.roads) {
-                        edits.commands.push(EditCmd::ChangeAccessRestrictions {
-                            id: *r,
-                            old: app.primary.map.get_r(*r).access_restrictions.clone(),
-                            new: AccessRestrictions::new(),
-                        });
+                        edits
+                            .commands
+                            .push(app.primary.map.edit_road_cmd(*r, |new| {
+                                new.access_restrictions = AccessRestrictions::new();
+                            }));
                     }
 
                     let mut allow_through_traffic = self
@@ -103,10 +103,10 @@ impl State for ZoneEditor {
                     // The original allow_through_traffic always includes this, and there's no way
                     // to exclude it, so stay consistent.
                     allow_through_traffic.insert(PathConstraints::Train);
-                    let new = AccessRestrictions {
+                    let new_access_restrictions = AccessRestrictions {
                         allow_through_traffic,
                         cap_vehicles_per_hour: {
-                            let n = self.composite.spinner("cap_vehicles") as usize;
+                            let n = self.panel.spinner("cap_vehicles") as usize;
                             if n == 0 {
                                 None
                             } else {
@@ -115,13 +115,14 @@ impl State for ZoneEditor {
                         },
                     };
                     for r in &self.selector.roads {
-                        let old = app.primary.map.get_r(*r).access_restrictions.clone();
-                        if old != new {
-                            edits.commands.push(EditCmd::ChangeAccessRestrictions {
-                                id: *r,
-                                old,
-                                new: new.clone(),
-                            });
+                        let old_access_restrictions =
+                            app.primary.map.get_r(*r).access_restrictions.clone();
+                        if old_access_restrictions != new_access_restrictions {
+                            edits
+                                .commands
+                                .push(app.primary.map.edit_road_cmd(*r, |new| {
+                                    new.access_restrictions = new_access_restrictions.clone();
+                                }));
                         }
                     }
 
@@ -134,7 +135,7 @@ impl State for ZoneEditor {
                 x => {
                     if self.selector.event(ctx, app, Some(x)) {
                         let new_controls = self.selector.make_controls(ctx).named("selector");
-                        self.composite.replace(ctx, "selector", new_controls);
+                        self.panel.replace(ctx, "selector", new_controls);
                         let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.selector.roads);
                         self.unzoomed = unzoomed;
                         self.zoomed = zoomed;
@@ -144,18 +145,18 @@ impl State for ZoneEditor {
             Outcome::Changed => {
                 let mut new_allow_through_traffic = BTreeSet::new();
                 for m in TripMode::all() {
-                    if self.composite.is_checked(m.ongoing_verb()) {
+                    if self.panel.is_checked(m.ongoing_verb()) {
                         new_allow_through_traffic.insert(m);
                     }
                 }
                 let instructions = make_instructions(ctx, &new_allow_through_traffic);
-                self.composite.replace(ctx, "instructions", instructions);
+                self.panel.replace(ctx, "instructions", instructions);
                 self.allow_through_traffic = new_allow_through_traffic;
             }
             _ => {
                 if self.selector.event(ctx, app, None) {
                     let new_controls = self.selector.make_controls(ctx).named("selector");
-                    self.composite.replace(ctx, "selector", new_controls);
+                    self.panel.replace(ctx, "selector", new_controls);
                     let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.selector.roads);
                     self.unzoomed = unzoomed;
                     self.zoomed = zoomed;
@@ -173,7 +174,7 @@ impl State for ZoneEditor {
         } else {
             g.redraw(&self.zoomed);
         }
-        self.composite.draw(g);
+        self.panel.draw(g);
         self.selector.draw(g, app, false);
         CommonState::draw_osd(g, app);
     }

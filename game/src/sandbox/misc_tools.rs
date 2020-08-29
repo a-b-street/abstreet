@@ -2,13 +2,13 @@ use crate::app::{App, ShowEverything};
 use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
-use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{ArrowCap, Distance, Time};
 use map_model::{LaneID, TurnType};
 use sim::{AgentID, DontDrawAgents};
+use widgetry::{
+    hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct RoutePreview {
     preview: Option<(AgentID, Time, Drawable)>,
@@ -66,7 +66,7 @@ pub struct TurnExplorer {
     l: LaneID,
     // 0 means all turns, otherwise one particular turn
     idx: usize,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl TurnExplorer {
@@ -74,7 +74,7 @@ impl TurnExplorer {
         Box::new(TurnExplorer {
             l,
             idx: 0,
-            composite: TurnExplorer::make_panel(ctx, app, l, 0),
+            panel: TurnExplorer::make_panel(ctx, app, l, 0),
         })
     }
 }
@@ -83,18 +83,18 @@ impl State for TurnExplorer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 "previous turn" => {
                     self.idx -= 1;
-                    self.composite = TurnExplorer::make_panel(ctx, app, self.l, self.idx);
+                    self.panel = TurnExplorer::make_panel(ctx, app, self.l, self.idx);
                 }
                 "next turn" => {
                     self.idx += 1;
-                    self.composite = TurnExplorer::make_panel(ctx, app, self.l, self.idx);
+                    self.panel = TurnExplorer::make_panel(ctx, app, self.l, self.idx);
                 }
                 _ => unreachable!(),
             },
@@ -151,12 +151,12 @@ impl State for TurnExplorer {
             batch.draw(g);
         }
 
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }
 
 impl TurnExplorer {
-    fn make_panel(ctx: &mut EventCtx, app: &App, l: LaneID, idx: usize) -> Composite {
+    fn make_panel(ctx: &mut EventCtx, app: &App, l: LaneID, idx: usize) -> Panel {
         let turns = app.primary.map.get_turns_from_lane(l);
 
         let mut col = vec![Widget::row(vec![
@@ -234,7 +234,7 @@ impl TurnExplorer {
             col.push(ColorLegend::row(ctx, CONFLICTING_TURN, "conflicting turn"));
         }
 
-        Composite::new(Widget::col(col))
+        Panel::new(Widget::col(col))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }

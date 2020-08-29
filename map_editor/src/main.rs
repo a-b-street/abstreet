@@ -2,19 +2,19 @@ mod model;
 mod world;
 
 use abstutil::{CmdArgs, Timer};
-use ezgui::{
-    hotkey, Btn, Canvas, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, ScreenPt, Text, VerticalAlignment, Widget, GUI,
-};
 use geom::{Distance, Line, Polygon};
 use map_model::osm;
 use map_model::raw::OriginalRoad;
 use model::{Model, ID};
+use widgetry::{
+    hotkey, Btn, Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, ScreenPt, Text, VerticalAlignment, Widget, GUI,
+};
 
 struct UI {
     model: Model,
     state: State,
-    composite: Composite,
+    panel: Panel,
     popup: Option<Drawable>,
     info_key_held: bool,
 
@@ -52,7 +52,7 @@ impl UI {
         UI {
             model,
             state: State::Viewing,
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Line("Map Editor").small_heading().draw(ctx),
                 Text::new().draw(ctx).named("current info"),
                 Widget::col(
@@ -164,7 +164,7 @@ impl GUI for UI {
                         }
                     }
                     None => {
-                        match self.composite.event(ctx) {
+                        match self.panel.event(ctx) {
                             Outcome::Clicked(x) => match x.as_ref() {
                                 "quit" => {
                                     self.before_quit(ctx.canvas);
@@ -308,7 +308,7 @@ impl GUI for UI {
             }
         };
 
-        self.composite.draw(g);
+        self.panel.draw(g);
         if let Some(ref popup) = self.popup {
             g.redraw_at(ScreenPt::new(0.0, 0.0), popup);
         }
@@ -366,7 +366,7 @@ fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
 }
 
 fn main() {
-    ezgui::run(ezgui::Settings::new("Synthetic map editor"), |ctx| {
+    widgetry::run(widgetry::Settings::new("Synthetic map editor"), |ctx| {
         UI::new(ctx)
     });
 }

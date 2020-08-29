@@ -7,18 +7,18 @@ use crate::info::{OpenTrip, Tab};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
-use ezgui::{
-    Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome,
-    RewriteColor, ScreenPt, Text, TextExt, Widget,
-};
 use geom::{Distance, Duration, Polygon, Pt2D, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use std::collections::{BTreeSet, HashMap};
+use widgetry::{
+    Btn, Checkbox, Color, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, RewriteColor,
+    ScreenPt, Text, TextExt, Widget,
+};
 
 const ROWS: usize = 8;
 
 pub struct TripTable {
-    composite: Composite,
+    panel: Panel,
     opts: Options,
 }
 
@@ -69,21 +69,21 @@ impl TripTable {
             skip: 0,
         };
         Box::new(TripTable {
-            composite: make(ctx, app, &opts),
+            panel: make(ctx, app, &opts),
             opts,
         })
     }
 
     fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut new = make(ctx, app, &self.opts);
-        new.restore(ctx, &self.composite);
-        self.composite = new;
+        new.restore(ctx, &self.panel);
+        self.panel = new;
     }
 }
 
 impl State for TripTable {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Departure" => {
                     self.opts.change(SortBy::Departure);
@@ -138,19 +138,19 @@ impl State for TripTable {
             Outcome::Changed => {
                 self.opts.modes = BTreeSet::new();
                 for m in TripMode::all() {
-                    if self.composite.is_checked(m.ongoing_verb()) {
+                    if self.panel.is_checked(m.ongoing_verb()) {
                         self.opts.modes.insert(m);
                     }
                 }
                 self.opts.skip = 0;
-                self.opts.off_map_starts = self.composite.is_checked("starting off-map");
-                self.opts.off_map_ends = self.composite.is_checked("ending off-map");
+                self.opts.off_map_starts = self.panel.is_checked("starting off-map");
+                self.opts.off_map_ends = self.panel.is_checked("ending off-map");
                 self.opts.unmodified_trips = self
-                    .composite
+                    .panel
                     .maybe_is_checked("trips unmodified by experiment")
                     .unwrap_or(true);
                 self.opts.modified_trips = self
-                    .composite
+                    .panel
                     .maybe_is_checked("trips modified by experiment")
                     .unwrap_or(true);
                 self.recalc(ctx, app);
@@ -167,8 +167,8 @@ impl State for TripTable {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
-        self.composite.draw(g);
-        preview_trip(g, app, &self.composite);
+        self.panel.draw(g);
+        preview_trip(g, app, &self.panel);
     }
 }
 
@@ -183,7 +183,7 @@ struct Entry {
     percent_waiting: usize,
 }
 
-fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
+fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
     // Only make one pass through prebaked data
     let trip_times_before = if app.has_prebaked().is_some() {
         let mut times = HashMap::new();
@@ -418,7 +418,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             .centered_horiz(),
     );
 
-    Composite::new(Widget::col(col))
+    Panel::new(Widget::col(col))
         .exact_size_percent(90, 90)
         .build(ctx)
 }
@@ -483,8 +483,8 @@ pub fn make_table(
     Widget::custom_col(col)
 }
 
-pub fn preview_trip(g: &mut GfxCtx, app: &App, composite: &Composite) {
-    let inner_rect = composite.rect_of("preview").clone();
+pub fn preview_trip(g: &mut GfxCtx, app: &App, panel: &Panel) {
+    let inner_rect = panel.rect_of("preview").clone();
     let map_bounds = app.primary.map.get_bounds().clone();
     let zoom = 0.15 * g.canvas.window_width / map_bounds.width().max(map_bounds.height());
     g.fork(
@@ -503,7 +503,7 @@ pub fn preview_trip(g: &mut GfxCtx, app: &App, composite: &Composite) {
             .draw_all_unzoomed_roads_and_intersections,
     );
 
-    if let Some(x) = composite.currently_hovering() {
+    if let Some(x) = panel.currently_hovering() {
         if let Ok(idx) = x.parse::<usize>() {
             let trip = TripID(idx);
             preview_route(g, app, trip).draw(g);

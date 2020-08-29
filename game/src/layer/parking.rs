@@ -2,14 +2,14 @@ use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{
-    hotkey, Btn, Checkbox, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::Time;
 use map_model::{BuildingID, Map, OffstreetParking, ParkingLotID, RoadID};
 use sim::{ParkingSpot, VehicleType};
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, Btn, Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct Occupancy {
     time: Time,
@@ -19,7 +19,7 @@ pub struct Occupancy {
     private_bldgs: bool,
     unzoomed: Drawable,
     zoomed: Drawable,
-    composite: Composite,
+    panel: Panel,
 }
 
 impl Layer for Occupancy {
@@ -30,7 +30,7 @@ impl Layer for Occupancy {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        minimap: &Composite,
+        minimap: &Panel,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = Occupancy::new(
@@ -43,8 +43,8 @@ impl Layer for Occupancy {
             );
         }
 
-        self.composite.align_above(ctx, minimap);
-        match self.composite.event(ctx) {
+        self.panel.align_above(ctx, minimap);
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Some(LayerOutcome::Close);
@@ -55,19 +55,19 @@ impl Layer for Occupancy {
                 *self = Occupancy::new(
                     ctx,
                     app,
-                    self.composite.is_checked("On-street spots"),
-                    self.composite.is_checked("Public garages"),
-                    self.composite.is_checked("Parking lots"),
-                    self.composite.is_checked("Private buildings"),
+                    self.panel.is_checked("On-street spots"),
+                    self.panel.is_checked("Public garages"),
+                    self.panel.is_checked("Parking lots"),
+                    self.panel.is_checked("Private buildings"),
                 );
-                self.composite.align_above(ctx, minimap);
+                self.panel.align_above(ctx, minimap);
             }
             _ => {}
         }
         None
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
@@ -162,7 +162,7 @@ impl Occupancy {
             }
         }
 
-        let composite = Composite::new(Widget::col(vec![
+        let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Parking occupancy".draw_text(ctx),
@@ -228,7 +228,7 @@ impl Occupancy {
             private_bldgs,
             unzoomed,
             zoomed,
-            composite,
+            panel,
         }
     }
 }

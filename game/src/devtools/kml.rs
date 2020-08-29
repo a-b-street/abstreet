@@ -3,17 +3,17 @@ use crate::colors::ColorScheme;
 use crate::game::{ChooseSomething, State, Transition};
 use aabb_quadtree::QuadTree;
 use abstutil::{prettyprint_usize, Parallelism};
-use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
-};
 use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::ExtraShapes;
 use map_model::BuildingID;
 use std::collections::{BTreeMap, HashMap, HashSet};
+use widgetry::{
+    hotkey, lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+};
 
 pub struct ViewKML {
-    composite: Composite,
+    panel: Panel,
     objects: Vec<Object>,
     draw: Drawable,
 
@@ -106,7 +106,7 @@ impl ViewKML {
 
             Box::new(ViewKML {
                 draw: ctx.upload(batch),
-                composite: Composite::new(Widget::col(vec![
+                panel: Panel::new(Widget::col(vec![
                     Widget::row(vec![
                         Line("KML viewer").small_heading().draw(ctx),
                         Btn::text_fg("X")
@@ -160,7 +160,7 @@ impl State for ViewKML {
             }
         }
 
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -186,14 +186,14 @@ impl State for ViewKML {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                let mut query: String = self.composite.dropdown_value("query");
-                let filter = self.composite.text_box("filter");
+                let mut query: String = self.panel.dropdown_value("query");
+                let filter = self.panel.text_box("filter");
                 if query == "None" && !filter.is_empty() {
                     query = filter;
                 }
                 let (batch, cnt) = make_query(app, &self.objects, &query);
                 self.draw_query = ctx.upload(batch);
-                self.composite.replace(
+                self.panel.replace(
                     ctx,
                     "matches",
                     format!("Query matches {} objects", cnt)
@@ -210,7 +210,7 @@ impl State for ViewKML {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.redraw(&self.draw);
         g.redraw(&self.draw_query);
-        self.composite.draw(g);
+        self.panel.draw(g);
 
         if let Some(idx) = self.selected {
             let obj = &self.objects[idx];

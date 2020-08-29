@@ -1,5 +1,5 @@
 use crate::{
-    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Phase, PhaseType, RoadID,
+    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, PhaseType, RoadID, Stage,
     TrafficControlType, TurnGroup, TurnGroupID, TurnPriority, TurnType, YELLOW_DURATION,
 };
 use abstutil::Timer;
@@ -33,14 +33,14 @@ pub fn get_possible_policies(
 
     // As long as we're using silly heuristics for these by default, prefer shorter cycle
     // length.
-    if let Some(ts) = four_way_two_phase(map, id) {
-        results.push(("two-phase".to_string(), ts));
+    if let Some(ts) = four_way_two_stage(map, id) {
+        results.push(("two-stage".to_string(), ts));
     }
     if let Some(ts) = three_way(map, id) {
-        results.push(("three-phase".to_string(), ts));
+        results.push(("three-stage".to_string(), ts));
     }
-    if let Some(ts) = four_way_four_phase(map, id) {
-        results.push(("four-phase".to_string(), ts));
+    if let Some(ts) = four_way_four_stage(map, id) {
+        results.push(("four-stage".to_string(), ts));
     }
     if let Some(ts) = half_signal(map, id) {
         results.push(("half signal (2 roads with crosswalk)".to_string(), ts));
@@ -49,10 +49,10 @@ pub fn get_possible_policies(
         results.push(("degenerate (2 roads)".to_string(), ts));
     }
     if let Some(ts) = four_oneways(map, id) {
-        results.push(("two-phase for 4 one-ways".to_string(), ts));
+        results.push(("two-stage for 4 one-ways".to_string(), ts));
     }
-    if let Some(ts) = phase_per_road(map, id) {
-        results.push(("phase per road".to_string(), ts));
+    if let Some(ts) = stage_per_road(map, id) {
+        results.push(("stage per road".to_string(), ts));
     }
     results.push((
         "arbitrary assignment".to_string(),
@@ -68,7 +68,7 @@ pub fn get_possible_policies(
 fn new(id: IntersectionID, map: &Map) -> ControlTrafficSignal {
     ControlTrafficSignal {
         id,
-        phases: Vec::new(),
+        stages: Vec::new(),
         control_type: TrafficControlType::Actuated,
         offset: Duration::ZERO,
         yellow_duration: YELLOW_DURATION,
@@ -79,23 +79,23 @@ fn new(id: IntersectionID, map: &Map) -> ControlTrafficSignal {
 fn greedy_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     let mut ts = new(i, map);
 
-    // Greedily partition groups into phases that only have protected groups.
+    // Greedily partition groups into stages that only have protected groups.
     let mut remaining_groups: Vec<TurnGroupID> = ts.turn_groups.keys().cloned().collect();
-    let mut current_phase = Phase::new();
+    let mut current_stage = Stage::new();
     loop {
         let add = remaining_groups
             .iter()
-            .position(|&g| current_phase.could_be_protected(g, &ts.turn_groups));
+            .position(|&g| current_stage.could_be_protected(g, &ts.turn_groups));
         match add {
             Some(idx) => {
-                current_phase
+                current_stage
                     .protected_groups
                     .insert(remaining_groups.remove(idx));
             }
             None => {
-                assert!(!current_phase.protected_groups.is_empty());
-                ts.phases.push(current_phase);
-                current_phase = Phase::new();
+                assert!(!current_stage.protected_groups.is_empty());
+                ts.stages.push(current_stage);
+                current_stage = Stage::new();
                 if remaining_groups.is_empty() {
                     break;
                 }
@@ -103,7 +103,7 @@ fn greedy_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         }
     }
 
-    expand_all_phases(&mut ts);
+    expand_all_stages(&mut ts);
 
     // This must succeed
     ts.validate().unwrap()
@@ -119,7 +119,7 @@ fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     let r2 = *roads.next().unwrap();
 
     let mut ts = new(i, map);
-    make_phases(
+    make_stages(
         &mut ts,
         vec![vec![(vec![r1, r2], TurnType::Straight, PROTECTED)]],
     );
@@ -132,19 +132,19 @@ fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     }
 
     let mut ts = new(i, map);
-    let mut vehicle_phase = Phase::new();
-    let mut ped_phase = Phase::new();
+    let mut vehicle_stage = Stage::new();
+    let mut ped_stage = Stage::new();
     for (id, group) in &ts.turn_groups {
         if id.crosswalk {
-            ped_phase.edit_group(group, TurnPriority::Protected);
+            ped_stage.edit_group(group, TurnPriority::Protected);
         } else {
-            vehicle_phase.edit_group(group, TurnPriority::Protected);
+            vehicle_stage.edit_group(group, TurnPriority::Protected);
         }
     }
-    vehicle_phase.phase_type = PhaseType::Fixed(Duration::minutes(1));
-    ped_phase.phase_type = PhaseType::Fixed(Duration::seconds(10.0));
+    vehicle_stage.phase_type = PhaseType::Fixed(Duration::minutes(1));
+    ped_stage.phase_type = PhaseType::Fixed(Duration::seconds(10.0));
 
-    ts.phases = vec![vehicle_phase, ped_phase];
+    ts.stages = vec![vehicle_stage, ped_stage];
     ts.validate().ok()
 }
 
@@ -165,8 +165,8 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     roads.remove(&south);
     let east = roads.into_iter().next().unwrap();
 
-    // Two-phase with no protected lefts, right turn on red, turning cars yield to peds
-    make_phases(
+    // Two-stage with no protected lefts, right turn on red, turning cars yield to peds
+    make_stages(
         &mut ts,
         vec![
             vec![
@@ -187,7 +187,7 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     ts.validate().ok()
 }
 
-fn four_way_four_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     if map.get_i(i).roads.len() != 4 {
         return None;
     }
@@ -198,10 +198,10 @@ fn four_way_four_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSig
         .get_roads_sorted_by_incoming_angle(map.all_roads());
     let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
 
-    // Four-phase with protected lefts, right turn on red (except for the protected lefts),
+    // Four-stage with protected lefts, right turn on red (except for the protected lefts),
     // turning cars yield to peds
     let mut ts = new(i, map);
-    make_phases(
+    make_stages(
         &mut ts,
         vec![
             vec![
@@ -221,7 +221,7 @@ fn four_way_four_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSig
     ts.validate().ok()
 }
 
-fn four_way_two_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+fn four_way_two_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     if map.get_i(i).roads.len() != 4 {
         return None;
     }
@@ -232,9 +232,9 @@ fn four_way_two_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSign
         .get_roads_sorted_by_incoming_angle(map.all_roads());
     let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
 
-    // Two-phase with no protected lefts, right turn on red, turning cars yielding to peds
+    // Two-stage with no protected lefts, right turn on red, turning cars yielding to peds
     let mut ts = new(i, map);
-    make_phases(
+    make_stages(
         &mut ts,
         vec![
             vec![
@@ -273,7 +273,7 @@ fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
 
     // TODO This may not generalize...
     let mut ts = new(i, map);
-    make_phases(
+    make_stages(
         &mut ts,
         vec![
             vec![
@@ -301,8 +301,8 @@ fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
 fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     let mut ts = new(i, map);
 
-    let mut all_walk = Phase::new();
-    let mut all_yield = Phase::new();
+    let mut all_walk = Stage::new();
+    let mut all_yield = Stage::new();
 
     for group in ts.turn_groups.values() {
         match group.turn_type {
@@ -315,12 +315,12 @@ fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         }
     }
 
-    ts.phases = vec![all_walk, all_yield];
+    ts.stages = vec![all_walk, all_yield];
     // This must succeed
     ts.validate().unwrap()
 }
 
-fn phase_per_road(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+fn stage_per_road(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     let mut ts = new(i, map);
 
     let sorted_roads = map
@@ -331,30 +331,30 @@ fn phase_per_road(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> 
         let adj1 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) - 1);
         let adj2 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) + 1);
 
-        let mut phase = Phase::new();
+        let mut stage = Stage::new();
         for group in ts.turn_groups.values() {
             if group.turn_type == TurnType::Crosswalk {
                 if group.id.from.id == adj1 || group.id.from.id == adj2 {
-                    phase.protected_groups.insert(group.id);
+                    stage.protected_groups.insert(group.id);
                 }
             } else if group.id.from.id == r {
-                phase.yield_groups.insert(group.id);
+                stage.yield_groups.insert(group.id);
             }
         }
         // Might have a one-way outgoing road. Skip it.
-        if !phase.yield_groups.is_empty() {
-            ts.phases.push(phase);
+        if !stage.yield_groups.is_empty() {
+            ts.stages.push(stage);
         }
     }
     ts.validate().ok()
 }
 
-// Add all possible protected groups to existing phases.
-fn expand_all_phases(ts: &mut ControlTrafficSignal) {
-    for phase in ts.phases.iter_mut() {
+// Add all possible protected groups to existing stages.
+fn expand_all_stages(ts: &mut ControlTrafficSignal) {
+    for stage in ts.stages.iter_mut() {
         for g in ts.turn_groups.keys() {
-            if phase.could_be_protected(*g, &ts.turn_groups) {
-                phase.protected_groups.insert(*g);
+            if stage.could_be_protected(*g, &ts.turn_groups) {
+                stage.protected_groups.insert(*g);
             }
         }
     }
@@ -363,12 +363,12 @@ fn expand_all_phases(ts: &mut ControlTrafficSignal) {
 const PROTECTED: bool = true;
 const YIELD: bool = false;
 
-fn make_phases(
+fn make_stages(
     ts: &mut ControlTrafficSignal,
-    phase_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
+    stage_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
 ) {
-    for specs in phase_specs {
-        let mut phase = Phase::new();
+    for specs in stage_specs {
+        let mut stage = Stage::new();
 
         for (roads, turn_type, protected) in specs.into_iter() {
             for group in ts.turn_groups.values() {
@@ -376,7 +376,7 @@ fn make_phases(
                     continue;
                 }
 
-                phase.edit_group(
+                stage.edit_group(
                     group,
                     if protected {
                         TurnPriority::Protected
@@ -390,40 +390,40 @@ fn make_phases(
         // Add in all compatible crosswalks. Specifying this in specs explicitly doesn't work when
         // crosswalks stretch across a road strangely, which happens when one side of a road is
         // missing a sidewalk.
-        // TODO If a phase has no protected turns at all, this adds the crosswalk to multiple
-        // phases in a pretty weird way. It'd be better to add to just one phase -- the one with
+        // TODO If a stage has no protected turns at all, this adds the crosswalk to multiple
+        // stages in a pretty weird way. It'd be better to add to just one stage -- the one with
         // the least conflicting yields.
         for group in ts.turn_groups.values() {
             if group.turn_type == TurnType::Crosswalk
-                && phase.could_be_protected(group.id, &ts.turn_groups)
+                && stage.could_be_protected(group.id, &ts.turn_groups)
             {
-                phase.edit_group(group, TurnPriority::Protected);
+                stage.edit_group(group, TurnPriority::Protected);
             }
         }
 
-        // Filter out empty phases if they happen.
-        if phase.protected_groups.is_empty() && phase.yield_groups.is_empty() {
+        // Filter out empty stages if they happen.
+        if stage.protected_groups.is_empty() && stage.yield_groups.is_empty() {
             continue;
         }
 
-        ts.phases.push(phase);
+        ts.stages.push(stage);
     }
 
-    if ts.phases.len() > 1 {
-        // At intersections of one-ways like Terry and Denny, we could get away with a single phase.
-        // Really weak form of this now, just collapsing the one smallest phase.
+    if ts.stages.len() > 1 {
+        // At intersections of one-ways like Terry and Denny, we could get away with a single stage.
+        // Really weak form of this now, just collapsing the one smallest stage.
         let smallest = ts
-            .phases
+            .stages
             .iter()
             .min_by_key(|p| p.protected_groups.len() + p.yield_groups.len())
             .cloned()
             .unwrap();
-        if ts.phases.iter().any(|p| {
+        if ts.stages.iter().any(|p| {
             p != &smallest
                 && smallest.protected_groups.is_subset(&p.protected_groups)
                 && smallest.yield_groups.is_subset(&p.yield_groups)
         }) {
-            ts.phases.retain(|p| p != &smallest);
+            ts.stages.retain(|p| p != &smallest);
         }
     }
 }
@@ -435,13 +435,13 @@ pub fn brute_force(map: &Map, i: IntersectionID) {
         .filter_map(|(id, tg)| if id.crosswalk { None } else { Some(tg) })
         .collect();
     let indices: Vec<usize> = (0..turn_groups.len()).collect();
-    for num_phases in 1..=turn_groups.len() {
+    for num_stages in 1..=turn_groups.len() {
         println!(
-            "For {} turn groups, looking for solution with {} phases",
+            "For {} turn groups, looking for solution with {} stages",
             turn_groups.len(),
-            num_phases
+            num_stages
         );
-        for partition in helper(&indices, num_phases) {
+        for partition in helper(&indices, num_stages) {
             if okay_partition(turn_groups.iter().collect(), partition) {
                 return;
             }
@@ -451,9 +451,9 @@ pub fn brute_force(map: &Map, i: IntersectionID) {
 }
 
 fn okay_partition(turn_groups: Vec<&TurnGroup>, partition: Partition) -> bool {
-    for phase in partition.0 {
+    for stage in partition.0 {
         let mut protected: Vec<&TurnGroup> = Vec::new();
-        for idx in phase {
+        for idx in stage {
             let tg = turn_groups[idx];
             if protected.iter().any(|other| tg.conflicts_with(other)) {
                 return false;
@@ -511,8 +511,8 @@ pub fn synchronize(map: &mut Map) {
         if let Some(list) = IntersectionCluster::autodetect(i.id, map) {
             let list = list.into_iter().collect::<Vec<_>>();
             if list.len() == 2
-                && map.get_traffic_signal(list[0]).phases.len() == 2
-                && map.get_traffic_signal(list[1]).phases.len() == 2
+                && map.get_traffic_signal(list[0]).stages.len() == 2
+                && map.get_traffic_signal(list[1]).stages.len() == 2
             {
                 pairs.push((list[0], list[1]));
                 seen.insert(list[0]);
@@ -524,26 +524,26 @@ pub fn synchronize(map: &mut Map) {
     for (i1, i2) in pairs {
         let ts1 = map.get_traffic_signal(i1);
         let ts2 = map.get_traffic_signal(i2);
-        let flip1 = ts1.phases[0].protected_groups.iter().any(|tg1| {
+        let flip1 = ts1.stages[0].protected_groups.iter().any(|tg1| {
             !tg1.crosswalk
-                && ts2.phases[1]
+                && ts2.stages[1]
                     .protected_groups
                     .iter()
                     .any(|tg2| !tg2.crosswalk && (tg1.to == tg2.from || tg1.from == tg2.to))
         });
-        let flip2 = ts1.phases[1].protected_groups.iter().any(|tg1| {
+        let flip2 = ts1.stages[1].protected_groups.iter().any(|tg1| {
             !tg1.crosswalk
-                && ts2.phases[0]
+                && ts2.stages[0]
                     .protected_groups
                     .iter()
                     .any(|tg2| !tg2.crosswalk && (tg1.to == tg2.from || tg1.from == tg2.to))
         });
         if flip1 || flip2 {
             println!(
-                "Flipping phase order of {} and {} to synchronize them",
+                "Flipping stage order of {} and {} to synchronize them",
                 i1, i2
             );
-            map.traffic_signals.get_mut(&i1).unwrap().phases.swap(0, 1);
+            map.traffic_signals.get_mut(&i1).unwrap().stages.swap(0, 1);
         }
     }
 }

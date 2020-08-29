@@ -13,7 +13,7 @@ use std::convert::TryFrom;
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ControlTrafficSignal {
     pub id: IntersectionID,
-    pub phases: Vec<Phase>,
+    pub stages: Vec<Stage>,
     pub offset: Duration,
     pub yellow_duration: Duration,
     pub control_type: TrafficControlType,
@@ -26,9 +26,11 @@ pub struct ControlTrafficSignal {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct Phase {
+pub struct Stage {
     pub protected_groups: BTreeSet<TurnGroupID>,
     pub yield_groups: BTreeSet<TurnGroupID>,
+    // TODO Not renaming this, because this is going to change radically in
+    // https://github.com/dabreegster/abstreet/pull/298 anyway
     pub phase_type: PhaseType,
     pub minimum_green: Duration,
     pub maximum_green: Duration,
@@ -53,8 +55,8 @@ pub enum SignalTimerType {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum PhaseType {
     Fixed(Duration),
-    // Same as fixed, but when this phase would normally end, if there's still incoming demand,
-    // repeat the phase entirely.
+    // Same as fixed, but when this stage would normally end, if there's still incoming demand,
+    // repeat the stage entirely.
     // TODO This is a silly policy, but a start towards variable timers.
     Adaptive(Duration),
 }
@@ -93,9 +95,9 @@ impl ControlTrafficSignal {
         // Does the assignment cover the correct set of groups?
         let expected_groups: BTreeSet<TurnGroupID> = self.turn_groups.keys().cloned().collect();
         let mut actual_groups: BTreeSet<TurnGroupID> = BTreeSet::new();
-        for phase in &self.phases {
-            actual_groups.extend(phase.protected_groups.iter());
-            actual_groups.extend(phase.yield_groups.iter());
+        for stage in &self.stages {
+            actual_groups.extend(stage.protected_groups.iter());
+            actual_groups.extend(stage.yield_groups.iter());
         }
         if expected_groups != actual_groups {
             return Err(format!(
@@ -112,14 +114,14 @@ impl ControlTrafficSignal {
             ));
         }
 
-        for phase in &self.phases {
-            // Do any of the priority groups in one phase conflict?
-            for g1 in phase.protected_groups.iter().map(|g| &self.turn_groups[g]) {
-                for g2 in phase.protected_groups.iter().map(|g| &self.turn_groups[g]) {
+        for stage in &self.stages {
+            // Do any of the priority groups in one stage conflict?
+            for g1 in stage.protected_groups.iter().map(|g| &self.turn_groups[g]) {
+                for g2 in stage.protected_groups.iter().map(|g| &self.turn_groups[g]) {
                     if g1.conflicts_with(g2) {
                         return Err(format!(
                             "Traffic signal has conflicting protected groups in one \
-                             phase:\n{:?}\n\n{:?}",
+                             stage:\n{:?}\n\n{:?}",
                             g1, g2
                         ));
                     }
@@ -127,7 +129,7 @@ impl ControlTrafficSignal {
             }
 
             // Do any of the crosswalks yield?
-            for g in phase.yield_groups.iter().map(|g| &self.turn_groups[g]) {
+            for g in stage.yield_groups.iter().map(|g| &self.turn_groups[g]) {
                 assert!(g.turn_type != TurnType::Crosswalk);
             }
         }
@@ -139,43 +141,43 @@ impl ControlTrafficSignal {
     pub fn convert_to_ped_scramble(&mut self) -> bool {
         let orig = self.clone();
 
-        let mut all_walk_phase = Phase::new();
+        let mut all_walk_stage = Stage::new();
         for g in self.turn_groups.values() {
             if g.turn_type == TurnType::Crosswalk {
-                all_walk_phase.edit_group(g, TurnPriority::Protected);
+                all_walk_stage.edit_group(g, TurnPriority::Protected);
             }
         }
 
-        // Remove Crosswalk groups from existing phases.
-        let mut replaced = std::mem::replace(&mut self.phases, Vec::new());
+        // Remove Crosswalk groups from existing stages.
+        let mut replaced = std::mem::replace(&mut self.stages, Vec::new());
         let mut has_all_walk = false;
-        for phase in replaced.iter_mut() {
-            if !has_all_walk && phase == &all_walk_phase {
+        for stage in replaced.iter_mut() {
+            if !has_all_walk && stage == &all_walk_stage {
                 has_all_walk = true;
                 continue;
             }
 
             // Crosswalks are only in protected_groups.
-            retain_btreeset(&mut phase.protected_groups, |g| {
+            retain_btreeset(&mut stage.protected_groups, |g| {
                 self.turn_groups[g].turn_type != TurnType::Crosswalk
             });
 
             // Blindly try to promote yield groups to protected, now that crosswalks are gone.
             let mut promoted = Vec::new();
-            for g in &phase.yield_groups {
-                if phase.could_be_protected(*g, &self.turn_groups) {
-                    phase.protected_groups.insert(*g);
+            for g in &stage.yield_groups {
+                if stage.could_be_protected(*g, &self.turn_groups) {
+                    stage.protected_groups.insert(*g);
                     promoted.push(*g);
                 }
             }
             for g in promoted {
-                phase.yield_groups.remove(&g);
+                stage.yield_groups.remove(&g);
             }
         }
-        self.phases = replaced;
+        self.stages = replaced;
 
         if !has_all_walk {
-            self.phases.push(all_walk_phase);
+            self.stages.push(all_walk_stage);
         }
         self != &orig
     }
@@ -194,11 +196,11 @@ impl ControlTrafficSignal {
 
     pub fn missing_turns(&self) -> BTreeSet<TurnGroupID> {
         let mut missing: BTreeSet<TurnGroupID> = self.turn_groups.keys().cloned().collect();
-        for phase in &self.phases {
-            for g in &phase.protected_groups {
+        for stage in &self.stages {
+            for g in &stage.protected_groups {
                 missing.remove(g);
             }
-            for g in &phase.yield_groups {
+            for g in &stage.yield_groups {
                 missing.remove(g);
             }
         }
@@ -218,9 +220,9 @@ impl ControlTrafficSignal {
     }
 }
 
-impl Phase {
-    pub fn new() -> Phase {
-        Phase {
+impl Stage {
+    pub fn new() -> Stage {
+        Stage {
             protected_groups: BTreeSet::new(),
             yield_groups: BTreeSet::new(),
             phase_type: PhaseType::Fixed(Duration::seconds(30.0)),
@@ -289,20 +291,20 @@ impl ControlTrafficSignal {
         seattle_traffic_signals::TrafficSignal {
             intersection_osm_node_id: map.get_i(self.id).orig_id.0,
             phases: self
-                .phases
+                .stages
                 .iter()
-                .map(|p| seattle_traffic_signals::Phase {
-                    protected_turns: p
+                .map(|s| seattle_traffic_signals::Phase {
+                    protected_turns: s
                         .protected_groups
                         .iter()
                         .map(|t| export_turn_group(t, map))
                         .collect(),
-                    permitted_turns: p
+                    permitted_turns: s
                         .yield_groups
                         .iter()
                         .map(|t| export_turn_group(t, map))
                         .collect(),
-                    phase_type: match p.phase_type {
+                    phase_type: match s.phase_type {
                         PhaseType::Fixed(d) => {
                             seattle_traffic_signals::PhaseType::Fixed(d.inner_seconds() as usize)
                         }
@@ -321,25 +323,25 @@ impl ControlTrafficSignal {
         id: IntersectionID,
         map: &Map,
     ) -> Result<ControlTrafficSignal, String> {
-        let mut phases = Vec::new();
-        for p in raw.phases {
-            let num_protected = p.protected_turns.len();
-            let num_permitted = p.permitted_turns.len();
-            let protected_groups = p
+        let mut stages = Vec::new();
+        for s in raw.phases {
+            let num_protected = s.protected_turns.len();
+            let num_permitted = s.permitted_turns.len();
+            let protected_groups = s
                 .protected_turns
                 .into_iter()
                 .filter_map(|t| import_turn_group(t, map))
                 .collect::<BTreeSet<_>>();
-            let yield_groups = p
+            let yield_groups = s
                 .permitted_turns
                 .into_iter()
                 .filter_map(|t| import_turn_group(t, map))
                 .collect::<BTreeSet<_>>();
             if protected_groups.len() == num_protected && yield_groups.len() == num_permitted {
-                phases.push(Phase {
+                stages.push(Stage {
                     protected_groups,
                     yield_groups,
-                    phase_type: match p.phase_type {
+                    phase_type: match s.phase_type {
                         seattle_traffic_signals::PhaseType::Fixed(d) => {
                             PhaseType::Fixed(Duration::seconds(d as f64))
                         }
@@ -364,7 +366,7 @@ impl ControlTrafficSignal {
         }
         ControlTrafficSignal {
             id,
-            phases,
+            stages,
             control_type: TrafficControlType::Actuated,
             offset: Duration::seconds(raw.offset_seconds as f64),
             yellow_duration: YELLOW_DURATION,

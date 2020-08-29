@@ -1,16 +1,16 @@
 use crate::app::{App, ShowEverything};
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::{DrawOptions, DrawUberTurnGroup, BIG_ARROW_THICKNESS};
-use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome,
-    VerticalAlignment, Widget,
-};
 use geom::ArrowCap;
 use map_model::{IntersectionCluster, IntersectionID};
 use std::collections::BTreeSet;
+use widgetry::{
+    hotkey, Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel,
+    VerticalAlignment, Widget,
+};
 
 pub struct ClusterTrafficSignalEditor {
-    composite: Composite,
+    panel: Panel,
 
     members: BTreeSet<IntersectionID>,
     groups: Vec<DrawUberTurnGroup>,
@@ -21,7 +21,7 @@ impl ClusterTrafficSignalEditor {
     pub fn new(ctx: &mut EventCtx, app: &mut App, ic: &IntersectionCluster) -> Box<dyn State> {
         app.primary.current_selection = None;
         Box::new(ClusterTrafficSignalEditor {
-            composite: Composite::new(Widget::row(vec![
+            panel: Panel::new(Widget::row(vec![
                 Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape))
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -35,7 +35,7 @@ impl ClusterTrafficSignalEditor {
 
 impl State for ClusterTrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Finish" => {
                     return Transition::Pop;
@@ -91,6 +91,6 @@ impl State for ClusterTrafficSignalEditor {
         }
         batch.draw(g);
 
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }

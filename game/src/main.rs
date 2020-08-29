@@ -65,7 +65,7 @@ fn main() {
             );
         }
     }
-    let mut settings = ezgui::Settings::new("A/B Street");
+    let mut settings = widgetry::Settings::new("A/B Street");
     settings.window_icon(abstutil::path("system/assets/pregame/icon.png"));
     if args.enabled("--enable_profiler") {
         settings.enable_profiling();
@@ -116,7 +116,7 @@ fn main() {
 
     args.done();
 
-    ezgui::run(settings, |ctx| {
+    widgetry::run(settings, |ctx| {
         game::Game::new(flags, opts, start_with_edits, mode, ctx)
     });
 }

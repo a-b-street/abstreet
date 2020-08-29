@@ -3,16 +3,16 @@ use crate::common::{navigate, Warping};
 use crate::game::Transition;
 use crate::layer::PickLayer;
 use abstutil::clamp;
-use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Outcome, ScreenPt, Spinner, VerticalAlignment, Widget,
-};
 use geom::{Distance, Polygon, Pt2D, Ring};
+use widgetry::{
+    hotkey, Btn, Checkbox, Color, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Outcome, Panel, ScreenPt, Spinner, VerticalAlignment, Widget,
+};
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
 pub struct Minimap {
     dragging: bool,
-    pub(crate) composite: Composite,
+    pub(crate) panel: Panel,
     // Update panel when other things change
     zoomed: bool,
     layer: bool,
@@ -33,7 +33,7 @@ impl Minimap {
         let base_zoom = 0.15 * ctx.canvas.window_width / bounds.width().min(bounds.height());
         let mut m = Minimap {
             dragging: false,
-            composite: make_minimap_panel(ctx, app, 0),
+            panel: make_minimap_panel(ctx, app, 0),
             zoomed: ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail,
             layer: app.layer.is_none(),
 
@@ -50,7 +50,7 @@ impl Minimap {
     }
 
     fn map_to_minimap_pct(&self, pt: Pt2D) -> (f64, f64) {
-        let inner_rect = self.composite.rect_of("minimap");
+        let inner_rect = self.panel.rect_of("minimap");
         let pct_x = (pt.x() * self.zoom - self.offset_x) / inner_rect.width();
         let pct_y = (pt.y() * self.zoom - self.offset_y) / inner_rect.height();
         (pct_x, pct_y)
@@ -63,11 +63,11 @@ impl Minimap {
         let zoom_speed: f64 = 2.0;
         self.zoom_lvl = zoom_lvl;
         self.zoom = self.base_zoom * zoom_speed.powi(self.zoom_lvl as i32);
-        self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
+        self.panel = make_minimap_panel(ctx, app, self.zoom_lvl);
 
         // Find the new offset
         let map_center = ctx.canvas.center_to_map_pt();
-        let inner_rect = self.composite.rect_of("minimap");
+        let inner_rect = self.panel.rect_of("minimap");
         self.offset_x = map_center.x() * self.zoom - pct_x * inner_rect.width();
         self.offset_y = map_center.y() * self.zoom - pct_y * inner_rect.height();
     }
@@ -75,7 +75,7 @@ impl Minimap {
     fn recenter(&mut self, ctx: &EventCtx, app: &App) {
         // Recenter the minimap on the screen bounds
         let map_center = ctx.canvas.center_to_map_pt();
-        let rect = self.composite.rect_of("minimap");
+        let rect = self.panel.rect_of("minimap");
         let off_x = map_center.x() * self.zoom - rect.width() / 2.0;
         let off_y = map_center.y() * self.zoom - rect.height() / 2.0;
 
@@ -95,7 +95,7 @@ impl Minimap {
 
             self.zoomed = zoomed;
             self.layer = layer;
-            self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
+            self.panel = make_minimap_panel(ctx, app, self.zoom_lvl);
 
             if just_zoomed_in {
                 self.recenter(ctx, app);
@@ -131,7 +131,7 @@ impl Minimap {
         }
 
         let pan_speed = 100.0;
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x {
                 x if x == "pan up" => {
                     self.offset_y -= pan_speed * self.zoom;
@@ -200,22 +200,22 @@ impl Minimap {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                app.unzoomed_agents.cars = self.composite.is_checked("Car");
-                app.unzoomed_agents.bikes = self.composite.is_checked("Bike");
-                app.unzoomed_agents.buses_and_trains = self.composite.is_checked("Bus");
-                app.unzoomed_agents.peds = self.composite.is_checked("Pedestrian");
-                if self.composite.has_widget("zorder") {
-                    app.primary.show_zorder = self.composite.spinner("zorder");
+                app.unzoomed_agents.cars = self.panel.is_checked("Car");
+                app.unzoomed_agents.bikes = self.panel.is_checked("Bike");
+                app.unzoomed_agents.buses_and_trains = self.panel.is_checked("Bus");
+                app.unzoomed_agents.peds = self.panel.is_checked("Pedestrian");
+                if self.panel.has_widget("zorder") {
+                    app.primary.show_zorder = self.panel.spinner("zorder");
                 }
-                self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
+                self.panel = make_minimap_panel(ctx, app, self.zoom_lvl);
             }
             _ => {}
         }
 
         if self.zoomed {
-            let inner_rect = self.composite.rect_of("minimap");
+            let inner_rect = self.panel.rect_of("minimap");
 
-            // TODO Not happy about reaching in like this. The minimap logic should be an ezgui
+            // TODO Not happy about reaching in like this. The minimap logic should be an widgetry
             // Widget eventually, a generalization of Canvas.
             let mut pt = ctx.canvas.get_cursor();
             if self.dragging {
@@ -245,12 +245,12 @@ impl Minimap {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.composite.draw(g);
+        self.panel.draw(g);
         if !self.zoomed {
             return;
         }
 
-        let inner_rect = self.composite.rect_of("minimap").clone();
+        let inner_rect = self.panel.rect_of("minimap").clone();
 
         let mut map_bounds = app.primary.map.get_bounds().clone();
         // Adjust bounds to account for the current pan and zoom
@@ -322,9 +322,9 @@ impl Minimap {
     }
 }
 
-fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composite {
+fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Panel {
     if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-        return Composite::new(Widget::row(vec![
+        return Panel::new(Widget::row(vec![
             make_tool_panel(ctx, app).align_right(),
             make_vert_viz_panel(ctx, app)
                 .bg(app.cs.panel_bg)
@@ -393,7 +393,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
             .centered_horiz(),
     ]);
 
-    Composite::new(Widget::row(vec![
+    Panel::new(Widget::row(vec![
         make_tool_panel(ctx, app),
         Widget::col(vec![
             Widget::row(vec![minimap_controls, zoom_col]),

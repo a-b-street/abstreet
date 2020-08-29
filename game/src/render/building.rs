@@ -2,10 +2,10 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
 use std::cell::RefCell;
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
 pub struct DrawBuilding {
     pub id: BuildingID,

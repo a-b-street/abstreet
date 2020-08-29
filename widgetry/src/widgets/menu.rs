@@ -114,8 +114,6 @@ impl<T: 'static> WidgetImpl for Menu<T> {
                 };
                 if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                     if rect.contains(pt) && choice.active {
-                        // TODO Two ways of communicating results, based on use in wizards or a
-                        // larger composite.
                         output.outcome = Outcome::Clicked(choice.label.clone());
                         return;
                     }

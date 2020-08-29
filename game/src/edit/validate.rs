@@ -2,9 +2,9 @@ use crate::app::App;
 use crate::common::ColorDiscrete;
 use crate::game::{PopupMsg, State};
 use abstutil::Timer;
-use ezgui::{Color, EventCtx};
 use map_model::{connectivity, EditCmd, LaneID, LaneType, Map, PathConstraints};
 use std::collections::BTreeSet;
+use widgetry::{Color, EventCtx};
 
 // All of these take a candidate EditCmd to do, then see if it's valid. If they return None, it's
 // fine. They always leave the map in the original state without the new EditCmd.
@@ -122,10 +122,11 @@ pub fn try_change_lt(
     let orig_edits = map.get_edits().clone();
 
     let mut edits = orig_edits.clone();
-    let cmd = EditCmd::ChangeLaneType {
-        id: l,
-        lt: new_lt,
-        orig_lt: map.get_l(l).lane_type,
+    let cmd = {
+        let r = map.get_l(l).parent;
+        map.edit_road_cmd(r, |new| {
+            new.lanes_ltr[map.get_r(r).offset(l)].0 = new_lt;
+        })
     };
     edits.commands.push(cmd.clone());
     map.try_apply_edits(edits, &mut Timer::throwaway());
@@ -164,8 +165,7 @@ pub fn try_change_lt(
 }
 
 pub fn try_reverse(ctx: &mut EventCtx, map: &Map, l: LaneID) -> Result<EditCmd, Box<dyn State>> {
-    let lane = map.get_l(l);
-    let r = map.get_r(lane.parent);
+    let r = map.get_parent(l);
     let lanes = r.lanes_ltr();
     let idx = r.offset(l);
     let dir = lanes[idx].1;
@@ -173,10 +173,9 @@ pub fn try_reverse(ctx: &mut EventCtx, map: &Map, l: LaneID) -> Result<EditCmd, 
     // there aren't weird side effects elsewhere of doing this.
     if (idx != 0 && lanes[idx - 1].1 != dir) || (idx != lanes.len() - 1 && lanes[idx + 1].1 != dir)
     {
-        Ok(EditCmd::ReverseLane {
-            l,
-            dst_i: lane.src_i,
-        })
+        Ok(map.edit_road_cmd(r.id, |new| {
+            new.lanes_ltr[idx].1 = dir.opposite();
+        }))
     } else {
         Err(PopupMsg::new(
             ctx,

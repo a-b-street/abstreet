@@ -10,20 +10,20 @@ use crate::common::CityPicker;
 use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
 use crate::helpers::nice_map_name;
 use abstutil::Timer;
-use ezgui::{
-    hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    TextExt, VerticalAlignment, Widget,
-};
 use geom::{LonLat, Percent};
+use widgetry::{
+    hotkey, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, TextExt,
+    VerticalAlignment, Widget,
+};
 
 pub struct DevToolsMode {
-    composite: Composite,
+    panel: Panel,
 }
 
 impl DevToolsMode {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(DevToolsMode {
-            composite: Composite::new(Widget::col(vec![
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Internal dev tools").small_heading().draw(ctx),
                     Btn::text_fg("X")
@@ -55,7 +55,7 @@ impl DevToolsMode {
 
 impl State for DevToolsMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
+        match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
@@ -141,6 +141,6 @@ impl State for DevToolsMode {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
-        self.composite.draw(g);
+        self.panel.draw(g);
     }
 }

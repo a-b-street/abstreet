@@ -15,13 +15,13 @@ const RESERVE_WHEN_STARTING_TRIP: bool = true;
 type ZoneIdx = usize;
 
 // This only caps driving trips.
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct CapSimState {
     lane_to_zone: BTreeMap<LaneID, ZoneIdx>,
     zones: Vec<Zone>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 struct Zone {
     cap: usize,
     entered_in_last_hour: BTreeSet<CarID>,
