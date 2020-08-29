@@ -4,7 +4,7 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::DrawOptions;
 use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
 use geom::{ArrowCap, Distance, Duration, Time};
-use map_model::{IntersectionID, PathStep, TurnGroupID, TurnType};
+use map_model::{IntersectionID, MovementID, PathStep, TurnType};
 use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::HashMap;
 use widgetry::{
@@ -93,7 +93,7 @@ impl State for TrafficSignalDemand {
 
 struct Demand {
     // Unsorted
-    raw: Vec<(Time, TurnGroupID)>,
+    raw: Vec<(Time, MovementID)>,
 }
 
 impl Demand {
@@ -136,7 +136,7 @@ impl Demand {
                         if let Some(demand) = all_demand.get_mut(&t.parent) {
                             demand
                                 .raw
-                                .push((now, map.get_traffic_signal(t.parent).turn_to_group(*t)));
+                                .push((now, map.get_traffic_signal(t.parent).turn_to_movement(*t)));
                         }
                     }
                 }
@@ -146,12 +146,12 @@ impl Demand {
         all_demand
     }
 
-    fn count(&self, start: Time) -> Counter<TurnGroupID> {
+    fn count(&self, start: Time) -> Counter<MovementID> {
         let end = start + Duration::hours(1);
         let mut cnt = Counter::new();
-        for (t, tg) in &self.raw {
+        for (t, m) in &self.raw {
             if *t >= start && *t <= end {
-                cnt.inc(*tg);
+                cnt.inc(*m);
             }
         }
         cnt
@@ -170,9 +170,9 @@ impl Demand {
             let total_demand = cnt.sum() as f64;
 
             // TODO Refactor with info/intersection after deciding exactly how to draw this
-            for (tg, demand) in cnt.consume() {
+            for (m, demand) in cnt.consume() {
                 let percent = (demand as f64) / total_demand;
-                let pl = &app.primary.map.get_traffic_signal(*i).turn_groups[&tg].geom;
+                let pl = &app.primary.map.get_traffic_signal(*i).movements[&m].geom;
                 arrow_batch.push(
                     Color::hex("#A3A3A3"),
                     pl.make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle),

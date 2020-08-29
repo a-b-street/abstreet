@@ -22,7 +22,7 @@ pub use crate::render::intersection::{calculate_corners, DrawIntersection};
 pub use crate::render::map::{AgentCache, DrawMap, UnzoomedAgents};
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::traffic_signal::draw_signal_stage;
-pub use crate::render::turn::{DrawTurnGroup, DrawUberTurnGroup};
+pub use crate::render::turn::{DrawMovement, DrawUberTurnGroup};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, VehicleType};

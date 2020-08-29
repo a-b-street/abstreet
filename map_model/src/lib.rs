@@ -28,7 +28,7 @@ pub use crate::objects::road::{DirectedRoadID, Direction, Road, RoadID};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::objects::traffic_signals::{ControlTrafficSignal, PhaseType, Stage};
 pub use crate::objects::turn::{
-    CompressedTurnGroupID, Turn, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType,
+    CompressedMovementID, Movement, MovementID, Turn, TurnID, TurnPriority, TurnType,
 };
 pub use crate::objects::zone::{AccessRestrictions, Zone};
 pub use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn, UberTurnGroup};

@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
-use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
+use crate::render::{DrawMovement, BIG_ARROW_THICKNESS};
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
 use map_model::{IntersectionID, Stage, TurnPriority, SIDEWALK_THICKNESS};
 use std::collections::BTreeSet;
@@ -23,13 +23,13 @@ pub fn draw_signal_stage(
         TrafficSignalStyle::BAP => {
             let mut dont_walk = BTreeSet::new();
             let mut crossed_roads = BTreeSet::new();
-            for g in signal.turn_groups.keys() {
-                if g.crosswalk {
-                    dont_walk.insert(g);
+            for m in signal.movements.keys() {
+                if m.crosswalk {
+                    dont_walk.insert(m);
                     // TODO This is incorrect; some crosswalks hop over intermediate roads. How do
                     // we detect or plumb that?
-                    crossed_roads.insert((g.from.id, g.parent));
-                    crossed_roads.insert((g.to.id, g.parent));
+                    crossed_roads.insert((m.from.id, m.parent));
+                    crossed_roads.insert((m.to.id, m.parent));
                 }
             }
 
@@ -42,21 +42,21 @@ pub fn draw_signal_stage(
                 (false, 1.0)
             };
             let yellow = Color::YELLOW;
-            for g in &stage.protected_groups {
-                if !g.crosswalk {
+            for m in &stage.protected_movements {
+                if !m.crosswalk {
                     // TODO Maybe less if shoulders meet
-                    let slice_start = if crossed_roads.contains(&(g.from.id, g.parent)) {
+                    let slice_start = if crossed_roads.contains(&(m.from.id, m.parent)) {
                         SIDEWALK_THICKNESS
                     } else {
                         Distance::ZERO
                     };
-                    let slice_end = if crossed_roads.contains(&(g.to.id, g.parent)) {
+                    let slice_end = if crossed_roads.contains(&(m.to.id, m.parent)) {
                         SIDEWALK_THICKNESS
                     } else {
                         Distance::ZERO
                     };
 
-                    let pl = &signal.turn_groups[g].geom;
+                    let pl = &signal.movements[m].geom;
                     batch.push(
                         if yellow_light {
                             yellow
@@ -67,7 +67,7 @@ pub fn draw_signal_stage(
                             .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                     );
                 } else {
-                    let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
+                    let (center, angle) = crosswalk_icon(&signal.movements[m].geom);
                     batch.append(
                         GeomBatch::load_svg(prerender, "system/assets/map/walk.svg")
                             .scale(0.07)
@@ -75,11 +75,11 @@ pub fn draw_signal_stage(
                             .rotate(angle)
                             .color(RewriteColor::ChangeAlpha(percent)),
                     );
-                    dont_walk.remove(g);
+                    dont_walk.remove(m);
                 }
             }
-            for g in dont_walk {
-                let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
+            for m in dont_walk {
+                let (center, angle) = crosswalk_icon(&signal.movements[m].geom);
                 batch.append(
                     GeomBatch::load_svg(prerender, "system/assets/map/dont_walk.svg")
                         .scale(0.07)
@@ -87,9 +87,9 @@ pub fn draw_signal_stage(
                         .rotate(angle),
                 );
             }
-            for g in &stage.yield_groups {
-                assert!(!g.crosswalk);
-                let pl = &signal.turn_groups[g].geom;
+            for m in &stage.yield_movements {
+                assert!(!m.crosswalk);
+                let pl = &signal.movements[m].geom;
                 batch.extend(
                     Color::BLACK,
                     pl.exact_slice(
@@ -123,9 +123,9 @@ pub fn draw_signal_stage(
             return;
         }
         TrafficSignalStyle::GroupArrows => {
-            for g in &stage.yield_groups {
-                assert!(!g.crosswalk);
-                let arrow = signal.turn_groups[g]
+            for m in &stage.yield_movements {
+                assert!(!m.crosswalk);
+                let arrow = signal.movements[m]
                     .geom
                     .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle);
                 batch.push(app.cs.signal_permitted_turn.alpha(0.3), arrow.clone());
@@ -134,32 +134,32 @@ pub fn draw_signal_stage(
                 }
             }
             let mut dont_walk = BTreeSet::new();
-            for g in signal.turn_groups.keys() {
-                if g.crosswalk {
-                    dont_walk.insert(g);
+            for m in signal.movements.keys() {
+                if m.crosswalk {
+                    dont_walk.insert(m);
                 }
             }
-            for g in &stage.protected_groups {
-                if !g.crosswalk {
+            for m in &stage.protected_movements {
+                if !m.crosswalk {
                     batch.push(
                         app.cs.signal_protected_turn,
-                        signal.turn_groups[g]
+                        signal.movements[m]
                             .geom
                             .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
                     );
                 } else {
-                    let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
+                    let (center, angle) = crosswalk_icon(&signal.movements[m].geom);
                     batch.append(
                         GeomBatch::load_svg(prerender, "system/assets/map/walk.svg")
                             .scale(0.07)
                             .centered_on(center)
                             .rotate(angle),
                     );
-                    dont_walk.remove(g);
+                    dont_walk.remove(m);
                 }
             }
-            for g in dont_walk {
-                let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
+            for m in dont_walk {
+                let (center, angle) = crosswalk_icon(&signal.movements[m].geom);
                 batch.append(
                     GeomBatch::load_svg(prerender, "system/assets/map/dont_walk.svg")
                         .scale(0.07)
@@ -169,9 +169,9 @@ pub fn draw_signal_stage(
             }
         }
         TrafficSignalStyle::Sidewalks => {
-            for g in &stage.yield_groups {
-                assert!(!g.crosswalk);
-                let arrow = signal.turn_groups[g]
+            for m in &stage.yield_movements {
+                assert!(!m.crosswalk);
+                let arrow = signal.movements[m]
                     .geom
                     .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle);
                 batch.push(app.cs.signal_permitted_turn.alpha(0.3), arrow.clone());
@@ -179,18 +179,18 @@ pub fn draw_signal_stage(
                     batch.push(app.cs.signal_permitted_turn, p);
                 }
             }
-            for g in &stage.protected_groups {
-                if g.crosswalk {
+            for m in &stage.protected_movements {
+                if m.crosswalk {
                     make_crosswalk(
                         batch,
-                        app.primary.map.get_t(signal.turn_groups[g].members[0]),
+                        app.primary.map.get_t(signal.movements[m].members[0]),
                         &app.primary.map,
                         &app.cs,
                     );
                 } else {
                     batch.push(
                         app.cs.signal_protected_turn,
-                        signal.turn_groups[g]
+                        signal.movements[m]
                             .geom
                             .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
                     );
@@ -198,14 +198,14 @@ pub fn draw_signal_stage(
             }
         }
         TrafficSignalStyle::Icons => {
-            for g in DrawTurnGroup::for_i(i, &app.primary.map) {
-                batch.push(app.cs.signal_turn_block_bg, g.block.clone());
-                let arrow_color = match stage.get_priority_of_group(g.id) {
+            for m in DrawMovement::for_i(i, &app.primary.map) {
+                batch.push(app.cs.signal_turn_block_bg, m.block.clone());
+                let arrow_color = match stage.get_priority_of_movement(m.id) {
                     TurnPriority::Protected => app.cs.signal_protected_turn,
                     TurnPriority::Yield => app.cs.signal_permitted_turn.alpha(1.0),
                     TurnPriority::Banned => app.cs.signal_banned_turn,
                 };
-                batch.push(arrow_color, g.arrow.clone());
+                batch.push(arrow_color, m.arrow.clone());
             }
         }
         TrafficSignalStyle::IndividualTurnArrows => {
