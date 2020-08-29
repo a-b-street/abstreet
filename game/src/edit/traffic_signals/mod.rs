@@ -805,9 +805,9 @@ fn check_for_missing_turns(app: &App, members: &BTreeSet<IntersectionID>) -> Opt
                 continue;
             }
             if g.crosswalk {
-                stage.protected_groups.insert(*g);
+                stage.insert_protected_group(*g);
             } else {
-                stage.yield_groups.insert(*g);
+                stage.insert_yield_group(*g);
             }
         }
         signal.stages.insert(0, stage);

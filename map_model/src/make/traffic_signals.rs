@@ -89,11 +89,10 @@ fn greedy_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         match add {
             Some(idx) => {
                 current_stage
-                    .protected_groups
-                    .insert(remaining_groups.remove(idx));
+                    .insert_protected_group(remaining_groups.remove(idx));
             }
             None => {
-                assert!(!current_stage.protected_groups.is_empty());
+                assert!(!current_stage.no_protected_groups());
                 ts.stages.push(current_stage);
                 current_stage = Stage::new();
                 if remaining_groups.is_empty() {
@@ -307,10 +306,10 @@ fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     for group in ts.turn_groups.values() {
         match group.turn_type {
             TurnType::Crosswalk => {
-                all_walk.protected_groups.insert(group.id);
+                all_walk.insert_protected_group(group.id);
             }
             _ => {
-                all_yield.yield_groups.insert(group.id);
+                all_yield.insert_yield_group(group.id);
             }
         }
     }
@@ -335,14 +334,14 @@ fn stage_per_road(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> 
         for group in ts.turn_groups.values() {
             if group.turn_type == TurnType::Crosswalk {
                 if group.id.from.id == adj1 || group.id.from.id == adj2 {
-                    stage.protected_groups.insert(group.id);
+                    stage.insert_protected_group(group.id);
                 }
             } else if group.id.from.id == r {
-                stage.yield_groups.insert(group.id);
+                stage.insert_yield_group(group.id);
             }
         }
         // Might have a one-way outgoing road. Skip it.
-        if !stage.yield_groups.is_empty() {
+        if !stage.no_yield_groups() {
             ts.stages.push(stage);
         }
     }
@@ -354,7 +353,7 @@ fn expand_all_stages(ts: &mut ControlTrafficSignal) {
     for stage in ts.stages.iter_mut() {
         for g in ts.turn_groups.keys() {
             if stage.could_be_protected(*g, &ts.turn_groups) {
-                stage.protected_groups.insert(*g);
+                stage.insert_protected_group(*g);
             }
         }
     }
@@ -402,7 +401,7 @@ fn make_stages(
         }
 
         // Filter out empty stages if they happen.
-        if stage.protected_groups.is_empty() && stage.yield_groups.is_empty() {
+        if stage.no_protected_groups() && stage.no_yield_groups() {
             continue;
         }
 
@@ -415,13 +414,11 @@ fn make_stages(
         let smallest = ts
             .stages
             .iter()
-            .min_by_key(|p| p.protected_groups.len() + p.yield_groups.len())
+            .min_by_key(|p| p.num_protected_groups() + p.num_yield_groups())
             .cloned()
             .unwrap();
         if ts.stages.iter().any(|p| {
-            p != &smallest
-                && smallest.protected_groups.is_subset(&p.protected_groups)
-                && smallest.yield_groups.is_subset(&p.yield_groups)
+            p != &smallest && smallest.is_subset(&p)
         }) {
             ts.stages.retain(|p| p != &smallest);
         }
@@ -524,18 +521,16 @@ pub fn synchronize(map: &mut Map) {
     for (i1, i2) in pairs {
         let ts1 = map.get_traffic_signal(i1);
         let ts2 = map.get_traffic_signal(i2);
-        let flip1 = ts1.stages[0].protected_groups.iter().any(|tg1| {
+        let flip1 = ts1.stages[0].protected_groups_iter().any(|tg1| {
             !tg1.crosswalk
                 && ts2.stages[1]
-                    .protected_groups
-                    .iter()
+                    .protected_groups_iter()
                     .any(|tg2| !tg2.crosswalk && (tg1.to == tg2.from || tg1.from == tg2.to))
         });
-        let flip2 = ts1.stages[1].protected_groups.iter().any(|tg1| {
+        let flip2 = ts1.stages[1].protected_groups_iter().any(|tg1| {
             !tg1.crosswalk
                 && ts2.stages[0]
-                    .protected_groups
-                    .iter()
+                    .protected_groups_iter()
                     .any(|tg2| !tg2.crosswalk && (tg1.to == tg2.from || tg1.from == tg2.to))
         });
         if flip1 || flip2 {

@@ -203,7 +203,7 @@ fn actuate(
             // does not. Not sure if control should support coloring for yield groups.
             // If yield groups have signal color in real life, it's a flashing yellow.
             let current_stage = &signal.stages[state.current_stage];
-            for tg in &current_stage.protected_groups {
+            for tg in current_stage.protected_groups_iter() {
                 scheduler.update(
                     new_green_expiration,
                     Command::UpdateIntersection(
@@ -326,11 +326,11 @@ impl TrafficSignalState {
 
         // Initialize turn group state
         for stage in signal.stages.iter() {
-            for turn_group_id in stage.protected_groups.iter() {
+            for turn_group_id in stage.protected_groups_iter() {
                 self.turn_group_state
                     .insert(*turn_group_id, TurnGroupState { is_yellow: false });
             }
-            for turn_group_id in stage.yield_groups.iter() {
+            for turn_group_id in stage.yield_groups_iter() {
                 self.turn_group_state
                     .insert(*turn_group_id, TurnGroupState { is_yellow: false });
             }
@@ -341,14 +341,14 @@ impl TrafficSignalState {
     fn set_green_all_current_stage(&mut self, signal: &ControlTrafficSignal) {
         let current_stage = &signal.stages[self.current_stage];
 
-        for turn_group in &current_stage.protected_groups {
+        for turn_group in current_stage.protected_groups_iter() {
             self.turn_group_state
                 .get_mut(&turn_group)
                 .unwrap()
                 .is_yellow = false;
         }
 
-        for turn_group in &current_stage.yield_groups {
+        for turn_group in current_stage.yield_groups_iter() {
             self.turn_group_state
                 .get_mut(&turn_group)
                 .unwrap()
@@ -359,14 +359,14 @@ impl TrafficSignalState {
     fn set_yellow_all_current_stage(&mut self, signal: &ControlTrafficSignal) {
         let current_stage = &signal.stages[self.current_stage];
 
-        for turn_group in &current_stage.protected_groups {
+        for turn_group in current_stage.protected_groups_iter() {
             self.turn_group_state
                 .get_mut(&turn_group)
                 .unwrap()
                 .is_yellow = true;
         }
 
-        for turn_group in &current_stage.yield_groups {
+        for turn_group in current_stage.yield_groups_iter() {
             self.turn_group_state
                 .get_mut(&turn_group)
                 .unwrap()

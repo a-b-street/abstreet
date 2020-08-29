@@ -42,7 +42,7 @@ pub fn draw_signal_stage(
             };
 
             let yellow = Color::YELLOW;
-            for g in &stage.protected_groups {
+            for g in stage.protected_groups_iter() {
                 if !g.crosswalk {
                     // TODO Maybe less if shoulders meet
                     let slice_start = if crossed_roads.contains(&(g.from.id, g.parent)) {
@@ -89,7 +89,7 @@ pub fn draw_signal_stage(
                         .rotate(angle),
                 );
             }
-            for g in &stage.yield_groups {
+            for g in stage.yield_groups_iter() {
                 assert!(!g.crosswalk);
                 let pl = &signal.turn_groups[g].geom;
                 batch.extend(
@@ -126,7 +126,7 @@ pub fn draw_signal_stage(
             return;
         }
         TrafficSignalStyle::GroupArrows => {
-            for g in &stage.yield_groups {
+            for g in stage.yield_groups_iter() {
                 assert!(!g.crosswalk);
                 let arrow = signal.turn_groups[g]
                     .geom
@@ -142,7 +142,7 @@ pub fn draw_signal_stage(
                     dont_walk.insert(g);
                 }
             }
-            for g in &stage.protected_groups {
+            for g in stage.protected_groups_iter() {
                 if !g.crosswalk {
                     batch.push(
                         app.cs.signal_protected_turn,
@@ -172,7 +172,7 @@ pub fn draw_signal_stage(
             }
         }
         TrafficSignalStyle::Sidewalks => {
-            for g in &stage.yield_groups {
+            for g in stage.yield_groups_iter() {
                 assert!(!g.crosswalk);
                 let arrow = signal.turn_groups[g]
                     .geom
@@ -182,7 +182,7 @@ pub fn draw_signal_stage(
                     batch.push(app.cs.signal_permitted_turn, p);
                 }
             }
-            for g in &stage.protected_groups {
+            for g in stage.protected_groups_iter() {
                 if g.crosswalk {
                     make_crosswalk(
                         batch,
