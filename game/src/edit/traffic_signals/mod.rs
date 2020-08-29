@@ -7,13 +7,13 @@ use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::options::TrafficSignalStyle;
-use crate::render::{draw_signal_stage, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
+use crate::render::{draw_signal_stage, DrawMovement, DrawOptions, BIG_ARROW_THICKNESS};
 use crate::sandbox::GameplayMode;
 use abstutil::Timer;
 use geom::{ArrowCap, Distance, Duration, Line, Polygon, Pt2D};
 use map_model::{
-    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType, Stage, TurnGroup,
-    TurnGroupID, TurnPriority,
+    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Movement, MovementID,
+    PhaseType, Stage, TurnPriority,
 };
 use std::collections::{BTreeSet, HashMap, VecDeque};
 use widgetry::{
@@ -31,9 +31,9 @@ pub struct TrafficSignalEditor {
     members: BTreeSet<IntersectionID>,
     current_stage: usize,
 
-    groups: Vec<DrawTurnGroup>,
+    movements: Vec<DrawMovement>,
     // And the next priority to toggle to
-    group_selected: Option<(TurnGroupID, Option<TurnPriority>)>,
+    movement_selected: Option<(MovementID, Option<TurnPriority>)>,
     draw_current: Drawable,
 
     command_stack: Vec<BundleEdits>,
@@ -77,9 +77,9 @@ impl TrafficSignalEditor {
             )
         };
 
-        let mut groups = Vec::new();
+        let mut movements = Vec::new();
         for i in &members {
-            groups.extend(DrawTurnGroup::for_i(*i, &app.primary.map));
+            movements.extend(DrawMovement::for_i(*i, &app.primary.map));
         }
 
         let original = BundleEdits::get_current(app, &members);
@@ -93,8 +93,8 @@ impl TrafficSignalEditor {
             mode,
             members,
             current_stage: 0,
-            groups,
-            group_selected: None,
+            movements,
+            movement_selected: None,
             draw_current: ctx.upload(GeomBatch::new()),
             command_stack: Vec::new(),
             redo_stack: Vec::new(),
@@ -107,7 +107,7 @@ impl TrafficSignalEditor {
     }
 
     fn change_stage(&mut self, ctx: &mut EventCtx, app: &App, idx: usize) {
-        let hovering = self.group_selected.map(|(tg, _)| tg.parent);
+        let hovering = self.movement_selected.map(|(m, _)| m.parent);
 
         if self.current_stage == idx {
             let mut new = make_side_panel(ctx, app, &self.members, self.current_stage, hovering);
@@ -150,9 +150,9 @@ impl TrafficSignalEditor {
         for i in &self.members {
             let signal = app.primary.map.get_traffic_signal(*i);
             let mut stage = signal.stages[self.current_stage].clone();
-            if let Some((id, _)) = self.group_selected {
+            if let Some((id, _)) = self.movement_selected {
                 if id.parent == signal.id {
-                    stage.edit_group(&signal.turn_groups[&id], TurnPriority::Banned);
+                    stage.edit_movement(&signal.movements[&id], TurnPriority::Banned);
                 }
             }
             draw_signal_stage(
@@ -167,30 +167,30 @@ impl TrafficSignalEditor {
             );
         }
 
-        for tg in &self.groups {
-            let signal = app.primary.map.get_traffic_signal(tg.id.parent);
+        for m in &self.movements {
+            let signal = app.primary.map.get_traffic_signal(m.id.parent);
             if self
-                .group_selected
+                .movement_selected
                 .as_ref()
-                .map(|(id, _)| *id == tg.id)
+                .map(|(id, _)| *id == m.id)
                 .unwrap_or(false)
             {
-                draw_selected_group(
+                draw_selected_movement(
                     app,
                     &mut batch,
-                    tg,
-                    &signal.turn_groups[&tg.id],
-                    self.group_selected.unwrap().1,
+                    m,
+                    &signal.movements[&m.id],
+                    self.movement_selected.unwrap().1,
                 );
             } else {
-                batch.push(app.cs.signal_turn_block_bg, tg.block.clone());
+                batch.push(app.cs.signal_turn_block_bg, m.block.clone());
                 let stage = &signal.stages[self.current_stage];
-                let arrow_color = match stage.get_priority_of_group(tg.id) {
+                let arrow_color = match stage.get_priority_of_movement(m.id) {
                     TurnPriority::Protected => app.cs.signal_protected_turn,
                     TurnPriority::Yield => app.cs.signal_permitted_turn,
                     TurnPriority::Banned => app.cs.signal_banned_turn,
                 };
-                batch.push(arrow_color, tg.arrow.clone());
+                batch.push(arrow_color, m.arrow.clone());
             }
         }
         ctx.upload(batch)
@@ -392,19 +392,19 @@ impl State for TrafficSignalEditor {
         }
 
         if ctx.redo_mouseover() {
-            let old = self.group_selected.clone();
+            let old = self.movement_selected.clone();
 
-            self.group_selected = None;
+            self.movement_selected = None;
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                for g in &self.groups {
-                    let signal = app.primary.map.get_traffic_signal(g.id.parent);
-                    if g.block.contains_pt(pt) {
+                for m in &self.movements {
+                    let signal = app.primary.map.get_traffic_signal(m.id.parent);
+                    if m.block.contains_pt(pt) {
                         let stage = &signal.stages[self.current_stage];
-                        let next_priority = match stage.get_priority_of_group(g.id) {
+                        let next_priority = match stage.get_priority_of_movement(m.id) {
                             TurnPriority::Banned => {
-                                if stage.could_be_protected(g.id, &signal.turn_groups) {
+                                if stage.could_be_protected(m.id, &signal.movements) {
                                     Some(TurnPriority::Protected)
-                                } else if g.id.crosswalk {
+                                } else if m.id.crosswalk {
                                     None
                                 } else {
                                     Some(TurnPriority::Yield)
@@ -412,33 +412,33 @@ impl State for TrafficSignalEditor {
                             }
                             TurnPriority::Yield => Some(TurnPriority::Banned),
                             TurnPriority::Protected => {
-                                if g.id.crosswalk {
+                                if m.id.crosswalk {
                                     Some(TurnPriority::Banned)
                                 } else {
                                     Some(TurnPriority::Yield)
                                 }
                             }
                         };
-                        self.group_selected = Some((g.id, next_priority));
+                        self.movement_selected = Some((m.id, next_priority));
                         break;
                     }
                 }
             }
 
-            if self.group_selected != old {
+            if self.movement_selected != old {
                 self.draw_current = self.recalc_draw_current(ctx, app);
                 self.change_stage(ctx, app, self.current_stage);
             }
         }
 
-        if let Some((id, next_priority)) = self.group_selected {
+        if let Some((id, next_priority)) = self.movement_selected {
             if let Some(pri) = next_priority {
                 let signal = app.primary.map.get_traffic_signal(id.parent);
                 if app.per_obj.left_click(
                     ctx,
                     format!(
                         "toggle from {:?} to {:?}",
-                        signal.stages[self.current_stage].get_priority_of_group(id),
+                        signal.stages[self.current_stage].get_priority_of_movement(id),
                         pri
                     ),
                 ) {
@@ -446,7 +446,7 @@ impl State for TrafficSignalEditor {
                     let signal = signal.clone();
                     self.add_new_edit(ctx, app, idx, |ts| {
                         if ts.id == id.parent {
-                            ts.stages[idx].edit_group(&signal.turn_groups[&id], pri);
+                            ts.stages[idx].edit_movement(&signal.movements[&id], pri);
                         }
                     });
                     return Transition::KeepWithMouseover;
@@ -474,7 +474,7 @@ impl State for TrafficSignalEditor {
         self.top_panel.draw(g);
         self.side_panel.draw(g);
 
-        if let Some((id, _)) = self.group_selected {
+        if let Some((id, _)) = self.movement_selected {
             let osd = if id.crosswalk {
                 Text::from(Line(format!(
                     "Crosswalk across {}",
@@ -800,14 +800,14 @@ fn check_for_missing_turns(app: &App, members: &BTreeSet<IntersectionID>) -> Opt
     for signal in &mut bundle.signals {
         let mut stage = Stage::new();
         // TODO Could do this more efficiently
-        for g in &all_missing {
-            if g.parent != signal.id {
+        for m in &all_missing {
+            if m.parent != signal.id {
                 continue;
             }
-            if g.crosswalk {
-                stage.insert_protected_group(*g);
+            if m.crosswalk {
+                stage.insert_protected_movement(*m);
             } else {
-                stage.insert_yield_group(*g);
+                stage.insert_yield_movement(*m);
             }
         }
         signal.stages.insert(0, stage);
@@ -863,11 +863,11 @@ fn draw_multiple_signals(
     batch.scale(zoom)
 }
 
-fn draw_selected_group(
+fn draw_selected_movement(
     app: &App,
     batch: &mut GeomBatch,
-    g: &DrawTurnGroup,
-    tg: &TurnGroup,
+    g: &DrawMovement,
+    m: &Movement,
     next_priority: Option<TurnPriority>,
 ) {
     // TODO Refactor this mess. Maybe after things like "dashed with outline" can be expressed more
@@ -875,7 +875,7 @@ fn draw_selected_group(
     let block_color = match next_priority {
         Some(TurnPriority::Protected) => {
             let green = Color::hex("#72CE36");
-            let arrow = tg.geom.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
+            let arrow = m.geom.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
             batch.push(green.alpha(0.5), arrow.clone());
             if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
                 batch.push(green, p);
@@ -887,7 +887,7 @@ fn draw_selected_group(
                 // TODO Ideally the inner part would be the lower opacity blue, but can't yet
                 // express that it should cover up the thicker solid blue beneath it
                 Color::BLACK.alpha(0.8),
-                tg.geom.dashed_arrow(
+                m.geom.dashed_arrow(
                     BIG_ARROW_THICKNESS,
                     Distance::meters(1.2),
                     Distance::meters(0.3),
@@ -896,10 +896,10 @@ fn draw_selected_group(
             );
             batch.extend(
                 app.cs.signal_permitted_turn.alpha(0.8),
-                tg.geom
+                m.geom
                     .exact_slice(
                         Distance::meters(0.1),
-                        tg.geom.length() - Distance::meters(0.1),
+                        m.geom.length() - Distance::meters(0.1),
                     )
                     .dashed_arrow(
                         BIG_ARROW_THICKNESS / 2.0,
@@ -912,7 +912,7 @@ fn draw_selected_group(
         }
         Some(TurnPriority::Banned) => {
             let red = Color::hex("#EB3223");
-            let arrow = tg.geom.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
+            let arrow = m.geom.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
             batch.push(red.alpha(0.5), arrow.clone());
             if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
                 batch.push(red, p);

@@ -134,19 +134,19 @@ pub fn current_demand(
     let mut rows = header(ctx, app, details, id, Tab::IntersectionDemand(id));
 
     let mut total_demand = 0;
-    let mut demand_per_group: Vec<(&PolyLine, usize)> = Vec::new();
-    for g in app.primary.map.get_traffic_signal(id).turn_groups.values() {
+    let mut demand_per_movement: Vec<(&PolyLine, usize)> = Vec::new();
+    for m in app.primary.map.get_traffic_signal(id).movements.values() {
         let demand = app
             .primary
             .sim
             .get_analytics()
             .demand
-            .get(&g.id)
+            .get(&m.id)
             .cloned()
             .unwrap_or(0);
         if demand > 0 {
             total_demand += demand;
-            demand_per_group.push((&g.geom, demand));
+            demand_per_movement.push((&m.geom, demand));
         }
     }
 
@@ -161,7 +161,7 @@ pub fn current_demand(
     );
 
     let mut tooltips: Vec<(Polygon, Text)> = Vec::new();
-    for (pl, demand) in demand_per_group {
+    for (pl, demand) in demand_per_movement {
         let percent = (demand as f64) / (total_demand as f64);
         let arrow = pl
             .make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle)

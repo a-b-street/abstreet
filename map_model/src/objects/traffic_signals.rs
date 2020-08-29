@@ -1,8 +1,8 @@
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
 use crate::raw::OriginalRoad;
 use crate::{
-    osm, CompressedTurnGroupID, DirectedRoadID, Direction, IntersectionID, Map, TurnGroup,
-    TurnGroupID, TurnID, TurnPriority, TurnType, YELLOW_DURATION,
+    osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
+    MovementID, TurnID, TurnPriority, TurnType, YELLOW_DURATION,
 };
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
 use geom::Duration;
@@ -22,13 +22,13 @@ pub struct ControlTrafficSignal {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    pub turn_groups: BTreeMap<TurnGroupID, TurnGroup>,
+    pub movements: BTreeMap<MovementID, Movement>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Stage {
-    protected_groups: BTreeSet<TurnGroupID>,
-    yield_groups: BTreeSet<TurnGroupID>,
+    protected_movements: BTreeSet<MovementID>,
+    yield_movements: BTreeSet<MovementID>,
     // TODO Not renaming this, because this is going to change radically in
     // https://github.com/dabreegster/abstreet/pull/298 anyway
     pub phase_type: PhaseType,
@@ -40,67 +40,67 @@ pub struct Stage {
 }
 
 impl Stage {
-    pub fn protected_groups_iter(&self) -> impl Iterator<Item = &TurnGroupID> {
-        self.protected_groups.iter()
+    pub fn protected_movements_iter(&self) -> impl Iterator<Item = &MovementID> {
+        self.protected_movements.iter()
     }
 
-    pub fn yield_groups_iter(&self) -> impl Iterator<Item = &TurnGroupID> {
-        self.yield_groups.iter()
+    pub fn yield_movements_iter(&self) -> impl Iterator<Item = &MovementID> {
+        self.yield_movements.iter()
     }
 
-    pub fn protected_groups_contains(&self, item: &TurnGroupID) -> bool {
-        self.protected_groups.contains(item)
+    pub fn protected_movements_contains(&self, item: &MovementID) -> bool {
+        self.protected_movements.contains(item)
     }
 
-    pub fn yield_groups_contains(&self, item: &TurnGroupID) -> bool {
-        self.yield_groups.contains(item)
+    pub fn yield_movements_contains(&self, item: &MovementID) -> bool {
+        self.yield_movements.contains(item)
     }
 
-    // Inserting a turn group in this way only makes sense
+    // Inserting a movement in this way only makes sense
     // for normal Stages, not SuperStages. For a SuperStage we need
     // to know which phase to insert into. However, for simple applications
-    // like drawing all turn groups in a stage, where control behavior
+    // like drawing all movements in a stage, where control behavior
     // isn't relevant, we can still get away with inserting in this way.
-    pub fn insert_protected_group(&mut self, tg: TurnGroupID) {
-        self.protected_groups.insert(tg);
+    pub fn insert_protected_movement(&mut self, tg: MovementID) {
+        self.protected_movements.insert(tg);
     }
 
-    pub fn insert_yield_group(&mut self, tg: TurnGroupID){
-        self.yield_groups.insert(tg);
+    pub fn insert_yield_movement(&mut self, tg: MovementID){
+        self.yield_movements.insert(tg);
     }
 
-    pub fn remove_protected_group(&mut self, tg: &TurnGroupID) {
-        self.protected_groups.remove(tg);
+    pub fn remove_protected_movement(&mut self, tg: &MovementID) {
+        self.protected_movements.remove(tg);
     }
 
-    pub fn remove_yield_group(&mut self, tg: &TurnGroupID) {
-        self.yield_groups.remove(tg);
+    pub fn remove_yield_movement(&mut self, tg: &MovementID) {
+        self.yield_movements.remove(tg);
     }
 
-    pub fn num_protected_groups(&self) -> usize {
-        self.protected_groups.len()
+    pub fn num_protected_movements(&self) -> usize {
+        self.protected_movements.len()
     }
 
-    pub fn num_yield_groups(&self) -> usize {
-        self.yield_groups.len()
+    pub fn num_yield_movements(&self) -> usize {
+        self.yield_movements.len()
     }
 
-    pub fn no_protected_groups(&self) -> bool {
-        self.num_protected_groups() == 0
+    pub fn no_protected_movements(&self) -> bool {
+        self.num_protected_movements() == 0
     }
 
-    pub fn no_yield_groups(&self) -> bool {
-        self.num_yield_groups() == 0
+    pub fn no_yield_movements(&self) -> bool {
+        self.num_yield_movements() == 0
     }
 
     pub fn is_subset(&self, other: &Stage) -> bool {
-        self.protected_groups.is_subset(&other.protected_groups) &&
-        self.yield_groups.is_subset(&other.yield_groups)
+        self.protected_movements.is_subset(&other.protected_movements) &&
+        self.yield_movements.is_subset(&other.yield_movements)
     }
 
-    pub fn remove_non_crosswalks(&mut self, turn_groups_map: &BTreeMap<TurnGroupID, TurnGroup>) {
-        retain_btreeset(&mut self.protected_groups, |g| {
-            turn_groups_map[g].turn_type != TurnType::Crosswalk
+    pub fn remove_non_crosswalks(&mut self, movements_map: &BTreeMap<MovementID, Movement>) {
+        retain_btreeset(&mut self.protected_movements, |m| {
+            movements_map[m].turn_type != TurnType::Crosswalk
         });
     }
 }
@@ -158,45 +158,45 @@ impl ControlTrafficSignal {
     }
 
     pub fn validate(self) -> Result<ControlTrafficSignal, String> {
-        // Does the assignment cover the correct set of groups?
-        let expected_groups: BTreeSet<TurnGroupID> = self.turn_groups.keys().cloned().collect();
-        let mut actual_groups: BTreeSet<TurnGroupID> = BTreeSet::new();
+        // Does the assignment cover the correct set of movements?
+        let expected_movements: BTreeSet<MovementID> = self.movements.keys().cloned().collect();
+        let mut actual_movements: BTreeSet<MovementID> = BTreeSet::new();
         for stage in &self.stages {
-            actual_groups.extend(stage.protected_groups_iter());
-            actual_groups.extend(stage.yield_groups_iter());
+            actual_movements.extend(stage.protected_movements_iter());
+            actual_movements.extend(stage.yield_movements_iter());
         }
-        if expected_groups != actual_groups {
+        if expected_movements != actual_movements {
             return Err(format!(
                 "Traffic signal assignment for {} broken. Missing {:?}, contains irrelevant {:?}",
                 self.id,
-                expected_groups
-                    .difference(&actual_groups)
+                expected_movements
+                    .difference(&actual_movements)
                     .cloned()
                     .collect::<Vec<_>>(),
-                actual_groups
-                    .difference(&expected_groups)
+                actual_movements
+                    .difference(&expected_movements)
                     .cloned()
                     .collect::<Vec<_>>()
             ));
         }
 
         for stage in &self.stages {
-            // Do any of the priority groups in one stage conflict?
-            for g1 in stage.protected_groups_iter().map(|g| &self.turn_groups[g]) {
-                for g2 in stage.protected_groups_iter().map(|g| &self.turn_groups[g]) {
-                    if g1.conflicts_with(g2) {
+            // Do any of the priority movements in one stage conflict?
+            for m1 in stage.protected_movements_iter().map(|m| &self.movements[m]) {
+                for m2 in stage.protected_movements_iter().map(|m| &self.movements[m]) {
+                    if m1.conflicts_with(m2) {
                         return Err(format!(
-                            "Traffic signal has conflicting protected groups in one \
+                            "Traffic signal has conflicting protected movements in one \
                              stage:\n{:?}\n\n{:?}",
-                            g1, g2
+                            m1, m2
                         ));
                     }
                 }
             }
 
             // Do any of the crosswalks yield?
-            for g in stage.yield_groups_iter().map(|g| &self.turn_groups[g]) {
-                assert!(g.turn_type != TurnType::Crosswalk);
+            for m in stage.yield_movements_iter().map(|m| &self.movements[m]) {
+                assert!(m.turn_type != TurnType::Crosswalk);
             }
         }
 
@@ -208,13 +208,13 @@ impl ControlTrafficSignal {
         let orig = self.clone();
 
         let mut all_walk_stage = Stage::new();
-        for g in self.turn_groups.values() {
-            if g.turn_type == TurnType::Crosswalk {
-                all_walk_stage.edit_group(g, TurnPriority::Protected);
+        for m in self.movements.values() {
+            if m.turn_type == TurnType::Crosswalk {
+                all_walk_stage.edit_movement(m, TurnPriority::Protected);
             }
         }
 
-        // Remove Crosswalk groups from existing stages.
+        // Remove Crosswalk movements from existing stages.
         let mut replaced = std::mem::replace(&mut self.stages, Vec::new());
         let mut has_all_walk = false;
         for stage in replaced.iter_mut() {
@@ -223,19 +223,19 @@ impl ControlTrafficSignal {
                 continue;
             }
 
-            // Crosswalks are only in protected_groups.
-            stage.remove_non_crosswalks(&self.turn_groups);
+            // Crosswalks are only in protected_movements.
+            stage.remove_non_crosswalks(&self.movements);
 
-            // Blindly try to promote yield groups to protected, now that crosswalks are gone.
+            // Blindly try to promote yield movements to protected, now that crosswalks are gone.
             let mut promoted = Vec::new();
-            for g in stage.yield_groups_iter() {
-                if stage.could_be_protected(*g, &self.turn_groups) {
-                    promoted.push(*g);
+            for m in stage.yield_movements_iter() {
+                if stage.could_be_protected(*m, &self.movements) {
+                    promoted.push(*m);
                 }
             }
-            for g in promoted {
-                stage.insert_protected_group(g);
-                stage.remove_yield_group(&g);
+            for m in promoted {
+                stage.insert_protected_movement(m);
+                stage.remove_yield_movement(&m);
             }
         }
         self.stages = replaced;
@@ -246,49 +246,48 @@ impl ControlTrafficSignal {
         self != &orig
     }
 
-    pub fn turn_to_group(&self, turn: TurnID) -> TurnGroupID {
-        if let Some(tg) = self
-            .turn_groups
-            .values()
-            .find(|tg| tg.members.contains(&turn))
-        {
-            tg.id
+    pub fn turn_to_movement(&self, turn: TurnID) -> MovementID {
+        if let Some(m) = self.movements.values().find(|m| m.members.contains(&turn)) {
+            m.id
         } else {
-            panic!("{} doesn't belong to any turn groups in {}", turn, self.id)
+            panic!("{} doesn't belong to any movements in {}", turn, self.id)
         }
     }
 
-    pub fn missing_turns(&self) -> BTreeSet<TurnGroupID> {
-        let mut missing: BTreeSet<TurnGroupID> = self.turn_groups.keys().cloned().collect();
+    pub fn missing_turns(&self) -> BTreeSet<MovementID> {
+        let mut missing: BTreeSet<MovementID> = self.movements.keys().cloned().collect();
         for stage in &self.stages {
-            for g in stage.protected_groups_iter() {
-                missing.remove(g);
+            for m in stage.protected_movements_iter() {
+                missing.remove(m);
             }
-            for g in stage.yield_groups_iter() {
-                missing.remove(g);
+            for m in stage.yield_movements_iter() {
+                missing.remove(m);
             }
         }
         missing
     }
 
-    pub fn compressed_id(&self, turn: TurnID) -> CompressedTurnGroupID {
-        for (idx, tg) in self.turn_groups.values().enumerate() {
-            if tg.members.contains(&turn) {
-                return CompressedTurnGroupID {
+    pub fn compressed_id(&self, turn: TurnID) -> CompressedMovementID {
+        for (idx, m) in self.movements.values().enumerate() {
+            if m.members.contains(&turn) {
+                return CompressedMovementID {
                     i: self.id,
                     idx: u8::try_from(idx).unwrap(),
                 };
             }
         }
-        panic!("{} doesn't belong to any turn groups in {}", turn, self.id)
+        panic!(
+            "{} doesn't belong to any turn movements in {}",
+            turn, self.id
+        )
     }
 }
 
 impl Stage {
     pub fn new() -> Stage {
         Stage {
-            protected_groups: BTreeSet::new(),
-            yield_groups: BTreeSet::new(),
+            protected_movements: BTreeSet::new(),
+            yield_movements: BTreeSet::new(),
             phase_type: PhaseType::Fixed(Duration::seconds(30.0)),
             minimum_green: Duration::seconds(5.0),
             maximum_green: Duration::seconds(60.0),
@@ -302,12 +301,12 @@ impl Stage {
 
     pub fn could_be_protected(
         &self,
-        g1: TurnGroupID,
-        turn_groups: &BTreeMap<TurnGroupID, TurnGroup>,
+        m1: MovementID,
+        movements: &BTreeMap<MovementID, Movement>,
     ) -> bool {
-        let group1 = &turn_groups[&g1];
-        for g2 in self.protected_groups_iter() {
-            if g1 == *g2 || group1.conflicts_with(&turn_groups[g2]) {
+        let movement1 = &movements[&m1];
+        for m2 in self.protected_movements_iter() {
+            if m1 == *m2 || movement1.conflicts_with(&movements[m2]) {
                 return false;
             }
         }
@@ -315,36 +314,36 @@ impl Stage {
     }
 
     pub fn get_priority_of_turn(&self, t: TurnID, parent: &ControlTrafficSignal) -> TurnPriority {
-        self.get_priority_of_group(parent.turn_to_group(t))
+        self.get_priority_of_movement(parent.turn_to_movement(t))
     }
 
-    pub fn get_priority_of_group(&self, g: TurnGroupID) -> TurnPriority {
-        if self.protected_groups_contains(&g) {
+    pub fn get_priority_of_movement(&self, m: MovementID) -> TurnPriority {
+        if self.protected_movements_contains(&m) {
             TurnPriority::Protected
-        } else if self.yield_groups_contains(&g) {
+        } else if self.yield_movements_contains(&m) {
             TurnPriority::Yield
         } else {
             TurnPriority::Banned
         }
     }
 
-    pub fn edit_group(&mut self, g: &TurnGroup, pri: TurnPriority) {
-        let mut ids = vec![g.id];
-        if g.turn_type == TurnType::Crosswalk {
-            ids.push(TurnGroupID {
-                from: g.id.to,
-                to: g.id.from,
-                parent: g.id.parent,
+    pub fn edit_movement(&mut self, m: &Movement, pri: TurnPriority) {
+        let mut ids = vec![m.id];
+        if m.turn_type == TurnType::Crosswalk {
+            ids.push(MovementID {
+                from: m.id.to,
+                to: m.id.from,
+                parent: m.id.parent,
                 crosswalk: true,
             });
         }
         for id in ids {
-            self.remove_protected_group(&id);
-            self.remove_yield_group(&id);
+            self.remove_protected_movement(&id);
+            self.remove_yield_movement(&id);
             if pri == TurnPriority::Protected {
-                self.insert_protected_group(id);
+                self.insert_protected_movement(id);
             } else if pri == TurnPriority::Yield {
-                self.insert_yield_group(id);
+                self.insert_yield_movement(id);
             }
         }
     }
@@ -359,12 +358,12 @@ impl ControlTrafficSignal {
                 .iter()
                 .map(|s| seattle_traffic_signals::Phase {
                     protected_turns: s
-                        .protected_groups_iter()
-                        .map(|t| export_turn_group(t, map))
+                        .protected_movements_iter()
+                        .map(|t| export_movement(t, map))
                         .collect(),
                     permitted_turns: s
-                        .yield_groups_iter()
-                        .map(|t| export_turn_group(t, map))
+                        .yield_movements_iter()
+                        .map(|t| export_movement(t, map))
                         .collect(),
                     phase_type: match s.phase_type {
                         PhaseType::Fixed(d) => {
@@ -389,20 +388,21 @@ impl ControlTrafficSignal {
         for s in raw.phases {
             let num_protected = s.protected_turns.len();
             let num_permitted = s.permitted_turns.len();
-            let protected_groups = s
+            let protected_movements = s
                 .protected_turns
                 .into_iter()
-                .filter_map(|t| import_turn_group(t, map))
+                .filter_map(|t| import_movement(t, map))
                 .collect::<BTreeSet<_>>();
-            let yield_groups = s
+            let yield_movements = s
                 .permitted_turns
                 .into_iter()
-                .filter_map(|t| import_turn_group(t, map))
+                .filter_map(|t| import_movement(t, map))
                 .collect::<BTreeSet<_>>();
-            if protected_groups.len() == num_protected && yield_groups.len() == num_permitted {
+            if protected_movements.len() == num_protected && yield_movements.len() == num_permitted
+            {
                 stages.push(Stage {
-                    protected_groups,
-                    yield_groups,
+                    protected_movements,
+                    yield_movements,
                     phase_type: match s.phase_type {
                         seattle_traffic_signals::PhaseType::Fixed(d) => {
                             PhaseType::Fixed(Duration::seconds(d as f64))
@@ -421,7 +421,7 @@ impl ControlTrafficSignal {
                 });
             } else {
                 return Err(format!(
-                    "Failed to import some of the turn groups for {}",
+                    "Failed to import some of the movements for {}",
                     raw.intersection_osm_node_id
                 ));
             }
@@ -432,13 +432,13 @@ impl ControlTrafficSignal {
             control_type: TrafficControlType::Actuated,
             offset: Duration::seconds(raw.offset_seconds as f64),
             yellow_duration: YELLOW_DURATION,
-            turn_groups: TurnGroup::for_i(id, map).unwrap(),
+            movements: Movement::for_i(id, map).unwrap(),
         }
         .validate()
     }
 }
 
-fn export_turn_group(id: &TurnGroupID, map: &Map) -> seattle_traffic_signals::Turn {
+fn export_movement(id: &MovementID, map: &Map) -> seattle_traffic_signals::Turn {
     let from = map.get_r(id.from.id).orig_id;
     let to = map.get_r(id.to.id).orig_id;
 
@@ -460,8 +460,8 @@ fn export_turn_group(id: &TurnGroupID, map: &Map) -> seattle_traffic_signals::Tu
     }
 }
 
-fn import_turn_group(id: seattle_traffic_signals::Turn, map: &Map) -> Option<TurnGroupID> {
-    Some(TurnGroupID {
+fn import_movement(id: seattle_traffic_signals::Turn, map: &Map) -> Option<MovementID> {
+    Some(MovementID {
         from: find_r(id.from, map)?,
         to: find_r(id.to, map)?,
         parent: map

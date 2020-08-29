@@ -2,7 +2,7 @@ use crate::{
     pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, TripID, TripSpec,
 };
 use geom::{Duration, Histogram, Time};
-use map_model::{BusRouteID, IntersectionID, Path, PathRequest, SignalTimerType, TurnGroupID};
+use map_model::{BusRouteID, IntersectionID, MovementID, Path, PathRequest, SignalTimerType};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::btree_map::Entry;
@@ -18,7 +18,7 @@ pub enum Command {
     // Distinguish this from UpdateCar to avoid confusing things
     UpdateLaggyHead(CarID),
     UpdatePed(PedestrianID),
-    UpdateIntersection(IntersectionID, Option<TurnGroupID>, Option<SignalTimerType>),
+    UpdateIntersection(IntersectionID, Option<MovementID>, Option<SignalTimerType>),
     Callback(Duration),
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),
@@ -62,7 +62,7 @@ pub enum CommandType {
     Car(CarID),
     CarLaggyHead(CarID),
     Ped(PedestrianID),
-    Intersection(IntersectionID, Option<TurnGroupID>, Option<SignalTimerType>),
+    Intersection(IntersectionID, Option<MovementID>, Option<SignalTimerType>),
     Callback,
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),

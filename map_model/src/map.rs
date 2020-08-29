@@ -2,8 +2,8 @@ use crate::raw::{DrivingSide, OriginalRoad, RawMap};
 use crate::{
     osm, Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID,
-    LaneType, Map, MapEdits, OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints,
-    PathRequest, Pathfinder, Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType, Zone,
+    LaneType, Map, MapEdits, MovementID, OffstreetParking, ParkingLot, ParkingLotID, Path,
+    PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, Turn, TurnID, TurnType, Zone,
 };
 use abstutil::Timer;
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring, Time};
@@ -534,17 +534,17 @@ impl Map {
     }
 
     // None for SharedSidewalkCorners
-    pub fn get_turn_group(&self, t: TurnID) -> Option<TurnGroupID> {
+    pub fn get_movement(&self, t: TurnID) -> Option<MovementID> {
         if let Some(ref ts) = self.maybe_get_traffic_signal(t.parent) {
             if self.get_t(t).turn_type == TurnType::SharedSidewalkCorner {
                 return None;
             }
-            for tg in ts.turn_groups.values() {
-                if tg.members.contains(&t) {
-                    return Some(tg.id);
+            for m in ts.movements.values() {
+                if m.members.contains(&t) {
+                    return Some(m.id);
                 }
             }
-            panic!("{} doesn't belong to any turn groups", t);
+            panic!("{} doesn't belong to any movements", t);
         }
         None
     }

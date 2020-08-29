@@ -30,7 +30,7 @@ pub use crate::objects::traffic_signals::{
     ControlTrafficSignal, PhaseType, SignalTimerType, Stage, TrafficControlType,
 };
 pub use crate::objects::turn::{
-    CompressedTurnGroupID, Turn, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType,
+    CompressedMovementID, Movement, MovementID, Turn, TurnID, TurnPriority, TurnType,
 };
 pub use crate::objects::zone::{AccessRestrictions, Zone};
 pub use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn, UberTurnGroup};

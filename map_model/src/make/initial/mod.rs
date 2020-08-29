@@ -115,7 +115,7 @@ impl InitialMap {
                     };
                     i.polygon = Circle::new(pt, Distance::meters(3.0)).to_polygon();
 
-                    // Also don't attempt to make TurnGroups later!
+                    // Also don't attempt to make Movements later!
                     i.intersection_type = IntersectionType::StopSign;
                 }
             }

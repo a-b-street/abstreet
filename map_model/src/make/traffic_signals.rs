@@ -1,6 +1,6 @@
 use crate::{
-    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, PhaseType, RoadID, Stage,
-    TrafficControlType, TurnGroup, TurnGroupID, TurnPriority, TurnType, YELLOW_DURATION,
+    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Movement, MovementID, 
+    PhaseType, RoadID, Stage, TrafficControlType, TurnPriority, TurnType, YELLOW_DURATION,
 };
 use abstutil::Timer;
 use geom::Duration;
@@ -72,30 +72,30 @@ fn new(id: IntersectionID, map: &Map) -> ControlTrafficSignal {
         control_type: TrafficControlType::Actuated,
         offset: Duration::ZERO,
         yellow_duration: YELLOW_DURATION,
-        turn_groups: TurnGroup::for_i(id, map).unwrap(),
+        movements: Movement::for_i(id, map).unwrap(),
     }
 }
 
 fn greedy_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     let mut ts = new(i, map);
 
-    // Greedily partition groups into stages that only have protected groups.
-    let mut remaining_groups: Vec<TurnGroupID> = ts.turn_groups.keys().cloned().collect();
+    // Greedily partition movements into stages that only have protected movements.
+    let mut remaining_movements: Vec<MovementID> = ts.movements.keys().cloned().collect();
     let mut current_stage = Stage::new();
     loop {
-        let add = remaining_groups
+        let add = remaining_movements
             .iter()
-            .position(|&g| current_stage.could_be_protected(g, &ts.turn_groups));
+            .position(|&g| current_stage.could_be_protected(g, &ts.movements));
         match add {
             Some(idx) => {
                 current_stage
-                    .insert_protected_group(remaining_groups.remove(idx));
+                    .insert_protected_movement(remaining_movements.remove(idx));
             }
             None => {
-                assert!(!current_stage.no_protected_groups());
+                assert!(!current_stage.no_protected_movements());
                 ts.stages.push(current_stage);
                 current_stage = Stage::new();
-                if remaining_groups.is_empty() {
+                if remaining_movements.is_empty() {
                     break;
                 }
             }
@@ -133,11 +133,11 @@ fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     let mut ts = new(i, map);
     let mut vehicle_stage = Stage::new();
     let mut ped_stage = Stage::new();
-    for (id, group) in &ts.turn_groups {
+    for (id, movement) in &ts.movements {
         if id.crosswalk {
-            ped_stage.edit_group(group, TurnPriority::Protected);
+            ped_stage.edit_movement(movement, TurnPriority::Protected);
         } else {
-            vehicle_stage.edit_group(group, TurnPriority::Protected);
+            vehicle_stage.edit_movement(movement, TurnPriority::Protected);
         }
     }
     vehicle_stage.phase_type = PhaseType::Fixed(Duration::minutes(1));
@@ -155,7 +155,7 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
 
     // Picture a T intersection. Use turn angles to figure out the "main" two roads.
     let straight = ts
-        .turn_groups
+        .movements
         .values()
         .find(|g| g.turn_type == TurnType::Straight)?;
     let (north, south) = (straight.id.from.id, straight.id.to.id);
@@ -303,13 +303,13 @@ fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     let mut all_walk = Stage::new();
     let mut all_yield = Stage::new();
 
-    for group in ts.turn_groups.values() {
-        match group.turn_type {
+    for movement in ts.movements.values() {
+        match movement.turn_type {
             TurnType::Crosswalk => {
-                all_walk.insert_protected_group(group.id);
+                all_walk.insert_protected_movement(movement.id);
             }
             _ => {
-                all_yield.insert_yield_group(group.id);
+                all_yield.insert_yield_movement(movement.id);
             }
         }
     }
@@ -331,29 +331,29 @@ fn stage_per_road(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> 
         let adj2 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) + 1);
 
         let mut stage = Stage::new();
-        for group in ts.turn_groups.values() {
-            if group.turn_type == TurnType::Crosswalk {
-                if group.id.from.id == adj1 || group.id.from.id == adj2 {
-                    stage.insert_protected_group(group.id);
+        for movement in ts.movements.values() {
+            if movement.turn_type == TurnType::Crosswalk {
+                if movement.id.from.id == adj1 || movement.id.from.id == adj2 {
+                    stage.insert_protected_movement(movement.id);
                 }
-            } else if group.id.from.id == r {
-                stage.insert_yield_group(group.id);
+            } else if movement.id.from.id == r {
+                stage.insert_yield_movement(movement.id);
             }
         }
         // Might have a one-way outgoing road. Skip it.
-        if !stage.no_yield_groups() {
+        if !stage.no_yield_movements() {
             ts.stages.push(stage);
         }
     }
     ts.validate().ok()
 }
 
-// Add all possible protected groups to existing stages.
+// Add all possible protected movements to existing stages.
 fn expand_all_stages(ts: &mut ControlTrafficSignal) {
     for stage in ts.stages.iter_mut() {
-        for g in ts.turn_groups.keys() {
-            if stage.could_be_protected(*g, &ts.turn_groups) {
-                stage.insert_protected_group(*g);
+        for g in ts.movements.keys() {
+            if stage.could_be_protected(*g, &ts.movements) {
+                stage.insert_protected_movement(*g);
             }
         }
     }
@@ -370,13 +370,13 @@ fn make_stages(
         let mut stage = Stage::new();
 
         for (roads, turn_type, protected) in specs.into_iter() {
-            for group in ts.turn_groups.values() {
-                if !roads.contains(&group.id.from.id) || turn_type != group.turn_type {
+            for movement in ts.movements.values() {
+                if !roads.contains(&movement.id.from.id) || turn_type != movement.turn_type {
                     continue;
                 }
 
-                stage.edit_group(
-                    group,
+                stage.edit_movement(
+                    movement,
                     if protected {
                         TurnPriority::Protected
                     } else {
@@ -392,16 +392,16 @@ fn make_stages(
         // TODO If a stage has no protected turns at all, this adds the crosswalk to multiple
         // stages in a pretty weird way. It'd be better to add to just one stage -- the one with
         // the least conflicting yields.
-        for group in ts.turn_groups.values() {
-            if group.turn_type == TurnType::Crosswalk
-                && stage.could_be_protected(group.id, &ts.turn_groups)
+        for movement in ts.movements.values() {
+            if movement.turn_type == TurnType::Crosswalk
+                && stage.could_be_protected(movement.id, &ts.movements)
             {
-                stage.edit_group(group, TurnPriority::Protected);
+                stage.edit_movement(movement, TurnPriority::Protected);
             }
         }
 
         // Filter out empty stages if they happen.
-        if stage.no_protected_groups() && stage.no_yield_groups() {
+        if stage.no_protected_movements() && stage.no_yield_movements() {
             continue;
         }
 
@@ -414,7 +414,7 @@ fn make_stages(
         let smallest = ts
             .stages
             .iter()
-            .min_by_key(|p| p.num_protected_groups() + p.num_yield_groups())
+            .min_by_key(|p| p.num_protected_movements() + p.num_yield_movements())
             .cloned()
             .unwrap();
         if ts.stages.iter().any(|p| {
@@ -426,20 +426,20 @@ fn make_stages(
 }
 
 pub fn brute_force(map: &Map, i: IntersectionID) {
-    let turn_groups: Vec<TurnGroup> = TurnGroup::for_i(i, map)
+    let movements: Vec<Movement> = Movement::for_i(i, map)
         .unwrap()
         .into_iter()
-        .filter_map(|(id, tg)| if id.crosswalk { None } else { Some(tg) })
+        .filter_map(|(id, m)| if id.crosswalk { None } else { Some(m) })
         .collect();
-    let indices: Vec<usize> = (0..turn_groups.len()).collect();
-    for num_stages in 1..=turn_groups.len() {
+    let indices: Vec<usize> = (0..movements.len()).collect();
+    for num_stages in 1..=movements.len() {
         println!(
-            "For {} turn groups, looking for solution with {} stages",
-            turn_groups.len(),
+            "For {} turn movements, looking for solution with {} stages",
+            movements.len(),
             num_stages
         );
         for partition in helper(&indices, num_stages) {
-            if okay_partition(turn_groups.iter().collect(), partition) {
+            if okay_partition(movements.iter().collect(), partition) {
                 return;
             }
         }
@@ -447,15 +447,15 @@ pub fn brute_force(map: &Map, i: IntersectionID) {
     unreachable!()
 }
 
-fn okay_partition(turn_groups: Vec<&TurnGroup>, partition: Partition) -> bool {
+fn okay_partition(movements: Vec<&Movement>, partition: Partition) -> bool {
     for stage in partition.0 {
-        let mut protected: Vec<&TurnGroup> = Vec::new();
+        let mut protected: Vec<&Movement> = Vec::new();
         for idx in stage {
-            let tg = turn_groups[idx];
-            if protected.iter().any(|other| tg.conflicts_with(other)) {
+            let m = movements[idx];
+            if protected.iter().any(|other| m.conflicts_with(other)) {
                 return false;
             }
-            protected.push(tg);
+            protected.push(m);
         }
     }
     println!("found one that works! :O");
@@ -521,17 +521,17 @@ pub fn synchronize(map: &mut Map) {
     for (i1, i2) in pairs {
         let ts1 = map.get_traffic_signal(i1);
         let ts2 = map.get_traffic_signal(i2);
-        let flip1 = ts1.stages[0].protected_groups_iter().any(|tg1| {
-            !tg1.crosswalk
+        let flip1 = ts1.stages[0].protected_movements_iter().any(|m1| {
+            !m1.crosswalk
                 && ts2.stages[1]
-                    .protected_groups_iter()
-                    .any(|tg2| !tg2.crosswalk && (tg1.to == tg2.from || tg1.from == tg2.to))
+                    .protected_movements_iter()
+                    .any(|m2| !m2.crosswalk && (m1.to == m2.from || m1.from == m2.to))
         });
-        let flip2 = ts1.stages[1].protected_groups_iter().any(|tg1| {
-            !tg1.crosswalk
+        let flip2 = ts1.stages[1].protected_movements_iter().any(|m1| {
+            !m1.crosswalk
                 && ts2.stages[0]
-                    .protected_groups_iter()
-                    .any(|tg2| !tg2.crosswalk && (tg1.to == tg2.from || tg1.from == tg2.to))
+                    .protected_movements_iter()
+                    .any(|m2| !m2.crosswalk && (m1.to == m2.from || m1.from == m2.to))
         });
         if flip1 || flip2 {
             println!(
