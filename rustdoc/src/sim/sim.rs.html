@@ -2397,9 +2397,9 @@
             .<span class="ident">max</span>(<span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">24</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_phase_and_remaining_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">Duration</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_stage_and_remaining_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">Duration</span>) {
         <span class="self">self</span>.<span class="ident">intersections</span>
-            .<span class="ident">current_phase_and_remaining_time</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">i</span>)
+            .<span class="ident">current_stage_and_remaining_time</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">i</span>)
     }
 
     <span class="comment">// TODO This is an awkward copy of raw_throughput</span>

@@ -130,7 +130,7 @@
     <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="comment">// TODO Show diagram, auto-sync the phase.</span>
+<span class="comment">// TODO Show diagram, auto-sync the stage.</span>
 <span class="comment">// TODO Auto quit after things are gone?</span>
 <span class="kw">struct</span> <span class="ident">PreviewTrafficSignal</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
@@ -193,7 +193,7 @@
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
     <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="ident">phase</span>: <span class="ident">usize</span>,
+    <span class="ident">stage</span>: <span class="ident">usize</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">random</span> <span class="op">=</span> <span class="string">&quot;random agents around these intersections&quot;</span>.<span class="ident">to_string</span>();
     <span class="kw">let</span> <span class="ident">right_now</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
@@ -209,13 +209,13 @@
             <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;random agents around these intersections&quot;</span> {
                 <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">i</span>) <span class="kw">in</span> <span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
                     <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="comment">// Start at the current phase</span>
+                        <span class="comment">// Start at the current stage</span>
                         <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>);
                         <span class="comment">// TODO Use the offset correctly</span>
-                        <span class="comment">// TODO If there are adaptive phases, this could land anywhere</span>
+                        <span class="comment">// TODO If there are adaptive stages, this could land anywhere</span>
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">step</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
-                        <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">phase</span> {
-                            <span class="ident">step</span> <span class="op">+</span><span class="op">=</span> <span class="ident">signal</span>.<span class="ident">phases</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
+                        <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">stage</span> {
+                            <span class="ident">step</span> <span class="op">+</span><span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
                         }
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">timed_step</span>(
                             <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,

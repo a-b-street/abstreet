@@ -981,12 +981,12 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">apply_map_edits</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">TrafficSignalStyle</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">draw_signal_phase</span>, <span class="ident">DrawOptions</span>, <span class="ident">DrawTurnGroup</span>, <span class="ident">BIG_ARROW_THICKNESS</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">draw_signal_stage</span>, <span class="ident">DrawOptions</span>, <span class="ident">DrawTurnGroup</span>, <span class="ident">BIG_ARROW_THICKNESS</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Phase</span>, <span class="ident">PhaseType</span>, <span class="ident">TurnGroup</span>,
+    <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">PhaseType</span>, <span class="ident">Stage</span>, <span class="ident">TurnGroup</span>,
     <span class="ident">TurnGroupID</span>, <span class="ident">TurnPriority</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">VecDeque</span>};
@@ -1003,7 +1003,7 @@
 
     <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
     <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="ident">current_phase</span>: <span class="ident">usize</span>,
+    <span class="ident">current_stage</span>: <span class="ident">usize</span>,
 
     <span class="ident">groups</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawTurnGroup</span><span class="op">&gt;</span>,
     <span class="comment">// And the next priority to toggle to</span>
@@ -1012,7 +1012,7 @@
 
     <span class="ident">command_stack</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BundleEdits</span><span class="op">&gt;</span>,
     <span class="ident">redo_stack</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BundleEdits</span><span class="op">&gt;</span>,
-    <span class="comment">// Before synchronizing the number of phases</span>
+    <span class="comment">// Before synchronizing the number of stages</span>
     <span class="ident">original</span>: <span class="ident">BundleEdits</span>,
     <span class="ident">warn_changed</span>: <span class="ident">bool</span>,
 
@@ -1066,7 +1066,7 @@
             <span class="ident">top_panel</span>: <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>),
             <span class="ident">mode</span>,
             <span class="ident">members</span>,
-            <span class="ident">current_phase</span>: <span class="number">0</span>,
+            <span class="ident">current_stage</span>: <span class="number">0</span>,
             <span class="ident">groups</span>,
             <span class="ident">group_selected</span>: <span class="prelude-val">None</span>,
             <span class="ident">draw_current</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">new</span>()),
@@ -1080,20 +1080,20 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">editor</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">change_phase</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">change_stage</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="ident">hovering</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">group_selected</span>.<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">tg</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">tg</span>.<span class="ident">parent</span>);
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_phase</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">make_side_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>, <span class="self">self</span>.<span class="ident">current_phase</span>, <span class="ident">hovering</span>);
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">make_side_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>, <span class="self">self</span>.<span class="ident">current_stage</span>, <span class="ident">hovering</span>);
             <span class="ident">new</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">side_panel</span>);
             <span class="self">self</span>.<span class="ident">side_panel</span> <span class="op">=</span> <span class="ident">new</span>;
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">current_phase</span> <span class="op">=</span> <span class="ident">idx</span>;
+            <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">=</span> <span class="ident">idx</span>;
             <span class="self">self</span>.<span class="ident">side_panel</span> <span class="op">=</span>
-                <span class="ident">make_side_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>, <span class="self">self</span>.<span class="ident">current_phase</span>, <span class="ident">hovering</span>);
+                <span class="ident">make_side_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>, <span class="self">self</span>.<span class="ident">current_stage</span>, <span class="ident">hovering</span>);
             <span class="comment">// TODO Maybe center of previous member</span>
             <span class="self">self</span>.<span class="ident">side_panel</span>
-                .<span class="ident">scroll_to_member</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;phase {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>));
+                .<span class="ident">scroll_to_member</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>));
         }
 
         <span class="self">self</span>.<span class="ident">draw_current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">recalc_draw_current</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -1115,7 +1115,7 @@
         <span class="ident">bundle</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
 
         <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>);
-        <span class="self">self</span>.<span class="ident">change_phase</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>);
+        <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">recalc_draw_current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
@@ -1123,15 +1123,15 @@
 
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span> {
             <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">phase</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">phases</span>[<span class="self">self</span>.<span class="ident">current_phase</span>].<span class="ident">clone</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stage</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current_stage</span>].<span class="ident">clone</span>();
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">group_selected</span> {
                 <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">parent</span> <span class="op">=</span><span class="op">=</span> <span class="ident">signal</span>.<span class="ident">id</span> {
-                    <span class="ident">phase</span>.<span class="ident">edit_group</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">turn_groups</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>], <span class="ident">TurnPriority</span>::<span class="ident">Banned</span>);
+                    <span class="ident">stage</span>.<span class="ident">edit_group</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">turn_groups</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>], <span class="ident">TurnPriority</span>::<span class="ident">Banned</span>);
                 }
             }
-            <span class="ident">draw_signal_phase</span>(
+            <span class="ident">draw_signal_stage</span>(
                 <span class="ident">ctx</span>.<span class="ident">prerender</span>,
-                <span class="kw-2">&amp;</span><span class="ident">phase</span>,
+                <span class="kw-2">&amp;</span><span class="ident">stage</span>,
                 <span class="ident">signal</span>.<span class="ident">id</span>,
                 <span class="prelude-val">None</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>,
@@ -1157,8 +1157,8 @@
                 );
             } <span class="kw">else</span> {
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">signal_turn_block_bg</span>, <span class="ident">tg</span>.<span class="ident">block</span>.<span class="ident">clone</span>());
-                <span class="kw">let</span> <span class="ident">phase</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">phases</span>[<span class="self">self</span>.<span class="ident">current_phase</span>];
-                <span class="kw">let</span> <span class="ident">arrow_color</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">phase</span>.<span class="ident">get_priority_of_group</span>(<span class="ident">tg</span>.<span class="ident">id</span>) {
+                <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current_stage</span>];
+                <span class="kw">let</span> <span class="ident">arrow_color</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">stage</span>.<span class="ident">get_priority_of_group</span>(<span class="ident">tg</span>.<span class="ident">id</span>) {
                     <span class="ident">TurnPriority</span>::<span class="ident">Protected</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">signal_protected_turn</span>,
                     <span class="ident">TurnPriority</span>::<span class="ident">Yield</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">signal_permitted_turn</span>,
                     <span class="ident">TurnPriority</span>::<span class="ident">Banned</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">signal_banned_turn</span>,
@@ -1177,7 +1177,7 @@
             <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;Note&quot;</span>,
-                <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Some signals were modified to match the number and duration of phases&quot;</span>],
+                <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Some signals were modified to match the number and duration of stages&quot;</span>],
             ));
         }
 
@@ -1187,7 +1187,7 @@
             .<span class="ident">primary</span>
             .<span class="ident">map</span>
             .<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">num_phases</span> <span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">phases</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">num_stages</span> <span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>();
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">side_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -1213,15 +1213,15 @@
                         <span class="self">self</span>.<span class="ident">original</span>.<span class="ident">clone</span>(),
                     ));
                 }
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Add new phase&quot;</span> {
-                    <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">num_phases</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                        <span class="ident">ts</span>.<span class="ident">phases</span>.<span class="ident">push</span>(<span class="ident">Phase</span>::<span class="ident">new</span>());
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Add new stage&quot;</span> {
+                    <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">num_stages</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
+                        <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">Stage</span>::<span class="ident">new</span>());
                     });
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Apply offset&quot;</span> {
                     <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="self">self</span>.<span class="ident">side_panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;offset&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-                    <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_phase</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
+                    <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_stage</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
                         <span class="ident">ts</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="ident">offset</span>;
                     });
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
@@ -1240,43 +1240,43 @@
                             )
                         })
                         .<span class="ident">collect</span>();
-                    <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_phase</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
+                    <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_stage</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
                         <span class="ident">ts</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="ident">offsets</span>[<span class="kw-2">&amp;</span><span class="ident">ts</span>.<span class="ident">id</span>];
                     });
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;change duration of phase &quot;</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;change duration of stage &quot;</span>) {
                     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">-</span> <span class="number">1</span>;
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">edits</span>::<span class="ident">ChangeDuration</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
-                        <span class="ident">canonical_signal</span>.<span class="ident">phases</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span>.<span class="ident">clone</span>(),
+                        <span class="ident">canonical_signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span>.<span class="ident">clone</span>(),
                         <span class="ident">idx</span>,
                     ));
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;delete phase &quot;</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;delete stage &quot;</span>) {
                     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">-</span> <span class="number">1</span>;
                     <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                        <span class="ident">ts</span>.<span class="ident">phases</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
+                        <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
                     });
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;move up phase &quot;</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;move up stage &quot;</span>) {
                     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">-</span> <span class="number">1</span>;
                     <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                        <span class="ident">ts</span>.<span class="ident">phases</span>.<span class="ident">swap</span>(<span class="ident">idx</span>, <span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>);
+                        <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">swap</span>(<span class="ident">idx</span>, <span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>);
                     });
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;move down phase &quot;</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;move down stage &quot;</span>) {
                     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">-</span> <span class="number">1</span>;
                     <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                        <span class="ident">ts</span>.<span class="ident">phases</span>.<span class="ident">swap</span>(<span class="ident">idx</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>);
+                        <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">swap</span>(<span class="ident">idx</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>);
                     });
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;phase &quot;</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;stage &quot;</span>) {
                     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">-</span> <span class="number">1</span>;
-                    <span class="self">self</span>.<span class="ident">change_phase</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>);
+                    <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>);
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
                 <span class="macro">unreachable</span><span class="macro">!</span>()
@@ -1293,14 +1293,14 @@
                         <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">clear</span>();
 
                         <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>);
-                        <span class="self">self</span>.<span class="ident">change_phase</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>);
+                        <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>);
 
                         <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Error: missing turns&quot;</span>,
                             <span class="macro">vec</span><span class="macro">!</span>[
                                 <span class="string">&quot;Some turns are missing from this traffic signal&quot;</span>,
-                                <span class="string">&quot;They&#39;ve all been added as a new first phase. Please update your \
+                                <span class="string">&quot;They&#39;ve all been added as a new first stage. Please update your \
                                  changes to include them.&quot;</span>,
                             ],
                         ));
@@ -1330,7 +1330,7 @@
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>(),
-                        <span class="self">self</span>.<span class="ident">current_phase</span>,
+                        <span class="self">self</span>.<span class="ident">current_stage</span>,
                     ));
                 }
                 <span class="string">&quot;undo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1338,7 +1338,7 @@
                         .<span class="ident">push</span>(<span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>));
                     <span class="self">self</span>.<span class="ident">command_stack</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="ident">apply</span>(<span class="ident">app</span>);
                     <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="op">!</span><span class="self">self</span>.<span class="ident">command_stack</span>.<span class="ident">is_empty</span>(), <span class="bool-val">true</span>);
-                    <span class="self">self</span>.<span class="ident">change_phase</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>);
+                    <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>);
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
                 <span class="string">&quot;redo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1346,7 +1346,7 @@
                         .<span class="ident">push</span>(<span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>));
                     <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="ident">apply</span>(<span class="ident">app</span>);
                     <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">true</span>, <span class="op">!</span><span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">is_empty</span>());
-                    <span class="self">self</span>.<span class="ident">change_phase</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>);
+                    <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>);
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
@@ -1355,12 +1355,12 @@
         }
 
         {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_phase</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">UpArrow</span>) {
-                <span class="self">self</span>.<span class="ident">change_phase</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_phase</span> <span class="op">-</span> <span class="number">1</span>);
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">UpArrow</span>) {
+                <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">-</span> <span class="number">1</span>);
             }
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_phase</span> <span class="op">!</span><span class="op">=</span> <span class="ident">num_phases</span> <span class="op">-</span> <span class="number">1</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">DownArrow</span>) {
-                <span class="self">self</span>.<span class="ident">change_phase</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_phase</span> <span class="op">+</span> <span class="number">1</span>);
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">!</span><span class="op">=</span> <span class="ident">num_stages</span> <span class="op">-</span> <span class="number">1</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">DownArrow</span>) {
+                <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">+</span> <span class="number">1</span>);
             }
         }
 
@@ -1372,10 +1372,10 @@
                 <span class="kw">for</span> <span class="ident">g</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">groups</span> {
                     <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">g</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
                     <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">block</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
-                        <span class="kw">let</span> <span class="ident">phase</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">phases</span>[<span class="self">self</span>.<span class="ident">current_phase</span>];
-                        <span class="kw">let</span> <span class="ident">next_priority</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">phase</span>.<span class="ident">get_priority_of_group</span>(<span class="ident">g</span>.<span class="ident">id</span>) {
+                        <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current_stage</span>];
+                        <span class="kw">let</span> <span class="ident">next_priority</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">stage</span>.<span class="ident">get_priority_of_group</span>(<span class="ident">g</span>.<span class="ident">id</span>) {
                             <span class="ident">TurnPriority</span>::<span class="ident">Banned</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="kw">if</span> <span class="ident">phase</span>.<span class="ident">could_be_protected</span>(<span class="ident">g</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">turn_groups</span>) {
+                                <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="ident">g</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">turn_groups</span>) {
                                     <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Protected</span>)
                                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">id</span>.<span class="ident">crosswalk</span> {
                                     <span class="prelude-val">None</span>
@@ -1400,7 +1400,7 @@
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">group_selected</span> <span class="op">!</span><span class="op">=</span> <span class="ident">old</span> {
                 <span class="self">self</span>.<span class="ident">draw_current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">recalc_draw_current</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                <span class="self">self</span>.<span class="ident">change_phase</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_phase</span>);
+                <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_stage</span>);
             }
         }
 
@@ -1411,15 +1411,15 @@
                     <span class="ident">ctx</span>,
                     <span class="macro">format</span><span class="macro">!</span>(
                         <span class="string">&quot;toggle from {:?} to {:?}&quot;</span>,
-                        <span class="ident">signal</span>.<span class="ident">phases</span>[<span class="self">self</span>.<span class="ident">current_phase</span>].<span class="ident">get_priority_of_group</span>(<span class="ident">id</span>),
+                        <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current_stage</span>].<span class="ident">get_priority_of_group</span>(<span class="ident">id</span>),
                         <span class="ident">pri</span>
                     ),
                 ) {
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_phase</span>;
+                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_stage</span>;
                     <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">clone</span>();
                     <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
                         <span class="kw">if</span> <span class="ident">ts</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">id</span>.<span class="ident">parent</span> {
-                            <span class="ident">ts</span>.<span class="ident">phases</span>[<span class="ident">idx</span>].<span class="ident">edit_group</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">turn_groups</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>], <span class="ident">pri</span>);
+                            <span class="ident">ts</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">edit_group</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">turn_groups</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>], <span class="ident">pri</span>);
                         }
                     });
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">KeepWithMouseover</span>;
@@ -1536,7 +1536,7 @@
     <span class="ident">hovering</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="comment">// Use any member for phase duration</span>
+    <span class="comment">// Use any member for stage duration</span>
     <span class="kw">let</span> <span class="ident">canonical_signal</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>());
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
@@ -1561,10 +1561,10 @@
     }
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">canonical_signal</span>.<span class="ident">phases</span> {
-            <span class="ident">total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">p</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
+        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">canonical_signal</span>.<span class="ident">stages</span> {
+            <span class="ident">total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">s</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
         }
-        <span class="comment">// TODO Say &quot;normally&quot; to account for adaptive phases?</span>
+        <span class="comment">// TODO Say &quot;normally&quot; to account for adaptive stages?</span>
         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;&quot;</span>));
         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;One full cycle lasts {}&quot;</span>, <span class="ident">total</span>)));
     }
@@ -1594,56 +1594,56 @@
             .<span class="ident">collect</span>(),
     );
 
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">canonical_phase</span>) <span class="kw">in</span> <span class="ident">canonical_signal</span>.<span class="ident">phases</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">canonical_stage</span>) <span class="kw">in</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>));
 
         <span class="kw">let</span> <span class="ident">unselected_btn</span> <span class="op">=</span> <span class="ident">draw_multiple_signals</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">members</span>, <span class="ident">idx</span>, <span class="ident">hovering</span>, <span class="kw-2">&amp;</span><span class="ident">translations</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">selected_btn</span> <span class="op">=</span> <span class="ident">unselected_btn</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">bbox</span> <span class="op">=</span> <span class="ident">unselected_btn</span>.<span class="ident">get_bounds</span>().<span class="ident">get_rectangle</span>();
         <span class="ident">selected_btn</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">RED</span>, <span class="ident">bbox</span>.<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>)).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">phase_btn</span> <span class="op">=</span> <span class="ident">Btn</span>::<span class="ident">custom</span>(<span class="ident">unselected_btn</span>, <span class="ident">selected_btn</span>, <span class="ident">bbox</span>).<span class="ident">build</span>(
+        <span class="kw">let</span> <span class="ident">stage_btn</span> <span class="op">=</span> <span class="ident">Btn</span>::<span class="ident">custom</span>(<span class="ident">unselected_btn</span>, <span class="ident">selected_btn</span>, <span class="ident">bbox</span>).<span class="ident">build</span>(
             <span class="ident">ctx</span>,
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;phase {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>),
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>),
             <span class="prelude-val">None</span>,
         );
 
-        <span class="kw">let</span> <span class="ident">phase_col</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">stage_col</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="kw">match</span> <span class="ident">canonical_phase</span>.<span class="ident">phase_type</span> {
-                    <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Phase {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>)),
-                    <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Phase {}: {} (adaptive)&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>)),
+                <span class="kw">match</span> <span class="ident">canonical_stage</span>.<span class="ident">phase_type</span> {
+                    <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>)),
+                    <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {} (adaptive)&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>)),
                 }
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/edit.svg&quot;</span>).<span class="ident">build</span>(
                     <span class="ident">ctx</span>,
-                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;change duration of phase {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>),
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;change duration of stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>),
                     <span class="kw">if</span> <span class="ident">selected</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
                         <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">X</span>)
                     } <span class="kw">else</span> {
                         <span class="prelude-val">None</span>
                     },
                 ),
-                <span class="kw">if</span> <span class="ident">canonical_signal</span>.<span class="ident">phases</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
+                <span class="kw">if</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
                     <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/delete.svg&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delete phase {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delete stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
                         .<span class="ident">align_right</span>()
                 } <span class="kw">else</span> {
                     <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                 },
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">phase_btn</span>,
+                <span class="ident">stage_btn</span>,
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;↑&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
                     } <span class="kw">else</span> {
-                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;↑&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move up phase {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
+                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;↑&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move up stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
                     },
-                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">phases</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
+                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
                         <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;↓&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
                     } <span class="kw">else</span> {
-                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;↓&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move down phase {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
+                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;↓&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move down stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
                     },
                 ])
                 .<span class="ident">centered_vert</span>()
@@ -1653,14 +1653,14 @@
         .<span class="ident">padding</span>(<span class="number">10</span>);
 
         <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">selected</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">phase_col</span>.<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#2A2A2A&quot;</span>)));
+            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">stage_col</span>.<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#2A2A2A&quot;</span>)));
         } <span class="kw">else</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">phase_col</span>);
+            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">stage_col</span>);
         }
     }
 
     <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>));
-    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Add new phase&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
+    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Add new stage&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
 
     <span class="comment">// TODO This doesn&#39;t even have a way of knowing which spinner corresponds to which</span>
     <span class="comment">// intersection!</span>
@@ -1730,26 +1730,26 @@
         <span class="ident">BundleEdits</span> { <span class="ident">signals</span> }
     }
 
-    <span class="comment">// If the intersections haven&#39;t been edited together before, the number of phases and the</span>
+    <span class="comment">// If the intersections haven&#39;t been edited together before, the number of stages and the</span>
     <span class="comment">// durations might not match up. Just initially force them to align somehow.</span>
     <span class="kw">fn</span> <span class="ident">synchronize</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BundleEdits</span> {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-        <span class="comment">// Pick one of the members with the most phases as canonical.</span>
+        <span class="comment">// Pick one of the members with the most stages as canonical.</span>
         <span class="kw">let</span> <span class="ident">canonical</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(
             <span class="kw-2">*</span><span class="ident">members</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">max_by_key</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">phases</span>.<span class="ident">len</span>())
+                .<span class="ident">max_by_key</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">stages</span>.<span class="ident">len</span>())
                 .<span class="ident">unwrap</span>(),
         );
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">signals</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">members</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">clone</span>();
-            <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">canonical_phase</span>) <span class="kw">in</span> <span class="ident">canonical</span>.<span class="ident">phases</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                <span class="kw">if</span> <span class="ident">signal</span>.<span class="ident">phases</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
-                    <span class="ident">signal</span>.<span class="ident">phases</span>.<span class="ident">push</span>(<span class="ident">Phase</span>::<span class="ident">new</span>());
+            <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">canonical_stage</span>) <span class="kw">in</span> <span class="ident">canonical</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+                <span class="kw">if</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
+                    <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">Stage</span>::<span class="ident">new</span>());
                 }
-                <span class="ident">signal</span>.<span class="ident">phases</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span> <span class="op">=</span> <span class="ident">canonical_phase</span>.<span class="ident">phase_type</span>.<span class="ident">clone</span>();
+                <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span> <span class="op">=</span> <span class="ident">canonical_stage</span>.<span class="ident">phase_type</span>.<span class="ident">clone</span>();
             }
             <span class="ident">signals</span>.<span class="ident">push</span>(<span class="ident">signal</span>);
         }
@@ -1769,21 +1769,21 @@
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bundle</span> <span class="op">=</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="ident">members</span>);
-    <span class="comment">// Stick all the missing turns in a new phase at the beginning.</span>
+    <span class="comment">// Stick all the missing turns in a new stage at the beginning.</span>
     <span class="kw">for</span> <span class="ident">signal</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bundle</span>.<span class="ident">signals</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">phase</span> <span class="op">=</span> <span class="ident">Phase</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stage</span> <span class="op">=</span> <span class="ident">Stage</span>::<span class="ident">new</span>();
         <span class="comment">// TODO Could do this more efficiently</span>
         <span class="kw">for</span> <span class="ident">g</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">all_missing</span> {
             <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">parent</span> <span class="op">!</span><span class="op">=</span> <span class="ident">signal</span>.<span class="ident">id</span> {
                 <span class="kw">continue</span>;
             }
             <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">crosswalk</span> {
-                <span class="ident">phase</span>.<span class="ident">protected_groups</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">g</span>);
+                <span class="ident">stage</span>.<span class="ident">protected_groups</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">g</span>);
             } <span class="kw">else</span> {
-                <span class="ident">phase</span>.<span class="ident">yield_groups</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">g</span>);
+                <span class="ident">stage</span>.<span class="ident">yield_groups</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">g</span>);
             }
         }
-        <span class="ident">signal</span>.<span class="ident">phases</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">phase</span>);
+        <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">stage</span>);
     }
     <span class="prelude-val">Some</span>(<span class="ident">bundle</span>)
 }
@@ -1803,9 +1803,9 @@
             <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">normal_intersection</span>,
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
         );
-        <span class="ident">draw_signal_phase</span>(
+        <span class="ident">draw_signal_stage</span>(
             <span class="ident">ctx</span>.<span class="ident">prerender</span>,
-            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">phases</span>[<span class="ident">idx</span>],
+            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">stages</span>[<span class="ident">idx</span>],
             <span class="kw-2">*</span><span class="ident">i</span>,
             <span class="prelude-val">None</span>,
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">piece</span>,
