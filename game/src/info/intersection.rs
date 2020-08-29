@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::helpers::color_for_agent_type;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use crate::options::TrafficSignalStyle;
-use crate::render::draw_signal_phase;
+use crate::render::draw_signal_stage;
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Time};
 use map_model::{IntersectionID, IntersectionType, PhaseType};
@@ -251,12 +251,12 @@ pub fn traffic_signal(
     let signal = app.primary.map.get_traffic_signal(id);
     {
         let mut txt = Text::new();
-        txt.add(Line(format!("{} phases", signal.phases.len())).small_heading());
+        txt.add(Line(format!("{} stages", signal.stages.len())).small_heading());
         txt.add(Line(format!("Signal offset: {}", signal.offset)));
         {
             let mut total = Duration::ZERO;
-            for p in &signal.phases {
-                total += p.phase_type.simple_duration();
+            for s in &signal.stages {
+                total += s.phase_type.simple_duration();
             }
             // TODO Say "normally" or something?
             txt.add(Line(format!("One cycle lasts {}", total)));
@@ -264,20 +264,20 @@ pub fn traffic_signal(
         rows.push(txt.draw(ctx));
     }
 
-    for (idx, phase) in signal.phases.iter().enumerate() {
+    for (idx, stage) in signal.stages.iter().enumerate() {
         rows.push(
-            match phase.phase_type {
-                PhaseType::Fixed(d) => Line(format!("Phase {}: {}", idx + 1, d)),
-                PhaseType::Adaptive(d) => Line(format!("Phase {}: {} (adaptive)", idx + 1, d)),
+            match stage.phase_type {
+                PhaseType::Fixed(d) => Line(format!("Stage {}: {}", idx + 1, d)),
+                PhaseType::Adaptive(d) => Line(format!("Stage {}: {} (adaptive)", idx + 1, d)),
             }
             .draw(ctx),
         );
 
         {
             let mut orig_batch = GeomBatch::new();
-            draw_signal_phase(
+            draw_signal_stage(
                 ctx.prerender,
-                phase,
+                stage,
                 id,
                 None,
                 &mut orig_batch,

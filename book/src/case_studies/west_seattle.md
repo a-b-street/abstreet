@@ -20,15 +20,15 @@ transportation.
 
 ## 16th Ave SW and SW Holden St
 
-HPAC has been asking for a protected left-turn phase at this intersection. I'm
+HPAC has been asking for a protected left-turn stage at this intersection. I'm
 unfamiliar with this intersection and currently unable to scout in-person, so
-I'm blindly guessing the traffic signal currently has just two phases:
+I'm blindly guessing the traffic signal currently has just two stages:
 
 ![existing_diagram](existing_diagram.gif)
 
 From watching the traffic, it seems like the east/west direction is busier, with
 lots of eastbound traffic headed towards WA-509. Holden St has no turn lanes, so
-a protected left turn phase makes sense. Let's make the change and see what
+a protected left turn stage makes sense. Let's make the change and see what
 happens:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/6tooJaZLa0Q" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
@@ -52,7 +52,7 @@ Alaska, SW Holden, and SW Roxbury St. Again, it's necessary to first fix data
 quality problems and run a full day before doing more analysis.
 
 Once the simulation is running smoothly, A/B Street can be used to make changes
--- like lowering speed limits, adding a protected left turn phase, or converting
+-- like lowering speed limits, adding a protected left turn stage, or converting
 part of the road into a bus lane -- and evaluate the effects on individual trips
 and aggregate groups.
 

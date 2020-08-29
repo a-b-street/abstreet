@@ -10,7 +10,7 @@ use widgetry::{
     UpdateType, VerticalAlignment, Widget,
 };
 
-// TODO Show diagram, auto-sync the phase.
+// TODO Show diagram, auto-sync the stage.
 // TODO Auto quit after things are gone?
 struct PreviewTrafficSignal {
     panel: Panel,
@@ -73,7 +73,7 @@ pub fn make_previewer(
     ctx: &mut EventCtx,
     app: &App,
     members: BTreeSet<IntersectionID>,
-    phase: usize,
+    stage: usize,
 ) -> Box<dyn State> {
     let random = "random agents around these intersections".to_string();
     let right_now = format!(
@@ -89,13 +89,13 @@ pub fn make_previewer(
             if x == "random agents around these intersections" {
                 for (idx, i) in members.iter().enumerate() {
                     if idx == 0 {
-                        // Start at the current phase
+                        // Start at the current stage
                         let signal = app.primary.map.get_traffic_signal(*i);
                         // TODO Use the offset correctly
-                        // TODO If there are adaptive phases, this could land anywhere
+                        // TODO If there are adaptive stages, this could land anywhere
                         let mut step = Duration::ZERO;
-                        for idx in 0..phase {
-                            step += signal.phases[idx].phase_type.simple_duration();
+                        for idx in 0..stage {
+                            step += signal.stages[idx].phase_type.simple_duration();
                         }
                         app.primary.sim.timed_step(
                             &app.primary.map,

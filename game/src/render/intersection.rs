@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::options::TrafficSignalStyle;
 use crate::render::{
-    draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
+    draw_signal_stage, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
@@ -147,11 +147,11 @@ impl Renderable for DrawIntersection {
                     .unwrap_or(true);
                 if recalc {
                     let (idx, remaining) =
-                        app.primary.sim.current_phase_and_remaining_time(self.id);
+                        app.primary.sim.current_stage_and_remaining_time(self.id);
                     let mut batch = GeomBatch::new();
-                    draw_signal_phase(
+                    draw_signal_stage(
                         g.prerender,
-                        &signal.phases[idx],
+                        &signal.stages[idx],
                         self.id,
                         Some(remaining),
                         &mut batch,
