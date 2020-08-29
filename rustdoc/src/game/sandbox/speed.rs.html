@@ -814,6 +814,10 @@
 <span id="814">814</span>
 <span id="815">815</span>
 <span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">FindDelayedIntersections</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Warping</span>;
@@ -1345,12 +1349,16 @@
             <span class="ident">wall_time_started</span>: <span class="ident">Instant</span>::<span class="ident">now</span>(),
             <span class="ident">sim_time_started</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
             <span class="ident">halt_upon_delay</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;text&quot;</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;stop now&quot;</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
-                    .<span class="ident">centered_horiz</span>(),
-            ]))
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(
+                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;text&quot;</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;stop now&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        .<span class="ident">centered_horiz</span>(),
+                ])
+                <span class="comment">// hardcoded width avoids jiggle due to text updates</span>
+                .<span class="ident">force_width</span>(<span class="number">700.0</span>),
+            )
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
         })
     }
