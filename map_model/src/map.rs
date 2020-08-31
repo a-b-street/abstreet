@@ -108,7 +108,7 @@ impl Map {
             );
         }
         println!(
-            "Check https://dabreegster.github.io/abstreet/howto/dev.html and file an issue if you \
+            "Check https://dabreegster.github.io/abstreet/dev/index.html and file an issue if you \
              have trouble."
         );
     }

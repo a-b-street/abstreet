@@ -12,7 +12,7 @@ pedestrians.
   [FreeBSD](https://www.freshports.org/games/abstreet/), or
   [read all instructions](https://dabreegster.github.io/abstreet/howto/index.html)
   (new releases every Sunday)
-- [build from source](https://dabreegster.github.io/abstreet/howto/dev.html)
+- [build from source](https://dabreegster.github.io/abstreet/dev/index.html)
   (new changes daily)
 
 ## Show, don't tell
@@ -35,7 +35,7 @@ Measure the effects:
 
 - [How A/B Street works](https://dabreegster.github.io/abstreet/how_it_works.html)
 - Technical
-  - [Developer guide](https://dabreegster.github.io/abstreet/howto/dev.html)
+  - [Developer guide](https://dabreegster.github.io/abstreet/dev/index.html)
   - [Map model](https://dabreegster.github.io/abstreet/map/index.html)
   - [Traffic simulation](https://dabreegster.github.io/abstreet/trafficsim/index.html)
   - [Running A/B Street in a new city](https://dabreegster.github.io/abstreet/howto/new_city.html)
