@@ -1101,6 +1101,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "geojson_to_osmosis"
+version = "0.1.0"
+dependencies = [
+ "geojson 0.19.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "geom"
 version = "0.1.0"
 dependencies = [
@@ -1668,7 +1675,7 @@ name = "line_drawing"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "num-traits 0.1.43 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num-traits 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

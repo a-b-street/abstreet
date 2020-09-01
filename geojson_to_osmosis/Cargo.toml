@@ -1,5 +1,5 @@
 [package]
-name = "geojson2poly"
+name = "geojson_to_osmosis"
 version = "0.1.0"
 authors = ["Michael Kirk <michael.code@endoftheworl.de>"]
 edition = "2018"
@@ -7,3 +7,4 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+geojson = "0.19.0"
