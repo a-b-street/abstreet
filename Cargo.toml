@@ -5,7 +5,6 @@ members = [
   "convert_osm",
   "game",
   "geom",
-  "geojson_to_osmosis",
   "headless",
   "importer",
   "iotool",
