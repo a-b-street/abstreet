@@ -33,11 +33,13 @@ touch if you need these fixed soon or want to help.
 If the area is small enough, try the "export" tool on
 <https://www.openstreetmap.org>. You can download larger areas from
 <https://download.bbbike.org/> or <http://download.geofabrik.de/index.html>,
-then clip them to a smaller area. You can draw a clipping polygon using
-<http://geojson.io> or <https://geoman.io/geojson-editor>. You have to turn the
-coordinates from that polygon into the
-[Osmosis format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format).
-The `data/geojson_to_osmosis.py` script can help with the formatting.
+then clip them to a smaller area.  Use [geojson.io](http://geojson.io/) or
+[geoman.io](https://geoman.io/geojson-editor) to draw a boundary around the
+region you want to simulate and save the geojson locally.  Use `cargo run --bin
+geojson_to_osmosis < boundary.geojson > clipping.poly` to convert that geojson
+to the [Osmosis
+format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
+required by osmconvert.
 
 ## Including the city to A/B street more permanently
 
@@ -48,18 +50,16 @@ use it as well.
     [the instructions](dev.md#building-map-data). You'll need Rust, osmconvert,
     gdal, etc.
 
-2.  Use [geojson.io](http://geojson.io/) or
-    [geoman.io](https://geoman.io/geojson-editor) to draw a polygon around the
-    region you want to simulate.
+2.  Create a new directory: `mkdir -p data/input/your_city/polygons`
 
-3.  Create a new directory: `mkdir -p data/input/your_city/polygons`
+3.  Use [geojson.io](http://geojson.io/) or
+    [geoman.io](https://geoman.io/geojson-editor) to draw a boundary around the
+    region you want to simulate and save the geojson locally.
 
-4.  Create a
-    [polygon filter file](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
-    in that directory using the coordinates from geojson.io. It's easiest to
-    start with an existing file from another directory; I recommend
-    `data/input/krakow/polygons/krakow_center.poly` as a guide. You can use
-    `data/geojson_to_osmosis.py` to help format the coordinates.
+4.  Use `cargo run --bin geojson_to_osmosis < boundary.geojson > clipping.poly` to
+    convert that geojson to the [Osmosis
+    format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
+    required by osmconvert.
 
 5.  Create a new module in `importer/src/` for your city, copying
     `importer/src/krakow.rs` as a guide. Edit that file in the obvious way. The
