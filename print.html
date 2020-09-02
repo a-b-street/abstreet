@@ -328,11 +328,12 @@ touch if you need these fixed soon or want to help.</p>
 <p>If the area is small enough, try the &quot;export&quot; tool on
 <a href="https://www.openstreetmap.org">https://www.openstreetmap.org</a>. You can download larger areas from
 <a href="https://download.bbbike.org/">https://download.bbbike.org/</a> or <a href="http://download.geofabrik.de/index.html">http://download.geofabrik.de/index.html</a>,
-then clip them to a smaller area. You can draw a clipping polygon using
-<a href="http://geojson.io">http://geojson.io</a> or <a href="https://geoman.io/geojson-editor">https://geoman.io/geojson-editor</a>. You have to turn the
-coordinates from that polygon into the
-<a href="https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format">Osmosis format</a>.
-The <code>data/geojson_to_osmosis.py</code> script can help with the formatting.</p>
+then clip them to a smaller area.  Use <a href="http://geojson.io/">geojson.io</a> or
+<a href="https://geoman.io/geojson-editor">geoman.io</a> to draw a boundary around the
+region you want to simulate and save the geojson locally.  Use <code>cargo run --bin geojson_to_osmosis &lt; boundary.geojson &gt; clipping.poly</code> to convert that geojson
+to the <a href="https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format">Osmosis
+format</a>
+required by osmconvert.</p>
 <h2><a class="header" href="#including-the-city-to-ab-street-more-permanently" id="including-the-city-to-ab-street-more-permanently">Including the city to A/B street more permanently</a></h2>
 <p>Follow this guide to add a new city to A/B street by default so other users can
 use it as well.</p>
@@ -343,20 +344,18 @@ use it as well.</p>
 gdal, etc.</p>
 </li>
 <li>
-<p>Use <a href="http://geojson.io/">geojson.io</a> or
-<a href="https://geoman.io/geojson-editor">geoman.io</a> to draw a polygon around the
-region you want to simulate.</p>
-</li>
-<li>
 <p>Create a new directory: <code>mkdir -p data/input/your_city/polygons</code></p>
 </li>
 <li>
-<p>Create a
-<a href="https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format">polygon filter file</a>
-in that directory using the coordinates from geojson.io. It's easiest to
-start with an existing file from another directory; I recommend
-<code>data/input/krakow/polygons/krakow_center.poly</code> as a guide. You can use
-<code>data/geojson_to_osmosis.py</code> to help format the coordinates.</p>
+<p>Use <a href="http://geojson.io/">geojson.io</a> or
+<a href="https://geoman.io/geojson-editor">geoman.io</a> to draw a boundary around the
+region you want to simulate and save the geojson locally.</p>
+</li>
+<li>
+<p>Use <code>cargo run --bin geojson_to_osmosis &lt; boundary.geojson &gt; clipping.poly</code> to
+convert that geojson to the <a href="https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format">Osmosis
+format</a>
+required by osmconvert.</p>
 </li>
 <li>
 <p>Create a new module in <code>importer/src/</code> for your city, copying
