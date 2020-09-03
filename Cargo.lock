@@ -798,7 +798,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "fast_paths"
 version = "0.1.1-SNAPSHOT"
-source = "git+https://github.com/easbar/fast_paths#c6a9c492a67a90ddb013b5b754400bbac8870066"
+source = "git+https://github.com/easbar/fast_paths#192ae1997f9857791826ac5ed16892b2f692920c"
 dependencies = [
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "priority-queue 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
