@@ -57,15 +57,16 @@ pub fn draw_signal_stage(
                     };
 
                     let pl = &signal.movements[m].geom;
-                    batch.push(
-                        if yellow_light {
-                            yellow
-                        } else {
-                            app.cs.signal_protected_turn.alpha(percent)
-                        },
-                        pl.exact_slice(slice_start, pl.length() - slice_end)
-                            .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
-                    );
+                    if let Ok(pl) = pl.maybe_exact_slice(slice_start, pl.length() - slice_end) {
+                        batch.push(
+                            if yellow_light {
+                                yellow
+                            } else {
+                                app.cs.signal_protected_turn.alpha(percent)
+                            },
+                            pl.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
+                        );
+                    }
                 } else {
                     let (center, angle) = crosswalk_icon(&signal.movements[m].geom);
                     batch.append(
