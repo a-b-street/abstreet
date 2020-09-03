@@ -1,5 +1,5 @@
-use std::io::{self, Read};
 use geojson::{GeoJson, Value};
+use std::io::{self, Read};
 
 /// Convert geojson boundary suitable for osmfilter and other osmosis based tools.
 /// Expects the input to contain no element other than the boundary of interest.
@@ -26,17 +26,12 @@ fn boundary_coords(geojson: &GeoJson) -> Result<Vec<Vec<f64>>, Box<dyn std::erro
     let feature = match geojson {
         GeoJson::Feature(feature) => feature,
         GeoJson::FeatureCollection(feature_collection) => &feature_collection.features[0],
-        _ => return Err(format!("Unexpected geojson: {:?}", geojson).into())
+        _ => return Err(format!("Unexpected geojson: {:?}", geojson).into()),
     };
 
     match &feature.geometry.as_ref().map(|g| &g.value) {
-        Some(Value::MultiPolygon(multi_polygon)) => {
-            return Ok(multi_polygon[0][0].clone())
-        },
-        Some(Value::Polygon(polygon)) => {
-            return Ok(polygon[0].clone())
-        },
-        _ => Err(format!("Unexpected feature: {:?}", feature).into())
+        Some(Value::MultiPolygon(multi_polygon)) => return Ok(multi_polygon[0][0].clone()),
+        Some(Value::Polygon(polygon)) => return Ok(polygon[0].clone()),
+        _ => Err(format!("Unexpected feature: {:?}", feature).into()),
     }
 }
-

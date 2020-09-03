@@ -137,7 +137,6 @@ Common utilities:
 - `abstutil`: a grab-bag of IO helpers, timing and logging utilities, etc
 - `geom`: types for GPS and map-space points, lines, angles, polylines,
   polygons, circles, durations, speeds
-- `iotool`: a catch-all tool to import/export data
 
 ## Code conventions
 

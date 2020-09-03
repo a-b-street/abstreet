@@ -59,7 +59,7 @@ There's no API to create trips. Instead, you can
 If you need to deeply inspect the map, you can dump it to JSON:
 
 ```
-cargo run --bin iotool -- dump_map --map=data/system/maps/montlake.bin
+cargo run --bin dump_map data/system/maps/montlake.bin
 ```
 
 The format of the map isn't well-documented yet. See the
