@@ -26,7 +26,7 @@
   - [Travel demand](trafficsim/travel_demand.md)
   - [Gridlock](trafficsim/gridlock.md)
   - [Multi-modal trips](trafficsim/trips.md)
-  - [Live edits](trafficsim/edits.md)
+  - [Live edits](trafficsim/live_edits.md)
 
 ---
 
