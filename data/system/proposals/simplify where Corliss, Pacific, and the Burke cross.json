@@ -1,0 +1,99 @@
+{
+  "map_name": "udistrict",
+  "edits_name": "simplify where Corliss, Pacific, and the Burke cross",
+  "version": 2,
+  "commands": [
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 8026175,
+          "i1": 30101211,
+          "i2": 1752970097
+        },
+        "new": {
+          "lanes_ltr": [
+            [
+              "Construction",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 11.176,
+          "access_restrictions": {
+            "allow_through_traffic": 31,
+            "cap_vehicles_per_hour": null
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 11.176,
+          "access_restrictions": {
+            "allow_through_traffic": 31,
+            "cap_vehicles_per_hour": null
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 8111823,
+          "i1": 1752970097,
+          "i2": 53155632
+        },
+        "new": {
+          "lanes_ltr": [
+            [
+              "Construction",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 11.176,
+          "access_restrictions": {
+            "allow_through_traffic": 31,
+            "cap_vehicles_per_hour": null
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 11.176,
+          "access_restrictions": {
+            "allow_through_traffic": 31,
+            "cap_vehicles_per_hour": null
+          }
+        }
+      }
+    }
+  ],
+  "proposal_description": [
+    "Disconnect Pacific St from Northlake Way by the Burke Gilman",
+    "I've seen many near-accidents between drivers and cyclists at the intersection of Pacific St, N 36th, and Corliss Ave. Removing the one-way shortcuts to Northlake way would make this intersection less stressful.",
+    "This proposal can be used to explore the detours."
+  ],
+  "proposal_link": null
+}

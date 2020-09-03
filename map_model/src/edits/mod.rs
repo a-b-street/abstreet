@@ -106,7 +106,7 @@ impl MapEdits {
                 let bytes = abstutil::slurp_file(&path).map_err(|err| err.to_string())?;
                 let contents = std::str::from_utf8(&bytes).map_err(|err| err.to_string())?;
                 let value = serde_json::from_str(contents).map_err(|err| err.to_string())?;
-                let perma = compat::upgrade(value)?;
+                let perma = compat::upgrade(value, map)?;
                 PermanentMapEdits::from_permanent(perma, map)
             }
         }

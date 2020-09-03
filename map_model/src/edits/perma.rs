@@ -22,7 +22,7 @@ pub struct PermanentMapEdits {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-enum PermanentEditIntersection {
+pub(crate) enum PermanentEditIntersection {
     StopSign {
         #[serde(
             serialize_with = "serialize_btreemap",
@@ -35,7 +35,7 @@ enum PermanentEditIntersection {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-enum PermanentEditCmd {
+pub(crate) enum PermanentEditCmd {
     ChangeRoad {
         r: OriginalRoad,
         new: EditRoad,
@@ -53,40 +53,40 @@ enum PermanentEditCmd {
     },
 }
 
+impl EditCmd {
+    pub(crate) fn to_perma(&self, map: &Map) -> PermanentEditCmd {
+        match self {
+            EditCmd::ChangeRoad { r, new, old } => PermanentEditCmd::ChangeRoad {
+                r: map.get_r(*r).orig_id,
+                new: new.clone(),
+                old: old.clone(),
+            },
+            EditCmd::ChangeIntersection { i, new, old } => PermanentEditCmd::ChangeIntersection {
+                i: map.get_i(*i).orig_id,
+                new: new.to_permanent(map),
+                old: old.to_permanent(map),
+            },
+            EditCmd::ChangeRouteSchedule { id, old, new } => {
+                PermanentEditCmd::ChangeRouteSchedule {
+                    osm_rel_id: map.get_br(*id).osm_rel_id,
+                    old: old.clone(),
+                    new: new.clone(),
+                }
+            }
+        }
+    }
+}
+
 impl PermanentMapEdits {
     pub fn to_permanent(edits: &MapEdits, map: &Map) -> PermanentMapEdits {
         PermanentMapEdits {
             map_name: map.get_name().to_string(),
             edits_name: edits.edits_name.clone(),
             // Increase this every time there's a schema change
-            version: 1,
+            version: 2,
             proposal_description: edits.proposal_description.clone(),
             proposal_link: edits.proposal_link.clone(),
-            commands: edits
-                .commands
-                .iter()
-                .map(|cmd| match cmd {
-                    EditCmd::ChangeRoad { r, new, old } => PermanentEditCmd::ChangeRoad {
-                        r: map.get_r(*r).orig_id,
-                        new: new.clone(),
-                        old: old.clone(),
-                    },
-                    EditCmd::ChangeIntersection { i, new, old } => {
-                        PermanentEditCmd::ChangeIntersection {
-                            i: map.get_i(*i).orig_id,
-                            new: new.to_permanent(map),
-                            old: old.to_permanent(map),
-                        }
-                    }
-                    EditCmd::ChangeRouteSchedule { id, old, new } => {
-                        PermanentEditCmd::ChangeRouteSchedule {
-                            osm_rel_id: map.get_br(*id).osm_rel_id,
-                            old: old.clone(),
-                            new: new.clone(),
-                        }
-                    }
-                })
-                .collect(),
+            commands: edits.commands.iter().map(|cmd| cmd.to_perma(map)).collect(),
         }
     }
 
