@@ -163,24 +163,3 @@ pub fn try_change_lt(
         Err(PopupMsg::new(ctx, "Error", errors))
     }
 }
-
-pub fn try_reverse(ctx: &mut EventCtx, map: &Map, l: LaneID) -> Result<EditCmd, Box<dyn State>> {
-    let r = map.get_parent(l);
-    let lanes = r.lanes_ltr();
-    let idx = r.offset(l);
-    let dir = lanes[idx].1;
-    // TODO Handle a road with a single lane. Actually find a case and try it; I don't trust that
-    // there aren't weird side effects elsewhere of doing this.
-    if (idx != 0 && lanes[idx - 1].1 != dir) || (idx != lanes.len() - 1 && lanes[idx + 1].1 != dir)
-    {
-        Ok(map.edit_road_cmd(r.id, |new| {
-            new.lanes_ltr[idx].1 = dir.opposite();
-        }))
-    } else {
-        Err(PopupMsg::new(
-            ctx,
-            "Error",
-            vec!["You can only reverse the lanes next to the road's yellow center line"],
-        ))
-    }
-}

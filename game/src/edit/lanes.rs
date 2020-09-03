@@ -3,13 +3,12 @@ use crate::common::CommonState;
 use crate::edit::zones::ZoneEditor;
 use crate::edit::{
     apply_map_edits, can_edit_lane, change_speed_limit, maybe_edit_intersection, try_change_lt,
-    try_reverse,
 };
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::Renderable;
 use crate::sandbox::GameplayMode;
-use map_model::{LaneID, LaneType};
+use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
     hotkey, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, RewriteColor,
     TextExt, VerticalAlignment, Widget,
@@ -141,7 +140,7 @@ impl State for LaneEditor {
                 x => {
                     let map = &mut app.primary.map;
                     let result = match x {
-                        "reverse lane direction" => try_reverse(ctx, map, self.l),
+                        "reverse lane direction" => Ok(reverse_lane(map, self.l)),
                         "convert to a driving lane" => {
                             try_change_lt(ctx, map, self.l, LaneType::Driving)
                         }
@@ -206,4 +205,14 @@ impl State for LaneEditor {
         self.panel.draw(g);
         CommonState::draw_osd(g, app);
     }
+}
+
+// Allow doing this anywhere. Players can create really wacky roads with many direction changes,
+// but it's not really useful to limit creativity. ;)
+fn reverse_lane(map: &Map, l: LaneID) -> EditCmd {
+    let r = map.get_parent(l);
+    let idx = r.offset(l);
+    map.edit_road_cmd(r.id, |new| {
+        new.lanes_ltr[idx].1 = new.lanes_ltr[idx].1.opposite();
+    })
 }
