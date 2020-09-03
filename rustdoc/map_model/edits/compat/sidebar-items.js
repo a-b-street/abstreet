@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["fix_intersection_ids",""],["fix_offset",""],["fix_road_direction",""],["upgrade",""],["walk",""]]});
+initSidebarItems({"fn":[["fix_intersection_ids",""],["fix_offset",""],["fix_old_lane_cmds",""],["fix_road_direction",""],["upgrade",""],["walk",""]],"struct":[["ChangeAccessRestrictions",""],["ChangeLaneType",""],["ChangeSpeedLimit",""],["OriginalLane",""],["ReverseLane",""]]});
