@@ -12,7 +12,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let geojson = buffer.parse::<GeoJson>()?;
     let points = boundary_coords(&geojson)?;
 
-    println!("map_name");
+    println!("boundary");
     println!("1");
     for point in points {
         println!("     {}    {}", point[0], point[1]);
