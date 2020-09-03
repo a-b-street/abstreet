@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["LaneEditor",""]]});
+initSidebarItems({"fn":[["reverse_lane",""]],"struct":[["LaneEditor",""]]});

@@ -744,8 +744,6 @@
 <span id="744">744</span>
 <span id="745">745</span>
 <span id="746">746</span>
-<span id="747">747</span>
-<span id="748">748</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">bulk</span>;
 <span class="kw">mod</span> <span class="ident">cluster_traffic_signals</span>;
@@ -762,9 +760,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">routes</span>::<span class="ident">RouteEditor</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">stop_signs</span>::<span class="ident">StopSignEditor</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traffic_signals</span>::<span class="ident">TrafficSignalEditor</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">validate</span>::{
-    <span class="ident">check_blackholes</span>, <span class="ident">check_sidewalk_connectivity</span>, <span class="ident">try_change_lt</span>, <span class="ident">try_reverse</span>,
-};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">validate</span>::{<span class="ident">check_blackholes</span>, <span class="ident">check_sidewalk_connectivity</span>, <span class="ident">try_change_lt</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">CommonState</span>, <span class="ident">Warping</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">debug</span>::<span class="ident">DebugMode</span>;
