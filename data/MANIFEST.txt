@@ -9,6 +9,10 @@ data/input/krakow/footways.bin,017e85fd6da69b67a1a7a790506f52ff,https://www.drop
 data/input/krakow/osm/krakow_center.osm,b914bbcd42a7f769a40a90970cea35f2,https://www.dropbox.com/s/pf3avtszpw732jd/krakow_center.osm.zip?dl=0
 data/input/krakow/osm/malopolskie-latest.osm.pbf,9505917bbacc478177e36605e89b6d77,https://www.dropbox.com/s/vehjfvwx25v1qnd/malopolskie-latest.osm.pbf.zip?dl=0
 data/input/krakow/service_roads.bin,a6a5d22bb3dba66b5a4cad72f6842eb9,https://www.dropbox.com/s/is31c2ejl8nun28/service_roads.bin.zip?dl=0
+data/input/london/footways.bin,95816ac4d77d857c561a61830d1998a0,https://www.dropbox.com/s/sw8dnlv4h4jloai/footways.bin.zip?dl=0
+data/input/london/osm/greater-london-latest.osm.pbf,ef110d0831b482bb7336c82e36b115ed,https://www.dropbox.com/s/wzwjgcd3wsc4sx1/greater-london-latest.osm.pbf.zip?dl=0
+data/input/london/osm/southbank.osm,b86babace41d69a9e5b8be2310a725ae,https://www.dropbox.com/s/qip39avqaijvxy6/southbank.osm.zip?dl=0
+data/input/london/service_roads.bin,a35c865d02cb919770e61d57cae9468c,https://www.dropbox.com/s/oxmq3f76obc4b5n/service_roads.bin.zip?dl=0
 data/input/raw_maps/ballard.bin,65da8c1e9045b825bdd4f4269314958d,https://www.dropbox.com/s/63s3t0f3zjj54ti/ballard.bin.zip?dl=0
 data/input/raw_maps/berlin_center.bin,b1f0fb3abdf211bd6ab589e56cdd5e58,https://www.dropbox.com/s/baukshvxcap40ay/berlin_center.bin.zip?dl=0
 data/input/raw_maps/downtown.bin,9baa87977b540972047576ea50762268,https://www.dropbox.com/s/fbfxya2qcrv0zvp/downtown.bin.zip?dl=0
@@ -17,6 +21,7 @@ data/input/raw_maps/krakow_center.bin,8e3e1bc8837630e27f9e0b969a05f5a4,https://w
 data/input/raw_maps/lakeslice.bin,5880904248b2d01ffc7f7fe7d67726e3,https://www.dropbox.com/s/vk1l3gouuijfkfi/lakeslice.bin.zip?dl=0
 data/input/raw_maps/montlake.bin,a92ea24eff562c6d99ec4878e12e24c1,https://www.dropbox.com/s/au92ul0a8jg931l/montlake.bin.zip?dl=0
 data/input/raw_maps/south_seattle.bin,b044bda30b5adeed129820b284334599,https://www.dropbox.com/s/zbwsoq893tnlcaq/south_seattle.bin.zip?dl=0
+data/input/raw_maps/southbank.bin,745f3e42713b981e3584ef90e49b4a2b,https://www.dropbox.com/s/ooql97qx7eix39j/southbank.bin.zip?dl=0
 data/input/raw_maps/tel_aviv.bin,8dd2fa0428728c4e3a503ca143c7d0d2,https://www.dropbox.com/s/smg85gj5bak1agb/tel_aviv.bin.zip?dl=0
 data/input/raw_maps/udistrict.bin,4441415d1f8b6fc32293fde688ecc40d,https://www.dropbox.com/s/p4oscm85fj1mxgb/udistrict.bin.zip?dl=0
 data/input/raw_maps/west_seattle.bin,121ae8600b101dea7fafcc8786a3a5e0,https://www.dropbox.com/s/45c2slhwmmn3jkn/west_seattle.bin.zip?dl=0
@@ -75,6 +80,7 @@ data/system/maps/krakow_center.bin,7e423da356c1671ea09d2527575fce5c,https://www.
 data/system/maps/lakeslice.bin,c117a20d21a7c68ceae775c6c1daf318,https://www.dropbox.com/s/sss05ts43u8ghb8/lakeslice.bin.zip?dl=0
 data/system/maps/montlake.bin,6ca284783ce83e915282476cf99e04cc,https://www.dropbox.com/s/wyybiw5y7z3gdoc/montlake.bin.zip?dl=0
 data/system/maps/south_seattle.bin,286ce475d0d4a93501d7f9af6fff6418,https://www.dropbox.com/s/y505pnkwxyyrw0f/south_seattle.bin.zip?dl=0
+data/system/maps/southbank.bin,d7a8606a30927a8b73aa935881e526c2,https://www.dropbox.com/s/7k2gxn3jp2h10l0/southbank.bin.zip?dl=0
 data/system/maps/tel_aviv.bin,b273e64c3e2ded4134f46bce6d9992cf,https://www.dropbox.com/s/7hndvhud5x8xao5/tel_aviv.bin.zip?dl=0
 data/system/maps/udistrict.bin,d2773d20a171843b7b6c805f350d4cf5,https://www.dropbox.com/s/y03l06emjmtjp32/udistrict.bin.zip?dl=0
 data/system/maps/west_seattle.bin,df580b7566bb9d57a2605cf4affa741d,https://www.dropbox.com/s/a9ws18sar0l5tns/west_seattle.bin.zip?dl=0

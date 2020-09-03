@@ -14,6 +14,10 @@ data/input/krakow/osm
 data/input/krakow/footways.bin
 data/input/krakow/service_roads.bin
 
+data/input/london/osm
+data/input/london/footways.bin
+data/input/london/service_roads.bin
+
 data/input/seattle/blockface.bin
 data/input/seattle/blockface.kml
 data/input/seattle/footways.bin

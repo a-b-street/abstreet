@@ -268,6 +268,7 @@ impl Manifest {
                 "berlin" => map == "berlin_center",
                 "xian" => map == "xian",
                 "tel_aviv" => map == "tel_aviv",
+                "london" => map == "southbank",
                 _ => panic!("Unknown city {}. Check your data/config", city),
             }
         }
