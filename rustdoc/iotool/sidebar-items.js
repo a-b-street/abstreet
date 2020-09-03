@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["import_traffic",""],["main",""]],"struct":[["Input",""],["Person",""],["Trip",""]]});

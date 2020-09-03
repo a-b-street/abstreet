@@ -35,14 +35,9 @@
 <span id="35">35</span>
 <span id="36">36</span>
 <span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Read</span>};
 <span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">GeoJson</span>, <span class="ident">Value</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Read</span>};
 
 <span class="doccomment">/// Convert geojson boundary suitable for osmfilter and other osmosis based tools.</span>
 <span class="doccomment">/// Expects the input to contain no element other than the boundary of interest.</span>
@@ -69,19 +64,14 @@
     <span class="kw">let</span> <span class="ident">feature</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">geojson</span> {
         <span class="ident">GeoJson</span>::<span class="ident">Feature</span>(<span class="ident">feature</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">feature</span>,
         <span class="ident">GeoJson</span>::<span class="ident">FeatureCollection</span>(<span class="ident">feature_collection</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">feature_collection</span>.<span class="ident">features</span>[<span class="number">0</span>],
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Unexpected geojson: {:?}&quot;</span>, <span class="ident">geojson</span>).<span class="ident">into</span>())
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Unexpected geojson: {:?}&quot;</span>, <span class="ident">geojson</span>).<span class="ident">into</span>()),
     };
 
     <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">feature</span>.<span class="ident">geometry</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">g</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">g</span>.<span class="ident">value</span>) {
-        <span class="prelude-val">Some</span>(<span class="ident">Value</span>::<span class="ident">MultiPolygon</span>(<span class="ident">multi_polygon</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">multi_polygon</span>[<span class="number">0</span>][<span class="number">0</span>].<span class="ident">clone</span>())
-        },
-        <span class="prelude-val">Some</span>(<span class="ident">Value</span>::<span class="ident">Polygon</span>(<span class="ident">polygon</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">polygon</span>[<span class="number">0</span>].<span class="ident">clone</span>())
-        },
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Unexpected feature: {:?}&quot;</span>, <span class="ident">feature</span>).<span class="ident">into</span>())
+        <span class="prelude-val">Some</span>(<span class="ident">Value</span>::<span class="ident">MultiPolygon</span>(<span class="ident">multi_polygon</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">multi_polygon</span>[<span class="number">0</span>][<span class="number">0</span>].<span class="ident">clone</span>()),
+        <span class="prelude-val">Some</span>(<span class="ident">Value</span>::<span class="ident">Polygon</span>(<span class="ident">polygon</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">polygon</span>[<span class="number">0</span>].<span class="ident">clone</span>()),
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Unexpected feature: {:?}&quot;</span>, <span class="ident">feature</span>).<span class="ident">into</span>()),
     }
 }
-
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "geojson_to_osmosis";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

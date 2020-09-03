@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `iotool/src/main.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>main.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../iotool/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `importer/src/bin/import_traffic.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>import_traffic.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../import_traffic/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -76,17 +76,6 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
-<span id="88">88</span>
-<span id="89">89</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
@@ -96,21 +85,10 @@
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
-    <span class="kw">match</span> <span class="ident">args</span>.<span class="ident">required_free</span>().<span class="ident">as_ref</span>() {
-        <span class="string">&quot;import_traffic&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="ident">import_traffic</span>(<span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--map&quot;</span>), <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--input&quot;</span>));
-            <span class="ident">args</span>.<span class="ident">done</span>();
-        }
-        <span class="string">&quot;dump_map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--map&quot;</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;dump map&quot;</span>));
-            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>));
-            <span class="ident">args</span>.<span class="ident">done</span>();
-        }
-        <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unknown command {}. Try: import_traffic, dump_map&quot;</span>, <span class="ident">x</span>),
-    }
-}
+    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--map&quot;</span>);
+    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--input&quot;</span>);
+    <span class="ident">args</span>.<span class="ident">done</span>();
 
-<span class="kw">fn</span> <span class="ident">import_traffic</span>(<span class="ident">map</span>: <span class="ident">String</span>, <span class="ident">input</span>: <span class="ident">String</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;import traffic demand data&quot;</span>);
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
     <span class="kw">let</span> <span class="ident">input</span>: <span class="ident">Input</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">read_json</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
@@ -178,4 +156,4 @@
     <span class="ident">mode</span>: <span class="ident">TripMode</span>,
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "iotool";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "import_traffic";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
