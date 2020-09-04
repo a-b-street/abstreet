@@ -154,7 +154,7 @@ problems is useful. It's also fine to crash when initially constructing all of
 the renderable map objects, because this crash will consistently happen at
 startup-time and be noticed by somebody developing before a player gets to it.
 
-I have lots of thoughts about testing that I haven't written anywhere yet.
-You'll surely note the lack of unit tests. If it bothers you, let's talk about
+Regarding Testing: You'll surely note the lack of unit tests. If it bothers you, let's talk about
 what tests should exist. In the meantime, note lots of validation does happen
 via importing maps, running the prebaked scenarios, and screenshot diffing.
+Please read more in depth in the [testing strategy](https://dabreegster.github.io/abstreet/dev/testing.html) doc.
