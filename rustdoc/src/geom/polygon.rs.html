@@ -475,19 +475,37 @@
 <span id="475">475</span>
 <span id="476">476</span>
 <span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">HashablePt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">area</span>::<span class="ident">Area</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">convexhull</span>::<span class="ident">ConvexHull</span>;
 <span class="kw">use</span> <span class="ident">geo_booleanop</span>::<span class="ident">boolean</span>::<span class="ident">BooleanOp</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Polygon</span> {
     <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
     <span class="comment">// Groups of three indices make up the triangles</span>
-    <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>,
 
     <span class="comment">// If the polygon has holes, explicitly store all the rings (the one outer and all of the</span>
     <span class="comment">// inner) so they can later be used to generate outlines and such. If the polygon has no holes,</span>
@@ -506,7 +524,7 @@
             <span class="ident">vertices</span>.<span class="ident">push</span>(<span class="ident">pt</span>.<span class="ident">x</span>());
             <span class="ident">vertices</span>.<span class="ident">push</span>(<span class="ident">pt</span>.<span class="ident">y</span>());
         }
-        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">earcutr</span>::<span class="ident">earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">Vec</span>::<span class="ident">new</span>(), <span class="number">2</span>);
+        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">downsize</span>(<span class="ident">earcutr</span>::<span class="ident">earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">Vec</span>::<span class="ident">new</span>(), <span class="number">2</span>));
 
         <span class="ident">Polygon</span> {
             <span class="ident">points</span>: <span class="ident">orig_pts</span>.<span class="ident">clone</span>(),
@@ -527,7 +545,7 @@
             })
             .<span class="ident">collect</span>();
         <span class="kw">let</span> (<span class="ident">vertices</span>, <span class="ident">holes</span>, <span class="ident">dims</span>) <span class="op">=</span> <span class="ident">earcutr</span>::<span class="ident">flatten</span>(<span class="kw-2">&amp;</span><span class="ident">geojson_style</span>);
-        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">earcutr</span>::<span class="ident">earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">holes</span>, <span class="ident">dims</span>);
+        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">downsize</span>(<span class="ident">earcutr</span>::<span class="ident">earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">holes</span>, <span class="ident">dims</span>));
 
         <span class="ident">Polygon</span> {
             <span class="ident">points</span>: <span class="ident">vertices</span>
@@ -542,7 +560,7 @@
     <span class="comment">// TODO Doesn&#39;t remember rings yet</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_geojson</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="kw">let</span> (<span class="ident">vertices</span>, <span class="ident">holes</span>, <span class="ident">dims</span>) <span class="op">=</span> <span class="ident">earcutr</span>::<span class="ident">flatten</span>(<span class="ident">raw</span>);
-        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">earcutr</span>::<span class="ident">earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">holes</span>, <span class="ident">dims</span>);
+        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">downsize</span>(<span class="ident">earcutr</span>::<span class="ident">earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">holes</span>, <span class="ident">dims</span>));
         <span class="ident">Polygon</span> {
             <span class="ident">points</span>: <span class="ident">vertices</span>
                 .<span class="ident">chunks</span>(<span class="number">2</span>)
@@ -559,7 +577,7 @@
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">indices</span>.<span class="ident">len</span>() <span class="op">%</span> <span class="number">3</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
         <span class="ident">Polygon</span> {
             <span class="ident">points</span>,
-            <span class="ident">indices</span>,
+            <span class="ident">indices</span>: <span class="ident">downsize</span>(<span class="ident">indices</span>),
             <span class="ident">rings</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -576,15 +594,15 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Triangle</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">slice</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">indices</span>.<span class="ident">chunks_exact</span>(<span class="number">3</span>) {
             <span class="ident">triangles</span>.<span class="ident">push</span>(<span class="ident">Triangle</span>::<span class="ident">new</span>(
-                <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">0</span>]],
-                <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">1</span>]],
-                <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">2</span>]],
+                <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">usize</span>],
+                <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">1</span>] <span class="kw">as</span> <span class="ident">usize</span>],
+                <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">2</span>] <span class="kw">as</span> <span class="ident">usize</span>],
             ));
         }
         <span class="ident">triangles</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_for_rendering</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_for_rendering</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>) {
         (<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">indices</span>)
     }
 
@@ -745,12 +763,16 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Polygon</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">points</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">points</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">indices</span>;
-        <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">points</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">points</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u16</span>;
         <span class="ident">points</span>.<span class="ident">extend</span>(<span class="ident">other</span>.<span class="ident">points</span>);
         <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">other</span>.<span class="ident">indices</span> {
             <span class="ident">indices</span>.<span class="ident">push</span>(<span class="ident">offset</span> <span class="op">+</span> <span class="ident">idx</span>);
         }
-        <span class="ident">Polygon</span>::<span class="ident">precomputed</span>(<span class="ident">points</span>, <span class="ident">indices</span>)
+        <span class="ident">Polygon</span> {
+            <span class="ident">points</span>,
+            <span class="ident">indices</span>,
+            <span class="ident">rings</span>: <span class="prelude-val">None</span>,
+        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union_all</span>(<span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
@@ -952,6 +974,18 @@
 
 <span class="kw">fn</span> <span class="ident">from_multi</span>(<span class="ident">multi</span>: <span class="ident">geo</span>::<span class="ident">MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
     <span class="ident">multi</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">from_geo</span>).<span class="ident">collect</span>()
+}
+
+<span class="kw">fn</span> <span class="ident">downsize</span>(<span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">input</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">u16</span>::<span class="ident">try_from</span>(<span class="ident">x</span>) {
+            <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">x</span>);
+        } <span class="kw">else</span> {
+            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} can&#39;t fit in u16, some polygon is too huge&quot;</span>, <span class="ident">x</span>);
+        }
+    }
+    <span class="ident">output</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "geom";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

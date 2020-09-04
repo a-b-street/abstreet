@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["from_geo",""],["from_multi",""],["to_geo",""]],"struct":[["Polygon",""],["Triangle",""]]});
+initSidebarItems({"fn":[["downsize",""],["from_geo",""],["from_multi",""],["to_geo",""]],"struct":[["Polygon",""],["Triangle",""]]});

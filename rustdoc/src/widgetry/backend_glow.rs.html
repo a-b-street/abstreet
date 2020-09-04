@@ -567,7 +567,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
         <span class="kw">for</span> (<span class="ident">color</span>, <span class="ident">poly</span>) <span class="kw">in</span> <span class="ident">batch</span>.<span class="ident">consume</span>() {
-            <span class="kw">let</span> <span class="ident">idx_offset</span> <span class="op">=</span> <span class="ident">vertices</span>.<span class="ident">len</span>();
+            <span class="kw">let</span> <span class="ident">idx_offset</span> <span class="op">=</span> <span class="ident">vertices</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>;
             <span class="kw">let</span> (<span class="ident">pts</span>, <span class="ident">raw_indices</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">raw_for_rendering</span>();
             <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
                 <span class="kw">let</span> <span class="ident">style</span> <span class="op">=</span> <span class="ident">color</span>.<span class="ident">style</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
@@ -581,7 +581,7 @@
                 ]);
             }
             <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">raw_indices</span> {
-                <span class="ident">indices</span>.<span class="ident">push</span>((<span class="ident">idx_offset</span> <span class="op">+</span> <span class="kw-2">*</span><span class="ident">idx</span>) <span class="kw">as</span> <span class="ident">u32</span>);
+                <span class="ident">indices</span>.<span class="ident">push</span>(<span class="ident">idx_offset</span> <span class="op">+</span> (<span class="kw-2">*</span><span class="ident">idx</span> <span class="kw">as</span> <span class="ident">u32</span>));
             }
         }
 
