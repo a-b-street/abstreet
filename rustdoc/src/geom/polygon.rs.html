@@ -474,6 +474,7 @@
 <span id="474">474</span>
 <span id="475">475</span>
 <span id="476">476</span>
+<span id="477">477</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">HashablePt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">area</span>::<span class="ident">Area</span>;
@@ -488,8 +489,9 @@
     <span class="comment">// Groups of three indices make up the triangles</span>
     <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
 
-    <span class="comment">// If the polygon has holes, explicitly store all the rings so they can later be used to</span>
-    <span class="comment">// generate outlines and such.</span>
+    <span class="comment">// If the polygon has holes, explicitly store all the rings (the one outer and all of the</span>
+    <span class="comment">// inner) so they can later be used to generate outlines and such. If the polygon has no holes,</span>
+    <span class="comment">// then this will just be None, since the points form a ring.</span>
     <span class="ident">rings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
@@ -533,7 +535,7 @@
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]))
                 .<span class="ident">collect</span>(),
             <span class="ident">indices</span>,
-            <span class="ident">rings</span>: <span class="prelude-val">Some</span>(<span class="ident">inner</span>),
+            <span class="ident">rings</span>: <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="ident">inner</span>) },
         }
     }
 
