@@ -694,6 +694,8 @@
 <span id="694">694</span>
 <span id="695">695</span>
 <span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>};
@@ -1114,12 +1116,14 @@
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">id</span>);
             <span class="ident">batch</span>.<span class="ident">push</span>(
                 <span class="ident">Color</span>::<span class="ident">GREEN</span>,
-                <span class="ident">map</span>.<span class="ident">must_right_shift</span>(<span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>(), <span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
+                <span class="ident">r</span>.<span class="ident">center_pts</span>
+                    .<span class="ident">must_shift_right</span>(<span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
                     .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
             );
             <span class="ident">batch</span>.<span class="ident">push</span>(
                 <span class="ident">Color</span>::<span class="ident">BLUE</span>,
-                <span class="ident">map</span>.<span class="ident">must_left_shift</span>(<span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>(), <span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
+                <span class="ident">r</span>.<span class="ident">center_pts</span>
+                    .<span class="ident">must_shift_left</span>(<span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
                     .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
             );
         }

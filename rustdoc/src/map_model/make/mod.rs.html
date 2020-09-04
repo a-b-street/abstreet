@@ -557,8 +557,9 @@
             }
             <span class="comment">// TODO Maybe easier to use the road&#39;s &quot;yellow center line&quot; and shift left/right from</span>
             <span class="comment">// there.</span>
-            <span class="kw">let</span> <span class="ident">road_left_pts</span> <span class="op">=</span> <span class="ident">map</span>
-                .<span class="ident">left_shift</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>(), <span class="ident">r</span>.<span class="ident">half_width</span>)
+            <span class="kw">let</span> <span class="ident">road_left_pts</span> <span class="op">=</span> <span class="ident">road</span>
+                .<span class="ident">center_pts</span>
+                .<span class="ident">shift_left</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)
                 .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>());
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width_so_far</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
@@ -575,14 +576,13 @@
 
                 <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">lane</span>.<span class="ident">dir</span>, <span class="ident">lane</span>.<span class="ident">lt</span>));
 
-                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span>
-                    <span class="ident">map</span>.<span class="ident">right_shift</span>(<span class="ident">road_left_pts</span>.<span class="ident">clone</span>(), <span class="ident">width_so_far</span> <span class="op">+</span> (<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>))
-                {
-                    <span class="ident">pl</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">timer</span>.<span class="ident">error</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} geometry broken; lane not shifted!&quot;</span>, <span class="ident">id</span>));
-                    <span class="ident">road_left_pts</span>.<span class="ident">clone</span>()
-                };
+                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span>
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">road_left_pts</span>.<span class="ident">shift_right</span>(<span class="ident">width_so_far</span> <span class="op">+</span> (<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)) {
+                        <span class="ident">pl</span>
+                    } <span class="kw">else</span> {
+                        <span class="ident">timer</span>.<span class="ident">error</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} geometry broken; lane not shifted!&quot;</span>, <span class="ident">id</span>));
+                        <span class="ident">road_left_pts</span>.<span class="ident">clone</span>()
+                    };
                 <span class="kw">let</span> <span class="ident">lane_center_pts</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
                     <span class="ident">pl</span>
                 } <span class="kw">else</span> {

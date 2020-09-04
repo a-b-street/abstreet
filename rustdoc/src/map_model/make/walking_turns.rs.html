@@ -447,10 +447,6 @@
 <span id="447">447</span>
 <span id="448">448</span>
 <span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">DrivingSide</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -813,12 +809,8 @@
 
     <span class="comment">// Find all of the points on the intersection polygon between the two sidewalks. Assumes</span>
     <span class="comment">// sidewalks are the same length.</span>
-    <span class="kw">let</span> <span class="ident">corner1</span> <span class="op">=</span> <span class="ident">driving_side</span>
-        .<span class="ident">right_shift_line</span>(<span class="ident">l1</span>.<span class="ident">last_line</span>(), <span class="ident">l1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
-        .<span class="ident">pt2</span>();
-    <span class="kw">let</span> <span class="ident">corner2</span> <span class="op">=</span> <span class="ident">driving_side</span>
-        .<span class="ident">right_shift_line</span>(<span class="ident">l2</span>.<span class="ident">first_line</span>(), <span class="ident">l2</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
-        .<span class="ident">pt1</span>();
+    <span class="kw">let</span> <span class="ident">corner1</span> <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_right</span>(<span class="ident">l1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>();
+    <span class="kw">let</span> <span class="ident">corner2</span> <span class="op">=</span> <span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_right</span>(<span class="ident">l2</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>();
 
     <span class="comment">// TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.</span>
     <span class="kw">if</span> <span class="bool-val">false</span> {
@@ -847,8 +839,8 @@
             }
 
             <span class="ident">pts_between</span>.<span class="ident">extend</span>(
-                <span class="ident">driving_side</span>
-                    .<span class="ident">must_right_shift</span>(<span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="ident">deduped</span>), <span class="ident">l1</span>.<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">l2</span>.<span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>)
+                <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="ident">deduped</span>)
+                    .<span class="ident">must_shift_right</span>(<span class="ident">l1</span>.<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">l2</span>.<span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>)
                     .<span class="ident">points</span>(),
             );
         }

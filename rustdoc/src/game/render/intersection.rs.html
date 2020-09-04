@@ -419,18 +419,6 @@
 <span id="419">419</span>
 <span id="420">420</span>
 <span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -535,13 +523,11 @@
             <span class="comment">// TODO warn</span>
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
-        <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">right_shift_line</span>(
-            <span class="ident">rightmost</span>
-                .<span class="ident">lane_center_pts</span>
-                .<span class="ident">exact_slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">rightmost</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">trim_back</span>)
-                .<span class="ident">last_line</span>(),
-            <span class="ident">rightmost</span>.<span class="ident">width</span>,
-        );
+        <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">rightmost</span>
+            .<span class="ident">lane_center_pts</span>
+            .<span class="ident">exact_slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">rightmost</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">trim_back</span>)
+            .<span class="ident">last_line</span>()
+            .<span class="ident">shift_right</span>(<span class="ident">rightmost</span>.<span class="ident">width</span>);
 
         <span class="kw">let</span> <span class="ident">octagon</span> <span class="op">=</span> <span class="ident">make_octagon</span>(<span class="ident">last_line</span>.<span class="ident">pt2</span>(), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>), <span class="ident">last_line</span>.<span class="ident">angle</span>());
         <span class="kw">let</span> <span class="ident">pole</span> <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(
@@ -648,20 +634,18 @@
             <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">poly</span>) <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">map</span>
-                    .<span class="ident">left_shift</span>(<span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">clone</span>(), <span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
-                    .<span class="ident">ok</span>()<span class="question-mark">?</span>
-                    .<span class="ident">into_points</span>();
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">left_shift_line</span>(<span class="ident">l2</span>.<span class="ident">first_line</span>(), <span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>());
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">right_shift_line</span>(<span class="ident">l2</span>.<span class="ident">first_line</span>(), <span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>());
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">into_points</span>();
+                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>());
+                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>());
                 <span class="ident">pts</span>.<span class="ident">extend</span>(
-                    <span class="ident">map</span>.<span class="ident">right_shift</span>(<span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">clone</span>(), <span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
+                    <span class="ident">turn</span>.<span class="ident">geom</span>
+                        .<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
                         .<span class="ident">ok</span>()<span class="question-mark">?</span>
                         .<span class="ident">reversed</span>()
                         .<span class="ident">into_points</span>(),
                 );
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">right_shift_line</span>(<span class="ident">l1</span>.<span class="ident">last_line</span>(), <span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>());
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">left_shift_line</span>(<span class="ident">l1</span>.<span class="ident">last_line</span>(), <span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>());
+                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>());
+                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>());
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
                 <span class="prelude-val">Some</span>(<span class="ident">Polygon</span>::<span class="ident">buggy_new</span>(<span class="ident">pts</span>))
             })() {
@@ -693,15 +677,11 @@
     <span class="kw">if</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">outgoing_lanes</span>.<span class="ident">is_empty</span>() {
         <span class="kw">let</span> (<span class="ident">line</span>, <span class="ident">width</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
             (
-                <span class="ident">map</span>.<span class="ident">left_shift_line</span>(<span class="ident">center</span>.<span class="ident">last_line</span>(), <span class="ident">width_back</span> <span class="op">/</span> <span class="number">2.0</span>)
-                    .<span class="ident">reverse</span>(),
+                <span class="ident">center</span>.<span class="ident">last_line</span>().<span class="ident">shift_left</span>(<span class="ident">width_back</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">reverse</span>(),
                 <span class="ident">width_back</span>,
             )
         } <span class="kw">else</span> {
-            (
-                <span class="ident">map</span>.<span class="ident">right_shift_line</span>(<span class="ident">center</span>.<span class="ident">first_line</span>(), <span class="ident">width_fwd</span> <span class="op">/</span> <span class="number">2.0</span>),
-                <span class="ident">width_fwd</span>,
-            )
+            (<span class="ident">center</span>.<span class="ident">first_line</span>().<span class="ident">shift_right</span>(<span class="ident">width_fwd</span> <span class="op">/</span> <span class="number">2.0</span>), <span class="ident">width_fwd</span>)
         };
         <span class="ident">result</span>.<span class="ident">push</span>(
             <span class="comment">// DEGENERATE_INTERSECTION_HALF_LENGTH is 2.5m...</span>
@@ -717,15 +697,11 @@
     <span class="kw">if</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">incoming_lanes</span>.<span class="ident">is_empty</span>() {
         <span class="kw">let</span> (<span class="ident">line</span>, <span class="ident">width</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
             (
-                <span class="ident">map</span>.<span class="ident">right_shift_line</span>(<span class="ident">center</span>.<span class="ident">last_line</span>(), <span class="ident">width_fwd</span> <span class="op">/</span> <span class="number">2.0</span>)
-                    .<span class="ident">reverse</span>(),
+                <span class="ident">center</span>.<span class="ident">last_line</span>().<span class="ident">shift_right</span>(<span class="ident">width_fwd</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">reverse</span>(),
                 <span class="ident">width_fwd</span>,
             )
         } <span class="kw">else</span> {
-            (
-                <span class="ident">map</span>.<span class="ident">left_shift_line</span>(<span class="ident">center</span>.<span class="ident">first_line</span>(), <span class="ident">width_back</span> <span class="op">/</span> <span class="number">2.0</span>),
-                <span class="ident">width_back</span>,
-            )
+            (<span class="ident">center</span>.<span class="ident">first_line</span>().<span class="ident">shift_left</span>(<span class="ident">width_back</span> <span class="op">/</span> <span class="number">2.0</span>), <span class="ident">width_back</span>)
         };
         <span class="ident">result</span>.<span class="ident">push</span>(
             <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[

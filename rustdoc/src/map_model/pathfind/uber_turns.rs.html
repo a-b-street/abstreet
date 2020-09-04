@@ -343,6 +343,8 @@
 <span id="343">343</span>
 <span id="344">344</span>
 <span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">TurnID</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
@@ -659,7 +661,9 @@
             <span class="ident">left</span> <span class="op">=</span> <span class="ident">right</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">must_right_shift</span>(<span class="ident">r</span>.<span class="ident">get_left_side</span>(<span class="ident">map</span>), (<span class="ident">leftmost</span> <span class="op">+</span> <span class="ident">rightmost</span>) <span class="op">/</span> <span class="number">2.0</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">r</span>
+            .<span class="ident">get_left_side</span>(<span class="ident">map</span>)
+            .<span class="ident">must_shift_right</span>((<span class="ident">leftmost</span> <span class="op">+</span> <span class="ident">rightmost</span>) <span class="op">/</span> <span class="number">2.0</span>);
         <span class="comment">// Point towards the intersection</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">from</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Back</span> {
             <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>();

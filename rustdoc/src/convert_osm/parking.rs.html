@@ -212,12 +212,6 @@
 <span id="212">212</span>
 <span id="213">213</span>
 <span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">OnstreetParking</span>, <span class="ident">Options</span>, <span class="ident">PrivateOffstreetParking</span>, <span class="ident">PublicOffstreetParking</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
@@ -281,17 +275,11 @@
         <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="ident">r</span>.<span class="ident">center_points</span>.<span class="ident">clone</span>());
         <span class="ident">closest</span>.<span class="ident">add</span>(
             (<span class="kw-2">*</span><span class="ident">id</span>, <span class="bool-val">true</span>),
-            <span class="ident">map</span>.<span class="ident">config</span>
-                .<span class="ident">driving_side</span>
-                .<span class="ident">must_right_shift</span>(<span class="ident">center</span>.<span class="ident">clone</span>(), <span class="ident">DIRECTED_ROAD_THICKNESS</span>)
-                .<span class="ident">points</span>(),
+            <span class="ident">center</span>.<span class="ident">must_shift_right</span>(<span class="ident">DIRECTED_ROAD_THICKNESS</span>).<span class="ident">points</span>(),
         );
         <span class="ident">closest</span>.<span class="ident">add</span>(
             (<span class="kw-2">*</span><span class="ident">id</span>, <span class="bool-val">false</span>),
-            <span class="ident">map</span>.<span class="ident">config</span>
-                .<span class="ident">driving_side</span>
-                .<span class="ident">must_left_shift</span>(<span class="ident">center</span>, <span class="ident">DIRECTED_ROAD_THICKNESS</span>)
-                .<span class="ident">points</span>(),
+            <span class="ident">center</span>.<span class="ident">must_shift_left</span>(<span class="ident">DIRECTED_ROAD_THICKNESS</span>).<span class="ident">points</span>(),
         );
     }
 

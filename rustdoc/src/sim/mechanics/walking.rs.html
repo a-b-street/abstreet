@@ -750,15 +750,6 @@
 <span id="750">750</span>
 <span id="751">751</span>
 <span id="752">752</span>
-<span id="753">753</span>
-<span id="754">754</span>
-<span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
-<span id="758">758</span>
-<span id="759">759</span>
-<span id="760">760</span>
-<span id="761">761</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sim</span>::<span class="ident">Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1310,10 +1301,7 @@
                     <span class="ident">orig_angle</span>.<span class="ident">opposite</span>()
                 };
                 (
-                    <span class="ident">pos</span>.<span class="ident">project_away</span>(
-                        <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>,
-                        <span class="ident">map</span>.<span class="ident">driving_side_angle</span>(<span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
-                    ),
+                    <span class="ident">pos</span>.<span class="ident">project_away</span>(<span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>, <span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
                     <span class="ident">facing</span>,
                 )
             }
@@ -1325,10 +1313,7 @@
                     <span class="ident">orig_angle</span>
                 };
                 (
-                    <span class="ident">pos</span>.<span class="ident">project_away</span>(
-                        <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>,
-                        <span class="ident">map</span>.<span class="ident">driving_side_angle</span>(<span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
-                    ),
+                    <span class="ident">pos</span>.<span class="ident">project_away</span>(<span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>, <span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
                     <span class="ident">facing</span>,
                 )
             }
@@ -1382,11 +1367,8 @@
                 <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">pt_and_angle</span>(<span class="ident">map</span>);
                 <span class="comment">// Stand on the far side of the sidewalk (by the bus stop), facing the road</span>
                 (
-                    <span class="ident">pt</span>.<span class="ident">project_away</span>(
-                        <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>,
-                        <span class="ident">map</span>.<span class="ident">driving_side_angle</span>(<span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
-                    ),
-                    <span class="ident">map</span>.<span class="ident">driving_side_angle</span>(<span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
+                    <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
+                    <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>),
                 )
             }
         };
