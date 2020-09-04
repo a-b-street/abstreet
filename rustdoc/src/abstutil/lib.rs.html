@@ -173,6 +173,14 @@
 <span id="173">173</span>
 <span id="174">174</span>
 <span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">cli</span>;
 <span class="kw">mod</span> <span class="ident">collections</span>;
@@ -188,7 +196,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">io</span>::{
     <span class="ident">basename</span>, <span class="ident">deserialize_btreemap</span>, <span class="ident">deserialize_multimap</span>, <span class="ident">deserialize_usize</span>, <span class="ident">file_exists</span>,
     <span class="ident">find_next_file</span>, <span class="ident">find_prev_file</span>, <span class="ident">from_json</span>, <span class="ident">list_all_objects</span>, <span class="ident">list_dir</span>, <span class="ident">load_all_objects</span>,
-    <span class="ident">maybe_read_binary</span>, <span class="ident">maybe_read_json</span>, <span class="ident">read_binary</span>, <span class="ident">read_json</span>, <span class="ident">serialize_btreemap</span>,
+    <span class="ident">maybe_read_binary</span>, <span class="ident">maybe_read_json</span>, <span class="ident">read_binary</span>, <span class="ident">read_json</span>, <span class="ident">read_object</span>, <span class="ident">serialize_btreemap</span>,
     <span class="ident">serialize_multimap</span>, <span class="ident">serialize_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">slurp_file</span>, <span class="ident">to_json</span>, <span class="ident">write_binary</span>,
     <span class="ident">write_json</span>, <span class="ident">FileWithProgress</span>,
 };
@@ -295,8 +303,16 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_scenario</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">scenario_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="comment">// TODO Getting complicated. Looks for .bin, then .json.</span>
+    <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
         <span class="string">&quot;system/scenarios/{}/{}.bin&quot;</span>,
+        <span class="ident">map_name</span>, <span class="ident">scenario_name</span>
+    ));
+    <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>) {
+        <span class="kw">return</span> <span class="ident">p</span>;
+    }
+    <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="string">&quot;system/scenarios/{}/{}.json&quot;</span>,
         <span class="ident">map_name</span>, <span class="ident">scenario_name</span>
     ))
 }

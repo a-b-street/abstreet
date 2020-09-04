@@ -933,10 +933,11 @@ during map importing, since the player won't deal with this, and loudly stopping
 problems is useful. It's also fine to crash when initially constructing all of
 the renderable map objects, because this crash will consistently happen at
 startup-time and be noticed by somebody developing before a player gets to it.</p>
-<p>Regarding Testing: You'll surely note the lack of unit tests. If it bothers you, let's talk about
-what tests should exist. In the meantime, note lots of validation does happen
-via importing maps, running the prebaked scenarios, and screenshot diffing.
-Please read more in depth in the <a href="https://dabreegster.github.io/abstreet/dev/testing.html">testing strategy</a> doc.</p>
+<p>Regarding Testing: You'll surely note the lack of unit tests. If it bothers you,
+let's talk about what tests should exist. In the meantime, note lots of
+validation does happen via importing maps, running the prebaked scenarios, and
+screenshot diffing. Please read more in depth in the
+<a href="https://dabreegster.github.io/abstreet/dev/testing.html">testing strategy</a> doc.</p>
 <h1><a class="header" href="#development-notes" id="development-notes">Development notes</a></h1>
 <p>Find packages to upgrade: <code>cargo outdated -R</code></p>
 <p>Deal with compile tile: <code>cargo bloat --time</code></p>
@@ -1095,16 +1096,28 @@ normally. You can also later run the <code>headless</code> server with
 </ul>
 </li>
 </ul>
-<h2><a class="header" href="#related-tools" id="related-tools">Related tools</a></h2>
-<p>There's no API to create trips. Instead, you can
-<a href="https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import">import trips from your own data</a>.</p>
+<h2><a class="header" href="#working-with-the-map-model" id="working-with-the-map-model">Working with the map model</a></h2>
 <p>If you need to deeply inspect the map, you can dump it to JSON:</p>
-<pre><code>cargo run --bin dump_map data/system/maps/montlake.bin
+<pre><code>cargo run --bin dump_map data/system/maps/montlake.bin &gt; montlake.json
 </code></pre>
 <p>The format of the map isn't well-documented yet. See the
 <a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html">generated API docs</a>
 and <a href="https://dabreegster.github.io/abstreet/map/index.html">the map model docs</a>
 in the meantime.</p>
+<h2><a class="header" href="#creating-trips" id="creating-trips">Creating trips</a></h2>
+<p>There's no API yet to create trips. Instead, you can
+<a href="https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import">import trips from your own data</a>.</p>
+<p>You can also dump Scenarios (the file that defines all of the people and trips)
+to JSON:</p>
+<pre><code>cargo run --bin dump_scenario data/system/scenarios/montlake/weekday.bin &gt; montlake_weekday.json
+</code></pre>
+<p>You can modify the JSON, then put the file back in the appropriate directory and
+use it in-game:</p>
+<pre><code>cargo run --bin game data/system/scenarios/montlake/modified_scenario.json
+</code></pre>
+<p>The Scenario format is also undocumented, but see the
+<a href="https://dabreegster.github.io/abstreet/rustdoc/sim/struct.Scenario.html">generated API docs</a>
+anyway.</p>
 <h1><a class="header" href="#testing-strategy" id="testing-strategy">Testing strategy</a></h1>
 <h2><a class="header" href="#unit-tests" id="unit-tests">Unit tests</a></h2>
 <p>As you've probably noticed, there aren't many. Lots of the interesting behavior

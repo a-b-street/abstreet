@@ -448,6 +448,14 @@
 <span id="448">448</span>
 <span id="449">449</span>
 <span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">time</span>::{<span class="ident">clear_current_line</span>, <span class="ident">prettyprint_time</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">elapsed_seconds</span>, <span class="ident">prettyprint_usize</span>, <span class="ident">MultiMap</span>, <span class="ident">Timer</span>, <span class="ident">PROGRESS_FREQUENCY_SECONDS</span>};
@@ -604,6 +612,14 @@
     <span class="kw">match</span> <span class="ident">maybe_read_binary</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>) {
         <span class="prelude-val">Ok</span>(<span class="ident">obj</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">obj</span>,
         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Couldn&#39;t read_binary({}): {}&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>),
+    }
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_object</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.bin&quot;</span>) {
+        <span class="ident">maybe_read_binary</span>(<span class="ident">path</span>, <span class="ident">timer</span>)
+    } <span class="kw">else</span> {
+        <span class="ident">maybe_read_json</span>(<span class="ident">path</span>, <span class="ident">timer</span>)
     }
 }
 
@@ -889,14 +905,14 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file_exists</span>(<span class="ident">path</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-    <span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">exists</span>()
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file_exists</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>.<span class="ident">into</span>()).<span class="ident">exists</span>()
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file_exists</span>(<span class="ident">path</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file_exists</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
     <span class="ident">SYSTEM_DATA</span>
-        .<span class="ident">get_file</span>(<span class="ident">path</span>.<span class="ident">trim_start_matches</span>(<span class="string">&quot;../data/system/&quot;</span>))
+        .<span class="ident">get_file</span>(<span class="ident">path</span>.<span class="ident">into</span>().<span class="ident">trim_start_matches</span>(<span class="string">&quot;../data/system/&quot;</span>))
         .<span class="ident">is_some</span>()
 }
 </pre></div>
