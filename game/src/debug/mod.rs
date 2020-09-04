@@ -236,6 +236,7 @@ impl State for DebugMode {
                             "krakow_center",
                             "lakeslice",
                             "montlake",
+                            "southbank",
                             "udistrict",
                         ],
                     }));

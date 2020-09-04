@@ -153,7 +153,10 @@ impl RawMap {
         };
         let mut roads = BTreeMap::new();
         for r in &i.roads {
-            roads.insert(*r, initial::Road::new(*r, &self.roads[r]));
+            roads.insert(
+                *r,
+                initial::Road::new(*r, &self.roads[r], self.config.driving_side),
+            );
         }
 
         let (poly, debug) = initial::intersection_polygon(&i, &mut roads, timer).unwrap();
@@ -242,8 +245,12 @@ pub struct RawRoad {
 
 impl RawRoad {
     // Returns the corrected center and half width
-    pub fn get_geometry(&self, id: OriginalRoad) -> (PolyLine, Distance) {
-        let lane_specs = get_lane_specs_ltr(&self.osm_tags);
+    pub fn get_geometry(
+        &self,
+        id: OriginalRoad,
+        driving_side: DrivingSide,
+    ) -> (PolyLine, Distance) {
+        let lane_specs = get_lane_specs_ltr(&self.osm_tags, driving_side);
         let mut total_width = Distance::ZERO;
         let mut sidewalk_right = None;
         let mut sidewalk_left = None;

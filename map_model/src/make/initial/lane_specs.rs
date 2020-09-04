@@ -1,3 +1,4 @@
+use crate::raw::DrivingSide;
 use crate::{
     osm, Direction, LaneType, NORMAL_LANE_THICKNESS, SHOULDER_THICKNESS, SIDEWALK_THICKNESS,
 };
@@ -36,7 +37,7 @@ fn back(lt: LaneType) -> LaneSpec {
     }
 }
 
-pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
+pub fn get_lane_specs_ltr(tags: &Tags, driving_side: DrivingSide) -> Vec<LaneSpec> {
     // Easy special cases first.
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return vec![fwd(LaneType::LightRail)];
@@ -123,10 +124,7 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
     }
 
     if driving_lane == LaneType::Construction {
-        // Assemble left-to-right
-        back_side.reverse();
-        back_side.extend(fwd_side);
-        return back_side;
+        return assemble_ltr(fwd_side, back_side, driving_side);
     }
 
     let fwd_bus_spec = if let Some(s) = tags.get("bus:lanes:forward") {
@@ -227,9 +225,17 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
             back_side.push(back(LaneType::Sidewalk));
         }
     } else if tags.is(osm::SIDEWALK, "right") {
-        fwd_side.push(fwd(LaneType::Sidewalk));
+        if driving_side == DrivingSide::Right {
+            fwd_side.push(fwd(LaneType::Sidewalk));
+        } else {
+            back_side.push(back(LaneType::Sidewalk));
+        }
     } else if tags.is(osm::SIDEWALK, "left") {
-        back_side.push(back(LaneType::Sidewalk));
+        if driving_side == DrivingSide::Right {
+            back_side.push(back(LaneType::Sidewalk));
+        } else {
+            fwd_side.push(fwd(LaneType::Sidewalk));
+        }
     }
 
     let mut need_fwd_shoulder = fwd_side
@@ -262,10 +268,26 @@ pub fn get_lane_specs_ltr(tags: &Tags) -> Vec<LaneSpec> {
         back_side.push(back(LaneType::Shoulder));
     }
 
-    // Assemble left-to-right
-    back_side.reverse();
-    back_side.extend(fwd_side);
-    back_side
+    assemble_ltr(fwd_side, back_side, driving_side)
+}
+
+fn assemble_ltr(
+    mut fwd_side: Vec<LaneSpec>,
+    mut back_side: Vec<LaneSpec>,
+    driving_side: DrivingSide,
+) -> Vec<LaneSpec> {
+    match driving_side {
+        DrivingSide::Right => {
+            back_side.reverse();
+            back_side.extend(fwd_side);
+            back_side
+        }
+        DrivingSide::Left => {
+            fwd_side.reverse();
+            fwd_side.extend(back_side);
+            fwd_side
+        }
+    }
 }
 
 #[cfg(test)]
@@ -298,7 +320,7 @@ mod tests {
     #[test]
     fn test_osm_to_specs() {
         let mut ok = true;
-        for (url, input, expected_lt, expected_dir) in vec![
+        for (url, input, driving_side, expected_lt, expected_dir) in vec![
             (
                 "https://www.openstreetmap.org/way/428294122",
                 vec![
@@ -307,6 +329,7 @@ mod tests {
                     "sidewalk=both",
                     "cycleway:left=lane",
                 ],
+                DrivingSide::Right,
                 "sbdds",
                 "v^^^^",
             ),
@@ -319,6 +342,7 @@ mod tests {
                     "cycleway:left=track",
                     "oneway:bicycle=no",
                 ],
+                DrivingSide::Right,
                 "sbbds",
                 "vv^^^",
             ),
@@ -331,6 +355,7 @@ mod tests {
                     "cycleway:right=track",
                     "cycleway:right:oneway=no",
                 ],
+                DrivingSide::Right,
                 "spddddbbps",
                 "vvvv^^v^^^",
             ),
@@ -345,6 +370,7 @@ mod tests {
                     "cycleway:right=track",
                     "cycleway:right:oneway=no",
                 ],
+                DrivingSide::Right,
                 "spdCdbbs",
                 "vvv^^v^^",
             ),
@@ -358,6 +384,7 @@ mod tests {
                     "cycleway:left=opposite_track",
                     "oneway:bicycle=no",
                 ],
+                DrivingSide::Right,
                 "sbbdps",
                 "vv^^^^",
             ),
@@ -371,11 +398,26 @@ mod tests {
                     "cycleway:right:oneway=no",
                     "oneway:bicycle=no",
                 ],
+                DrivingSide::Right,
                 "sddbbs",
                 "v^^v^^",
             ),
+            (
+                "https://www.openstreetmap.org/way/777565028",
+                vec!["highway=residential", "oneway=no", "sidewalk=both"],
+                DrivingSide::Left,
+                "sdds",
+                "^^vv",
+            ),
+            (
+                "https://www.openstreetmap.org/way/224637155",
+                vec!["lanes=2", "oneway=yes", "sidewalk=left"],
+                DrivingSide::Left,
+                "sdd",
+                "^^^",
+            ),
         ] {
-            let actual = get_lane_specs_ltr(&tags(input.clone()));
+            let actual = get_lane_specs_ltr(&tags(input.clone()), driving_side);
             let actual_lt = actual
                 .iter()
                 .map(|s| lt_to_char(s.lt))

@@ -2,7 +2,7 @@ mod geometry;
 pub mod lane_specs;
 
 pub use self::geometry::intersection_polygon;
-use crate::raw::{OriginalRoad, RawMap, RawRoad};
+use crate::raw::{DrivingSide, OriginalRoad, RawMap, RawRoad};
 use crate::{osm, IntersectionType};
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
@@ -29,9 +29,9 @@ pub struct Road {
 }
 
 impl Road {
-    pub fn new(id: OriginalRoad, r: &RawRoad) -> Road {
-        let lane_specs_ltr = lane_specs::get_lane_specs_ltr(&r.osm_tags);
-        let (trimmed_center_pts, total_width) = r.get_geometry(id);
+    pub fn new(id: OriginalRoad, r: &RawRoad, driving_side: DrivingSide) -> Road {
+        let lane_specs_ltr = lane_specs::get_lane_specs_ltr(&r.osm_tags, driving_side);
+        let (trimmed_center_pts, total_width) = r.get_geometry(id, driving_side);
 
         Road {
             id,
@@ -89,7 +89,8 @@ impl InitialMap {
             m.intersections.get_mut(&id.i1).unwrap().roads.insert(*id);
             m.intersections.get_mut(&id.i2).unwrap().roads.insert(*id);
 
-            m.roads.insert(*id, Road::new(*id, r));
+            m.roads
+                .insert(*id, Road::new(*id, r, raw.config.driving_side));
         }
 
         timer.start_iter("find each intersection polygon", m.intersections.len());
