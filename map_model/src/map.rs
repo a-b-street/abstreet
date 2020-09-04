@@ -629,4 +629,8 @@ impl Map {
         }
         languages
     }
+
+    pub fn get_config(&self) -> &MapConfig {
+        &self.config
+    }
 }

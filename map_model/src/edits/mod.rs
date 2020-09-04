@@ -2,6 +2,7 @@ mod compat;
 mod perma;
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
+use crate::raw::DrivingSide;
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
     IntersectionID, IntersectionType, LaneType, Map, PathConstraints, Pathfinder, Road, RoadID,
@@ -46,9 +47,9 @@ pub struct EditRoad {
 }
 
 impl EditRoad {
-    pub fn get_orig_from_osm(r: &Road) -> EditRoad {
+    pub fn get_orig_from_osm(r: &Road, driving_side: DrivingSide) -> EditRoad {
         EditRoad {
-            lanes_ltr: get_lane_specs_ltr(&r.osm_tags)
+            lanes_ltr: get_lane_specs_ltr(&r.osm_tags, driving_side)
                 .into_iter()
                 .map(|spec| (spec.lt, spec.dir))
                 .collect(),
@@ -144,7 +145,8 @@ impl MapEdits {
         }
 
         retain_btreeset(&mut self.changed_roads, |r| {
-            map.get_r_edit(*r) != EditRoad::get_orig_from_osm(map.get_r(*r))
+            map.get_r_edit(*r)
+                != EditRoad::get_orig_from_osm(map.get_r(*r), map.config.driving_side)
         });
         retain_btreemap(&mut self.original_intersections, |i, orig| {
             map.get_i_edit(*i) != orig.clone()
@@ -160,7 +162,7 @@ impl MapEdits {
         for r in &self.changed_roads {
             self.commands.push(EditCmd::ChangeRoad {
                 r: *r,
-                old: EditRoad::get_orig_from_osm(map.get_r(*r)),
+                old: EditRoad::get_orig_from_osm(map.get_r(*r), map.config.driving_side),
                 new: map.get_r_edit(*r),
             });
         }

@@ -219,7 +219,7 @@ impl Static {
         let edits = app.primary.map.get_edits();
         for r in &edits.changed_roads {
             let r = app.primary.map.get_r(*r);
-            let orig = EditRoad::get_orig_from_osm(r);
+            let orig = EditRoad::get_orig_from_osm(r, app.primary.map.get_config().driving_side);
             // What exactly changed?
             if r.speed_limit != orig.speed_limit
                 || r.access_restrictions != orig.access_restrictions
