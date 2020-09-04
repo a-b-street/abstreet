@@ -716,47 +716,6 @@
 <span id="716">716</span>
 <span id="717">717</span>
 <span id="718">718</span>
-<span id="719">719</span>
-<span id="720">720</span>
-<span id="721">721</span>
-<span id="722">722</span>
-<span id="723">723</span>
-<span id="724">724</span>
-<span id="725">725</span>
-<span id="726">726</span>
-<span id="727">727</span>
-<span id="728">728</span>
-<span id="729">729</span>
-<span id="730">730</span>
-<span id="731">731</span>
-<span id="732">732</span>
-<span id="733">733</span>
-<span id="734">734</span>
-<span id="735">735</span>
-<span id="736">736</span>
-<span id="737">737</span>
-<span id="738">738</span>
-<span id="739">739</span>
-<span id="740">740</span>
-<span id="741">741</span>
-<span id="742">742</span>
-<span id="743">743</span>
-<span id="744">744</span>
-<span id="745">745</span>
-<span id="746">746</span>
-<span id="747">747</span>
-<span id="748">748</span>
-<span id="749">749</span>
-<span id="750">750</span>
-<span id="751">751</span>
-<span id="752">752</span>
-<span id="753">753</span>
-<span id="754">754</span>
-<span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
-<span id="758">758</span>
-<span id="759">759</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">PROGRESS_FREQUENCY_SECONDS</span>;
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
@@ -1336,47 +1295,6 @@
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prettyprint_time</span>(<span class="ident">seconds</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:.4}s&quot;</span>, <span class="ident">seconds</span>)
-}
-
-<span class="comment">// TODO This is an awful way to measure memory usage, but I can&#39;t find anything else that works.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MeasureMemory</span> {
-    <span class="ident">before_mb</span>: <span class="ident">usize</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">MeasureMemory</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MeasureMemory</span> {
-        <span class="ident">MeasureMemory</span> {
-            <span class="ident">before_mb</span>: <span class="ident">process_used_memory_mb</span>(),
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">section</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
-        <span class="kw">let</span> <span class="ident">now_mb</span> <span class="op">=</span> <span class="ident">process_used_memory_mb</span>();
-        <span class="kw">if</span> <span class="ident">now_mb</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">before_mb</span> {
-            <span class="ident">timer</span>.<span class="ident">note</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;{} cost ~{} MB&quot;</span>,
-                <span class="ident">section</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">now_mb</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">before_mb</span>)
-            ));
-        } <span class="kw">else</span> {
-            <span class="ident">timer</span>.<span class="ident">note</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;WEIRD! {} freed up ~{} MB&quot;</span>,
-                <span class="ident">section</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">before_mb</span> <span class="op">-</span> <span class="ident">now_mb</span>)
-            ));
-        }
-        <span class="self">self</span>.<span class="ident">before_mb</span> <span class="op">=</span> <span class="ident">now_mb</span>;
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">process_used_memory_mb</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-    (<span class="ident">procfs</span>::<span class="ident">process</span>::<span class="ident">Process</span>::<span class="ident">myself</span>().<span class="ident">unwrap</span>().<span class="ident">stat</span>.<span class="ident">vsize</span> <span class="op">/</span> <span class="number">1024</span> <span class="op">/</span> <span class="number">1024</span>) <span class="kw">as</span> <span class="ident">usize</span>
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">process_used_memory_mb</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-    <span class="number">0</span>
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
