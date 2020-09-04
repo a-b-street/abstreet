@@ -1,6 +1,6 @@
 use crate::make::initial::{Intersection, Road};
 use crate::osm;
-use crate::raw::{DrivingSide, OriginalRoad};
+use crate::raw::OriginalRoad;
 use abstutil::{wraparound_get, Timer};
 use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
 use std::collections::BTreeMap;
@@ -11,7 +11,6 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5
 // carves up part of that space, doesn't reach past it.
 // Also returns a list of labeled polygons for debugging.
 pub fn intersection_polygon(
-    driving_side: DrivingSide,
     i: &Intersection,
     roads: &mut BTreeMap<OriginalRoad, Road>,
     timer: &mut Timer,
@@ -35,8 +34,8 @@ pub fn intersection_polygon(
         } else {
             panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
         };
-        let pl_normal = driving_side.right_shift(pl.clone(), r.half_width)?;
-        let pl_reverse = driving_side.left_shift(pl.clone(), r.half_width)?;
+        let pl_normal = pl.shift_right(r.half_width)?;
+        let pl_reverse = pl.shift_left(r.half_width)?;
         lines.push((*id, pl.last_line(), pl_normal, pl_reverse));
     }
 
@@ -47,24 +46,23 @@ pub fn intersection_polygon(
     });
 
     if lines.len() == 1 {
-        return deadend(driving_side, roads, i.id, &lines);
+        return deadend(roads, i.id, &lines);
     }
     let rollback = lines
         .iter()
         .map(|(r, _, _, _)| (*r, roads[r].trimmed_center_pts.clone()))
         .collect::<Vec<_>>();
-    if let Some(result) = on_off_ramp(driving_side, roads, i.id, lines.clone()) {
+    if let Some(result) = on_off_ramp(roads, i.id, lines.clone()) {
         Ok(result)
     } else {
         for (r, trimmed_center_pts) in rollback {
             roads.get_mut(&r).unwrap().trimmed_center_pts = trimmed_center_pts;
         }
-        generalized_trim_back(driving_side, roads, i.id, &lines, timer)
+        generalized_trim_back(roads, i.id, &lines, timer)
     }
 }
 
 fn generalized_trim_back(
-    driving_side: DrivingSide,
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
@@ -221,27 +219,11 @@ fn generalized_trim_back(
 
         // Shift those final centers out again to find the main endpoints for the polygon.
         if r.dst_i == i {
-            endpoints.push(
-                driving_side
-                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)?
-                    .last_pt(),
-            );
-            endpoints.push(
-                driving_side
-                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)?
-                    .last_pt(),
-            );
+            endpoints.push(r.trimmed_center_pts.shift_right(r.half_width)?.last_pt());
+            endpoints.push(r.trimmed_center_pts.shift_left(r.half_width)?.last_pt());
         } else {
-            endpoints.push(
-                driving_side
-                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)?
-                    .first_pt(),
-            );
-            endpoints.push(
-                driving_side
-                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)?
-                    .first_pt(),
-            );
+            endpoints.push(r.trimmed_center_pts.shift_left(r.half_width)?.first_pt());
+            endpoints.push(r.trimmed_center_pts.shift_right(r.half_width)?.first_pt());
         }
 
         if back_pl.length() >= EPSILON_DIST * 3.0 && adj_back_pl.length() >= EPSILON_DIST * 3.0 {
@@ -291,7 +273,6 @@ fn generalized_trim_back(
 }
 
 fn deadend(
-    driving_side: DrivingSide,
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
@@ -335,23 +316,11 @@ fn deadend(
     // TODO Refactor with generalized_trim_back.
     let mut endpts = vec![pl_b.last_pt(), pl_a.last_pt()];
     if r.dst_i == i {
-        endpts.push(
-            driving_side
-                .right_shift(trimmed.clone(), r.half_width)?
-                .last_pt(),
-        );
-        endpts.push(
-            driving_side
-                .left_shift(trimmed.clone(), r.half_width)?
-                .last_pt(),
-        );
+        endpts.push(trimmed.shift_right(r.half_width)?.last_pt());
+        endpts.push(trimmed.shift_left(r.half_width)?.last_pt());
     } else {
-        endpts.push(
-            driving_side
-                .left_shift(trimmed.clone(), r.half_width)?
-                .first_pt(),
-        );
-        endpts.push(driving_side.right_shift(trimmed, r.half_width)?.first_pt());
+        endpts.push(trimmed.shift_left(r.half_width)?.first_pt());
+        endpts.push(trimmed.shift_right(r.half_width)?.first_pt());
     }
 
     endpts.dedup();
@@ -379,7 +348,6 @@ struct Piece {
 
 // Try to apply to any 3-way. Might fail for many reasons.
 fn on_off_ramp(
-    driving_side: DrivingSide,
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
     lines: Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
@@ -556,27 +524,27 @@ fn on_off_ramp(
         // Shift those final centers out again to find the main endpoints for the polygon.
         if r.dst_i == i {
             endpoints.push(
-                driving_side
-                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                r.trimmed_center_pts
+                    .shift_right(r.half_width)
                     .ok()?
                     .last_pt(),
             );
             endpoints.push(
-                driving_side
-                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                r.trimmed_center_pts
+                    .shift_left(r.half_width)
                     .ok()?
                     .last_pt(),
             );
         } else {
             endpoints.push(
-                driving_side
-                    .left_shift(r.trimmed_center_pts.clone(), r.half_width)
+                r.trimmed_center_pts
+                    .shift_left(r.half_width)
                     .ok()?
                     .first_pt(),
             );
             endpoints.push(
-                driving_side
-                    .right_shift(r.trimmed_center_pts.clone(), r.half_width)
+                r.trimmed_center_pts
+                    .shift_right(r.half_width)
                     .ok()?
                     .first_pt(),
             );

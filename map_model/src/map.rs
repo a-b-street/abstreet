@@ -6,7 +6,7 @@ use crate::{
     PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, Turn, TurnID, TurnType, Zone,
 };
 use abstutil::Timer;
-use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Ring, Time};
+use geom::{Bounds, GPSBounds, Polygon, Pt2D, Ring, Time};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
@@ -583,32 +583,6 @@ impl Map {
             }
         }
         None
-    }
-
-    pub fn right_shift(&self, pl: PolyLine, width: Distance) -> Result<PolyLine, String> {
-        self.config.driving_side.right_shift(pl, width)
-    }
-    pub fn must_right_shift(&self, pl: PolyLine, width: Distance) -> PolyLine {
-        self.right_shift(pl, width).unwrap()
-    }
-    pub fn left_shift(&self, pl: PolyLine, width: Distance) -> Result<PolyLine, String> {
-        self.config.driving_side.left_shift(pl, width)
-    }
-    pub fn must_left_shift(&self, pl: PolyLine, width: Distance) -> PolyLine {
-        self.left_shift(pl, width).unwrap()
-    }
-    pub fn right_shift_line(&self, line: Line, width: Distance) -> Line {
-        self.config.driving_side.right_shift_line(line, width)
-    }
-    pub fn left_shift_line(&self, line: Line, width: Distance) -> Line {
-        self.config.driving_side.left_shift_line(line, width)
-    }
-    pub fn driving_side_angle(&self, a: Angle) -> Angle {
-        self.config.driving_side.angle_offset(a)
-    }
-    // Last resort
-    pub fn get_driving_side(&self) -> DrivingSide {
-        self.config.driving_side
     }
 
     // TODO Sort of a temporary hack

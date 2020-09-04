@@ -417,12 +417,14 @@ impl ChangeWay {
             let r = map.get_r(*id);
             batch.push(
                 Color::GREEN,
-                map.must_right_shift(r.center_pts.clone(), r.get_half_width(map))
+                r.center_pts
+                    .must_shift_right(r.get_half_width(map))
                     .make_polygons(thickness),
             );
             batch.push(
                 Color::BLUE,
-                map.must_left_shift(r.center_pts.clone(), r.get_half_width(map))
+                r.center_pts
+                    .must_shift_left(r.get_half_width(map))
                     .make_polygons(thickness),
             );
         }

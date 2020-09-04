@@ -359,12 +359,8 @@ fn make_shared_sidewalk_corner(
 
     // Find all of the points on the intersection polygon between the two sidewalks. Assumes
     // sidewalks are the same length.
-    let corner1 = driving_side
-        .right_shift_line(l1.last_line(), l1.width / 2.0)
-        .pt2();
-    let corner2 = driving_side
-        .right_shift_line(l2.first_line(), l2.width / 2.0)
-        .pt1();
+    let corner1 = l1.last_line().shift_right(l1.width / 2.0).pt2();
+    let corner2 = l2.first_line().shift_right(l2.width / 2.0).pt1();
 
     // TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.
     if false {
@@ -393,8 +389,8 @@ fn make_shared_sidewalk_corner(
             }
 
             pts_between.extend(
-                driving_side
-                    .must_right_shift(PolyLine::must_new(deduped), l1.width.min(l2.width) / 2.0)
+                PolyLine::must_new(deduped)
+                    .must_shift_right(l1.width.min(l2.width) / 2.0)
                     .points(),
             );
         }

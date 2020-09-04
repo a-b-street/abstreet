@@ -101,13 +101,11 @@ impl DrawIntersection {
             // TODO warn
             return None;
         }
-        let last_line = map.right_shift_line(
-            rightmost
-                .lane_center_pts
-                .exact_slice(Distance::ZERO, rightmost.length() - trim_back)
-                .last_line(),
-            rightmost.width,
-        );
+        let last_line = rightmost
+            .lane_center_pts
+            .exact_slice(Distance::ZERO, rightmost.length() - trim_back)
+            .last_line()
+            .shift_right(rightmost.width);
 
         let octagon = make_octagon(last_line.pt2(), Distance::meters(1.0), last_line.angle());
         let pole = Line::must_new(
@@ -214,20 +212,18 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
             let l2 = map.get_l(turn.id.dst);
 
             if let Some(poly) = (|| {
-                let mut pts = map
-                    .left_shift(turn.geom.clone(), width / 2.0)
-                    .ok()?
-                    .into_points();
-                pts.push(map.left_shift_line(l2.first_line(), width / 2.0).pt1());
-                pts.push(map.right_shift_line(l2.first_line(), width / 2.0).pt1());
+                let mut pts = turn.geom.shift_left(width / 2.0).ok()?.into_points();
+                pts.push(l2.first_line().shift_left(width / 2.0).pt1());
+                pts.push(l2.first_line().shift_right(width / 2.0).pt1());
                 pts.extend(
-                    map.right_shift(turn.geom.clone(), width / 2.0)
+                    turn.geom
+                        .shift_right(width / 2.0)
                         .ok()?
                         .reversed()
                         .into_points(),
                 );
-                pts.push(map.right_shift_line(l1.last_line(), width / 2.0).pt2());
-                pts.push(map.left_shift_line(l1.last_line(), width / 2.0).pt2());
+                pts.push(l1.last_line().shift_right(width / 2.0).pt2());
+                pts.push(l1.last_line().shift_left(width / 2.0).pt2());
                 pts.push(pts[0]);
                 Some(Polygon::buggy_new(pts))
             })() {
@@ -259,15 +255,11 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon
     if !i.outgoing_lanes.is_empty() {
         let (line, width) = if r.dst_i == i.id {
             (
-                map.left_shift_line(center.last_line(), width_back / 2.0)
-                    .reverse(),
+                center.last_line().shift_left(width_back / 2.0).reverse(),
                 width_back,
             )
         } else {
-            (
-                map.right_shift_line(center.first_line(), width_fwd / 2.0),
-                width_fwd,
-            )
+            (center.first_line().shift_right(width_fwd / 2.0), width_fwd)
         };
         result.push(
             // DEGENERATE_INTERSECTION_HALF_LENGTH is 2.5m...
@@ -283,15 +275,11 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon
     if !i.incoming_lanes.is_empty() {
         let (line, width) = if r.dst_i == i.id {
             (
-                map.right_shift_line(center.last_line(), width_fwd / 2.0)
-                    .reverse(),
+                center.last_line().shift_right(width_fwd / 2.0).reverse(),
                 width_fwd,
             )
         } else {
-            (
-                map.left_shift_line(center.first_line(), width_back / 2.0),
-                width_back,
-            )
+            (center.first_line().shift_left(width_back / 2.0), width_back)
         };
         result.push(
             PolyLine::must_new(vec![
