@@ -257,6 +257,12 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>,
@@ -483,25 +489,20 @@
 <span class="kw">fn</span> <span class="ident">select_trip_mode</span>(<span class="ident">distance</span>: <span class="ident">Distance</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TripMode</span> {
     <span class="comment">// TODO Make this probabilistic</span>
     <span class="comment">// for example probability of walking currently has massive differences</span>
-    <span class="comment">// at thresholds, it would be nicer to change this graduall</span>
+    <span class="comment">// at thresholds, it would be nicer to change this gradually</span>
     <span class="comment">// TODO - do not select based on distance but select one that is fastest/best in the</span>
     <span class="comment">// given situation excellent bus connection / plenty of parking /</span>
     <span class="comment">// cycleways / suitable rail connection all strongly influence</span>
     <span class="comment">// selected mode of transport, distance is not the sole influence</span>
     <span class="comment">// in some cities there may case where driving is only possible method</span>
     <span class="comment">// to get somewhere, even at a short distance</span>
+
+    <span class="comment">// Always walk for really short trips</span>
     <span class="kw">if</span> <span class="ident">distance</span> <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">miles</span>(<span class="number">0.5</span>) {
         <span class="kw">return</span> <span class="ident">TripMode</span>::<span class="ident">Walk</span>;
     }
-    <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.005</span>) {
-        <span class="comment">// low chance for really, really dedicated cyclists</span>
-        <span class="kw">return</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span>;
-    }
-    <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.3</span>) {
-        <span class="comment">// try transit if available, will</span>
-        <span class="comment">// degrade into walk if not available</span>
-        <span class="kw">return</span> <span class="ident">TripMode</span>::<span class="ident">Transit</span>;
-    }
+
+    <span class="comment">// Sometimes bike or walk for moderate trips</span>
     <span class="kw">if</span> <span class="ident">distance</span> <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">miles</span>(<span class="number">3.0</span>) {
         <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.15</span>) {
             <span class="kw">return</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span>;
@@ -510,6 +511,17 @@
             <span class="kw">return</span> <span class="ident">TripMode</span>::<span class="ident">Walk</span>;
         }
     }
+
+    <span class="comment">// For longer trips, maybe bike for dedicated cyclists</span>
+    <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.005</span>) {
+        <span class="kw">return</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span>;
+    }
+    <span class="comment">// Try transit if available, or fallback to walking</span>
+    <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.3</span>) {
+        <span class="kw">return</span> <span class="ident">TripMode</span>::<span class="ident">Transit</span>;
+    }
+
+    <span class="comment">// Most of the time, just drive</span>
     <span class="ident">TripMode</span>::<span class="ident">Drive</span>
 }
 
