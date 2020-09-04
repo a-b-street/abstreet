@@ -223,25 +223,20 @@ fn border_person(
 fn select_trip_mode(distance: Distance, rng: &mut XorShiftRng) -> TripMode {
     // TODO Make this probabilistic
     // for example probability of walking currently has massive differences
-    // at thresholds, it would be nicer to change this graduall
+    // at thresholds, it would be nicer to change this gradually
     // TODO - do not select based on distance but select one that is fastest/best in the
     // given situation excellent bus connection / plenty of parking /
     // cycleways / suitable rail connection all strongly influence
     // selected mode of transport, distance is not the sole influence
     // in some cities there may case where driving is only possible method
     // to get somewhere, even at a short distance
+
+    // Always walk for really short trips
     if distance < Distance::miles(0.5) {
         return TripMode::Walk;
     }
-    if rng.gen_bool(0.005) {
-        // low chance for really, really dedicated cyclists
-        return TripMode::Bike;
-    }
-    if rng.gen_bool(0.3) {
-        // try transit if available, will
-        // degrade into walk if not available
-        return TripMode::Transit;
-    }
+
+    // Sometimes bike or walk for moderate trips
     if distance < Distance::miles(3.0) {
         if rng.gen_bool(0.15) {
             return TripMode::Bike;
@@ -250,6 +245,17 @@ fn select_trip_mode(distance: Distance, rng: &mut XorShiftRng) -> TripMode {
             return TripMode::Walk;
         }
     }
+
+    // For longer trips, maybe bike for dedicated cyclists
+    if rng.gen_bool(0.005) {
+        return TripMode::Bike;
+    }
+    // Try transit if available, or fallback to walking
+    if rng.gen_bool(0.3) {
+        return TripMode::Transit;
+    }
+
+    // Most of the time, just drive
     TripMode::Drive
 }
 
