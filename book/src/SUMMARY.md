@@ -14,6 +14,7 @@
 - [Developer guide](dev/README.md)
   - [Misc developer tricks](dev/misc_tricks.md)
   - [API](dev/api.md)
+  - [Testing](dev/testing.md)
 - [Map model](map/README.md)
   - [Importing](map/importing/README.md)
     - [convert_osm](map/importing/convert_osm.md)
