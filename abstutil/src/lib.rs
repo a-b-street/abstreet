@@ -12,7 +12,7 @@ pub use crate::collections::{
 pub use crate::io::{
     basename, deserialize_btreemap, deserialize_multimap, deserialize_usize, file_exists,
     find_next_file, find_prev_file, from_json, list_all_objects, list_dir, load_all_objects,
-    maybe_read_binary, maybe_read_json, read_binary, read_json, serialize_btreemap,
+    maybe_read_binary, maybe_read_json, read_binary, read_json, read_object, serialize_btreemap,
     serialize_multimap, serialize_usize, serialized_size_bytes, slurp_file, to_json, write_binary,
     write_json, FileWithProgress,
 };
@@ -119,8 +119,16 @@ pub fn path_prebaked_results(map_name: &str, scenario_name: &str) -> String {
 }
 
 pub fn path_scenario(map_name: &str, scenario_name: &str) -> String {
-    path(format!(
+    // TODO Getting complicated. Looks for .bin, then .json.
+    let p = path(format!(
         "system/scenarios/{}/{}.bin",
+        map_name, scenario_name
+    ));
+    if file_exists(&p) {
+        return p;
+    }
+    path(format!(
+        "system/scenarios/{}/{}.json",
         map_name, scenario_name
     ))
 }

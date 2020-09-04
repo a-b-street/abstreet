@@ -51,18 +51,38 @@ are missing, etc. A summary of the commands available so far:
     normally. You can also later run the `headless` server with
     `--edits=name_of_edits`.
 
-## Related tools
-
-There's no API to create trips. Instead, you can
-[import trips from your own data](https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import).
+## Working with the map model
 
 If you need to deeply inspect the map, you can dump it to JSON:
 
 ```
-cargo run --bin dump_map data/system/maps/montlake.bin
+cargo run --bin dump_map data/system/maps/montlake.bin > montlake.json
 ```
 
 The format of the map isn't well-documented yet. See the
 [generated API docs](https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html)
 and [the map model docs](https://dabreegster.github.io/abstreet/map/index.html)
 in the meantime.
+
+## Creating trips
+
+There's no API yet to create trips. Instead, you can
+[import trips from your own data](https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import).
+
+You can also dump Scenarios (the file that defines all of the people and trips)
+to JSON:
+
+```
+cargo run --bin dump_scenario data/system/scenarios/montlake/weekday.bin > montlake_weekday.json
+```
+
+You can modify the JSON, then put the file back in the appropriate directory and
+use it in-game:
+
+```
+cargo run --bin game data/system/scenarios/montlake/modified_scenario.json
+```
+
+The Scenario format is also undocumented, but see the
+[generated API docs](https://dabreegster.github.io/abstreet/rustdoc/sim/struct.Scenario.html)
+anyway.

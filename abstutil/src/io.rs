@@ -156,6 +156,14 @@ pub fn read_binary<T: DeserializeOwned>(path: String, timer: &mut Timer) -> T {
     }
 }
 
+pub fn read_object<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T, Error> {
+    if path.ends_with(".bin") {
+        maybe_read_binary(path, timer)
+    } else {
+        maybe_read_json(path, timer)
+    }
+}
+
 // For BTreeMaps with struct keys. See https://github.com/serde-rs/json/issues/402.
 
 pub fn serialize_btreemap<S: Serializer, K: Serialize, V: Serialize>(
@@ -438,13 +446,13 @@ pub fn basename(path: &str) -> String {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-pub fn file_exists(path: String) -> bool {
-    Path::new(&path).exists()
+pub fn file_exists<I: Into<String>>(path: I) -> bool {
+    Path::new(&path.into()).exists()
 }
 
 #[cfg(target_arch = "wasm32")]
-pub fn file_exists(path: String) -> bool {
+pub fn file_exists<I: Into<String>>(path: I) -> bool {
     SYSTEM_DATA
-        .get_file(path.trim_start_matches("../data/system/"))
+        .get_file(path.into().trim_start_matches("../data/system/"))
         .is_some()
 }

@@ -652,13 +652,15 @@ impl<'a> Read for Timer<'a> {
                 prettyprint_usize(file.total_bytes / 1024 / 1024),
                 prettyprint_time(elapsed)
             );
-            if file.last_printed_at.is_none() {
-                self.println(line.clone());
-            } else {
-                clear_current_line();
-                println!("{}", line);
-                if let Some(ref mut sink) = self.sink {
-                    sink.reprintln(line.clone());
+            if self.outermost_name != "throwaway" {
+                if file.last_printed_at.is_none() {
+                    self.println(line.clone());
+                } else {
+                    clear_current_line();
+                    println!("{}", line);
+                    if let Some(ref mut sink) = self.sink {
+                        sink.reprintln(line.clone());
+                    }
                 }
             }
             self.stack.pop();
@@ -666,23 +668,25 @@ impl<'a> Read for Timer<'a> {
         } else if file.last_printed_at.is_none()
             || elapsed_seconds(file.last_printed_at.unwrap()) >= PROGRESS_FREQUENCY_SECONDS
         {
-            let line = format!(
-                "Reading {}: {}/{} MB... {}",
-                file.path,
-                prettyprint_usize(file.processed_bytes / 1024 / 1024),
-                prettyprint_usize(file.total_bytes / 1024 / 1024),
-                prettyprint_time(elapsed_seconds(file.started_at))
-            );
-            // TODO Refactor this pattern...
-            clear_current_line();
-            print!("{}", line);
-            stdout().flush().unwrap();
+            if self.outermost_name != "throwaway" {
+                let line = format!(
+                    "Reading {}: {}/{} MB... {}",
+                    file.path,
+                    prettyprint_usize(file.processed_bytes / 1024 / 1024),
+                    prettyprint_usize(file.total_bytes / 1024 / 1024),
+                    prettyprint_time(elapsed_seconds(file.started_at))
+                );
+                // TODO Refactor this pattern...
+                clear_current_line();
+                print!("{}", line);
+                stdout().flush().unwrap();
 
-            if let Some(ref mut sink) = self.sink {
-                if file.last_printed_at.is_none() {
-                    sink.println(line);
-                } else {
-                    sink.reprintln(line);
+                if let Some(ref mut sink) = self.sink {
+                    if file.last_printed_at.is_none() {
+                        sink.println(line);
+                    } else {
+                        sink.reprintln(line);
+                    }
                 }
             }
 

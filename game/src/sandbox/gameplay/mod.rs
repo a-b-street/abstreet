@@ -117,7 +117,7 @@ impl GameplayMode {
             ScenarioGenerator::proletariat_robot(map, &mut rng, timer)
         } else {
             let path = abstutil::path_scenario(map.get_name(), &name);
-            let mut scenario = match abstutil::maybe_read_binary(path.clone(), timer) {
+            let mut scenario = match abstutil::read_object(path.clone(), timer) {
                 Ok(s) => s,
                 Err(err) => {
                     Map::corrupt_err(path, err);
