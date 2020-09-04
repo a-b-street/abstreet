@@ -69,6 +69,14 @@ in the meantime.
 There's no API yet to create trips. Instead, you can
 [import trips from your own data](https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import).
 
+You can also generate different variations of one of the
+[demand models](https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#proletariat-robot)
+by specifying an RNG seed:
+
+```
+cargo run --bin random_scenario -- --rng=123 --map=data/system/maps/montlake.bin > data/system/scenarios/montlake/home_to_work.json
+```
+
 You can also dump Scenarios (the file that defines all of the people and trips)
 to JSON:
 
