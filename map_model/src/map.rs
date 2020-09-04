@@ -28,6 +28,10 @@ impl Map {
                     if false {
                         use abstutil::{prettyprint_usize, serialized_size_bytes};
                         println!(
+                            "Total map size: {} bytes",
+                            prettyprint_usize(serialized_size_bytes(&map))
+                        );
+                        println!(
                             "- {} roads: {} bytes",
                             prettyprint_usize(map.roads.len()),
                             prettyprint_usize(serialized_size_bytes(&map.roads))

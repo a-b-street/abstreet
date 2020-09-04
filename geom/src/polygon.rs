@@ -3,13 +3,14 @@ use geo::algorithm::area::Area;
 use geo::algorithm::convexhull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
+use std::convert::TryFrom;
 use std::fmt;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {
     points: Vec<Pt2D>,
     // Groups of three indices make up the triangles
-    indices: Vec<usize>,
+    indices: Vec<u16>,
 
     // If the polygon has holes, explicitly store all the rings (the one outer and all of the
     // inner) so they can later be used to generate outlines and such. If the polygon has no holes,
@@ -28,7 +29,7 @@ impl Polygon {
             vertices.push(pt.x());
             vertices.push(pt.y());
         }
-        let indices = earcutr::earcut(&vertices, &Vec::new(), 2);
+        let indices = downsize(earcutr::earcut(&vertices, &Vec::new(), 2));
 
         Polygon {
             points: orig_pts.clone(),
@@ -49,7 +50,7 @@ impl Polygon {
             })
             .collect();
         let (vertices, holes, dims) = earcutr::flatten(&geojson_style);
-        let indices = earcutr::earcut(&vertices, &holes, dims);
+        let indices = downsize(earcutr::earcut(&vertices, &holes, dims));
 
         Polygon {
             points: vertices
@@ -64,7 +65,7 @@ impl Polygon {
     // TODO Doesn't remember rings yet
     pub fn from_geojson(raw: &Vec<Vec<Vec<f64>>>) -> Polygon {
         let (vertices, holes, dims) = earcutr::flatten(raw);
-        let indices = earcutr::earcut(&vertices, &holes, dims);
+        let indices = downsize(earcutr::earcut(&vertices, &holes, dims));
         Polygon {
             points: vertices
                 .chunks(2)
@@ -81,7 +82,7 @@ impl Polygon {
         assert!(indices.len() % 3 == 0);
         Polygon {
             points,
-            indices,
+            indices: downsize(indices),
             rings: None,
         }
     }
@@ -98,15 +99,15 @@ impl Polygon {
         let mut triangles: Vec<Triangle> = Vec::new();
         for slice in self.indices.chunks_exact(3) {
             triangles.push(Triangle::new(
-                self.points[slice[0]],
-                self.points[slice[1]],
-                self.points[slice[2]],
+                self.points[slice[0] as usize],
+                self.points[slice[1] as usize],
+                self.points[slice[2] as usize],
             ));
         }
         triangles
     }
 
-    pub fn raw_for_rendering(&self) -> (&Vec<Pt2D>, &Vec<usize>) {
+    pub fn raw_for_rendering(&self) -> (&Vec<Pt2D>, &Vec<u16>) {
         (&self.points, &self.indices)
     }
 
@@ -267,12 +268,16 @@ impl Polygon {
     pub fn union(self, other: Polygon) -> Polygon {
         let mut points = self.points;
         let mut indices = self.indices;
-        let offset = points.len();
+        let offset = points.len() as u16;
         points.extend(other.points);
         for idx in other.indices {
             indices.push(offset + idx);
         }
-        Polygon::precomputed(points, indices)
+        Polygon {
+            points,
+            indices,
+            rings: None,
+        }
     }
 
     pub fn union_all(mut list: Vec<Polygon>) -> Polygon {
@@ -474,4 +479,16 @@ fn from_geo(p: geo::Polygon<f64>) -> Polygon {
 
 fn from_multi(multi: geo::MultiPolygon<f64>) -> Vec<Polygon> {
     multi.into_iter().map(from_geo).collect()
+}
+
+fn downsize(input: Vec<usize>) -> Vec<u16> {
+    let mut output = Vec::new();
+    for x in input {
+        if let Ok(x) = u16::try_from(x) {
+            output.push(x);
+        } else {
+            panic!("{} can't fit in u16, some polygon is too huge", x);
+        }
+    }
+    output
 }
