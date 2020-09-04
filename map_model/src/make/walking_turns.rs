@@ -232,7 +232,7 @@ fn _new_make_walking_turns(
                 id: turn_id(i.id, l2.id, l1.id),
                 turn_type: TurnType::SharedSidewalkCorner,
                 other_crosswalk_ids: BTreeSet::new(),
-                geom: geom,
+                geom,
             });
 
             from = Some(l2);

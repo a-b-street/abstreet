@@ -11,8 +11,9 @@ pub struct Polygon {
     // Groups of three indices make up the triangles
     indices: Vec<usize>,
 
-    // If the polygon has holes, explicitly store all the rings so they can later be used to
-    // generate outlines and such.
+    // If the polygon has holes, explicitly store all the rings (the one outer and all of the
+    // inner) so they can later be used to generate outlines and such. If the polygon has no holes,
+    // then this will just be None, since the points form a ring.
     rings: Option<Vec<Ring>>,
 }
 
@@ -56,7 +57,7 @@ impl Polygon {
                 .map(|pair| Pt2D::new(pair[0], pair[1]))
                 .collect(),
             indices,
-            rings: Some(inner),
+            rings: if inner.len() == 1 { None } else { Some(inner) },
         }
     }
 
