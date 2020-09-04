@@ -58,15 +58,12 @@ impl DrawLane {
             }
             LaneType::Shoulder => {}
             LaneType::Parking => {
-                draw.extend(
-                    app.cs.general_road_marking,
-                    calculate_parking_lines(map, lane),
-                );
+                draw.extend(app.cs.general_road_marking, calculate_parking_lines(lane));
             }
             LaneType::Driving | LaneType::Bus => {
                 draw.extend(
                     app.cs.general_road_marking,
-                    calculate_driving_lines(map, lane, road),
+                    calculate_driving_lines(lane, road),
                 );
                 draw.extend(
                     app.cs.general_road_marking,
@@ -249,7 +246,7 @@ fn calculate_sidewalk_lines(lane: &Lane) -> Vec<Polygon> {
     result
 }
 
-fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
+fn calculate_parking_lines(lane: &Lane) -> Vec<Polygon> {
     // meters, but the dims get annoying below to remove
     let leg_length = Distance::meters(1.0);
 
@@ -260,7 +257,7 @@ fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
             let (pt, lane_angle) = lane
                 .lane_center_pts
                 .must_dist_along(PARKING_SPOT_LENGTH * (1.0 + idx as f64));
-            let perp_angle = map.driving_side_angle(lane_angle.rotate_degs(270.0));
+            let perp_angle = lane_angle.rotate_degs(270.0);
             // Find the outside of the lane. Actually, shift inside a little bit, since the line
             // will have thickness, but shouldn't really intersect the adjacent line
             // when drawn.
@@ -283,7 +280,7 @@ fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
 // Because the stripe straddles two lanes, it'll be partly hidden on one side. There are a bunch of
 // ways to work around this z-order issue. The current approach is to rely on the fact that
 // quadtrees return LaneIDs in order, and lanes are always created from left->right.
-fn calculate_driving_lines(map: &Map, lane: &Lane, parent: &Road) -> Vec<Polygon> {
+fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Vec<Polygon> {
     let lanes = parent.lanes_ltr();
     let idx = parent.offset(lane.id);
 
@@ -294,9 +291,9 @@ fn calculate_driving_lines(map: &Map, lane: &Lane, parent: &Road) -> Vec<Polygon
     }
 
     let lane_edge_pts = if lanes[idx].1 == Direction::Fwd {
-        map.must_left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
+        lane.lane_center_pts.must_shift_left(lane.width / 2.0)
     } else {
-        map.must_right_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
+        lane.lane_center_pts.must_shift_right(lane.width / 2.0)
     };
     lane_edge_pts.dashed_lines(
         Distance::meters(0.25),

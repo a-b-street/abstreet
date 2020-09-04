@@ -60,17 +60,11 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         let center = PolyLine::must_new(r.center_points.clone());
         closest.add(
             (*id, true),
-            map.config
-                .driving_side
-                .must_right_shift(center.clone(), DIRECTED_ROAD_THICKNESS)
-                .points(),
+            center.must_shift_right(DIRECTED_ROAD_THICKNESS).points(),
         );
         closest.add(
             (*id, false),
-            map.config
-                .driving_side
-                .must_left_shift(center, DIRECTED_ROAD_THICKNESS)
-                .points(),
+            center.must_shift_left(DIRECTED_ROAD_THICKNESS).points(),
         );
     }
 

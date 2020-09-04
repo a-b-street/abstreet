@@ -1,7 +1,7 @@
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{osm, AreaType, Direction, IntersectionType, LaneType, MapConfig, NamePerLanguage};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
-use geom::{Angle, Circle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
+use geom::{Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -153,14 +153,10 @@ impl RawMap {
         };
         let mut roads = BTreeMap::new();
         for r in &i.roads {
-            roads.insert(
-                *r,
-                initial::Road::new(*r, &self.roads[r], self.config.driving_side),
-            );
+            roads.insert(*r, initial::Road::new(*r, &self.roads[r]));
         }
 
-        let (poly, debug) =
-            initial::intersection_polygon(self.config.driving_side, &i, &mut roads, timer).unwrap();
+        let (poly, debug) = initial::intersection_polygon(&i, &mut roads, timer).unwrap();
         (
             poly,
             roads
@@ -246,11 +242,7 @@ pub struct RawRoad {
 
 impl RawRoad {
     // Returns the corrected center and half width
-    pub fn get_geometry(
-        &self,
-        id: OriginalRoad,
-        driving_side: DrivingSide,
-    ) -> (PolyLine, Distance) {
+    pub fn get_geometry(&self, id: OriginalRoad) -> (PolyLine, Distance) {
         let lane_specs = get_lane_specs_ltr(&self.osm_tags);
         let mut total_width = Distance::ZERO;
         let mut sidewalk_right = None;
@@ -270,10 +262,10 @@ impl RawRoad {
         let mut true_center = PolyLine::new(self.center_points.clone()).expect(&id.to_string());
         match (sidewalk_right, sidewalk_left) {
             (Some(w), None) => {
-                true_center = driving_side.must_right_shift(true_center, w / 2.0);
+                true_center = true_center.must_shift_right(w / 2.0);
             }
             (None, Some(w)) => {
-                true_center = driving_side.must_left_shift(true_center, w / 2.0);
+                true_center = true_center.must_shift_right(w / 2.0);
             }
             _ => {}
         }
@@ -356,51 +348,6 @@ impl RestrictionType {
 pub enum DrivingSide {
     Right,
     Left,
-}
-
-impl DrivingSide {
-    // "right" and "left" here are in terms of DrivingSide::Right, what I'm used to reasoning about
-    // in the USA. They invert appropriately for DrivingSide::Left.
-    pub fn right_shift(self, pl: PolyLine, width: Distance) -> Result<PolyLine, String> {
-        match self {
-            DrivingSide::Right => pl.shift_right(width),
-            DrivingSide::Left => pl.shift_left(width),
-        }
-    }
-    pub fn must_right_shift(self, pl: PolyLine, width: Distance) -> PolyLine {
-        self.right_shift(pl, width).unwrap()
-    }
-
-    pub fn left_shift(self, pl: PolyLine, width: Distance) -> Result<PolyLine, String> {
-        match self {
-            DrivingSide::Right => pl.shift_left(width),
-            DrivingSide::Left => pl.shift_right(width),
-        }
-    }
-    pub fn must_left_shift(self, pl: PolyLine, width: Distance) -> PolyLine {
-        self.left_shift(pl, width).unwrap()
-    }
-
-    pub fn right_shift_line(self, line: Line, width: Distance) -> Line {
-        match self {
-            DrivingSide::Right => line.shift_right(width),
-            DrivingSide::Left => line.shift_left(width),
-        }
-    }
-
-    pub fn left_shift_line(self, line: Line, width: Distance) -> Line {
-        match self {
-            DrivingSide::Right => line.shift_left(width),
-            DrivingSide::Left => line.shift_right(width),
-        }
-    }
-
-    pub fn angle_offset(self, a: Angle) -> Angle {
-        match self {
-            DrivingSide::Right => a,
-            DrivingSide::Left => a.opposite(),
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -138,8 +138,9 @@ impl Map {
             }
             // TODO Maybe easier to use the road's "yellow center line" and shift left/right from
             // there.
-            let road_left_pts = map
-                .left_shift(road.center_pts.clone(), r.half_width)
+            let road_left_pts = road
+                .center_pts
+                .shift_left(r.half_width)
                 .unwrap_or_else(|_| road.center_pts.clone());
 
             let mut width_so_far = Distance::ZERO;
@@ -156,14 +157,13 @@ impl Map {
 
                 road.lanes_ltr.push((id, lane.dir, lane.lt));
 
-                let pl = if let Ok(pl) =
-                    map.right_shift(road_left_pts.clone(), width_so_far + (lane.width / 2.0))
-                {
-                    pl
-                } else {
-                    timer.error(format!("{} geometry broken; lane not shifted!", id));
-                    road_left_pts.clone()
-                };
+                let pl =
+                    if let Ok(pl) = road_left_pts.shift_right(width_so_far + (lane.width / 2.0)) {
+                        pl
+                    } else {
+                        timer.error(format!("{} geometry broken; lane not shifted!", id));
+                        road_left_pts.clone()
+                    };
                 let lane_center_pts = if lane.dir == Direction::Fwd {
                     pl
                 } else {
