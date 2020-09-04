@@ -5,7 +5,7 @@ use crate::layer::Layer;
 use crate::options::Options;
 use crate::render::{AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents};
 use crate::sandbox::{GameplayMode, TutorialState};
-use abstutil::{MeasureMemory, Timer};
+use abstutil::Timer;
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable};
 use maplit::btreemap;
@@ -536,14 +536,11 @@ pub struct PerMap {
 
 impl PerMap {
     pub fn new(flags: Flags, cs: &ColorScheme, ctx: &mut EventCtx, timer: &mut Timer) -> PerMap {
-        let mut mem = MeasureMemory::new();
         let (map, sim, _) = flags.sim_flags.load(timer);
-        mem.reset("Map and Sim", timer);
 
         timer.start("draw_map");
         let draw_map = DrawMap::new(&map, cs, ctx, timer);
         timer.stop("draw_map");
-        mem.reset("DrawMap", timer);
 
         let mut low_z = 0;
         let mut high_z = 0;
