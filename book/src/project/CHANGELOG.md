@@ -571,3 +571,10 @@ changes here.
 - mkirk fixed up the glow/wasm ezgui backends, letting us remove glium
 - make map edit JSON backwards compatible
 - better lane/turn markings
+
+0.2.10
+
+- two-way cycletracks and arbitrary direction changes for roads
+- fix map editing for lane reversals, make edits backwards compatible, and massively speed up applying edits
+- fleshing out the headless API and tooling for controlling the simulation from any language
+- import a few more places, redo left-hand driving support so far
