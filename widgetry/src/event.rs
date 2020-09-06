@@ -56,8 +56,8 @@ impl Event {
                         None
                     } else {
                         Some(Event::MouseWheelScroll(
-                            scroll_wheel_multiplier() * f64::from(dx),
-                            scroll_wheel_multiplier() * f64::from(dy),
+                            f64::from(dx),
+                            f64::from(dy),
                         ))
                     }
                 }
@@ -82,17 +82,6 @@ impl Event {
             _ => None,
         }
     }
-}
-
-// For some reason, Y is inverted in the browser
-#[cfg(feature = "wasm-backend")]
-fn scroll_wheel_multiplier() -> f64 {
-    -1.0
-}
-
-#[cfg(not(feature = "wasm-backend"))]
-fn scroll_wheel_multiplier() -> f64 {
-    1.0
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
