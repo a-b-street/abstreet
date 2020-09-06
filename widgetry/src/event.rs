@@ -51,24 +51,45 @@ impl Event {
                 position.to_logical(scale_factor).into(),
             )),
             WindowEvent::MouseWheel { delta, .. } => match delta {
+                // "In the beginning" a spinnable mouse wheel was the only input hardware for
+                // scrolling. Each "increment" of the mouse wheel indicated that the application
+                // should scroll one line of text.
+                //
+                // Since the advent of touchpads and tablets, much finer grained scrolling is used,
+                // and consequently some input systems started expressing scroll distances from such
+                // input devices in "pixels" rather than "lines". 
+                //
+                // However some backends (e.g. x11) will express all scrolling as `LineDelta` — on
+                // those systems, touchpad drags will simply be scaled to some presumed equivalent
+                // number of lines.
+                //
+                // Widgetry expresses all scrolling in terms of MouseWheelScroll, which uses "Lines".
+                //
+                // Anymore "a line" usually doesn't correspond to "a literal line of text" in the
+                // application, and must usually just be considered an abstract unit of
+                // measurement, because of things like configurable scroll sensitivity, variable
+                // text size, and the afforementioned advent of touchpads.
+                //
+                // With "Reverse" scrolling, positive values indicate upward or rightward scrolling.
+                // With "Natural" scrolling, it's the opposite.
                 MouseScrollDelta::LineDelta(dx, dy) => {
                     if dx == 0.0 && dy == 0.0 {
                         None
                     } else {
-                        Some(Event::MouseWheelScroll(
-                            f64::from(dx),
-                            f64::from(dy),
-                        ))
+                        Some(Event::MouseWheelScroll(f64::from(dx), f64::from(dy)))
                     }
                 }
-                // This one only happens on Mac. The scrolling is way too fast, so slow it down.
-                // Probably the better way is to convert the LogicalPosition to a PhysicalPosition
-                // somehow knowing the DPI.
-                //
-                // See https://gist.github.com/Pokechu22/2ee22711bec84136e1e94e225bd916b4 for
-                // detailed analysis.
                 MouseScrollDelta::PixelDelta(pos) => {
-                    Some(Event::MouseWheelScroll(0.1 * pos.x, 0.1 * pos.y))
+                    // Widgetry expresses all scroll activity in units of "lines", so convert from
+                    // a PixelDelta to a LineDelta.
+
+                    // This scale factor is just a guess - but feels about right.
+                    let scale_factor = 0.1;
+
+                    Some(Event::MouseWheelScroll(
+                        scale_factor * pos.x,
+                        scale_factor * pos.y,
+                    ))
                 }
             },
             WindowEvent::Resized(size) => {
