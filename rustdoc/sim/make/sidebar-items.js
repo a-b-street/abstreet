@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["activity_model",""],["generator",""],["load",""],["modifier",""],["scenario",""],["spawner",""]]});
+initSidebarItems({"mod":[["activity_model",""],["external",""],["generator",""],["load",""],["modifier",""],["scenario",""],["spawner",""]]});

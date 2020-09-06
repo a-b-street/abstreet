@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ExternalPerson",""],["ExternalTrip",""]]});

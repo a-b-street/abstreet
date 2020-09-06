@@ -420,6 +420,7 @@
 <span id="420">420</span>
 <span id="421">421</span>
 <span id="422">422</span>
+<span id="423">423</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
@@ -480,13 +481,14 @@
                 <span class="comment">//</span>
                 <span class="comment">// Since the advent of touchpads and tablets, much finer grained scrolling is used,</span>
                 <span class="comment">// and consequently some input systems started expressing scroll distances from such</span>
-                <span class="comment">// input devices in &quot;pixels&quot; rather than &quot;lines&quot;. </span>
+                <span class="comment">// input devices in &quot;pixels&quot; rather than &quot;lines&quot;.</span>
                 <span class="comment">//</span>
                 <span class="comment">// However some backends (e.g. x11) will express all scrolling as `LineDelta` — on</span>
                 <span class="comment">// those systems, touchpad drags will simply be scaled to some presumed equivalent</span>
                 <span class="comment">// number of lines.</span>
                 <span class="comment">//</span>
-                <span class="comment">// Widgetry expresses all scrolling in terms of MouseWheelScroll, which uses &quot;Lines&quot;.</span>
+                <span class="comment">// Widgetry expresses all scrolling in terms of MouseWheelScroll, which uses</span>
+                <span class="comment">// &quot;Lines&quot;.</span>
                 <span class="comment">//</span>
                 <span class="comment">// Anymore &quot;a line&quot; usually doesn&#39;t correspond to &quot;a literal line of text&quot; in the</span>
                 <span class="comment">// application, and must usually just be considered an abstract unit of</span>

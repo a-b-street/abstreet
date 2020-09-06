@@ -1060,14 +1060,18 @@ initially pass to <code>headless</code>.</li>
 <li><strong>GET /sim/get-time</strong>: Returns the current simulation time.</li>
 <li><strong>GET /sim/goto-time?t=06:30:00</strong>: Simulate until 6:30 AM. If the time you
 specify is before the current time, you have to call <strong>/sim/reset</strong> first.</li>
+<li><strong>POST /sim/new-person</strong>: The POST body must be an
+<a href="https://dabreegster.github.io/abstreet/rustdoc/sim/struct.ExternalPerson.html">ExternalPerson</a>
+in JSON format.</li>
 </ul>
 </li>
 <li><strong>/traffic-signals</strong>
 <ul>
 <li><strong>GET /traffic-signals/get?id=42</strong>: Returns the traffic signal of
 intersection #42 in JSON.</li>
-<li><strong>POST /traffic-signals/set</strong>: The POST body must be a traffic signal in
-JSON format.</li>
+<li><strong>POST /traffic-signals/set</strong>: The POST body must be a
+<a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/struct.ControlTrafficSignal.html">ControlTrafficSignal</a>
+in JSON format.</li>
 <li><strong>GET /traffic-signals/get-delays?id=42&amp;t1=03:00:00&amp;t2=03:30:00</strong>: Returns
 the delay experienced by every agent passing through intersection #42 from
 3am to 3:30, grouped by direction of travel.</li>
@@ -1104,8 +1108,11 @@ normally. You can also later run the <code>headless</code> server with
 <a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html">generated API docs</a>
 and <a href="https://dabreegster.github.io/abstreet/map/index.html">the map model docs</a>
 in the meantime.</p>
-<h2><a class="header" href="#creating-trips" id="creating-trips">Creating trips</a></h2>
-<p>There's no API yet to create trips. Instead, you can
+<h2><a class="header" href="#working-with-individual-trips" id="working-with-individual-trips">Working with individual trips</a></h2>
+<p>You can use the <strong>/sim/new-person</strong> API in the middle of a simulation, if
+needed. If possible, it's simpler to create a Scenario as input.</p>
+<h2><a class="header" href="#working-with-scenarios" id="working-with-scenarios">Working with Scenarios</a></h2>
+<p>You can
 <a href="https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import">import trips from your own data</a>.</p>
 <p>You can also generate different variations of one of the
 <a href="https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#proletariat-robot">demand models</a>
