@@ -9,7 +9,6 @@ edition = "2018"
 [features]
 default = ["built", "widgetry/glow-backend", "reqwest", "webbrowser"]
 wasm = ["widgetry/wasm-backend"]
-glow = ["built", "widgetry/glow-backend", "reqwest", "webbrowser"]
 
 [dependencies]
 aabb-quadtree = "0.1.0"

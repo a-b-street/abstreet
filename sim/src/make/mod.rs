@@ -1,10 +1,12 @@
 mod activity_model;
+mod external;
 mod generator;
 mod load;
 mod modifier;
 mod scenario;
 mod spawner;
 
+pub use self::external::{ExternalPerson, ExternalTrip};
 pub use self::generator::{
     BorderSpawnOverTime, OriginDestination, ScenarioGenerator, SpawnOverTime,
 };

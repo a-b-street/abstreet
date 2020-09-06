@@ -18,7 +18,8 @@ use map_model::{
 };
 use serde::Serialize;
 use sim::{
-    AlertHandler, GetDrawAgents, PersonID, Sim, SimFlags, SimOptions, TripID, TripMode, VehicleType,
+    AlertHandler, ExternalPerson, GetDrawAgents, PersonID, Scenario, Sim, SimFlags, SimOptions,
+    TripID, TripMode, VehicleType,
 };
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
@@ -107,6 +108,27 @@ fn handle_command(
                 sim.timed_step(map, dt, &mut None, &mut Timer::new("goto-time"));
                 Ok(format!("it's now {}", t))
             }
+        }
+        "/sim/new-person" => {
+            let input: ExternalPerson = abstutil::from_json(body)?;
+            for trip in &input.trips {
+                if trip.departure < sim.time() {
+                    return Err(format!(
+                        "It's {} now, so you can't start a trip at {}",
+                        sim.time(),
+                        trip.departure
+                    )
+                    .into());
+                }
+            }
+
+            let mut scenario = Scenario::empty(map, "one-shot");
+            scenario.people = ExternalPerson::import(map, vec![input])?;
+            let id = PersonID(sim.get_all_people().len());
+            scenario.people[0].id = id;
+            let mut rng = SimFlags::for_test("oneshot").make_rng();
+            scenario.instantiate(sim, map, &mut rng, &mut Timer::throwaway());
+            Ok(format!("{} created", id))
         }
         // Traffic signals
         "/traffic-signals/get" => {

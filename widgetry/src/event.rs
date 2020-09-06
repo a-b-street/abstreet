@@ -57,13 +57,14 @@ impl Event {
                 //
                 // Since the advent of touchpads and tablets, much finer grained scrolling is used,
                 // and consequently some input systems started expressing scroll distances from such
-                // input devices in "pixels" rather than "lines". 
+                // input devices in "pixels" rather than "lines".
                 //
                 // However some backends (e.g. x11) will express all scrolling as `LineDelta` — on
                 // those systems, touchpad drags will simply be scaled to some presumed equivalent
                 // number of lines.
                 //
-                // Widgetry expresses all scrolling in terms of MouseWheelScroll, which uses "Lines".
+                // Widgetry expresses all scrolling in terms of MouseWheelScroll, which uses
+                // "Lines".
                 //
                 // Anymore "a line" usually doesn't correspond to "a literal line of text" in the
                 // application, and must usually just be considered an abstract unit of

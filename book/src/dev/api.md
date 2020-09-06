@@ -26,11 +26,15 @@ are missing, etc. A summary of the commands available so far:
   - **GET /sim/get-time**: Returns the current simulation time.
   - **GET /sim/goto-time?t=06:30:00**: Simulate until 6:30 AM. If the time you
     specify is before the current time, you have to call **/sim/reset** first.
+  - **POST /sim/new-person**: The POST body must be an
+    [ExternalPerson](https://dabreegster.github.io/abstreet/rustdoc/sim/struct.ExternalPerson.html)
+    in JSON format.
 - **/traffic-signals**
   - **GET /traffic-signals/get?id=42**: Returns the traffic signal of
     intersection #42 in JSON.
-  - **POST /traffic-signals/set**: The POST body must be a traffic signal in
-    JSON format.
+  - **POST /traffic-signals/set**: The POST body must be a
+    [ControlTrafficSignal](https://dabreegster.github.io/abstreet/rustdoc/map_model/struct.ControlTrafficSignal.html)
+    in JSON format.
   - **GET /traffic-signals/get-delays?id=42&t1=03:00:00&t2=03:30:00**: Returns
     the delay experienced by every agent passing through intersection #42 from
     3am to 3:30, grouped by direction of travel.
@@ -64,9 +68,14 @@ The format of the map isn't well-documented yet. See the
 and [the map model docs](https://dabreegster.github.io/abstreet/map/index.html)
 in the meantime.
 
-## Creating trips
+## Working with individual trips
 
-There's no API yet to create trips. Instead, you can
+You can use the **/sim/new-person** API in the middle of a simulation, if
+needed. If possible, it's simpler to create a Scenario as input.
+
+## Working with Scenarios
+
+You can
 [import trips from your own data](https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import).
 
 You can also generate different variations of one of the

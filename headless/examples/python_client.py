@@ -35,7 +35,34 @@ def main():
     # Modify one traffic signal, doubling the duration of its second stage
     print('Modify a traffic signal')
     ts = requests.get(api + '/traffic-signals/get', params={'id': 67}).json()
-    ts['phases'][1]['phase_type']['Fixed'] *= 2
+    ts['stages'][1]['phase_type']['Fixed'] *= 2
+    # Also start a new person, just to demonstrate the API
+    if False:
+        person = {
+            'origin': {
+                'longitude': -122.3056602,
+                'latitude': 47.6458199
+            },
+            'trips': [
+                {
+                    'departure': 13 * 3600,
+                    'position': {
+                        'longitude': -122.3072871,
+                        'latitude': 47.6383517
+                    },
+                    'mode': 'Drive'
+                },
+                {
+                    'departure': 19 * 3600,
+                    'position': {
+                        'longitude': -122.3056602,
+                        'latitude': 47.6458199
+                    },
+                    'mode': 'Drive'
+                }
+            ]
+        }
+        print('Create a new person:', requests.post(api + '/sim/new-person', json=person).text)
     # Reset the simulation before applying the edit, since reset also clears edits.
     print('Reset the simulation:', requests.get(api + '/sim/reset').text)
     print('Update a traffic signal:', requests.post(api + '/traffic-signals/set', json=ts).text)
