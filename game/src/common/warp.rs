@@ -41,18 +41,21 @@ impl State for Warping {
             Transition::Keep
         } else {
             if let Some(id) = self.id.clone() {
-                Transition::PopWithData(Box::new(move |state, ctx, app| {
-                    // Other states pretty much don't use info panels.
-                    if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
-                        let mut actions = s.contextual_actions();
-                        s.controls.common.as_mut().unwrap().launch_info_panel(
-                            ctx,
-                            app,
-                            Tab::from_id(app, id),
-                            &mut actions,
-                        );
-                    }
-                }))
+                Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::ModifyState(Box::new(move |state, ctx, app| {
+                        // Other states pretty much don't use info panels.
+                        if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
+                            let mut actions = s.contextual_actions();
+                            s.controls.common.as_mut().unwrap().launch_info_panel(
+                                ctx,
+                                app,
+                                Tab::from_id(app, id),
+                                &mut actions,
+                            );
+                        }
+                    })),
+                ])
             } else {
                 Transition::Pop
             }
@@ -178,18 +181,21 @@ fn warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
             'R' => {
                 let r = BusRouteID(idx);
                 app.primary.map.maybe_get_br(r)?;
-                return Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
-                    // Other states pretty much don't use info panels.
-                    if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
-                        let mut actions = s.contextual_actions();
-                        s.controls.common.as_mut().unwrap().launch_info_panel(
-                            ctx,
-                            app,
-                            Tab::BusRoute(r),
-                            &mut actions,
-                        );
-                    }
-                })));
+                return Some(Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::ModifyState(Box::new(move |state, ctx, app| {
+                        // Other states pretty much don't use info panels.
+                        if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
+                            let mut actions = s.contextual_actions();
+                            s.controls.common.as_mut().unwrap().launch_info_panel(
+                                ctx,
+                                app,
+                                Tab::BusRoute(r),
+                                &mut actions,
+                            );
+                        }
+                    })),
+                ]));
             }
             'l' => ID::Lane(LaneID(idx)),
             'i' => ID::Intersection(IntersectionID(idx)),
@@ -199,18 +205,21 @@ fn warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
             'P' => {
                 let id = PersonID(idx);
                 app.primary.sim.lookup_person(id)?;
-                return Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
-                    // Other states pretty much don't use info panels.
-                    if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
-                        let mut actions = s.contextual_actions();
-                        s.controls.common.as_mut().unwrap().launch_info_panel(
-                            ctx,
-                            app,
-                            Tab::PersonTrips(id, BTreeMap::new()),
-                            &mut actions,
-                        );
-                    }
-                })));
+                return Some(Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::ModifyState(Box::new(move |state, ctx, app| {
+                        // Other states pretty much don't use info panels.
+                        if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
+                            let mut actions = s.contextual_actions();
+                            s.controls.common.as_mut().unwrap().launch_info_panel(
+                                ctx,
+                                app,
+                                Tab::PersonTrips(id, BTreeMap::new()),
+                                &mut actions,
+                            );
+                        }
+                    })),
+                ]));
             }
             'c' => {
                 // This one gets more complicated. :)
@@ -220,18 +229,21 @@ fn warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
             't' => {
                 let trip = TripID(idx);
                 let person = app.primary.sim.trip_to_person(trip);
-                return Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
-                    // Other states pretty much don't use info panels.
-                    if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
-                        let mut actions = s.contextual_actions();
-                        s.controls.common.as_mut().unwrap().launch_info_panel(
-                            ctx,
-                            app,
-                            Tab::PersonTrips(person, OpenTrip::single(trip)),
-                            &mut actions,
-                        );
-                    }
-                })));
+                return Some(Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::ModifyState(Box::new(move |state, ctx, app| {
+                        // Other states pretty much don't use info panels.
+                        if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
+                            let mut actions = s.contextual_actions();
+                            s.controls.common.as_mut().unwrap().launch_info_panel(
+                                ctx,
+                                app,
+                                Tab::PersonTrips(person, OpenTrip::single(trip)),
+                                &mut actions,
+                            );
+                        }
+                    })),
+                ]));
             }
             _ => {
                 return None;

@@ -177,16 +177,19 @@ impl State for TransitRoutes {
             }
         };
 
-        Transition::PopWithData(Box::new(move |state, ctx, app| {
-            let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-            let mut actions = sandbox.contextual_actions();
-            sandbox.controls.common.as_mut().unwrap().launch_info_panel(
-                ctx,
-                app,
-                Tab::BusRoute(route),
-                &mut actions,
-            )
-        }))
+        Transition::Multi(vec![
+            Transition::Pop,
+            Transition::ModifyState(Box::new(move |state, ctx, app| {
+                let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
+                let mut actions = sandbox.contextual_actions();
+                sandbox.controls.common.as_mut().unwrap().launch_info_panel(
+                    ctx,
+                    app,
+                    Tab::BusRoute(route),
+                    &mut actions,
+                )
+            })),
+        ])
     }
 
     fn draw_baselayer(&self) -> DrawBaselayer {

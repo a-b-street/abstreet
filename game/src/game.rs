@@ -96,8 +96,7 @@ impl Game {
                 }
                 true
             }
-            Transition::PopWithData(cb) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
+            Transition::ModifyState(cb) => {
                 cb(self.states.last_mut().unwrap(), ctx, &mut self.app);
                 true
             }
@@ -106,10 +105,6 @@ impl Game {
                 last.on_destroy(ctx, &mut self.app);
                 let new_states = cb(last, ctx, &mut self.app);
                 self.states.extend(new_states);
-                true
-            }
-            Transition::KeepWithData(cb) => {
-                cb(self.states.last_mut().unwrap(), ctx, &mut self.app);
                 true
             }
             Transition::Push(state) => {
@@ -276,9 +271,9 @@ pub enum Transition {
     KeepWithMouseover,
     Pop,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
-    // TODO Collapse some of these cases too
-    PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut EventCtx, &mut App)>),
-    KeepWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut EventCtx, &mut App)>),
+    ModifyState(Box<dyn FnOnce(&mut Box<dyn State>, &mut EventCtx, &mut App)>),
+    // TODO This is like Replace + ModifyState, then returning a few Push's from the callback. Not
+    // sure how to express it in terms of the others without complicating ModifyState everywhere.
     ReplaceWithData(
         Box<dyn FnOnce(Box<dyn State>, &mut EventCtx, &mut App) -> Vec<Box<dyn State>>>,
     ),

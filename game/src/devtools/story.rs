@@ -184,13 +184,17 @@ impl State for StoryMapEditor {
                             ctx,
                             "Name this story map",
                             Box::new(|name, _, _| {
-                                Transition::PopWithData(Box::new(move |state, ctx, app| {
-                                    let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
-                                    editor.story.name = name;
-                                    editor.story.save(app);
-                                    editor.dirty = false;
-                                    editor.redo_panel(ctx);
-                                }))
+                                Transition::Multi(vec![
+                                    Transition::Pop,
+                                    Transition::ModifyState(Box::new(move |state, ctx, app| {
+                                        let editor =
+                                            state.downcast_mut::<StoryMapEditor>().unwrap();
+                                        editor.story.name = name;
+                                        editor.story.save(app);
+                                        editor.dirty = false;
+                                        editor.redo_panel(ctx);
+                                    })),
+                                ])
                             }),
                         ));
                     } else {
@@ -225,12 +229,15 @@ impl State for StoryMapEditor {
                         self.panel.rect_of("load"),
                         choices,
                         Box::new(|story, _, _| {
-                            Transition::PopWithData(Box::new(move |state, ctx, _| {
-                                let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
-                                editor.story = story;
-                                editor.dirty = false;
-                                editor.redo_panel(ctx);
-                            }))
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::ModifyState(Box::new(move |state, ctx, _| {
+                                    let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
+                                    editor.story = story;
+                                    editor.dirty = false;
+                                    editor.redo_panel(ctx);
+                                })),
+                            ])
                         }),
                     ));
                 }

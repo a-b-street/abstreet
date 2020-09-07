@@ -410,11 +410,14 @@ fn search_osm(filter: String, ctx: &mut EventCtx, app: &mut App) -> Transition {
         draw: batch.upload(ctx),
     };
 
-    Transition::PopWithData(Box::new(|state, ctx, _| {
-        let mut mode = state.downcast_mut::<DebugMode>().unwrap();
-        mode.search_results = Some(results);
-        mode.reset_info(ctx);
-    }))
+    Transition::Multi(vec![
+        Transition::Pop,
+        Transition::ModifyState(Box::new(|state, ctx, _| {
+            let mut mode = state.downcast_mut::<DebugMode>().unwrap();
+            mode.search_results = Some(results);
+            mode.reset_info(ctx);
+        })),
+    ])
 }
 
 struct SearchResults {
@@ -496,7 +499,7 @@ impl ContextualActions for Actions {
         close_info: &mut bool,
     ) -> Transition {
         match (id, action.as_ref()) {
-            (id, "hide this") => Transition::KeepWithData(Box::new(|state, ctx, app| {
+            (id, "hide this") => Transition::ModifyState(Box::new(|state, ctx, app| {
                 let mode = state.downcast_mut::<DebugMode>().unwrap();
                 println!("Hiding {:?}", id);
                 app.primary.current_selection = None;

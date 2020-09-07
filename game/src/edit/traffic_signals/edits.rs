@@ -74,12 +74,15 @@ impl State for ChangeDuration {
                         PhaseType::Adaptive(dt)
                     };
                     let idx = self.idx;
-                    return Transition::PopWithData(Box::new(move |state, ctx, app| {
-                        let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                        editor.add_new_edit(ctx, app, idx, |ts| {
-                            ts.stages[idx].phase_type = new_type.clone();
-                        });
-                    }));
+                    return Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::ModifyState(Box::new(move |state, ctx, app| {
+                            let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                            editor.add_new_edit(ctx, app, idx, |ts| {
+                                ts.stages[idx].phase_type = new_type.clone();
+                            });
+                        })),
+                    ]);
                 }
                 _ => unreachable!(),
             },
@@ -145,23 +148,29 @@ pub fn edit_entire_signal(
                     &mut Timer::throwaway(),
                 )),
                 Box::new(move |new_signal, _, _| {
-                    Transition::PopWithData(Box::new(move |state, ctx, app| {
+                    Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::ModifyState(Box::new(move |state, ctx, app| {
+                            let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                            editor.add_new_edit(ctx, app, 0, |ts| {
+                                *ts = new_signal.clone();
+                            });
+                        })),
+                    ])
+                }),
+            )),
+            x if x == all_walk => Transition::Multi(vec![
+                Transition::Pop,
+                Transition::ModifyState(Box::new(move |state, ctx, app| {
+                    let mut new_signal = app.primary.map.get_traffic_signal(i).clone();
+                    if new_signal.convert_to_ped_scramble() {
                         let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
                         editor.add_new_edit(ctx, app, 0, |ts| {
                             *ts = new_signal.clone();
                         });
-                    }))
-                }),
-            )),
-            x if x == all_walk => Transition::PopWithData(Box::new(move |state, ctx, app| {
-                let mut new_signal = app.primary.map.get_traffic_signal(i).clone();
-                if new_signal.convert_to_ped_scramble() {
-                    let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                    editor.add_new_edit(ctx, app, 0, |ts| {
-                        *ts = new_signal.clone();
-                    });
-                }
-            })),
+                    }
+                })),
+            ]),
             x if x == stop_sign => {
                 original.apply(app);
 
@@ -195,19 +204,22 @@ pub fn edit_entire_signal(
                     Transition::Multi(vec![Transition::Pop, Transition::Pop])
                 }
             }
-            x if x == reset => Transition::PopWithData(Box::new(move |state, ctx, app| {
-                let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                let new_signal = ControlTrafficSignal::get_possible_policies(
-                    &app.primary.map,
-                    i,
-                    &mut Timer::throwaway(),
-                )
-                .remove(0)
-                .1;
-                editor.add_new_edit(ctx, app, 0, |ts| {
-                    *ts = new_signal.clone();
-                });
-            })),
+            x if x == reset => Transition::Multi(vec![
+                Transition::Pop,
+                Transition::ModifyState(Box::new(move |state, ctx, app| {
+                    let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                    let new_signal = ControlTrafficSignal::get_possible_policies(
+                        &app.primary.map,
+                        i,
+                        &mut Timer::throwaway(),
+                    )
+                    .remove(0)
+                    .1;
+                    editor.add_new_edit(ctx, app, 0, |ts| {
+                        *ts = new_signal.clone();
+                    });
+                })),
+            ]),
             _ => unreachable!(),
         }),
     )
