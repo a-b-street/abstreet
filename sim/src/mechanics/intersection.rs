@@ -41,7 +41,11 @@ struct State {
     // are not yet configured as one.
     reserved: BTreeSet<Request>,
 
-    // Only relevant for traffic signals
+    signal: Option<SignalState>,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+struct SignalState {
     current_stage: usize,
     stage_ends_at: Time,
 }
@@ -76,29 +80,10 @@ impl IntersectionSimState {
                 accepted: BTreeSet::new(),
                 waiting: BTreeMap::new(),
                 reserved: BTreeSet::new(),
-                current_stage: 0,
-                stage_ends_at: Time::START_OF_DAY,
+                signal: None,
             };
             if i.is_traffic_signal() && !use_freeform_policy_everywhere {
-                let signal = map.get_traffic_signal(i.id);
-                // What stage are we starting with?
-                let mut offset = signal.offset;
-                loop {
-                    let dt = signal.stages[state.current_stage]
-                        .phase_type
-                        .simple_duration();
-                    if offset >= dt {
-                        offset -= dt;
-                        state.current_stage += 1;
-                        if state.current_stage == signal.stages.len() {
-                            state.current_stage = 0;
-                        }
-                    } else {
-                        state.stage_ends_at = Time::START_OF_DAY + dt - offset;
-                        break;
-                    }
-                }
-                scheduler.push(state.stage_ends_at, Command::UpdateIntersection(i.id));
+                state.signal = Some(SignalState::new(i.id, Time::START_OF_DAY, map, scheduler));
             }
             sim.state.insert(i.id, state);
         }
@@ -185,7 +170,7 @@ impl IntersectionSimState {
                 protected.push(req);
             }
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(i) {
-            let stage = &signal.stages[self.state[&i].current_stage];
+            let stage = &signal.stages[self.state[&i].signal.as_ref().unwrap().current_stage];
             for (req, _) in all {
                 match stage.get_priority_of_turn(req.turn, signal) {
                     TurnPriority::Protected => {
@@ -239,14 +224,15 @@ impl IntersectionSimState {
         scheduler: &mut Scheduler,
     ) {
         let state = self.state.get_mut(&id).unwrap();
+        let signal_state = state.signal.as_mut().unwrap();
         let signal = map.get_traffic_signal(id);
 
         // Switch to a new stage?
-        assert_eq!(now, state.stage_ends_at);
-        let old_stage = &signal.stages[state.current_stage];
+        assert_eq!(now, signal_state.stage_ends_at);
+        let old_stage = &signal.stages[signal_state.current_stage];
         match old_stage.phase_type {
             PhaseType::Fixed(_) => {
-                state.current_stage += 1;
+                signal_state.current_stage += 1;
             }
             PhaseType::Adaptive(_) => {
                 // TODO Make a better policy here. For now, if there's _anyone_ waiting to start a
@@ -258,7 +244,7 @@ impl IntersectionSimState {
                 if state.waiting.keys().all(|req| {
                     old_stage.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
                 }) {
-                    state.current_stage += 1;
+                    signal_state.current_stage += 1;
                     self.events.push(Event::Alert(
                         AlertLocation::Intersection(id),
                         "Repeating an adaptive stage".to_string(),
@@ -266,15 +252,15 @@ impl IntersectionSimState {
                 }
             }
         }
-        if state.current_stage == signal.stages.len() {
-            state.current_stage = 0;
+        if signal_state.current_stage == signal.stages.len() {
+            signal_state.current_stage = 0;
         }
 
-        state.stage_ends_at = now
-            + signal.stages[state.current_stage]
+        signal_state.stage_ends_at = now
+            + signal.stages[signal_state.current_stage]
                 .phase_type
                 .simple_duration();
-        scheduler.push(state.stage_ends_at, Command::UpdateIntersection(id));
+        scheduler.push(signal_state.stage_ends_at, Command::UpdateIntersection(id));
         self.wakeup_waiting(now, id, scheduler, map);
     }
 
@@ -534,7 +520,7 @@ impl IntersectionSimState {
         now: Time,
         i: IntersectionID,
     ) -> (usize, Duration) {
-        let state = &self.state[&i];
+        let state = &self.state[&i].signal.as_ref().unwrap();
         if now > state.stage_ends_at {
             panic!(
                 "At {}, but {} should have advanced its stage at {}",
@@ -544,18 +530,36 @@ impl IntersectionSimState {
         (state.current_stage, state.stage_ends_at - now)
     }
 
-    pub fn handle_live_edited_traffic_signals(&mut self, map: &Map) {
+    pub fn handle_live_edited_traffic_signals(
+        &mut self,
+        now: Time,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) {
         for state in self.state.values_mut() {
-            if let Some(ts) = map.maybe_get_traffic_signal(state.id) {
-                if state.current_stage >= ts.stages.len() {
-                    // Just jump back to the first one. Shrug.
-                    state.current_stage = 0;
-                    println!(
-                        "WARNING: Traffic signal {} was live-edited in the middle of a stage, so \
-                         jumping back to the first stage",
-                        state.id
-                    );
+            match (
+                map.maybe_get_traffic_signal(state.id),
+                state.signal.as_mut(),
+            ) {
+                (Some(ts), Some(signal_state)) => {
+                    if signal_state.current_stage >= ts.stages.len() {
+                        // Just jump back to the first one. Shrug.
+                        signal_state.current_stage = 0;
+                        println!(
+                            "WARNING: Traffic signal {} was live-edited in the middle of a stage, \
+                             so jumping back to the first stage",
+                            state.id
+                        );
+                    }
                 }
+                (Some(_), None) => {
+                    state.signal = Some(SignalState::new(state.id, now, map, scheduler));
+                }
+                (None, Some(_)) => {
+                    state.signal = None;
+                    scheduler.cancel(Command::UpdateIntersection(state.id));
+                }
+                (None, None) => {}
             }
         }
     }
@@ -615,9 +619,10 @@ impl IntersectionSimState {
         let turn = map.get_t(req.turn);
 
         let state = &self.state[&req.turn.parent];
-        let stage = &signal.stages[state.current_stage];
+        let signal_state = state.signal.as_ref().unwrap();
+        let stage = &signal.stages[signal_state.current_stage];
         let full_stage_duration = stage.phase_type.simple_duration();
-        let remaining_stage_time = state.stage_ends_at - now;
+        let remaining_stage_time = signal_state.stage_ends_at - now;
         let our_time = state.waiting[req];
 
         // Can't go at all this stage.
@@ -767,6 +772,36 @@ impl IntersectionSimState {
             }
         }
         None
+    }
+}
+
+impl SignalState {
+    fn new(id: IntersectionID, now: Time, map: &Map, scheduler: &mut Scheduler) -> SignalState {
+        let mut state = SignalState {
+            current_stage: 0,
+            stage_ends_at: now,
+        };
+
+        let signal = map.get_traffic_signal(id);
+        // What stage are we starting with?
+        let mut offset = (now - Time::START_OF_DAY) + signal.offset;
+        loop {
+            let dt = signal.stages[state.current_stage]
+                .phase_type
+                .simple_duration();
+            if offset >= dt {
+                offset -= dt;
+                state.current_stage += 1;
+                if state.current_stage == signal.stages.len() {
+                    state.current_stage = 0;
+                }
+            } else {
+                state.stage_ends_at = now + dt - offset;
+                break;
+            }
+        }
+        scheduler.push(state.stage_ends_at, Command::UpdateIntersection(id));
+        state
     }
 }
 
