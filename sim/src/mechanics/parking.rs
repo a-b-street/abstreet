@@ -99,6 +99,42 @@ impl ParkingSimState {
         sim
     }
 
+    // Returns any cars that got very abruptly evicted from existence
+    pub fn handle_map_updates(&mut self, map: &Map, timer: &mut Timer) -> Vec<CarID> {
+        let (filled_before, _) = self.get_all_parking_spots();
+        let new = ParkingSimState::new(map, timer);
+        let (_, avail_after) = new.get_all_parking_spots();
+        let avail_after: BTreeSet<ParkingSpot> = avail_after.into_iter().collect();
+
+        // Use the new spots
+        self.onstreet_lanes = new.onstreet_lanes;
+        self.driving_to_parking_lanes = new.driving_to_parking_lanes;
+        self.num_spots_per_offstreet = new.num_spots_per_offstreet;
+        self.driving_to_offstreet = new.driving_to_offstreet;
+        self.num_spots_per_lot = new.num_spots_per_lot;
+        self.driving_to_lots = new.driving_to_lots;
+
+        // For every spot filled or reserved before, make sure that same spot still exists. If not,
+        // evict that car.
+        let mut evicted = Vec::new();
+        for spot in filled_before {
+            if !avail_after.contains(&spot) {
+                let car = self.occupants.remove(&spot).unwrap();
+                assert!(self.parked_cars.remove(&car).is_some());
+                evicted.push(car);
+            }
+        }
+
+        // TODO How do we handle reserved_spots?
+        self.reserved_spots = self
+            .reserved_spots
+            .difference(&avail_after)
+            .cloned()
+            .collect();
+
+        evicted
+    }
+
     pub fn get_free_onstreet_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
         let mut spots: Vec<ParkingSpot> = Vec::new();
         if let Some(lane) = self.onstreet_lanes.get(&l) {

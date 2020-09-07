@@ -34,3 +34,9 @@ figure out rerouting.
 
 And actually, the only other case to handle is `ChangeRouteSchedule`, which
 should just be rescheduling the `StartBus` commands.
+
+## TODO: Parking
+
+What happens if you modify a parking lane while there are cars on it? For now,
+just delete them. Trips later making use of them will just act as if the car
+never had room to be spawned at all and be aborted or fallback to walking.
