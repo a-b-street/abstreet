@@ -845,7 +845,8 @@ impl Sim {
     }
 
     pub fn handle_live_edited_traffic_signals(&mut self, map: &Map) {
-        self.intersections.handle_live_edited_traffic_signals(map)
+        self.intersections
+            .handle_live_edited_traffic_signals(self.time, map, &mut self.scheduler)
     }
 
     pub fn handle_live_edited_lanes(&mut self, map: &Map) {
