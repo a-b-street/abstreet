@@ -36,5 +36,21 @@ pub use crate::time::Time;
 pub const EPSILON_DIST: Distance = Distance::const_meters(0.01);
 
 pub fn trim_f64(x: f64) -> f64 {
-    (x * 10_000.0).round() / 10_000.0
+    let v1 = compress(x);
+    let v2 = compress(v1);
+    if v1 != v2 {
+        panic!("trim_f64({}) = {} v1, {} v2", x, v1, v2);
+    }
+
+    v1
+}
+
+fn compress(x: f64) -> f64 {
+    // f64 -> f32
+    let x = x as f32;
+    // Trim decimal places
+    let x = (x * 10_000.0).round() / 10_000.0;
+    // f32 -> f64
+    let x = x as f64;
+    x
 }
