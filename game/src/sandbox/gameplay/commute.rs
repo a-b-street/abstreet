@@ -1,19 +1,18 @@
 use crate::app::App;
 use crate::challenges::{Challenge, HighScore};
-use crate::common::{ContextualActions, Tab};
+use crate::common::Tab;
 use crate::cutscene::{CutsceneBuilder, FYI};
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
 use crate::helpers::cmp_duration_shorter;
-use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
-use crate::sandbox::SandboxControls;
+use crate::sandbox::{Actions, SandboxControls};
 use geom::{Duration, Time};
 use sim::{OrigPersonID, PersonID, TripID};
 use std::collections::BTreeMap;
 use widgetry::{
-    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
-    Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, RewriteColor, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 // TODO Avoid hack entirely, or tune appearance
@@ -123,6 +122,7 @@ impl GameplayState for OptimizeCommute {
         ctx: &mut EventCtx,
         app: &mut App,
         controls: &mut SandboxControls,
+        actions: &mut Actions,
     ) -> Option<Transition> {
         if self.once {
             self.once = false;
@@ -130,9 +130,7 @@ impl GameplayState for OptimizeCommute {
                 ctx,
                 app,
                 Tab::PersonTrips(self.person, BTreeMap::new()),
-                &mut Actions {
-                    paused: controls.speed.as_ref().unwrap().is_paused(),
-                },
+                actions,
             );
         }
 
@@ -196,9 +194,7 @@ impl GameplayState for OptimizeCommute {
                         ctx,
                         app,
                         Tab::PersonTrips(self.person, BTreeMap::new()),
-                        &mut Actions {
-                            paused: controls.speed.as_ref().unwrap().is_paused(),
-                        },
+                        actions,
                     );
                 }
                 _ => unreachable!(),
@@ -305,30 +301,6 @@ fn final_score(
     };
 
     FinalScore::new(ctx, app, msg, mode, next_mode)
-}
-
-// TODO Probably refactor this for most challenge modes, or have SandboxMode pass in Actions
-struct Actions {
-    paused: bool,
-}
-
-impl ContextualActions for Actions {
-    fn actions(&self, _: &App, _: ID) -> Vec<(Key, String)> {
-        Vec::new()
-    }
-    fn execute(
-        &mut self,
-        _: &mut EventCtx,
-        _: &mut App,
-        _: ID,
-        _: String,
-        _: &mut bool,
-    ) -> Transition {
-        unreachable!()
-    }
-    fn is_paused(&self) -> bool {
-        self.paused
-    }
 }
 
 fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {

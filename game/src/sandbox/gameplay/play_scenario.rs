@@ -5,7 +5,7 @@ use crate::game::{ChooseSomething, PopupMsg, State, Transition};
 use crate::helpers::{checkbox_per_mode, nice_map_name};
 use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
-use crate::sandbox::{SandboxControls, SandboxMode};
+use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 use maplit::btreeset;
 use sim::{ScenarioModifier, TripMode};
 use std::collections::BTreeSet;
@@ -41,6 +41,7 @@ impl GameplayState for PlayScenario {
         ctx: &mut EventCtx,
         app: &mut App,
         _: &mut SandboxControls,
+        _: &mut Actions,
     ) -> Option<Transition> {
         // This should really happen in the constructor once, but the old PlayScenario's
         // on_destroy can wipe this out.

@@ -117,7 +117,11 @@ impl State for SandboxMode {
             ctx.canvas_movement();
         }
 
-        if let Some(t) = self.gameplay.event(ctx, app, &mut self.controls) {
+        let mut actions = self.contextual_actions();
+        if let Some(t) = self
+            .gameplay
+            .event(ctx, app, &mut self.controls, &mut actions)
+        {
             return t;
         }
 
@@ -153,7 +157,6 @@ impl State for SandboxMode {
 
         // Fragile ordering. Let this work before tool_panel, so Key::Escape from the info panel
         // beats the one to quit. And let speed update the sim before we update the info panel.
-        let mut actions = self.contextual_actions();
         if let Some(ref mut c) = self.controls.common {
             if let Some(t) = c.event(ctx, app, &mut actions) {
                 return t;
@@ -421,7 +424,11 @@ impl ContextualActions for Actions {
                 _ => {}
             }
         }
-        actions.extend(self.gameplay.actions(app, id));
+        actions.extend(match self.gameplay {
+            GameplayMode::Freeform(_) => gameplay::freeform::actions(app, id),
+            GameplayMode::Tutorial(_) => gameplay::tutorial::actions(app, id),
+            _ => Vec::new(),
+        });
         actions
     }
     fn execute(
@@ -477,9 +484,11 @@ impl ContextualActions for Actions {
                     speed.pause(ctx, app);
                 }))
             }
-            (id, action) => self
-                .gameplay
-                .execute(ctx, app, id, action.to_string(), close_panel),
+            (id, action) => match self.gameplay {
+                GameplayMode::Freeform(_) => gameplay::freeform::execute(ctx, app, id, action),
+                GameplayMode::Tutorial(_) => gameplay::tutorial::execute(ctx, app, id, action),
+                _ => unreachable!(),
+            },
         }
     }
     fn is_paused(&self) -> bool {

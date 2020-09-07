@@ -6,7 +6,7 @@ use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
-    maybe_exit_sandbox, spawn_agents_around, AgentMeter, SandboxControls, SandboxMode,
+    maybe_exit_sandbox, spawn_agents_around, Actions, AgentMeter, SandboxControls, SandboxMode,
     SpeedControls, TimePanel,
 };
 use abstutil::Timer;
@@ -333,6 +333,7 @@ impl GameplayState for Tutorial {
         ctx: &mut EventCtx,
         app: &mut App,
         controls: &mut SandboxControls,
+        _: &mut Actions,
     ) -> Option<Transition> {
         // Dance around borrow-checker issues
         let mut tut = app.session.tutorial.take().unwrap();
@@ -1322,7 +1323,7 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
     }
 }
 
-pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Transition {
     let mut tut = app.session.tutorial.as_mut().unwrap();
     let response = match (id, action.as_ref()) {
         (ID::Car(c), "draw WASH ME") => {

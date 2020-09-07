@@ -6,7 +6,7 @@ use crate::edit::EditMode;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
-use crate::sandbox::{SandboxControls, SandboxMode};
+use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 use geom::{Duration, Time};
 use map_model::IntersectionID;
 use widgetry::{
@@ -105,6 +105,7 @@ impl GameplayState for FixTrafficSignals {
         ctx: &mut EventCtx,
         app: &mut App,
         controls: &mut SandboxControls,
+        _: &mut Actions,
     ) -> Option<Transition> {
         self.meter.align_below(
             ctx,

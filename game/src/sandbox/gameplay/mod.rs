@@ -1,20 +1,18 @@
-// TODO pub so challenges can grab cutscenes. Weird?
+// TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?
 pub mod commute;
 pub mod fix_traffic_signals;
-mod freeform;
-mod play_scenario;
-mod tutorial;
+pub mod freeform;
+pub mod play_scenario;
+pub mod tutorial;
 
 pub use self::freeform::spawn_agents_around;
 pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
 use crate::challenges::{Challenge, ChallengesPicker};
-use crate::common::ContextualActions;
 use crate::edit::{apply_map_edits, SaveEdits};
 use crate::game::{State, Transition};
-use crate::helpers::ID;
 use crate::pregame::MainMenu;
-use crate::sandbox::{SandboxControls, SandboxMode};
+use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 use abstutil::Timer;
 use geom::Duration;
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
@@ -44,6 +42,7 @@ pub trait GameplayState: downcast_rs::Downcast {
         ctx: &mut EventCtx,
         app: &mut App,
         controls: &mut SandboxControls,
+        actions: &mut Actions,
     ) -> Option<Transition>;
     fn draw(&self, g: &mut GfxCtx, app: &App);
     fn on_destroy(&self, _: &mut App) {}
@@ -250,35 +249,6 @@ impl GameplayMode {
             }
             GameplayMode::Tutorial(current) => Tutorial::new(ctx, app, *current),
         }
-    }
-}
-
-impl ContextualActions for GameplayMode {
-    fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
-        match self {
-            GameplayMode::Freeform(_) => freeform::actions(app, id),
-            GameplayMode::Tutorial(_) => tutorial::actions(app, id),
-            _ => Vec::new(),
-        }
-    }
-
-    fn execute(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        id: ID,
-        action: String,
-        _: &mut bool,
-    ) -> Transition {
-        match self {
-            GameplayMode::Freeform(_) => freeform::execute(ctx, app, id, action),
-            GameplayMode::Tutorial(_) => tutorial::execute(ctx, app, id, action),
-            _ => unreachable!(),
-        }
-    }
-
-    fn is_paused(&self) -> bool {
-        unreachable!()
     }
 }
 

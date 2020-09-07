@@ -4,8 +4,7 @@ use crate::edit::EditMode;
 use crate::game::{ChooseSomething, PopupMsg, PromptInput, State, Transition};
 use crate::helpers::{nice_map_name, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
-use crate::sandbox::SandboxControls;
-use crate::sandbox::SandboxMode;
+use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 use abstutil::Timer;
 use geom::{Distance, Polygon};
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
@@ -39,6 +38,7 @@ impl GameplayState for Freeform {
         ctx: &mut EventCtx,
         app: &mut App,
         _: &mut SandboxControls,
+        _: &mut Actions,
     ) -> Option<Transition> {
         match self.top_center.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -553,7 +553,7 @@ pub fn actions(_: &App, id: ID) -> Vec<(Key, String)> {
     }
 }
 
-pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Transition {
     match (id, action.as_ref()) {
         (ID::Building(b), "start a trip here") => Transition::Push(AgentSpawner::new(ctx, Some(b))),
         (ID::Intersection(id), "spawn agents here") => {

@@ -703,9 +703,7 @@ pub trait ContextualActions {
 
     // Slightly weird way to plumb in extra info, but...
     fn is_paused(&self) -> bool;
-    fn gameplay_mode(&self) -> GameplayMode {
-        unreachable!()
-    }
+    fn gameplay_mode(&self) -> GameplayMode;
 }
 
 #[derive(Clone, PartialEq)]
