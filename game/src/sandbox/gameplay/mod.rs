@@ -146,13 +146,6 @@ impl GameplayMode {
         }
     }
 
-    pub fn reset_after_edits(&self) -> bool {
-        match self {
-            GameplayMode::FixTrafficSignals => false,
-            _ => true,
-        }
-    }
-
     pub fn can_jump_to_time(&self) -> bool {
         match self {
             GameplayMode::Freeform(_) => false,

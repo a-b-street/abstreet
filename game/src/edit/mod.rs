@@ -21,7 +21,7 @@ use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::options::OptionsPanel;
 use crate::render::DrawMap;
-use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
+use crate::sandbox::GameplayMode;
 use abstutil::Timer;
 use geom::Speed;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
@@ -30,7 +30,7 @@ use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 use widgetry::{
     hotkey, lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Menu, Outcome, Panel, PersistentSplit, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+    Menu, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct EditMode {
@@ -86,33 +86,17 @@ impl EditMode {
             return Transition::Pop;
         }
 
-        ctx.loading_screen("apply edits", move |ctx, mut timer| {
+        ctx.loading_screen("apply edits", move |_, mut timer| {
             app.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);
-            // Parking state might've changed
-            app.primary.clear_sim();
-            if app.opts.resume_after_edit {
-                if self.mode.reset_after_edits() {
-                    Transition::Multi(vec![
-                        Transition::Pop,
-                        Transition::Replace(SandboxMode::new(ctx, app, self.mode.clone())),
-                        Transition::Push(TimeWarpScreen::new(ctx, app, old_sim.time(), None)),
-                    ])
-                } else {
-                    app.primary.sim = old_sim;
-                    app.primary.dirty_from_edits = true;
-                    app.primary
-                        .sim
-                        .handle_live_edited_traffic_signals(&app.primary.map);
-                    Transition::Pop
-                }
-            } else {
-                Transition::Multi(vec![
-                    Transition::Pop,
-                    Transition::Replace(SandboxMode::new(ctx, app, self.mode.clone())),
-                ])
-            }
+            app.primary.sim = old_sim;
+            app.primary.dirty_from_edits = true;
+            app.primary
+                .sim
+                .handle_live_edited_traffic_signals(&app.primary.map);
+            // TODO Some other stuff too
+            Transition::Pop
         })
     }
 }
@@ -233,8 +217,6 @@ impl State for EditMode {
             },
             _ => {}
         }
-        // Just kind of constantly scrape this
-        app.opts.resume_after_edit = self.top_center.persistent_split_value("finish editing");
 
         if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             if let Some(id) = &app.primary.current_selection {
@@ -521,23 +503,11 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Panel {
             } else {
                 Btn::text_fg("bulk edit").inactive(ctx)
             },
-            PersistentSplit::new(
-                ctx,
-                "finish editing",
-                app.opts.resume_after_edit,
-                hotkey(Key::Escape),
-                vec![
-                    Choice::new(
-                        format!(
-                            "Finish & resume from {}",
-                            app.suspended_sim.as_ref().unwrap().time().ampm_tostring()
-                        ),
-                        true,
-                    ),
-                    Choice::new("Finish & restart from midnight", false),
-                ],
-            )
-            .bg(app.cs.section_bg),
+            Btn::text_bg2(format!(
+                "Finish & resume from {}",
+                app.suspended_sim.as_ref().unwrap().time().ampm_tostring()
+            ))
+            .build(ctx, "finish editing", hotkey(Key::Escape)),
         ]),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
