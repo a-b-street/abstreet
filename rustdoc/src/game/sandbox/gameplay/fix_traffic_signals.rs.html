@@ -402,6 +402,7 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
+<span id="405">405</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">FindDelayedIntersections</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::<span class="ident">HighScore</span>;
@@ -411,7 +412,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">challenge_header</span>, <span class="ident">FinalScore</span>, <span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">IntersectionID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -510,6 +511,7 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">controls</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SandboxControls</span>,
+        <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Actions</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">meter</span>.<span class="ident">align_below</span>(
             <span class="ident">ctx</span>,

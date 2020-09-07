@@ -489,6 +489,15 @@
 <span id="489">489</span>
 <span id="490">490</span>
 <span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">dashboards</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gameplay</span>;
@@ -609,7 +618,11 @@
             <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">controls</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contextual_actions</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">gameplay</span>
+            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">controls</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>)
+        {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
 
@@ -645,7 +658,6 @@
 
         <span class="comment">// Fragile ordering. Let this work before tool_panel, so Key::Escape from the info panel</span>
         <span class="comment">// beats the one to quit. And let speed update the sim before we update the info panel.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contextual_actions</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">c</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">common</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">c</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>) {
                 <span class="kw">return</span> <span class="ident">t</span>;
@@ -913,7 +925,11 @@
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
         }
-        <span class="ident">actions</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">actions</span>(<span class="ident">app</span>, <span class="ident">id</span>));
+        <span class="ident">actions</span>.<span class="ident">extend</span>(<span class="kw">match</span> <span class="self">self</span>.<span class="ident">gameplay</span> {
+            <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gameplay</span>::<span class="ident">freeform</span>::<span class="ident">actions</span>(<span class="ident">app</span>, <span class="ident">id</span>),
+            <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gameplay</span>::<span class="ident">tutorial</span>::<span class="ident">actions</span>(<span class="ident">app</span>, <span class="ident">id</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vec</span>::<span class="ident">new</span>(),
+        });
         <span class="ident">actions</span>
     }
     <span class="kw">fn</span> <span class="ident">execute</span>(
@@ -969,9 +985,11 @@
                     <span class="ident">speed</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }))
             }
-            (<span class="ident">id</span>, <span class="ident">action</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>
-                .<span class="ident">gameplay</span>
-                .<span class="ident">execute</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">action</span>.<span class="ident">to_string</span>(), <span class="ident">close_panel</span>),
+            (<span class="ident">id</span>, <span class="ident">action</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">gameplay</span> {
+                <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gameplay</span>::<span class="ident">freeform</span>::<span class="ident">execute</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">action</span>),
+                <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gameplay</span>::<span class="ident">tutorial</span>::<span class="ident">execute</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">action</span>),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            },
         }
     }
     <span class="kw">fn</span> <span class="ident">is_paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {

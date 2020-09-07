@@ -769,8 +769,6 @@
 <span id="769">769</span>
 <span id="770">770</span>
 <span id="771">771</span>
-<span id="772">772</span>
-<span id="773">773</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">building</span>;
 <span class="kw">mod</span> <span class="ident">bus</span>;
@@ -1477,9 +1475,7 @@
 
     <span class="comment">// Slightly weird way to plumb in extra info, but...</span>
     <span class="kw">fn</span> <span class="ident">is_paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">gameplay_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GameplayMode</span> {
-        <span class="macro">unreachable</span><span class="macro">!</span>()
-    }
+    <span class="kw">fn</span> <span class="ident">gameplay_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GameplayMode</span>;
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
