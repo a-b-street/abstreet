@@ -328,6 +328,9 @@
 <span id="328">328</span>
 <span id="329">329</span>
 <span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
@@ -440,16 +443,19 @@
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() {
                         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">TripID</span>(<span class="ident">idx</span>);
                         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_person</span>(<span class="ident">trip</span>);
-                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">PopWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">sandbox</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">sandbox</span>.<span class="ident">contextual_actions</span>();
-                            <span class="ident">sandbox</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="ident">app</span>,
-                                <span class="ident">Tab</span>::<span class="ident">PersonTrips</span>(<span class="ident">person</span>, <span class="ident">OpenTrip</span>::<span class="ident">single</span>(<span class="ident">trip</span>)),
-                                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>,
-                            );
-                        }));
+                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                            <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                                <span class="kw">let</span> <span class="ident">sandbox</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">sandbox</span>.<span class="ident">contextual_actions</span>();
+                                <span class="ident">sandbox</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
+                                    <span class="ident">ctx</span>,
+                                    <span class="ident">app</span>,
+                                    <span class="ident">Tab</span>::<span class="ident">PersonTrips</span>(<span class="ident">person</span>, <span class="ident">OpenTrip</span>::<span class="ident">single</span>(<span class="ident">trip</span>)),
+                                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>,
+                                );
+                            })),
+                        ]);
                     }
                     <span class="kw">return</span> <span class="ident">DashTab</span>::<span class="ident">ParkingOverhead</span>.<span class="ident">transition</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>);
                 }

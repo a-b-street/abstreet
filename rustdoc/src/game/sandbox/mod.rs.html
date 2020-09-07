@@ -969,7 +969,7 @@
             }
             (<span class="kw">_</span>, <span class="string">&quot;follow (run the simulation)&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw-2">*</span><span class="ident">close_panel</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="ident">Transition</span>::<span class="ident">KeepWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                     <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="ident">mode</span>.<span class="ident">controls</span>.<span class="ident">speed</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
                     <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">speed</span>.<span class="ident">is_paused</span>());
@@ -978,7 +978,7 @@
             }
             (<span class="kw">_</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw-2">*</span><span class="ident">close_panel</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="ident">Transition</span>::<span class="ident">KeepWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                     <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="ident">mode</span>.<span class="ident">controls</span>.<span class="ident">speed</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
                     <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">speed</span>.<span class="ident">is_paused</span>());

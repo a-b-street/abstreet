@@ -752,6 +752,9 @@
 <span id="752">752</span>
 <span id="753">753</span>
 <span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">floodfill</span>;
 <span class="kw">mod</span> <span class="ident">objects</span>;
@@ -1165,11 +1168,14 @@
         <span class="ident">draw</span>: <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>),
     };
 
-    <span class="ident">Transition</span>::<span class="ident">PopWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">DebugMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="ident">mode</span>.<span class="ident">search_results</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">results</span>);
-        <span class="ident">mode</span>.<span class="ident">reset_info</span>(<span class="ident">ctx</span>);
-    }))
+    <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+        <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">DebugMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+            <span class="ident">mode</span>.<span class="ident">search_results</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">results</span>);
+            <span class="ident">mode</span>.<span class="ident">reset_info</span>(<span class="ident">ctx</span>);
+        })),
+    ])
 }
 
 <span class="kw">struct</span> <span class="ident">SearchResults</span> {
@@ -1251,7 +1257,7 @@
         <span class="ident">close_info</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> (<span class="ident">id</span>, <span class="ident">action</span>.<span class="ident">as_ref</span>()) {
-            (<span class="ident">id</span>, <span class="string">&quot;hide this&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">KeepWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+            (<span class="ident">id</span>, <span class="string">&quot;hide this&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">DebugMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Hiding {:?}&quot;</span>, <span class="ident">id</span>);
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;

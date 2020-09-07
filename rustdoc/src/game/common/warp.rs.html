@@ -254,6 +254,18 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">PerMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Tab</span>;
@@ -298,18 +310,21 @@
             <span class="ident">Transition</span>::<span class="ident">Keep</span>
         } <span class="kw">else</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">clone</span>() {
-                <span class="ident">Transition</span>::<span class="ident">PopWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="comment">// Other states pretty much don&#39;t use info panels.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>() {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">contextual_actions</span>();
-                        <span class="ident">s</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="ident">Tab</span>::<span class="ident">from_id</span>(<span class="ident">app</span>, <span class="ident">id</span>),
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>,
-                        );
-                    }
-                }))
+                <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                    <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="comment">// Other states pretty much don&#39;t use info panels.</span>
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>() {
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">contextual_actions</span>();
+                            <span class="ident">s</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="ident">app</span>,
+                                <span class="ident">Tab</span>::<span class="ident">from_id</span>(<span class="ident">app</span>, <span class="ident">id</span>),
+                                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>,
+                            );
+                        }
+                    })),
+                ])
             } <span class="kw">else</span> {
                 <span class="ident">Transition</span>::<span class="ident">Pop</span>
             }
@@ -435,18 +450,21 @@
             <span class="string">&#39;R&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">BusRouteID</span>(<span class="ident">idx</span>);
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_br</span>(<span class="ident">r</span>)<span class="question-mark">?</span>;
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">PopWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="comment">// Other states pretty much don&#39;t use info panels.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>() {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">contextual_actions</span>();
-                        <span class="ident">s</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="ident">Tab</span>::<span class="ident">BusRoute</span>(<span class="ident">r</span>),
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>,
-                        );
-                    }
-                })));
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                    <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="comment">// Other states pretty much don&#39;t use info panels.</span>
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>() {
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">contextual_actions</span>();
+                            <span class="ident">s</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="ident">app</span>,
+                                <span class="ident">Tab</span>::<span class="ident">BusRoute</span>(<span class="ident">r</span>),
+                                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>,
+                            );
+                        }
+                    })),
+                ]));
             }
             <span class="string">&#39;l&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">LaneID</span>(<span class="ident">idx</span>)),
             <span class="string">&#39;i&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">IntersectionID</span>(<span class="ident">idx</span>)),
@@ -456,18 +474,21 @@
             <span class="string">&#39;P&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="ident">idx</span>);
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_person</span>(<span class="ident">id</span>)<span class="question-mark">?</span>;
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">PopWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="comment">// Other states pretty much don&#39;t use info panels.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>() {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">contextual_actions</span>();
-                        <span class="ident">s</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="ident">Tab</span>::<span class="ident">PersonTrips</span>(<span class="ident">id</span>, <span class="ident">BTreeMap</span>::<span class="ident">new</span>()),
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>,
-                        );
-                    }
-                })));
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                    <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="comment">// Other states pretty much don&#39;t use info panels.</span>
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>() {
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">contextual_actions</span>();
+                            <span class="ident">s</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="ident">app</span>,
+                                <span class="ident">Tab</span>::<span class="ident">PersonTrips</span>(<span class="ident">id</span>, <span class="ident">BTreeMap</span>::<span class="ident">new</span>()),
+                                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>,
+                            );
+                        }
+                    })),
+                ]));
             }
             <span class="string">&#39;c&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// This one gets more complicated. :)</span>
@@ -477,18 +498,21 @@
             <span class="string">&#39;t&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">TripID</span>(<span class="ident">idx</span>);
                 <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_person</span>(<span class="ident">trip</span>);
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">PopWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="comment">// Other states pretty much don&#39;t use info panels.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>() {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">contextual_actions</span>();
-                        <span class="ident">s</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="ident">Tab</span>::<span class="ident">PersonTrips</span>(<span class="ident">person</span>, <span class="ident">OpenTrip</span>::<span class="ident">single</span>(<span class="ident">trip</span>)),
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>,
-                        );
-                    }
-                })));
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                    <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="comment">// Other states pretty much don&#39;t use info panels.</span>
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>() {
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">contextual_actions</span>();
+                            <span class="ident">s</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="ident">app</span>,
+                                <span class="ident">Tab</span>::<span class="ident">PersonTrips</span>(<span class="ident">person</span>, <span class="ident">OpenTrip</span>::<span class="ident">single</span>(<span class="ident">trip</span>)),
+                                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>,
+                            );
+                        }
+                    })),
+                ]));
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">None</span>;

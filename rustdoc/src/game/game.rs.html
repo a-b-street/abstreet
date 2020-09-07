@@ -490,11 +490,6 @@
 <span id="490">490</span>
 <span id="491">491</span>
 <span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Flags</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">Options</span>;
@@ -594,8 +589,7 @@
                 }
                 <span class="bool-val">true</span>
             }
-            <span class="ident">Transition</span>::<span class="ident">PopWithData</span>(<span class="ident">cb</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="ident">on_destroy</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">app</span>);
+            <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">cb</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">cb</span>(<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>(), <span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">app</span>);
                 <span class="bool-val">true</span>
             }
@@ -604,10 +598,6 @@
                 <span class="ident">last</span>.<span class="ident">on_destroy</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">app</span>);
                 <span class="kw">let</span> <span class="ident">new_states</span> <span class="op">=</span> <span class="ident">cb</span>(<span class="ident">last</span>, <span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">app</span>);
                 <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">extend</span>(<span class="ident">new_states</span>);
-                <span class="bool-val">true</span>
-            }
-            <span class="ident">Transition</span>::<span class="ident">KeepWithData</span>(<span class="ident">cb</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">cb</span>(<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>(), <span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">app</span>);
                 <span class="bool-val">true</span>
             }
             <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -774,9 +764,9 @@
     <span class="ident">KeepWithMouseover</span>,
     <span class="ident">Pop</span>,
     <span class="comment">// If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.</span>
-    <span class="comment">// TODO Collapse some of these cases too</span>
-    <span class="ident">PopWithData</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>)<span class="op">&gt;</span>),
-    <span class="ident">KeepWithData</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>)<span class="op">&gt;</span>),
+    <span class="ident">ModifyState</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>)<span class="op">&gt;</span>),
+    <span class="comment">// TODO This is like Replace + ModifyState, then returning a few Push&#39;s from the callback. Not</span>
+    <span class="comment">// sure how to express it in terms of the others without complicating ModifyState everywhere.</span>
     <span class="ident">ReplaceWithData</span>(
         <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ),

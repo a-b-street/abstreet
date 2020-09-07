@@ -579,6 +579,13 @@
 <span id="579">579</span>
 <span id="580">580</span>
 <span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
@@ -766,13 +773,17 @@
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Name this story map&quot;</span>,
                             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">name</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
-                                <span class="ident">Transition</span>::<span class="ident">PopWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                                    <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">StoryMapEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                                    <span class="ident">editor</span>.<span class="ident">story</span>.<span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>;
-                                    <span class="ident">editor</span>.<span class="ident">story</span>.<span class="ident">save</span>(<span class="ident">app</span>);
-                                    <span class="ident">editor</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                                    <span class="ident">editor</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
-                                }))
+                                <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                                    <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                                    <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                                        <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span>
+                                            <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">StoryMapEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                                        <span class="ident">editor</span>.<span class="ident">story</span>.<span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>;
+                                        <span class="ident">editor</span>.<span class="ident">story</span>.<span class="ident">save</span>(<span class="ident">app</span>);
+                                        <span class="ident">editor</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                                        <span class="ident">editor</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
+                                    })),
+                                ])
                             }),
                         ));
                     } <span class="kw">else</span> {
@@ -807,12 +818,15 @@
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">rect_of</span>(<span class="string">&quot;load&quot;</span>),
                         <span class="ident">choices</span>,
                         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">story</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
-                            <span class="ident">Transition</span>::<span class="ident">PopWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
-                                <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">StoryMapEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                                <span class="ident">editor</span>.<span class="ident">story</span> <span class="op">=</span> <span class="ident">story</span>;
-                                <span class="ident">editor</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                                <span class="ident">editor</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
-                            }))
+                            <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                                <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                                <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
+                                    <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">StoryMapEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                                    <span class="ident">editor</span>.<span class="ident">story</span> <span class="op">=</span> <span class="ident">story</span>;
+                                    <span class="ident">editor</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                                    <span class="ident">editor</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
+                                })),
+                            ])
                         }),
                     ));
                 }
