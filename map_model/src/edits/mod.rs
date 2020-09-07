@@ -5,8 +5,8 @@ use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::raw::DrivingSide;
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
-    IntersectionID, IntersectionType, LaneType, Map, PathConstraints, Pathfinder, Road, RoadID,
-    TurnID, Zone,
+    IntersectionID, IntersectionType, LaneID, LaneType, Map, PathConstraints, Pathfinder, Road,
+    RoadID, TurnID, Zone,
 };
 use abstutil::{retain_btreemap, retain_btreeset, Timer};
 use geom::{Speed, Time};
@@ -181,6 +181,30 @@ impl MapEdits {
                 old: r.orig_spawn_times.clone(),
             });
         }
+    }
+
+    // Pick apart changed_roads and figure out if an entire road was edited, or just a few lanes.
+    pub fn changed_lanes(&self, map: &Map) -> (BTreeSet<LaneID>, BTreeSet<RoadID>) {
+        let mut lanes = BTreeSet::new();
+        let mut roads = BTreeSet::new();
+        for r in &self.changed_roads {
+            let r = map.get_r(*r);
+            let orig = EditRoad::get_orig_from_osm(r, map.get_config().driving_side);
+            // What exactly changed?
+            if r.speed_limit != orig.speed_limit
+                || r.access_restrictions != orig.access_restrictions
+            {
+                roads.insert(r.id);
+            } else {
+                let lanes_ltr = r.lanes_ltr();
+                for (idx, (lt, dir)) in orig.lanes_ltr.into_iter().enumerate() {
+                    if lanes_ltr[idx].1 != dir || lanes_ltr[idx].2 != lt {
+                        lanes.insert(lanes_ltr[idx].0);
+                    }
+                }
+            }
+        }
+        (lanes, roads)
     }
 }
 

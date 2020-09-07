@@ -227,15 +227,7 @@ impl DrivingSimState {
             {
                 self.cars.insert(id, car);
             } else {
-                self.delete_car(
-                    &mut car,
-                    dists,
-                    idx,
-                    now,
-                    ctx.map,
-                    ctx.scheduler,
-                    ctx.intersections,
-                );
+                self.delete_car_internal(&mut car, dists, idx, now, ctx);
             }
         }
     }
@@ -580,14 +572,7 @@ impl DrivingSimState {
         }
     }
 
-    pub fn kill_stuck_car(
-        &mut self,
-        c: CarID,
-        now: Time,
-        map: &Map,
-        scheduler: &mut Scheduler,
-        intersections: &mut IntersectionSimState,
-    ) -> Vehicle {
+    pub fn delete_car(&mut self, c: CarID, now: Time, ctx: &mut Ctx) -> Vehicle {
         let dists = self.queues[&self.cars[&c].router.head()].get_car_positions(
             now,
             &self.cars,
@@ -602,24 +587,22 @@ impl DrivingSimState {
             queue.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
         }
         if let Some(Traversable::Turn(t)) = car.router.maybe_next() {
-            intersections.cancel_request(AgentID::Car(c), t);
+            ctx.intersections.cancel_request(AgentID::Car(c), t);
         }
 
-        self.delete_car(&mut car, dists, idx, now, map, scheduler, intersections);
-        // delete_car cancels UpdateLaggyHead
-        scheduler.cancel(Command::UpdateCar(c));
+        self.delete_car_internal(&mut car, dists, idx, now, ctx);
+        // delete_car_internal cancels UpdateLaggyHead
+        ctx.scheduler.cancel(Command::UpdateCar(c));
         car.vehicle
     }
 
-    fn delete_car(
+    fn delete_car_internal(
         &mut self,
         car: &mut Car,
         dists: Vec<(CarID, Distance)>,
         idx: usize,
         now: Time,
-        map: &Map,
-        scheduler: &mut Scheduler,
-        intersections: &mut IntersectionSimState,
+        ctx: &mut Ctx,
     ) {
         {
             let queue = self.queues.get_mut(&car.router.head()).unwrap();
@@ -627,26 +610,21 @@ impl DrivingSimState {
             // trim_last_steps doesn't actually include the current queue!
             queue.free_reserved_space(car);
             let i = match queue.id {
-                Traversable::Lane(l) => map.get_l(l).src_i,
+                Traversable::Lane(l) => ctx.map.get_l(l).src_i,
                 Traversable::Turn(t) => t.parent,
             };
-            intersections.space_freed(now, i, scheduler, map);
+            ctx.intersections
+                .space_freed(now, i, ctx.scheduler, ctx.map);
         }
 
-        intersections.vehicle_gone(car.vehicle.id);
+        ctx.intersections.vehicle_gone(car.vehicle.id);
 
         // We might be vanishing while partly clipping into other stuff.
-        self.trim_last_steps(
-            car,
-            now,
-            car.last_steps.len(),
-            map,
-            intersections,
-            scheduler,
-        );
+        self.trim_last_steps(car, now, car.last_steps.len(), ctx);
 
         // We might've scheduled one of those using BLIND_RETRY_TO_CREEP_FORWARDS.
-        scheduler.cancel(Command::UpdateLaggyHead(car.vehicle.id));
+        ctx.scheduler
+            .cancel(Command::UpdateLaggyHead(car.vehicle.id));
 
         // Update the follower so that they don't suddenly jump forwards.
         if idx != dists.len() - 1 {
@@ -659,8 +637,8 @@ impl DrivingSimState {
                 CarState::Queued { blocked_since } => {
                     // Prevent them from jumping forwards.
                     follower.total_blocked_time += now - blocked_since;
-                    follower.state = follower.crossing_state(follower_dist, now, map);
-                    scheduler.update(
+                    follower.state = follower.crossing_state(follower_dist, now, ctx.map);
+                    ctx.scheduler.update(
                         follower.state.get_end_time(),
                         Command::UpdateCar(follower_id),
                     );
@@ -669,8 +647,8 @@ impl DrivingSimState {
                     // If the follower was still Crossing, they might not've been blocked
                     // by leader yet. In that case, recalculating their Crossing state is a
                     // no-op.
-                    follower.state = follower.crossing_state(follower_dist, now, map);
-                    scheduler.update(
+                    follower.state = follower.crossing_state(follower_dist, now, ctx.map);
+                    ctx.scheduler.update(
                         follower.state.get_end_time(),
                         Command::UpdateCar(follower_id),
                     );
@@ -684,14 +662,7 @@ impl DrivingSimState {
         }
     }
 
-    pub fn update_laggy_head(
-        &mut self,
-        id: CarID,
-        now: Time,
-        map: &Map,
-        intersections: &mut IntersectionSimState,
-        scheduler: &mut Scheduler,
-    ) {
+    pub fn update_laggy_head(&mut self, id: CarID, now: Time, ctx: &mut Ctx) {
         let currently_on = self.cars[&id].router.head();
         let current_dists =
             self.queues[&currently_on].get_car_positions(now, &self.cars, &self.queues);
@@ -716,12 +687,12 @@ impl DrivingSimState {
                 num_to_trim = Some(self.cars[&id].last_steps.len() - idx);
                 break;
             }
-            dist_left_to_cleanup -= step.length(map);
+            dist_left_to_cleanup -= step.length(ctx.map);
         }
 
         if let Some(n) = num_to_trim {
             let mut car = self.cars.remove(&id).unwrap();
-            self.trim_last_steps(&mut car, now, n, map, intersections, scheduler);
+            self.trim_last_steps(&mut car, now, n, ctx);
             self.cars.insert(id, car);
         }
 
@@ -737,20 +708,20 @@ impl DrivingSimState {
                         self.cars[&id].vehicle.length + FOLLOWING_DISTANCE,
                     ),
                     now,
-                    map,
+                    ctx.map,
                 )
                 .get_end_time();
             // Sometimes due to rounding, retry_at will be exactly time, but we really need to
             // wait a bit longer.
             // TODO Smarter retry based on states and stuckness?
             if retry_at > now {
-                scheduler.push(retry_at, Command::UpdateLaggyHead(id));
+                ctx.scheduler.push(retry_at, Command::UpdateLaggyHead(id));
             } else {
                 // If we look up car positions before this retry happens, weird things can
                 // happen -- the laggy head could be well clear of the old queue by then. Make
                 // sure to handle that there. Consequences of this retry being long? A follower
                 // will wait a bit before advancing.
-                scheduler.push(
+                ctx.scheduler.push(
                     now + BLIND_RETRY_TO_CREEP_FORWARDS,
                     Command::UpdateLaggyHead(id),
                 );
@@ -759,15 +730,7 @@ impl DrivingSimState {
     }
 
     // Caller has to figure out how many steps to trim!
-    fn trim_last_steps(
-        &mut self,
-        car: &mut Car,
-        now: Time,
-        n: usize,
-        map: &Map,
-        intersections: &mut IntersectionSimState,
-        scheduler: &mut Scheduler,
-    ) {
+    fn trim_last_steps(&mut self, car: &mut Car, now: Time, n: usize, ctx: &mut Ctx) {
         for i in 0..n {
             let on = car.last_steps.pop_back().unwrap();
             let old_queue = self.queues.get_mut(&on).unwrap();
@@ -775,17 +738,22 @@ impl DrivingSimState {
             old_queue.laggy_head = None;
             match on {
                 Traversable::Turn(t) => {
-                    intersections.turn_finished(
+                    ctx.intersections.turn_finished(
                         now,
                         AgentID::Car(car.vehicle.id),
                         t,
-                        scheduler,
-                        map,
+                        ctx.scheduler,
+                        ctx.map,
                     );
                 }
                 Traversable::Lane(l) => {
                     old_queue.free_reserved_space(car);
-                    intersections.space_freed(now, map.get_l(l).src_i, scheduler, map);
+                    ctx.intersections.space_freed(
+                        now,
+                        ctx.map.get_l(l).src_i,
+                        ctx.scheduler,
+                        ctx.map,
+                    );
                 }
             }
 
@@ -806,11 +774,12 @@ impl DrivingSimState {
                                 if self.recalc_lanechanging {
                                     follower.router.opportunistically_lanechange(
                                         &self.queues,
-                                        map,
+                                        ctx.map,
                                         self.handle_uber_turns,
                                     );
                                 }
-                                scheduler.push(now, Command::UpdateCar(follower.vehicle.id));
+                                ctx.scheduler
+                                    .push(now, Command::UpdateCar(follower.vehicle.id));
                             }
                         }
                         CarState::WaitingToAdvance { .. } => unreachable!(),

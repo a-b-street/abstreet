@@ -820,6 +820,9 @@ impl TripManager {
     pub fn get_active_trips(&self) -> Vec<TripID> {
         self.active_trip_mode.values().cloned().collect()
     }
+    pub fn active_agents_and_trips(&self) -> &BTreeMap<AgentID, TripID> {
+        &self.active_trip_mode
+    }
     pub fn num_active_agents(&self) -> usize {
         self.active_trip_mode.len()
     }

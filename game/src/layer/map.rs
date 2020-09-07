@@ -4,7 +4,7 @@ use crate::helpers::amenity_type;
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
 use geom::{Distance, Time};
-use map_model::{EditRoad, LaneType};
+use map_model::LaneType;
 use sim::AgentType;
 use widgetry::{
     hotkey, Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, Text,
@@ -217,22 +217,12 @@ impl Static {
         );
 
         let edits = app.primary.map.get_edits();
-        for r in &edits.changed_roads {
-            let r = app.primary.map.get_r(*r);
-            let orig = EditRoad::get_orig_from_osm(r, app.primary.map.get_config().driving_side);
-            // What exactly changed?
-            if r.speed_limit != orig.speed_limit
-                || r.access_restrictions != orig.access_restrictions
-            {
-                colorer.add_r(r.id, "modified road/intersection");
-            } else {
-                let lanes = r.lanes_ltr();
-                for (idx, (lt, dir)) in orig.lanes_ltr.into_iter().enumerate() {
-                    if lanes[idx].1 != dir || lanes[idx].2 != lt {
-                        colorer.add_l(lanes[idx].0, "modified road/intersection");
-                    }
-                }
-            }
+        let (lanes, roads) = edits.changed_lanes(&app.primary.map);
+        for l in lanes {
+            colorer.add_l(l, "modified road/intersection");
+        }
+        for r in roads {
+            colorer.add_r(r, "modified road/intersection");
         }
         for i in edits.original_intersections.keys() {
             colorer.add_i(*i, "modified road/intersection");

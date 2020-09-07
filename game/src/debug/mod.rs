@@ -472,7 +472,7 @@ impl ContextualActions for Actions {
                 }
             }
             ID::Car(_) => {
-                actions.push((Key::Backspace, "forcibly kill this car".to_string()));
+                actions.push((Key::Backspace, "forcibly delete this car".to_string()));
                 actions.push((Key::G, "find front of blockage".to_string()));
             }
             ID::Area(_) => {
@@ -511,8 +511,8 @@ impl ContextualActions for Actions {
                 objects::ObjectDebugger::dump_debug(id, &app.primary.map, &app.primary.sim);
                 Transition::Keep
             }
-            (ID::Car(c), "forcibly kill this car") => {
-                app.primary.sim.kill_stuck_car(c, &app.primary.map);
+            (ID::Car(c), "forcibly delete this car") => {
+                app.primary.sim.delete_car(c, &app.primary.map);
                 app.primary
                     .sim
                     .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
