@@ -95,7 +95,7 @@ impl EditMode {
             app.primary
                 .sim
                 .handle_live_edited_traffic_signals(&app.primary.map);
-            // TODO Some other stuff too
+            app.primary.sim.handle_live_edited_lanes(&app.primary.map);
             Transition::Pop
         })
     }

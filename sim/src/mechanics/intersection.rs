@@ -208,7 +208,11 @@ impl IntersectionSimState {
                 }
             }
         } else {
-            assert!(map.get_i(i).is_border());
+            // This could either be a border intersection or an intersection that was just closed
+            // in the middle of simulation. In either case, there shouldn't be any other turns at
+            // it.
+            assert!(protected.is_empty());
+            assert!(yielding.is_empty());
         };
 
         for req in protected {

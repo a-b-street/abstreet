@@ -531,13 +531,7 @@ impl Sim {
                 );
             }
             Command::UpdateLaggyHead(car) => {
-                self.driving.update_laggy_head(
-                    car,
-                    self.time,
-                    map,
-                    &mut self.intersections,
-                    &mut self.scheduler,
-                );
+                self.driving.update_laggy_head(car, self.time, &mut ctx);
             }
             Command::UpdatePed(ped) => {
                 self.walking.update_ped(
@@ -852,6 +846,59 @@ impl Sim {
 
     pub fn handle_live_edited_traffic_signals(&mut self, map: &Map) {
         self.intersections.handle_live_edited_traffic_signals(map)
+    }
+
+    pub fn handle_live_edited_lanes(&mut self, map: &Map) {
+        // TODO Handle changes to access restrictions
+
+        // Find every active trip whose path crosses a modified lane or closed intersection
+        let (edited_lanes, _) = map.get_edits().changed_lanes(map);
+        let mut closed_intersections = HashSet::new();
+        for i in map.get_edits().original_intersections.keys() {
+            if map.get_i(*i).is_closed() {
+                closed_intersections.insert(*i);
+            }
+        }
+        let mut affected = Vec::new();
+        for (a, trip) in self.trips.active_agents_and_trips() {
+            if let Some(path) = self.get_path(*a) {
+                if path
+                    .get_steps()
+                    .iter()
+                    .any(|step| match step.as_traversable() {
+                        Traversable::Lane(l) => edited_lanes.contains(&l),
+                        Traversable::Turn(t) => closed_intersections.contains(&t.parent),
+                    })
+                {
+                    affected.push((*a, *trip));
+                }
+            }
+        }
+
+        // V1: Just abort every trip crossing an affected area.
+        // (V2 is probably rerouting everyone, only aborting when that fails)
+        // TODO If we delete a bus, deal with all its passengers
+        let mut ctx = Ctx {
+            parking: &mut self.parking,
+            intersections: &mut self.intersections,
+            cap: &mut self.cap,
+            scheduler: &mut self.scheduler,
+            map,
+        };
+        for (agent, trip) in affected {
+            match agent {
+                AgentID::Car(car) => {
+                    let vehicle = self.driving.delete_car(car, self.time, &mut ctx);
+                    self.trips
+                        .abort_trip(self.time, trip, Some(vehicle), &mut ctx);
+                }
+                AgentID::Pedestrian(ped) => {
+                    self.walking.delete_ped(ped, ctx.scheduler);
+                    self.trips.abort_trip(self.time, trip, None, &mut ctx);
+                }
+                AgentID::BusPassenger(_, _) => unreachable!(),
+            }
+        }
     }
 }
 
@@ -1200,15 +1247,8 @@ impl Sim {
 
 // Invasive debugging
 impl Sim {
-    pub fn kill_stuck_car(&mut self, id: CarID, map: &Map) {
+    pub fn delete_car(&mut self, id: CarID, map: &Map) {
         if let Some(trip) = self.agent_to_trip(AgentID::Car(id)) {
-            let vehicle = self.driving.kill_stuck_car(
-                id,
-                self.time,
-                map,
-                &mut self.scheduler,
-                &mut self.intersections,
-            );
             let mut ctx = Ctx {
                 parking: &mut self.parking,
                 intersections: &mut self.intersections,
@@ -1216,6 +1256,7 @@ impl Sim {
                 scheduler: &mut self.scheduler,
                 map,
             };
+            let vehicle = self.driving.delete_car(id, self.time, &mut ctx);
             self.trips
                 .abort_trip(self.time, trip, Some(vehicle), &mut ctx);
             println!("Forcibly killed {}", id);

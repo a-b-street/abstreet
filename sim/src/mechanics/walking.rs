@@ -298,6 +298,13 @@ impl WalkingSimState {
         };
     }
 
+    pub fn delete_ped(&mut self, id: PedestrianID, scheduler: &mut Scheduler) {
+        let ped = self.peds.remove(&id).unwrap();
+        self.peds_per_traversable
+            .remove(ped.path.current_step().as_traversable(), id);
+        scheduler.cancel(Command::UpdatePed(id));
+    }
+
     pub fn debug_ped(&self, id: PedestrianID) {
         if let Some(ped) = self.peds.get(&id) {
             println!("{}", abstutil::to_json(ped));
