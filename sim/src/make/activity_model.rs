@@ -55,6 +55,8 @@ impl ScenarioGenerator {
             s.people.push(person);
         }
 
+        info!("robot_people: {}", s.people.len());
+
         // Create trips between map borders. For now, scale the number by the number of residences.
         let incoming_connections = map.all_incoming_borders();
         let outgoing_connections = map.all_outgoing_borders();

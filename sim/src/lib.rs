@@ -11,6 +11,9 @@ mod sim;
 mod transit;
 mod trips;
 
+#[macro_use]
+extern crate log;
+
 pub use self::analytics::{Analytics, TripPhase};
 pub(crate) use self::cap::CapSimState;
 pub(crate) use self::events::Event;

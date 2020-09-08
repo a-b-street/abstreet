@@ -2819,6 +2819,7 @@ dependencies = [
  "geom 0.1.0",
  "instant 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "libm 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "map_model 0.1.0",
  "rand 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand_distr 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
