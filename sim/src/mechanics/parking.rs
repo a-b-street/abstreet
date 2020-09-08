@@ -100,7 +100,7 @@ impl ParkingSimState {
     }
 
     // Returns any cars that got very abruptly evicted from existence
-    pub fn handle_map_updates(&mut self, map: &Map, timer: &mut Timer) -> Vec<CarID> {
+    pub fn handle_map_updates(&mut self, map: &Map, timer: &mut Timer) -> Vec<ParkedCar> {
         let (filled_before, _) = self.get_all_parking_spots();
         let new = ParkingSimState::new(map, timer);
         let (_, avail_after) = new.get_all_parking_spots();
@@ -120,8 +120,7 @@ impl ParkingSimState {
         for spot in filled_before {
             if !avail_after.contains(&spot) {
                 let car = self.occupants.remove(&spot).unwrap();
-                assert!(self.parked_cars.remove(&car).is_some());
-                evicted.push(car);
+                evicted.push(self.parked_cars.remove(&car).unwrap());
             }
         }
 
