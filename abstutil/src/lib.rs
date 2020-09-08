@@ -119,18 +119,23 @@ pub fn path_prebaked_results(map_name: &str, scenario_name: &str) -> String {
 }
 
 pub fn path_scenario(map_name: &str, scenario_name: &str) -> String {
-    // TODO Getting complicated. Looks for .bin, then .json.
-    let p = path(format!(
+    // TODO Getting complicated. Sometimes we're trying to load, so we should look for .bin, then
+    // .json. But when we're writing a custom scenario, we actually want to write a .bin.
+    let bin = path(format!(
         "system/scenarios/{}/{}.bin",
         map_name, scenario_name
     ));
-    if file_exists(&p) {
-        return p;
-    }
-    path(format!(
+    let json = path(format!(
         "system/scenarios/{}/{}.json",
         map_name, scenario_name
-    ))
+    ));
+    if file_exists(&bin) {
+        return bin;
+    }
+    if file_exists(&json) {
+        return json;
+    }
+    bin
 }
 pub fn path_all_scenarios(map_name: &str) -> String {
     path(format!("system/scenarios/{}", map_name))
