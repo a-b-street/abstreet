@@ -903,9 +903,11 @@ impl Sim {
     }
 
     pub fn handle_live_edited_parking(&mut self, map: &Map) {
-        // TODO Find pedestrians walking to any of the cars mentioned and delete them
-        self.parking
-            .handle_map_updates(map, &mut Timer::throwaway());
+        self.walking.handle_live_edited_parking(
+            self.parking
+                .handle_map_updates(map, &mut Timer::throwaway()),
+            &mut self.scheduler,
+        );
     }
 }
 

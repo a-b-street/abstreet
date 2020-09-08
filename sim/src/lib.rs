@@ -380,7 +380,7 @@ pub struct SidewalkSpot {
 }
 
 // Point of interest, that is
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum SidewalkPOI {
     // Note that for offstreet parking, the path will be the same as the building's front path.
     ParkingSpot(ParkingSpot),

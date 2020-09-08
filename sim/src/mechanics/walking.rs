@@ -1,9 +1,9 @@
 use crate::sim::Ctx;
 use crate::{
     AgentID, AgentProperties, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput,
-    DrawPedestrianInput, Event, IntersectionSimState, ParkingSpot, PedCrowdLocation, PedestrianID,
-    PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState, TripID,
-    TripManager, UnzoomedAgent,
+    DrawPedestrianInput, Event, IntersectionSimState, ParkedCar, ParkingSpot, PedCrowdLocation,
+    PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState,
+    TripID, TripManager, UnzoomedAgent,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
@@ -11,7 +11,7 @@ use map_model::{
     BuildingID, BusRouteID, Map, ParkingLotID, Path, PathStep, Traversable, SIDEWALK_THICKNESS,
 };
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
 const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
@@ -487,6 +487,27 @@ impl WalkingSimState {
 
     pub fn collect_events(&mut self) -> Vec<Event> {
         std::mem::replace(&mut self.events, Vec::new())
+    }
+
+    pub fn handle_live_edited_parking(
+        &mut self,
+        deleted_cars: Vec<ParkedCar>,
+        scheduler: &mut Scheduler,
+    ) {
+        let goals: BTreeSet<SidewalkPOI> = deleted_cars
+            .into_iter()
+            .map(|p| SidewalkPOI::ParkingSpot(p.spot))
+            .collect();
+        let mut delete = Vec::new();
+        for ped in self.peds.values() {
+            if goals.contains(&ped.goal.connection) {
+                delete.push(ped.id);
+            }
+        }
+
+        for id in delete {
+            self.delete_ped(id, scheduler);
+        }
     }
 }
 
