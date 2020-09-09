@@ -21,7 +21,7 @@ use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::options::OptionsPanel;
 use crate::render::DrawMap;
-use crate::sandbox::GameplayMode;
+use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
 use geom::Speed;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
@@ -86,17 +86,26 @@ impl EditMode {
             return Transition::Pop;
         }
 
-        ctx.loading_screen("apply edits", move |_, mut timer| {
+        ctx.loading_screen("apply edits", move |ctx, mut timer| {
             app.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);
-            app.primary.sim = old_sim;
-            app.primary.dirty_from_edits = true;
-            app.primary
-                .sim
-                .handle_live_edited_traffic_signals(&app.primary.map);
-            app.primary.sim.handle_live_edits(&app.primary.map);
-            Transition::Pop
+            if app.primary.current_flags.sim_flags.opts.live_map_edits {
+                app.primary.sim = old_sim;
+                app.primary.dirty_from_edits = true;
+                app.primary
+                    .sim
+                    .handle_live_edited_traffic_signals(&app.primary.map);
+                app.primary.sim.handle_live_edits(&app.primary.map);
+                Transition::Pop
+            } else {
+                app.primary.clear_sim();
+                Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::Replace(SandboxMode::new(ctx, app, self.mode.clone())),
+                    Transition::Push(TimeWarpScreen::new(ctx, app, old_sim.time(), None)),
+                ])
+            }
         })
     }
 }

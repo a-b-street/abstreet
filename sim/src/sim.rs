@@ -73,6 +73,7 @@ pub struct SimOptions {
     pub enable_pandemic_model: Option<XorShiftRng>,
     pub alerts: AlertHandler,
     pub pathfinding_upfront: bool,
+    pub live_map_edits: bool,
 }
 
 #[derive(Clone)]
@@ -103,6 +104,7 @@ impl SimOptions {
             enable_pandemic_model: None,
             alerts: AlertHandler::Print,
             pathfinding_upfront: false,
+            live_map_edits: false,
         }
     }
 }
