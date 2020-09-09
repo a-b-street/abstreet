@@ -489,25 +489,18 @@ impl WalkingSimState {
         std::mem::replace(&mut self.events, Vec::new())
     }
 
-    pub fn handle_live_edited_parking(
-        &mut self,
-        deleted_cars: Vec<ParkedCar>,
-        scheduler: &mut Scheduler,
-    ) {
-        let goals: BTreeSet<SidewalkPOI> = deleted_cars
+    pub fn find_trips_to_parking(&self, evicted_cars: Vec<ParkedCar>) -> Vec<(AgentID, TripID)> {
+        let goals: BTreeSet<SidewalkPOI> = evicted_cars
             .into_iter()
             .map(|p| SidewalkPOI::ParkingSpot(p.spot))
             .collect();
-        let mut delete = Vec::new();
+        let mut affected = Vec::new();
         for ped in self.peds.values() {
             if goals.contains(&ped.goal.connection) {
-                delete.push(ped.id);
+                affected.push((AgentID::Pedestrian(ped.id), ped.trip));
             }
         }
-
-        for id in delete {
-            self.delete_ped(id, scheduler);
-        }
+        affected
     }
 }
 
