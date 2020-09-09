@@ -578,3 +578,4 @@ changes here.
 - fix map editing for lane reversals, make edits backwards compatible, and massively speed up applying edits
 - fleshing out the headless API and tooling for controlling the simulation from any language
 - import a few more places, redo left-hand driving support so far
+- various bug/performance fixes
