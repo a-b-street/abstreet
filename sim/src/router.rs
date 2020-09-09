@@ -32,7 +32,6 @@ pub enum ActionAtEnd {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 enum Goal {
     // Spot and cached distance along the last driving lane
-    // TODO Right now, the building is ignored when choosing the best spot.
     ParkNearBuilding {
         target: BuildingID,
         spot: Option<(ParkingSpot, Distance)>,
@@ -427,6 +426,13 @@ impl Router {
                 started_looking, ..
             } => started_looking,
             _ => false,
+        }
+    }
+
+    pub fn get_parking_spot_goal(&self) -> Option<&ParkingSpot> {
+        match self.goal {
+            Goal::ParkNearBuilding { ref spot, .. } => spot.as_ref().map(|(s, _)| s),
+            _ => None,
         }
     }
 }

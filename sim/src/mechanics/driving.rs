@@ -4,14 +4,14 @@ use crate::sim::Ctx;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
     DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PersonID,
-    Scheduler, TimeInterval, TransitSimState, TripManager, UnzoomedAgent, Vehicle, WalkingSimState,
-    FOLLOWING_DISTANCE,
+    Scheduler, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent, Vehicle,
+    WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::{LaneID, Map, Path, PathStep, Traversable};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
 const TIME_TO_UNPARK_ONSTRET: Duration = Duration::const_seconds(10.0);
 const TIME_TO_PARK_ONSTREET: Duration = Duration::const_seconds(15.0);
@@ -1023,5 +1023,21 @@ impl DrivingSimState {
 
     pub fn target_lane_penalty(&self, l: LaneID) -> (usize, usize) {
         self.queues[&Traversable::Lane(l)].target_lane_penalty()
+    }
+
+    pub fn find_trips_to_edited_parking(
+        &self,
+        spots: BTreeSet<ParkingSpot>,
+    ) -> Vec<(AgentID, TripID)> {
+        let mut affected = Vec::new();
+        for car in self.cars.values() {
+            if let Some(spot) = car.router.get_parking_spot_goal() {
+                if !spots.contains(spot) {
+                    // Buses don't park
+                    affected.push((AgentID::Car(car.vehicle.id), car.trip_and_person.unwrap().0));
+                }
+            }
+        }
+        affected
     }
 }

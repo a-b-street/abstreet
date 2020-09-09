@@ -17,7 +17,7 @@ use map_model::{
 };
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::panic;
 
 // TODO Do something else.
@@ -849,32 +849,8 @@ impl Sim {
             .handle_live_edited_traffic_signals(self.time, map, &mut self.scheduler)
     }
 
-    pub fn handle_live_edited_lanes(&mut self, map: &Map) {
-        // TODO Handle changes to access restrictions
-
-        // Find every active trip whose path crosses a modified lane or closed intersection
-        let (edited_lanes, _) = map.get_edits().changed_lanes(map);
-        let mut closed_intersections = HashSet::new();
-        for i in map.get_edits().original_intersections.keys() {
-            if map.get_i(*i).is_closed() {
-                closed_intersections.insert(*i);
-            }
-        }
-        let mut affected = Vec::new();
-        for (a, trip) in self.trips.active_agents_and_trips() {
-            if let Some(path) = self.get_path(*a) {
-                if path
-                    .get_steps()
-                    .iter()
-                    .any(|step| match step.as_traversable() {
-                        Traversable::Lane(l) => edited_lanes.contains(&l),
-                        Traversable::Turn(t) => closed_intersections.contains(&t.parent),
-                    })
-                {
-                    affected.push((*a, *trip));
-                }
-            }
-        }
+    pub fn handle_live_edits(&mut self, map: &Map) {
+        let affected = self.find_trips_affected_by_live_edits(map);
 
         // V1: Just abort every trip crossing an affected area.
         // (V2 is probably rerouting everyone, only aborting when that fails)
@@ -902,12 +878,48 @@ impl Sim {
         }
     }
 
-    pub fn handle_live_edited_parking(&mut self, map: &Map) {
-        self.walking.handle_live_edited_parking(
-            self.parking
-                .handle_map_updates(map, &mut Timer::throwaway()),
-            &mut self.scheduler,
-        );
+    fn find_trips_affected_by_live_edits(&mut self, map: &Map) -> Vec<(AgentID, TripID)> {
+        let mut affected: Vec<(AgentID, TripID)> = Vec::new();
+
+        // TODO Handle changes to access restrictions
+
+        {
+            // Find every active trip whose path crosses a modified lane or closed intersection
+            let (edited_lanes, _) = map.get_edits().changed_lanes(map);
+            let mut closed_intersections = HashSet::new();
+            for i in map.get_edits().original_intersections.keys() {
+                if map.get_i(*i).is_closed() {
+                    closed_intersections.insert(*i);
+                }
+            }
+            for (a, trip) in self.trips.active_agents_and_trips() {
+                if let Some(path) = self.get_path(*a) {
+                    if path
+                        .get_steps()
+                        .iter()
+                        .any(|step| match step.as_traversable() {
+                            Traversable::Lane(l) => edited_lanes.contains(&l),
+                            Traversable::Turn(t) => closed_intersections.contains(&t.parent),
+                        })
+                    {
+                        affected.push((*a, *trip));
+                    }
+                }
+            }
+        }
+
+        {
+            let evicted_cars = self.parking.handle_live_edits(map, &mut Timer::throwaway());
+            affected.extend(self.walking.find_trips_to_parking(evicted_cars));
+
+            let (filled, avail) = self.parking.get_all_parking_spots();
+            let mut all_spots: BTreeSet<ParkingSpot> = BTreeSet::new();
+            all_spots.extend(filled);
+            all_spots.extend(avail);
+            affected.extend(self.driving.find_trips_to_edited_parking(all_spots));
+        }
+
+        affected
     }
 }
 
