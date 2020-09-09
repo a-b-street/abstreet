@@ -92,6 +92,7 @@ You can rerun specific stages of the importer:
   `convert_osm`, you need `./import.sh --raw --map`.
 - If you're modifying `map_model` but not the OSM -> RawMap conversion, then you
   just need `./import.sh --map`.
+- If you're modifying the demand model for Seattle, you can add `--scenario` to regenerate.
 - By default, all maps are regenerated. You can also specify a single map:
   `./import.sh --map downtown`.
 - By default, Seattle is assumed as the city. You have to specify otherwise:

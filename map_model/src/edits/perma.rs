@@ -116,12 +116,12 @@ impl PermanentMapEdits {
                         let id = map.find_i_by_osm_id(i)?;
                         Ok(EditCmd::ChangeIntersection {
                             i: id,
-                            new: new
-                                .from_permanent(id, map)
-                                .ok_or(format!("new ChangeIntersection of {} invalid", i))?,
-                            old: old
-                                .from_permanent(id, map)
-                                .ok_or(format!("old ChangeIntersection of {} invalid", i))?,
+                            new: new.from_permanent(id, map).map_err(|err| {
+                                format!("new ChangeIntersection of {} invalid: {}", i, err)
+                            })?,
+                            old: old.from_permanent(id, map).map_err(|err| {
+                                format!("old ChangeIntersection of {} invalid: {}", i, err)
+                            })?,
                         })
                     }
                     PermanentEditCmd::ChangeRouteSchedule {
@@ -165,29 +165,35 @@ impl EditIntersection {
 }
 
 impl PermanentEditIntersection {
-    fn from_permanent(self, i: IntersectionID, map: &Map) -> Option<EditIntersection> {
+    fn from_permanent(self, i: IntersectionID, map: &Map) -> Result<EditIntersection, String> {
         match self {
             PermanentEditIntersection::StopSign { must_stop } => {
                 let mut translated_must_stop = BTreeMap::new();
                 for (r, stop) in must_stop {
-                    translated_must_stop.insert(map.find_r_by_osm_id(r).ok()?, stop);
+                    translated_must_stop.insert(map.find_r_by_osm_id(r)?, stop);
                 }
 
                 // Make sure the roads exactly match up
                 let mut ss = ControlStopSign::new(map, i);
                 if translated_must_stop.len() != ss.roads.len() {
-                    return None;
+                    return Err(format!(
+                        "Stop sign has {} roads now, but {} from edits",
+                        ss.roads.len(),
+                        translated_must_stop.len()
+                    ));
                 }
                 for (r, stop) in translated_must_stop {
-                    ss.roads.get_mut(&r)?.must_stop = stop;
+                    if let Some(road) = ss.roads.get_mut(&r) {
+                        road.must_stop = stop;
+                    } else {
+                        return Err(format!("{} doesn't connect to {}", i, r));
+                    }
                 }
 
-                Some(EditIntersection::StopSign(ss))
+                Ok(EditIntersection::StopSign(ss))
             }
-            PermanentEditIntersection::TrafficSignal(ts) => {
-                Some(EditIntersection::TrafficSignal(ts))
-            }
-            PermanentEditIntersection::Closed => Some(EditIntersection::Closed),
+            PermanentEditIntersection::TrafficSignal(ts) => Ok(EditIntersection::TrafficSignal(ts)),
+            PermanentEditIntersection::Closed => Ok(EditIntersection::Closed),
         }
     }
 }
