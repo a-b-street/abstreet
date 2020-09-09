@@ -2,9 +2,9 @@ use crate::{
     IndividTrip, PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnTrip, TripEndpoint,
     TripMode,
 };
-use abstutil::{Parallelism, Timer};
+use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, Duration, Time};
-use map_model::{BuildingID, BuildingType, Intersection, Map, PathConstraints, PathRequest};
+use map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
@@ -12,106 +12,243 @@ use rand_xorshift::XorShiftRng;
 impl ScenarioGenerator {
     // Designed in https://github.com/dabreegster/abstreet/issues/154
     pub fn proletariat_robot(map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) -> Scenario {
-        let mut residences: Vec<(BuildingID, XorShiftRng)> = Vec::new();
-        let mut workplaces: Vec<BuildingID> = Vec::new();
-        let mut num_residences = 0;
+        let mut residents: Vec<BuildingID> = Vec::new();
+        let mut workers: Vec<BuildingID> = Vec::new();
+
+        let mut num_bldg_residential = 0;
+        let mut num_bldg_commercial = 0;
+        let mut num_bldg_mixed_residential_commercial = 0;
         for b in map.all_buildings() {
             match b.bldg_type {
                 BuildingType::Residential(num_ppl) => {
-                    for _ in 0..num_ppl {
-                        residences.push((b.id, abstutil::fork_rng(rng)));
+                    if num_ppl == 0 {
+                        debug!("empty Residential");
                     }
-                    num_residences += 1;
+
+                    for _ in 0..num_ppl {
+                        residents.push(b.id);
+                    }
+                    num_bldg_residential += 1;
                 }
                 BuildingType::ResidentialCommercial(num_ppl) => {
-                    for _ in 0..num_ppl {
-                        residences.push((b.id, abstutil::fork_rng(rng)));
+                    if num_ppl == 0 {
+                        debug!("empty ResidentialCommercial");
                     }
-                    workplaces.push(b.id);
-                    num_residences += 1;
+                    for _ in 0..num_ppl {
+                        residents.push(b.id);
+
+                        // TODO: currently we just assume work capacity is the same as residential
+                        // capacity, which is surely not true. How can we better estimate?
+                        workers.push(b.id);
+                    }
+                    num_bldg_mixed_residential_commercial += 1;
                 }
                 BuildingType::Commercial => {
-                    workplaces.push(b.id);
+                    // TODO: currently we just assume some constant for jobs per building.
+                    // A better metrics might be available parking or building size
+                    let building_cap = usize::pow(2, rng.gen_range(0, 7));
+                    for _ in 0..building_cap {
+                        workers.push(b.id);
+                    }
+                    num_bldg_commercial += 1;
                 }
                 BuildingType::Empty => {}
             }
         }
 
+        residents.shuffle(rng);
+        workers.shuffle(rng);
+
         let mut s = Scenario::empty(map, "random people going to/from work");
         // Include all buses/trains
         s.only_seed_buses = None;
 
-        for mut person in timer
-            .parallelize(
-                "create people",
-                Parallelism::Fastest,
-                residences,
-                |(home, mut forked_rng)| robot_person(home, &workplaces, map, &mut forked_rng),
-            )
-            .into_iter()
-            .flatten()
-        {
-            person.id = PersonID(s.people.len());
-            s.people.push(person);
-        }
+        let residents_cap = residents.len();
+        let workers_cap = workers.len();
 
-        info!("robot_people: {}", s.people.len());
+        // this saturation figure is an arbitrary guess - we assume that the number of trips will
+        // scale as some factor of the people living and/or working on the map. A number of more
+        // than 1.0 will primarily affect the number of "pass through" trips - people who neither
+        // work nor live in the neighborhood.
+        let trip_saturation = 0.8;
+        let num_trips = (trip_saturation * (residents_cap + workers_cap) as f64) as usize;
 
-        // Create trips between map borders. For now, scale the number by the number of residences.
-        let incoming_connections = map.all_incoming_borders();
-        let outgoing_connections = map.all_outgoing_borders();
-        for mut person in timer
-            .parallelize(
-                "create border trips",
-                Parallelism::Fastest,
-                std::iter::repeat_with(|| abstutil::fork_rng(rng))
-                    .take(num_residences)
-                    .collect(),
-                |mut forked_rng| {
-                    border_person(
-                        &incoming_connections,
-                        &outgoing_connections,
-                        map,
-                        &mut forked_rng,
-                    )
-                },
+        // bound probabilities to ensure we're getting some diveristy of agents
+        let lower_bound_prob = 0.05;
+        let upper_bound_prob = 0.90;
+        let prob_local_resident = if workers_cap == 0 {
+            lower_bound_prob
+        } else {
+            f64::min(
+                upper_bound_prob,
+                f64::max(lower_bound_prob, residents_cap as f64 / num_trips as f64),
             )
-            .into_iter()
-            .flatten()
-        {
-            person.id = PersonID(s.people.len());
-            s.people.push(person);
+        };
+        let prob_local_worker = f64::min(
+            upper_bound_prob,
+            f64::max(lower_bound_prob, workers_cap as f64 / num_trips as f64),
+        );
+
+        info!(
+            "BUILDINGS - workplaces: {}, residences: {}, mixed: {}",
+            prettyprint_usize(num_bldg_commercial),
+            prettyprint_usize(num_bldg_residential),
+            prettyprint_usize(num_bldg_mixed_residential_commercial)
+        );
+        info!(
+            "CAPACITY - workers_cap: {}, residents_cap: {}, prob_local_worker: {:.1}%, \
+             prob_local_resident: {:.1}%",
+            prettyprint_usize(workers_cap),
+            prettyprint_usize(residents_cap),
+            prob_local_worker * 100.,
+            prob_local_resident * 100.
+        );
+
+        let mut num_trips_local = 0;
+        let mut num_trips_commuting_in = 0;
+        let mut num_trips_commuting_out = 0;
+        let mut num_trips_passthru = 0;
+        timer.start("create people");
+        for _ in 0..num_trips {
+            let (is_local_resident, is_local_worker) = (
+                rng.gen_bool(prob_local_resident),
+                rng.gen_bool(prob_local_worker),
+            );
+
+            let mut get_commuter_border = || {
+                for _ in 0..50 {
+                    // TODO: prefer larger thoroughfares to better reflect reality.
+                    let borders = map.all_outgoing_borders();
+                    let border = borders.choose(rng).unwrap();
+
+                    // Only consider two-way intersections, so the agent can return the same way
+                    // they came.
+                    // TODO: instead, if it's not a two-way border, we should find an intersection
+                    // an incoming border "near" the outgoing border, to allow a broader set of
+                    // realistic options.
+                    if border.is_incoming_border() {
+                        return TripEndpoint::Border(border.id, None);
+                    }
+                }
+                debug_assert!(
+                    false,
+                    "failed to find a 2 way border in a reasonable time. Degenerate map?"
+                );
+                TripEndpoint::Border(map.all_outgoing_borders().choose(rng).unwrap().id, None)
+            };
+
+            let home = if is_local_resident {
+                if let Some(residence) = residents.pop() {
+                    TripEndpoint::Bldg(residence)
+                } else {
+                    warn!(
+                        "unexpectedly out of residential capacity, falling back to off-map \
+                         residence"
+                    );
+                    get_commuter_border()
+                }
+            } else {
+                get_commuter_border()
+            };
+
+            let work = if is_local_worker {
+                if let Some(workplace) = workers.pop() {
+                    TripEndpoint::Bldg(workplace)
+                } else {
+                    warn!(
+                        "unexpectedly out of workplace capacity, falling back to off-map workplace"
+                    );
+                    get_commuter_border()
+                }
+            } else {
+                get_commuter_border()
+            };
+
+            match (&home, &work) {
+                (TripEndpoint::Bldg(_), TripEndpoint::Bldg(_)) => {
+                    num_trips_local += 1;
+                }
+                (TripEndpoint::Bldg(_), TripEndpoint::Border(_, _)) => {
+                    num_trips_commuting_out += 1;
+                }
+                (TripEndpoint::Border(_, _), TripEndpoint::Bldg(_)) => {
+                    num_trips_commuting_in += 1;
+                }
+                (TripEndpoint::Border(_, _), TripEndpoint::Border(_, _)) => {
+                    num_trips_passthru += 1;
+                }
+            };
+
+            match create_prole(&home, &work, map, rng) {
+                Ok(mut person) => {
+                    debug!("created prole: {:?}", person);
+                    person.id = PersonID(s.people.len());
+                    s.people.push(person);
+                }
+                Err(e) => {
+                    warn!(
+                        "Unable to create person. from: {:?}, to: {:?}, id: {}, error: {}",
+                        home,
+                        work,
+                        s.people.len(),
+                        e
+                    );
+                }
+            }
         }
+        timer.stop("create people");
+
+        info!(
+            "TRIPS - total: {}, local: {}, commuting_in: {}, commuting_out: {}, passthru: {}",
+            prettyprint_usize(num_trips),
+            prettyprint_usize(num_trips_local),
+            prettyprint_usize(num_trips_commuting_in),
+            prettyprint_usize(num_trips_commuting_out),
+            prettyprint_usize(num_trips_passthru)
+        );
 
         s
     }
 }
 
-// Make a person going from their home to a random workplace, then back again later.
-fn robot_person(
-    home: BuildingID,
-    workplaces: &Vec<BuildingID>,
+fn create_prole(
+    home: &TripEndpoint,
+    work: &TripEndpoint,
     map: &Map,
     rng: &mut XorShiftRng,
-) -> Option<PersonSpec> {
-    let work = *workplaces.choose(rng).unwrap();
+) -> Result<PersonSpec, Box<dyn std::error::Error>> {
     if home == work {
-        // working and living in the same building
-        return None;
+        // TODO: handle edge-case of working and living in the same building...  maybe more likely
+        // to go for a walk later in the day or something
+        return Err("TODO: handle working and living in the same building".into());
     }
-    // Decide mode based on walking distance. If the buildings aren't connected,
-    // probably a bug in importing; just skip this person.
-    let dist = map
-        .pathfind(PathRequest {
-            start: map.get_b(home).sidewalk_pos,
-            end: map.get_b(work).sidewalk_pos,
-            constraints: PathConstraints::Pedestrian,
-        })?
-        .total_length();
-    // TODO If home or work is in an access-restricted zone (like a living street),
-    // then probably don't drive there. Actually, it depends on the specific tagging;
-    // access=no in the US usually means a gated community.
-    let mode = select_trip_mode(dist, rng);
+
+    let mode = match (home, work) {
+        // commuting entirely within map
+        (TripEndpoint::Bldg(home_bldg), TripEndpoint::Bldg(work_bldg)) => {
+            // Decide mode based on walking distance. If the buildings aren't connected,
+            // probably a bug in importing; just skip this person.
+            let dist = if let Some(dist) = map
+                .pathfind(PathRequest {
+                    start: map.get_b(*home_bldg).sidewalk_pos,
+                    end: map.get_b(*work_bldg).sidewalk_pos,
+                    constraints: PathConstraints::Pedestrian,
+                })
+                .map(|p| p.total_length())
+            {
+                dist
+            } else {
+                return Err("no path found".into());
+            };
+
+            // TODO If home or work is in an access-restricted zone (like a living street),
+            // then probably don't drive there. Actually, it depends on the specific tagging;
+            // access=no in the US usually means a gated community.
+            select_trip_mode(dist, rng)
+        }
+        // if you exit or leave the map, we assume driving
+        _ => TripMode::Drive,
+    };
 
     // TODO This will cause a single morning and afternoon rush. Outside of these times,
     // it'll be really quiet. Probably want a normal distribution centered around these
@@ -141,78 +278,13 @@ fn robot_person(
         );
     }
 
-    // Skip the person if either trip can't be created.
-    let goto_work = SpawnTrip::new(
-        TripEndpoint::Bldg(home),
-        TripEndpoint::Bldg(work),
-        mode,
-        map,
-    )?;
-    let return_home = SpawnTrip::new(
-        TripEndpoint::Bldg(work),
-        TripEndpoint::Bldg(home),
-        mode,
-        map,
-    )?;
+    let goto_work = SpawnTrip::new(home.clone(), work.clone(), mode, map)
+        .ok_or("unable to spawn 'goto work' trip")?;
+    let return_home = SpawnTrip::new(work.clone(), home.clone(), mode, map)
+        .ok_or("unable to spawn 'return home' trip")?;
 
-    Some(PersonSpec {
+    Ok(PersonSpec {
         // Fix this outside the parallelism
-        id: PersonID(0),
-        orig_id: None,
-        trips: vec![
-            IndividTrip::new(depart_am, goto_work),
-            IndividTrip::new(depart_pm, return_home),
-        ],
-    })
-}
-
-fn border_person(
-    incoming_connections: &Vec<&Intersection>,
-    outgoing_connections: &Vec<&Intersection>,
-    map: &Map,
-    rng: &mut XorShiftRng,
-) -> Option<PersonSpec> {
-    // TODO it would be nice to weigh border points by for example lane count
-    let random_incoming_border = incoming_connections.choose(rng).unwrap();
-    let random_outgoing_border = outgoing_connections.choose(rng).unwrap();
-    let b_random_incoming_border = incoming_connections.choose(rng).unwrap();
-    let b_random_outgoing_border = outgoing_connections.choose(rng).unwrap();
-    if random_incoming_border.id == random_outgoing_border.id
-        || b_random_incoming_border.id == b_random_outgoing_border.id
-    {
-        return None;
-    }
-    // TODO calculate
-    let distance_on_map = Distance::meters(2000.0);
-    // TODO randomize
-    // having random trip distance happening offscreen will allow things
-    // like very short car trips, representing larger car trip happening mostly offscreen
-    let distance_outside_map = Distance::meters(rng.gen_range(0.0, 20_000.0));
-    let mode = select_trip_mode(distance_on_map + distance_outside_map, rng);
-    let goto_work = SpawnTrip::new(
-        TripEndpoint::Border(random_incoming_border.id, None),
-        TripEndpoint::Border(random_outgoing_border.id, None),
-        mode,
-        map,
-    )?;
-    let return_home = SpawnTrip::new(
-        TripEndpoint::Border(b_random_incoming_border.id, None),
-        TripEndpoint::Border(b_random_outgoing_border.id, None),
-        mode,
-        map,
-    )?;
-    // TODO more reasonable time schedule, rush hour peak etc
-    let depart_am = rand_time(
-        rng,
-        Time::START_OF_DAY + Duration::hours(0),
-        Time::START_OF_DAY + Duration::hours(12),
-    );
-    let depart_pm = rand_time(
-        rng,
-        Time::START_OF_DAY + Duration::hours(12),
-        Time::START_OF_DAY + Duration::hours(24),
-    );
-    Some(PersonSpec {
         id: PersonID(0),
         orig_id: None,
         trips: vec![
