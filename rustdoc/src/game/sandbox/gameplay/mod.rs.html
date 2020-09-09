@@ -395,13 +395,6 @@
 <span id="395">395</span>
 <span id="396">396</span>
 <span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">commute</span>;
@@ -545,13 +538,6 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_edit_stop_signs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">GameplayMode</span>::<span class="ident">FixTrafficSignals</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset_after_edits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">GameplayMode</span>::<span class="ident">FixTrafficSignals</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,

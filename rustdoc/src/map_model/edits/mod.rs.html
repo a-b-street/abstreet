@@ -564,6 +564,30 @@
 <span id="564">564</span>
 <span id="565">565</span>
 <span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">compat</span>;
 <span class="kw">mod</span> <span class="ident">perma</span>;
@@ -572,8 +596,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">DrivingSide</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">connectivity</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BusRouteID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">Direction</span>,
-    <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Pathfinder</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
-    <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
+    <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Pathfinder</span>, <span class="ident">Road</span>,
+    <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Speed</span>, <span class="ident">Time</span>};
@@ -748,6 +772,30 @@
                 <span class="ident">old</span>: <span class="ident">r</span>.<span class="ident">orig_spawn_times</span>.<span class="ident">clone</span>(),
             });
         }
+    }
+
+    <span class="comment">// Pick apart changed_roads and figure out if an entire road was edited, or just a few lanes.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">changed_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>, <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">changed_roads</span> {
+            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+            <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="ident">EditRoad</span>::<span class="ident">get_orig_from_osm</span>(<span class="ident">r</span>, <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span>);
+            <span class="comment">// What exactly changed?</span>
+            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">speed_limit</span> <span class="op">!</span><span class="op">=</span> <span class="ident">orig</span>.<span class="ident">speed_limit</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span> <span class="op">!</span><span class="op">=</span> <span class="ident">orig</span>.<span class="ident">access_restrictions</span>
+            {
+                <span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
+            } <span class="kw">else</span> {
+                <span class="kw">let</span> <span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>();
+                <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">lt</span>, <span class="ident">dir</span>)) <span class="kw">in</span> <span class="ident">orig</span>.<span class="ident">lanes_ltr</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                    <span class="kw">if</span> <span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="number">1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">dir</span> <span class="op">|</span><span class="op">|</span> <span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="number">2</span> <span class="op">!</span><span class="op">=</span> <span class="ident">lt</span> {
+                        <span class="ident">lanes</span>.<span class="ident">insert</span>(<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="number">0</span>);
+                    }
+                }
+            }
+        }
+        (<span class="ident">lanes</span>, <span class="ident">roads</span>)
     }
 }
 

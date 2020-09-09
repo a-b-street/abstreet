@@ -224,6 +224,9 @@
 <span id="224">224</span>
 <span id="225">225</span>
 <span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
@@ -397,6 +400,9 @@
                         ),
                     });
                     <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                    <span class="ident">app</span>.<span class="ident">primary</span>
+                        .<span class="ident">sim</span>
+                        .<span class="ident">handle_live_edited_traffic_signals</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">TrafficSignalEditor</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,

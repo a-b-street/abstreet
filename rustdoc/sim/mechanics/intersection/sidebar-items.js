@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["WAIT_AT_STOP_SIGN",""],["WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL",""]],"fn":[["allow_block_the_box",""]],"struct":[["IntersectionSimState",""],["Request",""],["State",""]]});
+initSidebarItems({"constant":[["WAIT_AT_STOP_SIGN",""],["WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL",""]],"fn":[["allow_block_the_box",""]],"struct":[["IntersectionSimState",""],["Request",""],["SignalState",""],["State",""]]});

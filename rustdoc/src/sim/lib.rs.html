@@ -1013,7 +1013,7 @@
 }
 
 <span class="comment">// Point of interest, that is</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SidewalkPOI</span> {
     <span class="comment">// Note that for offstreet parking, the path will be the same as the building&#39;s front path.</span>
     <span class="ident">ParkingSpot</span>(<span class="ident">ParkingSpot</span>),

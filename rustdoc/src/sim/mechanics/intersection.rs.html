@@ -779,6 +779,45 @@
 <span id="779">779</span>
 <span id="780">780</span>
 <span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::<span class="ident">Car</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
@@ -823,7 +862,11 @@
     <span class="comment">// are not yet configured as one.</span>
     <span class="ident">reserved</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
 
-    <span class="comment">// Only relevant for traffic signals</span>
+    <span class="ident">signal</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SignalState</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">SignalState</span> {
     <span class="ident">current_stage</span>: <span class="ident">usize</span>,
     <span class="ident">stage_ends_at</span>: <span class="ident">Time</span>,
 }
@@ -858,29 +901,10 @@
                 <span class="ident">accepted</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
                 <span class="ident">waiting</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
                 <span class="ident">reserved</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
-                <span class="ident">current_stage</span>: <span class="number">0</span>,
-                <span class="ident">stage_ends_at</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
+                <span class="ident">signal</span>: <span class="prelude-val">None</span>,
             };
             <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_traffic_signal</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="ident">use_freeform_policy_everywhere</span> {
-                <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>.<span class="ident">id</span>);
-                <span class="comment">// What stage are we starting with?</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">offset</span>;
-                <span class="kw">loop</span> {
-                    <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">state</span>.<span class="ident">current_stage</span>]
-                        .<span class="ident">phase_type</span>
-                        .<span class="ident">simple_duration</span>();
-                    <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">dt</span> {
-                        <span class="ident">offset</span> <span class="op">-</span><span class="op">=</span> <span class="ident">dt</span>;
-                        <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                        <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">=</span><span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() {
-                            <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">=</span> <span class="number">0</span>;
-                        }
-                    } <span class="kw">else</span> {
-                        <span class="ident">state</span>.<span class="ident">stage_ends_at</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">dt</span> <span class="op">-</span> <span class="ident">offset</span>;
-                        <span class="kw">break</span>;
-                    }
-                }
-                <span class="ident">scheduler</span>.<span class="ident">push</span>(<span class="ident">state</span>.<span class="ident">stage_ends_at</span>, <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="ident">i</span>.<span class="ident">id</span>));
+                <span class="ident">state</span>.<span class="ident">signal</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">SignalState</span>::<span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>, <span class="ident">map</span>, <span class="ident">scheduler</span>));
             }
             <span class="ident">sim</span>.<span class="ident">state</span>.<span class="ident">insert</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">state</span>);
         }
@@ -967,7 +991,7 @@
                 <span class="ident">protected</span>.<span class="ident">push</span>(<span class="ident">req</span>);
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">signal</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">i</span>) {
-            <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>].<span class="ident">current_stage</span>];
+            <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>].<span class="ident">signal</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">current_stage</span>];
             <span class="kw">for</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">all</span> {
                 <span class="kw">match</span> <span class="ident">stage</span>.<span class="ident">get_priority_of_turn</span>(<span class="ident">req</span>.<span class="ident">turn</span>, <span class="ident">signal</span>) {
                     <span class="ident">TurnPriority</span>::<span class="ident">Protected</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -990,7 +1014,11 @@
                 }
             }
         } <span class="kw">else</span> {
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_border</span>());
+            <span class="comment">// This could either be a border intersection or an intersection that was just closed</span>
+            <span class="comment">// in the middle of simulation. In either case, there shouldn&#39;t be any other turns at</span>
+            <span class="comment">// it.</span>
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">protected</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">yielding</span>.<span class="ident">is_empty</span>());
         };
 
         <span class="kw">for</span> <span class="ident">req</span> <span class="kw">in</span> <span class="ident">protected</span> {
@@ -1017,14 +1045,15 @@
         <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
     ) {
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">signal_state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">signal</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">id</span>);
 
         <span class="comment">// Switch to a new stage?</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">now</span>, <span class="ident">state</span>.<span class="ident">stage_ends_at</span>);
-        <span class="kw">let</span> <span class="ident">old_stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">state</span>.<span class="ident">current_stage</span>];
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">now</span>, <span class="ident">signal_state</span>.<span class="ident">stage_ends_at</span>);
+        <span class="kw">let</span> <span class="ident">old_stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">signal_state</span>.<span class="ident">current_stage</span>];
         <span class="kw">match</span> <span class="ident">old_stage</span>.<span class="ident">phase_type</span> {
             <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="ident">signal_state</span>.<span class="ident">current_stage</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
             <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// TODO Make a better policy here. For now, if there&#39;s _anyone_ waiting to start a</span>
@@ -1036,7 +1065,7 @@
                 <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">waiting</span>.<span class="ident">keys</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
                     <span class="ident">old_stage</span>.<span class="ident">get_priority_of_turn</span>(<span class="ident">req</span>.<span class="ident">turn</span>, <span class="ident">signal</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">TurnPriority</span>::<span class="ident">Protected</span>
                 }) {
-                    <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    <span class="ident">signal_state</span>.<span class="ident">current_stage</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
                         <span class="ident">AlertLocation</span>::<span class="ident">Intersection</span>(<span class="ident">id</span>),
                         <span class="string">&quot;Repeating an adaptive stage&quot;</span>.<span class="ident">to_string</span>(),
@@ -1044,15 +1073,15 @@
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">=</span><span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() {
-            <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">if</span> <span class="ident">signal_state</span>.<span class="ident">current_stage</span> <span class="op">=</span><span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() {
+            <span class="ident">signal_state</span>.<span class="ident">current_stage</span> <span class="op">=</span> <span class="number">0</span>;
         }
 
-        <span class="ident">state</span>.<span class="ident">stage_ends_at</span> <span class="op">=</span> <span class="ident">now</span>
-            <span class="op">+</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">state</span>.<span class="ident">current_stage</span>]
+        <span class="ident">signal_state</span>.<span class="ident">stage_ends_at</span> <span class="op">=</span> <span class="ident">now</span>
+            <span class="op">+</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">signal_state</span>.<span class="ident">current_stage</span>]
                 .<span class="ident">phase_type</span>
                 .<span class="ident">simple_duration</span>();
-        <span class="ident">scheduler</span>.<span class="ident">push</span>(<span class="ident">state</span>.<span class="ident">stage_ends_at</span>, <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="ident">id</span>));
+        <span class="ident">scheduler</span>.<span class="ident">push</span>(<span class="ident">signal_state</span>.<span class="ident">stage_ends_at</span>, <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="ident">id</span>));
         <span class="self">self</span>.<span class="ident">wakeup_waiting</span>(<span class="ident">now</span>, <span class="ident">id</span>, <span class="ident">scheduler</span>, <span class="ident">map</span>);
     }
 
@@ -1312,7 +1341,7 @@
         <span class="ident">now</span>: <span class="ident">Time</span>,
         <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">Duration</span>) {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>];
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>].<span class="ident">signal</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
         <span class="kw">if</span> <span class="ident">now</span> <span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">stage_ends_at</span> {
             <span class="macro">panic</span><span class="macro">!</span>(
                 <span class="string">&quot;At {}, but {} should have advanced its stage at {}&quot;</span>,
@@ -1322,18 +1351,36 @@
         (<span class="ident">state</span>.<span class="ident">current_stage</span>, <span class="ident">state</span>.<span class="ident">stage_ends_at</span> <span class="op">-</span> <span class="ident">now</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_live_edited_traffic_signals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_live_edited_traffic_signals</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">now</span>: <span class="ident">Time</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
+    ) {
         <span class="kw">for</span> <span class="ident">state</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">values_mut</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">state</span>.<span class="ident">id</span>) {
-                <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">len</span>() {
-                    <span class="comment">// Just jump back to the first one. Shrug.</span>
-                    <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">=</span> <span class="number">0</span>;
-                    <span class="macro">println</span><span class="macro">!</span>(
-                        <span class="string">&quot;WARNING: Traffic signal {} was live-edited in the middle of a stage, so \
-                         jumping back to the first stage&quot;</span>,
-                        <span class="ident">state</span>.<span class="ident">id</span>
-                    );
+            <span class="kw">match</span> (
+                <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">state</span>.<span class="ident">id</span>),
+                <span class="ident">state</span>.<span class="ident">signal</span>.<span class="ident">as_mut</span>(),
+            ) {
+                (<span class="prelude-val">Some</span>(<span class="ident">ts</span>), <span class="prelude-val">Some</span>(<span class="ident">signal_state</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="ident">signal_state</span>.<span class="ident">current_stage</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">len</span>() {
+                        <span class="comment">// Just jump back to the first one. Shrug.</span>
+                        <span class="ident">signal_state</span>.<span class="ident">current_stage</span> <span class="op">=</span> <span class="number">0</span>;
+                        <span class="macro">println</span><span class="macro">!</span>(
+                            <span class="string">&quot;WARNING: Traffic signal {} was live-edited in the middle of a stage, \
+                             so jumping back to the first stage&quot;</span>,
+                            <span class="ident">state</span>.<span class="ident">id</span>
+                        );
+                    }
                 }
+                (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">state</span>.<span class="ident">signal</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">SignalState</span>::<span class="ident">new</span>(<span class="ident">state</span>.<span class="ident">id</span>, <span class="ident">now</span>, <span class="ident">map</span>, <span class="ident">scheduler</span>));
+                }
+                (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">state</span>.<span class="ident">signal</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                    <span class="ident">scheduler</span>.<span class="ident">cancel</span>(<span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="ident">state</span>.<span class="ident">id</span>));
+                }
+                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {}
             }
         }
     }
@@ -1393,9 +1440,10 @@
         <span class="kw">let</span> <span class="ident">turn</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">req</span>.<span class="ident">turn</span>);
 
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">turn</span>.<span class="ident">parent</span>];
-        <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">state</span>.<span class="ident">current_stage</span>];
+        <span class="kw">let</span> <span class="ident">signal_state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">signal</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">signal_state</span>.<span class="ident">current_stage</span>];
         <span class="kw">let</span> <span class="ident">full_stage_duration</span> <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
-        <span class="kw">let</span> <span class="ident">remaining_stage_time</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">stage_ends_at</span> <span class="op">-</span> <span class="ident">now</span>;
+        <span class="kw">let</span> <span class="ident">remaining_stage_time</span> <span class="op">=</span> <span class="ident">signal_state</span>.<span class="ident">stage_ends_at</span> <span class="op">-</span> <span class="ident">now</span>;
         <span class="kw">let</span> <span class="ident">our_time</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">waiting</span>[<span class="ident">req</span>];
 
         <span class="comment">// Can&#39;t go at all this stage.</span>
@@ -1545,6 +1593,36 @@
             }
         }
         <span class="prelude-val">None</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">SignalState</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">id</span>: <span class="ident">IntersectionID</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SignalState</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">SignalState</span> {
+            <span class="ident">current_stage</span>: <span class="number">0</span>,
+            <span class="ident">stage_ends_at</span>: <span class="ident">now</span>,
+        };
+
+        <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">id</span>);
+        <span class="comment">// What stage are we starting with?</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">offset</span> <span class="op">=</span> (<span class="ident">now</span> <span class="op">-</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>) <span class="op">+</span> <span class="ident">signal</span>.<span class="ident">offset</span>;
+        <span class="kw">loop</span> {
+            <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">state</span>.<span class="ident">current_stage</span>]
+                .<span class="ident">phase_type</span>
+                .<span class="ident">simple_duration</span>();
+            <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">dt</span> {
+                <span class="ident">offset</span> <span class="op">-</span><span class="op">=</span> <span class="ident">dt</span>;
+                <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">=</span><span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() {
+                    <span class="ident">state</span>.<span class="ident">current_stage</span> <span class="op">=</span> <span class="number">0</span>;
+                }
+            } <span class="kw">else</span> {
+                <span class="ident">state</span>.<span class="ident">stage_ends_at</span> <span class="op">=</span> <span class="ident">now</span> <span class="op">+</span> <span class="ident">dt</span> <span class="op">-</span> <span class="ident">offset</span>;
+                <span class="kw">break</span>;
+            }
+        }
+        <span class="ident">scheduler</span>.<span class="ident">push</span>(<span class="ident">state</span>.<span class="ident">stage_ends_at</span>, <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="ident">id</span>));
+        <span class="ident">state</span>
     }
 }
 

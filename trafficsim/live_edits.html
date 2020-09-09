@@ -176,6 +176,10 @@ active trips whose path crosses an edited road or intersection. Later, we can
 figure out rerouting.</p>
 <p>And actually, the only other case to handle is <code>ChangeRouteSchedule</code>, which
 should just be rescheduling the <code>StartBus</code> commands.</p>
+<h2><a class="header" href="#todo-parking" id="todo-parking">TODO: Parking</a></h2>
+<p>What happens if you modify a parking lane while there are cars on it? For now,
+just delete them. Trips later making use of them will just act as if the car
+never had room to be spawned at all and be aborted or fallback to walking.</p>
 
                     </main>
 

@@ -131,6 +131,7 @@
 <span id="131">131</span>
 <span id="132">132</span>
 <span id="133">133</span>
+<span id="134">134</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AlertHandler</span>, <span class="ident">Scenario</span>, <span class="ident">Sim</span>, <span class="ident">SimOptions</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
@@ -182,6 +183,7 @@
                     })
                     .<span class="ident">unwrap_or</span>(<span class="ident">AlertHandler</span>::<span class="ident">Print</span>),
                 <span class="ident">pathfinding_upfront</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--pathfinding_upfront&quot;</span>),
+                <span class="ident">live_map_edits</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--live_map_edits&quot;</span>),
             },
         }
     }

@@ -1672,6 +1672,9 @@
 <span id="1672">1672</span>
 <span id="1673">1673</span>
 <span id="1674">1674</span>
+<span id="1675">1675</span>
+<span id="1676">1676</span>
+<span id="1677">1677</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sim</span>::<span class="ident">Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -2494,6 +2497,9 @@
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_active_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">active_trip_mode</span>.<span class="ident">values</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>()
+    }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">active_agents_and_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentID</span>, <span class="ident">TripID</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">active_trip_mode</span>
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_active_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">active_trip_mode</span>.<span class="ident">len</span>()
