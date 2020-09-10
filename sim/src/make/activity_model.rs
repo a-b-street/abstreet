@@ -2,7 +2,7 @@ use crate::{
     IndividTrip, PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnTrip, TripEndpoint,
     TripMode,
 };
-use abstutil::{prettyprint_usize, Timer};
+use abstutil::{prettyprint_usize, Parallelism, Timer};
 use geom::{Distance, Duration, Time};
 use map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
 use rand::seq::SliceRandom;
@@ -109,93 +109,103 @@ impl ScenarioGenerator {
         let mut num_trips_commuting_out = 0;
         let mut num_trips_passthru = 0;
         timer.start("create people");
-        for _ in 0..num_trips {
-            let (is_local_resident, is_local_worker) = (
-                rng.gen_bool(prob_local_resident),
-                rng.gen_bool(prob_local_worker),
-            );
 
-            let mut get_commuter_border = || {
-                for _ in 0..50 {
-                    // TODO: prefer larger thoroughfares to better reflect reality.
-                    let borders = map.all_outgoing_borders();
-                    let border = borders.choose(rng).unwrap();
+        let all_outgoing_borders = map.all_outgoing_borders();
+        let mut tmp_rng = abstutil::fork_rng(rng);
+        let mut get_commuter_border = || {
+            for _ in 0..50 {
+                // TODO: prefer larger thoroughfares to better reflect reality.
+                let border = all_outgoing_borders.choose(&mut tmp_rng).unwrap();
 
-                    // Only consider two-way intersections, so the agent can return the same way
-                    // they came.
-                    // TODO: instead, if it's not a two-way border, we should find an intersection
-                    // an incoming border "near" the outgoing border, to allow a broader set of
-                    // realistic options.
-                    if border.is_incoming_border() {
-                        return TripEndpoint::Border(border.id, None);
-                    }
-                }
-                debug_assert!(
-                    false,
-                    "failed to find a 2 way border in a reasonable time. Degenerate map?"
-                );
-                TripEndpoint::Border(map.all_outgoing_borders().choose(rng).unwrap().id, None)
-            };
-
-            let home = if is_local_resident {
-                if let Some(residence) = residents.pop() {
-                    TripEndpoint::Bldg(residence)
-                } else {
-                    warn!(
-                        "unexpectedly out of residential capacity, falling back to off-map \
-                         residence"
-                    );
-                    get_commuter_border()
-                }
-            } else {
-                get_commuter_border()
-            };
-
-            let work = if is_local_worker {
-                if let Some(workplace) = workers.pop() {
-                    TripEndpoint::Bldg(workplace)
-                } else {
-                    warn!(
-                        "unexpectedly out of workplace capacity, falling back to off-map workplace"
-                    );
-                    get_commuter_border()
-                }
-            } else {
-                get_commuter_border()
-            };
-
-            match (&home, &work) {
-                (TripEndpoint::Bldg(_), TripEndpoint::Bldg(_)) => {
-                    num_trips_local += 1;
-                }
-                (TripEndpoint::Bldg(_), TripEndpoint::Border(_, _)) => {
-                    num_trips_commuting_out += 1;
-                }
-                (TripEndpoint::Border(_, _), TripEndpoint::Bldg(_)) => {
-                    num_trips_commuting_in += 1;
-                }
-                (TripEndpoint::Border(_, _), TripEndpoint::Border(_, _)) => {
-                    num_trips_passthru += 1;
-                }
-            };
-
-            match create_prole(&home, &work, map, rng) {
-                Ok(mut person) => {
-                    debug!("created prole: {:?}", person);
-                    person.id = PersonID(s.people.len());
-                    s.people.push(person);
-                }
-                Err(e) => {
-                    warn!(
-                        "Unable to create person. from: {:?}, to: {:?}, id: {}, error: {}",
-                        home,
-                        work,
-                        s.people.len(),
-                        e
-                    );
+                // Only consider two-way intersections, so the agent can return the same way
+                // they came.
+                // TODO: instead, if it's not a two-way border, we should find an intersection
+                // an incoming border "near" the outgoing border, to allow a broader set of
+                // realistic options.
+                if border.is_incoming_border() {
+                    return TripEndpoint::Border(border.id, None);
                 }
             }
-        }
+            debug_assert!(
+                false,
+                "failed to find a 2 way border in a reasonable time. Degenerate map?"
+            );
+            TripEndpoint::Border(all_outgoing_borders.choose(&mut tmp_rng).unwrap().id, None)
+        };
+
+        let person_params = (0..num_trips)
+            .map(|_| {
+                let (is_local_resident, is_local_worker) = (
+                    rng.gen_bool(prob_local_resident),
+                    rng.gen_bool(prob_local_worker),
+                );
+                let home = if is_local_resident {
+                    if let Some(residence) = residents.pop() {
+                        TripEndpoint::Bldg(residence)
+                    } else {
+                        warn!(
+                            "unexpectedly out of residential capacity, falling back to off-map \
+                             residence"
+                        );
+                        get_commuter_border()
+                    }
+                } else {
+                    get_commuter_border()
+                };
+
+                let work = if is_local_worker {
+                    if let Some(workplace) = workers.pop() {
+                        TripEndpoint::Bldg(workplace)
+                    } else {
+                        warn!(
+                            "unexpectedly out of workplace capacity, falling back to off-map \
+                             workplace"
+                        );
+                        get_commuter_border()
+                    }
+                } else {
+                    get_commuter_border()
+                };
+
+                match (&home, &work) {
+                    (TripEndpoint::Bldg(_), TripEndpoint::Bldg(_)) => {
+                        num_trips_local += 1;
+                    }
+                    (TripEndpoint::Bldg(_), TripEndpoint::Border(_, _)) => {
+                        num_trips_commuting_out += 1;
+                    }
+                    (TripEndpoint::Border(_, _), TripEndpoint::Bldg(_)) => {
+                        num_trips_commuting_in += 1;
+                    }
+                    (TripEndpoint::Border(_, _), TripEndpoint::Border(_, _)) => {
+                        num_trips_passthru += 1;
+                    }
+                };
+
+                (home, work, abstutil::fork_rng(rng))
+            })
+            .collect();
+
+        timer
+            .parallelize(
+                "create people: building PersonSpec from endpoints",
+                Parallelism::Fastest,
+                person_params,
+                |(home, work, mut rng)| match create_prole(&home, &work, map, &mut rng) {
+                    Ok(person) => Some(person),
+                    Err(e) => {
+                        warn!("Unable to create person. e: {}", e);
+                        None
+                    }
+                },
+            )
+            .into_iter()
+            .flatten()
+            .for_each(|mut person| {
+                person.id = PersonID(s.people.len());
+                s.people.push(person);
+            });
+
         timer.stop("create people");
 
         info!(
