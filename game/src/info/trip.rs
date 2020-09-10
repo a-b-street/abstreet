@@ -7,8 +7,8 @@ use maplit::btreemap;
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use std::collections::BTreeMap;
 use widgetry::{
-    Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
-    TextExt, Widget,
+    Btn, Color, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor,
+    Series, Text, TextExt, Widget,
 };
 
 #[derive(Clone)]
@@ -504,16 +504,16 @@ fn make_timeline(
 
         let phase_width = total_width * percent_duration;
         let rect = Polygon::rectangle(phase_width, 15.0);
-        let mut normal = GeomBatch::from(vec![(color, rect.clone())]);
+        let mut batch = GeomBatch::from(vec![(color, rect.clone())]);
         if idx == num_phases - 1 {
             if let Some(p) = progress_along_path {
-                normal.append(
+                batch.append(
                     GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/current_pos.svg")
                         .centered_on(Pt2D::new(p * phase_width, 7.5)),
                 );
             }
         }
-        normal.append(
+        batch.append(
             GeomBatch::load_svg(
                 ctx.prerender,
                 match p.phase_type {
@@ -537,20 +537,14 @@ fn make_timeline(
             ),
         );
 
-        let mut hovered = GeomBatch::from(vec![(color.alpha(1.0), rect.clone())]);
-        for (c, p) in normal.clone().consume().into_iter().skip(1) {
-            hovered.fancy_push(c, p);
-        }
-
         timeline.push(
-            Btn::custom(normal, hovered, rect)
-                .tooltip(txt)
-                .build(
-                    ctx,
-                    format!("examine trip phase {} of {}", idx + 1, trip_id),
-                    None,
-                )
-                .centered_vert(),
+            DrawWithTooltips::new(
+                ctx,
+                batch,
+                vec![(rect, txt)],
+                Box::new(|_| GeomBatch::new()),
+            )
+            .centered_vert(),
         );
 
         if let Some((dist, ref path)) = p.path {

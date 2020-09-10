@@ -508,9 +508,6 @@ impl InfoPanel {
                     } else {
                         (false, None)
                     }
-                } else if action.starts_with("examine trip phase") {
-                    // Don't do anything! Just using buttons for convenient tooltips.
-                    (false, None)
                 } else if let Some(id) = self.warpers.get(&action) {
                     (
                         false,
