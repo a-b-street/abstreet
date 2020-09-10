@@ -437,8 +437,7 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
 fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     let a = &app.unzoomed_agents;
     Widget::custom_row(vec![
-        Checkbox::colored(ctx, "Car", a.car_color, a.cars).margin_right(8),
-        Widget::draw_svg(ctx, "system/assets/timeline/parking.svg").margin_right(24),
+        Checkbox::colored(ctx, "Car", a.car_color, a.cars).margin_right(24),
         Checkbox::colored(ctx, "Bike", a.bike_color, a.bikes).margin_right(24),
         Checkbox::colored(ctx, "Bus", a.bus_color, a.buses_and_trains).margin_right(24),
         Checkbox::colored(ctx, "Pedestrian", a.ped_color, a.peds).margin_right(8),
@@ -448,10 +447,7 @@ fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
 fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     let a = &app.unzoomed_agents;
     Widget::col(vec![
-        Widget::custom_row(vec![
-            Checkbox::colored(ctx, "Car", a.car_color, a.cars).margin_right(8),
-            Widget::draw_svg(ctx, "system/assets/timeline/parking.svg"),
-        ]),
+        Checkbox::colored(ctx, "Car", a.car_color, a.cars),
         Checkbox::colored(ctx, "Bike", a.bike_color, a.bikes),
         Checkbox::colored(ctx, "Bus", a.bus_color, a.buses_and_trains),
         Checkbox::colored(ctx, "Pedestrian", a.ped_color, a.peds),

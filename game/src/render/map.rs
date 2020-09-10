@@ -461,7 +461,6 @@ pub struct UnzoomedAgents {
     pub peds: bool,
 
     pub car_color: Color,
-    pub parking_color: Color,
     pub bike_color: Color,
     pub bus_color: Color,
     pub ped_color: Color,
@@ -476,7 +475,6 @@ impl UnzoomedAgents {
             peds: true,
 
             car_color: cs.unzoomed_car.alpha(0.8),
-            parking_color: cs.parking_trip.alpha(0.8),
             bike_color: cs.unzoomed_bike.alpha(0.8),
             bus_color: cs.unzoomed_bus.alpha(0.8),
             ped_color: cs.unzoomed_pedestrian.alpha(0.8),
@@ -487,11 +485,7 @@ impl UnzoomedAgents {
         match agent.vehicle_type {
             Some(VehicleType::Car) => {
                 if self.cars {
-                    if agent.parking {
-                        Some(self.parking_color)
-                    } else {
-                        Some(self.car_color)
-                    }
+                    Some(self.car_color)
                 } else {
                     None
                 }

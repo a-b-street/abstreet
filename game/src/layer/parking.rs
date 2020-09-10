@@ -2,9 +2,9 @@ use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::{prettyprint_usize, Counter};
-use geom::Time;
-use map_model::{BuildingID, Map, OffstreetParking, ParkingLotID, RoadID};
-use sim::{ParkingSpot, VehicleType};
+use geom::{Circle, Pt2D, Time};
+use map_model::{BuildingID, Map, OffstreetParking, ParkingLotID, RoadID, NORMAL_LANE_THICKNESS};
+use sim::{GetDrawAgents, ParkingSpot, VehicleType};
 use std::collections::BTreeSet;
 use widgetry::{
     hotkey, Btn, Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
@@ -17,6 +17,7 @@ pub struct Occupancy {
     garages: bool,
     lots: bool,
     private_bldgs: bool,
+    looking_for_parking: bool,
     unzoomed: Drawable,
     zoomed: Drawable,
     panel: Panel,
@@ -40,6 +41,7 @@ impl Layer for Occupancy {
                 self.garages,
                 self.lots,
                 self.private_bldgs,
+                self.looking_for_parking,
             );
         }
 
@@ -59,6 +61,7 @@ impl Layer for Occupancy {
                     self.panel.is_checked("Public garages"),
                     self.panel.is_checked("Parking lots"),
                     self.panel.is_checked("Private buildings"),
+                    self.panel.is_checked("Cars looking for parking"),
                 );
                 self.panel.align_above(ctx, minimap);
             }
@@ -87,6 +90,7 @@ impl Occupancy {
         garages: bool,
         lots: bool,
         private_bldgs: bool,
+        looking_for_parking: bool,
     ) -> Occupancy {
         let mut filled_spots = Counter::new();
         let mut avail_spots = Counter::new();
@@ -201,6 +205,12 @@ impl Occupancy {
                 Checkbox::switch(ctx, "Private buildings", None, private_bldgs),
             ])
             .evenly_spaced(),
+            Checkbox::colored(
+                ctx,
+                "Cars looking for parking",
+                app.cs.parking_trip,
+                looking_for_parking,
+            ),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%", "100%"]),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
@@ -218,6 +228,21 @@ impl Occupancy {
                 Loc::Lot(pl) => colorer.add_pl(pl, color),
             }
         }
+
+        if looking_for_parking {
+            // A bit of copied code from draw_unzoomed_agents
+            let car_circle =
+                Circle::new(Pt2D::new(0.0, 0.0), 4.0 * NORMAL_LANE_THICKNESS).to_polygon();
+            for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
+                if a.parking {
+                    colorer.unzoomed.push(
+                        app.cs.parking_trip.alpha(0.8),
+                        car_circle.translate(a.pos.x(), a.pos.y()),
+                    );
+                }
+            }
+        }
+
         let (unzoomed, zoomed) = colorer.build(ctx);
 
         Occupancy {
@@ -226,6 +251,7 @@ impl Occupancy {
             garages,
             lots,
             private_bldgs,
+            looking_for_parking,
             unzoomed,
             zoomed,
             panel,
