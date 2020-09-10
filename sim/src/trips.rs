@@ -296,7 +296,7 @@ impl TripManager {
             return;
         };
 
-        if !ctx.cap.allow_trip(parked_car.vehicle.id, &path) {
+        if !ctx.cap.allow_trip(now, parked_car.vehicle.id, &path) {
             // TODO Different ways to handle this: abort the trip, delay it an hour, route around
             // the zone, switch modes...
             self.events.push(Event::Alert(
@@ -1031,7 +1031,7 @@ impl TripManager {
                 if let Some(router) =
                     maybe_path.map(|path| goal.make_router(vehicle.id, path, ctx.map))
                 {
-                    if !ctx.cap.allow_trip(vehicle.id, router.get_path()) {
+                    if !ctx.cap.allow_trip(now, vehicle.id, router.get_path()) {
                         self.events.push(Event::Alert(
                             AlertLocation::Person(person.id),
                             format!(

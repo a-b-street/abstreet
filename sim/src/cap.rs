@@ -75,20 +75,24 @@ impl CapSimState {
         zone.entered_in_last_hour.insert(car);
     }
 
-    pub fn allow_trip(&mut self, car: CarID, path: &Path) -> bool {
-        if car.1 != VehicleType::Car {
+    pub fn allow_trip(&mut self, now: Time, car: CarID, path: &Path) -> bool {
+        if car.1 != VehicleType::Car || !RESERVE_WHEN_STARTING_TRIP {
             return true;
         }
         for step in path.get_steps() {
             if let PathStep::Lane(l) = step {
                 if let Some(idx) = self.lane_to_zone.get(l) {
                     let zone = &mut self.zones[*idx];
+
+                    if now - zone.hour_started >= Duration::hours(1) {
+                        zone.hour_started = Time::START_OF_DAY + Duration::hours(now.get_parts().0);
+                        zone.entered_in_last_hour.clear();
+                    }
+
                     if zone.entered_in_last_hour.len() >= zone.cap {
                         return false;
                     }
-                    if RESERVE_WHEN_STARTING_TRIP {
-                        zone.entered_in_last_hour.insert(car);
-                    }
+                    zone.entered_in_last_hour.insert(car);
                 }
             }
         }

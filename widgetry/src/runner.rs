@@ -64,7 +64,10 @@ impl<G: GUI> State<G> {
                 trace!(
                     "winit event says the window was resized from {}, {} to {:?}. But inner size \
                      is {:?}, so using that",
-                    self.canvas.window_width, self.canvas.window_height, new_size, inner_size
+                    self.canvas.window_width,
+                    self.canvas.window_height,
+                    new_size,
+                    inner_size
                 );
                 prerender.window_resized(new_size);
                 self.canvas.window_width = inner_size.width;
