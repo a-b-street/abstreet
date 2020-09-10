@@ -332,12 +332,6 @@
 <span id="332">332</span>
 <span id="333">333</span>
 <span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>,
@@ -363,7 +357,7 @@
             <span class="kw">match</span> <span class="ident">b</span>.<span class="ident">bldg_type</span> {
                 <span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="ident">num_ppl</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="ident">num_ppl</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;empty Residential&quot;</span>);
+                        <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;empty Residential&quot;</span>);
                     }
 
                     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_ppl</span> {
@@ -373,7 +367,7 @@
                 }
                 <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">num_ppl</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="ident">num_ppl</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;empty ResidentialCommercial&quot;</span>);
+                        <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;empty ResidentialCommercial&quot;</span>);
                     }
                     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_ppl</span> {
                         <span class="ident">residents</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
@@ -430,13 +424,13 @@
             <span class="ident">f64</span>::<span class="ident">max</span>(<span class="ident">lower_bound_prob</span>, <span class="ident">workers_cap</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">num_trips</span> <span class="kw">as</span> <span class="ident">f64</span>),
         );
 
-        <span class="macro">info</span><span class="macro">!</span>(
+        <span class="macro">debug</span><span class="macro">!</span>(
             <span class="string">&quot;BUILDINGS - workplaces: {}, residences: {}, mixed: {}&quot;</span>,
             <span class="ident">prettyprint_usize</span>(<span class="ident">num_bldg_commercial</span>),
             <span class="ident">prettyprint_usize</span>(<span class="ident">num_bldg_residential</span>),
             <span class="ident">prettyprint_usize</span>(<span class="ident">num_bldg_mixed_residential_commercial</span>)
         );
-        <span class="macro">info</span><span class="macro">!</span>(
+        <span class="macro">debug</span><span class="macro">!</span>(
             <span class="string">&quot;CAPACITY - workers_cap: {}, residents_cap: {}, prob_local_worker: {:.1}%, \
              prob_local_resident: {:.1}%&quot;</span>,
             <span class="ident">prettyprint_usize</span>(<span class="ident">workers_cap</span>),
@@ -474,10 +468,6 @@
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">residence</span>) <span class="op">=</span> <span class="ident">residents</span>.<span class="ident">pop</span>() {
                         <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">residence</span>)
                     } <span class="kw">else</span> {
-                        <span class="macro">warn</span><span class="macro">!</span>(
-                            <span class="string">&quot;unexpectedly out of residential capacity, falling back to off-map \
-                             residence&quot;</span>
-                        );
                         <span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>()
                     }
                 } <span class="kw">else</span> {
@@ -488,10 +478,6 @@
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">workplace</span>) <span class="op">=</span> <span class="ident">workers</span>.<span class="ident">pop</span>() {
                         <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">workplace</span>)
                     } <span class="kw">else</span> {
-                        <span class="macro">warn</span><span class="macro">!</span>(
-                            <span class="string">&quot;unexpectedly out of workplace capacity, falling back to off-map \
-                             workplace&quot;</span>
-                        );
                         <span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>()
                     }
                 } <span class="kw">else</span> {
@@ -519,13 +505,13 @@
 
         <span class="ident">timer</span>
             .<span class="ident">parallelize</span>(
-                <span class="string">&quot;create people: building PersonSpec from endpoints&quot;</span>,
+                <span class="string">&quot;create people: making PersonSpec from endpoints&quot;</span>,
                 <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
                 <span class="ident">person_params</span>,
                 <span class="op">|</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">create_prole</span>(<span class="kw-2">&amp;</span><span class="ident">home</span>, <span class="kw-2">&amp;</span><span class="ident">work</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>) {
                     <span class="prelude-val">Ok</span>(<span class="ident">person</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>),
                     <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Unable to create person. e: {}&quot;</span>, <span class="ident">e</span>);
+                        <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Unable to create person. error: {}&quot;</span>, <span class="ident">e</span>);
                         <span class="prelude-val">None</span>
                     }
                 },
@@ -541,13 +527,15 @@
 
         <span class="macro">info</span><span class="macro">!</span>(
             <span class="string">&quot;TRIPS - total: {}, local: {}, commuting_in: {}, commuting_out: {}, passthru: {}, \
-             errored: {}&quot;</span>,
+             errored: {}, leftover_resident_capacity: {}, leftover_worker_capacity: {}&quot;</span>,
             <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips</span>),
             <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_local</span>),
             <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_commuting_in</span>),
             <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_commuting_out</span>),
             <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_passthru</span>),
             <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips</span> <span class="op">-</span> <span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">len</span>()),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">residents</span>.<span class="ident">len</span>()),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">workers</span>.<span class="ident">len</span>()),
         );
         <span class="ident">s</span>
     }

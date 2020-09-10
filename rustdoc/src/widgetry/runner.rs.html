@@ -394,7 +394,7 @@
         {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event</span>::<span class="ident">WindowResized</span>(<span class="ident">new_size</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">event</span> {
                 <span class="kw">let</span> <span class="ident">inner_size</span> <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">window_size</span>();
-                <span class="macro">println</span><span class="macro">!</span>(
+                <span class="macro">trace</span><span class="macro">!</span>(
                     <span class="string">&quot;winit event says the window was resized from {}, {} to {:?}. But inner size \
                      is {:?}, so using that&quot;</span>,
                     <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>, <span class="ident">new_size</span>, <span class="ident">inner_size</span>
