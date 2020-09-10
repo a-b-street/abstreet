@@ -263,14 +263,89 @@
 <span id="263">263</span>
 <span id="264">264</span>
 <span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>,
     <span class="ident">TripMode</span>,
 };
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">Intersection</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>};
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
@@ -278,104 +353,244 @@
 <span class="kw">impl</span> <span class="ident">ScenarioGenerator</span> {
     <span class="comment">// Designed in https://github.com/dabreegster/abstreet/issues/154</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">proletariat_robot</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Scenario</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">residences</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">BuildingID</span>, <span class="ident">XorShiftRng</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">workplaces</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_residences</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">residents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">workers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_bldg_residential</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_bldg_commercial</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_bldg_mixed_residential_commercial</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="kw">match</span> <span class="ident">b</span>.<span class="ident">bldg_type</span> {
                 <span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="ident">num_ppl</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_ppl</span> {
-                        <span class="ident">residences</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">abstutil</span>::<span class="ident">fork_rng</span>(<span class="ident">rng</span>)));
+                    <span class="kw">if</span> <span class="ident">num_ppl</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;empty Residential&quot;</span>);
                     }
-                    <span class="ident">num_residences</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+
+                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_ppl</span> {
+                        <span class="ident">residents</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+                    }
+                    <span class="ident">num_bldg_residential</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
                 <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">num_ppl</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_ppl</span> {
-                        <span class="ident">residences</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">abstutil</span>::<span class="ident">fork_rng</span>(<span class="ident">rng</span>)));
+                    <span class="kw">if</span> <span class="ident">num_ppl</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;empty ResidentialCommercial&quot;</span>);
                     }
-                    <span class="ident">workplaces</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
-                    <span class="ident">num_residences</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_ppl</span> {
+                        <span class="ident">residents</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+
+                        <span class="comment">// TODO: currently we just assume work capacity is the same as residential</span>
+                        <span class="comment">// capacity, which is surely not true. How can we better estimate?</span>
+                        <span class="ident">workers</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+                    }
+                    <span class="ident">num_bldg_mixed_residential_commercial</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
                 <span class="ident">BuildingType</span>::<span class="ident">Commercial</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">workplaces</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+                    <span class="comment">// TODO: currently we just assume some constant for jobs per building.</span>
+                    <span class="comment">// A better metrics might be available parking or building size</span>
+                    <span class="kw">let</span> <span class="ident">building_cap</span> <span class="op">=</span> <span class="ident">usize</span>::<span class="ident">pow</span>(<span class="number">2</span>, <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="number">7</span>));
+                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">building_cap</span> {
+                        <span class="ident">workers</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+                    }
+                    <span class="ident">num_bldg_commercial</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
                 <span class="ident">BuildingType</span>::<span class="ident">Empty</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
         }
 
+        <span class="ident">residents</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
+        <span class="ident">workers</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Scenario</span>::<span class="ident">empty</span>(<span class="ident">map</span>, <span class="string">&quot;random people going to/from work&quot;</span>);
         <span class="comment">// Include all buses/trains</span>
         <span class="ident">s</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
-        <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">person</span> <span class="kw">in</span> <span class="ident">timer</span>
-            .<span class="ident">parallelize</span>(
-                <span class="string">&quot;create people&quot;</span>,
-                <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
-                <span class="ident">residences</span>,
-                <span class="op">|</span>(<span class="ident">home</span>, <span class="kw-2">mut</span> <span class="ident">forked_rng</span>)<span class="op">|</span> <span class="ident">robot_person</span>(<span class="ident">home</span>, <span class="kw-2">&amp;</span><span class="ident">workplaces</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">forked_rng</span>),
-            )
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">flatten</span>()
-        {
-            <span class="ident">person</span>.<span class="ident">id</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">len</span>());
-            <span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">person</span>);
-        }
+        <span class="kw">let</span> <span class="ident">residents_cap</span> <span class="op">=</span> <span class="ident">residents</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">workers_cap</span> <span class="op">=</span> <span class="ident">workers</span>.<span class="ident">len</span>();
 
-        <span class="comment">// Create trips between map borders. For now, scale the number by the number of residences.</span>
-        <span class="kw">let</span> <span class="ident">incoming_connections</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_incoming_borders</span>();
-        <span class="kw">let</span> <span class="ident">outgoing_connections</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_outgoing_borders</span>();
-        <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">person</span> <span class="kw">in</span> <span class="ident">timer</span>
+        <span class="comment">// this saturation figure is an arbitrary guess - we assume that the number of trips will</span>
+        <span class="comment">// scale as some factor of the people living and/or working on the map. A number of more</span>
+        <span class="comment">// than 1.0 will primarily affect the number of &quot;pass through&quot; trips - people who neither</span>
+        <span class="comment">// work nor live in the neighborhood.</span>
+        <span class="kw">let</span> <span class="ident">trip_saturation</span> <span class="op">=</span> <span class="number">1.2</span>;
+        <span class="kw">let</span> <span class="ident">num_trips</span> <span class="op">=</span> (<span class="ident">trip_saturation</span> <span class="op">*</span> (<span class="ident">residents_cap</span> <span class="op">+</span> <span class="ident">workers_cap</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+
+        <span class="comment">// bound probabilities to ensure we&#39;re getting some diveristy of agents</span>
+        <span class="kw">let</span> <span class="ident">lower_bound_prob</span> <span class="op">=</span> <span class="number">0.05</span>;
+        <span class="kw">let</span> <span class="ident">upper_bound_prob</span> <span class="op">=</span> <span class="number">0.90</span>;
+        <span class="kw">let</span> <span class="ident">prob_local_resident</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">workers_cap</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="ident">lower_bound_prob</span>
+        } <span class="kw">else</span> {
+            <span class="ident">f64</span>::<span class="ident">min</span>(
+                <span class="ident">upper_bound_prob</span>,
+                <span class="ident">f64</span>::<span class="ident">max</span>(<span class="ident">lower_bound_prob</span>, <span class="ident">residents_cap</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">num_trips</span> <span class="kw">as</span> <span class="ident">f64</span>),
+            )
+        };
+        <span class="kw">let</span> <span class="ident">prob_local_worker</span> <span class="op">=</span> <span class="ident">f64</span>::<span class="ident">min</span>(
+            <span class="ident">upper_bound_prob</span>,
+            <span class="ident">f64</span>::<span class="ident">max</span>(<span class="ident">lower_bound_prob</span>, <span class="ident">workers_cap</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">num_trips</span> <span class="kw">as</span> <span class="ident">f64</span>),
+        );
+
+        <span class="macro">info</span><span class="macro">!</span>(
+            <span class="string">&quot;BUILDINGS - workplaces: {}, residences: {}, mixed: {}&quot;</span>,
+            <span class="ident">prettyprint_usize</span>(<span class="ident">num_bldg_commercial</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">num_bldg_residential</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">num_bldg_mixed_residential_commercial</span>)
+        );
+        <span class="macro">info</span><span class="macro">!</span>(
+            <span class="string">&quot;CAPACITY - workers_cap: {}, residents_cap: {}, prob_local_worker: {:.1}%, \
+             prob_local_resident: {:.1}%&quot;</span>,
+            <span class="ident">prettyprint_usize</span>(<span class="ident">workers_cap</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">residents_cap</span>),
+            <span class="ident">prob_local_worker</span> <span class="op">*</span> <span class="number">100.</span>,
+            <span class="ident">prob_local_resident</span> <span class="op">*</span> <span class="number">100.</span>
+        );
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_trips_local</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_trips_commuting_in</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_trips_commuting_out</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_trips_passthru</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;create people&quot;</span>);
+
+        <span class="comment">// Only consider two-way intersections, so the agent can return the same way</span>
+        <span class="comment">// they came.</span>
+        <span class="comment">// TODO: instead, if it&#39;s not a two-way border, we should find an intersection</span>
+        <span class="comment">// an incoming border &quot;near&quot; the outgoing border, to allow a broader set of</span>
+        <span class="comment">// realistic options.</span>
+        <span class="comment">// TODO: prefer larger thoroughfares to better reflect reality.</span>
+        <span class="kw">let</span> <span class="ident">commuter_borders</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">map</span>
+            .<span class="ident">all_outgoing_borders</span>()
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">is_incoming_border</span>())
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>))
+            .<span class="ident">collect</span>();
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">commuter_borders</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span>);
+        <span class="kw">let</span> <span class="ident">person_params</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">num_trips</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+                <span class="kw">let</span> (<span class="ident">is_local_resident</span>, <span class="ident">is_local_worker</span>) <span class="op">=</span> (
+                    <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="ident">prob_local_resident</span>),
+                    <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="ident">prob_local_worker</span>),
+                );
+                <span class="kw">let</span> <span class="ident">home</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_local_resident</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">residence</span>) <span class="op">=</span> <span class="ident">residents</span>.<span class="ident">pop</span>() {
+                        <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">residence</span>)
+                    } <span class="kw">else</span> {
+                        <span class="macro">warn</span><span class="macro">!</span>(
+                            <span class="string">&quot;unexpectedly out of residential capacity, falling back to off-map \
+                             residence&quot;</span>
+                        );
+                        <span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>()
+                    }
+                } <span class="kw">else</span> {
+                    <span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>()
+                };
+
+                <span class="kw">let</span> <span class="ident">work</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_local_worker</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">workplace</span>) <span class="op">=</span> <span class="ident">workers</span>.<span class="ident">pop</span>() {
+                        <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">workplace</span>)
+                    } <span class="kw">else</span> {
+                        <span class="macro">warn</span><span class="macro">!</span>(
+                            <span class="string">&quot;unexpectedly out of workplace capacity, falling back to off-map \
+                             workplace&quot;</span>
+                        );
+                        <span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>()
+                    }
+                } <span class="kw">else</span> {
+                    <span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>()
+                };
+
+                <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">home</span>, <span class="kw-2">&amp;</span><span class="ident">work</span>) {
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">num_trips_local</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    }
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">num_trips_commuting_out</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    }
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">num_trips_commuting_in</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    }
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">num_trips_passthru</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    }
+                };
+
+                (<span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">abstutil</span>::<span class="ident">fork_rng</span>(<span class="ident">rng</span>))
+            })
+            .<span class="ident">collect</span>();
+
+        <span class="ident">timer</span>
             .<span class="ident">parallelize</span>(
-                <span class="string">&quot;create border trips&quot;</span>,
+                <span class="string">&quot;create people: building PersonSpec from endpoints&quot;</span>,
                 <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
-                <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">abstutil</span>::<span class="ident">fork_rng</span>(<span class="ident">rng</span>))
-                    .<span class="ident">take</span>(<span class="ident">num_residences</span>)
-                    .<span class="ident">collect</span>(),
-                <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">forked_rng</span><span class="op">|</span> {
-                    <span class="ident">border_person</span>(
-                        <span class="kw-2">&amp;</span><span class="ident">incoming_connections</span>,
-                        <span class="kw-2">&amp;</span><span class="ident">outgoing_connections</span>,
-                        <span class="ident">map</span>,
-                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">forked_rng</span>,
-                    )
+                <span class="ident">person_params</span>,
+                <span class="op">|</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">create_prole</span>(<span class="kw-2">&amp;</span><span class="ident">home</span>, <span class="kw-2">&amp;</span><span class="ident">work</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>) {
+                    <span class="prelude-val">Ok</span>(<span class="ident">person</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>),
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Unable to create person. e: {}&quot;</span>, <span class="ident">e</span>);
+                        <span class="prelude-val">None</span>
+                    }
                 },
             )
             .<span class="ident">into_iter</span>()
             .<span class="ident">flatten</span>()
-        {
-            <span class="ident">person</span>.<span class="ident">id</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">len</span>());
-            <span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">person</span>);
-        }
+            .<span class="ident">for_each</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">person</span><span class="op">|</span> {
+                <span class="ident">person</span>.<span class="ident">id</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">len</span>());
+                <span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">person</span>);
+            });
 
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;create people&quot;</span>);
+
+        <span class="macro">info</span><span class="macro">!</span>(
+            <span class="string">&quot;TRIPS - total: {}, local: {}, commuting_in: {}, commuting_out: {}, passthru: {}, \
+             errored: {}&quot;</span>,
+            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_local</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_commuting_in</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_commuting_out</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_passthru</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips</span> <span class="op">-</span> <span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">len</span>()),
+        );
         <span class="ident">s</span>
     }
 }
 
-<span class="comment">// Make a person going from their home to a random workplace, then back again later.</span>
-<span class="kw">fn</span> <span class="ident">robot_person</span>(
-    <span class="ident">home</span>: <span class="ident">BuildingID</span>,
-    <span class="ident">workplaces</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
+<span class="kw">fn</span> <span class="ident">create_prole</span>(
+    <span class="ident">home</span>: <span class="kw-2">&amp;</span><span class="ident">TripEndpoint</span>,
+    <span class="ident">work</span>: <span class="kw-2">&amp;</span><span class="ident">TripEndpoint</span>,
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">work</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">workplaces</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>();
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PersonSpec</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">home</span> <span class="op">=</span><span class="op">=</span> <span class="ident">work</span> {
-        <span class="comment">// working and living in the same building</span>
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="comment">// TODO: handle edge-case of working and living in the same building...  maybe more likely</span>
+        <span class="comment">// to go for a walk later in the day or something</span>
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;TODO: handle working and living in the same building&quot;</span>.<span class="ident">into</span>());
     }
-    <span class="comment">// Decide mode based on walking distance. If the buildings aren&#39;t connected,</span>
-    <span class="comment">// probably a bug in importing; just skip this person.</span>
-    <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">map</span>
-        .<span class="ident">pathfind</span>(<span class="ident">PathRequest</span> {
-            <span class="ident">start</span>: <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">home</span>).<span class="ident">sidewalk_pos</span>,
-            <span class="ident">end</span>: <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">work</span>).<span class="ident">sidewalk_pos</span>,
-            <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
-        })<span class="question-mark">?</span>
-        .<span class="ident">total_length</span>();
-    <span class="comment">// TODO If home or work is in an access-restricted zone (like a living street),</span>
-    <span class="comment">// then probably don&#39;t drive there. Actually, it depends on the specific tagging;</span>
-    <span class="comment">// access=no in the US usually means a gated community.</span>
-    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">select_trip_mode</span>(<span class="ident">dist</span>, <span class="ident">rng</span>);
+
+    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">home</span>, <span class="ident">work</span>) {
+        <span class="comment">// commuting entirely within map</span>
+        (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">home_bldg</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">work_bldg</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="comment">// Decide mode based on walking distance. If the buildings aren&#39;t connected,</span>
+            <span class="comment">// probably a bug in importing; just skip this person.</span>
+            <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dist</span>) <span class="op">=</span> <span class="ident">map</span>
+                .<span class="ident">pathfind</span>(<span class="ident">PathRequest</span> {
+                    <span class="ident">start</span>: <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">home_bldg</span>).<span class="ident">sidewalk_pos</span>,
+                    <span class="ident">end</span>: <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">work_bldg</span>).<span class="ident">sidewalk_pos</span>,
+                    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+                })
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">total_length</span>())
+            {
+                <span class="ident">dist</span>
+            } <span class="kw">else</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;no path found&quot;</span>.<span class="ident">into</span>());
+            };
+
+            <span class="comment">// TODO If home or work is in an access-restricted zone (like a living street),</span>
+            <span class="comment">// then probably don&#39;t drive there. Actually, it depends on the specific tagging;</span>
+            <span class="comment">// access=no in the US usually means a gated community.</span>
+            <span class="ident">select_trip_mode</span>(<span class="ident">dist</span>, <span class="ident">rng</span>)
+        }
+        <span class="comment">// if you exit or leave the map, we assume driving</span>
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
+    };
 
     <span class="comment">// TODO This will cause a single morning and afternoon rush. Outside of these times,</span>
     <span class="comment">// it&#39;ll be really quiet. Probably want a normal distribution centered around these</span>
@@ -405,78 +620,13 @@
         );
     }
 
-    <span class="comment">// Skip the person if either trip can&#39;t be created.</span>
-    <span class="kw">let</span> <span class="ident">goto_work</span> <span class="op">=</span> <span class="ident">SpawnTrip</span>::<span class="ident">new</span>(
-        <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">home</span>),
-        <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">work</span>),
-        <span class="ident">mode</span>,
-        <span class="ident">map</span>,
-    )<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">return_home</span> <span class="op">=</span> <span class="ident">SpawnTrip</span>::<span class="ident">new</span>(
-        <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">work</span>),
-        <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">home</span>),
-        <span class="ident">mode</span>,
-        <span class="ident">map</span>,
-    )<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">goto_work</span> <span class="op">=</span> <span class="ident">SpawnTrip</span>::<span class="ident">new</span>(<span class="ident">home</span>.<span class="ident">clone</span>(), <span class="ident">work</span>.<span class="ident">clone</span>(), <span class="ident">mode</span>, <span class="ident">map</span>)
+        .<span class="ident">ok_or</span>(<span class="string">&quot;unable to spawn &#39;goto work&#39; trip&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">return_home</span> <span class="op">=</span> <span class="ident">SpawnTrip</span>::<span class="ident">new</span>(<span class="ident">work</span>.<span class="ident">clone</span>(), <span class="ident">home</span>.<span class="ident">clone</span>(), <span class="ident">mode</span>, <span class="ident">map</span>)
+        .<span class="ident">ok_or</span>(<span class="string">&quot;unable to spawn &#39;return home&#39; trip&quot;</span>)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Some</span>(<span class="ident">PersonSpec</span> {
+    <span class="prelude-val">Ok</span>(<span class="ident">PersonSpec</span> {
         <span class="comment">// Fix this outside the parallelism</span>
-        <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="number">0</span>),
-        <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_am</span>, <span class="ident">goto_work</span>),
-            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_pm</span>, <span class="ident">return_home</span>),
-        ],
-    })
-}
-
-<span class="kw">fn</span> <span class="ident">border_person</span>(
-    <span class="ident">incoming_connections</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Intersection</span><span class="op">&gt;</span>,
-    <span class="ident">outgoing_connections</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Intersection</span><span class="op">&gt;</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span> {
-    <span class="comment">// TODO it would be nice to weigh border points by for example lane count</span>
-    <span class="kw">let</span> <span class="ident">random_incoming_border</span> <span class="op">=</span> <span class="ident">incoming_connections</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">random_outgoing_border</span> <span class="op">=</span> <span class="ident">outgoing_connections</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">b_random_incoming_border</span> <span class="op">=</span> <span class="ident">incoming_connections</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">b_random_outgoing_border</span> <span class="op">=</span> <span class="ident">outgoing_connections</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>();
-    <span class="kw">if</span> <span class="ident">random_incoming_border</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">random_outgoing_border</span>.<span class="ident">id</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">b_random_incoming_border</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">b_random_outgoing_border</span>.<span class="ident">id</span>
-    {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
-    }
-    <span class="comment">// TODO calculate</span>
-    <span class="kw">let</span> <span class="ident">distance_on_map</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2000.0</span>);
-    <span class="comment">// TODO randomize</span>
-    <span class="comment">// having random trip distance happening offscreen will allow things</span>
-    <span class="comment">// like very short car trips, representing larger car trip happening mostly offscreen</span>
-    <span class="kw">let</span> <span class="ident">distance_outside_map</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>, <span class="number">20_000.0</span>));
-    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">select_trip_mode</span>(<span class="ident">distance_on_map</span> <span class="op">+</span> <span class="ident">distance_outside_map</span>, <span class="ident">rng</span>);
-    <span class="kw">let</span> <span class="ident">goto_work</span> <span class="op">=</span> <span class="ident">SpawnTrip</span>::<span class="ident">new</span>(
-        <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">random_incoming_border</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>),
-        <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">random_outgoing_border</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>),
-        <span class="ident">mode</span>,
-        <span class="ident">map</span>,
-    )<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">return_home</span> <span class="op">=</span> <span class="ident">SpawnTrip</span>::<span class="ident">new</span>(
-        <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">b_random_incoming_border</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>),
-        <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">b_random_outgoing_border</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>),
-        <span class="ident">mode</span>,
-        <span class="ident">map</span>,
-    )<span class="question-mark">?</span>;
-    <span class="comment">// TODO more reasonable time schedule, rush hour peak etc</span>
-    <span class="kw">let</span> <span class="ident">depart_am</span> <span class="op">=</span> <span class="ident">rand_time</span>(
-        <span class="ident">rng</span>,
-        <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">0</span>),
-        <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">12</span>),
-    );
-    <span class="kw">let</span> <span class="ident">depart_pm</span> <span class="op">=</span> <span class="ident">rand_time</span>(
-        <span class="ident">rng</span>,
-        <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">12</span>),
-        <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">24</span>),
-    );
-    <span class="prelude-val">Some</span>(<span class="ident">PersonSpec</span> {
         <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="number">0</span>),
         <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[

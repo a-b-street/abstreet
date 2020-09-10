@@ -630,6 +630,9 @@
 <span id="630">630</span>
 <span id="631">631</span>
 <span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">analytics</span>;
 <span class="kw">mod</span> <span class="ident">cap</span>;
@@ -643,6 +646,9 @@
 <span class="kw">mod</span> <span class="ident">sim</span>;
 <span class="kw">mod</span> <span class="ident">transit</span>;
 <span class="kw">mod</span> <span class="ident">trips</span>;
+
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">analytics</span>::{<span class="ident">Analytics</span>, <span class="ident">TripPhase</span>};
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">cap</span>::<span class="ident">CapSimState</span>;
