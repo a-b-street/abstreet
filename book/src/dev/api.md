@@ -4,11 +4,15 @@ Suppose you're tired of manually fiddling with traffic signals, and you want to
 use machine learning to do it. You can run A/B Street without graphics and
 automatically control it through an API.
 
-## Example
+## Examples
 
 This
 [Python example](https://github.com/dabreegster/abstreet/blob/master/headless/examples/python_client.py)
 has everything you need to get started.
+
+Also check out the
+[Go example](https://github.com/dabreegster/abstreet/blob/master/headless/examples/go_client.go),
+which demonstrates just a few of the API calls.
 
 ## API details
 
