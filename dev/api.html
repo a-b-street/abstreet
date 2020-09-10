@@ -169,6 +169,9 @@ are missing, etc. A summary of the commands available so far:</p>
 <li><strong>GET /sim/reset</strong>: Reset all map edits and the simulation state. The trips
 that will run don't change; they're determined by the scenario file you
 initially pass to <code>headless</code>.</li>
+<li><strong>POST /sim/load</strong>: Switch the scenario being simulated. Takes a
+<a href="https://dabreegster.github.io/abstreet/rustdoc/sim/struct.SimFlags.html">SimFlags</a>
+as a JSON POST body.</li>
 <li><strong>GET /sim/get-time</strong>: Returns the current simulation time.</li>
 <li><strong>GET /sim/goto-time?t=06:30:00</strong>: Simulate until 6:30 AM. If the time you
 specify is before the current time, you have to call <strong>/sim/reset</strong> first.</li>

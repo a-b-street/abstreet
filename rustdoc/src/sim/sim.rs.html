@@ -1327,6 +1327,12 @@
 <span id="1327">1327</span>
 <span id="1328">1328</span>
 <span id="1329">1329</span>
+<span id="1330">1330</span>
+<span id="1331">1331</span>
+<span id="1332">1332</span>
+<span id="1333">1333</span>
+<span id="1334">1334</span>
+<span id="1335">1335</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">analytics</span>::<span class="ident">Window</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1404,6 +1410,12 @@
     <span class="kw">pub</span> <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>,
     <span class="kw">pub</span> <span class="ident">pathfinding_upfront</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">live_map_edits</span>: <span class="ident">bool</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">default</span>::<span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SimOptions</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimOptions</span> {
+        <span class="ident">SimOptions</span>::<span class="ident">new</span>(<span class="string">&quot;tmp&quot;</span>)
+    }
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
