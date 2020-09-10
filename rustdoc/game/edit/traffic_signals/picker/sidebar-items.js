@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["SignalPicker",""]]});
+initSidebarItems({"fn":[["make_btn",""]],"struct":[["SignalPicker",""]]});
