@@ -1,10 +1,11 @@
-use crate::app::App;
+use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::edit::TrafficSignalEditor;
-use crate::game::{PopupMsg, State, Transition};
+use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::GameplayMode;
 use map_model::IntersectionID;
+use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 use widgetry::{
     hotkey, hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
@@ -24,21 +25,20 @@ impl SignalPicker {
         mode: GameplayMode,
     ) -> Box<dyn State> {
         Box::new(SignalPicker {
-            members,
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Select multiple traffic signals")
                         .small_heading()
                         .draw(ctx),
-                    Btn::text_fg("X")
+                    Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
-                // TODO Change label based on number of intersections and disable when 0
-                Btn::text_bg2("Continue").build_def(ctx, hotkeys(vec![Key::Enter, Key::E])),
+                make_btn(ctx, members.len()),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
+            members,
             mode,
         })
     }
@@ -48,7 +48,14 @@ impl State for SignalPicker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            app.recalculate_current_selection(ctx);
+            app.primary.current_selection = app.calculate_current_selection(
+                ctx,
+                &DontDrawAgents {},
+                &ShowEverything::new(),
+                false,
+                true,
+                false,
+            );
         }
         if let Some(ID::Intersection(i)) = app.primary.current_selection {
             if app.primary.map.maybe_get_traffic_signal(i).is_some() {
@@ -56,10 +63,14 @@ impl State for SignalPicker {
                     && app.per_obj.left_click(ctx, "add this intersection")
                 {
                     self.members.insert(i);
+                    let btn = make_btn(ctx, self.members.len());
+                    self.panel.replace(ctx, "edit", btn);
                 } else if self.members.contains(&i)
                     && app.per_obj.left_click(ctx, "remove this intersection")
                 {
                     self.members.remove(&i);
+                    let btn = make_btn(ctx, self.members.len());
+                    self.panel.replace(ctx, "edit", btn);
                 }
             } else {
                 app.primary.current_selection = None;
@@ -73,14 +84,7 @@ impl State for SignalPicker {
                 "close" => {
                     return Transition::Pop;
                 }
-                "Continue" => {
-                    if self.members.is_empty() {
-                        return Transition::Push(PopupMsg::new(
-                            ctx,
-                            "Error",
-                            vec!["Select at least one intersection"],
-                        ));
-                    }
+                "edit" => {
                     return Transition::Replace(TrafficSignalEditor::new(
                         ctx,
                         app,
@@ -110,4 +114,17 @@ impl State for SignalPicker {
         let draw = g.upload(batch);
         g.redraw(&draw);
     }
+}
+
+fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
+    if num == 0 {
+        return Btn::text_bg2("Edit 0 signals").inactive(ctx).named("edit");
+    }
+
+    let title = if num == 1 {
+        "Edit 1 signal".to_string()
+    } else {
+        format!("Edit {} signals", num)
+    };
+    Btn::text_bg2(title).build(ctx, "edit", hotkeys(vec![Key::Enter, Key::E]))
 }
