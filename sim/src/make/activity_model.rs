@@ -22,7 +22,7 @@ impl ScenarioGenerator {
             match b.bldg_type {
                 BuildingType::Residential(num_ppl) => {
                     if num_ppl == 0 {
-                        debug!("empty Residential");
+                        trace!("empty Residential");
                     }
 
                     for _ in 0..num_ppl {
@@ -32,7 +32,7 @@ impl ScenarioGenerator {
                 }
                 BuildingType::ResidentialCommercial(num_ppl) => {
                     if num_ppl == 0 {
-                        debug!("empty ResidentialCommercial");
+                        trace!("empty ResidentialCommercial");
                     }
                     for _ in 0..num_ppl {
                         residents.push(b.id);
@@ -89,13 +89,13 @@ impl ScenarioGenerator {
             f64::max(lower_bound_prob, workers_cap as f64 / num_trips as f64),
         );
 
-        info!(
+        debug!(
             "BUILDINGS - workplaces: {}, residences: {}, mixed: {}",
             prettyprint_usize(num_bldg_commercial),
             prettyprint_usize(num_bldg_residential),
             prettyprint_usize(num_bldg_mixed_residential_commercial)
         );
-        info!(
+        debug!(
             "CAPACITY - workers_cap: {}, residents_cap: {}, prob_local_worker: {:.1}%, \
              prob_local_resident: {:.1}%",
             prettyprint_usize(workers_cap),
@@ -133,10 +133,6 @@ impl ScenarioGenerator {
                     if let Some(residence) = residents.pop() {
                         TripEndpoint::Bldg(residence)
                     } else {
-                        warn!(
-                            "unexpectedly out of residential capacity, falling back to off-map \
-                             residence"
-                        );
                         commuter_borders.choose(rng).unwrap().clone()
                     }
                 } else {
@@ -147,10 +143,6 @@ impl ScenarioGenerator {
                     if let Some(workplace) = workers.pop() {
                         TripEndpoint::Bldg(workplace)
                     } else {
-                        warn!(
-                            "unexpectedly out of workplace capacity, falling back to off-map \
-                             workplace"
-                        );
                         commuter_borders.choose(rng).unwrap().clone()
                     }
                 } else {
@@ -178,13 +170,13 @@ impl ScenarioGenerator {
 
         timer
             .parallelize(
-                "create people: building PersonSpec from endpoints",
+                "create people: making PersonSpec from endpoints",
                 Parallelism::Fastest,
                 person_params,
                 |(home, work, mut rng)| match create_prole(&home, &work, map, &mut rng) {
                     Ok(person) => Some(person),
                     Err(e) => {
-                        debug!("Unable to create person. e: {}", e);
+                        trace!("Unable to create person. error: {}", e);
                         None
                     }
                 },
@@ -200,13 +192,15 @@ impl ScenarioGenerator {
 
         info!(
             "TRIPS - total: {}, local: {}, commuting_in: {}, commuting_out: {}, passthru: {}, \
-             errored: {}",
+             errored: {}, leftover_resident_capacity: {}, leftover_worker_capacity: {}",
             prettyprint_usize(num_trips),
             prettyprint_usize(num_trips_local),
             prettyprint_usize(num_trips_commuting_in),
             prettyprint_usize(num_trips_commuting_out),
             prettyprint_usize(num_trips_passthru),
             prettyprint_usize(num_trips - s.people.len()),
+            prettyprint_usize(residents.len()),
+            prettyprint_usize(workers.len()),
         );
         s
     }

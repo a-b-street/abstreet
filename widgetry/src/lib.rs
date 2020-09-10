@@ -24,6 +24,9 @@
 
 //#![warn(missing_docs)]
 
+#[macro_use]
+extern crate log;
+
 mod assets;
 #[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
 mod backend_glow;
