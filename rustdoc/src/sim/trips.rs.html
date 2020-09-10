@@ -1974,7 +1974,7 @@
             <span class="kw">return</span>;
         };
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">cap</span>.<span class="ident">allow_trip</span>(<span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">cap</span>.<span class="ident">allow_trip</span>(<span class="ident">now</span>, <span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>) {
             <span class="comment">// TODO Different ways to handle this: abort the trip, delay it an hour, route around</span>
             <span class="comment">// the zone, switch modes...</span>
             <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
@@ -2709,7 +2709,7 @@
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">router</span>) <span class="op">=</span>
                     <span class="ident">maybe_path</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">goal</span>.<span class="ident">make_router</span>(<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">path</span>, <span class="ident">ctx</span>.<span class="ident">map</span>))
                 {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">cap</span>.<span class="ident">allow_trip</span>(<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">router</span>.<span class="ident">get_path</span>()) {
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">cap</span>.<span class="ident">allow_trip</span>(<span class="ident">now</span>, <span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">router</span>.<span class="ident">get_path</span>()) {
                         <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
                             <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">person</span>.<span class="ident">id</span>),
                             <span class="macro">format</span><span class="macro">!</span>(

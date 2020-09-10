@@ -330,6 +330,9 @@
 <span id="330">330</span>
 <span id="331">331</span>
 <span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">assets</span>::<span class="ident">Assets</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">screenshot</span>::<span class="ident">screenshot_everything</span>;
@@ -397,7 +400,10 @@
                 <span class="macro">trace</span><span class="macro">!</span>(
                     <span class="string">&quot;winit event says the window was resized from {}, {} to {:?}. But inner size \
                      is {:?}, so using that&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>, <span class="ident">new_size</span>, <span class="ident">inner_size</span>
+                    <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>,
+                    <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>,
+                    <span class="ident">new_size</span>,
+                    <span class="ident">inner_size</span>
                 );
                 <span class="ident">prerender</span>.<span class="ident">window_resized</span>(<span class="ident">new_size</span>);
                 <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">=</span> <span class="ident">inner_size</span>.<span class="ident">width</span>;
