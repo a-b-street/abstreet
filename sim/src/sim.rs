@@ -76,6 +76,12 @@ pub struct SimOptions {
     pub live_map_edits: bool,
 }
 
+impl std::default::Default for SimOptions {
+    fn default() -> SimOptions {
+        SimOptions::new("tmp")
+    }
+}
+
 #[derive(Clone)]
 pub enum AlertHandler {
     // Just print the alert to STDOUT

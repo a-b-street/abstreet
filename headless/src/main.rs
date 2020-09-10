@@ -29,7 +29,6 @@ use std::sync::RwLock;
 lazy_static::lazy_static! {
     static ref MAP: RwLock<Map> = RwLock::new(Map::blank());
     static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp"), &mut Timer::throwaway()));
-    // TODO Readonly?
     static ref FLAGS: RwLock<SimFlags> = RwLock::new(SimFlags::for_test("tmp"));
 }
 
@@ -98,6 +97,16 @@ fn handle_command(
             *sim = new_sim;
             Ok(format!("sim reloaded"))
         }
+        "/sim/load" => {
+            let flags: SimFlags = abstutil::from_json(body)?;
+            *FLAGS.write().unwrap() = flags;
+
+            // Also reset
+            let (new_map, new_sim, _) = FLAGS.read().unwrap().load(&mut Timer::new("reset sim"));
+            *map = new_map;
+            *sim = new_sim;
+            Ok(format!("flags changed and sim reloaded"))
+        }
         "/sim/get-time" => Ok(sim.time().to_string()),
         "/sim/goto-time" => {
             let t = Time::parse(&params["t"])?;
@@ -126,7 +135,7 @@ fn handle_command(
             scenario.people = ExternalPerson::import(map, vec![input])?;
             let id = PersonID(sim.get_all_people().len());
             scenario.people[0].id = id;
-            let mut rng = SimFlags::for_test("oneshot").make_rng();
+            let mut rng = FLAGS.read().unwrap().make_rng();
             scenario.instantiate(sim, map, &mut rng, &mut Timer::throwaway());
             Ok(format!("{} created", id))
         }

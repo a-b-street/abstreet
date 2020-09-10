@@ -23,6 +23,9 @@ are missing, etc. A summary of the commands available so far:
   - **GET /sim/reset**: Reset all map edits and the simulation state. The trips
     that will run don't change; they're determined by the scenario file you
     initially pass to `headless`.
+  - **POST /sim/load**: Switch the scenario being simulated. Takes a
+    [SimFlags](https://dabreegster.github.io/abstreet/rustdoc/sim/struct.SimFlags.html)
+    as a JSON POST body.
   - **GET /sim/get-time**: Returns the current simulation time.
   - **GET /sim/goto-time?t=06:30:00**: Simulate until 6:30 AM. If the time you
     specify is before the current time, you have to call **/sim/reset** first.

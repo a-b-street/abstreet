@@ -1,15 +1,19 @@
-use crate::{AlertHandler, Scenario, Sim, SimOptions};
+use crate::{AlertHandler, Scenario, ScenarioModifier, Sim, SimOptions};
 use abstutil::CmdArgs;
 use map_model::{Map, MapEdits};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
+use serde::Deserialize;
 
 const RNG_SEED: u8 = 42;
 
-#[derive(Clone)]
+#[derive(Clone, Deserialize)]
 pub struct SimFlags {
     pub load: String,
+    pub modifiers: Vec<ScenarioModifier>,
+    #[serde(skip_deserializing)]
     pub rng_seed: u8,
+    #[serde(skip_deserializing)]
     pub opts: SimOptions,
 }
 
@@ -23,6 +27,7 @@ impl SimFlags {
             load: args
                 .optional_free()
                 .unwrap_or_else(|| abstutil::path_map("montlake")),
+            modifiers: Vec::new(),
             rng_seed,
             opts: SimOptions {
                 run_name: args
@@ -61,6 +66,7 @@ impl SimFlags {
     pub fn synthetic_test(map: &str, run_name: &str) -> SimFlags {
         SimFlags {
             load: abstutil::path_map(map),
+            modifiers: Vec::new(),
             rng_seed: RNG_SEED,
             opts: SimOptions::new(run_name),
         }
@@ -103,9 +109,14 @@ impl SimFlags {
                 self.load
             ));
 
-            let scenario: Scenario = abstutil::read_binary(self.load.clone(), timer);
+            let mut scenario: Scenario = abstutil::read_binary(self.load.clone(), timer);
 
             let map = Map::new(abstutil::path_map(&scenario.map_name), timer);
+
+            let mut modifier_rng = self.make_rng();
+            for m in &self.modifiers {
+                scenario = m.apply(&map, scenario, &mut modifier_rng);
+            }
 
             if opts.run_name == "unnamed" {
                 opts.run_name = scenario.scenario_name.clone();

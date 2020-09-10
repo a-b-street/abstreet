@@ -4,9 +4,10 @@ use geom::{Duration, Time};
 use map_model::Map;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
+use serde::Deserialize;
 use std::collections::BTreeSet;
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Deserialize)]
 pub enum ScenarioModifier {
     RepeatDays(usize),
     CancelPeople(usize),
