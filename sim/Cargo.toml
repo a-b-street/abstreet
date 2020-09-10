@@ -10,9 +10,9 @@ downcast-rs = "1.1.1"
 geom = { path = "../geom" }
 instant = "0.1.2"
 libm = "0.2.1"
+log = "0.4"
 map_model = { path = "../map_model" }
 rand = "0.7.0"
 rand_distr = "0.2.2"
 rand_xorshift = "0.2.0"
 serde = "1.0.110"
-log = "0.4"

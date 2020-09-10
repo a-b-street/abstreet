@@ -110,29 +110,19 @@ impl ScenarioGenerator {
         let mut num_trips_passthru = 0;
         timer.start("create people");
 
-        let all_outgoing_borders = map.all_outgoing_borders();
-        let mut tmp_rng = abstutil::fork_rng(rng);
-        let mut get_commuter_border = || {
-            for _ in 0..50 {
-                // TODO: prefer larger thoroughfares to better reflect reality.
-                let border = all_outgoing_borders.choose(&mut tmp_rng).unwrap();
-
-                // Only consider two-way intersections, so the agent can return the same way
-                // they came.
-                // TODO: instead, if it's not a two-way border, we should find an intersection
-                // an incoming border "near" the outgoing border, to allow a broader set of
-                // realistic options.
-                if border.is_incoming_border() {
-                    return TripEndpoint::Border(border.id, None);
-                }
-            }
-            debug_assert!(
-                false,
-                "failed to find a 2 way border in a reasonable time. Degenerate map?"
-            );
-            TripEndpoint::Border(all_outgoing_borders.choose(&mut tmp_rng).unwrap().id, None)
-        };
-
+        // Only consider two-way intersections, so the agent can return the same way
+        // they came.
+        // TODO: instead, if it's not a two-way border, we should find an intersection
+        // an incoming border "near" the outgoing border, to allow a broader set of
+        // realistic options.
+        // TODO: prefer larger thoroughfares to better reflect reality.
+        let commuter_borders: Vec<TripEndpoint> = map
+            .all_outgoing_borders()
+            .into_iter()
+            .filter(|b| b.is_incoming_border())
+            .map(|b| TripEndpoint::Border(b.id, None))
+            .collect();
+        assert!(commuter_borders.len() > 0);
         let person_params = (0..num_trips)
             .map(|_| {
                 let (is_local_resident, is_local_worker) = (
@@ -147,10 +137,10 @@ impl ScenarioGenerator {
                             "unexpectedly out of residential capacity, falling back to off-map \
                              residence"
                         );
-                        get_commuter_border()
+                        commuter_borders.choose(rng).unwrap().clone()
                     }
                 } else {
-                    get_commuter_border()
+                    commuter_borders.choose(rng).unwrap().clone()
                 };
 
                 let work = if is_local_worker {
@@ -161,10 +151,10 @@ impl ScenarioGenerator {
                             "unexpectedly out of workplace capacity, falling back to off-map \
                              workplace"
                         );
-                        get_commuter_border()
+                        commuter_borders.choose(rng).unwrap().clone()
                     }
                 } else {
-                    get_commuter_border()
+                    commuter_borders.choose(rng).unwrap().clone()
                 };
 
                 match (&home, &work) {
