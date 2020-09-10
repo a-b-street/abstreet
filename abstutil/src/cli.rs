@@ -18,7 +18,7 @@ impl CmdArgs {
             last_fp_note: RwLock::new(None),
         }))
         .unwrap();
-        log::set_max_level(log::LevelFilter::Trace);
+        log::set_max_level(log::LevelFilter::Debug);
 
         let mut args = CmdArgs {
             kv: HashMap::new(),
