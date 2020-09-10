@@ -70,7 +70,7 @@ impl ScenarioGenerator {
         // scale as some factor of the people living and/or working on the map. A number of more
         // than 1.0 will primarily affect the number of "pass through" trips - people who neither
         // work nor live in the neighborhood.
-        let trip_saturation = 0.8;
+        let trip_saturation = 1.2;
         let num_trips = (trip_saturation * (residents_cap + workers_cap) as f64) as usize;
 
         // bound probabilities to ensure we're getting some diveristy of agents
@@ -194,7 +194,7 @@ impl ScenarioGenerator {
                 |(home, work, mut rng)| match create_prole(&home, &work, map, &mut rng) {
                     Ok(person) => Some(person),
                     Err(e) => {
-                        warn!("Unable to create person. e: {}", e);
+                        debug!("Unable to create person. e: {}", e);
                         None
                     }
                 },
@@ -209,14 +209,15 @@ impl ScenarioGenerator {
         timer.stop("create people");
 
         info!(
-            "TRIPS - total: {}, local: {}, commuting_in: {}, commuting_out: {}, passthru: {}",
+            "TRIPS - total: {}, local: {}, commuting_in: {}, commuting_out: {}, passthru: {}, \
+             errored: {}",
             prettyprint_usize(num_trips),
             prettyprint_usize(num_trips_local),
             prettyprint_usize(num_trips_commuting_in),
             prettyprint_usize(num_trips_commuting_out),
-            prettyprint_usize(num_trips_passthru)
+            prettyprint_usize(num_trips_passthru),
+            prettyprint_usize(num_trips - s.people.len()),
         );
-
         s
     }
 }
