@@ -522,12 +522,6 @@
 <span id="522">522</span>
 <span id="523">523</span>
 <span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -992,7 +986,6 @@
     <span class="kw">pub</span> <span class="ident">peds</span>: <span class="ident">bool</span>,
 
     <span class="kw">pub</span> <span class="ident">car_color</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">parking_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">bike_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">bus_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">ped_color</span>: <span class="ident">Color</span>,
@@ -1007,7 +1000,6 @@
             <span class="ident">peds</span>: <span class="bool-val">true</span>,
 
             <span class="ident">car_color</span>: <span class="ident">cs</span>.<span class="ident">unzoomed_car</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
-            <span class="ident">parking_color</span>: <span class="ident">cs</span>.<span class="ident">parking_trip</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
             <span class="ident">bike_color</span>: <span class="ident">cs</span>.<span class="ident">unzoomed_bike</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
             <span class="ident">bus_color</span>: <span class="ident">cs</span>.<span class="ident">unzoomed_bus</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
             <span class="ident">ped_color</span>: <span class="ident">cs</span>.<span class="ident">unzoomed_pedestrian</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
@@ -1018,11 +1010,7 @@
         <span class="kw">match</span> <span class="ident">agent</span>.<span class="ident">vehicle_type</span> {
             <span class="prelude-val">Some</span>(<span class="ident">VehicleType</span>::<span class="ident">Car</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cars</span> {
-                    <span class="kw">if</span> <span class="ident">agent</span>.<span class="ident">parking</span> {
-                        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">parking_color</span>)
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">car_color</span>)
-                    }
+                    <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">car_color</span>)
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
                 }
