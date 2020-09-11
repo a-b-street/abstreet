@@ -76,7 +76,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
                 name
             ))),
             map_config: map_model::MapConfig {
-                driving_side: map_model::raw::DrivingSide::Right,
+                driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
             },
 

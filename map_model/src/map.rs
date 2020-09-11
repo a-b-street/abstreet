@@ -1,4 +1,4 @@
-use crate::raw::{DrivingSide, OriginalRoad, RawMap};
+use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     osm, Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID,
@@ -16,6 +16,12 @@ pub struct MapConfig {
     // (Australia).
     pub driving_side: DrivingSide,
     pub bikes_can_use_bus_lanes: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+pub enum DrivingSide {
+    Right,
+    Left,
 }
 
 impl Map {

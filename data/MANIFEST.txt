@@ -30,7 +30,7 @@ data/input/screenshots/downtown.zip,21838ff62b31b2d6d4860a7f3d08f921,https://www
 data/input/screenshots/krakow_center.zip,1274855e993e09015c3b00127bf0da97,https://www.dropbox.com/s/azea6v6mnxbe0vc/krakow_center.zip.zip?dl=0
 data/input/screenshots/lakeslice.zip,adedabf6ee4e30f8e386762f860176d8,https://www.dropbox.com/s/06mwgdt6orow3rk/lakeslice.zip.zip?dl=0
 data/input/screenshots/montlake.zip,158ec5f3913f62519fbbeb5a6f47f9cd,https://www.dropbox.com/s/eblgq5zj3gflhwx/montlake.zip.zip?dl=0
-data/input/screenshots/southbank.zip,6abe141b2d2bc5cdb01bff31aaa093ca,https://www.dropbox.com/s/2smj2sw9gq7ajwx/southbank.zip.zip?dl=0
+data/input/screenshots/southbank.zip,f493316722b29ab42e6109bb6311f003,https://www.dropbox.com/s/2smj2sw9gq7ajwx/southbank.zip.zip?dl=0
 data/input/screenshots/udistrict.zip,8a98fae6bc9d995f9e1ab4c91d0d7a23,https://www.dropbox.com/s/nlyxnfy11qszk50/udistrict.zip.zip?dl=0
 data/input/seattle/N47W122.hgt,0db4e23e51f7680538b0bbbc72208e07,https://www.dropbox.com/s/mmb4mgutwotijdw/N47W122.hgt.zip?dl=0
 data/input/seattle/blockface.bin,add872bab9040ae911366328a230f8b5,https://www.dropbox.com/s/rxd2care60tbe75/blockface.bin.zip?dl=0
@@ -81,7 +81,7 @@ data/system/maps/krakow_center.bin,6afff901089e471319e431eb315c3aa5,https://www.
 data/system/maps/lakeslice.bin,010d3809df70cec292761318ee1fb93d,https://www.dropbox.com/s/xsn14dejmbbwe0u/lakeslice.bin.zip?dl=0
 data/system/maps/montlake.bin,ef0ff917c1e4779397f4f9a5dfedba3b,https://www.dropbox.com/s/q6h442i2dypulbm/montlake.bin.zip?dl=0
 data/system/maps/south_seattle.bin,083fc121d4662abc3c450c7772ad90fd,https://www.dropbox.com/s/oukzw5jyjk5kfto/south_seattle.bin.zip?dl=0
-data/system/maps/southbank.bin,46292cbecc0cbadbe26b3cc7814e68d5,https://www.dropbox.com/s/45l1jh364k1uh0r/southbank.bin.zip?dl=0
+data/system/maps/southbank.bin,f52fed4d51dd88c38ce57b66c01e1458,https://www.dropbox.com/s/aczckltw2l6emy5/southbank.bin.zip?dl=0
 data/system/maps/tel_aviv.bin,5bd855d65927b212437a3470c89f4fd7,https://www.dropbox.com/s/q5dg3fv5aac9aeh/tel_aviv.bin.zip?dl=0
 data/system/maps/udistrict.bin,ed5ebce6a0c5eea7c7ecac346fdb568e,https://www.dropbox.com/s/d4zi6971rd60z5i/udistrict.bin.zip?dl=0
 data/system/maps/west_seattle.bin,96b5d7b88b0e25ec9027d71c5a12c163,https://www.dropbox.com/s/81imjd43dm5d3kn/west_seattle.bin.zip?dl=0

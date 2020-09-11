@@ -2,11 +2,10 @@ mod compat;
 mod perma;
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
-use crate::raw::DrivingSide;
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
-    IntersectionID, IntersectionType, LaneID, LaneType, Map, PathConstraints, Pathfinder, Road,
-    RoadID, TurnID, Zone,
+    DrivingSide, IntersectionID, IntersectionType, LaneID, LaneType, Map, PathConstraints,
+    Pathfinder, Road, RoadID, TurnID, Zone,
 };
 use abstutil::{retain_btreemap, retain_btreeset, Timer};
 use geom::{Speed, Time};

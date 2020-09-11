@@ -1,4 +1,7 @@
-use crate::{osm, IntersectionID, LaneID, Map, RoadID, TurnID, TurnPriority, TurnType};
+use crate::{
+    osm, Direction, DrivingSide, IntersectionID, LaneID, Map, RoadID, TurnID, TurnPriority,
+    TurnType,
+};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
@@ -39,7 +42,7 @@ pub struct ControlStopSign {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct RoadWithStopSign {
-    pub rightmost_lane: LaneID,
+    pub lane_closest_to_edge: LaneID,
     pub must_stop: bool,
 }
 
@@ -50,23 +53,35 @@ impl ControlStopSign {
             roads: BTreeMap::new(),
         };
         for r in &map.get_i(id).roads {
-            let travel_lanes: Vec<LaneID> = map
-                .get_r(*r)
-                .incoming_lanes(id)
-                .iter()
-                .filter_map(|(id, lt)| {
-                    if lt.is_for_moving_vehicles() {
-                        Some(*id)
+            let r = map.get_r(*r);
+            let want_dir = if r.dst_i == id {
+                Direction::Fwd
+            } else {
+                Direction::Back
+            };
+            let travel_lanes: Vec<LaneID> = r
+                .lanes_ltr()
+                .into_iter()
+                .filter_map(|(id, dir, lt)| {
+                    if dir == want_dir && lt.is_for_moving_vehicles() {
+                        Some(id)
                     } else {
                         None
                     }
                 })
                 .collect();
             if !travel_lanes.is_empty() {
+                let lane_closest_to_edge = if (map.get_config().driving_side == DrivingSide::Right)
+                    == (want_dir == Direction::Fwd)
+                {
+                    *travel_lanes.last().unwrap()
+                } else {
+                    travel_lanes[0]
+                };
                 ss.roads.insert(
-                    *r,
+                    r.id,
                     RoadWithStopSign {
-                        rightmost_lane: *travel_lanes.last().unwrap(),
+                        lane_closest_to_edge,
                         must_stop: false,
                     },
                 );

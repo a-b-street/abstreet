@@ -1,5 +1,7 @@
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
-use crate::{osm, AreaType, Direction, IntersectionType, LaneType, MapConfig, NamePerLanguage};
+use crate::{
+    osm, AreaType, Direction, DrivingSide, IntersectionType, LaneType, MapConfig, NamePerLanguage,
+};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 use petgraph::graphmap::DiGraphMap;
@@ -349,12 +351,6 @@ impl RestrictionType {
             None
         }
     }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
-pub enum DrivingSide {
-    Right,
-    Left,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

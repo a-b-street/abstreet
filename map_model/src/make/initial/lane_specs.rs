@@ -1,6 +1,6 @@
-use crate::raw::DrivingSide;
 use crate::{
-    osm, Direction, LaneType, NORMAL_LANE_THICKNESS, SHOULDER_THICKNESS, SIDEWALK_THICKNESS,
+    osm, Direction, DrivingSide, LaneType, NORMAL_LANE_THICKNESS, SHOULDER_THICKNESS,
+    SIDEWALK_THICKNESS,
 };
 use abstutil::Tags;
 use geom::Distance;

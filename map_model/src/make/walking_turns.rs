@@ -1,7 +1,6 @@
-use crate::raw::DrivingSide;
 use crate::{
-    Direction, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, Road, Turn, TurnID,
-    TurnType,
+    Direction, DrivingSide, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, Road, Turn,
+    TurnID, TurnType,
 };
 use abstutil::{wraparound_get, Timer};
 use geom::{Distance, Line, PolyLine, Pt2D, Ring};

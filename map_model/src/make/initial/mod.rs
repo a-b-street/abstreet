@@ -2,8 +2,8 @@ mod geometry;
 pub mod lane_specs;
 
 pub use self::geometry::intersection_polygon;
-use crate::raw::{DrivingSide, OriginalRoad, RawMap, RawRoad};
-use crate::{osm, IntersectionType};
+use crate::raw::{OriginalRoad, RawMap, RawRoad};
+use crate::{osm, DrivingSide, IntersectionType};
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use lane_specs::LaneSpec;

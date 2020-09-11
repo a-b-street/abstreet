@@ -210,9 +210,9 @@ fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool, build_c
             clip,
             map_config: map_model::MapConfig {
                 driving_side: if drive_on_right {
-                    map_model::raw::DrivingSide::Right
+                    map_model::DrivingSide::Right
                 } else {
-                    map_model::raw::DrivingSide::Left
+                    map_model::DrivingSide::Left
                 },
                 bikes_can_use_bus_lanes: true,
             },

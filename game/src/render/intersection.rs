@@ -7,8 +7,8 @@ use crate::render::{
 };
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
-    Direction, Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn,
-    TurnType, SIDEWALK_THICKNESS,
+    Direction, DrivingSide, Intersection, IntersectionID, IntersectionType, Map, Road,
+    RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
 };
 use std::cell::RefCell;
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, RewriteColor, Text};
@@ -95,17 +95,21 @@ impl DrawIntersection {
     // Returns the (octagon, pole) if there's room to draw it.
     pub fn stop_sign_geom(ss: &RoadWithStopSign, map: &Map) -> Option<(Polygon, Polygon)> {
         let trim_back = Distance::meters(0.1);
-        let rightmost = map.get_l(ss.rightmost_lane);
+        let edge_lane = map.get_l(ss.lane_closest_to_edge);
         // TODO The dream of trimming f64's was to isolate epsilon checks like this...
-        if rightmost.length() - trim_back <= EPSILON_DIST {
+        if edge_lane.length() - trim_back <= EPSILON_DIST {
             // TODO warn
             return None;
         }
-        let last_line = rightmost
+        let last_line = edge_lane
             .lane_center_pts
-            .exact_slice(Distance::ZERO, rightmost.length() - trim_back)
-            .last_line()
-            .shift_right(rightmost.width);
+            .exact_slice(Distance::ZERO, edge_lane.length() - trim_back)
+            .last_line();
+        let last_line = if map.get_config().driving_side == DrivingSide::Right {
+            last_line.shift_right(edge_lane.width)
+        } else {
+            last_line.shift_left(edge_lane.width)
+        };
 
         let octagon = make_octagon(last_line.pt2(), Distance::meters(1.0), last_line.angle());
         let pole = Line::must_new(
