@@ -272,7 +272,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">DrivingSide</span>, <span class="ident">Map</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>, <span class="ident">PedCrowdLocation</span>, <span class="ident">PedestrianID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Prerender</span>, <span class="ident">Text</span>};
 
@@ -474,7 +474,7 @@
         <span class="kw">let</span> <span class="ident">pl_shifted</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">location</span> {
             <span class="ident">PedCrowdLocation</span>::<span class="ident">Sidewalk</span>(<span class="ident">on</span>, <span class="ident">contraflow</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">pl_slice</span> <span class="op">=</span> <span class="ident">on</span>.<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>, <span class="ident">map</span>);
-                <span class="kw">if</span> <span class="ident">contraflow</span> {
+                <span class="kw">if</span> <span class="ident">contraflow</span> <span class="op">=</span><span class="op">=</span> (<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span>) {
                     <span class="ident">pl_slice</span>.<span class="ident">shift_left</span>(<span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>)
                 } <span class="kw">else</span> {
                     <span class="ident">pl_slice</span>.<span class="ident">shift_right</span>(<span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>)
