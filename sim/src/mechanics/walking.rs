@@ -8,7 +8,8 @@ use crate::{
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, Map, ParkingLotID, Path, PathStep, Traversable, SIDEWALK_THICKNESS,
+    BuildingID, BusRouteID, DrivingSide, Map, ParkingLotID, Path, PathStep, Traversable,
+    SIDEWALK_THICKNESS,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -555,6 +556,11 @@ impl Pedestrian {
     fn get_draw_ped(&self, now: Time, map: &Map) -> DrawPedestrianInput {
         let on = self.path.current_step().as_traversable();
         let err = format!("at {}, {}'s position is broken", now, self.id);
+        let angle_offset = if map.get_config().driving_side == DrivingSide::Right {
+            90.0
+        } else {
+            270.0
+        };
         let (pos, facing) = match self.state {
             PedState::Crossing(ref dist_int, ref time_int) => {
                 let percent = if now > time_int.end {
@@ -569,7 +575,7 @@ impl Pedestrian {
                     orig_angle.opposite()
                 };
                 (
-                    pos.project_away(SIDEWALK_THICKNESS / 4.0, facing.rotate_degs(90.0)),
+                    pos.project_away(SIDEWALK_THICKNESS / 4.0, facing.rotate_degs(angle_offset)),
                     facing,
                 )
             }
@@ -581,7 +587,7 @@ impl Pedestrian {
                     orig_angle
                 };
                 (
-                    pos.project_away(SIDEWALK_THICKNESS / 4.0, facing.rotate_degs(90.0)),
+                    pos.project_away(SIDEWALK_THICKNESS / 4.0, facing.rotate_degs(angle_offset)),
                     facing,
                 )
             }
@@ -635,8 +641,8 @@ impl Pedestrian {
                 let (pt, angle) = self.goal.sidewalk_pos.pt_and_angle(map);
                 // Stand on the far side of the sidewalk (by the bus stop), facing the road
                 (
-                    pt.project_away(SIDEWALK_THICKNESS / 4.0, angle.rotate_degs(90.0)),
-                    angle.rotate_degs(-90.0),
+                    pt.project_away(SIDEWALK_THICKNESS / 4.0, angle.rotate_degs(angle_offset)),
+                    angle.rotate_degs(-angle_offset),
                 )
             }
         };

@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon};
-use map_model::{Map, SIDEWALK_THICKNESS};
+use map_model::{DrivingSide, Map, SIDEWALK_THICKNESS};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
@@ -205,7 +205,7 @@ impl DrawPedCrowd {
         let pl_shifted = match input.location {
             PedCrowdLocation::Sidewalk(on, contraflow) => {
                 let pl_slice = on.exact_slice(input.low, input.high, map);
-                if contraflow {
+                if contraflow == (map.get_config().driving_side == DrivingSide::Right) {
                     pl_slice.shift_left(SIDEWALK_THICKNESS / 4.0)
                 } else {
                     pl_slice.shift_right(SIDEWALK_THICKNESS / 4.0)
