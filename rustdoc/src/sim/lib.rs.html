@@ -633,6 +633,17 @@
 <span id="633">633</span>
 <span id="634">634</span>
 <span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">analytics</span>;
 <span class="kw">mod</span> <span class="ident">cap</span>;
@@ -809,6 +820,17 @@
             <span class="ident">AgentType</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Train&quot;</span>,
             <span class="ident">AgentType</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Pedestrian&quot;</span>,
             <span class="ident">AgentType</span>::<span class="ident">TransitRider</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Transit rider&quot;</span>,
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plural_noun</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">AgentType</span>::<span class="ident">Car</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;cars&quot;</span>,
+            <span class="ident">AgentType</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;bikes&quot;</span>,
+            <span class="ident">AgentType</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;buses&quot;</span>,
+            <span class="ident">AgentType</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;trains&quot;</span>,
+            <span class="ident">AgentType</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;pedestrians&quot;</span>,
+            <span class="ident">AgentType</span>::<span class="ident">TransitRider</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;transit riders&quot;</span>,
         }
     }
 

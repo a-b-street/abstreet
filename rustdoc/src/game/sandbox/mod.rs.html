@@ -498,6 +498,23 @@
 <span id="498">498</span>
 <span id="499">499</span>
 <span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">dashboards</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gameplay</span>;
@@ -804,32 +821,49 @@
         <span class="kw">let</span> (<span class="ident">finished</span>, <span class="ident">unfinished</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_trips</span>();
         <span class="kw">let</span> <span class="ident">by_type</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_agents</span>();
 
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> (<span class="ident">agent_type</span>, <span class="ident">name</span>) <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
+            (<span class="ident">AgentType</span>::<span class="ident">Pedestrian</span>, <span class="string">&quot;pedestrian&quot;</span>),
+            (<span class="ident">AgentType</span>::<span class="ident">Bike</span>, <span class="string">&quot;bike&quot;</span>),
+            (<span class="ident">AgentType</span>::<span class="ident">Car</span>, <span class="string">&quot;car&quot;</span>),
+        ] {
+            <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">prettyprint_usize</span>(<span class="ident">by_type</span>.<span class="ident">get</span>(<span class="ident">agent_type</span>));
+            <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget</span>::<span class="ident">draw_svg_with_tooltip</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/assets/meters/{}.svg&quot;</span>, <span class="ident">name</span>),
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} {}&quot;</span>, <span class="ident">n</span>, <span class="ident">agent_type</span>.<span class="ident">plural_noun</span>()))),
+                )
+                .<span class="ident">margin_right</span>(<span class="number">5</span>),
+                <span class="ident">n</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            ]));
+        }
+        <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget</span>::<span class="ident">draw_svg_with_tooltip</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;system/assets/meters/bus.svg&quot;</span>,
+                <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot;{} public transit passengers&quot;</span>,
+                        <span class="ident">prettyprint_usize</span>(<span class="ident">by_type</span>.<span class="ident">get</span>(<span class="ident">AgentType</span>::<span class="ident">TransitRider</span>))
+                    )),
+                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot;{} buses&quot;</span>,
+                        <span class="ident">prettyprint_usize</span>(<span class="ident">by_type</span>.<span class="ident">get</span>(<span class="ident">AgentType</span>::<span class="ident">Bus</span>))
+                    )),
+                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot;{} trains&quot;</span>,
+                        <span class="ident">prettyprint_usize</span>(<span class="ident">by_type</span>.<span class="ident">get</span>(<span class="ident">AgentType</span>::<span class="ident">Train</span>))
+                    )),
+                ]),
+            )
+            .<span class="ident">margin_right</span>(<span class="number">5</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">by_type</span>.<span class="ident">get</span>(<span class="ident">AgentType</span>::<span class="ident">TransitRider</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+        ]));
+
         <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="string">&quot;Active trips&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>).<span class="ident">margin_right</span>(<span class="number">5</span>),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">by_type</span>.<span class="ident">get</span>(<span class="ident">AgentType</span>::<span class="ident">Pedestrian</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                ]),
-                <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>).<span class="ident">margin_right</span>(<span class="number">5</span>),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">by_type</span>.<span class="ident">get</span>(<span class="ident">AgentType</span>::<span class="ident">Bike</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                ]),
-                <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/meters/car.svg&quot;</span>).<span class="ident">margin_right</span>(<span class="number">5</span>),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">by_type</span>.<span class="ident">get</span>(<span class="ident">AgentType</span>::<span class="ident">Car</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                ]),
-                <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/meters/bus.svg&quot;</span>).<span class="ident">margin_right</span>(<span class="number">5</span>),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">by_type</span>.<span class="ident">get</span>(<span class="ident">AgentType</span>::<span class="ident">Bus</span>) <span class="op">+</span> <span class="ident">by_type</span>.<span class="ident">get</span>(<span class="ident">AgentType</span>::<span class="ident">Train</span>))
-                        .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                ]),
-                <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/meters/passenger.svg&quot;</span>).<span class="ident">margin_right</span>(<span class="number">5</span>),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">by_type</span>.<span class="ident">get</span>(<span class="ident">AgentType</span>::<span class="ident">TransitRider</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                ]),
-            ])
-            .<span class="ident">centered</span>(),
+            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">centered</span>(),
             <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 {
