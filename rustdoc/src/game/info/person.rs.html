@@ -633,6 +633,11 @@
 <span id="633">633</span>
 <span id="634">634</span>
 <span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">building</span>, <span class="ident">header_btns</span>, <span class="ident">make_table</span>, <span class="ident">make_tabs</span>, <span class="ident">trip</span>, <span class="ident">Details</span>, <span class="ident">OpenTrip</span>, <span class="ident">Tab</span>};
@@ -792,6 +797,11 @@
             .<span class="ident">margin_right</span>(<span class="number">21</span>),
             <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">modified</span> {
                 <span class="ident">Line</span>(<span class="string">&quot;modified&quot;</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">margin_right</span>(<span class="number">15</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+            },
+            <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">capped</span> {
+                <span class="ident">Line</span>(<span class="string">&quot;capped&quot;</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">margin_right</span>(<span class="number">15</span>)
             } <span class="kw">else</span> {
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },

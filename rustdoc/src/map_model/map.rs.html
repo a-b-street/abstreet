@@ -644,6 +644,14 @@
 <span id="644">644</span>
 <span id="645">645</span>
 <span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1180,6 +1188,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
         <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="self">self</span>)
+    }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_avoiding_zones</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
+        <span class="ident">avoid</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
+        <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">pathfind_avoiding_zones</span>(<span class="ident">req</span>, <span class="ident">avoid</span>, <span class="self">self</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">should_use_transit</span>(
