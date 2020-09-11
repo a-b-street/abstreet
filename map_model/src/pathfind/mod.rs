@@ -17,7 +17,7 @@ use abstutil::Timer;
 use enumset::EnumSetType;
 use geom::{Distance, PolyLine, EPSILON_DIST};
 use serde::{Deserialize, Serialize};
-use std::collections::VecDeque;
+use std::collections::{BTreeSet, VecDeque};
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -600,6 +600,14 @@ impl Pathfinder {
             Pathfinder::Dijkstra => dijkstra::pathfind(req, map),
             Pathfinder::CH(ref p) => p.pathfind(req, map),
         }
+    }
+    pub fn pathfind_avoiding_zones(
+        &self,
+        req: PathRequest,
+        avoid: BTreeSet<LaneID>,
+        map: &Map,
+    ) -> Option<Path> {
+        dijkstra::pathfind_avoiding_zones(req, avoid, map)
     }
 
     pub fn should_use_transit(

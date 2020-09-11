@@ -335,27 +335,22 @@ impl DrivingSimState {
                 let goto = car.router.next();
                 assert!(from != goto);
 
-                match goto {
-                    Traversable::Turn(t) => {
-                        let mut speed = goto.speed_limit(ctx.map);
-                        if let Some(s) = car.vehicle.max_speed {
-                            speed = speed.min(s);
-                        }
-                        if !ctx.intersections.maybe_start_turn(
-                            AgentID::Car(car.vehicle.id),
-                            t,
-                            speed,
-                            now,
-                            ctx.map,
-                            ctx.scheduler,
-                            Some((&car, &self.cars, &mut self.queues)),
-                        ) {
-                            // Don't schedule a retry here.
-                            return false;
-                        }
+                if let Traversable::Turn(t) = goto {
+                    let mut speed = goto.speed_limit(ctx.map);
+                    if let Some(s) = car.vehicle.max_speed {
+                        speed = speed.min(s);
                     }
-                    Traversable::Lane(l) => {
-                        ctx.cap.car_entering_lane(now, car.vehicle.id, l);
+                    if !ctx.intersections.maybe_start_turn(
+                        AgentID::Car(car.vehicle.id),
+                        t,
+                        speed,
+                        now,
+                        ctx.map,
+                        ctx.scheduler,
+                        Some((&car, &self.cars, &mut self.queues)),
+                    ) {
+                        // Don't schedule a retry here.
+                        return false;
                     }
                 }
 
