@@ -1,15 +1,8 @@
 use crate::{CarID, VehicleType};
 use geom::{Duration, Time};
-use map_model::{LaneID, Map, Path, PathConstraints, PathStep};
+use map_model::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
-
-// TODO When do we increase the counter for a zone, and when do we enforce the check? If we check
-// when the trip starts and increase when the car enters the zone, then lots of cars starting at
-// the same time can exceed the cap. If we check AND reserve when the trip starts, then the cap is
-// obeyed, but the "reservation" applies immediately, even if the car is far away from the zone.
-// This seems more reasonable for now, but leave it as a flag until GLT clarifies.
-const RESERVE_WHEN_STARTING_TRIP: bool = true;
 
 // Note this only indexes into the zones we track here, not all of them in the map.
 type ZoneIdx = usize;
@@ -55,28 +48,8 @@ impl CapSimState {
         sim
     }
 
-    pub fn car_entering_lane(&mut self, now: Time, car: CarID, lane: LaneID) {
-        if RESERVE_WHEN_STARTING_TRIP {
-            return;
-        }
+    fn allow_trip(&mut self, now: Time, car: CarID, path: &Path) -> bool {
         if car.1 != VehicleType::Car {
-            return;
-        }
-        let zone = if let Some(idx) = self.lane_to_zone.get(&lane) {
-            &mut self.zones[*idx]
-        } else {
-            return;
-        };
-
-        if now - zone.hour_started >= Duration::hours(1) {
-            zone.hour_started = Time::START_OF_DAY + Duration::hours(now.get_parts().0);
-            zone.entered_in_last_hour.clear();
-        }
-        zone.entered_in_last_hour.insert(car);
-    }
-
-    pub fn allow_trip(&mut self, now: Time, car: CarID, path: &Path) -> bool {
-        if car.1 != VehicleType::Car || !RESERVE_WHEN_STARTING_TRIP {
             return true;
         }
         for step in path.get_steps() {
@@ -89,7 +62,9 @@ impl CapSimState {
                         zone.entered_in_last_hour.clear();
                     }
 
-                    if zone.entered_in_last_hour.len() >= zone.cap {
+                    if zone.entered_in_last_hour.len() >= zone.cap
+                        && !zone.entered_in_last_hour.contains(&car)
+                    {
                         return false;
                     }
                     zone.entered_in_last_hour.insert(car);
@@ -97,6 +72,33 @@ impl CapSimState {
             }
         }
         true
+    }
+
+    pub fn validate_path(
+        &mut self,
+        req: &PathRequest,
+        path: Path,
+        now: Time,
+        car: CarID,
+        map: &Map,
+    ) -> Option<Path> {
+        if self.allow_trip(now, car, &path) {
+            return Some(path);
+        }
+
+        // TODO Make the responses configurable: abort the trip, reroute, delay an hour, switch
+        // modes. Where should this policy be specified? Is it simulation-wide?
+
+        let mut avoid_lanes: BTreeSet<LaneID> = BTreeSet::new();
+        for (l, idx) in &self.lane_to_zone {
+            let zone = &self.zones[*idx];
+            if zone.entered_in_last_hour.len() >= zone.cap
+                && !zone.entered_in_last_hour.contains(&car)
+            {
+                avoid_lanes.insert(*l);
+            }
+        }
+        map.pathfind_avoiding_zones(req.clone(), avoid_lanes)
     }
 
     pub fn get_cap_counter(&self, l: LaneID) -> usize {

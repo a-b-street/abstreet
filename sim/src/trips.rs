@@ -279,55 +279,43 @@ impl TripManager {
             end,
             constraints: PathConstraints::Car,
         };
-        let path = if let Some(p) = ctx.map.pathfind(req.clone()) {
-            p
-        } else {
-            self.events.push(Event::Alert(
-                AlertLocation::Person(trip.person),
-                format!(
-                    "Aborting {} because no path for the car portion! {} to {}",
-                    trip.id, start, end
-                ),
-            ));
-            // Move the car to the destination...
-            ctx.parking.remove_parked_car(parked_car.clone());
-            let trip = trip.id;
-            self.abort_trip(now, trip, Some(parked_car.vehicle), ctx);
-            return;
-        };
 
-        if !ctx.cap.allow_trip(now, parked_car.vehicle.id, &path) {
-            // TODO Different ways to handle this: abort the trip, delay it an hour, route around
-            // the zone, switch modes...
-            self.events.push(Event::Alert(
-                AlertLocation::Person(trip.person),
-                format!(
-                    "Aborting {} because it would exceed the cap through some zone",
-                    trip.id
-                ),
-            ));
-            // Move the car to the destination...
-            ctx.parking.remove_parked_car(parked_car.clone());
-            let trip = trip.id;
-            self.abort_trip(now, trip, Some(parked_car.vehicle), ctx);
-            return;
+        match ctx.map.pathfind(req.clone()).and_then(|path| {
+            ctx.cap
+                .validate_path(&req, path, now, parked_car.vehicle.id, ctx.map)
+        }) {
+            Some(path) => {
+                let router = drive_to.make_router(parked_car.vehicle.id, path, ctx.map);
+                ctx.scheduler.push(
+                    now,
+                    Command::SpawnCar(
+                        CreateCar::for_parked_car(
+                            parked_car,
+                            router,
+                            req,
+                            start.dist_along(),
+                            trip.id,
+                            trip.person,
+                        ),
+                        true,
+                    ),
+                );
+            }
+            None => {
+                // TODO The reason might be exceeding the cap
+                self.events.push(Event::Alert(
+                    AlertLocation::Person(trip.person),
+                    format!(
+                        "Aborting {} because no path for the car portion! {} to {}",
+                        trip.id, start, end
+                    ),
+                ));
+                // Move the car to the destination...
+                ctx.parking.remove_parked_car(parked_car.clone());
+                let trip = trip.id;
+                self.abort_trip(now, trip, Some(parked_car.vehicle), ctx);
+            }
         }
-
-        let router = drive_to.make_router(parked_car.vehicle.id, path, ctx.map);
-        ctx.scheduler.push(
-            now,
-            Command::SpawnCar(
-                CreateCar::for_parked_car(
-                    parked_car,
-                    router,
-                    req,
-                    start.dist_along(),
-                    trip.id,
-                    trip.person,
-                ),
-                true,
-            ),
-        );
     }
 
     pub fn ped_ready_to_bike(
@@ -1028,39 +1016,32 @@ impl TripManager {
                 let vehicle = person.get_vehicle(use_vehicle);
                 assert!(ctx.parking.lookup_parked_car(vehicle.id).is_none());
                 let req = maybe_req.unwrap();
-                if let Some(router) =
-                    maybe_path.map(|path| goal.make_router(vehicle.id, path, ctx.map))
+                match maybe_path
+                    .and_then(|path| ctx.cap.validate_path(&req, path, now, vehicle.id, ctx.map))
                 {
-                    if !ctx.cap.allow_trip(now, vehicle.id, router.get_path()) {
+                    Some(path) => {
+                        let router = goal.make_router(vehicle.id, path, ctx.map);
+                        ctx.scheduler.push(
+                            now,
+                            Command::SpawnCar(
+                                CreateCar::for_appearing(
+                                    vehicle, start_pos, router, req, trip, person.id,
+                                ),
+                                retry_if_no_room,
+                            ),
+                        );
+                    }
+                    None => {
+                        // TODO Reason might be related to cap
                         self.events.push(Event::Alert(
                             AlertLocation::Person(person.id),
                             format!(
-                                "Aborting {} because it would exceed the cap through some zone",
-                                trip
+                                "VehicleAppearing trip couldn't find the first path: {}",
+                                req
                             ),
                         ));
                         self.abort_trip(now, trip, Some(vehicle), ctx);
-                        return;
                     }
-
-                    ctx.scheduler.push(
-                        now,
-                        Command::SpawnCar(
-                            CreateCar::for_appearing(
-                                vehicle, start_pos, router, req, trip, person.id,
-                            ),
-                            retry_if_no_room,
-                        ),
-                    );
-                } else {
-                    self.events.push(Event::Alert(
-                        AlertLocation::Person(person.id),
-                        format!(
-                            "VehicleAppearing trip couldn't find the first path: {}",
-                            req
-                        ),
-                    ));
-                    self.abort_trip(now, trip, Some(vehicle), ctx);
                 }
             }
             TripSpec::NoRoomToSpawn {

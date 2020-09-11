@@ -4,6 +4,7 @@ use crate::pathfind::walking::{
 };
 use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, TurnID};
 use petgraph::graphmap::DiGraphMap;
+use std::collections::BTreeSet;
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
 
@@ -26,6 +27,28 @@ pub fn pathfind(req: PathRequest, map: &Map) -> Option<Path> {
         }
     }
 
+    calc_path(graph, req, map)
+}
+
+pub fn pathfind_avoiding_zones(
+    req: PathRequest,
+    avoid: BTreeSet<LaneID>,
+    map: &Map,
+) -> Option<Path> {
+    assert_eq!(req.constraints, PathConstraints::Car);
+    let mut graph: DiGraphMap<LaneID, TurnID> = DiGraphMap::new();
+    for l in map.all_lanes() {
+        if req.constraints.can_use(l, map) && !avoid.contains(&l.id) {
+            for turn in map.get_turns_for(l.id, req.constraints) {
+                graph.add_edge(turn.id.src, turn.id.dst, turn.id);
+            }
+        }
+    }
+
+    calc_path(graph, req, map)
+}
+
+fn calc_path(graph: DiGraphMap<LaneID, TurnID>, req: PathRequest, map: &Map) -> Option<Path> {
     let (_, path) = petgraph::algo::astar(
         &graph,
         req.start.lane(),
