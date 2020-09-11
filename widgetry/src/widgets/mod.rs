@@ -19,8 +19,8 @@ pub mod text_box;
 use crate::widgets::containers::{Container, Nothing};
 pub use crate::widgets::panel::Panel;
 use crate::{
-    Button, Choice, Color, DeferDraw, Drawable, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw,
-    Menu, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, TextBox,
+    Button, Choice, Color, DeferDraw, DrawWithTooltips, Drawable, Dropdown, EventCtx, GeomBatch,
+    GfxCtx, JustDraw, Menu, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, TextBox,
 };
 use geom::{Distance, Percent, Polygon};
 use std::collections::HashSet;
@@ -307,6 +307,22 @@ impl Widget {
     }
     pub fn draw_svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> Widget {
         JustDraw::svg_transform(ctx, filename, rewrite)
+    }
+    pub fn draw_svg_with_tooltip<I: Into<String>>(
+        ctx: &EventCtx,
+        filename: I,
+        tooltip: Text,
+    ) -> Widget {
+        let (mut batch, bounds) = crate::svg::load_svg(ctx.prerender, &filename.into());
+        // Preserve the whitespace in the SVG.
+        // TODO Maybe always do this, add a way to autocrop() to remove it if needed.
+        batch.push(Color::INVISIBLE, bounds.get_rectangle());
+        DrawWithTooltips::new(
+            ctx,
+            batch,
+            vec![(bounds.get_rectangle(), tooltip)],
+            Box::new(|_| GeomBatch::new()),
+        )
     }
 
     // TODO Likewise

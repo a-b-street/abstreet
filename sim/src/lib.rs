@@ -176,6 +176,17 @@ impl AgentType {
         }
     }
 
+    pub fn plural_noun(self) -> &'static str {
+        match self {
+            AgentType::Car => "cars",
+            AgentType::Bike => "bikes",
+            AgentType::Bus => "buses",
+            AgentType::Train => "trains",
+            AgentType::Pedestrian => "pedestrians",
+            AgentType::TransitRider => "transit riders",
+        }
+    }
+
     pub fn ongoing_verb(self) -> &'static str {
         match self {
             AgentType::Car => "driving",
