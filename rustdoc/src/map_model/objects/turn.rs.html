@@ -477,13 +477,13 @@
     }
 
     <span class="comment">// TODO Maybe precompute this.</span>
-    <span class="comment">// penalties for (lane types, lane-changing, rightmost)</span>
+    <span class="comment">// penalties for (lane types, lane-changing, slow lane)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">penalty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">src</span>);
         <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
 
-        <span class="comment">// Starting from the right / farthest from the center line, where is this travel lane?</span>
-        <span class="comment">// Filters by the lane type and ignores lanes that don&#39;t go to the target road.</span>
+        <span class="comment">// Starting from the farthest from the center line (right in the US), where is this travel</span>
+        <span class="comment">// lane? Filters by the lane type and ignores lanes that don&#39;t go to the target road.</span>
         <span class="kw">let</span> <span class="ident">from_idx</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">from</span>.<span class="ident">parent</span>);
@@ -505,8 +505,8 @@
             <span class="ident">cnt</span>
         };
 
-        <span class="comment">// Starting from the right / farthest from the center line, where is this travel lane?</span>
-        <span class="comment">// Filters by the lane type.</span>
+        <span class="comment">// Starting from the farthest from the center line (right in the US), where is this travel</span>
+        <span class="comment">// lane? Filters by the lane type.</span>
         <span class="kw">let</span> <span class="ident">to_idx</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">to</span>.<span class="ident">parent</span>);
@@ -534,10 +534,10 @@
         <span class="comment">// matter.</span>
         <span class="kw">let</span> <span class="ident">lt_cost</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">to</span>.<span class="ident">is_biking</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">to</span>.<span class="ident">is_bus</span>() { <span class="number">0</span> } <span class="kw">else</span> { <span class="number">1</span> };
 
-        <span class="comment">// Keep right</span>
-        <span class="kw">let</span> <span class="ident">rightmost</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">to_idx</span> <span class="op">&gt;</span> <span class="number">1</span> { <span class="number">1</span> } <span class="kw">else</span> { <span class="number">0</span> };
+        <span class="comment">// Keep right (in the US)</span>
+        <span class="kw">let</span> <span class="ident">slow_lane</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">to_idx</span> <span class="op">&gt;</span> <span class="number">1</span> { <span class="number">1</span> } <span class="kw">else</span> { <span class="number">0</span> };
 
-        (<span class="ident">lt_cost</span>, <span class="ident">lc_cost</span>, <span class="ident">rightmost</span>)
+        (<span class="ident">lt_cost</span>, <span class="ident">lc_cost</span>, <span class="ident">slow_lane</span>)
     }
 }
 

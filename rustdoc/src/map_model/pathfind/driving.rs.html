@@ -537,12 +537,12 @@
 
     <span class="comment">// Normally opportunistic lane-changing adjusts the path live, but that doesn&#39;t work near</span>
     <span class="comment">// uber-turns. So still use some of the penalties here.</span>
-    <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="ident">rightmost</span>) <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">penalty</span>(<span class="ident">map</span>);
+    <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="ident">slow_lane</span>) <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">penalty</span>(<span class="ident">map</span>);
     <span class="comment">// TODO Since these costs wind up mattering most for particular lane choice, I guess just</span>
     <span class="comment">// adding is reasonable?</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extra_penalty</span> <span class="op">=</span> <span class="ident">lt</span> <span class="op">+</span> <span class="ident">lc</span>;
     <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> {
-        <span class="ident">extra_penalty</span> <span class="op">=</span> <span class="ident">rightmost</span>;
+        <span class="ident">extra_penalty</span> <span class="op">=</span> <span class="ident">slow_lane</span>;
     }
 
     <span class="ident">base</span> <span class="op">+</span> <span class="ident">extra_penalty</span>

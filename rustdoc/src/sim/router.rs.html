@@ -436,6 +436,7 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
+<span id="439">439</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -817,7 +818,7 @@
                 }
             })
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>)<span class="op">|</span> {
-                <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="kw-2">mut</span> <span class="ident">rightmost</span>) <span class="op">=</span> <span class="ident">turn1</span>.<span class="ident">penalty</span>(<span class="ident">map</span>);
+                <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="kw-2">mut</span> <span class="ident">slow_lane</span>) <span class="op">=</span> <span class="ident">turn1</span>.<span class="ident">penalty</span>(<span class="ident">map</span>);
                 <span class="kw">let</span> (<span class="ident">vehicles</span>, <span class="kw-2">mut</span> <span class="ident">bike</span>) <span class="op">=</span> <span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)].<span class="ident">target_lane_penalty</span>();
 
                 <span class="comment">// The magic happens here. We have different penalties:</span>
@@ -826,7 +827,8 @@
                 <span class="comment">//    lane?</span>
                 <span class="comment">// 2) Are there any bikes in the target lane? This ONLY matters if we&#39;re a car. If</span>
                 <span class="comment">//    we&#39;re another bike, the speed difference won&#39;t matter.</span>
-                <span class="comment">// 3) IF we&#39;re a bike, are we headed to something other than the rightmost lane?</span>
+                <span class="comment">// 3) IF we&#39;re a bike, are we headed to something other than the slow (rightmost in</span>
+                <span class="comment">//    the US) lane?</span>
                 <span class="comment">// 4) Are there lots of vehicles stacked up in one lane?</span>
                 <span class="comment">// 5) Are we changing lanes?</span>
                 <span class="comment">//</span>
@@ -836,9 +838,9 @@
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
                     <span class="ident">bike</span> <span class="op">=</span> <span class="number">0</span>;
                 } <span class="kw">else</span> {
-                    <span class="ident">rightmost</span> <span class="op">=</span> <span class="number">0</span>;
+                    <span class="ident">slow_lane</span> <span class="op">=</span> <span class="number">0</span>;
                 }
-                <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> (<span class="ident">lt</span>, <span class="ident">bike</span>, <span class="ident">rightmost</span>, <span class="ident">vehicles</span>, <span class="ident">lc</span>);
+                <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> (<span class="ident">lt</span>, <span class="ident">bike</span>, <span class="ident">slow_lane</span>, <span class="ident">vehicles</span>, <span class="ident">lc</span>);
 
                 (<span class="ident">cost</span>, <span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>)
             })
