@@ -303,32 +303,49 @@ impl AgentMeter {
         let (finished, unfinished) = app.primary.sim.num_trips();
         let by_type = app.primary.sim.num_agents();
 
+        let mut row = Vec::new();
+        for (agent_type, name) in vec![
+            (AgentType::Pedestrian, "pedestrian"),
+            (AgentType::Bike, "bike"),
+            (AgentType::Car, "car"),
+        ] {
+            let n = prettyprint_usize(by_type.get(agent_type));
+            row.push(Widget::custom_row(vec![
+                Widget::draw_svg_with_tooltip(
+                    ctx,
+                    format!("system/assets/meters/{}.svg", name),
+                    Text::from(Line(format!("{} {}", n, agent_type.plural_noun()))),
+                )
+                .margin_right(5),
+                n.draw_text(ctx),
+            ]));
+        }
+        row.push(Widget::custom_row(vec![
+            Widget::draw_svg_with_tooltip(
+                ctx,
+                "system/assets/meters/bus.svg",
+                Text::from_multiline(vec![
+                    Line(format!(
+                        "{} public transit passengers",
+                        prettyprint_usize(by_type.get(AgentType::TransitRider))
+                    )),
+                    Line(format!(
+                        "{} buses",
+                        prettyprint_usize(by_type.get(AgentType::Bus))
+                    )),
+                    Line(format!(
+                        "{} trains",
+                        prettyprint_usize(by_type.get(AgentType::Train))
+                    )),
+                ]),
+            )
+            .margin_right(5),
+            prettyprint_usize(by_type.get(AgentType::TransitRider)).draw_text(ctx),
+        ]));
+
         let rows = vec![
             "Active trips".draw_text(ctx),
-            Widget::custom_row(vec![
-                Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "system/assets/meters/pedestrian.svg").margin_right(5),
-                    prettyprint_usize(by_type.get(AgentType::Pedestrian)).draw_text(ctx),
-                ]),
-                Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "system/assets/meters/bike.svg").margin_right(5),
-                    prettyprint_usize(by_type.get(AgentType::Bike)).draw_text(ctx),
-                ]),
-                Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "system/assets/meters/car.svg").margin_right(5),
-                    prettyprint_usize(by_type.get(AgentType::Car)).draw_text(ctx),
-                ]),
-                Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "system/assets/meters/bus.svg").margin_right(5),
-                    prettyprint_usize(by_type.get(AgentType::Bus) + by_type.get(AgentType::Train))
-                        .draw_text(ctx),
-                ]),
-                Widget::custom_row(vec![
-                    Widget::draw_svg(ctx, "system/assets/meters/passenger.svg").margin_right(5),
-                    prettyprint_usize(by_type.get(AgentType::TransitRider)).draw_text(ctx),
-                ]),
-            ])
-            .centered(),
+            Widget::custom_row(row).centered(),
             Widget::horiz_separator(ctx, 0.2),
             Widget::row(vec![
                 {
