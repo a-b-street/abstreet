@@ -3,7 +3,7 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
-    Direction, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID, PARKING_SPOT_LENGTH,
+    Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID, PARKING_SPOT_LENGTH,
 };
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -58,7 +58,10 @@ impl DrawLane {
             }
             LaneType::Shoulder => {}
             LaneType::Parking => {
-                draw.extend(app.cs.general_road_marking, calculate_parking_lines(lane));
+                draw.extend(
+                    app.cs.general_road_marking,
+                    calculate_parking_lines(lane, map),
+                );
             }
             LaneType::Driving | LaneType::Bus => {
                 draw.extend(
@@ -246,7 +249,7 @@ fn calculate_sidewalk_lines(lane: &Lane) -> Vec<Polygon> {
     result
 }
 
-fn calculate_parking_lines(lane: &Lane) -> Vec<Polygon> {
+fn calculate_parking_lines(lane: &Lane, map: &Map) -> Vec<Polygon> {
     // meters, but the dims get annoying below to remove
     let leg_length = Distance::meters(1.0);
 
@@ -257,7 +260,11 @@ fn calculate_parking_lines(lane: &Lane) -> Vec<Polygon> {
             let (pt, lane_angle) = lane
                 .lane_center_pts
                 .must_dist_along(PARKING_SPOT_LENGTH * (1.0 + idx as f64));
-            let perp_angle = lane_angle.rotate_degs(270.0);
+            let perp_angle = if map.get_config().driving_side == DrivingSide::Right {
+                lane_angle.rotate_degs(270.0)
+            } else {
+                lane_angle.rotate_degs(90.0)
+            };
             // Find the outside of the lane. Actually, shift inside a little bit, since the line
             // will have thickness, but shouldn't really intersect the adjacent line
             // when drawn.
