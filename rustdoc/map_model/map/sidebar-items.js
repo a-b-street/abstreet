@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["MapConfig",""]]});
+initSidebarItems({"enum":[["DrivingSide",""]],"struct":[["MapConfig",""]]});

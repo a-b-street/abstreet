@@ -587,17 +587,15 @@
 <span id="587">587</span>
 <span id="588">588</span>
 <span id="589">589</span>
-<span id="590">590</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">compat</span>;
 <span class="kw">mod</span> <span class="ident">perma</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>::<span class="ident">lane_specs</span>::<span class="ident">get_lane_specs_ltr</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">DrivingSide</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">connectivity</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BusRouteID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">Direction</span>,
-    <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Pathfinder</span>, <span class="ident">Road</span>,
-    <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
+    <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>,
+    <span class="ident">Pathfinder</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Speed</span>, <span class="ident">Time</span>};

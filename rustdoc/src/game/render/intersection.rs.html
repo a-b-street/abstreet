@@ -419,6 +419,10 @@
 <span id="419">419</span>
 <span id="420">420</span>
 <span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -429,8 +433,8 @@
 };
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>, <span class="ident">EPSILON_DIST</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">Direction</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Map</span>, <span class="ident">Road</span>, <span class="ident">RoadWithStopSign</span>, <span class="ident">Turn</span>,
-    <span class="ident">TurnType</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
+    <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Map</span>, <span class="ident">Road</span>,
+    <span class="ident">RoadWithStopSign</span>, <span class="ident">Turn</span>, <span class="ident">TurnType</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>};
@@ -517,17 +521,21 @@
     <span class="comment">// Returns the (octagon, pole) if there&#39;s room to draw it.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop_sign_geom</span>(<span class="ident">ss</span>: <span class="kw-2">&amp;</span><span class="ident">RoadWithStopSign</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">trim_back</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>);
-        <span class="kw">let</span> <span class="ident">rightmost</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">ss</span>.<span class="ident">rightmost_lane</span>);
+        <span class="kw">let</span> <span class="ident">edge_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">ss</span>.<span class="ident">lane_closest_to_edge</span>);
         <span class="comment">// TODO The dream of trimming f64&#39;s was to isolate epsilon checks like this...</span>
-        <span class="kw">if</span> <span class="ident">rightmost</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">trim_back</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">EPSILON_DIST</span> {
+        <span class="kw">if</span> <span class="ident">edge_lane</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">trim_back</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">EPSILON_DIST</span> {
             <span class="comment">// TODO warn</span>
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
-        <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">rightmost</span>
+        <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">edge_lane</span>
             .<span class="ident">lane_center_pts</span>
-            .<span class="ident">exact_slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">rightmost</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">trim_back</span>)
-            .<span class="ident">last_line</span>()
-            .<span class="ident">shift_right</span>(<span class="ident">rightmost</span>.<span class="ident">width</span>);
+            .<span class="ident">exact_slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">edge_lane</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">trim_back</span>)
+            .<span class="ident">last_line</span>();
+        <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> {
+            <span class="ident">last_line</span>.<span class="ident">shift_right</span>(<span class="ident">edge_lane</span>.<span class="ident">width</span>)
+        } <span class="kw">else</span> {
+            <span class="ident">last_line</span>.<span class="ident">shift_left</span>(<span class="ident">edge_lane</span>.<span class="ident">width</span>)
+        };
 
         <span class="kw">let</span> <span class="ident">octagon</span> <span class="op">=</span> <span class="ident">make_octagon</span>(<span class="ident">last_line</span>.<span class="ident">pt2</span>(), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>), <span class="ident">last_line</span>.<span class="ident">angle</span>());
         <span class="kw">let</span> <span class="ident">pole</span> <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(

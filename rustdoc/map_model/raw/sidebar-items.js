@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["DrivingSide",""],["RestrictionType",""]],"struct":[["OriginalRoad",""],["RawArea",""],["RawBuilding",""],["RawBusRoute",""],["RawBusStop",""],["RawIntersection",""],["RawMap",""],["RawParkingLot",""],["RawRoad",""],["TurnRestriction",""]]});
+initSidebarItems({"enum":[["RestrictionType",""]],"struct":[["OriginalRoad",""],["RawArea",""],["RawBuilding",""],["RawBusRoute",""],["RawBusStop",""],["RawIntersection",""],["RawMap",""],["RawParkingLot",""],["RawRoad",""],["TurnRestriction",""]]});
