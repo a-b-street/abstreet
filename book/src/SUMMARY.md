@@ -41,3 +41,4 @@
     - [Year 3](project/history/year3.md)
   - [Full CHANGELOG](project/CHANGELOG.md)
   - [References](project/references.md)
+  - [Collaborations](project/collaborations.md)

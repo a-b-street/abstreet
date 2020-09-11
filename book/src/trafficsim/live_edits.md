@@ -40,3 +40,9 @@ should just be rescheduling the `StartBus` commands.
 What happens if you modify a parking lane while there are cars on it? For now,
 just delete them. Trips later making use of them will just act as if the car
 never had room to be spawned at all and be aborted or fallback to walking.
+
+A better resolution would be to relocate them to other parking spots. If the
+owner is home, it'd be neat to have them walk outside, move the car, and go back
+in. But this greatly complicates the simulation -- the edited lane is in a
+transition state for a while, it modifies schedules, the person might not be
+around, etc.
