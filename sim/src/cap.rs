@@ -80,11 +80,13 @@ impl CapSimState {
         path: Path,
         now: Time,
         car: CarID,
+        capped: &mut bool,
         map: &Map,
     ) -> Option<Path> {
         if self.allow_trip(now, car, &path) {
             return Some(path);
         }
+        *capped = true;
 
         // TODO Make the responses configurable: abort the trip, reroute, delay an hour, switch
         // modes. Where should this policy be specified? Is it simulation-wide?

@@ -26,10 +26,13 @@ struct Options {
     sort_by: SortBy,
     descending: bool,
     modes: BTreeSet<TripMode>,
+    // TODO Adding more attributes isn't scaling well
     off_map_starts: bool,
     off_map_ends: bool,
     unmodified_trips: bool,
     modified_trips: bool,
+    uncapped_trips: bool,
+    capped_trips: bool,
     skip: usize,
 }
 
@@ -66,6 +69,8 @@ impl TripTable {
             off_map_ends: true,
             unmodified_trips: true,
             modified_trips: true,
+            uncapped_trips: true,
+            capped_trips: true,
             skip: 0,
         };
         Box::new(TripTable {
@@ -156,6 +161,14 @@ impl State for TripTable {
                     .panel
                     .maybe_is_checked("trips modified by experiment")
                     .unwrap_or(true);
+                self.opts.uncapped_trips = self
+                    .panel
+                    .maybe_is_checked("trips not affected by congestion caps")
+                    .unwrap_or(true);
+                self.opts.capped_trips = self
+                    .panel
+                    .maybe_is_checked("trips affected by congestion caps")
+                    .unwrap_or(true);
                 self.recalc(ctx, app);
             }
             _ => {}
@@ -179,6 +192,7 @@ struct Entry {
     trip: TripID,
     mode: TripMode,
     modified: bool,
+    capped: bool,
     departure: Time,
     duration_after: Duration,
     duration_before: Duration,
@@ -231,6 +245,12 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
         if !opts.modified_trips && trip.modified {
             continue;
         }
+        if !opts.uncapped_trips && !trip.capped {
+            continue;
+        }
+        if !opts.capped_trips && trip.capped {
+            continue;
+        }
 
         let (_, waiting) = sim.finished_trip_time(*id).unwrap();
         let duration_before = if let Some(ref times) = trip_times_before {
@@ -249,6 +269,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
             mode,
             departure: trip.departure,
             modified: trip.modified,
+            capped: trip.capped,
             duration_after: *duration_after,
             duration_before,
             waiting,
@@ -272,12 +293,22 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
     }
     let total_rows = data.len();
 
+    let any_congestion_caps = app
+        .primary
+        .map
+        .all_zones()
+        .iter()
+        .any(|z| z.restrictions.cap_vehicles_per_hour.is_some());
+
     // Render data
     let mut rows = Vec::new();
     for x in data.into_iter().skip(opts.skip).take(ROWS) {
         let mut row = vec![Text::from(Line(x.trip.0.to_string())).render_ctx(ctx)];
         if app.primary.has_modified_trips {
             row.push(Text::from(Line(if x.modified { "Yes" } else { "No" })).render_ctx(ctx));
+        }
+        if any_congestion_caps {
+            row.push(Text::from(Line(if x.capped { "Yes" } else { "No" })).render_ctx(ctx));
         }
         row.extend(vec![
             Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render_ctx(ctx),
@@ -331,6 +362,9 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
     if app.primary.has_modified_trips {
         headers.push(Line("Modified").draw(ctx));
     }
+    if any_congestion_caps {
+        headers.push(Line("Capped").draw(ctx));
+    }
     headers.extend(vec![
         Line("Type").draw(ctx),
         btn(SortBy::Departure, "Departure"),
@@ -364,6 +398,26 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
                 "trips modified by experiment",
                 None,
                 opts.modified_trips,
+            )
+        } else {
+            Widget::nothing()
+        },
+        if any_congestion_caps {
+            Checkbox::switch(
+                ctx,
+                "trips not affected by congestion caps",
+                None,
+                opts.uncapped_trips,
+            )
+        } else {
+            Widget::nothing()
+        },
+        if any_congestion_caps {
+            Checkbox::switch(
+                ctx,
+                "trips affected by congestion caps",
+                None,
+                opts.capped_trips,
             )
         } else {
             Widget::nothing()
