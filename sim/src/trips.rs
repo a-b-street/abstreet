@@ -129,6 +129,7 @@ impl TripManager {
                 start,
                 end,
                 modified,
+                capped: false,
             },
             person,
             started: false,
@@ -281,8 +282,14 @@ impl TripManager {
         };
 
         match ctx.map.pathfind(req.clone()).and_then(|path| {
-            ctx.cap
-                .validate_path(&req, path, now, parked_car.vehicle.id, ctx.map)
+            ctx.cap.validate_path(
+                &req,
+                path,
+                now,
+                parked_car.vehicle.id,
+                &mut trip.info.capped,
+                ctx.map,
+            )
         }) {
             Some(path) => {
                 let router = drive_to.make_router(parked_car.vehicle.id, path, ctx.map);
@@ -1016,16 +1023,24 @@ impl TripManager {
                 let vehicle = person.get_vehicle(use_vehicle);
                 assert!(ctx.parking.lookup_parked_car(vehicle.id).is_none());
                 let req = maybe_req.unwrap();
-                match maybe_path
-                    .and_then(|path| ctx.cap.validate_path(&req, path, now, vehicle.id, ctx.map))
-                {
+                let person = person.id;
+                match maybe_path.and_then(|path| {
+                    ctx.cap.validate_path(
+                        &req,
+                        path,
+                        now,
+                        vehicle.id,
+                        &mut self.trips[trip.0].info.capped,
+                        ctx.map,
+                    )
+                }) {
                     Some(path) => {
                         let router = goal.make_router(vehicle.id, path, ctx.map);
                         ctx.scheduler.push(
                             now,
                             Command::SpawnCar(
                                 CreateCar::for_appearing(
-                                    vehicle, start_pos, router, req, trip, person.id,
+                                    vehicle, start_pos, router, req, trip, person,
                                 ),
                                 retry_if_no_room,
                             ),
@@ -1034,7 +1049,7 @@ impl TripManager {
                     None => {
                         // TODO Reason might be related to cap
                         self.events.push(Event::Alert(
-                            AlertLocation::Person(person.id),
+                            AlertLocation::Person(person),
                             format!(
                                 "VehicleAppearing trip couldn't find the first path: {}",
                                 req
@@ -1353,6 +1368,8 @@ pub struct TripInfo {
     pub end: TripEndpoint,
     // Did a ScenarioModifier apply to this?
     pub modified: bool,
+    // Was this trip affected by a congestion cap?
+    pub capped: bool,
 }
 
 impl Trip {

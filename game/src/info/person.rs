@@ -159,6 +159,11 @@ pub fn trips(
             } else {
                 Widget::nothing()
             },
+            if trip.capped {
+                Line("capped").batch(ctx).centered_vert().margin_right(15)
+            } else {
+                Widget::nothing()
+            },
             if trip_status == "finished" {
                 if let Some(before) = app
                     .has_prebaked()
