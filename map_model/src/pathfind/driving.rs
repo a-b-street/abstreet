@@ -262,12 +262,12 @@ pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map:
 
     // Normally opportunistic lane-changing adjusts the path live, but that doesn't work near
     // uber-turns. So still use some of the penalties here.
-    let (lt, lc, rightmost) = turn.penalty(map);
+    let (lt, lc, slow_lane) = turn.penalty(map);
     // TODO Since these costs wind up mattering most for particular lane choice, I guess just
     // adding is reasonable?
     let mut extra_penalty = lt + lc;
     if constraints == PathConstraints::Bike {
-        extra_penalty = rightmost;
+        extra_penalty = slow_lane;
     }
 
     base + extra_penalty

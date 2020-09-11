@@ -25,20 +25,20 @@ below), you can also pass `--oneshot_clip=clip.poly` to improve the result. You
 should first make sure your .osm has been clipped:
 `osmconvert large_map.osm -B=clipping.poly --complete-ways -o=smaller_map.osm`.
 
-You can also try `--oneshot_drive_on_left`, but you'll spot some bugs. Get in
-touch if you need these fixed soon or want to help.
+By default, driving on the right is assumed. Use `--oneshot_drive_on_left` to
+invert.
 
 ### How to get .osm files
 
 If the area is small enough, try the "export" tool on
 <https://www.openstreetmap.org>. You can download larger areas from
 <https://download.bbbike.org/> or <http://download.geofabrik.de/index.html>,
-then clip them to a smaller area.  Use [geojson.io](http://geojson.io/) or
+then clip them to a smaller area. Use [geojson.io](http://geojson.io/) or
 [geoman.io](https://geoman.io/geojson-editor) to draw a boundary around the
-region you want to simulate and save the geojson locally.  Use `cargo run --bin
-geojson_to_osmosis < boundary.geojson > clipping.poly` to convert that geojson
-to the [Osmosis
-format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
+region you want to simulate and save the geojson locally. Use
+`cargo run --bin geojson_to_osmosis < boundary.geojson > clipping.poly` to
+convert that geojson to the
+[Osmosis format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
 required by osmconvert.
 
 ## Including the city to A/B street more permanently
@@ -56,9 +56,9 @@ use it as well.
     [geoman.io](https://geoman.io/geojson-editor) to draw a boundary around the
     region you want to simulate and save the geojson locally.
 
-4.  Use `cargo run --bin geojson_to_osmosis < boundary.geojson > clipping.poly` to
-    convert that geojson to the [Osmosis
-    format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
+4.  Use `cargo run --bin geojson_to_osmosis < boundary.geojson > clipping.poly`
+    to convert that geojson to the
+    [Osmosis format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
     required by osmconvert.
 
 5.  Create a new module in `importer/src/` for your city, copying

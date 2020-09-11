@@ -109,13 +109,13 @@ impl Turn {
     }
 
     // TODO Maybe precompute this.
-    // penalties for (lane types, lane-changing, rightmost)
+    // penalties for (lane types, lane-changing, slow lane)
     pub fn penalty(&self, map: &Map) -> (usize, usize, usize) {
         let from = map.get_l(self.id.src);
         let to = map.get_l(self.id.dst);
 
-        // Starting from the right / farthest from the center line, where is this travel lane?
-        // Filters by the lane type and ignores lanes that don't go to the target road.
+        // Starting from the farthest from the center line (right in the US), where is this travel
+        // lane? Filters by the lane type and ignores lanes that don't go to the target road.
         let from_idx = {
             let mut cnt = 0;
             let r = map.get_r(from.parent);
@@ -137,8 +137,8 @@ impl Turn {
             cnt
         };
 
-        // Starting from the right / farthest from the center line, where is this travel lane?
-        // Filters by the lane type.
+        // Starting from the farthest from the center line (right in the US), where is this travel
+        // lane? Filters by the lane type.
         let to_idx = {
             let mut cnt = 0;
             let r = map.get_r(to.parent);
@@ -166,10 +166,10 @@ impl Turn {
         // matter.
         let lt_cost = if to.is_biking() || to.is_bus() { 0 } else { 1 };
 
-        // Keep right
-        let rightmost = if to_idx > 1 { 1 } else { 0 };
+        // Keep right (in the US)
+        let slow_lane = if to_idx > 1 { 1 } else { 0 };
 
-        (lt_cost, lc_cost, rightmost)
+        (lt_cost, lc_cost, slow_lane)
     }
 }
 

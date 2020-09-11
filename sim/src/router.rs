@@ -378,7 +378,7 @@ impl Router {
                 }
             })
             .map(|(turn1, l, turn2)| {
-                let (lt, lc, mut rightmost) = turn1.penalty(map);
+                let (lt, lc, mut slow_lane) = turn1.penalty(map);
                 let (vehicles, mut bike) = queues[&Traversable::Lane(l)].target_lane_penalty();
 
                 // The magic happens here. We have different penalties:
@@ -387,7 +387,8 @@ impl Router {
                 //    lane?
                 // 2) Are there any bikes in the target lane? This ONLY matters if we're a car. If
                 //    we're another bike, the speed difference won't matter.
-                // 3) IF we're a bike, are we headed to something other than the rightmost lane?
+                // 3) IF we're a bike, are we headed to something other than the slow (rightmost in
+                //    the US) lane?
                 // 4) Are there lots of vehicles stacked up in one lane?
                 // 5) Are we changing lanes?
                 //
@@ -397,9 +398,9 @@ impl Router {
                 if self.owner.1 == VehicleType::Bike {
                     bike = 0;
                 } else {
-                    rightmost = 0;
+                    slow_lane = 0;
                 }
-                let cost = (lt, bike, rightmost, vehicles, lc);
+                let cost = (lt, bike, slow_lane, vehicles, lc);
 
                 (cost, turn1, l, turn2)
             })
