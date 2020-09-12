@@ -11,6 +11,7 @@ const MAPSPACE_Z: f32 = 1.0;
 const SCREENSPACE_Z: f32 = 0.5;
 const TOOLTIP_Z: f32 = 0.0;
 
+#[derive(Debug)]
 pub struct Uniforms {
     // (cam_x, cam_y, cam_zoom)
     pub transform: [f32; 3],

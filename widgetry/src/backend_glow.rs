@@ -213,14 +213,14 @@ impl PrerenderInnards {
     }
 
     pub fn actually_upload(&self, permanent: bool, batch: GeomBatch) -> Drawable {
-        let mut vertices: Vec<[f32; 6]> = Vec::new();
+        let mut vertices: Vec<[f32; 7]> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
 
         for (color, poly) in batch.consume() {
             let idx_offset = vertices.len() as u32;
             let (pts, raw_indices) = poly.raw_for_rendering();
             for pt in pts {
-                let style = color.style(*pt);
+                let style = color.shader_style(*pt);
                 vertices.push([
                     pt.x() as f32,
                     pt.y() as f32,
@@ -228,6 +228,7 @@ impl PrerenderInnards {
                     style[1],
                     style[2],
                     style[3],
+                    style[4],
                 ]);
             }
             for idx in raw_indices {
@@ -259,23 +260,25 @@ impl PrerenderInnards {
                 glow::STATIC_DRAW,
             );
 
-            // TODO Can we have a single vertex array for everything, since there's an uber shader?
-
-            let stride = 6 * std::mem::size_of::<f32>() as i32;
-            // position is vec2
-            self.gl.enable_vertex_attrib_array(0);
-            self.gl
-                .vertex_attrib_pointer_f32(0, 2, glow::FLOAT, false, stride, 0);
-            // style is vec4
-            self.gl.enable_vertex_attrib_array(1);
-            self.gl.vertex_attrib_pointer_f32(
-                1,
-                4,
-                glow::FLOAT,
-                false,
-                stride,
-                2 * std::mem::size_of::<f32>() as i32,
-            );
+            let vertex_attributes: [i32; 3] = [
+                2, // position is vec2
+                4, // color is vec4
+                1, // texture_id is float
+            ];
+            let stride = vertex_attributes.iter().sum::<i32>() * std::mem::size_of::<f32>() as i32;
+            let mut offset = 0;
+            for (i, size) in vertex_attributes.iter().enumerate() {
+                self.gl.enable_vertex_attrib_array(i as u32);
+                self.gl.vertex_attrib_pointer_f32(
+                    i as u32,
+                    *size,
+                    glow::FLOAT,
+                    false,
+                    stride,
+                    offset,
+                );
+                offset += size * std::mem::size_of::<f32>() as i32;
+            }
 
             // Safety?
             self.gl.bind_vertex_array(None);

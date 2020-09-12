@@ -10,9 +10,9 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
 use widgetry::{
-    hotkey, lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
+    hotkey, lctrl, Btn, Checkbox, Color, Drawable, EventCtx, FancyColor, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text, TextExt,
-    UpdateType, VerticalAlignment, Widget, GUI,
+    Texture, UpdateType, VerticalAlignment, Widget, GUI,
 };
 
 fn main() {
@@ -27,6 +27,7 @@ struct App {
     controls: Panel,
     timeseries_panel: Option<(Duration, Panel)>,
     scrollable_canvas: Drawable,
+    texture_demo: Drawable,
     elapsed: Duration,
 }
 
@@ -36,6 +37,7 @@ impl App {
             controls: make_controls(ctx),
             timeseries_panel: None,
             scrollable_canvas: setup_scrollable_canvas(ctx),
+            texture_demo: setup_texture_demo(ctx),
             elapsed: Duration::ZERO,
         }
     }
@@ -202,7 +204,42 @@ impl GUI for App {
         if let Some((_, ref p)) = self.timeseries_panel {
             p.draw(g);
         }
+
+        g.redraw(&self.texture_demo);
     }
+}
+
+fn setup_texture_demo(ctx: &mut EventCtx) -> Drawable {
+    let mut batch = GeomBatch::new();
+
+    let mut rect = Polygon::rectangle(100.0, 100.0);
+    rect = rect.translate(200.0, 900.0);
+    // Texture::NOOP should always be pure white, since all "non-textured" colors are multiplied by
+    // Texture::NOOP (Texture::NOOP.0 == 0)
+    batch.fancy_push(FancyColor::Texture(Texture::NOOP), rect);
+
+    let triangle = geom::Triangle {
+        pt1: Pt2D::new(0.0, 100.0),
+        pt2: Pt2D::new(50.0, 0.0),
+        pt3: Pt2D::new(100.0, 100.0),
+    };
+    let mut triangle_poly = Polygon::from_triangle(&triangle);
+    triangle_poly = triangle_poly.translate(400.0, 900.0);
+    batch.fancy_push(FancyColor::Texture(Texture::SAND), triangle_poly);
+
+    let circle = geom::Circle::new(Pt2D::new(50.0, 50.0), geom::Distance::meters(50.0));
+    let mut circle_poly = circle.to_polygon();
+    circle_poly = circle_poly.translate(600.0, 900.0);
+    batch.fancy_push(
+        FancyColor::ColoredTexture(Color::RED, Texture::SAND),
+        circle_poly.clone(),
+    );
+    batch.fancy_push(
+        FancyColor::Texture(Texture::SNOW_PERSON),
+        circle_poly.clone(),
+    );
+
+    batch.upload(ctx)
 }
 
 // This prepares a bunch of geometry (colored polygons) and uploads it to the GPU once. Then it can
