@@ -38,7 +38,14 @@ impl ViewKML {
         ctx.loading_screen("load kml", |ctx, mut timer| {
             let raw_shapes = if let Some(ref path) = path {
                 if path.ends_with(".kml") {
-                    kml::load(&path, &app.primary.map.get_gps_bounds(), true, &mut timer).unwrap()
+                    let shapes =
+                        kml::load(&path, &app.primary.map.get_gps_bounds(), true, &mut timer)
+                            .unwrap();
+                    // Assuming this is some huge file, conveniently convert the extract to .bin.
+                    // The new file will show up as untracked in git, so it'll be obvious this
+                    // happened.
+                    abstutil::write_binary(path.replace(".kml", ".bin"), &shapes);
+                    shapes
                 } else {
                     abstutil::read_binary::<ExtraShapes>(path.to_string(), &mut timer)
                 }
@@ -175,7 +182,10 @@ impl State for ViewKML {
                                 app.primary.map.get_city_name()
                             ))))
                             .into_iter()
-                            .filter(|x| x.ends_with(".bin") && !x.ends_with("popdat.bin"))
+                            .filter(|x| {
+                                (x.ends_with(".bin") || x.ends_with(".kml"))
+                                    && !x.ends_with("popdat.bin")
+                            })
                             .collect(),
                         ),
                         Box::new(|path, ctx, app| {
