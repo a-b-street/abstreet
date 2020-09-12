@@ -347,6 +347,16 @@
 <span id="347">347</span>
 <span id="348">348</span>
 <span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -388,7 +398,14 @@
         <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load kml&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">raw_shapes</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span> <span class="ident">path</span> {
                 <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.kml&quot;</span>) {
-                    <span class="ident">kml</span>::<span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>(), <span class="bool-val">true</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>).<span class="ident">unwrap</span>()
+                    <span class="kw">let</span> <span class="ident">shapes</span> <span class="op">=</span>
+                        <span class="ident">kml</span>::<span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>(), <span class="bool-val">true</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
+                            .<span class="ident">unwrap</span>();
+                    <span class="comment">// Assuming this is some huge file, conveniently convert the extract to .bin.</span>
+                    <span class="comment">// The new file will show up as untracked in git, so it&#39;ll be obvious this</span>
+                    <span class="comment">// happened.</span>
+                    <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="ident">path</span>.<span class="ident">replace</span>(<span class="string">&quot;.kml&quot;</span>, <span class="string">&quot;.bin&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">shapes</span>);
+                    <span class="ident">shapes</span>
                 } <span class="kw">else</span> {
                     <span class="ident">abstutil</span>::<span class="ident">read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(<span class="ident">path</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
                 }
@@ -525,7 +542,10 @@
                                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>()
                             ))))
                             .<span class="ident">into_iter</span>()
-                            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.bin&quot;</span>) <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">ends_with</span>(<span class="string">&quot;popdat.bin&quot;</span>))
+                            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+                                (<span class="ident">x</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.bin&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.kml&quot;</span>))
+                                    <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">ends_with</span>(<span class="string">&quot;popdat.bin&quot;</span>)
+                            })
                             .<span class="ident">collect</span>(),
                         ),
                         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">path</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
