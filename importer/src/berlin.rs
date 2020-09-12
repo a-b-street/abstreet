@@ -169,8 +169,8 @@ pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
             let n = (rand_nums.pop().unwrap() / sum * (num_residents as f64)) as usize;
             let bldg_type = match map.get_b(b).bldg_type {
                 map_model::BuildingType::Residential(_) => map_model::BuildingType::Residential(n),
-                map_model::BuildingType::ResidentialCommercial(_) => {
-                    map_model::BuildingType::ResidentialCommercial(n)
+                map_model::BuildingType::ResidentialCommercial(_, worker_cap) => {
+                    map_model::BuildingType::ResidentialCommercial(n, worker_cap)
                 }
                 _ => unreachable!(),
             };

@@ -117,26 +117,38 @@ fn get_address(tags: &Tags, sidewalk: LaneID, map: &Map) -> String {
 fn classify_bldg(
     tags: &Tags,
     amenities: &BTreeSet<(NamePerLanguage, String)>,
-    area_sq_meters: f64,
+    ground_area_sq_meters: f64,
     rng: &mut XorShiftRng,
 ) -> BuildingType {
     // used: top values from https://taginfo.openstreetmap.org/keys/building#values (>100k uses)
 
     let mut commercial = false;
-    let workers;
+
+    // TODO is it worth using height or building:height as an alternative if not tagged?
+    let levels = tags
+        .get("building:levels")
+        .and_then(|x| x.parse::<f64>().ok())
+        .unwrap_or(1.0);
+    let area_sq_meters = levels * ground_area_sq_meters;
 
     // These are (name, amenity type) pairs, produced by get_bldg_amenities in
     // convert_osm/src/osm_reader.rs.
+    // TODO: is it safe to assume all amenities are commercial?
+    // TODO: consider converting amenities to an enum - maybe with a catchall case for the long
+    //       tail of rarely used enums.
     if !amenities.is_empty() {
         commercial = true;
     }
 
     if tags.is("ruins", "yes") {
         if commercial {
-            return BuildingType::Commercial;
+            return BuildingType::Commercial(0);
         }
         return BuildingType::Empty;
     }
+
+    let mut residents: usize = 0;
+    let mut workers: usize = 0;
 
     if tags.is_any(
         "building",
@@ -150,7 +162,11 @@ fn classify_bldg(
             "public",
         ],
     ) {
-        return BuildingType::Commercial;
+        // 1 person per 10 square meters
+        // TODO: Hone in this parameter. Space per person varies with (among other things):
+        //  - building type. e.g. office vs. warehouse
+        //  - regional/cultural norms
+        workers = (area_sq_meters / 10.0) as usize;
     } else if tags.is_any(
         "building",
         vec!["school", "university", "construction", "church"],
@@ -175,26 +191,29 @@ fn classify_bldg(
         "building",
         vec!["house", "detached", "semidetached_house", "farm"],
     ) {
-        workers = rng.gen_range(0, 3);
+        residents = rng.gen_range(0, 3);
     } else if tags.is_any("building", vec!["hut", "static_caravan", "cabin"]) {
-        workers = rng.gen_range(0, 2);
+        residents = rng.gen_range(0, 2);
     } else if tags.is_any("building", vec!["apartments", "terrace", "residential"]) {
-        let levels = tags
-            .get("building:levels")
-            .and_then(|x| x.parse::<usize>().ok())
-            .unwrap_or(1);
-        // TODO is it worth using height or building:height as an alternative if not tagged?
         // 1 person per 10 square meters
-        let residents = (levels as f64 * area_sq_meters / 10.0) as usize;
-        workers = (residents / 3) as usize;
+        // TODO: Hone in this parameter. Space per person varies with (among other things):
+        //  - building type. e.g. apartment vs single family
+        //  - regional/cultural norms
+        residents = (area_sq_meters / 10.0) as usize;
     } else {
-        workers = rng.gen_range(0, 2);
+        residents = rng.gen_range(0, 2);
     }
+
+    if commercial && workers == 0 {
+        // TODO: Come up with a better measure
+        workers = (residents as f64 / 3.0) as usize;
+    }
+
     if commercial {
-        if workers > 0 {
-            return BuildingType::ResidentialCommercial(workers);
+        if residents > 0 {
+            return BuildingType::ResidentialCommercial(residents, workers);
         }
-        return BuildingType::Commercial;
+        return BuildingType::Commercial(workers);
     }
-    return BuildingType::Residential(workers);
+    return BuildingType::Residential(residents);
 }
