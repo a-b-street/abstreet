@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Distance, Polygon, Pt2D, Ring};
 use map_model::{Building, BuildingID, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
 use std::cell::RefCell;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
@@ -69,6 +69,48 @@ impl Renderable for DrawBuilding {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions) {
+        let mut label = self.label.borrow_mut();
+        if label.is_none() {
+            let mut batch = GeomBatch::new();
+            let b = app.primary.map.get_b(self.id);
+
+            //let height = (((b.id.0 % 10) as f64) / 0.9) * Distance::meters(2.0);
+            let height = Distance::meters(1.0);
+            let pts = b.polygon.points();
+            let mut inner_pts = Vec::new();
+            for pair in vec![vec![pts[pts.len() - 2], pts[pts.len() - 1], pts[1]].as_slice()]
+                .into_iter()
+                .chain(pts.windows(3))
+            {
+                let angle1 = pair[1].angle_to(pair[0]);
+                let angle2 = pair[1].angle_to(pair[2]);
+                let pt = pair[1].project_away(height, (angle1 + angle2) / 2.0);
+                if b.polygon.contains_pt(pt) {
+                    inner_pts.push(pt);
+                } else {
+                    let pt = pair[1].project_away(height, ((angle1 + angle2) / 2.0).opposite());
+                    inner_pts.push(pt);
+                }
+            }
+            inner_pts.push(inner_pts[0]);
+
+            for (outer, inner) in pts.iter().zip(inner_pts.iter()) {
+                batch.push(
+                    app.cs.building_outline,
+                    geom::Line::must_new(*outer, *inner).make_polygons(Distance::meters(0.1)),
+                );
+            }
+
+            let inner = Ring::must_new(inner_pts);
+            batch.push(
+                app.cs.building_outline,
+                inner.to_outline(Distance::meters(0.5)),
+            );
+
+            *label = Some(g.prerender.upload(batch));
+        }
+        g.redraw(label.as_ref().unwrap());
+
         if opts.label_buildings {
             // Labels are expensive to compute up-front, so do it lazily, since we don't really
             // zoom in on all buildings in a single session anyway
