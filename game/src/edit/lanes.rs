@@ -66,7 +66,7 @@ impl LaneEditor {
             } else {
                 Widget::draw_svg_transform(
                     ctx,
-                    &format!("system/assets/edit/{}.svg", icon),
+                    format!("system/assets/edit/{}.svg", icon),
                     RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
                 )
             });

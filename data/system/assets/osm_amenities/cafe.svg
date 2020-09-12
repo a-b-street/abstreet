@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14">
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     d="M 1,1 1,7 C 1,9 3,10 5.5,10 8,10 10,9 10,7 l 2,0 c 1,0 2,-1 2,-2 L 14,4 C 14,3 13,2 12,2 l -2,0 0,-1 z m 9,2.25 1.75,0 c 0.667788,0 1,0.5628359 1,1.25 0,0.6871641 -0.388201,1.25 -1,1.25 L 10,5.75 z M 0,11 c 0,1 1,2 2,2 l 7,0 c 1,0 2,-1 2,-2 z"
+     id="cafe" />
+</svg>

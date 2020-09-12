@@ -231,7 +231,7 @@ impl CommuterPatterns {
                     let center = base_block.shape.polylabel();
                     let icon = GeomBatch::load_svg(
                         ctx.prerender,
-                        &format!("system/assets/tools/{}", icon_name),
+                        format!("system/assets/tools/{}", icon_name),
                     )
                     .scale(icon_scale)
                     .centered_on(center)

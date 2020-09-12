@@ -235,7 +235,7 @@ fn make_panel(
                             ctx,
                             GeomBatch::load_svg(
                                 ctx.prerender,
-                                &format!("system/assets/characters/{}.svg", name),
+                                format!("system/assets/characters/{}.svg", name),
                             )
                             .scale(scale)
                             .autocrop(),

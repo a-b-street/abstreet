@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   height="14"
+   width="14"
+   version="1.1"
+   viewBox="0 0 14 14"
+   id="svg5114">
+  <defs
+     id="defs14" />
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:5;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 6.8320312,1.8984375 A 1.2055479,0.94874388 0 0 0 5.6269531,2.8476562 1.2055479,0.94874388 0 0 0 6.4667969,3.7519531 C 5.0890082,3.8629576 3.899133,4.5711593 3.2011719,5.6171875 c -0.014037,-0.00629 -0.026946,-0.019665 -0.041016,-0.025391 -0.648797,-0.26404 -1.6220121,-0.3965713 -2.25195308,0.011719 -0.61338999,0.39758 -0.87117,1.1088738 -0.90624999,1.9960938 -0.07125,1.80296 1.28012817,2.1642531 2.62695307,2.3457031 0.109103,0.014698 0.2167003,0.00673 0.3242188,0.00195 0.295793,0.8537896 0.7371669,1.6556536 1.3066406,2.0566406 l 5.1464844,0 c 0.6129603,-0.432304 1.0763173,-1.329351 1.3691413,-2.2558593 0.233932,0.046863 0.48724,0.00182 0.83789,-0.2773438 0.609155,-0.48495 1.2457,-1.4462856 1.453125,-1.9160156 C 13.440666,6.7433175 14,3.8300781 14,3.8300781 c 0,0 -0.881381,0.2391938 -1.583984,-0.00391 -0.154784,0.52722 -0.346971,1.5225268 -0.638672,1.9980469 C 11.526215,6.2336187 11.357756,6.5891431 10.943359,6.6542969 10.462151,5.0696208 8.9923554,3.8964674 7.1953125,3.7519531 A 1.2055479,0.94874388 0 0 0 8.0371094,2.8476562 1.2055479,0.94874388 0 0 0 6.8320312,1.8984375 Z m -4.8535156,4.25 C 2.3013945,6.138394 2.5705254,6.2407385 2.8125,6.3789062 2.6441871,6.8124674 2.5370318,7.2751841 2.5371094,7.7636719 2.537755,8.1551626 2.6033657,8.6361304 2.71875,9.1347656 1.9446816,9.121606 1.0325069,9.0231889 1.0859375,7.671875 c 0.0298,-0.7536 0.2326369,-1.4086112 0.6074219,-1.4882812 0.099248,-0.021098 0.1937357,-0.032313 0.2851562,-0.035156 z"
+     id="path4153" />
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <cc:license
+           rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
+        <dc:publisher>
+          <cc:Agent
+             rdf:about="http://openclipart.org/">
+            <dc:title />
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title></dc:title>
+        <dc:date />
+        <dc:description />
+        <dc:source />
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Jotam</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag />
+        </dc:subject>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>

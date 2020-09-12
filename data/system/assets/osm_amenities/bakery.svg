@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14">
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     d="M 6.75,3 8.25,7 6.75,7 5.25,3 C 5.25,3 3.494833,3 3.5,3 L 5,7 3.5,7 2.176907,3.5762712 C 1.291044,4.2640693 0,6.1983848 0,8 l 0,2 c 0,0.59322 0.423729,1 1,1 l 12,0 c 0.576271,0 1,-0.423729 1,-1 L 14,8 C 14,5.5355945 12.272623,3.5853602 10,3 L 11.5,7 10,7 8.5,3 c 0,0 -1.743955,0 -1.75,0 z"
+     id="bakery" />
+</svg>

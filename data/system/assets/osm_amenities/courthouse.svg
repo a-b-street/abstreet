@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14"
+   id="svg2">
+  <metadata
+     id="metadata8">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs6" />
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     d="M 7,0 C 6,0 6,1 6,1 L 2.25,2 2.25,3 0,8 C 0,9 0.792008,10 2.5,10 4.207992,10 5,9 5,8 L 2.75,3 6,3 6,13 2,13 1,14 13,14 12,13 8,13 8,3 11.25,3 9,8 c 0,1 0.77294,2 2.5,2 C 13.22706,10 14,9 14,8 L 11.75,3 11.75,2 8,1 C 8,1 8,0 7,0 z M 2.5,4 4.25,8 0.75,8 z m 9,0 1.75,4 -3.5,0 z"
+     id="courthouse" />
+</svg>

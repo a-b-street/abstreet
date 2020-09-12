@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<metadata>
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<dc:title/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<rect transform="rotate(10.641)" x="4.7312" y="8.9986" width=".29388" height="3.9062" fill="#fff" fill-rule="evenodd" style="paint-order:stroke fill markers"/>
+<g transform="translate(-.057868 .35054)" fill-rule="evenodd">
+<path d="m3.3247 4.0601c0.27759-1.4774 1.7003-2.4501 3.1777-2.1725 1.4774 0.27759 2.4501 1.7003 2.1725 3.1777" style="paint-order:stroke fill markers"/>
+<rect transform="rotate(10.641)" x="6.1448" y="-1.6292" width="1.4329" height="4.2311" ry=".71645" style="paint-order:stroke fill markers"/>
+<circle transform="rotate(10.641)" cx="6.6923" cy="6.3413" r=".85549" style="paint-order:stroke fill markers"/>
+<circle transform="rotate(10.641)" cx="6.7177" cy="8.9912" r=".85549" style="paint-order:stroke fill markers"/>
+<circle transform="rotate(10.641)" cx="6.6582" cy="11.66" r=".85549" style="paint-order:stroke fill markers"/>
+<circle transform="rotate(10.641)" cx="9.2566" cy="5.8128" r=".85549" style="paint-order:stroke fill markers"/>
+<circle transform="rotate(10.641)" cx="9.7094" cy="8.4417" r=".85549" style="paint-order:stroke fill markers"/>
+<circle transform="rotate(10.641)" cx="10.27" cy="11.088" r=".85549" style="paint-order:stroke fill markers"/>
+<circle transform="rotate(10.641)" cx="4.1991" cy="5.8495" r=".85549" style="paint-order:stroke fill markers"/>
+<circle transform="rotate(10.641)" cx="3.5904" cy="8.451" r=".85549" style="paint-order:stroke fill markers"/>
+<circle transform="rotate(10.641)" cx="3.008" cy="11.063" r=".85549" style="paint-order:stroke fill markers"/>
+<rect transform="matrix(-.012006 .99993 -.99999 -.0037155 0 0)" x="-.38636" y="-14.062" width="1.433" height="7.606" ry=".71648" style="paint-order:stroke fill markers"/>
+<rect transform="matrix(-.0060995 .99998 -.99997 -.0073138 0 0)" x="-.42509" y="-14.056" width="1.4329" height="3.864" ry="0" style="paint-order:stroke fill markers"/>
+</g>
+</svg>

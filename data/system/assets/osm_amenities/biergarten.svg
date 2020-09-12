@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14">
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     d="M 3,0 C 2,0 1,1 1,2 l 0,10 c 0,1 -1,2 -1,2 l 11,0 c 0,0 -1,-1 -1,-2 l 3,0 c 1,0 1,-1 1,-1 L 14,5 C 14,4 13,3 12,3 L 10,3 10,2 C 10,0.7603028 9.263667,0 8,0 z M 4,1 7,1 C 8.380981,1 9,1.3528175 9,2 6,2 3.85459,2.19773 4,5 4,7 2,7 2,5 L 2,3 C 2,1.4966359 2.496636,1 4,1 z m 6,3.5 1,0 c 0.690253,0 1.5,0.027334 1.5,1.5 l 0,4.5 -2.5,0 z m -8,7.5 7,0 0,1 -7,0 z"
+     id="biergarten" />
+</svg>

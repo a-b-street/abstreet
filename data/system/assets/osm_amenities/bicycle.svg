@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14"
+   id="svg2">
+  <metadata
+     id="metadata8">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs6" />
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     d="M 8,1.5 8,2.375 9.25,3.15625 9.25,4.25 5,4.25 5,3.5 l 0.5,0 c 1,0 1,-1 0,-1 l -2,0 c -1,0 -1,1 0,1 L 4,3.5 4,4.25 3.0625,6 C 3.0416,5.9995343 3.02098,6 3,6 1.387717,6 0,7.3877166 0,9 0,10.612283 1.387717,12 3,12 4.612283,12 6,10.612283 6,9 6,8.654031 5.92843,8.313419 5.8125,8 L 6.25,8 C 7,8 7.172746,7.546004 7.4375,7.28125 L 9.21875,5.25 9.75,6.28125 C 8.727462,6.7659158 8,7.824875 8,9 c 0,1.612283 1.387717,3 3,3 1.612283,0 3,-1.387717 3,-3 C 14,7.3877166 12.612283,6 11,6 10.96853,6 10.93754,5.99895 10.90625,6 L 10,4.25 10,2.65625 8,1.5 z m -3.21875,3.75 3.125,0 L 6.34375,7 5.21875,7 C 5.20027,7 5.17516,7.00212 5.15625,7 4.892847,6.7170527 4.599522,6.4803791 4.25,6.3125 4.23775,6.29387 4.22991,6.268546 4.21875,6.25 l 0.5625,-1 z M 3,7 C 4.005711,7 5,7.9942895 5,9 5,10.005711 4.005711,11 3,11 1.994289,11 1,10.005711 1,9 1,7.9942895 1.994289,7 3,7 z m 8,0 c 1.00571,0 2,0.9942895 2,2 0,1.005711 -0.99429,2 -2,2 C 9.994289,11 9,10.005711 9,9 9,7.9942895 9.994289,7 11,7 z"
+     id="bicycle" />
+</svg>

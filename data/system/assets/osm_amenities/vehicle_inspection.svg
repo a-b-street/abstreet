@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 14 14"
+   height="14"
+   width="14"
+   id="svg109"
+   version="1.1">
+  <metadata
+     id="metadata115">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs113" />
+  <path
+     id="rental-car"
+     d="M 2.5 0 C 2.223 0 2 0.223 2 0.5 C 2 0.777 2.223 1 2.5 1 L 6.5 1 C 6.777 1 7 0.777 7 0.5 C 7 0.223 6.777 0 6.5 0 L 2.5 0 z M 11 0 L 9.5449219 3.6367188 L 9 2 L 8 2 L 9 5 L 10 5 L 12 0 L 11 0 z M 2.5 2 C 2.223 2 2 2.223 2 2.5 C 2 2.777 2.223 3 2.5 3 L 6.5 3 C 6.777 3 7 2.777 7 2.5 C 7 2.223 6.777 2 6.5 2 L 2.5 2 z M 2.5 4 C 2.223 4 2 4.223 2 4.5 C 2 4.777 2.223 5 2.5 5 L 6.5 5 C 6.777 5 7 4.777 7 4.5 C 7 4.223 6.777 4 6.5 4 L 2.5 4 z M 4 6 L 3 9 C 2.527334 9 2 9.384295 2 10 L 2 13 L 3 13 C 3 13 3 14 4 14 C 5 14 5 13 5 13 L 9 13 C 9 13 9 14 10 14 C 11 14 11 13 11 13 L 12 13 L 12 10 C 12 9.479394 11.544575 9 11 9 L 10 6 L 4 6 z M 5 7 L 9 7 L 9.625 9 L 4.375 9 L 5 7 z M 4 10.25 C 4.414214 10.25 4.75 10.585786 4.75 11 C 4.75 11.414214 4.414214 11.75 4 11.75 C 3.585786 11.75 3.25 11.414214 3.25 11 C 3.25 10.585786 3.585786 10.25 4 10.25 z M 10 10.25 C 10.414214 10.25 10.75 10.585786 10.75 11 C 10.75 11.414214 10.414214 11.75 10 11.75 C 9.585786 11.75 9.25 11.414214 9.25 11 C 9.25 10.585786 9.585786 10.25 10 10.25 z " />
+</svg>

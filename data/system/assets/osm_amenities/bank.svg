@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14">
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     d="m 0,2 0,7 c 0,0.627119 0.423729,1 1,1 l 12,0 c 0.576271,0 1,-0.423729 1,-1 L 14,2 0,2 z m 3,1 8,0 c 0,1 1,2 2,2 l 0,2 C 12,7 11,8 11,9 L 3,9 C 3,8 2,7 1,7 L 1,5 C 2,5 3,4 3,3 z M 7,4 C 5.343146,4 4,4.8954305 4,6 4,7.10457 5.343146,8 7,8 8.656855,8 10,7.10457 10,6 10,4.8954305 8.656855,4 7,4 z M 0,10.5 C 0,11.626577 0.448696,12 1,12 l 12,0 c 0.551304,0 1,-0.445333 1,-1.5 -0.288136,0.271186 -0.559322,0.5 -1,0.5 L 1,11 C 0.559322,11 0.271186,10.754237 0,10.5 z"
+     id="bank" />
+</svg>

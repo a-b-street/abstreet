@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14"
+   id="svg2">
+  <metadata
+     id="metadata8">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs6" />
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     d="M 3,0 C 3.944406,2.8332196 2.233819,6.4334035 6.25,6.938 l 0,5.562 C 6.25,11.033993 3.997226,8 1,8 c 3,2 1,6 5,6 2,0 0,0 2,0 4,0 2,-4 5,-6 -2.997226,0 -5.25,2.944994 -5.25,4.5 l 0,-5.562 C 11.753428,6.4504075 10.055593,2.8332196 11,0 10,0 8.75,3 8.75,3 8.75,3 8,1 7,0 6,1 5.25,3 5.25,3 5.25,3 4,0 3,0 z"
+     id="florist" />
+</svg>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14">
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     d="M 7,0 C 3.424161,1.2414283 2,5 2,8 2,11 3.744933,13.259763 6,14 4,10.741416 4,8 7,6 6.495078,7.352818 7,10 8,11 8.431455,10.599243 9,9.575273 9,9 c 2,2 0.562898,3.633261 0,5 1.08818,-0.559102 3,-2 3,-5 C 12,6 10,5 10,2 8.616484,2.5992431 8,4 8,5 7.047939,4.4434404 6,2.2464256 7,0 z"
+     id="fire-station" />
+</svg>

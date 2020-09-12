@@ -79,7 +79,7 @@ impl DrawOptions {
     pub fn new() -> DrawOptions {
         DrawOptions {
             suppress_traffic_signal_details: Vec::new(),
-            label_buildings: false,
+            label_buildings: true,
         }
     }
 }

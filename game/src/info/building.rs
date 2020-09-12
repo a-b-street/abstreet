@@ -5,7 +5,7 @@ use geom::{Angle, Circle, Distance, Speed, Time};
 use map_model::{BuildingID, LaneID, OffstreetParking, Traversable, SIDEWALK_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripMode, TripResult};
 use std::collections::BTreeMap;
-use widgetry::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
+use widgetry::{Btn, Color, EventCtx, Line, RewriteColor, Text, TextExt, Widget};
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::BldgInfo(id));
@@ -41,24 +41,27 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
 
     rows.extend(make_table(ctx, kv.into_iter()));
 
-    let mut txt = Text::new();
-
-    if !b.amenities.is_empty() {
-        txt.add(Line(""));
-        if b.amenities.len() == 1 {
-            txt.add(Line("1 amenity:"));
+    for (names, amenity_type) in &b.amenities {
+        let category = if abstutil::file_exists(abstutil::path(format!(
+            "system/assets/osm_amenities/{}.svg",
+            amenity_type
+        ))) {
+            Widget::draw_svg_transform(
+                ctx,
+                format!("system/assets/osm_amenities/{}.svg", amenity_type),
+                RewriteColor::ChangeAll(Color::WHITE),
+            )
+            .centered_vert()
         } else {
-            txt.add(Line(format!("{} amenities:", b.amenities.len())));
-        }
-        for (names, amenity) in &b.amenities {
-            txt.add(Line(format!(
-                "  {} ({})",
-                names.get(app.opts.language.as_ref()),
-                amenity
-            )));
-        }
+            Line(amenity_type).draw(ctx)
+        };
+        rows.push(Widget::row(vec![
+            category,
+            Line(names.get(app.opts.language.as_ref())).draw(ctx),
+        ]));
     }
 
+    let mut txt = Text::new();
     txt.add(Line(""));
     if let Some(pl) = app
         .primary

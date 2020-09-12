@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14">
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     d="M 7,0 C 6.75,0.0032 6.5,0.1644239 6.5,0.5 L 6.5,4.375 1,7 13,7 7.5,4.375 7.5,0.5 C 7.5,0.1516409 7.25,-0.0031957 7,0 z M 8,0 8,3 12,3 10,1.5 12,0 z m -7,8 0,1 1,0 0,4 -1,0 0,1 12,0 0,-1 -1,0 0,-4 1,0 0,-1 z m 6,1.5 c 1,0 2,0.5 2,1.5 l 0,2 -4,0 0,-2 C 5,10 6,9.5 7,9.5 z"
+     id="town-hall" />
+</svg>

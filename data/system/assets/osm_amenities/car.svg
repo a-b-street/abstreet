@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   id="svg2"
+   viewBox="0 1 14 14"
+   height="14"
+   width="14">
+  <metadata
+     id="metadata15">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs13" />
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     style="fill-rule:evenodd"
+     d="M 0,10.5 A 1.5,1.5 0 0 0 1.5,12 l 11,0 A 1.5,1.5 0 0 0 14,10.5 l 0,-3 A 1.5,1.5 0 0 0 12.5,6 L 1.5,6 A 1.5,1.5 0 0 0 0,7.5 Z m 1.6,-2 a 0.9,0.9 0 1 1 0,0.01 z m 9,0 a 0.9,0.9 0 1 1 0,0.01 z"
+     id="body" />
+  <g
+     transform="translate(0,1)"
+     id="tyres">
+    <rect
+       id="rect6"
+       height="3"
+       width="2"
+       y="10"
+       x="1" />
+    <rect
+       id="rect8"
+       height="3"
+       width="2"
+       y="10"
+       x="11" />
+  </g>
+  <path
+     d="M 2,6 2,3.5 A 1.5,1.5 0 0 1 3.5,2 l 7,0 A 1.5,1.5 0 0 1 12,3.5 l 0,2.5 -1.5,0 0,-1.5 a 1,1 0 0 0 -1,-1 l -5,0 a 1,1 0 0 0 -1,1 l 0,1.5 z"
+     id="top" />
+</svg>

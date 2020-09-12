@@ -1,0 +1,14 @@
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="14" viewBox="0 0 14 14" id="svg2">
+  <metadata id="metadata8">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <dc:title/>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs id="defs6"/>
+  <rect width="14" height="14" x="0" y="0" id="canvas" style="fill:none;stroke:none;visibility:hidden"/>
+  <path d="M 4.375,0.5 C 3.5,0.5 2.625,1.1125001 2.625,2.25 2.625,3.386625 3.144625,4 4.28125,4 l 2.5625,0 0.25,0 2.5625,0 C 10.792,4 11.375,3.4169999 11.375,2.28125 11.374125,1.14375 10.499999,0.5 9.625,0.5 8.2985,0.5 7.333375,1.3032501 7,2.46875 6.66575,1.3032501 5.730375,0.5 4.375,0.5 z m 0,0.875 c 1.416625,0 1.656375,1.120875 1.75,1.75 l -1.75,0 C 3.455375,3.125 3.5,2.287625 3.5,2.25 3.5,2.212375 3.45538,1.375 4.375,1.375 z m 5.25,0 c 0.874999,0 0.875,0.837375 0.875,0.875 0,0.037625 0.04462,0.875 -0.875,0.875 l -1.75,0 C 7.96863,2.495875 8.206625,1.375 9.625,1.375 z M 4,5 C 3,5 2,6 2,7 l 0,1.75 4.25,0 L 6.25,5 4,5 z m 3.75,0 0,3.75 4.25,0 L 12,7 C 12,6 11,5 10,5 L 7.75,5 z M 2,10.25 2,12 c 0,1 1,2 2,2 l 2.25,0 0,-3.75 -4.25,0 z m 5.75,0 0,3.75 2.25,0 c 1,0 2,-1 2,-2 l 0,-1.75 -4.25,0 z" id="gift" />
+</svg>

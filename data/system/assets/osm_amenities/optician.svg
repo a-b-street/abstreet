@@ -1,0 +1,14 @@
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="14" viewBox="0 0 14 14" id="svg2">
+  <metadata id="metadata8">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <dc:title/>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs id="defs6"/>
+  <rect width="14" height="14" x="0" y="0" id="canvas" style="fill:none;stroke:none;visibility:hidden"/>
+  <path d="M 5,3 0,6 c 0,2 0.25,5 1.25,5 L 5,11 C 6,11 6.25,7.5 6.25,7.5 6.76702,7.25 7.23298,7.25 7.75,7.5 7.75,7.5 8,11 9,11 l 3.75,0 C 13.75,11 14,8 14,6 L 9,3 C 8.521411,2.7236864 8.12726,3.746123 9,4.25 L 12,6 2,6 5,4.25 C 5.922502,3.7173932 5.364967,2.789286 5,3 z m -3.75,4.25 3.75,0 -0.5,2.5 -2.75,0 z m 7.75,0 3.75,0 -0.5,2.5 -2.75,0 z" id="optician" />
+</svg>

@@ -305,8 +305,12 @@ impl Widget {
     pub fn draw_svg<I: Into<String>>(ctx: &EventCtx, filename: I) -> Widget {
         JustDraw::svg(ctx, filename.into())
     }
-    pub fn draw_svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> Widget {
-        JustDraw::svg_transform(ctx, filename, rewrite)
+    pub fn draw_svg_transform<I: Into<String>>(
+        ctx: &EventCtx,
+        filename: I,
+        rewrite: RewriteColor,
+    ) -> Widget {
+        JustDraw::svg_transform(ctx, &filename.into(), rewrite)
     }
     pub fn draw_svg_with_tooltip<I: Into<String>>(
         ctx: &EventCtx,

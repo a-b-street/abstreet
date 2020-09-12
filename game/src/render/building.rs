@@ -76,17 +76,36 @@ impl Renderable for DrawBuilding {
             if label.is_none() {
                 let mut batch = GeomBatch::new();
                 let b = app.primary.map.get_b(self.id);
-                if let Some((names, _)) = b.amenities.iter().next() {
-                    let mut txt =
-                        Text::from(Line(names.get(app.opts.language.as_ref())).fg(Color::BLACK));
-                    if b.amenities.len() > 1 {
-                        txt.append(Line(format!(" (+{})", b.amenities.len() - 1)).fg(Color::BLACK));
+                let mut dy = 0.0;
+                for (names, amenity_type) in &b.amenities {
+                    if dy == 0.0 && false {
+                        let txt = Text::from(
+                            Line(names.get(app.opts.language.as_ref())).fg(Color::BLACK),
+                        );
+                        batch.append(
+                            txt.render_to_batch(g.prerender)
+                                .scale(0.1)
+                                .centered_on(b.label_center),
+                        );
+                    }
+
+                    if !abstutil::file_exists(abstutil::path(format!(
+                        "system/assets/osm_amenities/{}.svg",
+                        amenity_type
+                    ))) {
+                        println!("missing {}", amenity_type);
+                        continue;
                     }
                     batch.append(
-                        txt.render_to_batch(g.prerender)
-                            .scale(0.1)
-                            .centered_on(b.label_center),
+                        GeomBatch::load_svg(
+                            g.prerender,
+                            format!("system/assets/osm_amenities/{}.svg", amenity_type),
+                        )
+                        .scale(0.3)
+                        .centered_on(b.label_center.offset(0.0, dy)),
                     );
+                    // Original files are 14x14
+                    dy += 16.0 * 0.3;
                 }
                 *label = Some(g.prerender.upload(batch));
             }

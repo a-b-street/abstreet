@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14"
+   id="svg2">
+  <metadata
+     id="metadata8">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs6" />
+  <rect
+     width="14"
+     height="14"
+     x="0"
+     y="0"
+     id="canvas"
+     style="fill:none;stroke:none;visibility:hidden" />
+  <path
+     d="m 0,0 0,7 c 0,0 0,4 4,4 0.487694,0 0.905229,-0.08308 1.28125,-0.1875 C 5.222862,10.329209 5.25,10 5.25,10 l 0,-0.21875 C 4.906989,9.915179 4.490013,10 4,10 1,10 1,7 1,7 L 1,1.5 c 2,0.9520605 4,0.9520605 6,0 L 7,2.65625 C 7.334486,2.7893793 7.676632,2.9137483 8,3 L 8,0 C 5,1.3728814 3,1.3050847 0,0 z m 2.5,3 c -0.552285,0 -1,0.4477153 -1,1 0,0.5522847 0.447715,1 1,1 0.552285,0 1,-0.4477153 1,-1 0,-0.5522847 -0.447715,-1 -1,-1 z M 6,3 6,10 c 0,0 0,4 4,4 4,0 4,-4 4,-4 L 14,3 C 11,4.3728814 9,4.3050847 6,3 z m 2.5,3 c 0.552285,0 1,0.4477153 1,1 0,0.552285 -0.447715,1 -1,1 -0.552285,0 -1,-0.447715 -1,-1 0,-0.5522847 0.447715,-1 1,-1 z m 3,0 c 0.552285,0 1,0.4477153 1,1 0,0.552285 -0.447715,1 -1,1 -0.552285,0 -1,-0.447715 -1,-1 0,-0.5522847 0.447715,-1 1,-1 z M 4,6.5 c -1.46224,0 -2,1.016949 -2,2 l 3.25,0 0,-1.65625 C 4.945701,6.6221969 4.545878,6.5 4,6.5 z m 4,3.5 4,0 c 0,1 -1,2 -2,2 -1,0 -2,-1 -2,-2 z"
+     id="theatre" />
+</svg>
