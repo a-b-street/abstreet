@@ -264,7 +264,8 @@ impl SpeedControls {
                 let multiplier = match self.setting {
                     SpeedSetting::Realtime => 1.0,
                     SpeedSetting::Fast => 5.0,
-                    SpeedSetting::Faster => 30.0,
+                    // TODO tmp
+                    SpeedSetting::Faster => 300.0,
                     SpeedSetting::Fastest => 3600.0,
                 };
                 let dt = multiplier * real_dt;

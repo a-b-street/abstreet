@@ -2,8 +2,10 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Angle, Distance, Duration, Polygon, Pt2D, Ring};
 use map_model::{Building, BuildingID, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
+use rand::{Rng, SeedableRng};
+use rand_xorshift::XorShiftRng;
 use std::cell::RefCell;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
@@ -69,6 +71,43 @@ impl Renderable for DrawBuilding {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions) {
+        let mut batch = GeomBatch::new();
+        let b = app.primary.map.get_b(self.id);
+
+        let pct = {
+            let (_, mins, secs, _) = app.primary.sim.time().get_parts();
+            (Duration::minutes(mins) + Duration::seconds(secs as f64)) / Duration::minutes(60)
+        };
+        let angle = Angle::new_degs(pct * 360.0);
+        let mut rng = XorShiftRng::seed_from_u64(b.id.0 as u64);
+        let height = Distance::meters(rng.gen_range(5.0, 20.0));
+        let shadow = Polygon::with_holes(
+            Ring::must_new(
+                b.polygon
+                    .points()
+                    .iter()
+                    .map(|pt| pt.project_away(height, angle))
+                    .collect(),
+            ),
+            Vec::new(),
+        );
+        batch.push(Color::BLACK.alpha(0.5), shadow.clone());
+
+        for (pair1, pair2) in b
+            .polygon
+            .points()
+            .windows(2)
+            .zip(shadow.points().windows(2))
+        {
+            batch.push(
+                Color::BLACK.alpha(0.3),
+                Polygon::buggy_new(vec![pair1[0], pair2[0], pair2[1], pair1[1], pair1[0]]),
+            );
+        }
+
+        let draw = g.prerender.upload(batch);
+        g.redraw(&draw);
+
         if opts.label_buildings {
             // Labels are expensive to compute up-front, so do it lazily, since we don't really
             // zoom in on all buildings in a single session anyway
