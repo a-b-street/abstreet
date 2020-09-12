@@ -200,8 +200,8 @@ impl CommuterPatterns {
                     batch.push(Color::PURPLE, b.polygon.clone());
                     match b.bldg_type {
                         BuildingType::Residential(_) => building_counts[0].1 += 1,
-                        BuildingType::ResidentialCommercial(_) => building_counts[1].1 += 1,
-                        BuildingType::Commercial => building_counts[2].1 += 1,
+                        BuildingType::ResidentialCommercial(_, _) => building_counts[1].1 += 1,
+                        BuildingType::Commercial(_) => building_counts[2].1 += 1,
                         BuildingType::Empty => building_counts[3].1 += 1,
                     }
                 }

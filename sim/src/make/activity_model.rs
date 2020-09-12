@@ -20,34 +20,23 @@ impl ScenarioGenerator {
         let mut num_bldg_mixed_residential_commercial = 0;
         for b in map.all_buildings() {
             match b.bldg_type {
-                BuildingType::Residential(num_ppl) => {
-                    if num_ppl == 0 {
-                        trace!("empty Residential");
-                    }
-
-                    for _ in 0..num_ppl {
+                BuildingType::Residential(resident_cap) => {
+                    for _ in 0..resident_cap {
                         residents.push(b.id);
                     }
                     num_bldg_residential += 1;
                 }
-                BuildingType::ResidentialCommercial(num_ppl) => {
-                    if num_ppl == 0 {
-                        trace!("empty ResidentialCommercial");
-                    }
-                    for _ in 0..num_ppl {
+                BuildingType::ResidentialCommercial(resident_cap, worker_cap) => {
+                    for _ in 0..resident_cap {
                         residents.push(b.id);
-
-                        // TODO: currently we just assume work capacity is the same as residential
-                        // capacity, which is surely not true. How can we better estimate?
+                    }
+                    for _ in 0..worker_cap {
                         workers.push(b.id);
                     }
                     num_bldg_mixed_residential_commercial += 1;
                 }
-                BuildingType::Commercial => {
-                    // TODO: currently we just assume some constant for jobs per building.
-                    // A better metrics might be available parking or building size
-                    let building_cap = usize::pow(2, rng.gen_range(0, 7));
-                    for _ in 0..building_cap {
+                BuildingType::Commercial(worker_cap) => {
+                    for _ in 0..worker_cap {
                         workers.push(b.id);
                     }
                     num_bldg_commercial += 1;
