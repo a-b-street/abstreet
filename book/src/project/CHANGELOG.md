@@ -579,3 +579,11 @@ changes here.
 - fleshing out the headless API and tooling for controlling the simulation from any language
 - import a few more places, redo left-hand driving support so far
 - various bug/performance fixes
+
+0.2.11
+
+- disabled support for editing the map without resetting the simulation. needs more work, but solid start.
+- improvements to API, activity model, congestion capping
+- small UI tweaks for parking, editing multiple signals
+- fixed last bugs for left-handed driving, should work just as well now
+- lots of graphics experiments from the hackathon, not merged yet
