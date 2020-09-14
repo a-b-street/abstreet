@@ -144,7 +144,7 @@ impl Sim {
 
             map_name: map.get_name().to_string(),
             // TODO
-            edits_name: "untitled edits".to_string(),
+            edits_name: "Untitled Proposal".to_string(),
             run_name: opts.run_name,
             step_count: 0,
             alerts: opts.alerts,

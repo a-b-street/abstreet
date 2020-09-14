@@ -261,7 +261,7 @@ pub fn maybe_exit_sandbox(ctx: &mut EventCtx) -> Transition {
                     Transition::Push(SaveEdits::new(
                         ctx,
                         app,
-                        "Do you want to save your edits first?",
+                        "Do you want to save your proposal first?",
                         true,
                         None,
                     )),

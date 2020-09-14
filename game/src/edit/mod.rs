@@ -169,14 +169,14 @@ impl State for EditMode {
         }
         match self.changelist.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "load edits" => {
+                "load proposal" => {
                     if app.primary.map.unsaved_edits() {
                         return Transition::Multi(vec![
                             Transition::Push(LoadEdits::new(ctx, app, self.mode.clone())),
                             Transition::Push(SaveEdits::new(
                                 ctx,
                                 app,
-                                "Do you want to save your edits first?",
+                                "Do you want to save your proposal first?",
                                 true,
                                 Some(Transition::Multi(vec![Transition::Pop, Transition::Pop])),
                             )),
@@ -185,11 +185,11 @@ impl State for EditMode {
                         return Transition::Push(LoadEdits::new(ctx, app, self.mode.clone()));
                     }
                 }
-                "save edits as" | "save edits" => {
+                "save proposal as" | "save proposal" => {
                     return Transition::Push(SaveEdits::new(
                         ctx,
                         app,
-                        "Save your edits",
+                        "Save your proposal",
                         false,
                         Some(Transition::Pop),
                     ));
@@ -307,7 +307,7 @@ impl SaveEdits {
                 Widget::row(vec![
                     btn,
                     if discard {
-                        Btn::text_bg2("Discard edits").build_def(ctx, None)
+                        Btn::text_bg2("Discard proposal").build_def(ctx, None)
                     } else {
                         Widget::nothing()
                     },
@@ -329,7 +329,7 @@ impl SaveEdits {
             Btn::text_bg2("Save").inactive(ctx)
         } else if abstutil::file_exists(abstutil::path_edits(app.primary.map.get_name(), candidate))
         {
-            Btn::text_bg2("Overwrite existing edits").build_def(ctx, None)
+            Btn::text_bg2("Overwrite existing proposal").build_def(ctx, None)
         } else {
             Btn::text_bg2("Save").build_def(ctx, hotkey(Key::Enter))
         }
@@ -341,7 +341,7 @@ impl State for SaveEdits {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "Save" | "Overwrite existing edits" => {
+                "Save" | "Overwrite existing proposal" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     edits.edits_name = self.current_name.clone();
                     app.primary
@@ -353,7 +353,7 @@ impl State for SaveEdits {
                     }
                     return Transition::Pop;
                 }
-                "Discard edits" => {
+                "Discard proposal" => {
                     apply_map_edits(ctx, app, MapEdits::new());
                     return Transition::Pop;
                 }
@@ -389,7 +389,7 @@ impl LoadEdits {
     fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn State> {
         let current_edits_name = &app.primary.map.get_edits().edits_name;
         let your_edits = vec![
-            Line("Your edits").small_heading().draw(ctx),
+            Line("Your proposals").small_heading().draw(ctx),
             Menu::new(
                 ctx,
                 abstutil::list_all_objects(abstutil::path_all_edits(app.primary.map.get_name()))
@@ -413,12 +413,12 @@ impl LoadEdits {
             mode,
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Load edits").small_heading().draw(ctx),
+                    Line("Load proposal").small_heading().draw(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
-                Btn::text_fg("Start over with blank edits").build_def(ctx, None),
+                Btn::text_fg("Start over with blank proposal").build_def(ctx, None),
                 Widget::row(vec![Widget::col(your_edits), Widget::col(proposals)]).evenly_spaced(),
             ]))
             .exact_size_percent(50, 50)
@@ -433,7 +433,7 @@ impl State for LoadEdits {
             Outcome::Clicked(x) => {
                 match x.as_ref() {
                     "close" => Transition::Pop,
-                    "Start over with blank edits" => {
+                    "Start over with blank proposal" => {
                         apply_map_edits(ctx, app, MapEdits::new());
                         Transition::Pop
                     }
@@ -456,7 +456,7 @@ impl State for LoadEdits {
                                 Ok(edits)
                             } else {
                                 Err(
-                                    "The current gameplay mode restricts edits. These edits have \
+                                    "The current gameplay mode restricts edits. This proposal has \
                                      a banned command."
                                         .to_string(),
                                 )
@@ -566,7 +566,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     }
 
     // Autosave
-    if app.primary.map.get_edits().edits_name != "untitled edits" {
+    if app.primary.map.get_edits().edits_name != "Untitled Proposal" {
         app.primary.map.save_edits();
     }
 }
@@ -654,7 +654,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
         Widget::row(vec![
             Btn::text_fg(format!("{} ↓", &edits.edits_name)).build(
                 ctx,
-                "load edits",
+                "load proposal",
                 lctrl(Key::L),
             ),
             (if edits.commands.is_empty() {
@@ -666,7 +666,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
             } else {
                 Btn::svg_def("system/assets/tools/save.svg").build(
                     ctx,
-                    "save edits as",
+                    "save proposal as",
                     lctrl(Key::S),
                 )
             })
@@ -683,7 +683,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
             .centered_vert(),
         ]),
         if app.primary.map.unsaved_edits() {
-            Btn::text_fg("Unsaved edits").build(ctx, "save edits", None)
+            Btn::text_fg("Unsaved proposal").build(ctx, "save proposal", None)
         } else {
             Btn::text_fg("Autosaved!").inactive(ctx)
         },

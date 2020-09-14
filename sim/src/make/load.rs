@@ -88,7 +88,7 @@ impl SimFlags {
             let mut sim: Sim = abstutil::read_binary(self.load.clone(), timer);
 
             let mut map = Map::new(abstutil::path_map(&sim.map_name), timer);
-            if sim.edits_name != "untitled edits" {
+            if sim.edits_name != "Untitled Proposal" {
                 map.must_apply_edits(
                     MapEdits::load(
                         &map,

@@ -88,7 +88,7 @@ impl MapEdits {
     pub fn new() -> MapEdits {
         MapEdits {
             // Something has to fill this out later
-            edits_name: "untitled edits".to_string(),
+            edits_name: "Untitled Proposal".to_string(),
             proposal_description: Vec::new(),
             proposal_link: None,
             commands: Vec::new(),
@@ -114,7 +114,7 @@ impl MapEdits {
 
     // TODO Version these? Or it's unnecessary, since we have a command stack.
     fn save(&self, map: &Map) {
-        assert_ne!(self.edits_name, "untitled edits");
+        assert_ne!(self.edits_name, "Untitled Proposal");
 
         abstutil::write_json(
             abstutil::path_edits(map.get_name(), &self.edits_name),

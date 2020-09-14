@@ -459,11 +459,11 @@ impl Map {
     }
 
     pub fn unsaved_edits(&self) -> bool {
-        self.edits.edits_name == "untitled edits" && !self.edits.commands.is_empty()
+        self.edits.edits_name == "Untitled Proposal" && !self.edits.commands.is_empty()
     }
 
     pub fn save(&self) {
-        assert_eq!(self.edits.edits_name, "untitled edits");
+        assert_eq!(self.edits.edits_name, "Untitled Proposal");
         assert!(self.edits.commands.is_empty());
         assert!(!self.pathfinder_dirty);
         abstutil::write_binary(abstutil::path_map(&self.name), self);

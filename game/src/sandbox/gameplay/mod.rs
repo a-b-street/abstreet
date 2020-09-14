@@ -333,7 +333,7 @@ impl State for FinalScore {
                         return Transition::Push(SaveEdits::new(
                             ctx,
                             app,
-                            "Do you want to save your edits first?",
+                            "Do you want to save your proposal first?",
                             true,
                             None,
                         ));
@@ -345,7 +345,7 @@ impl State for FinalScore {
                         return Transition::Push(SaveEdits::new(
                             ctx,
                             app,
-                            "Do you want to save your edits first?",
+                            "Do you want to save your proposal first?",
                             true,
                             None,
                         ));

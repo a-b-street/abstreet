@@ -213,7 +213,7 @@ impl ChallengesPicker {
                 let mut idx = 1;
                 for score in scores {
                     txt.add(Line(format!(
-                        "{}) {}, using edits: {}",
+                        "{}) {}, using proposal: {}",
                         idx, score.score, score.edits_name
                     )));
                     idx += 1;

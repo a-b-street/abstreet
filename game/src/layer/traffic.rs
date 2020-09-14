@@ -137,7 +137,7 @@ impl Layer for Throughput {
                     ctx,
                     app,
                     self.panel
-                        .maybe_is_checked("Compare before edits")
+                        .maybe_is_checked("Compare before proposal")
                         .unwrap_or(false),
                 );
                 self.panel.align_above(ctx, minimap);
@@ -176,7 +176,7 @@ impl Throughput {
                 .wrap_to_pct(ctx, 15)
                 .draw(ctx),
             if app.has_prebaked().is_some() {
-                Checkbox::switch(ctx, "Compare before edits", None, false)
+                Checkbox::switch(ctx, "Compare before proposal", None, false)
             } else {
                 Widget::nothing()
             },
@@ -267,7 +267,7 @@ impl Throughput {
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
             ]),
-            Checkbox::switch(ctx, "Compare before edits", None, true),
+            Checkbox::switch(ctx, "Compare before proposal", None, true),
             scale.make_legend(ctx, vec!["less traffic", "same", "more"]),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
@@ -319,7 +319,7 @@ impl Layer for Delay {
                     ctx,
                     app,
                     self.panel
-                        .maybe_is_checked("Compare before edits")
+                        .maybe_is_checked("Compare before proposal")
                         .unwrap_or(false),
                 );
                 self.panel.align_above(ctx, minimap);
@@ -380,7 +380,7 @@ impl Delay {
                     .align_right(),
             ]),
             if app.has_prebaked().is_some() {
-                Checkbox::switch(ctx, "Compare before edits", None, false)
+                Checkbox::switch(ctx, "Compare before proposal", None, false)
             } else {
                 Widget::nothing()
             },
@@ -432,7 +432,7 @@ impl Delay {
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
             ]),
-            Checkbox::switch(ctx, "Compare before edits", None, true),
+            Checkbox::switch(ctx, "Compare before proposal", None, true),
             ColorLegend::gradient(
                 ctx,
                 &ColorScale(vec![green, Color::WHITE, red]),
