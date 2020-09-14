@@ -24,6 +24,11 @@ jobs:
         with:
           name: abst_windows
           path: abst_windows
+      - name: Upload just the binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: abst_windows_binary
+          path: target/release/game.exe
   build-macos:
     runs-on: macos-latest
     if: "contains(github.event.head_commit.message, '[rebuild]')"
@@ -43,6 +48,11 @@ jobs:
         with:
           name: abst_mac
           path: abst_mac.zip
+      - name: Upload just the binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: abst_mac_binary
+          path: target/release/game
   build-linux:
     runs-on: ubuntu-latest
     if: "contains(github.event.head_commit.message, '[rebuild]')"
