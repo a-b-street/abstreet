@@ -257,8 +257,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneType</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BulkSelect</span> {
@@ -285,7 +285,7 @@
                 <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Edit {} roads&quot;</span>, <span class="ident">selector</span>.<span class="ident">roads</span>.<span class="ident">len</span>())).<span class="ident">build</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;edit roads&quot;</span>,
-                    <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>),
+                    <span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">E</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]),
                 )
             },
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {

@@ -395,6 +395,8 @@
 <span id="395">395</span>
 <span id="396">396</span>
 <span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">commute</span>;
@@ -734,6 +736,7 @@
                             <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
                             <span class="bool-val">true</span>,
                             <span class="prelude-val">None</span>,
+                            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
                         ));
                     }
                 }
@@ -746,6 +749,7 @@
                             <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
                             <span class="bool-val">true</span>,
                             <span class="prelude-val">None</span>,
+                            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
                         ));
                     }
                 }

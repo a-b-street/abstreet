@@ -158,6 +158,14 @@
 <span id="158">158</span>
 <span id="159">159</span>
 <span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # Widgets</span>
 <span class="doccomment">//!</span>
@@ -253,6 +261,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">hotkey</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">active</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">fg</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
@@ -263,6 +272,7 @@
             <span class="ident">hotkey</span>: <span class="prelude-val">None</span>,
             <span class="ident">active</span>: <span class="bool-val">true</span>,
             <span class="ident">tooltip</span>: <span class="prelude-val">None</span>,
+            <span class="ident">fg</span>: <span class="prelude-val">None</span>,
         }
     }
 
@@ -294,6 +304,11 @@
         <span class="self">self</span>
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fg</span>: <span class="ident">Color</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">fg</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">fg</span>);
+        <span class="self">self</span>
+    }
+
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">with_value</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="ident">X</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span> {
         <span class="ident">Choice</span> {
             <span class="ident">label</span>: <span class="self">self</span>.<span class="ident">label</span>.<span class="ident">clone</span>(),
@@ -301,6 +316,7 @@
             <span class="ident">hotkey</span>: <span class="self">self</span>.<span class="ident">hotkey</span>.<span class="ident">clone</span>(),
             <span class="ident">active</span>: <span class="self">self</span>.<span class="ident">active</span>,
             <span class="ident">tooltip</span>: <span class="self">self</span>.<span class="ident">tooltip</span>.<span class="ident">clone</span>(),
+            <span class="ident">fg</span>: <span class="self">self</span>.<span class="ident">fg</span>,
         }
     }
 }
