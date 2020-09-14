@@ -1333,6 +1333,21 @@
 <span id="1333">1333</span>
 <span id="1334">1334</span>
 <span id="1335">1335</span>
+<span id="1336">1336</span>
+<span id="1337">1337</span>
+<span id="1338">1338</span>
+<span id="1339">1339</span>
+<span id="1340">1340</span>
+<span id="1341">1341</span>
+<span id="1342">1342</span>
+<span id="1343">1343</span>
+<span id="1344">1344</span>
+<span id="1345">1345</span>
+<span id="1346">1346</span>
+<span id="1347">1347</span>
+<span id="1348">1348</span>
+<span id="1349">1349</span>
+<span id="1350">1350</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">analytics</span>::<span class="ident">Window</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -2380,6 +2395,21 @@
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lookup_parked_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">id</span>)
+    }
+    <span class="comment">// For every parked car, (position of parking spot, position of owner)</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">parking</span>
+            .<span class="ident">all_parked_car_positions</span>(<span class="ident">map</span>)
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">car_pos</span>, <span class="ident">owner</span>)<span class="op">|</span> {
+                <span class="comment">// TODO Should include people off-map and in the middle of a non-car trip too</span>
+                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">get_person</span>(<span class="ident">owner</span>)<span class="question-mark">?</span>.<span class="ident">state</span> {
+                    <span class="ident">PersonState</span>::<span class="ident">Inside</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>((<span class="ident">car_pos</span>, <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk_pos</span>)),
+                    <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                    <span class="ident">PersonState</span>::<span class="ident">OffMap</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                }
+            })
+            .<span class="ident">collect</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lookup_person</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">PersonID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Person</span><span class="op">&gt;</span> {

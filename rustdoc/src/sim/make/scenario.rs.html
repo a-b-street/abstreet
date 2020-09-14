@@ -723,6 +723,9 @@
 <span id="723">723</span>
 <span id="724">724</span>
 <span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>, <span class="ident">OrigPersonID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">Sim</span>,
@@ -944,6 +947,9 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rand_ped_speed</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Speed</span> {
         <span class="ident">Scenario</span>::<span class="ident">rand_speed</span>(<span class="ident">rng</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">2.0</span>), <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">3.0</span>))
+    }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_ped_speed</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Speed</span> {
+        <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">3.0</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_parked_cars_per_bldg</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {
