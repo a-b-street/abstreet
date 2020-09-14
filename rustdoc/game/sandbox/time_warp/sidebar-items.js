@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["area_under_curve",""],["build_jump_to_delay_button",""],["build_jump_to_delay_picker",""],["build_jump_to_time_btn",""],["compare_count",""]],"struct":[["JumpToTime",""],["TimeWarpScreen",""]]});
+initSidebarItems({"fn":[["area_under_curve",""],["build_jump_to_delay_button",""],["build_jump_to_time_btn",""],["compare_count",""]],"struct":[["JumpToDelay",""],["JumpToTime",""],["TimeWarpScreen",""]]});

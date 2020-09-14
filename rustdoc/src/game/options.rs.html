@@ -361,7 +361,7 @@
 
     <span class="kw">pub</span> <span class="ident">time_increment</span>: <span class="ident">Duration</span>,
     <span class="kw">pub</span> <span class="ident">dont_draw_time_warp</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">time_warp_halt_limit</span>: <span class="ident">Duration</span>,
+    <span class="kw">pub</span> <span class="ident">jump_to_delay</span>: <span class="ident">Duration</span>,
 
     <span class="kw">pub</span> <span class="ident">language</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
@@ -381,7 +381,7 @@
 
             <span class="ident">time_increment</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">10</span>),
             <span class="ident">dont_draw_time_warp</span>: <span class="bool-val">false</span>,
-            <span class="ident">time_warp_halt_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>),
+            <span class="ident">jump_to_delay</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>),
 
             <span class="ident">language</span>: <span class="prelude-val">None</span>,
         }

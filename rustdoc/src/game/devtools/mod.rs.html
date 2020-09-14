@@ -142,8 +142,6 @@
 <span id="142">142</span>
 <span id="143">143</span>
 <span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">destinations</span>;
 <span class="kw">mod</span> <span class="ident">kml</span>;
@@ -250,9 +248,7 @@
                                 <span class="ident">abstutil</span>::<span class="ident">path_scenario</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">s</span>),
                                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
                             );
-                            <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">scenario</span>::<span class="ident">ScenarioManager</span>::<span class="ident">new</span>(
-                                <span class="ident">scenario</span>, <span class="ident">ctx</span>, <span class="ident">app</span>,
-                            )))
+                            <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">scenario</span>::<span class="ident">ScenarioManager</span>::<span class="ident">new</span>(<span class="ident">scenario</span>, <span class="ident">ctx</span>, <span class="ident">app</span>))
                         }),
                     ));
                 }
