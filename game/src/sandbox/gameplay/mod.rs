@@ -336,6 +336,7 @@ impl State for FinalScore {
                             "Do you want to save your proposal first?",
                             true,
                             None,
+                            Box::new(|_, _| {}),
                         ));
                     }
                 }
@@ -348,6 +349,7 @@ impl State for FinalScore {
                             "Do you want to save your proposal first?",
                             true,
                             None,
+                            Box::new(|_, _| {}),
                         ));
                     }
                 }

@@ -456,3 +456,17 @@ pub fn file_exists<I: Into<String>>(path: I) -> bool {
         .get_file(path.into().trim_start_matches("../data/system/"))
         .is_some()
 }
+
+// Idempotent
+#[cfg(not(target_arch = "wasm32"))]
+pub fn delete_file<I: Into<String>>(path: I) {
+    let path = path.into();
+    if std::fs::remove_file(&path).is_ok() {
+        println!("Deleted {}", path);
+    } else {
+        println!("{} doesn't exist, so not deleting it", path);
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn delete_file<I: Into<String>>(path: I) {}

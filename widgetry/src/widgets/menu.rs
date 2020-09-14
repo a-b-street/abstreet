@@ -38,10 +38,10 @@ impl<T: 'static> Menu<T> {
                 if let Some(ref key) = choice.hotkey {
                     txt.add_appended(vec![
                         Line(key.describe()).fg(style.hotkey_color),
-                        Line(format!(" - {}", choice.label)),
+                        Line(format!(" - {}", choice.label)).maybe_fg(choice.fg),
                     ]);
                 } else {
-                    txt.add(Line(&choice.label));
+                    txt.add(Line(&choice.label).maybe_fg(choice.fg));
                 }
             } else {
                 if let Some(ref key) = choice.hotkey {

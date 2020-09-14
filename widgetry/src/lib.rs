@@ -92,6 +92,7 @@ pub struct Choice<T> {
     pub(crate) hotkey: Option<MultiKey>,
     pub(crate) active: bool,
     pub(crate) tooltip: Option<String>,
+    pub(crate) fg: Option<Color>,
 }
 
 impl<T> Choice<T> {
@@ -102,6 +103,7 @@ impl<T> Choice<T> {
             hotkey: None,
             active: true,
             tooltip: None,
+            fg: None,
         }
     }
 
@@ -133,6 +135,11 @@ impl<T> Choice<T> {
         self
     }
 
+    pub fn fg(mut self, fg: Color) -> Choice<T> {
+        self.fg = Some(fg);
+        self
+    }
+
     pub(crate) fn with_value<X>(&self, data: X) -> Choice<X> {
         Choice {
             label: self.label.clone(),
@@ -140,6 +147,7 @@ impl<T> Choice<T> {
             hotkey: self.hotkey.clone(),
             active: self.active,
             tooltip: self.tooltip.clone(),
+            fg: self.fg,
         }
     }
 }

@@ -17,7 +17,7 @@ pub use self::validate::{check_blackholes, check_sidewalk_connectivity, try_chan
 use crate::app::{App, ShowEverything};
 use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
-use crate::game::{PopupMsg, State, Transition};
+use crate::game::{ChooseSomething, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::options::OptionsPanel;
 use crate::render::DrawMap;
@@ -169,31 +169,90 @@ impl State for EditMode {
         }
         match self.changelist.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "load proposal" => {
-                    if app.primary.map.unsaved_edits() {
-                        return Transition::Multi(vec![
-                            Transition::Push(LoadEdits::new(ctx, app, self.mode.clone())),
-                            Transition::Push(SaveEdits::new(
+                "manage proposals" => {
+                    let mode = self.mode.clone();
+                    return Transition::Push(ChooseSomething::new_below(
+                        ctx,
+                        self.changelist.rect_of("manage proposals"),
+                        vec![
+                            Choice::string("rename current proposal"),
+                            Choice::string("open a saved proposal").multikey(lctrl(Key::L)),
+                            Choice::string("create a blank proposal"),
+                            Choice::string("save this proposal as..."),
+                            Choice::string("delete this proposal and remove all edits")
+                                .fg(Color::hex("#EB3223")),
+                        ],
+                        Box::new(move |choice, ctx, app| match choice.as_ref() {
+                            "rename current proposal" => {
+                                let old_name = app.primary.map.get_edits().edits_name.clone();
+                                Transition::Replace(SaveEdits::new(
+                                    ctx,
+                                    app,
+                                    format!("Rename \"{}\" to what?", old_name),
+                                    false,
+                                    Some(Transition::Pop),
+                                    Box::new(move |_, app| {
+                                        abstutil::delete_file(abstutil::path_edits(
+                                            app.primary.map.get_name(),
+                                            &old_name,
+                                        ));
+                                    }),
+                                ))
+                            }
+                            "open a saved proposal" => {
+                                if app.primary.map.unsaved_edits() {
+                                    Transition::Multi(vec![
+                                        Transition::Replace(LoadEdits::new(ctx, app, mode.clone())),
+                                        Transition::Push(SaveEdits::new(
+                                            ctx,
+                                            app,
+                                            "Do you want to save your proposal first?",
+                                            true,
+                                            Some(Transition::Multi(vec![
+                                                Transition::Pop,
+                                                Transition::Pop,
+                                            ])),
+                                            Box::new(|_, _| {}),
+                                        )),
+                                    ])
+                                } else {
+                                    Transition::Replace(LoadEdits::new(ctx, app, mode.clone()))
+                                }
+                            }
+                            "create a blank proposal" => Transition::Replace(SaveEdits::new(
                                 ctx,
                                 app,
                                 "Do you want to save your proposal first?",
                                 true,
-                                Some(Transition::Multi(vec![Transition::Pop, Transition::Pop])),
+                                Some(Transition::Pop),
+                                Box::new(|ctx, app| {
+                                    apply_map_edits(ctx, app, MapEdits::new());
+                                }),
                             )),
-                        ]);
-                    } else {
-                        return Transition::Push(LoadEdits::new(ctx, app, self.mode.clone()));
-                    }
-                }
-                "save proposal as" | "save proposal" => {
-                    return Transition::Push(SaveEdits::new(
-                        ctx,
-                        app,
-                        "Save your proposal",
-                        false,
-                        Some(Transition::Pop),
+                            "save this proposal as..." => Transition::Replace(SaveEdits::new(
+                                ctx,
+                                app,
+                                format!(
+                                    "Copy \"{}\" to what new name?",
+                                    app.primary.map.get_edits().edits_name
+                                ),
+                                false,
+                                Some(Transition::Pop),
+                                Box::new(|_, _| {}),
+                            )),
+                            "delete this proposal and remove all edits" => {
+                                abstutil::delete_file(abstutil::path_edits(
+                                    app.primary.map.get_name(),
+                                    &app.primary.map.get_edits().edits_name,
+                                ));
+                                apply_map_edits(ctx, app, MapEdits::new());
+                                Transition::Pop
+                            }
+                            _ => unreachable!(),
+                        }),
                     ));
                 }
+                "load proposal" => {}
                 "undo" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     let maybe_id = cmd_to_id(&edits.commands.pop().unwrap());
@@ -225,6 +284,25 @@ impl State for EditMode {
                 }
             },
             _ => {}
+        }
+
+        // So useful that the hotkey should work even before opening the menu
+        if ctx.input.pressed(lctrl(Key::L)) {
+            if app.primary.map.unsaved_edits() {
+                return Transition::Multi(vec![
+                    Transition::Push(LoadEdits::new(ctx, app, self.mode.clone())),
+                    Transition::Push(SaveEdits::new(
+                        ctx,
+                        app,
+                        "Do you want to save your proposal first?",
+                        true,
+                        Some(Transition::Multi(vec![Transition::Pop, Transition::Pop])),
+                        Box::new(|_, _| {}),
+                    )),
+                ]);
+            } else {
+                return Transition::Push(LoadEdits::new(ctx, app, self.mode.clone()));
+            }
         }
 
         if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
@@ -279,16 +357,18 @@ pub struct SaveEdits {
     panel: Panel,
     current_name: String,
     cancel: Option<Transition>,
+    on_success: Box<dyn Fn(&mut EventCtx, &mut App)>,
     reset: bool,
 }
 
 impl SaveEdits {
-    pub fn new(
+    pub fn new<I: Into<String>>(
         ctx: &mut EventCtx,
         app: &App,
-        title: &str,
+        title: I,
         discard: bool,
         cancel: Option<Transition>,
+        on_success: Box<dyn Fn(&mut EventCtx, &mut App)>,
     ) -> Box<dyn State> {
         let initial_name = if app.primary.map.unsaved_edits() {
             String::new()
@@ -320,6 +400,7 @@ impl SaveEdits {
             ]))
             .build(ctx),
             cancel,
+            on_success,
             reset: discard,
         })
     }
@@ -351,6 +432,7 @@ impl State for SaveEdits {
                     if self.reset {
                         apply_map_edits(ctx, app, MapEdits::new());
                     }
+                    (self.on_success)(ctx, app);
                     return Transition::Pop;
                 }
                 "Discard proposal" => {
@@ -652,25 +734,17 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
     let edits = app.primary.map.get_edits();
     let mut col = vec![
         Widget::row(vec![
-            Btn::text_fg(format!("{} ↓", &edits.edits_name)).build(
+            Btn::plaintext(format!("{} ↓", &edits.edits_name)).build(
                 ctx,
-                "load proposal",
-                lctrl(Key::L),
+                "manage proposals",
+                lctrl(Key::P),
             ),
-            (if edits.commands.is_empty() {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/save.svg",
-                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                )
-            } else {
-                Btn::svg_def("system/assets/tools/save.svg").build(
-                    ctx,
-                    "save proposal as",
-                    lctrl(Key::S),
-                )
-            })
-            .centered_vert(),
+            // TODO This is a lie for untitled proposals right now, need to pick names for those
+            "autosaved"
+                .draw_text(ctx)
+                .container()
+                .padding(10)
+                .bg(Color::hex("#5D9630")),
             (if !edits.commands.is_empty() {
                 Btn::svg_def("system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
             } else {
@@ -682,11 +756,6 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
             })
             .centered_vert(),
         ]),
-        if app.primary.map.unsaved_edits() {
-            Btn::text_fg("Unsaved proposal").build(ctx, "save proposal", None)
-        } else {
-            Btn::text_fg("Autosaved!").inactive(ctx)
-        },
         Text::from_multiline(vec![
             Line(format!("{} roads changed", edits.changed_roads.len())),
             Line(format!(

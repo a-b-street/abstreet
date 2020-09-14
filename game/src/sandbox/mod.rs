@@ -264,6 +264,7 @@ pub fn maybe_exit_sandbox(ctx: &mut EventCtx) -> Transition {
                         "Do you want to save your proposal first?",
                         true,
                         None,
+                        Box::new(|_, _| {}),
                     )),
                 ]);
             }

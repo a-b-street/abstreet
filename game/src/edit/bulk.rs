@@ -6,8 +6,8 @@ use geom::Speed;
 use map_model::{LaneType, RoadID};
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Choice, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, TextExt, VerticalAlignment, Widget,
+    hotkey, hotkeys, Btn, Choice, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct BulkSelect {
@@ -34,7 +34,7 @@ fn make_select_panel(ctx: &mut EventCtx, app: &App, selector: &RoadSelector) -> 
                 Btn::text_fg(format!("Edit {} roads", selector.roads.len())).build(
                     ctx,
                     "edit roads",
-                    hotkey(Key::E),
+                    hotkeys(vec![Key::E, Key::Enter]),
                 )
             },
             if app.opts.dev {

@@ -61,6 +61,13 @@ impl TextSpan {
         self.fg_color = color;
         self
     }
+    pub fn maybe_fg(mut self, color: Option<Color>) -> TextSpan {
+        assert_eq!(self.fg_color, DEFAULT_FG_COLOR);
+        if let Some(c) = color {
+            self.fg_color = c;
+        }
+        self
+    }
 
     pub fn draw(self, ctx: &EventCtx) -> Widget {
         Text::from(self).draw(ctx)
