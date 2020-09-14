@@ -103,9 +103,7 @@ impl State for DevToolsMode {
                                 abstutil::path_scenario(app.primary.map.get_name(), &s),
                                 &mut Timer::throwaway(),
                             );
-                            Transition::Replace(Box::new(scenario::ScenarioManager::new(
-                                scenario, ctx, app,
-                            )))
+                            Transition::Replace(scenario::ScenarioManager::new(scenario, ctx, app))
                         }),
                     ));
                 }

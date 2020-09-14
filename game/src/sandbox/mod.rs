@@ -132,7 +132,7 @@ impl State for SandboxMode {
 
         // Order here is pretty arbitrary
         if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(Box::new(DebugMode::new(ctx)));
+            return Transition::Push(DebugMode::new(ctx));
         }
 
         if let Some(ref mut m) = self.controls.minimap {

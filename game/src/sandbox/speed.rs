@@ -186,11 +186,11 @@ impl SpeedControls {
                     }
                 }
                 "jump to specific time" => {
-                    return Some(Transition::Push(Box::new(JumpToTime::new(
+                    return Some(Transition::Push(JumpToTime::new(
                         ctx,
                         app,
                         maybe_mode.cloned(),
-                    ))));
+                    )));
                 }
                 "step forwards" => {
                     let dt = self.panel.persistent_split_value("step forwards");

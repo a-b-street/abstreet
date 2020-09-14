@@ -19,8 +19,8 @@ struct PreviewTrafficSignal {
 }
 
 impl PreviewTrafficSignal {
-    fn new(ctx: &mut EventCtx, app: &App) -> PreviewTrafficSignal {
-        PreviewTrafficSignal {
+    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        Box::new(PreviewTrafficSignal {
             panel: Panel::new(Widget::col(vec![
                 "Previewing traffic signal".draw_text(ctx),
                 Btn::text_fg("back to editing").build_def(ctx, hotkey(Key::Escape)),
@@ -29,7 +29,7 @@ impl PreviewTrafficSignal {
             .build(ctx),
             speed: SpeedControls::new(ctx, app),
             time_panel: TimePanel::new(ctx, app),
-        }
+        })
     }
 }
 
@@ -113,7 +113,7 @@ pub fn make_previewer(
                     .sim
                     .handle_live_edited_traffic_signals(&app.primary.map);
             }
-            Transition::Replace(Box::new(PreviewTrafficSignal::new(ctx, app)))
+            Transition::Replace(PreviewTrafficSignal::new(ctx, app))
         }),
     )
 }

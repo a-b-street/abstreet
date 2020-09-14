@@ -23,7 +23,7 @@ pub struct Options {
 
     pub time_increment: Duration,
     pub dont_draw_time_warp: bool,
-    pub time_warp_halt_limit: Duration,
+    pub jump_to_delay: Duration,
 
     pub language: Option<String>,
 }
@@ -43,7 +43,7 @@ impl Options {
 
             time_increment: Duration::minutes(10),
             dont_draw_time_warp: false,
-            time_warp_halt_limit: Duration::minutes(5),
+            jump_to_delay: Duration::minutes(5),
 
             language: None,
         }

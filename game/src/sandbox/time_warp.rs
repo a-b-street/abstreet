@@ -9,42 +9,33 @@ use geom::{Duration, Polygon, Pt2D, Ring, Time};
 use instant::Instant;
 use widgetry::{
     hotkey, AreaSlider, Btn, Checkbox, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line,
-    Outcome, Panel, PersistentSplit, Text, UpdateType, Widget,
+    Outcome, Panel, Text, UpdateType, Widget,
 };
 
 // TODO Text entry would be great
 pub struct JumpToTime {
     panel: Panel,
     target: Time,
-    halt_limit: Duration,
     maybe_mode: Option<GameplayMode>,
 }
 
 impl JumpToTime {
-    pub fn new(ctx: &mut EventCtx, app: &App, maybe_mode: Option<GameplayMode>) -> JumpToTime {
+    pub fn new(ctx: &mut EventCtx, app: &App, maybe_mode: Option<GameplayMode>) -> Box<dyn State> {
         let target = app.primary.sim.time();
         let end_of_day = app.primary.sim.get_end_of_day();
-        let halt_limit = app.opts.time_warp_halt_limit;
-        JumpToTime {
+        Box::new(JumpToTime {
             target,
-            halt_limit,
             maybe_mode,
             panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line("Jump to what time?").small_heading().draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                Checkbox::checkbox(
-                    ctx,
-                    "skip drawing (for faster simulations)",
-                    None,
-                    app.opts.dont_draw_time_warp,
-                )
-                .margin_above(30)
-                .named("don't draw"),
-                Widget::horiz_separator(ctx, 0.25).margin_above(10),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+                Widget::custom_row(vec![
+                    Btn::text_bg2("Jump to time").inactive(ctx),
+                    Btn::text_bg2("Jump to delay").build_def(ctx, None),
+                ])
+                .bg(Color::WHITE),
+                Line("Jump to what time?").small_heading().draw(ctx),
                 if app.has_prebaked().is_some() {
                     Widget::draw_batch(
                         ctx,
@@ -67,19 +58,20 @@ impl JumpToTime {
                     0.25 * ctx.canvas.window_width,
                     target.to_percent(end_of_day).min(1.0),
                 )
-                .named("time slider")
-                .centered_horiz()
-                // EZGUI FIXME: margin_below having no effect here, so instead we add a margin_top
-                // to the subsequent element
-                //.margin_above(16).margin_below(16),
-                .margin_above(16),
-                build_jump_to_time_btn(target, ctx),
-                Widget::horiz_separator(ctx, 0.25).margin_above(16),
-                build_jump_to_delay_picker(halt_limit, ctx).margin_above(16),
-                build_jump_to_delay_button(halt_limit, ctx),
+                .named("time slider"),
+                Checkbox::checkbox(
+                    ctx,
+                    "skip drawing (for faster simulations)",
+                    None,
+                    app.opts.dont_draw_time_warp,
+                )
+                .margin_above(30)
+                .named("don't draw"),
+                build_jump_to_time_btn(ctx, target),
             ]))
+            .exact_size_percent(50, 50)
             .build(ctx),
-        }
+        })
     }
 }
 
@@ -107,16 +99,8 @@ impl State for JumpToTime {
                     }
                     return Transition::Replace(TimeWarpScreen::new(ctx, app, self.target, None));
                 }
-                "choose delay" => return Transition::Keep,
-                "jump to delay" => {
-                    let halt_limit = self.panel.persistent_split_value("choose delay");
-                    app.opts.time_warp_halt_limit = halt_limit;
-                    return Transition::Replace(TimeWarpScreen::new(
-                        ctx,
-                        app,
-                        app.primary.sim.get_end_of_day(),
-                        Some(halt_limit),
-                    ));
+                "Jump to delay" => {
+                    return Transition::Replace(JumpToDelay::new(ctx, app, self.maybe_mode.take()));
                 }
                 _ => unreachable!(),
             },
@@ -134,17 +118,101 @@ impl State for JumpToTime {
         if target != self.target {
             self.target = target;
             self.panel
-                .replace(ctx, "jump to time", build_jump_to_time_btn(target, ctx));
+                .replace(ctx, "jump to time", build_jump_to_time_btn(ctx, target));
         }
 
-        let halt_limit = self.panel.persistent_split_value("choose delay");
-        if halt_limit != self.halt_limit {
-            self.halt_limit = halt_limit;
-            self.panel.replace(
-                ctx,
-                "jump to delay",
-                build_jump_to_delay_button(halt_limit, ctx),
-            );
+        if self.panel.clicked_outside(ctx) {
+            return Transition::Pop;
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
+        self.panel.draw(g);
+    }
+}
+
+struct JumpToDelay {
+    panel: Panel,
+    maybe_mode: Option<GameplayMode>,
+}
+
+impl JumpToDelay {
+    pub fn new(ctx: &mut EventCtx, app: &App, maybe_mode: Option<GameplayMode>) -> Box<dyn State> {
+        Box::new(JumpToDelay {
+            maybe_mode,
+            panel: Panel::new(Widget::col(vec![
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+                Widget::custom_row(vec![
+                    Btn::text_bg2("Jump to time").build_def(ctx, None),
+                    Btn::text_bg2("Jump to delay").inactive(ctx),
+                ])
+                .bg(Color::WHITE),
+                Widget::row(vec![
+                    Line("Jump to next").small_heading().draw(ctx),
+                    Widget::dropdown(
+                        ctx,
+                        "delay",
+                        app.opts.jump_to_delay,
+                        vec![
+                            Choice::new("1", Duration::minutes(1)),
+                            Choice::new("2", Duration::minutes(2)),
+                            Choice::new("5", Duration::minutes(5)),
+                            Choice::new("10", Duration::minutes(10)),
+                        ],
+                    ),
+                    Line("minute delay").small_heading().draw(ctx),
+                ]),
+                Checkbox::checkbox(
+                    ctx,
+                    "skip drawing (for faster simulations)",
+                    None,
+                    app.opts.dont_draw_time_warp,
+                )
+                .margin_above(30)
+                .named("don't draw"),
+                build_jump_to_delay_button(ctx, app.opts.jump_to_delay),
+            ]))
+            .exact_size_percent(50, 50)
+            .build(ctx),
+        })
+    }
+}
+
+impl State for JumpToDelay {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => {
+                    return Transition::Pop;
+                }
+                "jump to delay" => {
+                    let delay = self.panel.dropdown_value("delay");
+                    app.opts.jump_to_delay = delay;
+                    return Transition::Replace(TimeWarpScreen::new(
+                        ctx,
+                        app,
+                        app.primary.sim.get_end_of_day(),
+                        Some(delay),
+                    ));
+                }
+                "Jump to time" => {
+                    return Transition::Replace(JumpToTime::new(ctx, app, self.maybe_mode.take()));
+                }
+                _ => unreachable!(),
+            },
+            Outcome::Changed => {
+                self.panel.replace(
+                    ctx,
+                    "jump to delay",
+                    build_jump_to_delay_button(ctx, self.panel.dropdown_value("delay")),
+                );
+            }
+            _ => {}
         }
 
         if self.panel.clicked_outside(ctx) {
@@ -293,7 +361,9 @@ impl State for TimeWarpScreen {
 
             self.panel.replace(ctx, "text", txt.draw(ctx).named("text"));
         }
-        if app.primary.sim.time() == self.target {
+        // >= because of the case of resetting to midnight. GameplayMode::initialize takes a tiny
+        // step past midnight after spawning things, so that agents initially appear on the map.
+        if app.primary.sim.time() >= self.target {
             return Transition::Pop;
         }
 
@@ -377,39 +447,16 @@ fn compare_count(after: usize, before: usize) -> String {
     }
 }
 
-fn build_jump_to_time_btn(target: Time, ctx: &EventCtx) -> Widget {
+fn build_jump_to_time_btn(ctx: &EventCtx, target: Time) -> Widget {
     Btn::text_bg2(format!("Jump to {}", target.ampm_tostring()))
         .build(ctx, "jump to time", hotkey(Key::Enter))
-        .named("jump to time")
         .centered_horiz()
         .margin_above(16)
 }
 
-fn build_jump_to_delay_button(halt_limit: Duration, ctx: &EventCtx) -> Widget {
-    Btn::text_bg2(format!("Jump to next {} delay", halt_limit))
+fn build_jump_to_delay_button(ctx: &EventCtx, delay: Duration) -> Widget {
+    Btn::text_bg2(format!("Jump to next {} delay", delay))
         .build(ctx, "jump to delay", hotkey(Key::D))
-        .named("jump to delay")
         .centered_horiz()
         .margin_above(16)
-}
-
-fn build_jump_to_delay_picker(halt_limit: Duration, ctx: &EventCtx) -> Widget {
-    // EZGUI TODO: it'd be nice if we could style the fg color for persistent splits but this needs
-    // to be passed into the button builder in init. so either we'd need to make a required
-    // argument, or introduce a persistentsplitbuilder, or re-work splitbuilder to allow mutating
-    // the color after the fact which requires holding more state to re-invoke the btnbuilder
-    PersistentSplit::new(
-        ctx,
-        "choose delay",
-        halt_limit,
-        None,
-        vec![
-            Choice::new("1 minute delay", Duration::minutes(1)),
-            Choice::new("2 minute delay", Duration::minutes(2)),
-            Choice::new("5 minute delay", Duration::minutes(5)),
-            Choice::new("10 minute delay", Duration::minutes(10)),
-        ],
-    )
-    .outline(2.0, Color::WHITE)
-    .centered_horiz()
 }

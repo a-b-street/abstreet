@@ -34,8 +34,8 @@ pub struct DebugMode {
 }
 
 impl DebugMode {
-    pub fn new(ctx: &mut EventCtx) -> DebugMode {
-        DebugMode {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn State> {
+        Box::new(DebugMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Debug Mode").small_heading().draw(ctx),
@@ -86,7 +86,7 @@ impl DebugMode {
             search_results: None,
             all_routes: None,
             highlighted_agents: None,
-        }
+        })
     }
 
     fn reset_info(&mut self, ctx: &mut EventCtx) {

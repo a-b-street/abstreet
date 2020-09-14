@@ -17,7 +17,7 @@ pub struct ScenarioManager {
 }
 
 impl ScenarioManager {
-    pub fn new(scenario: Scenario, ctx: &mut EventCtx, app: &App) -> ScenarioManager {
+    pub fn new(scenario: Scenario, ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let mut colorer = ColorDiscrete::new(
             app,
             vec![
@@ -45,7 +45,7 @@ impl ScenarioManager {
         assert!(filled_spots.is_empty());
 
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
-        ScenarioManager {
+        Box::new(ScenarioManager {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line(format!("Scenario {}", scenario.scenario_name))
@@ -80,7 +80,7 @@ impl ScenarioManager {
             unzoomed,
             zoomed,
             scenario,
-        }
+        })
     }
 }
 
