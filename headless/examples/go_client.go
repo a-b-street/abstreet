@@ -13,18 +13,24 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 )
 
 const (
-	api             = "http://localhost:1234/"
-	mapName         = "montlake"
-	hoursToSimulate = 24
+	api = "http://localhost:1234/"
+)
+
+var (
+	mapName         = flag.String("map", "montlake", "map name to simulate")
+	hoursToSimulate = flag.Int("hours", 24, "number of hours to simulate")
 )
 
 func main() {
+	flag.Parse()
+
 	for pct := int64(100); pct >= 0; pct -= 10 {
 		if err := run(pct); err != nil {
 			fmt.Println("Failure:", err)
@@ -35,14 +41,14 @@ func main() {
 
 func run(pct int64) error {
 	_, err := post("sim/load", SimFlags{
-		Load:      fmt.Sprintf("data/system/scenarios/%v/weekday.bin", mapName),
+		Load:      fmt.Sprintf("data/system/scenarios/%v/weekday.bin", *mapName),
 		Modifiers: []ScenarioModifier{{CancelPeople: pct}},
 	})
 	if err != nil {
 		return err
 	}
 
-	_, err = get(fmt.Sprintf("sim/goto-time?t=%v:00:00", hoursToSimulate))
+	_, err = get(fmt.Sprintf("sim/goto-time?t=%v:00:00", *hoursToSimulate))
 	if err != nil {
 		return err
 	}
@@ -68,7 +74,7 @@ func run(pct int64) error {
 		}
 	}
 
-	fmt.Printf("%v with %v%% of people cancelled: %v trips aborted, %v trips succeeded totaling %v seconds\n", mapName, pct, numAborted, numSucceeded, totalDuration)
+	fmt.Printf("%v with %v%% of people cancelled: %v trips aborted, %v trips succeeded totaling %v seconds\n", *mapName, pct, numAborted, numSucceeded, totalDuration)
 
 	return nil
 }

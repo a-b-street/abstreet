@@ -98,7 +98,8 @@ fn handle_command(
             Ok(format!("sim reloaded"))
         }
         "/sim/load" => {
-            let flags: SimFlags = abstutil::from_json(body)?;
+            let mut flags: SimFlags = abstutil::from_json(body)?;
+            flags.opts.alerts = AlertHandler::Silence;
             *FLAGS.write().unwrap() = flags;
 
             // Also reset
