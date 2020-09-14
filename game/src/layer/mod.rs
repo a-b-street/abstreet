@@ -120,6 +120,7 @@ impl PickLayer {
             btn("amenities", Key::A),
             btn("backpressure", Key::Z),
             btn("elevation", Key::V),
+            btn("parking efficiency", Key::O),
             if app.opts.dev {
                 btn("blackholes", Key::L)
             } else {
@@ -184,6 +185,9 @@ impl State for PickLayer {
                     app.layer = Some(Box::new(parking::Occupancy::new(
                         ctx, app, true, true, true, false, true,
                     )));
+                }
+                "parking efficiency" => {
+                    app.layer = Some(Box::new(parking::Efficiency::new(ctx, app)));
                 }
                 "population map" => {
                     app.layer = Some(Box::new(population::PopulationMap::new(

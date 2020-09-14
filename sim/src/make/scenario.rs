@@ -219,6 +219,9 @@ impl Scenario {
     pub fn rand_ped_speed(rng: &mut XorShiftRng) -> Speed {
         Scenario::rand_speed(rng, Speed::miles_per_hour(2.0), Speed::miles_per_hour(3.0))
     }
+    pub fn max_ped_speed() -> Speed {
+        Speed::miles_per_hour(3.0)
+    }
 
     pub fn count_parked_cars_per_bldg(&self) -> Counter<BuildingID> {
         let mut per_bldg = Counter::new();

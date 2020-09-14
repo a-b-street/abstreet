@@ -1,14 +1,17 @@
 use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
-use abstutil::{prettyprint_usize, Counter};
-use geom::{Circle, Pt2D, Time};
-use map_model::{BuildingID, Map, OffstreetParking, ParkingLotID, RoadID, NORMAL_LANE_THICKNESS};
-use sim::{GetDrawAgents, ParkingSpot, VehicleType};
+use abstutil::{prettyprint_usize, Counter, Parallelism};
+use geom::{Circle, Distance, Duration, Pt2D, Time};
+use map_model::{
+    BuildingID, Map, OffstreetParking, ParkingLotID, PathConstraints, PathRequest, RoadID,
+    NORMAL_LANE_THICKNESS,
+};
+use sim::{GetDrawAgents, ParkingSpot, Scenario, VehicleType};
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct Occupancy {
@@ -272,6 +275,130 @@ impl Loc {
             ParkingSpot::Onstreet(l, _) => Loc::Road(map.get_l(l).parent),
             ParkingSpot::Offstreet(b, _) => Loc::Bldg(b),
             ParkingSpot::Lot(pl, _) => Loc::Lot(pl),
+        }
+    }
+}
+
+pub struct Efficiency {
+    time: Time,
+    unzoomed: Drawable,
+    zoomed: Drawable,
+    panel: Panel,
+}
+
+impl Layer for Efficiency {
+    fn name(&self) -> Option<&'static str> {
+        Some("parking efficiency")
+    }
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        minimap: &Panel,
+    ) -> Option<LayerOutcome> {
+        if app.primary.sim.time() != self.time {
+            *self = Efficiency::new(ctx, app);
+        }
+
+        self.panel.align_above(ctx, minimap);
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            },
+            _ => {}
+        }
+        None
+    }
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.panel.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
+    }
+    fn draw_minimap(&self, g: &mut GfxCtx) {
+        g.redraw(&self.unzoomed);
+    }
+}
+
+impl Efficiency {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Efficiency {
+        let panel = Panel::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
+                "Parking efficiency".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Text::from(Line("How far away are people parked? (minutes)").secondary())
+                .wrap_to_pct(ctx, 15)
+                .draw(ctx),
+            ColorLegend::gradient(
+                ctx,
+                &app.cs.good_to_bad_red,
+                // TODO Show a nonproportional scale? Most should be < 1 min, a few < 5 mins,
+                // rarely more than that.
+                vec!["0", "3", "6", "10+"],
+            ),
+        ]))
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx);
+
+        let map = &app.primary.map;
+        // TODO This is going to spam constantly while the sim is running! Probably cache per car.
+        let (unzoomed, zoomed) = ctx.loading_screen("measure parking efficiency", |ctx, timer| {
+            let mut unzoomed = GeomBatch::new();
+            let mut zoomed = GeomBatch::new();
+
+            timer.start("gather requests");
+            let requests: Vec<PathRequest> = app
+                .primary
+                .sim
+                .all_parked_car_positions(map)
+                .into_iter()
+                .map(|(start, end)| PathRequest {
+                    start,
+                    end,
+                    constraints: PathConstraints::Pedestrian,
+                })
+                .collect();
+            timer.stop("gather requests");
+            for (car_pt, dist) in timer
+                .parallelize("calculate paths", Parallelism::Fastest, requests, |req| {
+                    let car_pt = req.start.pt(map);
+                    map.pathfind(req).map(|path| (car_pt, path.total_length()))
+                })
+                .into_iter()
+                .flatten()
+            {
+                // TODO Actual car shapes? At least cache the circle?
+                let time = dist / Scenario::max_ped_speed();
+                let color = app
+                    .cs
+                    .good_to_bad_red
+                    .eval((time / Duration::minutes(10)).min(1.0));
+                unzoomed.push(
+                    color,
+                    Circle::new(car_pt, Distance::meters(5.0)).to_polygon(),
+                );
+                zoomed.push(
+                    color.alpha(0.5),
+                    Circle::new(car_pt, Distance::meters(2.0)).to_polygon(),
+                );
+            }
+            (ctx.upload(unzoomed), ctx.upload(zoomed))
+        });
+
+        Efficiency {
+            time: app.primary.sim.time(),
+            unzoomed,
+            zoomed,
+            panel,
         }
     }
 }

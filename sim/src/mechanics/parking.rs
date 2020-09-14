@@ -498,6 +498,18 @@ impl ParkingSimState {
     pub fn collect_events(&mut self) -> Vec<Event> {
         std::mem::replace(&mut self.events, Vec::new())
     }
+
+    pub fn all_parked_car_positions(&self, map: &Map) -> Vec<(Position, PersonID)> {
+        self.parked_cars
+            .values()
+            .map(|p| {
+                (
+                    self.spot_to_sidewalk_pos(p.spot, map),
+                    p.vehicle.owner.unwrap(),
+                )
+            })
+            .collect()
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]

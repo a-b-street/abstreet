@@ -1045,6 +1045,21 @@ impl Sim {
     pub fn lookup_parked_car(&self, id: CarID) -> Option<&ParkedCar> {
         self.parking.lookup_parked_car(id)
     }
+    // For every parked car, (position of parking spot, position of owner)
+    pub fn all_parked_car_positions(&self, map: &Map) -> Vec<(Position, Position)> {
+        self.parking
+            .all_parked_car_positions(map)
+            .into_iter()
+            .filter_map(|(car_pos, owner)| {
+                // TODO Should include people off-map and in the middle of a non-car trip too
+                match self.trips.get_person(owner)?.state {
+                    PersonState::Inside(b) => Some((car_pos, map.get_b(b).sidewalk_pos)),
+                    PersonState::Trip(_) => None,
+                    PersonState::OffMap => None,
+                }
+            })
+            .collect()
+    }
 
     pub fn lookup_person(&self, id: PersonID) -> Option<&Person> {
         self.trips.get_person(id)
