@@ -274,14 +274,76 @@
 <span id="274">274</span>
 <span id="275">275</span>
 <span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">State</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">DrawBuilding</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">TextExt</span>,
-    <span class="ident">Widget</span>,
+    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>,
+    <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="comment">// TODO SimOptions stuff too</span>
@@ -295,6 +357,7 @@
     <span class="kw">pub</span> <span class="ident">color_scheme</span>: <span class="ident">ColorSchemeChoice</span>,
     <span class="kw">pub</span> <span class="ident">min_zoom_for_detail</span>: <span class="ident">f64</span>,
     <span class="kw">pub</span> <span class="ident">large_unzoomed_agents</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">camera_angle</span>: <span class="ident">CameraAngle</span>,
 
     <span class="kw">pub</span> <span class="ident">time_increment</span>: <span class="ident">Duration</span>,
     <span class="kw">pub</span> <span class="ident">dont_draw_time_warp</span>: <span class="ident">bool</span>,
@@ -314,6 +377,7 @@
             <span class="ident">color_scheme</span>: <span class="ident">ColorSchemeChoice</span>::<span class="ident">Standard</span>,
             <span class="ident">min_zoom_for_detail</span>: <span class="number">4.0</span>,
             <span class="ident">large_unzoomed_agents</span>: <span class="bool-val">false</span>,
+            <span class="ident">camera_angle</span>: <span class="ident">CameraAngle</span>::<span class="ident">TopDown</span>,
 
             <span class="ident">time_increment</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">10</span>),
             <span class="ident">dont_draw_time_warp</span>: <span class="bool-val">false</span>,
@@ -331,6 +395,15 @@
     <span class="ident">Sidewalks</span>,
     <span class="ident">Icons</span>,
     <span class="ident">IndividualTurnArrows</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CameraAngle</span> {
+    <span class="ident">TopDown</span>,
+    <span class="ident">IsometricNE</span>,
+    <span class="ident">IsometricNW</span>,
+    <span class="ident">IsometricSE</span>,
+    <span class="ident">IsometricSW</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OptionsPanel</span> {
@@ -414,6 +487,21 @@
                                     <span class="string">&quot;arrows showing individual turns (to debug)&quot;</span>,
                                     <span class="ident">TrafficSignalStyle</span>::<span class="ident">IndividualTurnArrows</span>,
                                 ),
+                            ],
+                        ),
+                    ]),
+                    <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="string">&quot;Camera angle:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="string">&quot;Camera angle&quot;</span>,
+                            <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">camera_angle</span>.<span class="ident">clone</span>(),
+                            <span class="macro">vec</span><span class="macro">!</span>[
+                                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Top-down&quot;</span>, <span class="ident">CameraAngle</span>::<span class="ident">TopDown</span>),
+                                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Isometric (northeast)&quot;</span>, <span class="ident">CameraAngle</span>::<span class="ident">IsometricNE</span>),
+                                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Isometric (northwest)&quot;</span>, <span class="ident">CameraAngle</span>::<span class="ident">IsometricNW</span>),
+                                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Isometric (southeast)&quot;</span>, <span class="ident">CameraAngle</span>::<span class="ident">IsometricSE</span>),
+                                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Isometric (southwest)&quot;</span>, <span class="ident">CameraAngle</span>::<span class="ident">IsometricSW</span>),
                             ],
                         ),
                     ]),
@@ -516,6 +604,40 @@
                         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">intersections</span> {
                             <span class="kw-2">*</span><span class="ident">i</span>.<span class="ident">draw_traffic_signal</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">None</span>;
                         }
+                    }
+
+                    <span class="kw">let</span> <span class="ident">camera_angle</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;Camera angle&quot;</span>);
+                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">camera_angle</span> <span class="op">!</span><span class="op">=</span> <span class="ident">camera_angle</span> {
+                        <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">camera_angle</span> <span class="op">=</span> <span class="ident">camera_angle</span>;
+                        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;rerendering buildings&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_buildings</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_building_paths</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_building_outlines</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+                            <span class="ident">timer</span>.<span class="ident">start_iter</span>(
+                                <span class="string">&quot;rendering buildings&quot;</span>,
+                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">len</span>(),
+                            );
+                            <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
+                                <span class="ident">timer</span>.<span class="ident">next</span>();
+                                <span class="ident">DrawBuilding</span>::<span class="ident">new</span>(
+                                    <span class="ident">ctx</span>,
+                                    <span class="ident">b</span>,
+                                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
+                                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>,
+                                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>,
+                                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_buildings</span>,
+                                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_building_paths</span>,
+                                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_building_outlines</span>,
+                                );
+                            }
+                            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;upload geometry&quot;</span>);
+                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span> <span class="op">=</span> <span class="ident">all_buildings</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_building_paths</span> <span class="op">=</span>
+                                <span class="ident">all_building_paths</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_building_outlines</span> <span class="op">=</span>
+                                <span class="ident">all_building_outlines</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
+                            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;upload geometry&quot;</span>);
+                        });
                     }
 
                     <span class="kw">let</span> <span class="ident">scheme</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;Color scheme&quot;</span>);

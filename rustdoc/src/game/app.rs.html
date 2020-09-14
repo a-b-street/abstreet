@@ -639,6 +639,12 @@
 <span id="639">639</span>
 <span id="640">640</span>
 <span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::<span class="ident">HighScore</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -685,7 +691,7 @@
         <span class="ident">ctx</span>.<span class="ident">set_style</span>(<span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">clone</span>());
 
         <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-            <span class="ident">PerMap</span>::<span class="ident">new</span>(<span class="ident">flags</span>, <span class="kw-2">&amp;</span><span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
+            <span class="ident">PerMap</span>::<span class="ident">new</span>(<span class="ident">flags</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
         });
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">make_rng</span>();
@@ -1177,11 +1183,17 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PerMap</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">flags</span>: <span class="ident">Flags</span>, <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PerMap</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">flags</span>: <span class="ident">Flags</span>,
+        <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
+        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PerMap</span> {
         <span class="kw">let</span> (<span class="ident">map</span>, <span class="ident">sim</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>(<span class="ident">timer</span>);
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;draw_map&quot;</span>);
-        <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="ident">DrawMap</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="ident">timer</span>);
+        <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="ident">DrawMap</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">opts</span>, <span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="ident">timer</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;draw_map&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">low_z</span> <span class="op">=</span> <span class="number">0</span>;
