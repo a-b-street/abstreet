@@ -21,7 +21,6 @@ use crate::pregame::MainMenu;
 use crate::render::UnzoomedAgents;
 pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use geom::Time;
-use map_model::MapEdits;
 use maplit::btreeset;
 use sim::AgentType;
 pub use speed::{SpeedControls, TimePanel};
@@ -279,7 +278,7 @@ impl State for BackToMainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.loading_screen("reset map and sim", |ctx, mut timer| {
             // Always safe to do this
-            apply_map_edits(ctx, app, MapEdits::new());
+            apply_map_edits(ctx, app, app.primary.map.new_edits());
             app.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);

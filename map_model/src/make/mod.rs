@@ -53,6 +53,7 @@ impl Map {
             name: raw.name.clone(),
             edits: MapEdits::new(),
         };
+        map.edits = map.new_edits();
 
         let road_id_mapping: BTreeMap<OriginalRoad, RoadID> = initial_map
             .roads

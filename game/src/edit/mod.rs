@@ -226,7 +226,7 @@ impl State for EditMode {
                                 true,
                                 Some(Transition::Pop),
                                 Box::new(|ctx, app| {
-                                    apply_map_edits(ctx, app, MapEdits::new());
+                                    apply_map_edits(ctx, app, app.primary.map.new_edits());
                                 }),
                             )),
                             "save this proposal as..." => Transition::Replace(SaveEdits::new(
@@ -245,7 +245,7 @@ impl State for EditMode {
                                     app.primary.map.get_name(),
                                     &app.primary.map.get_edits().edits_name,
                                 ));
-                                apply_map_edits(ctx, app, MapEdits::new());
+                                apply_map_edits(ctx, app, app.primary.map.new_edits());
                                 Transition::Pop
                             }
                             _ => unreachable!(),
@@ -430,13 +430,13 @@ impl State for SaveEdits {
                         .must_apply_edits(edits, &mut Timer::new("name map edits"));
                     app.primary.map.save_edits();
                     if self.reset {
-                        apply_map_edits(ctx, app, MapEdits::new());
+                        apply_map_edits(ctx, app, app.primary.map.new_edits());
                     }
                     (self.on_success)(ctx, app);
                     return Transition::Pop;
                 }
                 "Discard proposal" => {
-                    apply_map_edits(ctx, app, MapEdits::new());
+                    apply_map_edits(ctx, app, app.primary.map.new_edits());
                     return Transition::Pop;
                 }
                 "Cancel" => {
@@ -516,7 +516,7 @@ impl State for LoadEdits {
                 match x.as_ref() {
                     "close" => Transition::Pop,
                     "Start over with blank proposal" => {
-                        apply_map_edits(ctx, app, MapEdits::new());
+                        apply_map_edits(ctx, app, app.primary.map.new_edits());
                         Transition::Pop
                     }
                     path => {
@@ -648,9 +648,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     }
 
     // Autosave
-    if app.primary.map.get_edits().edits_name != "Untitled Proposal" {
-        app.primary.map.save_edits();
-    }
+    app.primary.map.save_edits();
 }
 
 pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, app: &App) -> bool {
@@ -739,7 +737,6 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
                 "manage proposals",
                 lctrl(Key::P),
             ),
-            // TODO This is a lie for untitled proposals right now, need to pick names for those
             "autosaved"
                 .draw_text(ctx)
                 .container()

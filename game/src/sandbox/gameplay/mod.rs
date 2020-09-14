@@ -361,7 +361,7 @@ impl State for FinalScore {
         if self.chose_next || self.chose_back_to_challenges {
             ctx.loading_screen("reset map and sim", |ctx, mut timer| {
                 // Always safe to do this
-                apply_map_edits(ctx, app, MapEdits::new());
+                apply_map_edits(ctx, app, app.primary.map.new_edits());
                 app.primary
                     .map
                     .recalculate_pathfinding_after_edits(&mut timer);

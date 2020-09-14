@@ -85,10 +85,9 @@ pub struct EditEffects {
 }
 
 impl MapEdits {
-    pub fn new() -> MapEdits {
+    pub(crate) fn new() -> MapEdits {
         MapEdits {
-            // Something has to fill this out later
-            edits_name: "Untitled Proposal".to_string(),
+            edits_name: "TODO temporary".to_string(),
             proposal_description: Vec::new(),
             proposal_link: None,
             commands: Vec::new(),
@@ -114,7 +113,10 @@ impl MapEdits {
 
     // TODO Version these? Or it's unnecessary, since we have a command stack.
     fn save(&self, map: &Map) {
-        assert_ne!(self.edits_name, "Untitled Proposal");
+        // If untitled and empty, don't actually save anything.
+        if self.edits_name.starts_with("Untitled Proposal") && self.commands.is_empty() {
+            return;
+        }
 
         abstutil::write_json(
             abstutil::path_edits(map.get_name(), &self.edits_name),
@@ -403,8 +405,27 @@ fn recalculate_turns(
 }
 
 impl Map {
+    pub fn new_edits(&self) -> MapEdits {
+        let mut edits = MapEdits::new();
+
+        // Automatically find a new filename
+        let mut i = 1;
+        loop {
+            let name = format!("Untitled Proposal {}", i);
+            if !abstutil::file_exists(abstutil::path_edits(&self.name, &name)) {
+                edits.edits_name = name;
+                return edits;
+            }
+            i += 1;
+        }
+    }
+
     pub fn get_edits(&self) -> &MapEdits {
         &self.edits
+    }
+
+    pub fn unsaved_edits(&self) -> bool {
+        self.edits.edits_name.starts_with("Untitled Proposal") && !self.edits.commands.is_empty()
     }
 
     pub fn get_r_edit(&self, r: RoadID) -> EditRoad {

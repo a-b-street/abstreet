@@ -143,8 +143,7 @@ impl Sim {
             time: Time::START_OF_DAY,
 
             map_name: map.get_name().to_string(),
-            // TODO
-            edits_name: "Untitled Proposal".to_string(),
+            edits_name: map.get_edits().edits_name.clone(),
             run_name: opts.run_name,
             step_count: 0,
             alerts: opts.alerts,

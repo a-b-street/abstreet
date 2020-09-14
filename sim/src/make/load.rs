@@ -88,17 +88,27 @@ impl SimFlags {
             let mut sim: Sim = abstutil::read_binary(self.load.clone(), timer);
 
             let mut map = Map::new(abstutil::path_map(&sim.map_name), timer);
-            if sim.edits_name != "Untitled Proposal" {
-                map.must_apply_edits(
-                    MapEdits::load(
-                        &map,
-                        abstutil::path_edits(map.get_name(), &sim.edits_name),
-                        timer,
-                    )
-                    .unwrap(),
-                    timer,
-                );
-                map.recalculate_pathfinding_after_edits(timer);
+            match MapEdits::load(
+                &map,
+                abstutil::path_edits(map.get_name(), &sim.edits_name),
+                timer,
+            ) {
+                Ok(edits) => {
+                    map.must_apply_edits(edits, timer);
+                    map.recalculate_pathfinding_after_edits(timer);
+                }
+                Err(err) => {
+                    // Little brittle. Sometimes legitimate edits wind up being saved without a
+                    // proper name.
+                    if sim.edits_name.starts_with("Untitled Proposal") {
+                        warn!(
+                            "Sim savestate refers to edits \"{}\", but not using them: {}",
+                            sim.edits_name, err
+                        );
+                    } else {
+                        panic!("Couldn't load edits \"{}\": {}", sim.edits_name, err);
+                    }
+                }
             }
             sim.restore_paths(&map, timer);
 

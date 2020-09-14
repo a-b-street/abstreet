@@ -29,7 +29,8 @@ impl Map {
         if path.starts_with(&abstutil::path_all_maps()) {
             match abstutil::maybe_read_binary(path.clone(), timer) {
                 Ok(map) => {
-                    let map: Map = map;
+                    let mut map: Map = map;
+                    map.edits = map.new_edits();
 
                     if false {
                         use abstutil::{prettyprint_usize, serialized_size_bytes};
@@ -458,12 +459,8 @@ impl Map {
         result
     }
 
-    pub fn unsaved_edits(&self) -> bool {
-        self.edits.edits_name == "Untitled Proposal" && !self.edits.commands.is_empty()
-    }
-
     pub fn save(&self) {
-        assert_eq!(self.edits.edits_name, "Untitled Proposal");
+        assert!(self.edits.edits_name.starts_with("Untitled Proposal"));
         assert!(self.edits.commands.is_empty());
         assert!(!self.pathfinder_dirty);
         abstutil::write_binary(abstutil::path_map(&self.name), self);
