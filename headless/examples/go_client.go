@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 const (
@@ -31,35 +32,45 @@ var (
 func main() {
 	flag.Parse()
 
+	numSucceededLast := 0
 	for pct := int64(100); pct >= 0; pct -= 10 {
-		if err := run(pct); err != nil {
+		numSucceeded, err := run(pct)
+		if err != nil {
 			fmt.Println("Failure:", err)
 			break
 		}
+		if numSucceeded < numSucceededLast {
+			fmt.Println("--> less trips succeeded this round, so likely hit gridlock")
+			break
+		}
+		numSucceededLast = numSucceeded
 	}
 }
 
-func run(pct int64) error {
+// Returns numSucceeded
+func run(pct int64) (int, error) {
+	start := time.Now()
+
 	_, err := post("sim/load", SimFlags{
 		Load:      fmt.Sprintf("data/system/scenarios/%v/weekday.bin", *mapName),
 		Modifiers: []ScenarioModifier{{CancelPeople: pct}},
 	})
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	_, err = get(fmt.Sprintf("sim/goto-time?t=%v:00:00", *hoursToSimulate))
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	resp, err := get("data/get-finished-trips")
 	if err != nil {
-		return err
+		return 0, err
 	}
 	var trips FinishedTrips
 	if err := json.Unmarshal([]byte(resp), &trips); err != nil {
-		return err
+		return 0, err
 	}
 
 	numAborted := 0
@@ -74,9 +85,9 @@ func run(pct int64) error {
 		}
 	}
 
-	fmt.Printf("%v with %v%% of people cancelled: %v trips aborted, %v trips succeeded totaling %v seconds\n", *mapName, pct, numAborted, numSucceeded, totalDuration)
+	fmt.Printf("%v with %v%% of people cancelled: %v trips aborted, %v trips succeeded totaling %v seconds. Simulation took %v\n", *mapName, pct, numAborted, numSucceeded, totalDuration, time.Since(start))
 
-	return nil
+	return numSucceeded, nil
 }
 
 func get(url string) (string, error) {
