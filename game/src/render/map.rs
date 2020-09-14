@@ -1,6 +1,7 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
+use crate::options::Options;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
 use crate::render::intersection::DrawIntersection;
@@ -45,7 +46,13 @@ pub struct DrawMap {
 }
 
 impl DrawMap {
-    pub fn new(map: &Map, cs: &ColorScheme, ctx: &EventCtx, timer: &mut Timer) -> DrawMap {
+    pub fn new(
+        map: &Map,
+        opts: &Options,
+        cs: &ColorScheme,
+        ctx: &EventCtx,
+        timer: &mut Timer,
+    ) -> DrawMap {
         let mut roads: Vec<DrawRoad> = Vec::new();
         timer.start_iter("make DrawRoads", map.all_roads().len());
         for r in map.all_roads() {
@@ -82,6 +89,7 @@ impl DrawMap {
                 b,
                 map,
                 cs,
+                opts,
                 &mut all_buildings,
                 &mut all_building_paths,
                 &mut all_building_outlines,

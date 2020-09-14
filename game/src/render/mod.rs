@@ -17,6 +17,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 pub use crate::render::area::DrawArea;
 use crate::render::bike::DrawBike;
+pub use crate::render::building::DrawBuilding;
 use crate::render::car::DrawCar;
 pub use crate::render::intersection::{calculate_corners, DrawIntersection};
 pub use crate::render::map::{AgentCache, DrawMap, UnzoomedAgents};

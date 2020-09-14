@@ -43,7 +43,7 @@ impl App {
         ctx.set_style(cs.gui_style.clone());
 
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
-            PerMap::new(flags, &cs, ctx, &mut timer)
+            PerMap::new(flags, &opts, &cs, ctx, &mut timer)
         });
 
         let mut rng = primary.current_flags.sim_flags.make_rng();
@@ -535,11 +535,17 @@ pub struct PerMap {
 }
 
 impl PerMap {
-    pub fn new(flags: Flags, cs: &ColorScheme, ctx: &mut EventCtx, timer: &mut Timer) -> PerMap {
+    pub fn new(
+        flags: Flags,
+        opts: &Options,
+        cs: &ColorScheme,
+        ctx: &mut EventCtx,
+        timer: &mut Timer,
+    ) -> PerMap {
         let (map, sim, _) = flags.sim_flags.load(timer);
 
         timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, cs, ctx, timer);
+        let draw_map = DrawMap::new(&map, opts, cs, ctx, timer);
         timer.stop("draw_map");
 
         let mut low_z = 0;

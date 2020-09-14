@@ -1,10 +1,11 @@
 use crate::app::App;
 use crate::colors::ColorSchemeChoice;
 use crate::game::{State, Transition};
+use crate::render::DrawBuilding;
 use geom::Duration;
 use widgetry::{
-    hotkey, Btn, Checkbox, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner, TextExt,
-    Widget,
+    hotkey, Btn, Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner,
+    TextExt, Widget,
 };
 
 // TODO SimOptions stuff too
@@ -18,6 +19,7 @@ pub struct Options {
     pub color_scheme: ColorSchemeChoice,
     pub min_zoom_for_detail: f64,
     pub large_unzoomed_agents: bool,
+    pub camera_angle: CameraAngle,
 
     pub time_increment: Duration,
     pub dont_draw_time_warp: bool,
@@ -37,6 +39,7 @@ impl Options {
             color_scheme: ColorSchemeChoice::Standard,
             min_zoom_for_detail: 4.0,
             large_unzoomed_agents: false,
+            camera_angle: CameraAngle::TopDown,
 
             time_increment: Duration::minutes(10),
             dont_draw_time_warp: false,
@@ -54,6 +57,15 @@ pub enum TrafficSignalStyle {
     Sidewalks,
     Icons,
     IndividualTurnArrows,
+}
+
+#[derive(Clone, PartialEq, Debug)]
+pub enum CameraAngle {
+    TopDown,
+    IsometricNE,
+    IsometricNW,
+    IsometricSE,
+    IsometricSW,
 }
 
 pub struct OptionsPanel {
@@ -137,6 +149,21 @@ impl OptionsPanel {
                                     "arrows showing individual turns (to debug)",
                                     TrafficSignalStyle::IndividualTurnArrows,
                                 ),
+                            ],
+                        ),
+                    ]),
+                    Widget::row(vec![
+                        "Camera angle:".draw_text(ctx),
+                        Widget::dropdown(
+                            ctx,
+                            "Camera angle",
+                            app.opts.camera_angle.clone(),
+                            vec![
+                                Choice::new("Top-down", CameraAngle::TopDown),
+                                Choice::new("Isometric (northeast)", CameraAngle::IsometricNE),
+                                Choice::new("Isometric (northwest)", CameraAngle::IsometricNW),
+                                Choice::new("Isometric (southeast)", CameraAngle::IsometricSE),
+                                Choice::new("Isometric (southwest)", CameraAngle::IsometricSW),
                             ],
                         ),
                     ]),
@@ -239,6 +266,40 @@ impl State for OptionsPanel {
                         for i in &mut app.primary.draw_map.intersections {
                             *i.draw_traffic_signal.borrow_mut() = None;
                         }
+                    }
+
+                    let camera_angle = self.panel.dropdown_value("Camera angle");
+                    if app.opts.camera_angle != camera_angle {
+                        app.opts.camera_angle = camera_angle;
+                        ctx.loading_screen("rerendering buildings", |ctx, timer| {
+                            let mut all_buildings = GeomBatch::new();
+                            let mut all_building_paths = GeomBatch::new();
+                            let mut all_building_outlines = GeomBatch::new();
+                            timer.start_iter(
+                                "rendering buildings",
+                                app.primary.map.all_buildings().len(),
+                            );
+                            for b in app.primary.map.all_buildings() {
+                                timer.next();
+                                DrawBuilding::new(
+                                    ctx,
+                                    b,
+                                    &app.primary.map,
+                                    &app.cs,
+                                    &app.opts,
+                                    &mut all_buildings,
+                                    &mut all_building_paths,
+                                    &mut all_building_outlines,
+                                );
+                            }
+                            timer.start("upload geometry");
+                            app.primary.draw_map.draw_all_buildings = all_buildings.upload(ctx);
+                            app.primary.draw_map.draw_all_building_paths =
+                                all_building_paths.upload(ctx);
+                            app.primary.draw_map.draw_all_building_outlines =
+                                all_building_outlines.upload(ctx);
+                            timer.stop("upload geometry");
+                        });
                     }
 
                     let scheme = self.panel.dropdown_value("Color scheme");

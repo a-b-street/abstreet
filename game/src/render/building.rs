@@ -1,9 +1,12 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
+use crate::options::{CameraAngle, Options};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Angle, Distance, Line, Polygon, Pt2D, Ring};
 use map_model::{Building, BuildingID, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
+use rand::{Rng, SeedableRng};
+use rand_xorshift::XorShiftRng;
 use std::cell::RefCell;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
@@ -18,6 +21,7 @@ impl DrawBuilding {
         bldg: &Building,
         map: &Map,
         cs: &ColorScheme,
+        opts: &Options,
         bldg_batch: &mut GeomBatch,
         paths_batch: &mut GeomBatch,
         outlines_batch: &mut GeomBatch,
@@ -33,28 +37,91 @@ impl DrawBuilding {
             .map(|(pl, _)| pl)
             .unwrap_or_else(|_| orig_pl.clone());
 
-        if bldg.amenities.is_empty() {
-            bldg_batch.push(cs.residential_building, bldg.polygon.clone());
+        let bldg_color = if bldg.amenities.is_empty() {
+            cs.residential_building
         } else {
-            bldg_batch.push(cs.commerical_building, bldg.polygon.clone());
+            cs.commerical_building
+        };
+
+        match &opts.camera_angle {
+            CameraAngle::TopDown => {
+                bldg_batch.push(bldg_color, bldg.polygon.clone());
+                if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.1)) {
+                    outlines_batch.push(cs.building_outline, p);
+                }
+
+                let parking_icon = match bldg.parking {
+                    OffstreetParking::PublicGarage(_, _) => true,
+                    OffstreetParking::Private(_, garage) => garage,
+                };
+                if parking_icon {
+                    // Might need to scale down more for some buildings, but so far, this works
+                    // everywhere.
+                    bldg_batch.append(
+                        GeomBatch::load_svg(ctx.prerender, "system/assets/map/parking.svg")
+                            .scale(0.1)
+                            .centered_on(bldg.label_center),
+                    );
+                }
+            }
+            x => {
+                let angle = match x {
+                    CameraAngle::IsometricNE => Angle::new_degs(-45.0),
+                    CameraAngle::IsometricNW => Angle::new_degs(-135.0),
+                    CameraAngle::IsometricSE => Angle::new_degs(45.0),
+                    CameraAngle::IsometricSW => Angle::new_degs(135.0),
+                    _ => unreachable!(),
+                };
+
+                // TODO For now, blindly guess the building height
+                let mut rng = XorShiftRng::seed_from_u64(bldg.id.0 as u64);
+                let height = Distance::meters(rng.gen_range(1.0, 15.0));
+
+                // TODO Some buildings have holes in them
+                if let Ok(roof) = Ring::new(
+                    bldg.polygon
+                        .points()
+                        .iter()
+                        .map(|pt| pt.project_away(height, angle))
+                        .collect(),
+                ) {
+                    if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.3)) {
+                        bldg_batch.push(Color::BLACK, p);
+                    }
+
+                    let mut wall_beams = Vec::new();
+                    for (low, high) in bldg.polygon.points().iter().zip(roof.points().iter()) {
+                        wall_beams.push(Line::must_new(*low, *high));
+                    }
+                    let wall_color = Color::hex("#BBBEC3");
+                    for (wall1, wall2) in wall_beams.iter().zip(wall_beams.iter().skip(1)) {
+                        bldg_batch.push(
+                            wall_color,
+                            Ring::must_new(vec![
+                                wall1.pt1(),
+                                wall1.pt2(),
+                                wall2.pt2(),
+                                wall2.pt1(),
+                                wall1.pt1(),
+                            ])
+                            .to_polygon(),
+                        );
+                    }
+                    for wall in wall_beams {
+                        bldg_batch.push(Color::BLACK, wall.make_polygons(Distance::meters(0.1)));
+                    }
+
+                    bldg_batch.push(bldg_color, roof.clone().to_polygon());
+                    bldg_batch.push(Color::BLACK, roof.to_outline(Distance::meters(0.3)));
+                } else {
+                    bldg_batch.push(bldg_color, bldg.polygon.clone());
+                    if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.1)) {
+                        outlines_batch.push(cs.building_outline, p);
+                    }
+                }
+            }
         }
         paths_batch.push(cs.sidewalk, driveway.make_polygons(NORMAL_LANE_THICKNESS));
-        if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.1)) {
-            outlines_batch.push(cs.building_outline, p);
-        }
-
-        let parking_icon = match bldg.parking {
-            OffstreetParking::PublicGarage(_, _) => true,
-            OffstreetParking::Private(_, garage) => garage,
-        };
-        if parking_icon {
-            // Might need to scale down more for some buildings, but so far, this works everywhere.
-            bldg_batch.append(
-                GeomBatch::load_svg(ctx.prerender, "system/assets/map/parking.svg")
-                    .scale(0.1)
-                    .centered_on(bldg.label_center),
-            );
-        }
 
         DrawBuilding {
             id: bldg.id,
