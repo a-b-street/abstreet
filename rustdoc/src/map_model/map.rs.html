@@ -649,9 +649,6 @@
 <span id="649">649</span>
 <span id="650">650</span>
 <span id="651">651</span>
-<span id="652">652</span>
-<span id="653">653</span>
-<span id="654">654</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -684,7 +681,8 @@
         <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">starts_with</span>(<span class="kw-2">&amp;</span><span class="ident">abstutil</span>::<span class="ident">path_all_maps</span>()) {
             <span class="kw">match</span> <span class="ident">abstutil</span>::<span class="ident">maybe_read_binary</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>) {
                 <span class="prelude-val">Ok</span>(<span class="ident">map</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">map</span>;
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">map</span>;
+                    <span class="ident">map</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">new_edits</span>();
 
                     <span class="kw">if</span> <span class="bool-val">false</span> {
                         <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>};
@@ -1113,12 +1111,8 @@
         <span class="ident">result</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unsaved_edits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Untitled Proposal&quot;</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>()
-    }
-
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">edits_name</span>, <span class="string">&quot;Untitled Proposal&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;Untitled Proposal&quot;</span>));
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>());
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
         <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>), <span class="self">self</span>);

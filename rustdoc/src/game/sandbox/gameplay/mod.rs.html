@@ -761,7 +761,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">chose_next</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">chose_back_to_challenges</span> {
             <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;reset map and sim&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
                 <span class="comment">// Always safe to do this</span>
-                <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">MapEdits</span>::<span class="ident">new</span>());
+                <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
                 <span class="ident">app</span>.<span class="ident">primary</span>
                     .<span class="ident">map</span>
                     .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);

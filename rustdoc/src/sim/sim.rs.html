@@ -1347,7 +1347,6 @@
 <span id="1347">1347</span>
 <span id="1348">1348</span>
 <span id="1349">1349</span>
-<span id="1350">1350</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">analytics</span>::<span class="ident">Window</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1494,8 +1493,7 @@
             <span class="ident">time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
 
             <span class="ident">map_name</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">to_string</span>(),
-            <span class="comment">// TODO</span>
-            <span class="ident">edits_name</span>: <span class="string">&quot;Untitled Proposal&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">edits_name</span>: <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>.<span class="ident">clone</span>(),
             <span class="ident">run_name</span>: <span class="ident">opts</span>.<span class="ident">run_name</span>,
             <span class="ident">step_count</span>: <span class="number">0</span>,
             <span class="ident">alerts</span>: <span class="ident">opts</span>.<span class="ident">alerts</span>,

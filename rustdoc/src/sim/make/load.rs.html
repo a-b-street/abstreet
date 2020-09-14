@@ -143,6 +143,16 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AlertHandler</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">Sim</span>, <span class="ident">SimOptions</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
@@ -234,17 +244,27 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span>: <span class="ident">Sim</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">read_binary</span>(<span class="self">self</span>.<span class="ident">load</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">map_name</span>), <span class="ident">timer</span>);
-            <span class="kw">if</span> <span class="ident">sim</span>.<span class="ident">edits_name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;Untitled Proposal&quot;</span> {
-                <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(
-                    <span class="ident">MapEdits</span>::<span class="ident">load</span>(
-                        <span class="kw-2">&amp;</span><span class="ident">map</span>,
-                        <span class="ident">abstutil</span>::<span class="ident">path_edits</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">edits_name</span>),
-                        <span class="ident">timer</span>,
-                    )
-                    .<span class="ident">unwrap</span>(),
-                    <span class="ident">timer</span>,
-                );
-                <span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
+            <span class="kw">match</span> <span class="ident">MapEdits</span>::<span class="ident">load</span>(
+                <span class="kw-2">&amp;</span><span class="ident">map</span>,
+                <span class="ident">abstutil</span>::<span class="ident">path_edits</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">edits_name</span>),
+                <span class="ident">timer</span>,
+            ) {
+                <span class="prelude-val">Ok</span>(<span class="ident">edits</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
+                    <span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
+                }
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">// Little brittle. Sometimes legitimate edits wind up being saved without a</span>
+                    <span class="comment">// proper name.</span>
+                    <span class="kw">if</span> <span class="ident">sim</span>.<span class="ident">edits_name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;Untitled Proposal&quot;</span>) {
+                        <span class="macro">warn</span><span class="macro">!</span>(
+                            <span class="string">&quot;Sim savestate refers to edits \&quot;{}\&quot;, but not using them: {}&quot;</span>,
+                            <span class="ident">sim</span>.<span class="ident">edits_name</span>, <span class="ident">err</span>
+                        );
+                    } <span class="kw">else</span> {
+                        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Couldn&#39;t load edits \&quot;{}\&quot;: {}&quot;</span>, <span class="ident">sim</span>.<span class="ident">edits_name</span>, <span class="ident">err</span>);
+                    }
+                }
             }
             <span class="ident">sim</span>.<span class="ident">restore_paths</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">timer</span>);
 

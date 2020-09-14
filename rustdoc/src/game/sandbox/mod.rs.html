@@ -516,7 +516,6 @@
 <span id="516">516</span>
 <span id="517">517</span>
 <span id="518">518</span>
-<span id="519">519</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">dashboards</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gameplay</span>;
@@ -541,7 +540,6 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">UnzoomedAgents</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Time</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">MapEdits</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AgentType</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">speed</span>::{<span class="ident">SpeedControls</span>, <span class="ident">TimePanel</span>};
@@ -799,7 +797,7 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;reset map and sim&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
             <span class="comment">// Always safe to do this</span>
-            <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">MapEdits</span>::<span class="ident">new</span>());
+            <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
             <span class="ident">app</span>.<span class="ident">primary</span>
                 .<span class="ident">map</span>
                 .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
