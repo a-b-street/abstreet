@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["SpeedSetting",""]],"fn":[["area_under_curve",""],["build_jump_to_delay_button",""],["build_jump_to_delay_picker",""],["build_jump_to_time_btn",""],["compare_count",""]],"struct":[["JumpToTime",""],["SpeedControls",""],["TimePanel",""],["TimeWarpScreen",""]]});
+initSidebarItems({"enum":[["SpeedSetting",""]],"struct":[["SpeedControls",""],["TimePanel",""]]});
