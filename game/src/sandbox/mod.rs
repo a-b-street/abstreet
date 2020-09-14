@@ -2,6 +2,7 @@ mod dashboards;
 pub mod gameplay;
 mod misc_tools;
 mod speed;
+mod time_warp;
 mod uber_turns;
 
 use self::misc_tools::{RoutePreview, TurnExplorer};
@@ -23,8 +24,8 @@ use geom::Time;
 use map_model::MapEdits;
 use maplit::btreeset;
 use sim::AgentType;
-pub use speed::TimeWarpScreen;
 pub use speed::{SpeedControls, TimePanel};
+pub use time_warp::TimeWarpScreen;
 use widgetry::{
     hotkey, lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     Text, TextExt, UpdateType, VerticalAlignment, Widget,
