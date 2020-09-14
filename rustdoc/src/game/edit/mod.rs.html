@@ -895,14 +895,14 @@
         }
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">changelist</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;load edits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;load proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">unsaved_edits</span>() {
                         <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                             <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">LoadEdits</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>())),
                             <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SaveEdits</span>::<span class="ident">new</span>(
                                 <span class="ident">ctx</span>,
                                 <span class="ident">app</span>,
-                                <span class="string">&quot;Do you want to save your edits first?&quot;</span>,
+                                <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
                                 <span class="bool-val">true</span>,
                                 <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Transition</span>::<span class="ident">Pop</span>, <span class="ident">Transition</span>::<span class="ident">Pop</span>])),
                             )),
@@ -911,11 +911,11 @@
                         <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">LoadEdits</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>()));
                     }
                 }
-                <span class="string">&quot;save edits as&quot;</span> <span class="op">|</span> <span class="string">&quot;save edits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;save proposal as&quot;</span> <span class="op">|</span> <span class="string">&quot;save proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SaveEdits</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
-                        <span class="string">&quot;Save your edits&quot;</span>,
+                        <span class="string">&quot;Save your proposal&quot;</span>,
                         <span class="bool-val">false</span>,
                         <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Pop</span>),
                     ));
@@ -1033,7 +1033,7 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">btn</span>,
                     <span class="kw">if</span> <span class="ident">discard</span> {
-                        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Discard edits&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+                        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Discard proposal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
                     } <span class="kw">else</span> {
                         <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                     },
@@ -1055,7 +1055,7 @@
             <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Save&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path_edits</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">candidate</span>))
         {
-            <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Overwrite existing edits&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+            <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Overwrite existing proposal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
         } <span class="kw">else</span> {
             <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Save&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>))
         }
@@ -1067,7 +1067,7 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Save&quot;</span> <span class="op">|</span> <span class="string">&quot;Overwrite existing edits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Save&quot;</span> <span class="op">|</span> <span class="string">&quot;Overwrite existing proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
                     <span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_name</span>.<span class="ident">clone</span>();
                     <span class="ident">app</span>.<span class="ident">primary</span>
@@ -1079,7 +1079,7 @@
                     }
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
-                <span class="string">&quot;Discard edits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Discard proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">MapEdits</span>::<span class="ident">new</span>());
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
@@ -1115,7 +1115,7 @@
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="ident">GameplayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">current_edits_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>;
         <span class="kw">let</span> <span class="ident">your_edits</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Your edits&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            <span class="ident">Line</span>(<span class="string">&quot;Your proposals&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">Menu</span>::<span class="ident">new</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">abstutil</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstutil</span>::<span class="ident">path_all_edits</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
@@ -1139,12 +1139,12 @@
             <span class="ident">mode</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Load edits&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;Load proposal&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
                         .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
                         .<span class="ident">align_right</span>(),
                 ]),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Start over with blank edits&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Start over with blank proposal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">your_edits</span>), <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">proposals</span>)]).<span class="ident">evenly_spaced</span>(),
             ]))
             .<span class="ident">exact_size_percent</span>(<span class="number">50</span>, <span class="number">50</span>)
@@ -1159,7 +1159,7 @@
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                     <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                    <span class="string">&quot;Start over with blank edits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="string">&quot;Start over with blank proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">MapEdits</span>::<span class="ident">new</span>());
                         <span class="ident">Transition</span>::<span class="ident">Pop</span>
                     }
@@ -1182,7 +1182,7 @@
                                 <span class="prelude-val">Ok</span>(<span class="ident">edits</span>)
                             } <span class="kw">else</span> {
                                 <span class="prelude-val">Err</span>(
-                                    <span class="string">&quot;The current gameplay mode restricts edits. These edits have \
+                                    <span class="string">&quot;The current gameplay mode restricts edits. This proposal has \
                                      a banned command.&quot;</span>
                                         .<span class="ident">to_string</span>(),
                                 )
@@ -1292,7 +1292,7 @@
     }
 
     <span class="comment">// Autosave</span>
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;untitled edits&quot;</span> {
+    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;Untitled Proposal&quot;</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">save_edits</span>();
     }
 }
@@ -1380,7 +1380,7 @@
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} ↓&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">edits_name</span>)).<span class="ident">build</span>(
                 <span class="ident">ctx</span>,
-                <span class="string">&quot;load edits&quot;</span>,
+                <span class="string">&quot;load proposal&quot;</span>,
                 <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>),
             ),
             (<span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>() {
@@ -1392,7 +1392,7 @@
             } <span class="kw">else</span> {
                 <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/save.svg&quot;</span>).<span class="ident">build</span>(
                     <span class="ident">ctx</span>,
-                    <span class="string">&quot;save edits as&quot;</span>,
+                    <span class="string">&quot;save proposal as&quot;</span>,
                     <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">S</span>),
                 )
             })
@@ -1409,7 +1409,7 @@
             .<span class="ident">centered_vert</span>(),
         ]),
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">unsaved_edits</span>() {
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Unsaved edits&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;save edits&quot;</span>, <span class="prelude-val">None</span>)
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Unsaved proposal&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;save proposal&quot;</span>, <span class="prelude-val">None</span>)
         } <span class="kw">else</span> {
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Autosaved!&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
         },

@@ -1114,11 +1114,11 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unsaved_edits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;untitled edits&quot;</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>()
+        <span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Untitled Proposal&quot;</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">edits_name</span>, <span class="string">&quot;untitled edits&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">edits_name</span>, <span class="string">&quot;Untitled Proposal&quot;</span>);
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>());
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
         <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>), <span class="self">self</span>);
