@@ -281,6 +281,7 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
+<span id="284">284</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. The</span>
 <span class="comment">// API is not documented yet. To run this:</span>
@@ -382,7 +383,8 @@
             <span class="prelude-val">Ok</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;sim reloaded&quot;</span>))
         }
         <span class="string">&quot;/sim/load&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">flags</span>: <span class="ident">SimFlags</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">from_json</span>(<span class="ident">body</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">flags</span>: <span class="ident">SimFlags</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">from_json</span>(<span class="ident">body</span>)<span class="question-mark">?</span>;
+            <span class="ident">flags</span>.<span class="ident">opts</span>.<span class="ident">alerts</span> <span class="op">=</span> <span class="ident">AlertHandler</span>::<span class="ident">Silence</span>;
             <span class="kw-2">*</span><span class="ident">FLAGS</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">flags</span>;
 
             <span class="comment">// Also reset</span>
