@@ -74,6 +74,7 @@ pub struct SimOptions {
     pub alerts: AlertHandler,
     pub pathfinding_upfront: bool,
     pub live_map_edits: bool,
+    pub infinite_parking: bool,
 }
 
 impl std::default::Default for SimOptions {
@@ -111,6 +112,7 @@ impl SimOptions {
             alerts: AlertHandler::Print,
             pathfinding_upfront: false,
             live_map_edits: false,
+            infinite_parking: false,
         }
     }
 }
@@ -121,7 +123,7 @@ impl Sim {
         let mut scheduler = Scheduler::new();
         Sim {
             driving: DrivingSimState::new(map, opts.recalc_lanechanging, opts.handle_uber_turns),
-            parking: ParkingSimState::new(map, timer),
+            parking: ParkingSimState::new(map, opts.infinite_parking, timer),
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(
                 map,
@@ -180,6 +182,10 @@ impl Sim {
     // (Filled, available)
     pub fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>) {
         self.parking.get_all_parking_spots()
+    }
+
+    pub fn bldg_to_parked_cars(&self, b: BuildingID) -> Vec<CarID> {
+        self.parking.bldg_to_parked_cars(b)
     }
 
     // Also returns the start distance of the building. TODO Do that in the Path properly.
@@ -919,11 +925,13 @@ impl Sim {
             let evicted_cars = self.parking.handle_live_edits(map, &mut Timer::throwaway());
             affected.extend(self.walking.find_trips_to_parking(evicted_cars));
 
-            let (filled, avail) = self.parking.get_all_parking_spots();
-            let mut all_spots: BTreeSet<ParkingSpot> = BTreeSet::new();
-            all_spots.extend(filled);
-            all_spots.extend(avail);
-            affected.extend(self.driving.find_trips_to_edited_parking(all_spots));
+            if !self.parking.is_infinite() {
+                let (filled, avail) = self.parking.get_all_parking_spots();
+                let mut all_spots: BTreeSet<ParkingSpot> = BTreeSet::new();
+                all_spots.extend(filled);
+                all_spots.extend(avail);
+                affected.extend(self.driving.find_trips_to_edited_parking(all_spots));
+            }
         }
 
         affected
@@ -1285,6 +1293,10 @@ impl Sim {
 
     pub fn get_cap_counter(&self, l: LaneID) -> usize {
         self.cap.get_cap_counter(l)
+    }
+
+    pub fn infinite_parking(&self) -> bool {
+        self.parking.is_infinite()
     }
 }
 

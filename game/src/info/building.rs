@@ -22,7 +22,15 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     }
 
     let num_spots = b.num_parking_spots();
-    if num_spots > 0 {
+    if app.primary.sim.infinite_parking() {
+        kv.push((
+            "Parking",
+            format!(
+                "Unlimited, currently {} cars inside",
+                app.primary.sim.bldg_to_parked_cars(b.id).len()
+            ),
+        ));
+    } else if num_spots > 0 {
         let free = app.primary.sim.get_free_offstreet_spots(b.id).len();
         if let OffstreetParking::PublicGarage(ref n, _) = b.parking {
             kv.push((

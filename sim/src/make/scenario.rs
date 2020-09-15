@@ -266,6 +266,14 @@ fn seed_parked_cars(
     base_rng: &mut XorShiftRng,
     timer: &mut Timer,
 ) {
+    if sim.infinite_parking() {
+        for (vehicle, b) in parked_cars {
+            let spot = sim.get_free_offstreet_spots(b)[0];
+            sim.seed_parked_car(vehicle, spot);
+        }
+        return;
+    }
+
     let mut open_spots_per_road: BTreeMap<RoadID, Vec<(ParkingSpot, Option<BuildingID>)>> =
         BTreeMap::new();
     for spot in sim.get_all_parking_spots().1 {

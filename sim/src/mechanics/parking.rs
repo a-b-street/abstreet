@@ -60,6 +60,7 @@ pub trait ParkingSim {
     ) -> Option<(Vec<PathStep>, ParkingSpot, Position)>;
     fn collect_events(&mut self) -> Vec<Event>;
     fn all_parked_car_positions(&self, map: &Map) -> Vec<(Position, PersonID)>;
+    fn bldg_to_parked_cars(&self, b: BuildingID) -> Vec<CarID>;
 }
 
 #[enum_dispatch]
@@ -72,46 +73,19 @@ pub enum ParkingSimState {
 impl ParkingSimState {
     // Counterintuitive: any spots located in blackholes are just not represented here. If somebody
     // tries to drive from a blackholed spot, they couldn't reach most places.
-    pub fn new(map: &Map, timer: &mut Timer) -> ParkingSimState {
-        let mut sim = NormalParkingSimState {
-            parked_cars: BTreeMap::new(),
-            occupants: BTreeMap::new(),
-            reserved_spots: BTreeSet::new(),
+    pub fn new(map: &Map, infinite: bool, timer: &mut Timer) -> ParkingSimState {
+        if infinite {
+            ParkingSimState::Infinite(InfiniteParkingSimState::new(map))
+        } else {
+            ParkingSimState::Normal(NormalParkingSimState::new(map, timer))
+        }
+    }
 
-            onstreet_lanes: BTreeMap::new(),
-            driving_to_parking_lanes: MultiMap::new(),
-            num_spots_per_offstreet: BTreeMap::new(),
-            driving_to_offstreet: MultiMap::new(),
-            num_spots_per_lot: BTreeMap::new(),
-            driving_to_lots: MultiMap::new(),
-
-            events: Vec::new(),
-        };
-        for l in map.all_lanes() {
-            if let Some(lane) = ParkingLane::new(l, map, timer) {
-                sim.driving_to_parking_lanes.insert(lane.driving_lane, l.id);
-                sim.onstreet_lanes.insert(lane.parking_lane, lane);
-            }
+    pub fn is_infinite(&self) -> bool {
+        match self {
+            ParkingSimState::Normal(_) => false,
+            ParkingSimState::Infinite(_) => true,
         }
-        for b in map.all_buildings() {
-            if let Some((pos, _)) = b.driving_connection(map) {
-                if !map.get_l(pos.lane()).driving_blackhole {
-                    let num_spots = b.num_parking_spots();
-                    if num_spots > 0 {
-                        sim.num_spots_per_offstreet.insert(b.id, num_spots);
-                        sim.driving_to_offstreet
-                            .insert(pos.lane(), (b.id, pos.dist_along()));
-                    }
-                }
-            }
-        }
-        for pl in map.all_parking_lots() {
-            if !map.get_l(pl.driving_pos.lane()).driving_blackhole {
-                sim.num_spots_per_lot.insert(pl.id, pl.capacity());
-                sim.driving_to_lots.insert(pl.driving_pos.lane(), pl.id);
-            }
-        }
-        ParkingSimState::Normal(sim)
     }
 }
 
@@ -158,13 +132,55 @@ pub struct NormalParkingSimState {
     events: Vec<Event>,
 }
 
+impl NormalParkingSimState {
+    fn new(map: &Map, timer: &mut Timer) -> NormalParkingSimState {
+        let mut sim = NormalParkingSimState {
+            parked_cars: BTreeMap::new(),
+            occupants: BTreeMap::new(),
+            reserved_spots: BTreeSet::new(),
+
+            onstreet_lanes: BTreeMap::new(),
+            driving_to_parking_lanes: MultiMap::new(),
+            num_spots_per_offstreet: BTreeMap::new(),
+            driving_to_offstreet: MultiMap::new(),
+            num_spots_per_lot: BTreeMap::new(),
+            driving_to_lots: MultiMap::new(),
+
+            events: Vec::new(),
+        };
+        for l in map.all_lanes() {
+            if let Some(lane) = ParkingLane::new(l, map, timer) {
+                sim.driving_to_parking_lanes.insert(lane.driving_lane, l.id);
+                sim.onstreet_lanes.insert(lane.parking_lane, lane);
+            }
+        }
+        for b in map.all_buildings() {
+            if let Some((pos, _)) = b.driving_connection(map) {
+                if !map.get_l(pos.lane()).driving_blackhole {
+                    let num_spots = b.num_parking_spots();
+                    if num_spots > 0 {
+                        sim.num_spots_per_offstreet.insert(b.id, num_spots);
+                        sim.driving_to_offstreet
+                            .insert(pos.lane(), (b.id, pos.dist_along()));
+                    }
+                }
+            }
+        }
+        for pl in map.all_parking_lots() {
+            if !map.get_l(pl.driving_pos.lane()).driving_blackhole {
+                sim.num_spots_per_lot.insert(pl.id, pl.capacity());
+                sim.driving_to_lots.insert(pl.driving_pos.lane(), pl.id);
+            }
+        }
+
+        sim
+    }
+}
+
 impl ParkingSim for NormalParkingSimState {
     fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> Vec<ParkedCar> {
         let (filled_before, _) = self.get_all_parking_spots();
-        let new = match ParkingSimState::new(map, timer) {
-            ParkingSimState::Normal(sim) => sim,
-            _ => unreachable!(),
-        };
+        let new = NormalParkingSimState::new(map, timer);
         let (_, avail_after) = new.get_all_parking_spots();
         let avail_after: BTreeSet<ParkingSpot> = avail_after.into_iter().collect();
 
@@ -564,6 +580,17 @@ impl ParkingSim for NormalParkingSimState {
             })
             .collect()
     }
+
+    fn bldg_to_parked_cars(&self, b: BuildingID) -> Vec<CarID> {
+        let mut cars = Vec::new();
+        for idx in 0..self.num_spots_per_offstreet.get(&b).cloned().unwrap_or(0) {
+            let spot = ParkingSpot::Offstreet(b, idx);
+            if let Some(car) = self.occupants.get(&spot) {
+                cars.push(*car);
+            }
+        }
+        cars
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -653,6 +680,26 @@ pub struct InfiniteParkingSimState {
 }
 
 impl InfiniteParkingSimState {
+    fn new(map: &Map) -> InfiniteParkingSimState {
+        let mut sim = InfiniteParkingSimState {
+            parked_cars: BTreeMap::new(),
+            occupants: BTreeMap::new(),
+
+            driving_to_offstreet: MultiMap::new(),
+
+            events: Vec::new(),
+        };
+        for b in map.all_buildings() {
+            if let Some((pos, _)) = b.driving_connection(map) {
+                if !map.get_l(pos.lane()).driving_blackhole {
+                    sim.driving_to_offstreet
+                        .insert(pos.lane(), (b.id, pos.dist_along()));
+                }
+            }
+        }
+        sim
+    }
+
     fn get_free_bldg_spot(&self, b: BuildingID) -> ParkingSpot {
         let mut i = 0;
         loop {
@@ -666,12 +713,9 @@ impl InfiniteParkingSimState {
 }
 
 impl ParkingSim for InfiniteParkingSimState {
-    fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> Vec<ParkedCar> {
+    fn handle_live_edits(&mut self, map: &Map, _: &mut Timer) -> Vec<ParkedCar> {
         // Can live edits possibly affect anything?
-        let new = match ParkingSimState::new(map, timer) {
-            ParkingSimState::Infinite(sim) => sim,
-            _ => unreachable!(),
-        };
+        let new = InfiniteParkingSimState::new(map);
         self.driving_to_offstreet = new.driving_to_offstreet;
 
         Vec::new()
@@ -682,8 +726,8 @@ impl ParkingSim for InfiniteParkingSimState {
     }
 
     fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot> {
-        // TODO INFINITE. just return one or something?
-        Vec::new()
+        // Just returns the next free spot
+        vec![self.get_free_bldg_spot(b)]
     }
 
     fn get_free_lot_spots(&self, _: ParkingLotID) -> Vec<ParkingSpot> {
@@ -781,8 +825,7 @@ impl ParkingSim for InfiniteParkingSimState {
     }
 
     fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>) {
-        // TODO something very different
-        (Vec::new(), Vec::new())
+        unreachable!()
     }
 
     fn path_to_free_parking_spot(
@@ -810,5 +853,18 @@ impl ParkingSim for InfiniteParkingSimState {
                 )
             })
             .collect()
+    }
+
+    fn bldg_to_parked_cars(&self, b: BuildingID) -> Vec<CarID> {
+        // TODO This is a very inefficient impl
+        let mut cars = Vec::new();
+        for (spot, car) in &self.occupants {
+            if let ParkingSpot::Offstreet(bldg, _) = spot {
+                if b == *bldg {
+                    cars.push(*car);
+                }
+            }
+        }
+        cars
     }
 }
