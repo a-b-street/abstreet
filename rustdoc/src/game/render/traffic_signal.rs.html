@@ -268,6 +268,20 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">TrafficSignalStyle</span>;
@@ -276,7 +290,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Stage</span>, <span class="ident">TurnPriority</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">GeomBatch</span>, <span class="ident">Prerender</span>, <span class="ident">RewriteColor</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">Prerender</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>};
 
 <span class="comment">// Only draws a box when time_left is present</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_signal_stage</span>(
@@ -390,6 +404,20 @@
                         ),
                 );
             }
+
+            <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>);
+            <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">polylabel</span>();
+            <span class="ident">batch</span>.<span class="ident">push</span>(
+                <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>),
+                <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">center</span>, <span class="ident">radius</span>).<span class="ident">to_polygon</span>(),
+            );
+            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span> <span class="op">=</span><span class="op">=</span> <span class="ident">stage</span>).<span class="ident">unwrap</span>() <span class="op">+</span> <span class="number">1</span>;
+            <span class="ident">batch</span>.<span class="ident">append</span>(
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">idx</span>.<span class="ident">to_string</span>()))
+                    .<span class="ident">render_to_batch</span>(<span class="ident">prerender</span>)
+                    .<span class="ident">scale</span>(<span class="number">0.075</span>)
+                    .<span class="ident">centered_on</span>(<span class="ident">center</span>),
+            );
 
             <span class="comment">// No time_left box</span>
             <span class="kw">return</span>;
