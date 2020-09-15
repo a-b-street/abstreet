@@ -973,6 +973,21 @@
 <span id="973">973</span>
 <span id="974">974</span>
 <span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">edits</span>;
 <span class="kw">mod</span> <span class="ident">picker</span>;
@@ -1194,19 +1209,6 @@
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">side_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Edit multiple signals&quot;</span> {
-                    <span class="comment">// First commit the current changes, so we enter SignalPicker with clean state.</span>
-                    <span class="comment">// This UX flow is a little unintuitive.</span>
-                    <span class="kw">let</span> <span class="ident">changes</span> <span class="op">=</span> <span class="ident">check_for_missing_turns</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>)
-                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>));
-                    <span class="self">self</span>.<span class="ident">original</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
-                    <span class="ident">changes</span>.<span class="ident">commit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">picker</span>::<span class="ident">SignalPicker</span>::<span class="ident">new</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>(),
-                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
-                    ));
-                }
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Edit entire signal&quot;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">edits</span>::<span class="ident">edit_entire_signal</span>(
                         <span class="ident">ctx</span>,
@@ -1216,7 +1218,7 @@
                         <span class="self">self</span>.<span class="ident">original</span>.<span class="ident">clone</span>(),
                     ));
                 }
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Add new stage&quot;</span> {
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Add a new stage&quot;</span> {
                     <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">num_stages</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
                         <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">Stage</span>::<span class="ident">new</span>());
                     });
@@ -1313,6 +1315,19 @@
                         <span class="ident">changes</span>.<span class="ident">commit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                         <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                     }
+                }
+                <span class="string">&quot;Edit multiple signals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">// First commit the current changes, so we enter SignalPicker with clean state.</span>
+                    <span class="comment">// This UX flow is a little unintuitive.</span>
+                    <span class="kw">let</span> <span class="ident">changes</span> <span class="op">=</span> <span class="ident">check_for_missing_turns</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>)
+                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>));
+                    <span class="self">self</span>.<span class="ident">original</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
+                    <span class="ident">changes</span>.<span class="ident">commit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">picker</span>::<span class="ident">SignalPicker</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>(),
+                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
+                    ));
                 }
                 <span class="string">&quot;Export&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">for</span> <span class="ident">signal</span> <span class="kw">in</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>).<span class="ident">signals</span> {
@@ -1481,8 +1496,8 @@
 
 <span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">can_undo</span>: <span class="ident">bool</span>, <span class="ident">can_redo</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
-        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Preview&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">P</span>)),
+        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Preview&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">P</span>)),
         (<span class="kw">if</span> <span class="ident">can_undo</span> {
             <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Z</span>))
         } <span class="kw">else</span> {
@@ -1509,7 +1524,7 @@
         })
         .<span class="ident">centered_vert</span>(),
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Export&quot;</span>)
+            <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Export&quot;</span>)
                 .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;This will create a JSON file in traffic_signal_data/.&quot;</span>).<span class="ident">small</span>(),
                     <span class="ident">Line</span>(
@@ -1522,9 +1537,17 @@
         } <span class="kw">else</span> {
             <span class="ident">Widget</span>::<span class="ident">nothing</span>()
         },
+        <span class="comment">// TODO cancel</span>
     ];
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Traffic signal editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Line</span>(<span class="string">&quot;Traffic signal editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            <span class="ident">Btn</span>::<span class="ident">plaintext_custom</span>(
+                <span class="string">&quot;Edit multiple signals&quot;</span>,
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;+ Edit multiple&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>))),
+            )
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>)),
+        ]),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="ident">row</span>),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
@@ -1557,25 +1580,33 @@
             );
         }
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">road_names</span> {
-            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;  {}&quot;</span>, <span class="ident">r</span>)));
+            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;  {}&quot;</span>, <span class="ident">r</span>)).<span class="ident">secondary</span>());
         }
     } <span class="kw">else</span> {
         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} intersections&quot;</span>, <span class="ident">members</span>.<span class="ident">len</span>())).<span class="ident">big_heading_plain</span>());
+        <span class="ident">txt</span>.<span class="ident">add</span>(
+            <span class="ident">Line</span>(
+                <span class="ident">members</span>
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;#{}&quot;</span>, <span class="ident">i</span>.<span class="number">0</span>))
+                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+                    .<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),
+            )
+            .<span class="ident">secondary</span>(),
+        );
     }
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>)];
+    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>));
+
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
         <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">canonical_signal</span>.<span class="ident">stages</span> {
             <span class="ident">total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">s</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
         }
         <span class="comment">// TODO Say &quot;normally&quot; to account for adaptive stages?</span>
-        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;&quot;</span>));
-        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;One full cycle lasts {}&quot;</span>, <span class="ident">total</span>)));
+        <span class="ident">col</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;One full cycle lasts {}&quot;</span>, <span class="ident">total</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
-        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Edit multiple signals&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>)),
-    ];
     <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Edit entire signal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>)));
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1598,8 +1629,6 @@
     );
 
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">canonical_stage</span>) <span class="kw">in</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>));
-
         <span class="kw">let</span> <span class="ident">unselected_btn</span> <span class="op">=</span> <span class="ident">draw_multiple_signals</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">members</span>, <span class="ident">idx</span>, <span class="ident">hovering</span>, <span class="kw-2">&amp;</span><span class="ident">translations</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">selected_btn</span> <span class="op">=</span> <span class="ident">unselected_btn</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">bbox</span> <span class="op">=</span> <span class="ident">unselected_btn</span>.<span class="ident">get_bounds</span>().<span class="ident">get_rectangle</span>();
@@ -1610,60 +1639,61 @@
             <span class="prelude-val">None</span>,
         );
 
-        <span class="kw">let</span> <span class="ident">stage_col</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="kw">match</span> <span class="ident">canonical_stage</span>.<span class="ident">phase_type</span> {
-                    <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>)),
-                    <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {} (adaptive)&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>)),
-                }
-                .<span class="ident">small_heading</span>()
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/edit.svg&quot;</span>).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;change duration of stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>),
-                    <span class="kw">if</span> <span class="ident">selected</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
-                        <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">X</span>)
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">None</span>
-                    },
-                ),
-                <span class="kw">if</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-                    <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/delete.svg&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delete stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
-                        .<span class="ident">align_right</span>()
+        <span class="kw">let</span> <span class="ident">stage_controls</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↑&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
                 } <span class="kw">else</span> {
-                    <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↑&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move up stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
                 },
-            ]),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
+                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↓&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
+                } <span class="kw">else</span> {
+                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↓&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move down stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
+                },
+            ])
+            .<span class="ident">centered_vert</span>(),
+            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="kw">match</span> <span class="ident">canonical_stage</span>.<span class="ident">phase_type</span> {
+                        <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
+                        <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {} (adaptive)&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
+                    }
+                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/edit.svg&quot;</span>).<span class="ident">build</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;change duration of stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>),
+                        <span class="kw">if</span> <span class="ident">selected</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
+                            <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">X</span>)
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        },
+                    ),
+                    <span class="kw">if</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
+                        <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/delete.svg&quot;</span>)
+                            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delete stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
+                            .<span class="ident">align_right</span>()
+                    } <span class="kw">else</span> {
+                        <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+                    },
+                ]),
                 <span class="ident">stage_btn</span>,
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;↑&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;↑&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move up stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
-                    },
-                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;↓&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;↓&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move down stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
-                    },
-                ])
-                .<span class="ident">centered_vert</span>()
-                .<span class="ident">align_right</span>(),
             ]),
         ])
         .<span class="ident">padding</span>(<span class="number">10</span>);
 
         <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">selected</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">stage_col</span>.<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#2A2A2A&quot;</span>)));
+            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">stage_controls</span>.<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#2A2A2A&quot;</span>)));
         } <span class="kw">else</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">stage_col</span>);
+            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">stage_controls</span>);
         }
     }
 
-    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>));
-    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Add new stage&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
+    <span class="ident">col</span>.<span class="ident">push</span>(
+        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Add a new stage&quot;</span>)
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+            .<span class="ident">centered_horiz</span>(),
+    );
 
     <span class="comment">// TODO This doesn&#39;t even have a way of knowing which spinner corresponds to which</span>
     <span class="comment">// intersection!</span>
