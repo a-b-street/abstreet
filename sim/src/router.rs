@@ -1,7 +1,7 @@
 use crate::mechanics::Queue;
 use crate::{
-    CarID, Event, ParkingSim, ParkingSimState, ParkingSpot, PersonID, SidewalkSpot, TripID,
-    TripPhaseType, Vehicle, VehicleType,
+    AlertLocation, CarID, Event, ParkingSim, ParkingSimState, ParkingSpot, PersonID, SidewalkSpot,
+    TripID, TripPhaseType, Vehicle, VehicleType,
 };
 use geom::Distance;
 use map_model::{
@@ -287,11 +287,16 @@ impl Router {
                                 ));
                             }
                         } else {
-                            println!(
-                                "WARNING: {} can't find parking on {} or anywhere reachable from \
-                                 it. Possibly we're just totally out of parking space!",
-                                vehicle.id, current_lane
-                            );
+                            if let Some((_, p)) = trip_and_person {
+                                events.push(Event::Alert(
+                                    AlertLocation::Person(p),
+                                    format!(
+                                        "{} can't find parking on {} or anywhere reachable from \
+                                         it. Possibly we're just totally out of parking space!",
+                                        vehicle.id, current_lane
+                                    ),
+                                ));
+                            }
                             *stuck_end_dist = Some(map.get_l(current_lane).length());
                         }
                         return Some(ActionAtEnd::GotoLaneEnd);

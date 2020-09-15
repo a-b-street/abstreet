@@ -150,7 +150,7 @@ impl TripSpawner {
                     if let DrivingGoal::ParkNear(b) = goal {
                         if let Some(goal_spot) = SidewalkSpot::bike_rack(*b, map) {
                             if start_spot.sidewalk_pos.lane() == goal_spot.sidewalk_pos.lane() {
-                                println!(
+                                info!(
                                     "Bike trip from {} to {} will just walk; it's the same \
                                      sidewalk!",
                                     start, b
@@ -158,7 +158,7 @@ impl TripSpawner {
                                 spec = backup_plan.unwrap();
                             }
                         } else {
-                            println!(
+                            info!(
                                 "Can't find biking connection for goal {}, walking instead",
                                 b
                             );
@@ -166,7 +166,7 @@ impl TripSpawner {
                         }
                     }
                 } else if backup_plan.is_some() {
-                    println!("Can't start biking from {}. Walking instead", start);
+                    info!("Can't start biking from {}. Walking instead", start);
                     spec = backup_plan.unwrap();
                 } else {
                     panic!(
