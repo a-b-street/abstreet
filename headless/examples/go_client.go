@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -27,28 +28,70 @@ const (
 var (
 	mapName         = flag.String("map", "montlake", "map name to simulate")
 	hoursToSimulate = flag.Int("hours", 24, "number of hours to simulate")
+	comparePct1     = flag.Int64("cmp1", -1, "the baseline percentage for indvidual comparison")
+	comparePct2     = flag.Int64("cmp2", -1, "the experimental percentage for indvidual comparison")
 )
 
 func main() {
 	flag.Parse()
+	if *comparePct1 > *comparePct2 {
+		fmt.Printf("--cmp1=%v --cmp2=%v invalid, --cmp1 is the baseline\n", *comparePct1, *comparePct2)
+		os.Exit(1)
+	}
 
 	numSucceededLast := 0
+	var results1 results
+	var results2 results
 	for pct := int64(100); pct >= 0; pct -= 10 {
-		numSucceeded, err := run(pct)
+		results, err := run(pct)
 		if err != nil {
 			fmt.Println("Failure:", err)
 			break
 		}
+		numSucceeded := len(results.successTime)
 		if numSucceeded < numSucceededLast {
 			fmt.Println("--> less trips succeeded this round, so likely hit gridlock")
 			break
 		}
 		numSucceededLast = numSucceeded
+
+		if *comparePct1 == pct {
+			results1 = *results
+		}
+		if *comparePct2 == pct {
+			results2 = *results
+		}
+	}
+
+	if results1.successTime != nil && results2.successTime != nil {
+		fmt.Printf("\nBaseline cancelled %v%%, experimental cancelled %v%%\n", *comparePct1, *comparePct2)
+		var faster []float64
+		var slower []float64
+
+		for id, experimental_dt := range results2.successTime {
+			baseline_dt := results1.successTime[id]
+			if baseline_dt == 0.0 {
+				// This means the trip didn't finish in hoursToSimulate in the baseline
+				//fmt.Printf("Trip %v present in experimental, but not baseline\n", id)
+				continue
+			}
+
+			if false && baseline_dt != experimental_dt {
+				fmt.Printf("  Trip %v: %v baseline, %v experimental\n", id, baseline_dt, experimental_dt)
+			}
+			if baseline_dt > experimental_dt {
+				faster = append(faster, baseline_dt-experimental_dt)
+			} else if baseline_dt < experimental_dt {
+				slower = append(slower, experimental_dt-baseline_dt)
+			}
+		}
+
+		fmt.Printf("%v trips faster, average %v\n", len(faster), avg(faster))
+		fmt.Printf("%v trips slower, average %v\n", len(slower), avg(slower))
 	}
 }
 
-// Returns numSucceeded
-func run(pct int64) (int, error) {
+func run(pct int64) (*results, error) {
 	start := time.Now()
 
 	_, err := post("sim/load", SimFlags{
@@ -56,38 +99,42 @@ func run(pct int64) (int, error) {
 		Modifiers: []ScenarioModifier{{CancelPeople: pct}},
 	})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	_, err = get(fmt.Sprintf("sim/goto-time?t=%v:00:00", *hoursToSimulate))
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	resp, err := get("data/get-finished-trips")
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	var trips FinishedTrips
 	if err := json.Unmarshal([]byte(resp), &trips); err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	numAborted := 0
-	numSucceeded := 0
-	totalDuration := 0.0
+	results := results{}
+	results.successTime = make(map[int]float64)
 	for _, trip := range trips.Trips {
 		if trip[2] == nil {
-			numAborted++
+			results.numAborted++
 		} else {
-			numSucceeded++
-			totalDuration += trip[3].(float64)
+			results.successTime[int(trip[1].(float64))] = trip[3].(float64)
 		}
 	}
 
-	fmt.Printf("%v with %v%% of people cancelled: %v trips aborted, %v trips succeeded totaling %v seconds. Simulation took %v\n", *mapName, pct, numAborted, numSucceeded, totalDuration, time.Since(start))
+	fmt.Printf("%v with %v%% of people cancelled: %v trips aborted, %v trips succeeded. Simulation took %v\n", *mapName, pct, results.numAborted, len(results.successTime), time.Since(start))
 
-	return numSucceeded, nil
+	return &results, nil
+}
+
+type results struct {
+	numAborted int
+	// Trip ID to duration
+	successTime map[int]float64
 }
 
 func get(url string) (string, error) {
@@ -118,6 +165,17 @@ func post(url string, body interface{}) (string, error) {
 		return "", err
 	}
 	return string(respBody), nil
+}
+
+func avg(list []float64) string {
+	if len(list) == 0 {
+		return "empty"
+	}
+	sum := 0.0
+	for _, x := range list {
+		sum += x
+	}
+	return fmt.Sprintf("%v", sum/float64(len(list)))
 }
 
 type SimFlags struct {

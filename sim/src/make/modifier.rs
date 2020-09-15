@@ -27,7 +27,7 @@ impl ScenarioModifier {
     pub fn apply(&self, map: &Map, mut s: Scenario, rng: &mut XorShiftRng) -> Scenario {
         match self {
             ScenarioModifier::RepeatDays(n) => repeat_days(s, *n),
-            ScenarioModifier::CancelPeople(pct) => cancel_people(s, *pct, rng),
+            ScenarioModifier::CancelPeople(pct) => cancel_people(s, *pct),
             ScenarioModifier::ChangeMode {
                 to_mode,
                 pct_ppl,
@@ -123,10 +123,11 @@ fn repeat_days(mut s: Scenario, days: usize) -> Scenario {
     s
 }
 
-fn cancel_people(mut s: Scenario, pct: usize, rng: &mut XorShiftRng) -> Scenario {
-    let pct = (pct as f64) / 100.0;
-    for person in &mut s.people {
-        if rng.gen_bool(pct) {
+// This is "stable" as percentage increases. If you cancel 10% of people in one run, then cancel 9%
+// in another, the surviving people in the 9% run will be a strict superset of the 10% run.
+fn cancel_people(mut s: Scenario, pct: usize) -> Scenario {
+    for (idx, person) in s.people.iter_mut().enumerate() {
+        if idx % 100 <= pct {
             // TODO It's not obvious how to cancel individual trips. How are later trips affected?
             // What if a car doesn't get moved to another place?
             for trip in &mut person.trips {
