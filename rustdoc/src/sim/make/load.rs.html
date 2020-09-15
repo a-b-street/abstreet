@@ -153,6 +153,7 @@
 <span id="153">153</span>
 <span id="154">154</span>
 <span id="155">155</span>
+<span id="156">156</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AlertHandler</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">Sim</span>, <span class="ident">SimOptions</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
@@ -210,6 +211,7 @@
                     .<span class="ident">unwrap_or</span>(<span class="ident">AlertHandler</span>::<span class="ident">Print</span>),
                 <span class="ident">pathfinding_upfront</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--pathfinding_upfront&quot;</span>),
                 <span class="ident">live_map_edits</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--live_map_edits&quot;</span>),
+                <span class="ident">infinite_parking</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--infinite_parking&quot;</span>),
             },
         }
     }

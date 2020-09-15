@@ -726,6 +726,24 @@
 <span id="726">726</span>
 <span id="727">727</span>
 <span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>, <span class="ident">OrigPersonID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">Sim</span>,
@@ -995,6 +1013,24 @@
     <span class="ident">base_rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
 ) {
+    <span class="kw">if</span> <span class="ident">sim</span>.<span class="ident">infinite_parking</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blackholed</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">for</span> (<span class="ident">vehicle</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">parked_cars</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spot</span>) <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">get_free_offstreet_spots</span>(<span class="ident">b</span>).<span class="ident">pop</span>() {
+                <span class="ident">sim</span>.<span class="ident">seed_parked_car</span>(<span class="ident">vehicle</span>, <span class="ident">spot</span>);
+            } <span class="kw">else</span> {
+                <span class="ident">blackholed</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            }
+        }
+        <span class="kw">if</span> <span class="ident">blackholed</span> <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;{} parked cars weren&#39;t seeded, due to blackholed buildings&quot;</span>,
+                <span class="ident">prettyprint_usize</span>(<span class="ident">blackholed</span>)
+            ));
+        }
+        <span class="kw">return</span>;
+    }
+
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">open_spots_per_road</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ParkingSpot</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
         <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">spot</span> <span class="kw">in</span> <span class="ident">sim</span>.<span class="ident">get_all_parking_spots</span>().<span class="number">1</span> {

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ParkingLane",""],["ParkingSimState",""]]});
+initSidebarItems({"enum":[["ParkingSimState",""]],"struct":[["InfiniteParkingSimState",""],["NormalParkingSimState",""],["ParkingLane",""]],"trait":[["ParkingSim",""]]});

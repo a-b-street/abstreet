@@ -1347,16 +1347,28 @@
 <span id="1347">1347</span>
 <span id="1348">1348</span>
 <span id="1349">1349</span>
+<span id="1350">1350</span>
+<span id="1351">1351</span>
+<span id="1352">1352</span>
+<span id="1353">1353</span>
+<span id="1354">1354</span>
+<span id="1355">1355</span>
+<span id="1356">1356</span>
+<span id="1357">1357</span>
+<span id="1358">1358</span>
+<span id="1359">1359</span>
+<span id="1360">1360</span>
+<span id="1361">1361</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">analytics</span>::<span class="ident">Window</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">AlertLocation</span>, <span class="ident">Analytics</span>, <span class="ident">CapSimState</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>,
     <span class="ident">DrawCarInput</span>, <span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>, <span class="ident">DrivingSimState</span>, <span class="ident">Event</span>, <span class="ident">GetDrawAgents</span>,
-    <span class="ident">IntersectionSimState</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PandemicModel</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSimState</span>, <span class="ident">ParkingSpot</span>,
-    <span class="ident">PedestrianID</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">PersonState</span>, <span class="ident">Router</span>, <span class="ident">Scenario</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>,
-    <span class="ident">SidewalkSpot</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripManager</span>, <span class="ident">TripPhaseType</span>, <span class="ident">TripResult</span>,
-    <span class="ident">TripSpawner</span>, <span class="ident">UnzoomedAgent</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>, <span class="ident">BUS_LENGTH</span>,
-    <span class="ident">LIGHT_RAIL_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>, <span class="ident">SPAWN_DIST</span>,
+    <span class="ident">IntersectionSimState</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PandemicModel</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSimState</span>,
+    <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">PersonState</span>, <span class="ident">Router</span>, <span class="ident">Scenario</span>, <span class="ident">Scheduler</span>,
+    <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripManager</span>, <span class="ident">TripPhaseType</span>,
+    <span class="ident">TripResult</span>, <span class="ident">TripSpawner</span>, <span class="ident">UnzoomedAgent</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>,
+    <span class="ident">BUS_LENGTH</span>, <span class="ident">LIGHT_RAIL_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>, <span class="ident">SPAWN_DIST</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">Counter</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
@@ -1424,6 +1436,7 @@
     <span class="kw">pub</span> <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>,
     <span class="kw">pub</span> <span class="ident">pathfinding_upfront</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">live_map_edits</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">infinite_parking</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">default</span>::<span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SimOptions</span> {
@@ -1461,6 +1474,7 @@
             <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>::<span class="ident">Print</span>,
             <span class="ident">pathfinding_upfront</span>: <span class="bool-val">false</span>,
             <span class="ident">live_map_edits</span>: <span class="bool-val">false</span>,
+            <span class="ident">infinite_parking</span>: <span class="bool-val">false</span>,
         }
     }
 }
@@ -1471,7 +1485,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scheduler</span> <span class="op">=</span> <span class="ident">Scheduler</span>::<span class="ident">new</span>();
         <span class="ident">Sim</span> {
             <span class="ident">driving</span>: <span class="ident">DrivingSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">opts</span>.<span class="ident">recalc_lanechanging</span>, <span class="ident">opts</span>.<span class="ident">handle_uber_turns</span>),
-            <span class="ident">parking</span>: <span class="ident">ParkingSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">timer</span>),
+            <span class="ident">parking</span>: <span class="ident">ParkingSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">opts</span>.<span class="ident">infinite_parking</span>, <span class="ident">timer</span>),
             <span class="ident">walking</span>: <span class="ident">WalkingSimState</span>::<span class="ident">new</span>(),
             <span class="ident">intersections</span>: <span class="ident">IntersectionSimState</span>::<span class="ident">new</span>(
                 <span class="ident">map</span>,
@@ -1530,6 +1544,10 @@
     <span class="comment">// (Filled, available)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_all_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">get_all_parking_spots</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bldg_to_parked_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">bldg_to_parked_cars</span>(<span class="ident">b</span>)
     }
 
     <span class="comment">// Also returns the start distance of the building. TODO Do that in the Path properly.</span>
@@ -2269,11 +2287,13 @@
             <span class="kw">let</span> <span class="ident">evicted_cars</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">handle_live_edits</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>());
             <span class="ident">affected</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">walking</span>.<span class="ident">find_trips_to_parking</span>(<span class="ident">evicted_cars</span>));
 
-            <span class="kw">let</span> (<span class="ident">filled</span>, <span class="ident">avail</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">get_all_parking_spots</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_spots</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
-            <span class="ident">all_spots</span>.<span class="ident">extend</span>(<span class="ident">filled</span>);
-            <span class="ident">all_spots</span>.<span class="ident">extend</span>(<span class="ident">avail</span>);
-            <span class="ident">affected</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">find_trips_to_edited_parking</span>(<span class="ident">all_spots</span>));
+            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">is_infinite</span>() {
+                <span class="kw">let</span> (<span class="ident">filled</span>, <span class="ident">avail</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">get_all_parking_spots</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_spots</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
+                <span class="ident">all_spots</span>.<span class="ident">extend</span>(<span class="ident">filled</span>);
+                <span class="ident">all_spots</span>.<span class="ident">extend</span>(<span class="ident">avail</span>);
+                <span class="ident">affected</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">find_trips_to_edited_parking</span>(<span class="ident">all_spots</span>));
+            }
         }
 
         <span class="ident">affected</span>
@@ -2635,6 +2655,10 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cap_counter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">cap</span>.<span class="ident">get_cap_counter</span>(<span class="ident">l</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">infinite_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">is_infinite</span>()
     }
 }
 

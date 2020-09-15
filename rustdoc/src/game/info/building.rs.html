@@ -245,6 +245,14 @@
 <span id="245">245</span>
 <span id="246">246</span>
 <span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">header_btns</span>, <span class="ident">make_table</span>, <span class="ident">make_tabs</span>, <span class="ident">Details</span>, <span class="ident">Tab</span>};
@@ -270,7 +278,15 @@
     }
 
     <span class="kw">let</span> <span class="ident">num_spots</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">num_parking_spots</span>();
-    <span class="kw">if</span> <span class="ident">num_spots</span> <span class="op">&gt;</span> <span class="number">0</span> {
+    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">infinite_parking</span>() {
+        <span class="ident">kv</span>.<span class="ident">push</span>((
+            <span class="string">&quot;Parking&quot;</span>,
+            <span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;Unlimited, currently {} cars inside&quot;</span>,
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">bldg_to_parked_cars</span>(<span class="ident">b</span>.<span class="ident">id</span>).<span class="ident">len</span>()
+            ),
+        ));
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_spots</span> <span class="op">&gt;</span> <span class="number">0</span> {
         <span class="kw">let</span> <span class="ident">free</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_free_offstreet_spots</span>(<span class="ident">b</span>.<span class="ident">id</span>).<span class="ident">len</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OffstreetParking</span>::<span class="ident">PublicGarage</span>(<span class="kw-2">ref</span> <span class="ident">n</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">parking</span> {
             <span class="ident">kv</span>.<span class="ident">push</span>((
