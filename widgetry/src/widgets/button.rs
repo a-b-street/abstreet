@@ -404,6 +404,11 @@ impl BtnBuilder {
                 assert_eq!(unselected_bg_color, Color::WHITE);
                 text.draw(ctx).container().padding(15).bg(Color::grey(0.7))
             }
+            BtnBuilder::PlainText { txt, .. } => txt
+                .change_fg(Color::grey(0.5))
+                .draw(ctx)
+                .container()
+                .padding(8),
             _ => panic!("Can't use inactive on this kind of button"),
         }
     }
