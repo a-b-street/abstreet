@@ -437,11 +437,16 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">CarID</span>, <span class="ident">Event</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSimState</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">TripID</span>,
-    <span class="ident">TripPhaseType</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleType</span>,
+    <span class="ident">AlertLocation</span>, <span class="ident">CarID</span>, <span class="ident">Event</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSimState</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">SidewalkSpot</span>,
+    <span class="ident">TripID</span>, <span class="ident">TripPhaseType</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleType</span>,
 };
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
@@ -727,11 +732,16 @@
                                 ));
                             }
                         } <span class="kw">else</span> {
-                            <span class="macro">println</span><span class="macro">!</span>(
-                                <span class="string">&quot;WARNING: {} can&#39;t find parking on {} or anywhere reachable from \
-                                 it. Possibly we&#39;re just totally out of parking space!&quot;</span>,
-                                <span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">current_lane</span>
-                            );
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">p</span>)) <span class="op">=</span> <span class="ident">trip_and_person</span> {
+                                <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
+                                    <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">p</span>),
+                                    <span class="macro">format</span><span class="macro">!</span>(
+                                        <span class="string">&quot;{} can&#39;t find parking on {} or anywhere reachable from \
+                                         it. Possibly we&#39;re just totally out of parking space!&quot;</span>,
+                                        <span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">current_lane</span>
+                                    ),
+                                ));
+                            }
                             <span class="kw-2">*</span><span class="ident">stuck_end_dist</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current_lane</span>).<span class="ident">length</span>());
                         }
                         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd</span>::<span class="ident">GotoLaneEnd</span>);
