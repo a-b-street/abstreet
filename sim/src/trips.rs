@@ -1,8 +1,8 @@
 use crate::sim::Ctx;
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
-    Event, IndividTrip, OffMapLocation, OrigPersonID, ParkedCar, ParkingSpot, PedestrianID,
-    PersonID, PersonSpec, Scenario, Scheduler, SidewalkPOI, SidewalkSpot, SpawnTrip,
+    Event, IndividTrip, OffMapLocation, OrigPersonID, ParkedCar, ParkingSim, ParkingSpot,
+    PedestrianID, PersonID, PersonSpec, Scenario, Scheduler, SidewalkPOI, SidewalkSpot, SpawnTrip,
     TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle, VehicleSpec, VehicleType,
     WalkingSimState,
 };

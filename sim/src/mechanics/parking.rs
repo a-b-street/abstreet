@@ -3,6 +3,7 @@ use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
     Timer,
 };
+use enum_dispatch::enum_dispatch;
 use geom::{Distance, PolyLine, Pt2D};
 use map_model::{
     BuildingID, Lane, LaneID, LaneType, Map, OffstreetParking, ParkingLotID, PathConstraints,
@@ -11,8 +12,101 @@ use map_model::{
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
 
+#[enum_dispatch(ParkingSimState)]
+pub trait ParkingSim {
+    fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> Vec<ParkedCar>;
+    fn get_free_onstreet_spots(&self, l: LaneID) -> Vec<ParkingSpot>;
+    fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot>;
+    fn get_free_lot_spots(&self, pl: ParkingLotID) -> Vec<ParkingSpot>;
+    fn reserve_spot(&mut self, spot: ParkingSpot);
+    fn remove_parked_car(&mut self, p: ParkedCar);
+    fn add_parked_car(&mut self, p: ParkedCar);
+    fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput>;
+    fn get_draw_cars_in_lots(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput>;
+    fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput>;
+    fn canonical_pt(&self, id: CarID, map: &Map) -> Option<Pt2D>;
+    fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput>;
+    fn is_free(&self, spot: ParkingSpot) -> bool;
+    fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<&ParkedCar>;
+    fn get_all_free_spots(
+        &self,
+        driving_pos: Position,
+        vehicle: &Vehicle,
+        // Either the building where a seeded car starts or the target of a trip. For filtering
+        // private spots.
+        target: BuildingID,
+        map: &Map,
+    ) -> Vec<(ParkingSpot, Position)>;
+    fn spot_to_driving_pos(&self, spot: ParkingSpot, vehicle: &Vehicle, map: &Map) -> Position;
+    fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, map: &Map) -> Position;
+    fn get_owner_of_car(&self, id: CarID) -> Option<PersonID>;
+    fn lookup_parked_car(&self, id: CarID) -> Option<&ParkedCar>;
+    fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>);
+    fn path_to_free_parking_spot(
+        &self,
+        start: LaneID,
+        vehicle: &Vehicle,
+        target: BuildingID,
+        map: &Map,
+    ) -> Option<(Vec<PathStep>, ParkingSpot, Position)>;
+    fn collect_events(&mut self) -> Vec<Event>;
+    fn all_parked_car_positions(&self, map: &Map) -> Vec<(Position, PersonID)>;
+}
+
+#[enum_dispatch]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct ParkingSimState {
+pub enum ParkingSimState {
+    Normal(NormalParkingSimState),
+}
+
+impl ParkingSimState {
+    // Counterintuitive: any spots located in blackholes are just not represented here. If somebody
+    // tries to drive from a blackholed spot, they couldn't reach most places.
+    pub fn new(map: &Map, timer: &mut Timer) -> ParkingSimState {
+        let mut sim = NormalParkingSimState {
+            parked_cars: BTreeMap::new(),
+            occupants: BTreeMap::new(),
+            reserved_spots: BTreeSet::new(),
+
+            onstreet_lanes: BTreeMap::new(),
+            driving_to_parking_lanes: MultiMap::new(),
+            num_spots_per_offstreet: BTreeMap::new(),
+            driving_to_offstreet: MultiMap::new(),
+            num_spots_per_lot: BTreeMap::new(),
+            driving_to_lots: MultiMap::new(),
+
+            events: Vec::new(),
+        };
+        for l in map.all_lanes() {
+            if let Some(lane) = ParkingLane::new(l, map, timer) {
+                sim.driving_to_parking_lanes.insert(lane.driving_lane, l.id);
+                sim.onstreet_lanes.insert(lane.parking_lane, lane);
+            }
+        }
+        for b in map.all_buildings() {
+            if let Some((pos, _)) = b.driving_connection(map) {
+                if !map.get_l(pos.lane()).driving_blackhole {
+                    let num_spots = b.num_parking_spots();
+                    if num_spots > 0 {
+                        sim.num_spots_per_offstreet.insert(b.id, num_spots);
+                        sim.driving_to_offstreet
+                            .insert(pos.lane(), (b.id, pos.dist_along()));
+                    }
+                }
+            }
+        }
+        for pl in map.all_parking_lots() {
+            if !map.get_l(pl.driving_pos.lane()).driving_blackhole {
+                sim.num_spots_per_lot.insert(pl.id, pl.capacity());
+                sim.driving_to_lots.insert(pl.driving_pos.lane(), pl.id);
+            }
+        }
+        ParkingSimState::Normal(sim)
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct NormalParkingSimState {
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -54,55 +148,13 @@ pub struct ParkingSimState {
     events: Vec<Event>,
 }
 
-impl ParkingSimState {
-    // Counterintuitive: any spots located in blackholes are just not represented here. If somebody
-    // tries to drive from a blackholed spot, they couldn't reach most places.
-    pub fn new(map: &Map, timer: &mut Timer) -> ParkingSimState {
-        let mut sim = ParkingSimState {
-            parked_cars: BTreeMap::new(),
-            occupants: BTreeMap::new(),
-            reserved_spots: BTreeSet::new(),
-
-            onstreet_lanes: BTreeMap::new(),
-            driving_to_parking_lanes: MultiMap::new(),
-            num_spots_per_offstreet: BTreeMap::new(),
-            driving_to_offstreet: MultiMap::new(),
-            num_spots_per_lot: BTreeMap::new(),
-            driving_to_lots: MultiMap::new(),
-
-            events: Vec::new(),
-        };
-        for l in map.all_lanes() {
-            if let Some(lane) = ParkingLane::new(l, map, timer) {
-                sim.driving_to_parking_lanes.insert(lane.driving_lane, l.id);
-                sim.onstreet_lanes.insert(lane.parking_lane, lane);
-            }
-        }
-        for b in map.all_buildings() {
-            if let Some((pos, _)) = b.driving_connection(map) {
-                if !map.get_l(pos.lane()).driving_blackhole {
-                    let num_spots = b.num_parking_spots();
-                    if num_spots > 0 {
-                        sim.num_spots_per_offstreet.insert(b.id, num_spots);
-                        sim.driving_to_offstreet
-                            .insert(pos.lane(), (b.id, pos.dist_along()));
-                    }
-                }
-            }
-        }
-        for pl in map.all_parking_lots() {
-            if !map.get_l(pl.driving_pos.lane()).driving_blackhole {
-                sim.num_spots_per_lot.insert(pl.id, pl.capacity());
-                sim.driving_to_lots.insert(pl.driving_pos.lane(), pl.id);
-            }
-        }
-        sim
-    }
-
+impl ParkingSim for NormalParkingSimState {
     // Returns any cars that got very abruptly evicted from existence
-    pub fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> Vec<ParkedCar> {
+    fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> Vec<ParkedCar> {
         let (filled_before, _) = self.get_all_parking_spots();
-        let new = ParkingSimState::new(map, timer);
+        let new = match ParkingSimState::new(map, timer) {
+            ParkingSimState::Normal(sim) => sim,
+        };
         let (_, avail_after) = new.get_all_parking_spots();
         let avail_after: BTreeSet<ParkingSpot> = avail_after.into_iter().collect();
 
@@ -134,7 +186,7 @@ impl ParkingSimState {
         evicted
     }
 
-    pub fn get_free_onstreet_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
+    fn get_free_onstreet_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
         let mut spots: Vec<ParkingSpot> = Vec::new();
         if let Some(lane) = self.onstreet_lanes.get(&l) {
             for spot in lane.spots() {
@@ -146,7 +198,7 @@ impl ParkingSimState {
         spots
     }
 
-    pub fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot> {
+    fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot> {
         let mut spots: Vec<ParkingSpot> = Vec::new();
         for idx in 0..self.num_spots_per_offstreet.get(&b).cloned().unwrap_or(0) {
             let spot = ParkingSpot::Offstreet(b, idx);
@@ -157,7 +209,7 @@ impl ParkingSimState {
         spots
     }
 
-    pub fn get_free_lot_spots(&self, pl: ParkingLotID) -> Vec<ParkingSpot> {
+    fn get_free_lot_spots(&self, pl: ParkingLotID) -> Vec<ParkingSpot> {
         let mut spots: Vec<ParkingSpot> = Vec::new();
         for idx in 0..self.num_spots_per_lot.get(&pl).cloned().unwrap_or(0) {
             let spot = ParkingSpot::Lot(pl, idx);
@@ -168,7 +220,7 @@ impl ParkingSimState {
         spots
     }
 
-    pub fn reserve_spot(&mut self, spot: ParkingSpot) {
+    fn reserve_spot(&mut self, spot: ParkingSpot) {
         assert!(self.is_free(spot));
         self.reserved_spots.insert(spot);
 
@@ -186,7 +238,7 @@ impl ParkingSimState {
         }
     }
 
-    pub fn remove_parked_car(&mut self, p: ParkedCar) {
+    fn remove_parked_car(&mut self, p: ParkedCar) {
         self.parked_cars
             .remove(&p.vehicle.id)
             .expect("remove_parked_car missing from parked_cars");
@@ -197,7 +249,7 @@ impl ParkingSimState {
             .push(Event::CarLeftParkingSpot(p.vehicle.id, p.spot));
     }
 
-    pub fn add_parked_car(&mut self, p: ParkedCar) {
+    fn add_parked_car(&mut self, p: ParkedCar) {
         self.events
             .push(Event::CarReachedParkingSpot(p.vehicle.id, p.spot));
 
@@ -210,7 +262,7 @@ impl ParkingSimState {
         self.parked_cars.insert(p.vehicle.id, p);
     }
 
-    pub fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
+    fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
         let mut cars = Vec::new();
         if let Some(ref lane) = self.onstreet_lanes.get(&id) {
             for spot in lane.spots() {
@@ -222,7 +274,7 @@ impl ParkingSimState {
         cars
     }
 
-    pub fn get_draw_cars_in_lots(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
+    fn get_draw_cars_in_lots(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
         let mut cars = Vec::new();
         for pl in self.driving_to_lots.get(id) {
             for idx in 0..self.num_spots_per_lot[&pl] {
@@ -236,7 +288,7 @@ impl ParkingSimState {
         cars
     }
 
-    pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
+    fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
         let p = self.parked_cars.get(&id)?;
         match p.spot {
             ParkingSpot::Onstreet(lane, idx) => {
@@ -280,7 +332,7 @@ impl ParkingSimState {
     }
 
     // There's no DrawCarInput for cars parked offstreet, so we need this.
-    pub fn canonical_pt(&self, id: CarID, map: &Map) -> Option<Pt2D> {
+    fn canonical_pt(&self, id: CarID, map: &Map) -> Option<Pt2D> {
         let p = self.parked_cars.get(&id)?;
         match p.spot {
             ParkingSpot::Onstreet(_, _) => Some(self.get_draw_car(id, map).unwrap().body.last_pt()),
@@ -295,25 +347,25 @@ impl ParkingSimState {
         }
     }
 
-    pub fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
+    fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
         self.parked_cars
             .keys()
             .filter_map(|id| self.get_draw_car(*id, map))
             .collect()
     }
 
-    pub fn is_free(&self, spot: ParkingSpot) -> bool {
+    fn is_free(&self, spot: ParkingSpot) -> bool {
         !self.occupants.contains_key(&spot) && !self.reserved_spots.contains(&spot)
     }
 
-    pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<&ParkedCar> {
+    fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<&ParkedCar> {
         let car = self.occupants.get(&spot)?;
         Some(&self.parked_cars[&car])
     }
 
     // The vehicle's front is currently at the given driving_pos. Returns all valid spots and their
     // driving position.
-    pub fn get_all_free_spots(
+    fn get_all_free_spots(
         &self,
         driving_pos: Position,
         vehicle: &Vehicle,
@@ -369,7 +421,7 @@ impl ParkingSimState {
             .collect()
     }
 
-    pub fn spot_to_driving_pos(&self, spot: ParkingSpot, vehicle: &Vehicle, map: &Map) -> Position {
+    fn spot_to_driving_pos(&self, spot: ParkingSpot, vehicle: &Vehicle, map: &Map) -> Position {
         match spot {
             ParkingSpot::Onstreet(l, idx) => {
                 let lane = &self.onstreet_lanes[&l];
@@ -384,7 +436,7 @@ impl ParkingSimState {
         }
     }
 
-    pub fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, map: &Map) -> Position {
+    fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, map: &Map) -> Position {
         match spot {
             ParkingSpot::Onstreet(l, idx) => {
                 let lane = &self.onstreet_lanes[&l];
@@ -400,15 +452,15 @@ impl ParkingSimState {
         }
     }
 
-    pub fn get_owner_of_car(&self, id: CarID) -> Option<PersonID> {
+    fn get_owner_of_car(&self, id: CarID) -> Option<PersonID> {
         self.parked_cars.get(&id).and_then(|p| p.vehicle.owner)
     }
-    pub fn lookup_parked_car(&self, id: CarID) -> Option<&ParkedCar> {
+    fn lookup_parked_car(&self, id: CarID) -> Option<&ParkedCar> {
         self.parked_cars.get(&id)
     }
 
     // (Filled, available)
-    pub fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>) {
+    fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>) {
         let mut spots = Vec::new();
         for lane in self.onstreet_lanes.values() {
             spots.extend(lane.spots());
@@ -440,7 +492,7 @@ impl ParkingSimState {
     // they're far away. Since they don't reserve the spot in advance, somebody else can still beat
     // them there, producing some nice, realistic churn if there's too much contention.
     // The first PathStep is the turn after start, NOT PathStep::Lane(start).
-    pub fn path_to_free_parking_spot(
+    fn path_to_free_parking_spot(
         &self,
         start: LaneID,
         vehicle: &Vehicle,
@@ -495,11 +547,11 @@ impl ParkingSimState {
         None
     }
 
-    pub fn collect_events(&mut self) -> Vec<Event> {
+    fn collect_events(&mut self) -> Vec<Event> {
         std::mem::replace(&mut self.events, Vec::new())
     }
 
-    pub fn all_parked_car_positions(&self, map: &Map) -> Vec<(Position, PersonID)> {
+    fn all_parked_car_positions(&self, map: &Map) -> Vec<(Position, PersonID)> {
         self.parked_cars
             .values()
             .map(|p| {

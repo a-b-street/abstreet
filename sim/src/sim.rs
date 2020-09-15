@@ -2,11 +2,11 @@ use crate::analytics::Window;
 use crate::{
     AgentID, AgentType, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar,
     DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents,
-    IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSimState, ParkingSpot,
-    PedestrianID, Person, PersonID, PersonState, Router, Scenario, Scheduler, SidewalkPOI,
-    SidewalkSpot, TransitSimState, TripID, TripInfo, TripManager, TripPhaseType, TripResult,
-    TripSpawner, UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
-    LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
+    IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim, ParkingSimState,
+    ParkingSpot, PedestrianID, Person, PersonID, PersonState, Router, Scenario, Scheduler,
+    SidewalkPOI, SidewalkSpot, TransitSimState, TripID, TripInfo, TripManager, TripPhaseType,
+    TripResult, TripSpawner, UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState,
+    BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
 use abstutil::{prettyprint_usize, serialized_size_bytes, Counter, Parallelism, Timer};
 use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};

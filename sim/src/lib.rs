@@ -24,7 +24,7 @@ pub use self::make::{
     SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
 };
 pub(crate) use self::mechanics::{
-    DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
+    DrivingSimState, IntersectionSimState, ParkingSim, ParkingSimState, WalkingSimState,
 };
 pub(crate) use self::pandemic::PandemicModel;
 pub(crate) use self::router::{ActionAtEnd, Router};
