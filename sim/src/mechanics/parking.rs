@@ -668,6 +668,7 @@ pub struct InfiniteParkingSimState {
         deserialize_with = "deserialize_btreemap"
     )]
     occupants: BTreeMap<ParkingSpot, CarID>,
+    reserved_spots: BTreeSet<ParkingSpot>,
 
     // Cache dist_along
     #[serde(
@@ -684,6 +685,7 @@ impl InfiniteParkingSimState {
         let mut sim = InfiniteParkingSimState {
             parked_cars: BTreeMap::new(),
             occupants: BTreeMap::new(),
+            reserved_spots: BTreeSet::new(),
 
             driving_to_offstreet: MultiMap::new(),
 
@@ -734,7 +736,10 @@ impl ParkingSim for InfiniteParkingSimState {
         Vec::new()
     }
 
-    fn reserve_spot(&mut self, _: ParkingSpot) {}
+    fn reserve_spot(&mut self, spot: ParkingSpot) {
+        assert!(self.is_free(spot));
+        self.reserved_spots.insert(spot);
+    }
 
     fn remove_parked_car(&mut self, p: ParkedCar) {
         self.parked_cars
@@ -750,6 +755,8 @@ impl ParkingSim for InfiniteParkingSimState {
     fn add_parked_car(&mut self, p: ParkedCar) {
         self.events
             .push(Event::CarReachedParkingSpot(p.vehicle.id, p.spot));
+
+        assert!(self.reserved_spots.remove(&p.spot));
 
         assert!(!self.occupants.contains_key(&p.spot));
         self.occupants.insert(p.spot, p.vehicle.id);
@@ -783,7 +790,7 @@ impl ParkingSim for InfiniteParkingSimState {
     }
 
     fn is_free(&self, spot: ParkingSpot) -> bool {
-        !self.occupants.contains_key(&spot)
+        !self.occupants.contains_key(&spot) && !self.reserved_spots.contains(&spot)
     }
 
     fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<&ParkedCar> {
@@ -793,14 +800,32 @@ impl ParkingSim for InfiniteParkingSimState {
 
     fn get_all_free_spots(
         &self,
-        _: Position,
+        driving_pos: Position,
         vehicle: &Vehicle,
         target: BuildingID,
         map: &Map,
     ) -> Vec<(ParkingSpot, Position)> {
-        // TODO Shouldn't need to verify the driving pos work, right?
-        let spot = self.get_free_bldg_spot(target);
-        vec![(spot, self.spot_to_driving_pos(spot, vehicle, map))]
+        // The target building may be blackholed, so fallback to a building on one of the
+        // penultimate lanes, when the search begins.
+        let mut bldg: Option<BuildingID> = None;
+        for (b, bldg_dist) in self.driving_to_offstreet.get(driving_pos.lane()) {
+            if driving_pos.dist_along() >= *bldg_dist {
+                continue;
+            }
+            if target == *b {
+                bldg = Some(target);
+                break;
+            } else if bldg.is_none() {
+                // Backup option
+                bldg = Some(*b);
+            }
+        }
+        if let Some(b) = bldg {
+            let spot = self.get_free_bldg_spot(b);
+            vec![(spot, self.spot_to_driving_pos(spot, vehicle, map))]
+        } else {
+            Vec::new()
+        }
     }
 
     fn spot_to_driving_pos(&self, spot: ParkingSpot, _: &Vehicle, map: &Map) -> Position {
@@ -835,8 +860,10 @@ impl ParkingSim for InfiniteParkingSimState {
         _: BuildingID,
         _: &Map,
     ) -> Option<(Vec<PathStep>, ParkingSpot, Position)> {
-        // The original building we're aiming for will always have room
-        unreachable!()
+        // The original building we're aiming for will always have room, unless it's located on a
+        // blackholed lane. In that case, there's usually a nearby building on the last connected
+        // lane. If not, then just give up for now.
+        None
     }
 
     fn collect_events(&mut self) -> Vec<Event> {
