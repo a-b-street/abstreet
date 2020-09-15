@@ -134,6 +134,13 @@ impl Btn {
             maybe_tooltip: None,
         }
     }
+    pub fn plaintext_custom<I: Into<String>>(label: I, txt: Text) -> BtnBuilder {
+        BtnBuilder::PlainText {
+            label: label.into(),
+            txt,
+            maybe_tooltip: None,
+        }
+    }
 
     pub fn text_fg<I: Into<String>>(label: I) -> BtnBuilder {
         let label = label.into();

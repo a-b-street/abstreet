@@ -56,6 +56,38 @@ impl EditRoad {
             access_restrictions: r.access_restrictions_from_osm(),
         }
     }
+
+    fn diff(&self, other: &EditRoad) -> Vec<String> {
+        let mut lt = 0;
+        let mut dir = 0;
+        for ((lt1, dir1), (lt2, dir2)) in self.lanes_ltr.iter().zip(other.lanes_ltr.iter()) {
+            if lt1 != lt2 {
+                lt += 1;
+            }
+            if dir1 != dir2 {
+                dir += 1;
+            }
+        }
+
+        let mut changes = Vec::new();
+        if lt == 1 {
+            changes.push(format!("1 lane type"));
+        } else if lt > 1 {
+            changes.push(format!("{} lane types", lt));
+        }
+        if dir == 1 {
+            changes.push(format!("1 lane reversal"));
+        } else if dir > 1 {
+            changes.push(format!("{} lane reversal", dir));
+        }
+        if self.speed_limit != other.speed_limit {
+            changes.push(format!("speed limit"));
+        }
+        if self.access_restrictions != other.access_restrictions {
+            changes.push(format!("access restrictions"));
+        }
+        changes
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -227,10 +259,15 @@ impl EditEffects {
 }
 
 impl EditCmd {
-    pub fn short_name(&self, map: &Map) -> String {
-        match self {
-            // TODO Way more details
-            EditCmd::ChangeRoad { r, .. } => format!("road #{}", r.0),
+    // (summary, details)
+    pub fn describe(&self, map: &Map) -> (String, Vec<String>) {
+        let mut details = Vec::new();
+        let summary = match self {
+            EditCmd::ChangeRoad { r, old, new } => {
+                details = new.diff(old);
+                format!("road #{}", r.0)
+            }
+            // TODO Describe changes
             EditCmd::ChangeIntersection { i, new, .. } => match new {
                 EditIntersection::StopSign(_) => format!("stop sign #{}", i.0),
                 EditIntersection::TrafficSignal(_) => format!("traffic signal #{}", i.0),
@@ -239,7 +276,8 @@ impl EditCmd {
             EditCmd::ChangeRouteSchedule { id, .. } => {
                 format!("reschedule route {}", map.get_br(*id).short_name)
             }
-        }
+        };
+        (summary, details)
     }
 
     // Must be idempotent

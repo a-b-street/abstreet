@@ -15,7 +15,7 @@ pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 pub use self::validate::{check_blackholes, check_sidewalk_connectivity, try_change_lt};
 use crate::app::{App, ShowEverything};
-use crate::common::{tool_panel, CommonState, Warping};
+use crate::common::{tool_panel, ColorLegend, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{ChooseSomething, PopupMsg, State, Transition};
 use crate::helpers::ID;
@@ -30,7 +30,7 @@ use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 use widgetry::{
     hotkey, lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Menu, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+    Menu, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct EditMode {
@@ -219,16 +219,23 @@ impl State for EditMode {
                                     Transition::Replace(LoadEdits::new(ctx, app, mode.clone()))
                                 }
                             }
-                            "create a blank proposal" => Transition::Replace(SaveEdits::new(
-                                ctx,
-                                app,
-                                "Do you want to save your proposal first?",
-                                true,
-                                Some(Transition::Pop),
-                                Box::new(|ctx, app| {
+                            "create a blank proposal" => {
+                                if app.primary.map.unsaved_edits() {
+                                    Transition::Replace(SaveEdits::new(
+                                        ctx,
+                                        app,
+                                        "Do you want to save your proposal first?",
+                                        true,
+                                        Some(Transition::Pop),
+                                        Box::new(|ctx, app| {
+                                            apply_map_edits(ctx, app, app.primary.map.new_edits());
+                                        }),
+                                    ))
+                                } else {
                                     apply_map_edits(ctx, app, app.primary.map.new_edits());
-                                }),
-                            )),
+                                    Transition::Pop
+                                }
+                            }
                             "save this proposal as..." => Transition::Replace(SaveEdits::new(
                                 ctx,
                                 app,
@@ -268,11 +275,8 @@ impl State for EditMode {
                     }
                 }
                 x => {
-                    let idx = x["most recent change #".len()..].parse::<usize>().unwrap();
-                    if let Some(id) = cmd_to_id(
-                        &app.primary.map.get_edits().commands
-                            [app.primary.map.get_edits().commands.len() - idx],
-                    ) {
+                    let idx = x["change #".len()..].parse::<usize>().unwrap();
+                    if let Some(id) = cmd_to_id(&app.primary.map.get_edits().commands[idx - 1]) {
                         return Transition::Push(Warping::new(
                             ctx,
                             id.canonical_point(&app.primary).unwrap(),
@@ -742,38 +746,42 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
                 .container()
                 .padding(10)
                 .bg(Color::hex("#5D9630")),
-            (if !edits.commands.is_empty() {
-                Btn::svg_def("system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
-            } else {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/undo.svg",
-                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                )
-            })
-            .centered_vert(),
         ]),
-        Text::from_multiline(vec![
-            Line(format!("{} roads changed", edits.changed_roads.len())),
-            Line(format!(
-                "{} intersections changed",
+        ColorLegend::row(
+            ctx,
+            app.cs.edits_layer,
+            format!(
+                "{} roads, {} intersections changed",
+                edits.changed_roads.len(),
                 edits.original_intersections.len()
-            )),
-        ])
-        .draw(ctx),
+            ),
+        ),
     ];
 
-    for (idx, cmd) in edits.commands.iter().rev().take(5).enumerate() {
-        col.push(
-            Btn::plaintext(format!("{}) {}", idx + 1, cmd.short_name(&app.primary.map))).build(
-                ctx,
-                format!("most recent change #{}", idx + 1),
-                None,
-            ),
-        );
-    }
     if edits.commands.len() > 5 {
-        col.push(format!("{} more...", edits.commands.len()).draw_text(ctx));
+        col.push(format!("{} more...", edits.commands.len() - 5).draw_text(ctx));
+    }
+    for idx in edits.commands.len().max(5) - 5..edits.commands.len() {
+        let (summary, details) = edits.commands[idx].describe(&app.primary.map);
+        let mut txt = Text::from(Line(format!("{}) {}", idx + 1, summary)));
+        for line in details {
+            txt.add(Line(line).secondary());
+        }
+        let btn = Btn::plaintext_custom(format!("change #{}", idx + 1), txt).build_def(ctx, None);
+        if idx == edits.commands.len() - 1 {
+            col.push(
+                Widget::row(vec![
+                    btn,
+                    Btn::plaintext("X")
+                        .build(ctx, "undo", lctrl(Key::Z))
+                        .align_right(),
+                ])
+                .padding(16)
+                .outline(2.0, Color::WHITE),
+            );
+        } else {
+            col.push(btn);
+        }
     }
 
     Panel::new(Widget::col(col))
