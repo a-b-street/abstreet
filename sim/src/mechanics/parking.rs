@@ -676,6 +676,7 @@ pub struct InfiniteParkingSimState {
         deserialize_with = "deserialize_multimap"
     )]
     driving_to_offstreet: MultiMap<LaneID, (BuildingID, Distance)>,
+    blackholed_buildings: BTreeSet<BuildingID>,
 
     events: Vec<Event>,
 }
@@ -688,6 +689,7 @@ impl InfiniteParkingSimState {
             reserved_spots: BTreeSet::new(),
 
             driving_to_offstreet: MultiMap::new(),
+            blackholed_buildings: BTreeSet::new(),
 
             events: Vec::new(),
         };
@@ -696,13 +698,16 @@ impl InfiniteParkingSimState {
                 if !map.get_l(pos.lane()).driving_blackhole {
                     sim.driving_to_offstreet
                         .insert(pos.lane(), (b.id, pos.dist_along()));
+                    continue;
                 }
             }
+            sim.blackholed_buildings.insert(b.id);
         }
         sim
     }
 
     fn get_free_bldg_spot(&self, b: BuildingID) -> ParkingSpot {
+        assert!(!self.blackholed_buildings.contains(&b));
         let mut i = 0;
         loop {
             let spot = ParkingSpot::Offstreet(b, i);
@@ -719,6 +724,7 @@ impl ParkingSim for InfiniteParkingSimState {
         // Can live edits possibly affect anything?
         let new = InfiniteParkingSimState::new(map);
         self.driving_to_offstreet = new.driving_to_offstreet;
+        self.blackholed_buildings = new.blackholed_buildings;
 
         Vec::new()
     }
@@ -728,8 +734,12 @@ impl ParkingSim for InfiniteParkingSimState {
     }
 
     fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot> {
-        // Just returns the next free spot
-        vec![self.get_free_bldg_spot(b)]
+        if self.blackholed_buildings.contains(&b) {
+            Vec::new()
+        } else {
+            // Just returns the next free spot
+            vec![self.get_free_bldg_spot(b)]
+        }
     }
 
     fn get_free_lot_spots(&self, _: ParkingLotID) -> Vec<ParkingSpot> {
