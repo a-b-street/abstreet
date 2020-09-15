@@ -40,7 +40,6 @@ func main() {
 	}
 
 	numSucceededLast := 0
-	var results1 results
 	var results2 results
 	for pct := int64(100); pct >= 0; pct -= 10 {
 		results, err := run(pct)
@@ -55,39 +54,36 @@ func main() {
 		}
 		numSucceededLast = numSucceeded
 
-		if *comparePct1 == pct {
-			results1 = *results
-		}
 		if *comparePct2 == pct {
 			results2 = *results
 		}
-	}
+		if *comparePct1 == pct {
+			results1 := results
+			fmt.Printf("\nBaseline cancelled %v%%, experimental cancelled %v%%\n", *comparePct1, *comparePct2)
+			var faster []float64
+			var slower []float64
 
-	if results1.successTime != nil && results2.successTime != nil {
-		fmt.Printf("\nBaseline cancelled %v%%, experimental cancelled %v%%\n", *comparePct1, *comparePct2)
-		var faster []float64
-		var slower []float64
+			for id, experimental_dt := range results2.successTime {
+				baseline_dt := results1.successTime[id]
+				if baseline_dt == 0.0 {
+					// This means the trip didn't finish in hoursToSimulate in the baseline
+					//fmt.Printf("Trip %v present in experimental, but not baseline\n", id)
+					continue
+				}
 
-		for id, experimental_dt := range results2.successTime {
-			baseline_dt := results1.successTime[id]
-			if baseline_dt == 0.0 {
-				// This means the trip didn't finish in hoursToSimulate in the baseline
-				//fmt.Printf("Trip %v present in experimental, but not baseline\n", id)
-				continue
+				if false && baseline_dt != experimental_dt {
+					fmt.Printf("  Trip %v: %v baseline, %v experimental\n", id, baseline_dt, experimental_dt)
+				}
+				if baseline_dt > experimental_dt {
+					faster = append(faster, baseline_dt-experimental_dt)
+				} else if baseline_dt < experimental_dt {
+					slower = append(slower, experimental_dt-baseline_dt)
+				}
 			}
 
-			if false && baseline_dt != experimental_dt {
-				fmt.Printf("  Trip %v: %v baseline, %v experimental\n", id, baseline_dt, experimental_dt)
-			}
-			if baseline_dt > experimental_dt {
-				faster = append(faster, baseline_dt-experimental_dt)
-			} else if baseline_dt < experimental_dt {
-				slower = append(slower, experimental_dt-baseline_dt)
-			}
+			fmt.Printf("%v trips faster, average %v\n", len(faster), avg(faster))
+			fmt.Printf("%v trips slower, average %v\n\n", len(slower), avg(slower))
 		}
-
-		fmt.Printf("%v trips faster, average %v\n", len(faster), avg(faster))
-		fmt.Printf("%v trips slower, average %v\n", len(slower), avg(slower))
 	}
 }
 

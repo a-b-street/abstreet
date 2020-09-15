@@ -18,8 +18,8 @@ use map_model::{
 };
 use serde::Serialize;
 use sim::{
-    AlertHandler, ExternalPerson, GetDrawAgents, PersonID, Scenario, Sim, SimFlags, SimOptions,
-    TripID, TripMode, VehicleType,
+    ExternalPerson, GetDrawAgents, PersonID, Scenario, Sim, SimFlags, SimOptions, TripID, TripMode,
+    VehicleType,
 };
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
@@ -35,12 +35,10 @@ lazy_static::lazy_static! {
 #[tokio::main]
 async fn main() {
     let mut args = CmdArgs::new();
-    let mut sim_flags = SimFlags::from_args(&mut args);
+    let sim_flags = SimFlags::from_args(&mut args);
     let port = args.required("--port").parse::<u16>().unwrap();
     args.done();
 
-    // Less spam
-    sim_flags.opts.alerts = AlertHandler::Silence;
     let (map, sim, _) = sim_flags.load(&mut Timer::new("setup headless"));
     *MAP.write().unwrap() = map;
     *SIM.write().unwrap() = sim;
@@ -98,9 +96,11 @@ fn handle_command(
             Ok(format!("sim reloaded"))
         }
         "/sim/load" => {
-            let mut flags: SimFlags = abstutil::from_json(body)?;
-            flags.opts.alerts = AlertHandler::Silence;
-            *FLAGS.write().unwrap() = flags;
+            let flags: SimFlags = abstutil::from_json(body)?;
+            // Only a few fields from SimFlags can be specified through the API. For the rest
+            // (namely SimOptions), keep the ones from the command line.
+            FLAGS.write().unwrap().load = flags.load;
+            FLAGS.write().unwrap().modifiers = flags.modifiers;
 
             // Also reset
             let (new_map, new_sim, _) = FLAGS.read().unwrap().load(&mut Timer::new("reset sim"));
