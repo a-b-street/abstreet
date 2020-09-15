@@ -278,6 +278,7 @@ pub fn traffic_signal(
             draw_signal_stage(
                 ctx.prerender,
                 stage,
+                idx,
                 id,
                 None,
                 &mut orig_batch,

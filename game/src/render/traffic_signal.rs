@@ -11,6 +11,7 @@ use widgetry::{Color, GeomBatch, Line, Prerender, RewriteColor, Text};
 pub fn draw_signal_stage(
     prerender: &Prerender,
     stage: &Stage,
+    idx: usize,
     i: IntersectionID,
     time_left: Option<Duration>,
     batch: &mut GeomBatch,
@@ -126,7 +127,6 @@ pub fn draw_signal_stage(
                 Color::hex("#5B5B5B"),
                 Circle::new(center, radius).to_polygon(),
             );
-            let idx = signal.stages.iter().position(|s| s == stage).unwrap() + 1;
             batch.append(
                 Text::from(Line(idx.to_string()))
                     .render_to_batch(prerender)

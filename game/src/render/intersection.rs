@@ -154,6 +154,7 @@ impl Renderable for DrawIntersection {
                     draw_signal_stage(
                         g.prerender,
                         &signal.stages[idx],
+                        idx,
                         self.id,
                         Some(remaining),
                         &mut batch,

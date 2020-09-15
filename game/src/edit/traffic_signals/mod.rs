@@ -158,6 +158,7 @@ impl TrafficSignalEditor {
             draw_signal_stage(
                 ctx.prerender,
                 &stage,
+                self.current_stage,
                 signal.id,
                 None,
                 &mut batch,
@@ -832,6 +833,7 @@ fn draw_multiple_signals(
         draw_signal_stage(
             ctx.prerender,
             &app.primary.map.get_traffic_signal(*i).stages[idx],
+            idx,
             *i,
             None,
             &mut piece,
