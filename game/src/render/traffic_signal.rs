@@ -5,7 +5,7 @@ use crate::render::{DrawMovement, BIG_ARROW_THICKNESS};
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
 use map_model::{IntersectionID, Stage, TurnPriority, SIDEWALK_THICKNESS};
 use std::collections::BTreeSet;
-use widgetry::{Color, GeomBatch, Prerender, RewriteColor};
+use widgetry::{Color, GeomBatch, Line, Prerender, RewriteColor, Text};
 
 // Only draws a box when time_left is present
 pub fn draw_signal_stage(
@@ -119,6 +119,20 @@ pub fn draw_signal_stage(
                         ),
                 );
             }
+
+            let radius = Distance::meters(1.0);
+            let center = app.primary.map.get_i(i).polygon.polylabel();
+            batch.push(
+                Color::hex("#5B5B5B"),
+                Circle::new(center, radius).to_polygon(),
+            );
+            let idx = signal.stages.iter().position(|s| s == stage).unwrap() + 1;
+            batch.append(
+                Text::from(Line(idx.to_string()))
+                    .render_to_batch(prerender)
+                    .scale(0.075)
+                    .centered_on(center),
+            );
 
             // No time_left box
             return;
