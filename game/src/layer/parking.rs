@@ -95,6 +95,57 @@ impl Occupancy {
         private_bldgs: bool,
         looking_for_parking: bool,
     ) -> Occupancy {
+        let mut total_ppl = 0;
+        let mut has_car = 0;
+        for p in app.primary.sim.get_all_people() {
+            total_ppl += 1;
+            if p.vehicles
+                .iter()
+                .any(|v| v.vehicle_type == VehicleType::Car)
+            {
+                has_car += 1;
+            }
+        }
+
+        if app.primary.sim.infinite_parking() {
+            let panel = Panel::new(Widget::col(vec![
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
+                    "Parking occupancy".draw_text(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Text::from_multiline(vec![
+                    Line(format!(
+                        "{:.0}% of the population owns a car",
+                        if total_ppl == 0 {
+                            0.0
+                        } else {
+                            100.0 * (has_car as f64) / (total_ppl as f64)
+                        }
+                    )),
+                    Line(""),
+                    Line("Parking simulation disabled."),
+                    Line("Every building has unlimited capacity.").secondary(),
+                ])
+                .draw(ctx),
+            ]))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .build(ctx);
+            return Occupancy {
+                time: app.primary.sim.time(),
+                onstreet: false,
+                garages: false,
+                lots: false,
+                private_bldgs: false,
+                looking_for_parking: false,
+                unzoomed: ctx.upload(GeomBatch::new()),
+                zoomed: ctx.upload(GeomBatch::new()),
+                panel,
+            };
+        }
+
         let mut filled_spots = Counter::new();
         let mut avail_spots = Counter::new();
         let mut keys = BTreeSet::new();
@@ -154,18 +205,6 @@ impl Occupancy {
                 let loc = Loc::new(spot, &app.primary.map);
                 keys.insert(loc);
                 spots.inc(loc);
-            }
-        }
-
-        let mut total_ppl = 0;
-        let mut has_car = 0;
-        for p in app.primary.sim.get_all_people() {
-            total_ppl += 1;
-            if p.vehicles
-                .iter()
-                .any(|v| v.vehicle_type == VehicleType::Car)
-            {
-                has_car += 1;
             }
         }
 
