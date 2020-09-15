@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 abstutil = { path = "../abstutil" }
 downcast-rs = "1.1.1"
+enum_dispatch = "0.3.3"
 geom = { path = "../geom" }
 instant = "0.1.2"
 libm = "0.2.1"

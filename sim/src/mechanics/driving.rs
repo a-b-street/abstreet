@@ -3,9 +3,9 @@ use crate::mechanics::Queue;
 use crate::sim::Ctx;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
-    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PersonID,
-    Scheduler, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent, Vehicle,
-    WalkingSimState, FOLLOWING_DISTANCE,
+    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim, ParkingSimState, ParkingSpot,
+    PersonID, Scheduler, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent,
+    Vehicle, WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Time};

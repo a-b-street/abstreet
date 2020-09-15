@@ -1,7 +1,7 @@
 use crate::mechanics::Queue;
 use crate::{
-    CarID, Event, ParkingSimState, ParkingSpot, PersonID, SidewalkSpot, TripID, TripPhaseType,
-    Vehicle, VehicleType,
+    CarID, Event, ParkingSim, ParkingSimState, ParkingSpot, PersonID, SidewalkSpot, TripID,
+    TripPhaseType, Vehicle, VehicleType,
 };
 use geom::Distance;
 use map_model::{
