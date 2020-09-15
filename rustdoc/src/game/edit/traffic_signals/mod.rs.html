@@ -971,6 +971,8 @@
 <span id="971">971</span>
 <span id="972">972</span>
 <span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">edits</span>;
 <span class="kw">mod</span> <span class="ident">picker</span>;
@@ -1132,6 +1134,7 @@
             <span class="ident">draw_signal_stage</span>(
                 <span class="ident">ctx</span>.<span class="ident">prerender</span>,
                 <span class="kw-2">&amp;</span><span class="ident">stage</span>,
+                <span class="self">self</span>.<span class="ident">current_stage</span>,
                 <span class="ident">signal</span>.<span class="ident">id</span>,
                 <span class="prelude-val">None</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>,
@@ -1806,6 +1809,7 @@
         <span class="ident">draw_signal_stage</span>(
             <span class="ident">ctx</span>.<span class="ident">prerender</span>,
             <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">stages</span>[<span class="ident">idx</span>],
+            <span class="ident">idx</span>,
             <span class="kw-2">*</span><span class="ident">i</span>,
             <span class="prelude-val">None</span>,
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">piece</span>,

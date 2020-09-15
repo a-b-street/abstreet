@@ -296,6 +296,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_signal_stage</span>(
     <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
     <span class="ident">stage</span>: <span class="kw-2">&amp;</span><span class="ident">Stage</span>,
+    <span class="ident">idx</span>: <span class="ident">usize</span>,
     <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
     <span class="ident">time_left</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>,
@@ -411,7 +412,6 @@
                 <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>),
                 <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">center</span>, <span class="ident">radius</span>).<span class="ident">to_polygon</span>(),
             );
-            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span> <span class="op">=</span><span class="op">=</span> <span class="ident">stage</span>).<span class="ident">unwrap</span>() <span class="op">+</span> <span class="number">1</span>;
             <span class="ident">batch</span>.<span class="ident">append</span>(
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">idx</span>.<span class="ident">to_string</span>()))
                     .<span class="ident">render_to_batch</span>(<span class="ident">prerender</span>)
