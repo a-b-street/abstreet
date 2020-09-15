@@ -267,9 +267,19 @@ fn seed_parked_cars(
     timer: &mut Timer,
 ) {
     if sim.infinite_parking() {
+        let mut blackholed = 0;
         for (vehicle, b) in parked_cars {
-            let spot = sim.get_free_offstreet_spots(b)[0];
-            sim.seed_parked_car(vehicle, spot);
+            if let Some(spot) = sim.get_free_offstreet_spots(b).pop() {
+                sim.seed_parked_car(vehicle, spot);
+            } else {
+                blackholed += 1;
+            }
+        }
+        if blackholed > 0 {
+            timer.warn(format!(
+                "{} parked cars weren't seeded, due to blackholed buildings",
+                prettyprint_usize(blackholed)
+            ));
         }
         return;
     }
