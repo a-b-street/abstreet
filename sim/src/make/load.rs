@@ -54,6 +54,7 @@ impl SimFlags {
                     .unwrap_or(AlertHandler::Print),
                 pathfinding_upfront: args.enabled("--pathfinding_upfront"),
                 live_map_edits: args.enabled("--live_map_edits"),
+                infinite_parking: args.enabled("--infinite_parking"),
             },
         }
     }
