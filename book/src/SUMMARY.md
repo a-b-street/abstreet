@@ -28,6 +28,7 @@
   - [Gridlock](trafficsim/gridlock.md)
   - [Multi-modal trips](trafficsim/trips.md)
   - [Live edits](trafficsim/live_edits.md)
+  - [Parking](trafficsim/parking.md)
 
 ---
 
