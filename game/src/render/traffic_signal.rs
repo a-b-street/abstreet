@@ -128,7 +128,7 @@ pub fn draw_signal_stage(
                 Circle::new(center, radius).to_polygon(),
             );
             batch.append(
-                Text::from(Line(idx.to_string()))
+                Text::from(Line(format!("{}", idx + 1)))
                     .render_to_batch(prerender)
                     .scale(0.075)
                     .centered_on(center),
