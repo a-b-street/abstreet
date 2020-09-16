@@ -12,6 +12,12 @@ jobs:
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: 1.46.0
+      - name: Cache build
+        uses: actions/cache@v2
+        with:
+                path: target
+                # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
+                key: ${{ runner.os }}-build
       - name: Build game
         run: cargo build --release --bin game
       - name: Build importer
@@ -37,6 +43,12 @@ jobs:
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: 1.46.0
+      - name: Cache build
+        uses: actions/cache@v2
+        with:
+                path: target
+                # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
+                key: ${{ runner.os }}-build
       - name: Build game
         run: cargo build --release --bin game
       - name: Build importer
@@ -65,6 +77,12 @@ jobs:
         run: sudo apt-get update
       - name: Install dependencies
         run: sudo apt-get install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev
+      - name: Cache build
+        uses: actions/cache@v2
+        with:
+                path: target
+                # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
+                key: ${{ runner.os }}-build
       - name: Build game
         run: cargo build --release --bin game
       - name: Build importer
