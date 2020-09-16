@@ -441,6 +441,12 @@
 <span id="441">441</span>
 <span id="442">442</span>
 <span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>};
@@ -854,7 +860,13 @@
             <span class="kw">for</span> (<span class="ident">car_pt</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="ident">timer</span>
                 .<span class="ident">parallelize</span>(<span class="string">&quot;calculate paths&quot;</span>, <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>, <span class="ident">requests</span>, <span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">car_pt</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">pt</span>(<span class="ident">map</span>);
-                    <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> (<span class="ident">car_pt</span>, <span class="ident">path</span>.<span class="ident">total_length</span>()))
+                    <span class="comment">// TODO Walking paths should really return some indication of &quot;zero length</span>
+                    <span class="comment">// path&quot; for this</span>
+                    <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span> <span class="op">=</span><span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span> {
+                        <span class="prelude-val">Some</span>((<span class="ident">car_pt</span>, <span class="ident">Distance</span>::<span class="ident">ZERO</span>))
+                    } <span class="kw">else</span> {
+                        <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> (<span class="ident">car_pt</span>, <span class="ident">path</span>.<span class="ident">total_length</span>()))
+                    }
                 })
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">flatten</span>()
