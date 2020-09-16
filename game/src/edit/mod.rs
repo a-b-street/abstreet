@@ -797,3 +797,52 @@ fn cmd_to_id(cmd: &EditCmd) -> Option<ID> {
         EditCmd::ChangeRouteSchedule { .. } => None,
     }
 }
+
+pub struct ConfirmDiscard {
+    panel: Panel,
+    discard: Box<dyn Fn(&mut App)>,
+}
+
+impl ConfirmDiscard {
+    pub fn new(ctx: &mut EventCtx, discard: Box<dyn Fn(&mut App)>) -> Box<dyn State> {
+        Box::new(ConfirmDiscard {
+            discard,
+            panel: Panel::new(Widget::col(vec![
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "system/assets/tools/alert.svg"),
+                    Line("Alert").small_heading().draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                "Are you sure you want to discard changes you made?".draw_text(ctx),
+                Widget::row(vec![
+                    Btn::plaintext("Cancel").build_def(ctx, hotkey(Key::Escape)),
+                    Btn::text_bg2("Yes, discard").build_def(ctx, None),
+                ])
+                .align_right(),
+            ]))
+            .build(ctx),
+        })
+    }
+}
+
+impl State for ConfirmDiscard {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" | "Cancel" => Transition::Pop,
+                "Yes, discard" => {
+                    (self.discard)(app);
+                    Transition::Multi(vec![Transition::Pop, Transition::Pop])
+                }
+                _ => unreachable!(),
+            },
+            _ => Transition::Keep,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.panel.draw(g);
+    }
+}

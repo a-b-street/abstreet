@@ -4,7 +4,7 @@ mod preview;
 
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::edit::apply_map_edits;
+use crate::edit::{apply_map_edits, ConfirmDiscard};
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::options::TrafficSignalStyle;
 use crate::render::{draw_signal_stage, DrawMovement, DrawOptions, BIG_ARROW_THICKNESS};
@@ -325,6 +325,19 @@ impl State for TrafficSignalEditor {
                         return Transition::Pop;
                     }
                 }
+                "Cancel" => {
+                    if BundleEdits::get_current(app, &self.members) == self.original {
+                        self.original.apply(app);
+                        return Transition::Pop;
+                    }
+                    let original = self.original.clone();
+                    return Transition::Push(ConfirmDiscard::new(
+                        ctx,
+                        Box::new(move |app| {
+                            original.apply(app);
+                        }),
+                    ));
+                }
                 "Edit multiple signals" => {
                     // First commit the current changes, so we enter SignalPicker with clean state.
                     // This UX flow is a little unintuitive.
@@ -505,7 +518,7 @@ impl State for TrafficSignalEditor {
 
 fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
     let row = vec![
-        Btn::text_bg2("Finish").build_def(ctx, hotkey(Key::Escape)),
+        Btn::text_bg2("Finish").build_def(ctx, hotkey(Key::Enter)),
         Btn::text_bg2("Preview").build_def(ctx, lctrl(Key::P)),
         (if can_undo {
             Btn::svg_def("system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
@@ -532,8 +545,25 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             )
         })
         .centered_vert(),
+        Btn::plaintext_custom(
+            "Cancel",
+            Text::from(Line("Cancel").fg(Color::hex("#FF5E5E"))),
+        )
+        .build_def(ctx, None)
+        .align_right(),
+    ];
+    Panel::new(Widget::col(vec![
+        Widget::row(vec![
+            Line("Traffic signal editor").small_heading().draw(ctx),
+            Btn::plaintext_custom(
+                "Edit multiple signals",
+                Text::from(Line("+ Edit multiple").fg(Color::hex("#4CA7E9"))),
+            )
+            .build_def(ctx, hotkey(Key::M)),
+        ]),
+        Widget::row(row),
         if app.opts.dev {
-            Btn::text_bg2("Export")
+            Btn::text_fg("Export")
                 .tooltip(Text::from_multiline(vec![
                     Line("This will create a JSON file in traffic_signal_data/.").small(),
                     Line(
@@ -546,18 +576,6 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
         } else {
             Widget::nothing()
         },
-        // TODO cancel
-    ];
-    Panel::new(Widget::col(vec![
-        Widget::row(vec![
-            Line("Traffic signal editor").small_heading().draw(ctx),
-            Btn::plaintext_custom(
-                "Edit multiple signals",
-                Text::from(Line("+ Edit multiple").fg(Color::hex("#4CA7E9"))),
-            )
-            .build_def(ctx, hotkey(Key::M)),
-        ]),
-        Widget::row(row),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
