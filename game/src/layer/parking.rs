@@ -410,7 +410,13 @@ impl Efficiency {
             for (car_pt, dist) in timer
                 .parallelize("calculate paths", Parallelism::Fastest, requests, |req| {
                     let car_pt = req.start.pt(map);
-                    map.pathfind(req).map(|path| (car_pt, path.total_length()))
+                    // TODO Walking paths should really return some indication of "zero length
+                    // path" for this
+                    if req.start == req.end {
+                        Some((car_pt, Distance::ZERO))
+                    } else {
+                        map.pathfind(req).map(|path| (car_pt, path.total_length()))
+                    }
                 })
                 .into_iter()
                 .flatten()
