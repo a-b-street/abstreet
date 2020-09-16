@@ -244,7 +244,11 @@ impl Sim {
     }
     pub(crate) fn seed_parked_car(&mut self, vehicle: Vehicle, spot: ParkingSpot) {
         self.parking.reserve_spot(spot);
-        self.parking.add_parked_car(ParkedCar { vehicle, spot });
+        self.parking.add_parked_car(ParkedCar {
+            vehicle,
+            spot,
+            parked_since: self.time,
+        });
     }
 
     pub(crate) fn seed_bus_route(&mut self, route: &BusRoute) {

@@ -481,7 +481,7 @@ pub fn parked_car(
         .align_right(),
     ]));
 
-    // TODO how long idle, prev trips, next trips, etc
+    // TODO prev trips, next trips, etc
 
     let p = app.primary.sim.get_owner_of_car(id).unwrap();
     rows.push(Btn::text_bg2(format!("Owned by {}", p)).build_def(ctx, None));
@@ -508,6 +508,14 @@ pub fn parked_car(
                 );
             }
         }
+
+        rows.push(
+            format!(
+                "Parked here for {}",
+                app.primary.sim.time() - p.parked_since
+            )
+            .draw_text(ctx),
+        );
     } else {
         rows.push("No longer parked".draw_text(ctx));
     }

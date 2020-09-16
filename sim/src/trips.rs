@@ -784,7 +784,11 @@ impl TripManager {
                             ),
                         ));
                         ctx.parking.reserve_spot(spot);
-                        ctx.parking.add_parked_car(ParkedCar { vehicle, spot });
+                        ctx.parking.add_parked_car(ParkedCar {
+                            vehicle,
+                            spot,
+                            parked_since: now,
+                        });
                     } else {
                         self.events.push(Event::Alert(
                             AlertLocation::Person(person),

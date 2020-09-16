@@ -323,6 +323,7 @@ pub enum ParkingSpot {
 pub struct ParkedCar {
     pub vehicle: Vehicle,
     pub spot: ParkingSpot,
+    pub parked_since: Time,
 }
 
 // It'd be nice to inline the goal_pos like SidewalkSpot does, but DrivingGoal is persisted in

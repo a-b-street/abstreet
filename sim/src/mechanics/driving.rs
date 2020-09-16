@@ -554,6 +554,7 @@ impl DrivingSimState {
                 ctx.parking.add_parked_car(ParkedCar {
                     vehicle: car.vehicle.clone(),
                     spot,
+                    parked_since: now,
                 });
                 trips.car_reached_parking_spot(
                     now,
