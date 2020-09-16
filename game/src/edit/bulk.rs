@@ -1,13 +1,13 @@
 use crate::app::App;
 use crate::edit::select::RoadSelector;
-use crate::edit::{apply_map_edits, change_speed_limit, try_change_lt};
+use crate::edit::{apply_map_edits, speed_limit_choices, try_change_lt, ConfirmDiscard};
 use crate::game::{PopupMsg, State, Transition};
 use geom::Speed;
 use map_model::{LaneType, RoadID};
 use maplit::btreeset;
 use widgetry::{
-    hotkey, hotkeys, Btn, Choice, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, TextExt, VerticalAlignment, Widget,
+    hotkey, hotkeys, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct BulkSelect {
@@ -109,44 +109,57 @@ impl BulkEdit {
                 Line(format!("Editing {} roads", roads.len()))
                     .small_heading()
                     .draw(ctx),
-                Widget::custom_row(vec![
-                    change_speed_limit(ctx, Speed::miles_per_hour(25.0)),
-                    Btn::text_fg("Confirm")
-                        .build(ctx, "confirm speed limit", None)
-                        .align_right(),
-                ]),
+                "Lane types".draw_text(ctx),
                 Widget::row(vec![
                     "Change all".draw_text(ctx).centered_vert(),
                     Widget::dropdown(
                         ctx,
                         "from lt",
-                        LaneType::Driving,
+                        None,
                         vec![
-                            Choice::new("driving", LaneType::Driving),
-                            Choice::new("parking", LaneType::Parking),
-                            Choice::new("bike", LaneType::Biking),
-                            Choice::new("bus", LaneType::Bus),
-                            Choice::new("construction", LaneType::Construction),
+                            Choice::new("---", None),
+                            Choice::new("driving", Some(LaneType::Driving)),
+                            Choice::new("parking", Some(LaneType::Parking)),
+                            Choice::new("bike", Some(LaneType::Biking)),
+                            Choice::new("bus", Some(LaneType::Bus)),
+                            Choice::new("construction", Some(LaneType::Construction)),
                         ],
                     ),
                     "lanes to".draw_text(ctx).centered_vert(),
                     Widget::dropdown(
                         ctx,
                         "to lt",
-                        LaneType::Bus,
+                        None,
                         vec![
-                            Choice::new("driving", LaneType::Driving),
-                            Choice::new("parking", LaneType::Parking),
-                            Choice::new("bike", LaneType::Biking),
-                            Choice::new("bus", LaneType::Bus),
-                            Choice::new("construction", LaneType::Construction),
+                            Choice::new("---", None),
+                            Choice::new("driving", Some(LaneType::Driving)),
+                            Choice::new("parking", Some(LaneType::Parking)),
+                            Choice::new("bike", Some(LaneType::Biking)),
+                            Choice::new("bus", Some(LaneType::Bus)),
+                            Choice::new("construction", Some(LaneType::Construction)),
                         ],
                     ),
-                    Btn::text_fg("Confirm")
-                        .build(ctx, "confirm lanes", None)
-                        .align_right(),
+                    // TODO Add another transformation
                 ]),
-                Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
+                {
+                    let mut choices = vec![Choice::new("don't change", None)];
+                    for c in speed_limit_choices() {
+                        choices.push(Choice::new(c.label, Some(c.data)));
+                    }
+                    Widget::row(vec![
+                        "Change speed limit:".draw_text(ctx).centered_vert(),
+                        Widget::dropdown(ctx, "speed limit", None, choices),
+                    ])
+                },
+                Widget::row(vec![
+                    Btn::text_bg2("Finish").build_def(ctx, hotkey(Key::Enter)),
+                    Btn::plaintext_custom(
+                        "Cancel",
+                        Text::from(Line("Cancel").fg(Color::hex("#FF5E5E"))),
+                    )
+                    .build_def(ctx, hotkey(Key::Escape))
+                    .align_right(),
+                ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
@@ -162,30 +175,52 @@ impl State for BulkEdit {
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "Quit" => {
-                    return Transition::Pop;
-                }
-                "confirm speed limit" => {
-                    let speed = self.panel.dropdown_value("speed limit");
-                    let mut edits = app.primary.map.get_edits().clone();
-                    for r in &self.roads {
-                        edits
-                            .commands
-                            .push(app.primary.map.edit_road_cmd(*r, |new| {
-                                new.speed_limit = speed;
-                            }));
+                "Cancel" => {
+                    if self
+                        .panel
+                        .dropdown_value::<Option<Speed>>("speed limit")
+                        .is_none()
+                        && self
+                            .panel
+                            .dropdown_value::<Option<LaneType>>("from lt")
+                            .is_none()
+                        && self
+                            .panel
+                            .dropdown_value::<Option<LaneType>>("to lt")
+                            .is_none()
+                    {
+                        return Transition::Pop;
                     }
-                    apply_map_edits(ctx, app, edits);
-                    return Transition::Keep;
+                    return Transition::Push(ConfirmDiscard::new(ctx, Box::new(move |_| {})));
                 }
-                "confirm lanes" => {
-                    return Transition::Push(change_lane_types(
-                        ctx,
-                        app,
-                        &self.roads,
+                "Finish" => {
+                    if let Some(speed) = self.panel.dropdown_value("speed limit") {
+                        let mut edits = app.primary.map.get_edits().clone();
+                        for r in &self.roads {
+                            if app.primary.map.get_r(*r).speed_limit != speed {
+                                edits
+                                    .commands
+                                    .push(app.primary.map.edit_road_cmd(*r, |new| {
+                                        new.speed_limit = speed;
+                                    }));
+                            }
+                        }
+                        apply_map_edits(ctx, app, edits);
+                    }
+                    // TODO In both cases, mention what speed limit changes happened
+                    if let (Some(from), Some(to)) = (
                         self.panel.dropdown_value("from lt"),
                         self.panel.dropdown_value("to lt"),
-                    ));
+                    ) {
+                        return Transition::Replace(change_lane_types(
+                            ctx,
+                            app,
+                            &self.roads,
+                            from,
+                            to,
+                        ));
+                    }
+                    return Transition::Pop;
                 }
                 _ => unreachable!(),
             },

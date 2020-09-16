@@ -549,7 +549,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             "Cancel",
             Text::from(Line("Cancel").fg(Color::hex("#FF5E5E"))),
         )
-        .build_def(ctx, None)
+        .build_def(ctx, hotkey(Key::Escape))
         .align_right(),
     ];
     Panel::new(Widget::col(vec![

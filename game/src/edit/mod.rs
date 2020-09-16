@@ -652,8 +652,8 @@ pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, app: &App) -> bool {
         && !app.primary.map.get_l(l).is_light_rail()
 }
 
-pub fn change_speed_limit(ctx: &mut EventCtx, default: Speed) -> Widget {
-    let mut choices = vec![
+pub fn speed_limit_choices() -> Vec<Choice<Speed>> {
+    vec![
         Choice::new("10 mph", Speed::miles_per_hour(10.0)),
         Choice::new("15 mph", Speed::miles_per_hour(15.0)),
         Choice::new("20 mph", Speed::miles_per_hour(20.0)),
@@ -668,15 +668,7 @@ pub fn change_speed_limit(ctx: &mut EventCtx, default: Speed) -> Widget {
         Choice::new("65 mph", Speed::miles_per_hour(65.0)),
         Choice::new("70 mph", Speed::miles_per_hour(70.0)),
         // Don't need anything higher. Though now I kind of miss 3am drives on TX-71...
-    ];
-    if !choices.iter().any(|c| c.data == default) {
-        choices.push(Choice::new(default.to_string(), default));
-    }
-
-    Widget::row(vec![
-        "Change speed limit:".draw_text(ctx).centered_vert(),
-        Widget::dropdown(ctx, "speed limit", default, choices),
-    ])
+    ]
 }
 
 pub fn maybe_edit_intersection(

@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::zones::ZoneEditor;
 use crate::edit::{
-    apply_map_edits, can_edit_lane, change_speed_limit, maybe_edit_intersection, try_change_lt,
+    apply_map_edits, can_edit_lane, maybe_edit_intersection, speed_limit_choices, try_change_lt,
 };
 use crate::game::{State, Transition};
 use crate::helpers::ID;
@@ -10,8 +10,8 @@ use crate::render::Renderable;
 use crate::sandbox::GameplayMode;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
-    hotkey, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
-    TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct LaneEditor {
@@ -83,7 +83,19 @@ impl LaneEditor {
             "Type of lane".draw_text(ctx),
             Widget::custom_row(row).centered(),
             Btn::text_fg("reverse direction").build_def(ctx, hotkey(Key::F)),
-            change_speed_limit(ctx, parent.speed_limit),
+            {
+                let mut choices = speed_limit_choices();
+                if !choices.iter().any(|c| c.data == parent.speed_limit) {
+                    choices.push(Choice::new(
+                        parent.speed_limit.to_string(),
+                        parent.speed_limit,
+                    ));
+                }
+                Widget::row(vec![
+                    "Change speed limit:".draw_text(ctx).centered_vert(),
+                    Widget::dropdown(ctx, "speed limit", parent.speed_limit, choices),
+                ])
+            },
             Btn::text_fg("Change access restrictions").build_def(ctx, hotkey(Key::A)),
             Btn::text_bg2("Finish").build_def(ctx, hotkey(Key::Escape)),
         ];
