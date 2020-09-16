@@ -248,17 +248,52 @@
 <span id="248">248</span>
 <span id="249">249</span>
 <span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">select</span>::<span class="ident">RoadSelector</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">change_speed_limit</span>, <span class="ident">try_change_lt</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">speed_limit_choices</span>, <span class="ident">try_change_lt</span>, <span class="ident">ConfirmDiscard</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Speed</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneType</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
+    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BulkSelect</span> {
@@ -360,44 +395,57 @@
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Editing {} roads&quot;</span>, <span class="ident">roads</span>.<span class="ident">len</span>()))
                     .<span class="ident">small_heading</span>()
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">change_speed_limit</span>(<span class="ident">ctx</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">25.0</span>)),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Confirm&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;confirm speed limit&quot;</span>, <span class="prelude-val">None</span>)
-                        .<span class="ident">align_right</span>(),
-                ]),
+                <span class="string">&quot;Lane types&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Change all&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;from lt&quot;</span>,
-                        <span class="ident">LaneType</span>::<span class="ident">Driving</span>,
+                        <span class="prelude-val">None</span>,
                         <span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;driving&quot;</span>, <span class="ident">LaneType</span>::<span class="ident">Driving</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;parking&quot;</span>, <span class="ident">LaneType</span>::<span class="ident">Parking</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bike&quot;</span>, <span class="ident">LaneType</span>::<span class="ident">Biking</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bus&quot;</span>, <span class="ident">LaneType</span>::<span class="ident">Bus</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;construction&quot;</span>, <span class="ident">LaneType</span>::<span class="ident">Construction</span>),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;---&quot;</span>, <span class="prelude-val">None</span>),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;driving&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>)),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;parking&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Parking</span>)),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bike&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>)),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bus&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Bus</span>)),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;construction&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Construction</span>)),
                         ],
                     ),
                     <span class="string">&quot;lanes to&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;to lt&quot;</span>,
-                        <span class="ident">LaneType</span>::<span class="ident">Bus</span>,
+                        <span class="prelude-val">None</span>,
                         <span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;driving&quot;</span>, <span class="ident">LaneType</span>::<span class="ident">Driving</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;parking&quot;</span>, <span class="ident">LaneType</span>::<span class="ident">Parking</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bike&quot;</span>, <span class="ident">LaneType</span>::<span class="ident">Biking</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bus&quot;</span>, <span class="ident">LaneType</span>::<span class="ident">Bus</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;construction&quot;</span>, <span class="ident">LaneType</span>::<span class="ident">Construction</span>),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;---&quot;</span>, <span class="prelude-val">None</span>),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;driving&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>)),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;parking&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Parking</span>)),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bike&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>)),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bus&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Bus</span>)),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;construction&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Construction</span>)),
                         ],
                     ),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Confirm&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;confirm lanes&quot;</span>, <span class="prelude-val">None</span>)
-                        .<span class="ident">align_right</span>(),
+                    <span class="comment">// TODO Add another transformation</span>
                 ]),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Quit&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+                {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;don&#39;t change&quot;</span>, <span class="prelude-val">None</span>)];
+                    <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">speed_limit_choices</span>() {
+                        <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">c</span>.<span class="ident">label</span>, <span class="prelude-val">Some</span>(<span class="ident">c</span>.<span class="ident">data</span>)));
+                    }
+                    <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="string">&quot;Change speed limit:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                        <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;speed limit&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">choices</span>),
+                    ])
+                },
+                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)),
+                    <span class="ident">Btn</span>::<span class="ident">plaintext_custom</span>(
+                        <span class="string">&quot;Cancel&quot;</span>,
+                        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>))),
+                    )
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                    .<span class="ident">align_right</span>(),
+                ]),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
@@ -413,30 +461,52 @@
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Quit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
-                }
-                <span class="string">&quot;confirm speed limit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;speed limit&quot;</span>);
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
-                        <span class="ident">edits</span>
-                            .<span class="ident">commands</span>
-                            .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                                <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">speed</span>;
-                            }));
+                <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="self">self</span>
+                        .<span class="ident">panel</span>
+                        .<span class="ident">dropdown_value</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;speed limit&quot;</span>)
+                        .<span class="ident">is_none</span>()
+                        <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>
+                            .<span class="ident">panel</span>
+                            .<span class="ident">dropdown_value</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;from lt&quot;</span>)
+                            .<span class="ident">is_none</span>()
+                        <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>
+                            .<span class="ident">panel</span>
+                            .<span class="ident">dropdown_value</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;to lt&quot;</span>)
+                            .<span class="ident">is_none</span>()
+                    {
+                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                     }
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ConfirmDiscard</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> {})));
                 }
-                <span class="string">&quot;confirm lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">change_lane_types</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>,
+                <span class="string">&quot;Finish&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">speed</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;speed limit&quot;</span>) {
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+                        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
+                            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">speed_limit</span> <span class="op">!</span><span class="op">=</span> <span class="ident">speed</span> {
+                                <span class="ident">edits</span>
+                                    .<span class="ident">commands</span>
+                                    .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
+                                        <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">speed</span>;
+                                    }));
+                            }
+                        }
+                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                    }
+                    <span class="comment">// TODO In both cases, mention what speed limit changes happened</span>
+                    <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">from</span>), <span class="prelude-val">Some</span>(<span class="ident">to</span>)) <span class="op">=</span> (
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;from lt&quot;</span>),
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;to lt&quot;</span>),
-                    ));
+                    ) {
+                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">change_lane_types</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>,
+                            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>,
+                            <span class="ident">from</span>,
+                            <span class="ident">to</span>,
+                        ));
+                    }
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },

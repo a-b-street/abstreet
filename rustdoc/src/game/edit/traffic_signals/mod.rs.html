@@ -1558,7 +1558,7 @@
             <span class="string">&quot;Cancel&quot;</span>,
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>))),
         )
-        .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+        .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
         .<span class="ident">align_right</span>(),
     ];
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[

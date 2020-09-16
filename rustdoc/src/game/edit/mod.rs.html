@@ -828,14 +828,6 @@
 <span id="828">828</span>
 <span id="829">829</span>
 <span id="830">830</span>
-<span id="831">831</span>
-<span id="832">832</span>
-<span id="833">833</span>
-<span id="834">834</span>
-<span id="835">835</span>
-<span id="836">836</span>
-<span id="837">837</span>
-<span id="838">838</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">bulk</span>;
 <span class="kw">mod</span> <span class="ident">cluster_traffic_signals</span>;
@@ -1491,8 +1483,8 @@
         <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">is_light_rail</span>()
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_speed_limit</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">default</span>: <span class="ident">Speed</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">speed_limit_choices</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;10 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>)),
         <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;15 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">15.0</span>)),
         <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;20 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">20.0</span>)),
@@ -1507,15 +1499,7 @@
         <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;65 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">65.0</span>)),
         <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;70 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">70.0</span>)),
         <span class="comment">// Don&#39;t need anything higher. Though now I kind of miss 3am drives on TX-71...</span>
-    ];
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">choices</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">data</span> <span class="op">=</span><span class="op">=</span> <span class="ident">default</span>) {
-        <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">default</span>.<span class="ident">to_string</span>(), <span class="ident">default</span>));
-    }
-
-    <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="string">&quot;Change speed limit:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-        <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;speed limit&quot;</span>, <span class="ident">default</span>, <span class="ident">choices</span>),
-    ])
+    ]
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_edit_intersection</span>(
