@@ -346,6 +346,8 @@
 <span id="346">346</span>
 <span id="347">347</span>
 <span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
@@ -377,14 +379,16 @@
 }
 
 <span class="kw">impl</span> <span class="ident">RoadSelector</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RoadSelector</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RoadSelector</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="ident">RoadSelector</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rs</span> <span class="op">=</span> <span class="ident">RoadSelector</span> {
             <span class="ident">roads</span>,
             <span class="ident">preview</span>: <span class="prelude-val">None</span>,
             <span class="ident">mode</span>: <span class="ident">Mode</span>::<span class="ident">Paint</span>,
             <span class="ident">dragging</span>: <span class="bool-val">false</span>,
-        }
+        };
+        <span class="ident">rs</span>.<span class="ident">roads_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">rs</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {

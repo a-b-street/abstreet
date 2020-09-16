@@ -269,7 +269,7 @@
 
         <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="ident">legend</span>) <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">members</span>);
         <span class="kw">let</span> <span class="ident">orig_members</span> <span class="op">=</span> <span class="ident">members</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">RoadSelector</span>::<span class="ident">new</span>(<span class="ident">app</span>, <span class="ident">members</span>);
+        <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">RoadSelector</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">members</span>);
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ZoneEditor</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[

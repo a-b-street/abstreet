@@ -216,6 +216,15 @@
 <span id="216">216</span>
 <span id="217">217</span>
 <span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
@@ -229,7 +238,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>,
+    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
     <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -274,7 +283,6 @@
                 <span class="ident">Key</span>::<span class="ident">C</span>,
                 <span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span>,
             ),
-            (<span class="string">&quot;contraflow&quot;</span>, <span class="string">&quot;reverse lane direction&quot;</span>, <span class="ident">Key</span>::<span class="ident">F</span>, <span class="bool-val">true</span>),
         ] {
             <span class="ident">row</span>.<span class="ident">push</span>(<span class="kw">if</span> <span class="ident">active</span> {
                 <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/assets/edit/{}.svg&quot;</span>, <span class="ident">icon</span>)).<span class="ident">build</span>(
@@ -283,23 +291,26 @@
                     <span class="ident">hotkey</span>(<span class="ident">key</span>),
                 )
             } <span class="kw">else</span> {
-                <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/assets/edit/{}.svg&quot;</span>, <span class="ident">icon</span>),
-                    <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>)),
-                )
+                <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/assets/edit/{}.svg&quot;</span>, <span class="ident">icon</span>))
+                    .<span class="ident">container</span>()
+                    .<span class="ident">padding</span>(<span class="number">5</span>)
+                    .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
             });
         }
 
         <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;Convert this lane of {} to what type?&quot;</span>,
-                <span class="ident">parent</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>())
-            )
-            .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_horiz</span>(),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Editing {}&quot;</span>, <span class="ident">l</span>)).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Btn</span>::<span class="ident">plaintext_custom</span>(
+                    <span class="string">&quot;Edit multiple lanes&quot;</span>,
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;+ Edit multiple&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>))),
+                )
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>)),
+            ]),
+            <span class="string">&quot;Type of lane&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">centered</span>(),
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;reverse direction&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)),
             <span class="ident">change_speed_limit</span>(<span class="ident">ctx</span>, <span class="ident">parent</span>.<span class="ident">speed_limit</span>),
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Change access restrictions&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">A</span>)),
             <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
@@ -346,6 +357,13 @@
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;Edit multiple lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">bulk</span>::<span class="ident">BulkSelect</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>,
+                    ));
+                }
                 <span class="string">&quot;Change access restrictions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ZoneEditor</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
@@ -359,7 +377,7 @@
                 <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
                     <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">x</span> {
-                        <span class="string">&quot;reverse lane direction&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">reverse_lane</span>(<span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>)),
+                        <span class="string">&quot;reverse direction&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">reverse_lane</span>(<span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>)),
                         <span class="string">&quot;convert to a driving lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="ident">LaneType</span>::<span class="ident">Driving</span>)
                         }
