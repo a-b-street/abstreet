@@ -10,7 +10,7 @@ use crate::render::Renderable;
 use crate::sandbox::GameplayMode;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
-    hotkey, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, RewriteColor,
+    hotkey, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
     TextExt, VerticalAlignment, Widget,
 };
 
@@ -55,7 +55,6 @@ impl LaneEditor {
                 Key::C,
                 lt != LaneType::Construction,
             ),
-            ("contraflow", "reverse lane direction", Key::F, true),
         ] {
             row.push(if active {
                 Btn::svg_def(format!("system/assets/edit/{}.svg", icon)).build(
@@ -64,23 +63,26 @@ impl LaneEditor {
                     hotkey(key),
                 )
             } else {
-                Widget::draw_svg_transform(
-                    ctx,
-                    &format!("system/assets/edit/{}.svg", icon),
-                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                )
+                Widget::draw_svg(ctx, &format!("system/assets/edit/{}.svg", icon))
+                    .container()
+                    .padding(5)
+                    .outline(2.0, Color::WHITE)
             });
         }
 
         let parent = app.primary.map.get_parent(l);
         let col = vec![
-            format!(
-                "Convert this lane of {} to what type?",
-                parent.get_name(app.opts.language.as_ref())
-            )
-            .draw_text(ctx)
-            .centered_horiz(),
+            Widget::row(vec![
+                Line(format!("Editing {}", l)).small_heading().draw(ctx),
+                Btn::plaintext_custom(
+                    "Edit multiple lanes",
+                    Text::from(Line("+ Edit multiple").fg(Color::hex("#4CA7E9"))),
+                )
+                .build_def(ctx, hotkey(Key::M)),
+            ]),
+            "Type of lane".draw_text(ctx),
             Widget::custom_row(row).centered(),
+            Btn::text_fg("reverse direction").build_def(ctx, hotkey(Key::F)),
             change_speed_limit(ctx, parent.speed_limit),
             Btn::text_fg("Change access restrictions").build_def(ctx, hotkey(Key::A)),
             Btn::text_bg2("Finish").build_def(ctx, hotkey(Key::Escape)),
@@ -127,6 +129,13 @@ impl State for LaneEditor {
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
+                "Edit multiple lanes" => {
+                    return Transition::Replace(crate::edit::bulk::BulkSelect::new(
+                        ctx,
+                        app,
+                        app.primary.map.get_l(self.l).parent,
+                    ));
+                }
                 "Change access restrictions" => {
                     return Transition::Push(ZoneEditor::new(
                         ctx,
@@ -140,7 +149,7 @@ impl State for LaneEditor {
                 x => {
                     let map = &mut app.primary.map;
                     let result = match x {
-                        "reverse lane direction" => Ok(reverse_lane(map, self.l)),
+                        "reverse direction" => Ok(reverse_lane(map, self.l)),
                         "convert to a driving lane" => {
                             try_change_lt(ctx, map, self.l, LaneType::Driving)
                         }

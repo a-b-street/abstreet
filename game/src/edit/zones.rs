@@ -44,7 +44,7 @@ impl ZoneEditor {
 
         let (unzoomed, zoomed, legend) = draw_zone(ctx, app, &members);
         let orig_members = members.clone();
-        let selector = RoadSelector::new(app, members);
+        let selector = RoadSelector::new(ctx, app, members);
 
         Box::new(ZoneEditor {
             panel: Panel::new(Widget::col(vec![

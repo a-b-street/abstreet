@@ -4,7 +4,7 @@ use crate::edit::{apply_map_edits, change_speed_limit, try_change_lt};
 use crate::game::{PopupMsg, State, Transition};
 use geom::Speed;
 use map_model::{LaneType, RoadID};
-use std::collections::BTreeSet;
+use maplit::btreeset;
 use widgetry::{
     hotkey, hotkeys, Btn, Choice, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, TextExt, VerticalAlignment, Widget,
@@ -16,8 +16,8 @@ pub struct BulkSelect {
 }
 
 impl BulkSelect {
-    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
-        let selector = RoadSelector::new(app, BTreeSet::new());
+    pub fn new(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State> {
+        let selector = RoadSelector::new(ctx, app, btreeset! {start});
         let panel = make_select_panel(ctx, app, &selector);
         Box::new(BulkSelect { panel, selector })
     }

@@ -59,7 +59,7 @@ impl EditMode {
         let layer = crate::layer::map::Static::edits(ctx, app);
         Box::new(EditMode {
             tool_panel: tool_panel(ctx),
-            top_center: make_topcenter(ctx, app, &mode),
+            top_center: make_topcenter(ctx, app),
             changelist: make_changelist(ctx, app),
             orig_edits: edits.clone(),
             orig_dirty,
@@ -157,9 +157,6 @@ impl State for EditMode {
 
         match self.top_center.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "bulk edit" => {
-                    return Transition::Push(bulk::BulkSelect::new(ctx, app));
-                }
                 "finish editing" => {
                     return self.quit(ctx, app);
                 }
@@ -586,24 +583,17 @@ impl State for LoadEdits {
     }
 }
 
-fn make_topcenter(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Panel {
+fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
     Panel::new(Widget::col(vec![
         Line("Editing map")
             .small_heading()
             .draw(ctx)
             .centered_horiz(),
-        Widget::row(vec![
-            if mode.can_edit_lanes() {
-                Btn::text_fg("bulk edit").build_def(ctx, hotkey(Key::B))
-            } else {
-                Btn::text_fg("bulk edit").inactive(ctx)
-            },
-            Btn::text_bg2(format!(
-                "Finish & resume from {}",
-                app.suspended_sim.as_ref().unwrap().time().ampm_tostring()
-            ))
-            .build(ctx, "finish editing", hotkey(Key::Escape)),
-        ]),
+        Btn::text_bg2(format!(
+            "Finish & resume from {}",
+            app.suspended_sim.as_ref().unwrap().time().ampm_tostring()
+        ))
+        .build(ctx, "finish editing", hotkey(Key::Escape)),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)

@@ -28,14 +28,16 @@ pub enum Mode {
 }
 
 impl RoadSelector {
-    pub fn new(app: &mut App, roads: BTreeSet<RoadID>) -> RoadSelector {
+    pub fn new(ctx: &mut EventCtx, app: &mut App, roads: BTreeSet<RoadID>) -> RoadSelector {
         app.primary.current_selection = None;
-        RoadSelector {
+        let mut rs = RoadSelector {
             roads,
             preview: None,
             mode: Mode::Paint,
             dragging: false,
-        }
+        };
+        rs.roads_changed(ctx, app);
+        rs
     }
 
     pub fn make_controls(&self, ctx: &mut EventCtx) -> Widget {
