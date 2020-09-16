@@ -644,6 +644,7 @@
 <span id="644">644</span>
 <span id="645">645</span>
 <span id="646">646</span>
+<span id="647">647</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">analytics</span>;
 <span class="kw">mod</span> <span class="ident">cap</span>;
@@ -970,6 +971,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ParkedCar</span> {
     <span class="kw">pub</span> <span class="ident">vehicle</span>: <span class="ident">Vehicle</span>,
     <span class="kw">pub</span> <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>,
+    <span class="kw">pub</span> <span class="ident">parked_since</span>: <span class="ident">Time</span>,
 }
 
 <span class="comment">// It&#39;d be nice to inline the goal_pos like SidewalkSpot does, but DrivingGoal is persisted in</span>

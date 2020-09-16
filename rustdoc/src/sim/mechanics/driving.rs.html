@@ -1036,6 +1036,7 @@
 <span id="1036">1036</span>
 <span id="1037">1037</span>
 <span id="1038">1038</span>
+<span id="1039">1039</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::{<span class="ident">Car</span>, <span class="ident">CarState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
@@ -1593,6 +1594,7 @@
                 <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">add_parked_car</span>(<span class="ident">ParkedCar</span> {
                     <span class="ident">vehicle</span>: <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">clone</span>(),
                     <span class="ident">spot</span>,
+                    <span class="ident">parked_since</span>: <span class="ident">now</span>,
                 });
                 <span class="ident">trips</span>.<span class="ident">car_reached_parking_spot</span>(
                     <span class="ident">now</span>,

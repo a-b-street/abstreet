@@ -1673,6 +1673,10 @@
 <span id="1673">1673</span>
 <span id="1674">1674</span>
 <span id="1675">1675</span>
+<span id="1676">1676</span>
+<span id="1677">1677</span>
+<span id="1678">1678</span>
+<span id="1679">1679</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sim</span>::<span class="ident">Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -2460,7 +2464,11 @@
                             ),
                         ));
                         <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">reserve_spot</span>(<span class="ident">spot</span>);
-                        <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">add_parked_car</span>(<span class="ident">ParkedCar</span> { <span class="ident">vehicle</span>, <span class="ident">spot</span> });
+                        <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">add_parked_car</span>(<span class="ident">ParkedCar</span> {
+                            <span class="ident">vehicle</span>,
+                            <span class="ident">spot</span>,
+                            <span class="ident">parked_since</span>: <span class="ident">now</span>,
+                        });
                     } <span class="kw">else</span> {
                         <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
                             <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">person</span>),
