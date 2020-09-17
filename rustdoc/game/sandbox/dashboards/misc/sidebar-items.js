@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ActiveTraffic",""],["TransitRoutes",""]]});
+initSidebarItems({"fn":[["downsample",""]],"struct":[["ActiveTraffic",""],["TransitRoutes",""]]});
