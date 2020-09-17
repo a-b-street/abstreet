@@ -4,6 +4,7 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::{prettyprint_usize, Counter};
+use geom::Time;
 use map_model::BusRouteID;
 use widgetry::{
     Autocomplete, Btn, EventCtx, GfxCtx, Line, LinePlot, Outcome, Panel, PlotOptions, Series,
@@ -16,22 +17,28 @@ pub struct ActiveTraffic {
 
 impl ActiveTraffic {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        // TODO Downsampling in the middle of the day and comparing to the downsampled entire day
+        // doesn't work. For the same simulation, by end of day, the plots will be identical, but
+        // until then, they'll differ. See https://github.com/dabreegster/abstreet/issues/85 for
+        // more details on the "downsampling subset" problem.
         let mut active_agents = vec![Series {
             label: format!("After \"{}\"", app.primary.map.get_edits().edits_name),
             color: app.cs.after_changes,
-            pts: app
-                .primary
-                .sim
-                .get_analytics()
-                .active_agents(app.primary.sim.time()),
+            pts: downsample(
+                app.primary
+                    .sim
+                    .get_analytics()
+                    .active_agents(app.primary.sim.time()),
+            ),
         }];
         if app.has_prebaked().is_some() {
             active_agents.push(Series {
                 label: format!("Before \"{}\"", app.primary.map.get_edits().edits_name),
                 color: app.cs.before_changes.alpha(0.5),
-                pts: app
-                    .prebaked()
-                    .active_agents(app.primary.sim.get_end_of_day()),
+                pts: downsample(
+                    app.prebaked()
+                        .active_agents(app.primary.sim.get_end_of_day()),
+                ),
             });
         }
 
@@ -62,6 +69,33 @@ impl State for ActiveTraffic {
         g.clear(app.cs.grass);
         self.panel.draw(g);
     }
+}
+
+fn downsample(raw: Vec<(Time, usize)>) -> Vec<(Time, usize)> {
+    if raw.is_empty() {
+        return raw;
+    }
+
+    let min_x = Time::START_OF_DAY;
+    let min_y = 0;
+    let max_x = raw.last().unwrap().0;
+    let max_y = raw.iter().max_by_key(|(_, cnt)| *cnt).unwrap().1;
+
+    let mut pts = Vec::new();
+    for (t, cnt) in raw {
+        pts.push(lttb::DataPoint::new(
+            (t - min_x) / (max_x - min_x),
+            ((cnt - min_y) as f64) / ((max_y - min_y) as f64),
+        ));
+    }
+    let mut downsampled = Vec::new();
+    for pt in lttb::lttb(pts, 100) {
+        downsampled.push((
+            max_x.percent_of(pt.x),
+            min_y + (pt.y * (max_y - min_y) as f64) as usize,
+        ));
+    }
+    downsampled
 }
 
 pub struct TransitRoutes {
