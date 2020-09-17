@@ -7,7 +7,6 @@ use map_model::{IntersectionID, Stage, TurnPriority, SIDEWALK_THICKNESS};
 use std::collections::BTreeSet;
 use widgetry::{Color, GeomBatch, Line, Prerender, RewriteColor, Text};
 
-// Only draws a box when time_left is present
 pub fn draw_signal_stage(
     prerender: &Prerender,
     stage: &Stage,
@@ -133,9 +132,6 @@ pub fn draw_signal_stage(
                     .scale(0.075)
                     .centered_on(center),
             );
-
-            // No time_left box
-            return;
         }
         TrafficSignalStyle::Yuwen => {
             for m in &stage.yield_movements {
@@ -167,6 +163,9 @@ pub fn draw_signal_stage(
                     );
                 }
             }
+            if let Some(t) = time_left {
+                draw_time_left(app, prerender, stage, i, idx, t, batch);
+            }
         }
         TrafficSignalStyle::IndividualTurnArrows => {
             for turn in app.primary.map.get_turns_in_intersection(i) {
@@ -194,16 +193,25 @@ pub fn draw_signal_stage(
                     TurnPriority::Banned => {}
                 }
             }
+            if let Some(t) = time_left {
+                draw_time_left(app, prerender, stage, i, idx, t, batch);
+            }
         }
     }
+}
 
-    if time_left.is_none() {
-        return;
-    }
-
+fn draw_time_left(
+    app: &App,
+    prerender: &Prerender,
+    stage: &Stage,
+    i: IntersectionID,
+    idx: usize,
+    time_left: Duration,
+    batch: &mut GeomBatch,
+) {
     let radius = Distance::meters(2.0);
     let center = app.primary.map.get_i(i).polygon.center();
-    let percent = time_left.unwrap() / stage.phase_type.simple_duration();
+    let percent = time_left / stage.phase_type.simple_duration();
     batch.push(
         app.cs.signal_box,
         Circle::new(center, 1.2 * radius).to_polygon(),
@@ -215,6 +223,12 @@ pub fn draw_signal_stage(
     batch.push(
         app.cs.signal_spinner,
         Circle::new(center, radius).to_partial_polygon(percent),
+    );
+    batch.append(
+        Text::from(Line(format!("{}", idx + 1)))
+            .render_to_batch(prerender)
+            .scale(0.1)
+            .centered_on(center),
     );
 }
 

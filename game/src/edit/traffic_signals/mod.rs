@@ -7,13 +7,13 @@ use crate::common::CommonState;
 use crate::edit::{apply_map_edits, ConfirmDiscard};
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::options::TrafficSignalStyle;
-use crate::render::{draw_signal_stage, DrawMovement, DrawOptions, BIG_ARROW_THICKNESS};
+use crate::render::{draw_signal_stage, DrawMovement, DrawOptions};
 use crate::sandbox::GameplayMode;
 use abstutil::Timer;
-use geom::{ArrowCap, Distance, Duration, Line, Polygon, Pt2D};
+use geom::{Distance, Duration, Line, Polygon, Pt2D};
 use map_model::{
-    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Movement, MovementID,
-    PhaseType, Stage, TurnPriority,
+    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, PhaseType, Stage,
+    TurnPriority,
 };
 use std::collections::{BTreeSet, HashMap, VecDeque};
 use widgetry::{
@@ -175,10 +175,9 @@ impl TrafficSignalEditor {
                 .map(|(id, _)| *id == m.id)
                 .unwrap_or(false)
             {
-                draw_selected_movement(
+                m.draw_selected_movement(
                     app,
                     &mut batch,
-                    m,
                     &signal.movements[&m.id],
                     self.movement_selected.unwrap().1,
                 );
@@ -894,68 +893,6 @@ fn draw_multiple_signals(
     let bounds = batch.get_bounds();
     let zoom = (300.0 / bounds.width()).min(300.0 / bounds.height());
     batch.scale(zoom)
-}
-
-fn draw_selected_movement(
-    app: &App,
-    batch: &mut GeomBatch,
-    g: &DrawMovement,
-    m: &Movement,
-    next_priority: Option<TurnPriority>,
-) {
-    // TODO Refactor this mess. Maybe after things like "dashed with outline" can be expressed more
-    // composably like SVG, using lyon.
-    let block_color = match next_priority {
-        Some(TurnPriority::Protected) => {
-            let green = Color::hex("#72CE36");
-            let arrow = m.geom.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
-            batch.push(green.alpha(0.5), arrow.clone());
-            if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
-                batch.push(green, p);
-            }
-            green
-        }
-        Some(TurnPriority::Yield) => {
-            batch.extend(
-                // TODO Ideally the inner part would be the lower opacity blue, but can't yet
-                // express that it should cover up the thicker solid blue beneath it
-                Color::BLACK.alpha(0.8),
-                m.geom.dashed_arrow(
-                    BIG_ARROW_THICKNESS,
-                    Distance::meters(1.2),
-                    Distance::meters(0.3),
-                    ArrowCap::Triangle,
-                ),
-            );
-            batch.extend(
-                app.cs.signal_permitted_turn.alpha(0.8),
-                m.geom
-                    .exact_slice(
-                        Distance::meters(0.1),
-                        m.geom.length() - Distance::meters(0.1),
-                    )
-                    .dashed_arrow(
-                        BIG_ARROW_THICKNESS / 2.0,
-                        Distance::meters(1.0),
-                        Distance::meters(0.5),
-                        ArrowCap::Triangle,
-                    ),
-            );
-            app.cs.signal_permitted_turn
-        }
-        Some(TurnPriority::Banned) => {
-            let red = Color::hex("#EB3223");
-            let arrow = m.geom.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
-            batch.push(red.alpha(0.5), arrow.clone());
-            if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
-                batch.push(red, p);
-            }
-            red
-        }
-        None => app.cs.signal_turn_block_bg,
-    };
-    batch.push(block_color, g.block.clone());
-    batch.push(Color::WHITE, g.arrow.clone());
 }
 
 // TODO Move to geom?

@@ -1,7 +1,6 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
-use crate::options::TrafficSignalStyle;
 use crate::render::{
     draw_signal_stage, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
@@ -11,7 +10,7 @@ use map_model::{
     RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
 };
 use std::cell::RefCell;
-use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, RewriteColor, Text};
+use widgetry::{Color, Drawable, GeomBatch, GfxCtx, RewriteColor};
 
 pub struct DrawIntersection {
     pub id: IntersectionID,
@@ -161,14 +160,6 @@ impl Renderable for DrawIntersection {
                         app,
                         app.opts.traffic_signal_style.clone(),
                     );
-                    if app.opts.traffic_signal_style != TrafficSignalStyle::BAP {
-                        batch.append(
-                            Text::from(Line(format!("{}", idx + 1)))
-                                .render_to_batch(g.prerender)
-                                .scale(0.1)
-                                .centered_on(app.primary.map.get_i(self.id).polygon.center()),
-                        );
-                    }
                     *maybe_redraw = Some((app.primary.sim.time(), g.prerender.upload(batch)));
                 }
                 let (_, batch) = maybe_redraw.as_ref().unwrap();
