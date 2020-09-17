@@ -20,7 +20,7 @@ use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
+use widgetry::{Color, Drawable, EventCtx, FancyColor, GeomBatch, GfxCtx, Prerender, Texture};
 
 pub struct DrawMap {
     pub roads: Vec<DrawRoad>,
@@ -133,10 +133,12 @@ impl DrawMap {
         let draw_all_areas = all_areas.upload(ctx);
         timer.stop("upload all areas");
 
-        let boundary_polygon = ctx.upload(GeomBatch::from(vec![(
-            cs.map_background,
+        let mut boundary_batch = GeomBatch::new();
+        boundary_batch.fancy_push(
+            FancyColor::Texture(Texture::CONCRETE),
             map.get_boundary_polygon().clone(),
-        )]));
+        );
+        let boundary_polygon = ctx.upload(boundary_batch);
 
         timer.start("create quadtree");
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
