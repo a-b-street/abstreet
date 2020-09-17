@@ -317,24 +317,6 @@
 <span id="317">317</span>
 <span id="318">318</span>
 <span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>;
@@ -391,9 +373,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TrafficSignalStyle</span> {
     <span class="ident">BAP</span>,
-    <span class="ident">GroupArrows</span>,
-    <span class="ident">Sidewalks</span>,
-    <span class="ident">Icons</span>,
+    <span class="ident">Yuwen</span>,
     <span class="ident">IndividualTurnArrows</span>,
 }
 
@@ -465,24 +445,8 @@
                             <span class="string">&quot;Traffic signal rendering&quot;</span>,
                             <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">traffic_signal_style</span>.<span class="ident">clone</span>(),
                             <span class="macro">vec</span><span class="macro">!</span>[
-                                <span class="ident">Choice</span>::<span class="ident">new</span>(
-                                    <span class="string">&quot;Brian&#39;s variation of arrows showing the protected and \
-                                     permitted movements&quot;</span>,
-                                    <span class="ident">TrafficSignalStyle</span>::<span class="ident">BAP</span>,
-                                ),
-                                <span class="ident">Choice</span>::<span class="ident">new</span>(
-                                    <span class="string">&quot;arrows showing the protected and permitted movements&quot;</span>,
-                                    <span class="ident">TrafficSignalStyle</span>::<span class="ident">GroupArrows</span>,
-                                ),
-                                <span class="ident">Choice</span>::<span class="ident">new</span>(
-                                    <span class="string">&quot;arrows showing the protected and permitted movements, with \
-                                     sidewalks&quot;</span>,
-                                    <span class="ident">TrafficSignalStyle</span>::<span class="ident">Sidewalks</span>,
-                                ),
-                                <span class="ident">Choice</span>::<span class="ident">new</span>(
-                                    <span class="string">&quot;icons for movements (like the editor UI)&quot;</span>,
-                                    <span class="ident">TrafficSignalStyle</span>::<span class="ident">Icons</span>,
-                                ),
+                                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Default (Brian&#39;s style)&quot;</span>, <span class="ident">TrafficSignalStyle</span>::<span class="ident">BAP</span>),
+                                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Yuwen&#39;s style&quot;</span>, <span class="ident">TrafficSignalStyle</span>::<span class="ident">Yuwen</span>),
                                 <span class="ident">Choice</span>::<span class="ident">new</span>(
                                     <span class="string">&quot;arrows showing individual turns (to debug)&quot;</span>,
                                     <span class="ident">TrafficSignalStyle</span>::<span class="ident">IndividualTurnArrows</span>,
