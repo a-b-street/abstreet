@@ -352,8 +352,8 @@
             <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> (<span class="ident">rand_nums</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>() <span class="op">/</span> <span class="ident">sum</span> <span class="op">*</span> (<span class="ident">num_residents</span> <span class="kw">as</span> <span class="ident">f64</span>)) <span class="kw">as</span> <span class="ident">usize</span>;
             <span class="kw">let</span> <span class="ident">bldg_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">bldg_type</span> {
                 <span class="ident">map_model</span>::<span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map_model</span>::<span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="ident">n</span>),
-                <span class="ident">map_model</span>::<span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">map_model</span>::<span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">n</span>)
+                <span class="ident">map_model</span>::<span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="kw">_</span>, <span class="ident">worker_cap</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">map_model</span>::<span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">n</span>, <span class="ident">worker_cap</span>)
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             };

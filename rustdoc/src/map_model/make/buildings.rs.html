@@ -198,6 +198,25 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">match_points_to_lanes</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">RawBuilding</span>;
@@ -318,26 +337,38 @@
 <span class="kw">fn</span> <span class="ident">classify_bldg</span>(
     <span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>,
     <span class="ident">amenities</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">NamePerLanguage</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
-    <span class="ident">area_sq_meters</span>: <span class="ident">f64</span>,
+    <span class="ident">ground_area_sq_meters</span>: <span class="ident">f64</span>,
     <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BuildingType</span> {
     <span class="comment">// used: top values from https://taginfo.openstreetmap.org/keys/building#values (&gt;100k uses)</span>
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">commercial</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="ident">workers</span>;
+
+    <span class="comment">// TODO is it worth using height or building:height as an alternative if not tagged?</span>
+    <span class="kw">let</span> <span class="ident">levels</span> <span class="op">=</span> <span class="ident">tags</span>
+        .<span class="ident">get</span>(<span class="string">&quot;building:levels&quot;</span>)
+        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>())
+        .<span class="ident">unwrap_or</span>(<span class="number">1.0</span>);
+    <span class="kw">let</span> <span class="ident">area_sq_meters</span> <span class="op">=</span> <span class="ident">levels</span> <span class="op">*</span> <span class="ident">ground_area_sq_meters</span>;
 
     <span class="comment">// These are (name, amenity type) pairs, produced by get_bldg_amenities in</span>
     <span class="comment">// convert_osm/src/osm_reader.rs.</span>
+    <span class="comment">// TODO: is it safe to assume all amenities are commercial?</span>
+    <span class="comment">// TODO: consider converting amenities to an enum - maybe with a catchall case for the long</span>
+    <span class="comment">//       tail of rarely used enums.</span>
     <span class="kw">if</span> <span class="op">!</span><span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
         <span class="ident">commercial</span> <span class="op">=</span> <span class="bool-val">true</span>;
     }
 
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;ruins&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
         <span class="kw">if</span> <span class="ident">commercial</span> {
-            <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">Commercial</span>;
+            <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">Commercial</span>(<span class="number">0</span>);
         }
         <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">Empty</span>;
     }
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">residents</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">workers</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
 
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(
         <span class="string">&quot;building&quot;</span>,
@@ -351,7 +382,11 @@
             <span class="string">&quot;public&quot;</span>,
         ],
     ) {
-        <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">Commercial</span>;
+        <span class="comment">// 1 person per 10 square meters</span>
+        <span class="comment">// TODO: Hone in this parameter. Space per person varies with (among other things):</span>
+        <span class="comment">//  - building type. e.g. office vs. warehouse</span>
+        <span class="comment">//  - regional/cultural norms</span>
+        <span class="ident">workers</span> <span class="op">=</span> (<span class="ident">area_sq_meters</span> <span class="op">/</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">usize</span>;
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(
         <span class="string">&quot;building&quot;</span>,
         <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;school&quot;</span>, <span class="string">&quot;university&quot;</span>, <span class="string">&quot;construction&quot;</span>, <span class="string">&quot;church&quot;</span>],
@@ -376,28 +411,31 @@
         <span class="string">&quot;building&quot;</span>,
         <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;house&quot;</span>, <span class="string">&quot;detached&quot;</span>, <span class="string">&quot;semidetached_house&quot;</span>, <span class="string">&quot;farm&quot;</span>],
     ) {
-        <span class="ident">workers</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="number">3</span>);
+        <span class="ident">residents</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="number">3</span>);
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;building&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;hut&quot;</span>, <span class="string">&quot;static_caravan&quot;</span>, <span class="string">&quot;cabin&quot;</span>]) {
-        <span class="ident">workers</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="number">2</span>);
+        <span class="ident">residents</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="number">2</span>);
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;building&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;apartments&quot;</span>, <span class="string">&quot;terrace&quot;</span>, <span class="string">&quot;residential&quot;</span>]) {
-        <span class="kw">let</span> <span class="ident">levels</span> <span class="op">=</span> <span class="ident">tags</span>
-            .<span class="ident">get</span>(<span class="string">&quot;building:levels&quot;</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">ok</span>())
-            .<span class="ident">unwrap_or</span>(<span class="number">1</span>);
-        <span class="comment">// TODO is it worth using height or building:height as an alternative if not tagged?</span>
         <span class="comment">// 1 person per 10 square meters</span>
-        <span class="kw">let</span> <span class="ident">residents</span> <span class="op">=</span> (<span class="ident">levels</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">*</span> <span class="ident">area_sq_meters</span> <span class="op">/</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="ident">workers</span> <span class="op">=</span> (<span class="ident">residents</span> <span class="op">/</span> <span class="number">3</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+        <span class="comment">// TODO: Hone in this parameter. Space per person varies with (among other things):</span>
+        <span class="comment">//  - building type. e.g. apartment vs single family</span>
+        <span class="comment">//  - regional/cultural norms</span>
+        <span class="ident">residents</span> <span class="op">=</span> (<span class="ident">area_sq_meters</span> <span class="op">/</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">usize</span>;
     } <span class="kw">else</span> {
-        <span class="ident">workers</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="number">2</span>);
+        <span class="ident">residents</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="number">2</span>);
     }
+
+    <span class="kw">if</span> <span class="ident">commercial</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">workers</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="comment">// TODO: Come up with a better measure</span>
+        <span class="ident">workers</span> <span class="op">=</span> (<span class="ident">residents</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">3.0</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+    }
+
     <span class="kw">if</span> <span class="ident">commercial</span> {
-        <span class="kw">if</span> <span class="ident">workers</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">workers</span>);
+        <span class="kw">if</span> <span class="ident">residents</span> <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">residents</span>, <span class="ident">workers</span>);
         }
-        <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">Commercial</span>;
+        <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">Commercial</span>(<span class="ident">workers</span>);
     }
-    <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="ident">workers</span>);
+    <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="ident">residents</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "map_model";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

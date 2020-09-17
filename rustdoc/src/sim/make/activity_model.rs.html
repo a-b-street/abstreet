@@ -321,17 +321,6 @@
 <span id="321">321</span>
 <span id="322">322</span>
 <span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>,
@@ -355,34 +344,23 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_bldg_mixed_residential_commercial</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="kw">match</span> <span class="ident">b</span>.<span class="ident">bldg_type</span> {
-                <span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="ident">num_ppl</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="ident">num_ppl</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;empty Residential&quot;</span>);
-                    }
-
-                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_ppl</span> {
+                <span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="ident">resident_cap</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">resident_cap</span> {
                         <span class="ident">residents</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
                     }
                     <span class="ident">num_bldg_residential</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
-                <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">num_ppl</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="ident">num_ppl</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;empty ResidentialCommercial&quot;</span>);
-                    }
-                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_ppl</span> {
+                <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">resident_cap</span>, <span class="ident">worker_cap</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">resident_cap</span> {
                         <span class="ident">residents</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
-
-                        <span class="comment">// TODO: currently we just assume work capacity is the same as residential</span>
-                        <span class="comment">// capacity, which is surely not true. How can we better estimate?</span>
+                    }
+                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">worker_cap</span> {
                         <span class="ident">workers</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
                     }
                     <span class="ident">num_bldg_mixed_residential_commercial</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
-                <span class="ident">BuildingType</span>::<span class="ident">Commercial</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="comment">// TODO: currently we just assume some constant for jobs per building.</span>
-                    <span class="comment">// A better metrics might be available parking or building size</span>
-                    <span class="kw">let</span> <span class="ident">building_cap</span> <span class="op">=</span> <span class="ident">usize</span>::<span class="ident">pow</span>(<span class="number">2</span>, <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="number">7</span>));
-                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">building_cap</span> {
+                <span class="ident">BuildingType</span>::<span class="ident">Commercial</span>(<span class="ident">worker_cap</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">worker_cap</span> {
                         <span class="ident">workers</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
                     }
                     <span class="ident">num_bldg_commercial</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
