@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
-use crate::render::{DrawMovement, BIG_ARROW_THICKNESS};
+use crate::render::BIG_ARROW_THICKNESS;
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
 use map_model::{IntersectionID, Stage, TurnPriority, SIDEWALK_THICKNESS};
 use std::collections::BTreeSet;
@@ -137,53 +137,7 @@ pub fn draw_signal_stage(
             // No time_left box
             return;
         }
-        TrafficSignalStyle::GroupArrows => {
-            for m in &stage.yield_movements {
-                assert!(!m.crosswalk);
-                let arrow = signal.movements[m]
-                    .geom
-                    .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle);
-                batch.push(app.cs.signal_permitted_turn.alpha(0.3), arrow.clone());
-                if let Ok(p) = arrow.to_outline(BIG_ARROW_THICKNESS / 2.0) {
-                    batch.push(app.cs.signal_permitted_turn, p);
-                }
-            }
-            let mut dont_walk = BTreeSet::new();
-            for m in signal.movements.keys() {
-                if m.crosswalk {
-                    dont_walk.insert(m);
-                }
-            }
-            for m in &stage.protected_movements {
-                if !m.crosswalk {
-                    batch.push(
-                        app.cs.signal_protected_turn,
-                        signal.movements[m]
-                            .geom
-                            .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
-                    );
-                } else {
-                    let (center, angle) = crosswalk_icon(&signal.movements[m].geom);
-                    batch.append(
-                        GeomBatch::load_svg(prerender, "system/assets/map/walk.svg")
-                            .scale(0.07)
-                            .centered_on(center)
-                            .rotate(angle),
-                    );
-                    dont_walk.remove(m);
-                }
-            }
-            for m in dont_walk {
-                let (center, angle) = crosswalk_icon(&signal.movements[m].geom);
-                batch.append(
-                    GeomBatch::load_svg(prerender, "system/assets/map/dont_walk.svg")
-                        .scale(0.07)
-                        .centered_on(center)
-                        .rotate(angle),
-                );
-            }
-        }
-        TrafficSignalStyle::Sidewalks => {
+        TrafficSignalStyle::Yuwen => {
             for m in &stage.yield_movements {
                 assert!(!m.crosswalk);
                 let arrow = signal.movements[m]
@@ -196,6 +150,8 @@ pub fn draw_signal_stage(
             }
             for m in &stage.protected_movements {
                 if m.crosswalk {
+                    // TODO This only works on the side panel. On the full map, the crosswalks are
+                    // always drawn, so this awkwardly doubles some of them.
                     make_crosswalk(
                         batch,
                         app.primary.map.get_t(signal.movements[m].members[0]),
@@ -210,17 +166,6 @@ pub fn draw_signal_stage(
                             .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
                     );
                 }
-            }
-        }
-        TrafficSignalStyle::Icons => {
-            for m in DrawMovement::for_i(i, &app.primary.map) {
-                batch.push(app.cs.signal_turn_block_bg, m.block.clone());
-                let arrow_color = match stage.get_priority_of_movement(m.id) {
-                    TurnPriority::Protected => app.cs.signal_protected_turn,
-                    TurnPriority::Yield => app.cs.signal_permitted_turn.alpha(1.0),
-                    TurnPriority::Banned => app.cs.signal_banned_turn,
-                };
-                batch.push(arrow_color, m.arrow.clone());
             }
         }
         TrafficSignalStyle::IndividualTurnArrows => {

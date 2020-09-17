@@ -53,9 +53,7 @@ impl Options {
 #[derive(Clone, PartialEq, Debug)]
 pub enum TrafficSignalStyle {
     BAP,
-    GroupArrows,
-    Sidewalks,
-    Icons,
+    Yuwen,
     IndividualTurnArrows,
 }
 
@@ -127,24 +125,8 @@ impl OptionsPanel {
                             "Traffic signal rendering",
                             app.opts.traffic_signal_style.clone(),
                             vec![
-                                Choice::new(
-                                    "Brian's variation of arrows showing the protected and \
-                                     permitted movements",
-                                    TrafficSignalStyle::BAP,
-                                ),
-                                Choice::new(
-                                    "arrows showing the protected and permitted movements",
-                                    TrafficSignalStyle::GroupArrows,
-                                ),
-                                Choice::new(
-                                    "arrows showing the protected and permitted movements, with \
-                                     sidewalks",
-                                    TrafficSignalStyle::Sidewalks,
-                                ),
-                                Choice::new(
-                                    "icons for movements (like the editor UI)",
-                                    TrafficSignalStyle::Icons,
-                                ),
+                                Choice::new("Default (Brian's style)", TrafficSignalStyle::BAP),
+                                Choice::new("Yuwen's style", TrafficSignalStyle::Yuwen),
                                 Choice::new(
                                     "arrows showing individual turns (to debug)",
                                     TrafficSignalStyle::IndividualTurnArrows,

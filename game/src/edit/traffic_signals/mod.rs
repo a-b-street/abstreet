@@ -871,7 +871,7 @@ fn draw_multiple_signals(
             None,
             &mut piece,
             app,
-            TrafficSignalStyle::Sidewalks,
+            TrafficSignalStyle::Yuwen,
         );
         if members.len() > 1 && hovering.map(|x| x == *i).unwrap_or(false) {
             // TODO This makes the side-panel jump a little, because the outline slightly increases

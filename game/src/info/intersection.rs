@@ -283,7 +283,7 @@ pub fn traffic_signal(
                 None,
                 &mut orig_batch,
                 app,
-                TrafficSignalStyle::Sidewalks,
+                TrafficSignalStyle::Yuwen,
             );
 
             let mut normal = GeomBatch::new();
