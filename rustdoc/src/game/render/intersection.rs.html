@@ -415,20 +415,10 @@
 <span id="415">415</span>
 <span id="416">416</span>
 <span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">TrafficSignalStyle</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{
     <span class="ident">draw_signal_stage</span>, <span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>, <span class="ident">CROSSWALK_LINE_THICKNESS</span>, <span class="ident">OUTLINE_THICKNESS</span>,
 };
@@ -438,7 +428,7 @@
     <span class="ident">RoadWithStopSign</span>, <span class="ident">Turn</span>, <span class="ident">TurnType</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">RewriteColor</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawIntersection</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
@@ -588,14 +578,6 @@
                         <span class="ident">app</span>,
                         <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">traffic_signal_style</span>.<span class="ident">clone</span>(),
                     );
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">traffic_signal_style</span> <span class="op">!</span><span class="op">=</span> <span class="ident">TrafficSignalStyle</span>::<span class="ident">BAP</span> {
-                        <span class="ident">batch</span>.<span class="ident">append</span>(
-                            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)))
-                                .<span class="ident">render_to_batch</span>(<span class="ident">g</span>.<span class="ident">prerender</span>)
-                                .<span class="ident">scale</span>(<span class="number">0.1</span>)
-                                .<span class="ident">centered_on</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">id</span>).<span class="ident">polygon</span>.<span class="ident">center</span>()),
-                        );
-                    }
                     <span class="kw-2">*</span><span class="ident">maybe_redraw</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(), <span class="ident">g</span>.<span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)));
                 }
                 <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">batch</span>) <span class="op">=</span> <span class="ident">maybe_redraw</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
