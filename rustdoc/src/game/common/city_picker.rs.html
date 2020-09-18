@@ -228,9 +228,9 @@
             <span class="kw">let</span> <span class="ident">zoom</span> <span class="op">=</span> (<span class="number">0.8</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="ident">bounds</span>.<span class="ident">width</span>())
                 .<span class="ident">min</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="op">/</span> <span class="ident">bounds</span>.<span class="ident">height</span>());
 
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">map_background</span>, <span class="ident">city</span>.<span class="ident">boundary</span>);
+            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">map_background</span>.<span class="ident">clone</span>(), <span class="ident">city</span>.<span class="ident">boundary</span>);
             <span class="kw">for</span> (<span class="ident">area_type</span>, <span class="ident">polygon</span>) <span class="kw">in</span> <span class="ident">city</span>.<span class="ident">areas</span> {
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">DrawArea</span>::<span class="ident">color</span>(<span class="ident">area_type</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>), <span class="ident">polygon</span>);
+                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">DrawArea</span>::<span class="ident">fill</span>(<span class="ident">area_type</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>), <span class="ident">polygon</span>);
             }
 
             <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">polygon</span>) <span class="kw">in</span> <span class="ident">city</span>.<span class="ident">regions</span> {

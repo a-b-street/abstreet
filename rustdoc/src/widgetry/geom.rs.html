@@ -219,6 +219,8 @@
 <span id="219">219</span>
 <span id="220">220</span>
 <span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::<span class="ident">BtnBuilder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -238,14 +240,6 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
         <span class="ident">GeomBatch</span> {
             <span class="ident">list</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">autocrop_dims</span>: <span class="bool-val">true</span>,
-        }
-    }
-
-    <span class="doccomment">/// Creates a batch of colored polygons.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Color</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
-        <span class="ident">GeomBatch</span> {
-            <span class="ident">list</span>: <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">c</span>, <span class="ident">p</span>)<span class="op">|</span> (<span class="ident">Fill</span>::<span class="ident">Color</span>(<span class="ident">c</span>), <span class="ident">p</span>)).<span class="ident">collect</span>(),
             <span class="ident">autocrop_dims</span>: <span class="bool-val">true</span>,
         }
     }
@@ -415,6 +409,16 @@
             <span class="kw-2">*</span><span class="ident">poly</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">strip_rings</span>().<span class="ident">scale</span>(<span class="ident">factor</span>);
         }
         <span class="self">self</span>
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">F</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GeomBatch</span> {
+    <span class="doccomment">/// Creates a batch of filled polygons.</span>
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">F</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+        <span class="ident">GeomBatch</span> {
+            <span class="ident">list</span>: <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">c</span>, <span class="ident">p</span>)<span class="op">|</span> (<span class="ident">c</span>.<span class="ident">into</span>(), <span class="ident">p</span>)).<span class="ident">collect</span>(),
+            <span class="ident">autocrop_dims</span>: <span class="bool-val">true</span>,
+        }
     }
 }
 
