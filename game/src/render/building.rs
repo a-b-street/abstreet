@@ -80,10 +80,11 @@ impl DrawBuilding {
 
                 let map_bounds = map.get_gps_bounds().to_bounds();
                 let (map_width, map_height) = (map_bounds.width(), map_bounds.height());
-                let map_max = Pt2D::new(map_width, map_height);
-                let map_length = Pt2D::new(0.0, 0.0).dist_to(map_max).inner_meters();
+                let map_length = map_width.hypot(map_height);
 
                 let distance = |pt: &Pt2D| {
+                    // some normalization so we can compute the distance to the corner of the
+                    // screen from which the orthographic projection is based.
                     let projection_origin = match x {
                         CameraAngle::IsometricNE => Pt2D::new(0.0, map_height),
                         CameraAngle::IsometricNW => Pt2D::new(map_width, map_height),
@@ -103,8 +104,8 @@ impl DrawBuilding {
                     Distance::meters(distance)
                 };
 
-                // Things closer to the isometric projection origin should appear in front of
-                // things farther away, so we give them a higher z-index.
+                // Things closer to the isometric axis should appear in front of things farther
+                // away, so we give them a higher z-index.
                 //
                 // Naively, we compute the entire building's distance as the distance from it's
                 // closest point. This is simple and usually works, but will likely fail on more
@@ -116,25 +117,14 @@ impl DrawBuilding {
                     .into_iter()
                     .min_by(|a, b| distance(a).cmp(&distance(b)));
 
-                let distance_from_projection_origin = closest_pt
+                let distance_from_projection_axis = closest_pt
                     .map(|pt| distance(pt).inner_meters())
                     .unwrap_or(0.0);
 
                 // smaller z renders above larger
                 let scale_factor = map_length + max_height;
-                let groundfloor_z = (distance_from_projection_origin) / scale_factor - 1.0;
+                let groundfloor_z = (distance_from_projection_axis) / scale_factor - 1.0;
                 let roof_z = groundfloor_z - height.inner_meters() / scale_factor;
-
-                println!(
-                    "closest_pt: {:?}, map_size: {}, map_length: {}, distance: {}, groundfloor_z: \
-                     {}, roof_z: {}",
-                    closest_pt,
-                    map_max,
-                    map_length,
-                    distance_from_projection_origin,
-                    groundfloor_z,
-                    roof_z
-                );
 
                 // TODO Some buildings have holes in them
                 if let Ok(roof) = Ring::new(
