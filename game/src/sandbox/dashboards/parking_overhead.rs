@@ -143,7 +143,7 @@ impl State for ParkingOverhead {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.grass);
+        g.clear(app.cs.dialog_bg);
         self.panel.draw(g);
         preview_trip(g, app, &self.panel);
     }
