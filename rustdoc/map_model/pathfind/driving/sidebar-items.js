@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Node",""]],"fn":[["driving_cost",""],["make_input_graph",""]],"struct":[["VehiclePathfinder",""]]});
+initSidebarItems({"enum":[["Node",""]],"fn":[["driving_cost",""],["make_input_graph",""],["round",""]],"struct":[["VehiclePathfinder",""]]});

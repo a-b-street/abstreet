@@ -272,6 +272,10 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
@@ -453,8 +457,7 @@
                     <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                         <span class="ident">from</span>,
                         <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">Lane</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>)),
-                        <span class="comment">// Round up! 0 cost edges are ignored</span>
-                        <span class="ident">driving_cost</span>(<span class="ident">l</span>, <span class="ident">turn</span>, <span class="ident">constraints</span>, <span class="ident">map</span>).<span class="ident">max</span>(<span class="number">1</span>),
+                        <span class="ident">round</span>(<span class="ident">driving_cost</span>(<span class="ident">l</span>, <span class="ident">turn</span>, <span class="ident">constraints</span>, <span class="ident">map</span>)),
                     );
                 }
             } <span class="kw">else</span> {
@@ -462,11 +465,11 @@
                     <span class="ident">any</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     <span class="kw">let</span> <span class="ident">ut</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">uber_turns</span>[<span class="kw-2">*</span><span class="ident">idx</span>];
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum_cost</span> <span class="op">=</span> <span class="number">0</span>;
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum_cost</span> <span class="op">=</span> <span class="number">0.0</span>;
                     <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ut</span>.<span class="ident">path</span> {
                         <span class="ident">sum_cost</span> <span class="op">+</span><span class="op">=</span> <span class="ident">driving_cost</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">src</span>), <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>), <span class="ident">constraints</span>, <span class="ident">map</span>);
                     }
-                    <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">from</span>, <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">UberTurn</span>(<span class="kw-2">*</span><span class="ident">idx</span>)), <span class="ident">sum_cost</span>.<span class="ident">max</span>(<span class="number">1</span>));
+                    <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">from</span>, <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">UberTurn</span>(<span class="kw-2">*</span><span class="ident">idx</span>)), <span class="ident">round</span>(<span class="ident">sum_cost</span>));
                     <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                         <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">UberTurn</span>(<span class="kw-2">*</span><span class="ident">idx</span>)),
                         <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">Lane</span>(<span class="ident">ut</span>.<span class="ident">exit</span>())),
@@ -489,7 +492,7 @@
     <span class="ident">input_graph</span>
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driving_cost</span>(<span class="ident">lane</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">turn</span>: <span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driving_cost</span>(<span class="ident">lane</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">turn</span>: <span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
     <span class="comment">// TODO Could cost turns differently.</span>
 
     <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">constraints</span> {
@@ -497,7 +500,7 @@
             <span class="comment">// Prefer slightly longer route on faster roads</span>
             <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>).<span class="ident">speed_limit</span>;
             <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">speed_limit</span>;
-            (<span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>).<span class="ident">inner_seconds</span>().<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>
+            (<span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>).<span class="ident">inner_seconds</span>()
         }
         <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Speed limits don&#39;t matter, bikes are usually constrained by their own speed limit.</span>
@@ -518,7 +521,7 @@
             };
 
             <span class="comment">// 1m resolution is fine</span>
-            (<span class="ident">lt_penalty</span> <span class="op">*</span> <span class="ident">dist</span>).<span class="ident">inner_meters</span>().<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>
+            (<span class="ident">lt_penalty</span> <span class="op">*</span> <span class="ident">dist</span>).<span class="ident">inner_meters</span>()
         }
         <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Like Car, but prefer bus lanes.</span>
@@ -530,7 +533,7 @@
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">lane</span>.<span class="ident">is_driving</span>());
                 <span class="number">1.1</span>
             };
-            (<span class="ident">lt_penalty</span> <span class="op">*</span> (<span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>)).<span class="ident">inner_seconds</span>().<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>
+            (<span class="ident">lt_penalty</span> <span class="op">*</span> (<span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>)).<span class="ident">inner_seconds</span>()
         }
         <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
     };
@@ -545,7 +548,12 @@
         <span class="ident">extra_penalty</span> <span class="op">=</span> <span class="ident">slow_lane</span>;
     }
 
-    <span class="ident">base</span> <span class="op">+</span> <span class="ident">extra_penalty</span>
+    <span class="ident">base</span> <span class="op">+</span> (<span class="ident">extra_penalty</span> <span class="kw">as</span> <span class="ident">f64</span>)
+}
+
+<span class="comment">// Round up! 0 cost edges are ignored</span>
+<span class="kw">fn</span> <span class="ident">round</span>(<span class="ident">cost</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    (<span class="ident">cost</span>.<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">max</span>(<span class="number">1</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "map_model";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

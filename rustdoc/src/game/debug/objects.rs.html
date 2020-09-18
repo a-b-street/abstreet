@@ -117,6 +117,8 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
@@ -176,11 +178,13 @@
                         <span class="ident">PathConstraints</span>::<span class="ident">Bus</span>,
                     ] {
                         <span class="kw">if</span> <span class="ident">constraint</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>) {
-                            <span class="macro">println</span><span class="macro">!</span>(
-                                <span class="string">&quot;Cost for {:?}: {}&quot;</span>,
-                                <span class="ident">constraint</span>,
-                                <span class="ident">l</span>.<span class="ident">get_max_cost</span>(<span class="ident">constraint</span>, <span class="ident">map</span>)
-                            );
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">costs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                            <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_to_lane</span>(<span class="ident">l</span>.<span class="ident">id</span>) {
+                                <span class="ident">costs</span>.<span class="ident">push</span>(<span class="ident">map_model</span>::<span class="ident">connectivity</span>::<span class="ident">driving_cost</span>(
+                                    <span class="ident">l</span>, <span class="ident">turn</span>, <span class="ident">constraint</span>, <span class="ident">map</span>,
+                                ));
+                            }
+                            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Costs for {:?}: {:?}&quot;</span>, <span class="ident">constraint</span>, <span class="ident">costs</span>);
                         }
                     }
                 }
