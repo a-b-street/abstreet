@@ -25,7 +25,7 @@ void main() {
     // Translate that to normalized device coordinates (NDC)
     float x = (screen_x / window[0] * 2.0) - 1.0;
     float y = (screen_y / window[1] * 2.0) - 1.0;
-    float z = position[2] / 10000.0 + window[2];
+    float z = position[2] + window[2];
 
     // Note the y inversion
     gl_Position = vec4(x, -y, z, 1.0);

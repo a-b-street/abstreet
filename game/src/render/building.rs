@@ -74,8 +74,76 @@ impl DrawBuilding {
                 };
 
                 // TODO For now, blindly guess the building height
+                let max_height = 15.0;
                 let mut rng = XorShiftRng::seed_from_u64(bldg.id.0 as u64);
-                let height = Distance::meters(rng.gen_range(1.0, 15.0));
+                let height = Distance::meters(rng.gen_range(1.0, max_height));
+
+                let map_bounds = map.get_gps_bounds().to_bounds();
+                let (map_width, map_height) = (map_bounds.width(), map_bounds.height());
+                let map_max = Pt2D::new(map_width, map_height);
+                let map_length = Pt2D::new(0.0, 0.0).dist_to(map_max).inner_meters();
+
+                let distance = |pt: &Pt2D| {
+                    // this is flipped...
+                    let projection_origin = match x {
+                        CameraAngle::IsometricNE => Pt2D::new(0.0, map_height),
+                        CameraAngle::IsometricNW => Pt2D::new(map_width, map_height),
+                        CameraAngle::IsometricSE => Pt2D::new(0.0, 0.0),
+                        CameraAngle::IsometricSW => Pt2D::new(map_width, 0.0),
+                        CameraAngle::TopDown => unreachable!(),
+                    };
+
+                    let ortho_axis = match x {
+                        CameraAngle::IsometricNE => Line::new(
+                            projection_origin.offset(-map_length / 2., -map_length / 2.),
+                            projection_origin.offset(map_length / 2., map_length / 2.),
+                        ),
+                        CameraAngle::IsometricNW => Line::new(
+                            projection_origin.offset(-map_length / 2., map_length / 2.),
+                            projection_origin.offset(map_length / 2., -map_length / 2.),
+                        ),
+                        CameraAngle::IsometricSE => Line::new(
+                            projection_origin.offset(map_length / 2., map_length / 2.),
+                            projection_origin.offset(-map_length / 2., -map_length / 2.),
+                        ),
+                        CameraAngle::IsometricSW => Line::new(
+                            projection_origin.offset(-map_length / 2., map_length / 2.),
+                            projection_origin.offset(map_length / 2., -map_length / 2.),
+                        ),
+                        CameraAngle::TopDown => unreachable!(),
+                    }
+                    .unwrap();
+
+                    // TODO: compute distance to line directly
+                    let nearest_point_on_axis = ortho_axis.project_pt(*pt);
+                    pt.dist_to(nearest_point_on_axis)
+                };
+
+                // Things closer to the isometric projection origin should appear in front of
+                // things farther away, so we give them a higher z-index.
+                //
+                // Naively, we compute the entire building's distance as the distance from it's
+                // closest point. This is simple and usually works, but will likely fail on more
+                // complex building arrangements, e.g. if a building were tightly encircled by a
+                // large building.
+                let closest_pt = bldg
+                    .polygon
+                    .points()
+                    .into_iter()
+                    .min_by(|a, b| distance(a).cmp(&distance(b)));
+
+                let distance_from_projection_origin = closest_pt
+                    .map(|pt| distance(pt).inner_meters())
+                    .unwrap_or(0.0);
+
+                // smaller z renders above larger
+                let scale_factor = map_length + max_height;
+                let z = (distance_from_projection_origin) / scale_factor - 1.0;
+
+                println!(
+                    "closest_pt: {:?}, map_size: {}, map_length: {}, distance: {}, z_offset: {}",
+                    closest_pt, map_max, map_length, distance_from_projection_origin, z
+                );
 
                 // TODO Some buildings have holes in them
                 if let Ok(roof) = Ring::new(
@@ -95,7 +163,7 @@ impl DrawBuilding {
                     }
                     let wall_color = Color::hex("#BBBEC3");
                     for (wall1, wall2) in wall_beams.iter().zip(wall_beams.iter().skip(1)) {
-                        bldg_batch.push(
+                        bldg_batch.push_with_z(
                             wall_color,
                             Ring::must_new(vec![
                                 wall1.pt1(),
@@ -105,14 +173,24 @@ impl DrawBuilding {
                                 wall1.pt1(),
                             ])
                             .to_polygon(),
+                            z,
                         );
                     }
                     for wall in wall_beams {
-                        bldg_batch.push(Color::BLACK, wall.make_polygons(Distance::meters(0.1)));
+                        bldg_batch.push_with_z(
+                            Color::BLACK,
+                            wall.make_polygons(Distance::meters(0.1)),
+                            z,
+                        );
                     }
 
-                    bldg_batch.push(bldg_color, roof.clone().to_polygon());
-                    bldg_batch.push(Color::BLACK, roof.to_outline(Distance::meters(0.3)));
+                    let roof_z = z - height.inner_meters().sqrt() / scale_factor;
+                    bldg_batch.push_with_z(bldg_color, roof.clone().to_polygon(), roof_z);
+                    bldg_batch.push_with_z(
+                        Color::BLACK,
+                        roof.to_outline(Distance::meters(0.3)),
+                        roof_z,
+                    );
                 } else {
                     bldg_batch.push(bldg_color, bldg.polygon.clone());
                     if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.1)) {

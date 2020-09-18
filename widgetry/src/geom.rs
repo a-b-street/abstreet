@@ -22,7 +22,11 @@ impl GeomBatch {
 
     // Adds a single polygon, painted according to `Fill`
     pub fn push<F: Into<Fill>>(&mut self, fill: F, p: Polygon) {
-        self.list.push((fill.into(), p, 0.0));
+        self.push_with_z(fill, p, 0.0);
+    }
+
+    pub fn push_with_z<F: Into<Fill>>(&mut self, fill: F, p: Polygon, z: f64) {
+        self.list.push((fill.into(), p, z));
     }
 
     /// Applies one Fill to many polygons.
