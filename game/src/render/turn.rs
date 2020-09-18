@@ -120,9 +120,9 @@ impl DrawMovement {
         let movement = &app.primary.map.get_traffic_signal(self.id.parent).movements[&self.id];
         let pl = &movement.geom;
 
+        let green = Color::hex("#72CE36");
         match next_priority {
             Some(TurnPriority::Protected) => {
-                let green = Color::hex("#72CE36");
                 let arrow = pl.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
                 batch.push(green.alpha(0.5), arrow.clone());
                 if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
@@ -131,7 +131,7 @@ impl DrawMovement {
             }
             Some(TurnPriority::Yield) => {
                 batch.extend(
-                    // TODO Ideally the inner part would be the lower opacity blue, but can't yet
+                    // TODO Ideally the inner part would be the lower opacity green, but can't yet
                     // express that it should cover up the thicker solid blue beneath it
                     Color::BLACK.alpha(0.8),
                     pl.dashed_arrow(
@@ -142,7 +142,7 @@ impl DrawMovement {
                     ),
                 );
                 batch.extend(
-                    app.cs.signal_permitted_turn.alpha(0.8),
+                    green.alpha(0.8),
                     pl.exact_slice(Distance::meters(0.1), pl.length() - Distance::meters(0.1))
                         .dashed_arrow(
                             BIG_ARROW_THICKNESS / 2.0,
@@ -154,11 +154,25 @@ impl DrawMovement {
             }
             Some(TurnPriority::Banned) => {
                 let red = Color::hex("#EB3223");
-                let arrow = pl.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
-                batch.push(red.alpha(0.5), arrow.clone());
-                if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
-                    batch.push(red, p);
-                }
+                batch.extend(
+                    Color::BLACK.alpha(0.8),
+                    pl.dashed_arrow(
+                        BIG_ARROW_THICKNESS,
+                        Distance::meters(1.2),
+                        Distance::meters(0.3),
+                        ArrowCap::Triangle,
+                    ),
+                );
+                batch.extend(
+                    red.alpha(0.8),
+                    pl.exact_slice(Distance::meters(0.1), pl.length() - Distance::meters(0.1))
+                        .dashed_arrow(
+                            BIG_ARROW_THICKNESS / 2.0,
+                            Distance::meters(1.0),
+                            Distance::meters(0.5),
+                            ArrowCap::Triangle,
+                        ),
+                );
             }
             None => {}
         }
