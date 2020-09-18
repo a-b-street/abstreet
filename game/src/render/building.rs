@@ -168,7 +168,7 @@ impl DrawBuilding {
                         );
                     }
 
-                    let roof_z = z - height.inner_meters().sqrt() / scale_factor;
+                    let roof_z = z - height.inner_meters() / scale_factor;
                     bldg_batch.push_with_z(bldg_color, roof.clone().to_polygon(), roof_z);
                     bldg_batch.push_with_z(
                         Color::BLACK,
