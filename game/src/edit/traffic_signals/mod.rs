@@ -15,10 +15,10 @@ use map_model::{
     ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, PhaseType, Stage,
     TurnPriority,
 };
-use std::collections::{BTreeSet, HashMap, VecDeque};
+use std::collections::{BTreeSet, VecDeque};
 use widgetry::{
     lctrl, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, RewriteColor, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
 
 // Welcome to one of the most overwhelmingly complicated parts of the UI...
@@ -226,32 +226,6 @@ impl State for TrafficSignalEditor {
                 if x == "Add a new stage" {
                     self.add_new_edit(ctx, app, num_stages, |ts| {
                         ts.stages.push(Stage::new());
-                    });
-                    return Transition::Keep;
-                }
-                if x == "Apply offset" {
-                    let offset = Duration::seconds(self.side_panel.spinner("offset") as f64);
-                    self.add_new_edit(ctx, app, self.current_stage, |ts| {
-                        ts.offset = offset;
-                    });
-                    return Transition::Keep;
-                }
-                if x == "Apply offsets" {
-                    let offsets: HashMap<IntersectionID, Duration> = self
-                        .members
-                        .iter()
-                        .enumerate()
-                        .map(|(idx, i)| {
-                            (
-                                *i,
-                                Duration::seconds(
-                                    self.side_panel.spinner(&format!("offset {}", idx)) as f64,
-                                ),
-                            )
-                        })
-                        .collect();
-                    self.add_new_edit(ctx, app, self.current_stage, |ts| {
-                        ts.offset = offsets[&ts.id];
                     });
                     return Transition::Keep;
                 }
@@ -631,16 +605,6 @@ fn make_side_panel(
 
     if members.len() == 1 {
         col.push(Btn::text_bg2("Edit entire signal").build_def(ctx, Key::E));
-        col.push(Widget::row(vec![
-            "Offset (s):".draw_text(ctx),
-            Spinner::new(
-                ctx,
-                (0, 90),
-                canonical_signal.offset.inner_seconds() as isize,
-            )
-            .named("offset"),
-            Btn::text_bg2("Apply").build(ctx, "Apply offset", None),
-        ]));
     }
 
     let translations = squish_polygons_together(
@@ -712,35 +676,6 @@ fn make_side_panel(
             .build_def(ctx, None)
             .centered_horiz(),
     );
-
-    // TODO This doesn't even have a way of knowing which spinner corresponds to which
-    // intersection!
-    if members.len() > 1 {
-        col.push("Tune offset (s)".draw_text(ctx));
-        col.push(
-            Widget::row(
-                members
-                    .iter()
-                    .enumerate()
-                    .map(|(idx, i)| {
-                        let spinner = Spinner::new(
-                            ctx,
-                            (0, 90),
-                            map.get_traffic_signal(*i).offset.inner_seconds() as isize,
-                        )
-                        .named(format!("offset {}", idx));
-                        if hovering == Some(*i) {
-                            spinner.padding(2).outline(2.0, Color::YELLOW)
-                        } else {
-                            spinner
-                        }
-                    })
-                    .collect(),
-            )
-            .evenly_spaced(),
-        );
-        col.push(Btn::text_bg2("Apply").build(ctx, "Apply offsets", None));
-    }
 
     Panel::new(Widget::col(col))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
