@@ -14,7 +14,7 @@ use geom::{Duration, LonLat, Time};
 use hyper::{Body, Request, Response, Server};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
-    MovementID, PermanentMapEdits,
+    MapEdits, MovementID, PermanentMapEdits,
 };
 use serde::Serialize;
 use sim::{
@@ -30,6 +30,7 @@ lazy_static::lazy_static! {
     static ref MAP: RwLock<Map> = RwLock::new(Map::blank());
     static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp"), &mut Timer::throwaway()));
     static ref FLAGS: RwLock<SimFlags> = RwLock::new(SimFlags::for_test("tmp"));
+    static ref EDITS: RwLock<Option<String>> = RwLock::new(None);
 }
 
 #[tokio::main]
@@ -37,9 +38,11 @@ async fn main() {
     let mut args = CmdArgs::new();
     let sim_flags = SimFlags::from_args(&mut args);
     let port = args.required("--port").parse::<u16>().unwrap();
+    *EDITS.write().unwrap() = args.optional("--edits");
     args.done();
 
-    let (map, sim, _) = sim_flags.load(&mut Timer::new("setup headless"));
+    let (mut map, sim, _) = sim_flags.load(&mut Timer::new("setup headless"));
+    apply_edits(&mut map);
     *MAP.write().unwrap() = map;
     *SIM.write().unwrap() = sim;
     *FLAGS.write().unwrap() = sim_flags;
@@ -90,12 +93,17 @@ fn handle_command(
     match path {
         // Controlling the simulation
         "/sim/reset" => {
-            let (new_map, new_sim, _) = FLAGS.read().unwrap().load(&mut Timer::new("reset sim"));
+            let (mut new_map, new_sim, _) =
+                FLAGS.read().unwrap().load(&mut Timer::new("reset sim"));
+            apply_edits(&mut new_map);
             *map = new_map;
             *sim = new_sim;
             Ok(format!("sim reloaded"))
         }
         "/sim/load" => {
+            // Reset --edits
+            *EDITS.write().unwrap() = None;
+
             let flags: SimFlags = abstutil::from_json(body)?;
             // Only a few fields from SimFlags can be specified through the API. For the rest
             // (namely SimOptions), keep the ones from the command line.
@@ -245,6 +253,15 @@ fn handle_command(
             )))
         }
         _ => Err("Unknown command".into()),
+    }
+}
+
+fn apply_edits(map: &mut Map) {
+    if let Some(name) = EDITS.read().unwrap().as_ref() {
+        let mut timer = Timer::new(format!("apply edits {}", name));
+        let edits =
+            MapEdits::load(map, abstutil::path_edits(map.get_name(), name), &mut timer).unwrap();
+        map.must_apply_edits(edits, &mut timer);
     }
 }
 
