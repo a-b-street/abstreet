@@ -122,11 +122,18 @@ impl DrawBuilding {
 
                 // smaller z renders above larger
                 let scale_factor = map_length + max_height;
-                let z = (distance_from_projection_origin) / scale_factor - 1.0;
+                let groundfloor_z = (distance_from_projection_origin) / scale_factor - 1.0;
+                let roof_z = groundfloor_z - height.inner_meters() / scale_factor;
 
                 println!(
-                    "closest_pt: {:?}, map_size: {}, map_length: {}, distance: {}, z_offset: {}",
-                    closest_pt, map_max, map_length, distance_from_projection_origin, z
+                    "closest_pt: {:?}, map_size: {}, map_length: {}, distance: {}, groundfloor_z: \
+                     {}, roof_z: {}",
+                    closest_pt,
+                    map_max,
+                    map_length,
+                    distance_from_projection_origin,
+                    groundfloor_z,
+                    roof_z
                 );
 
                 // TODO Some buildings have holes in them
@@ -140,6 +147,12 @@ impl DrawBuilding {
                     if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.3)) {
                         bldg_batch.push(Color::BLACK, p);
                     }
+
+                    // In actuality, the z of the walls should start at groundfloor_z and end at
+                    // roof_z, but since we aren't dealing with actual 3d geometries, we have to
+                    // pick one value. Anecdotally, picking a value between the two seems to
+                    // usually looks right, but probably breaks down in certain overlap scenarios.
+                    let wall_z = (groundfloor_z + roof_z) / 2.0;
 
                     let mut wall_beams = Vec::new();
                     for (low, high) in bldg.polygon.points().iter().zip(roof.points().iter()) {
@@ -157,18 +170,17 @@ impl DrawBuilding {
                                 wall1.pt1(),
                             ])
                             .to_polygon(),
-                            z,
+                            wall_z,
                         );
                     }
                     for wall in wall_beams {
                         bldg_batch.push_with_z(
                             Color::BLACK,
                             wall.make_polygons(Distance::meters(0.1)),
-                            z,
+                            wall_z,
                         );
                     }
 
-                    let roof_z = z - height.inner_meters() / scale_factor;
                     bldg_batch.push_with_z(bldg_color, roof.clone().to_polygon(), roof_z);
                     bldg_batch.push_with_z(
                         Color::BLACK,
