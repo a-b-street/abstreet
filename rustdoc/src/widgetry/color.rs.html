@@ -169,6 +169,48 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Line</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -197,6 +239,44 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">FancyColor</span> {
     <span class="ident">RGBA</span>(<span class="ident">Color</span>),
     <span class="ident">LinearGradient</span>(<span class="ident">LinearGradient</span>),
+
+    <span class="doccomment">/// Once uploaded, textures are addressed by their id, starting from 1, from left to right, top</span>
+    <span class="doccomment">/// to bottom, like so:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     ┌─┬─┬─┐</span>
+    <span class="doccomment">///     │1│2│3│</span>
+    <span class="doccomment">///     ├─┼─┼─┤</span>
+    <span class="doccomment">///     │4│5│6│</span>
+    <span class="doccomment">///     ├─┼─┼─┤</span>
+    <span class="doccomment">///     │7│8│9│</span>
+    <span class="doccomment">///     └─┴─┴─┘</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Texture(0) is reserved for a pure white (no-op) texture.</span>
+    <span class="ident">Texture</span>(<span class="ident">Texture</span>),
+
+    <span class="doccomment">/// The `color` parameter is multiplied by any color baked into the texture, so typically this</span>
+    <span class="doccomment">/// only makes sense for grayscale textures.</span>
+    <span class="ident">ColoredTexture</span>(<span class="ident">Color</span>, <span class="ident">Texture</span>),
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Texture</span>(<span class="ident">u32</span>);
+
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+<span class="kw">impl</span> <span class="ident">Texture</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">NOOP</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">0</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GRASS</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">1</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">STILL_WATER</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">2</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RUNNING_WATER</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">3</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">CONCRETE</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">4</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SAND</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">5</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">DIRT</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">6</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SNOW</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">7</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">TREE</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">15</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PINE_TREE</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">16</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">CACTUS</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">17</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SHRUB</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">18</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SNOW_PERSON</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">29</span>);
 }
 
 <span class="kw">impl</span> <span class="ident">Color</span> {
@@ -331,12 +411,16 @@
 }
 
 <span class="kw">impl</span> <span class="ident">FancyColor</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">style</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">f32</span>; <span class="number">4</span>] {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">shader_style</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">f32</span>; <span class="number">5</span>] {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">FancyColor</span>::<span class="ident">RGBA</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> [<span class="ident">c</span>.<span class="ident">r</span>, <span class="ident">c</span>.<span class="ident">g</span>, <span class="ident">c</span>.<span class="ident">b</span>, <span class="ident">c</span>.<span class="ident">a</span>],
+            <span class="ident">FancyColor</span>::<span class="ident">RGBA</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> [<span class="ident">c</span>.<span class="ident">r</span>, <span class="ident">c</span>.<span class="ident">g</span>, <span class="ident">c</span>.<span class="ident">b</span>, <span class="ident">c</span>.<span class="ident">a</span>, <span class="number">0.0</span>],
             <span class="ident">FancyColor</span>::<span class="ident">LinearGradient</span>(<span class="kw-2">ref</span> <span class="ident">lg</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">lg</span>.<span class="ident">interp</span>(<span class="ident">pt</span>);
-                [<span class="ident">c</span>.<span class="ident">r</span>, <span class="ident">c</span>.<span class="ident">g</span>, <span class="ident">c</span>.<span class="ident">b</span>, <span class="ident">c</span>.<span class="ident">a</span>]
+                [<span class="ident">c</span>.<span class="ident">r</span>, <span class="ident">c</span>.<span class="ident">g</span>, <span class="ident">c</span>.<span class="ident">b</span>, <span class="ident">c</span>.<span class="ident">a</span>, <span class="number">0.0</span>]
+            }
+            <span class="ident">FancyColor</span>::<span class="ident">Texture</span>(<span class="ident">texture</span>) <span class="op">=</span><span class="op">&gt;</span> [<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>, <span class="ident">texture</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">f32</span>],
+            <span class="ident">FancyColor</span>::<span class="ident">ColoredTexture</span>(<span class="ident">color</span>, <span class="ident">texture</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                [<span class="ident">color</span>.<span class="ident">r</span>, <span class="ident">color</span>.<span class="ident">g</span>, <span class="ident">color</span>.<span class="ident">b</span>, <span class="ident">color</span>.<span class="ident">a</span>, <span class="ident">texture</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">f32</span>]
             }
         }
     }

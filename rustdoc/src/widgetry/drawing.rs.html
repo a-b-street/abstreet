@@ -267,6 +267,7 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
+<span id="270">270</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">assets</span>::<span class="ident">Assets</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend</span>::{<span class="ident">GfxCtxInnards</span>, <span class="ident">PrerenderInnards</span>};
@@ -281,6 +282,7 @@
 <span class="kw">const</span> <span class="ident">SCREENSPACE_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">0.5</span>;
 <span class="kw">const</span> <span class="ident">TOOLTIP_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">0.0</span>;
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Uniforms</span> {
     <span class="comment">// (cam_x, cam_y, cam_zoom)</span>
     <span class="kw">pub</span> <span class="ident">transform</span>: [<span class="ident">f32</span>; <span class="number">3</span>],

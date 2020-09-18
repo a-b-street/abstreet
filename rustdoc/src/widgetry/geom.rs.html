@@ -226,6 +226,12 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::<span class="ident">BtnBuilder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -274,6 +280,12 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">polys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) {
         <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polys</span> {
             <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">FancyColor</span>::<span class="ident">RGBA</span>(<span class="ident">color</span>), <span class="ident">p</span>));
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fancy_extend</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">FancyColor</span>, <span class="ident">polys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) {
+        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polys</span> {
+            <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">color</span>.<span class="ident">clone</span>(), <span class="ident">p</span>));
         }
     }
 

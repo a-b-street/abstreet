@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["FancyColor",""]],"fn":[["lerp",""],["to_pct",""]],"struct":[["Color",""],["LinearGradient",""]]});
+initSidebarItems({"enum":[["FancyColor",""]],"fn":[["lerp",""],["to_pct",""]],"struct":[["Color",""],["LinearGradient",""],["Texture",""]]});
