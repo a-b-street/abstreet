@@ -3,12 +3,14 @@ use crate::common::CommonState;
 use crate::edit::traffic_signals::fade_irrelevant;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
+use geom::{Distance, Duration};
 use map_model::IntersectionID;
-use sim::DontDrawAgents;
+use maplit::btreeset;
+use sim::{DontDrawAgents, Scenario};
 use std::collections::BTreeSet;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+    RewriteColor, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct ShowAbsolute {
@@ -69,7 +71,12 @@ impl State for ShowAbsolute {
         if let Some(ID::Intersection(i)) = app.primary.current_selection {
             if self.members.contains(&i) {
                 if app.per_obj.left_click(ctx, "select base intersection") {
-                    return Transition::Push(ShowRelative::new(ctx, app, i, self.members.clone()));
+                    return Transition::Replace(ShowRelative::new(
+                        ctx,
+                        app,
+                        i,
+                        self.members.clone(),
+                    ));
                 }
             } else {
                 app.primary.current_selection = None;
@@ -81,6 +88,8 @@ impl State for ShowAbsolute {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
+                    // TODO Bit confusing UX, because all the offset changes won't show up in the
+                    // undo stack. Could maybe do ReplaceWithData.
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
@@ -171,7 +180,13 @@ impl State for ShowRelative {
         if let Some(ID::Intersection(i)) = app.primary.current_selection {
             if self.members.contains(&i) && i != self.base {
                 if app.per_obj.left_click(ctx, "select second intersection") {
-                    // TODO
+                    return Transition::Push(TuneRelative::new(
+                        ctx,
+                        app,
+                        self.base,
+                        i,
+                        self.members.clone(),
+                    ));
                 }
             } else {
                 app.primary.current_selection = None;
@@ -183,7 +198,7 @@ impl State for ShowRelative {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
-                    return Transition::Pop;
+                    return Transition::Replace(ShowAbsolute::new(ctx, app, self.members.clone()));
                 }
                 _ => unreachable!(),
             },
@@ -197,6 +212,120 @@ impl State for ShowRelative {
         self.panel.draw(g);
         CommonState::draw_osd(g, app);
 
+        g.redraw(&self.labels);
+    }
+}
+
+struct TuneRelative {
+    i1: IntersectionID,
+    i2: IntersectionID,
+    members: BTreeSet<IntersectionID>,
+    panel: Panel,
+    labels: Drawable,
+}
+
+impl TuneRelative {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        i1: IntersectionID,
+        i2: IntersectionID,
+        members: BTreeSet<IntersectionID>,
+    ) -> Box<dyn State> {
+        let mut batch = fade_irrelevant(app, &btreeset! {i1, i2});
+        let map = &app.primary.map;
+        // TODO Colors aren't clear. Show directionality.
+        batch.push(Color::BLUE.alpha(0.8), map.get_i(i1).polygon.clone());
+        batch.push(Color::RED.alpha(0.8), map.get_i(i2).polygon.clone());
+        let path = map.simple_path_btwn(i1, i2).unwrap_or_else(Vec::new);
+        let mut dist_btwn = Distance::ZERO;
+        let mut car_dt = Duration::ZERO;
+        for r in path {
+            let r = map.get_r(r);
+            // TODO Glue polylines together and do dashed_lines
+            batch.push(app.cs.route, r.get_thick_polygon(map));
+            dist_btwn += r.center_pts.length();
+            car_dt += r.center_pts.length() / r.speed_limit;
+        }
+
+        let offset1 = map.get_traffic_signal(i1).offset;
+        let offset2 = map.get_traffic_signal(i2).offset;
+        Box::new(TuneRelative {
+            panel: Panel::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line(format!("Tuning offset between {} and {}", i1, i2))
+                        .small_heading()
+                        .draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", Key::Escape)
+                        .align_right(),
+                ]),
+                Text::from_multiline(vec![
+                    Line(format!("Distance: {}", dist_btwn)),
+                    Line(format!(
+                        "  about {} for a car if there's no congestion",
+                        car_dt
+                    )),
+                    Line(format!(
+                        "  about {} for a bike",
+                        dist_btwn / Scenario::max_bike_speed()
+                    )),
+                    Line(format!(
+                        "  about {} for a pedestrian",
+                        dist_btwn / Scenario::max_ped_speed()
+                    )),
+                ])
+                .draw(ctx),
+                Widget::row(vec![
+                    "Offset (seconds):".draw_text(ctx),
+                    Spinner::new(ctx, (0, 90), (offset2 - offset1).inner_seconds() as isize)
+                        .named("offset"),
+                ]),
+                Btn::text_bg2("Update offset").build_def(ctx, Key::Enter),
+            ]))
+            .build(ctx),
+            i1,
+            i2,
+            members,
+            labels: ctx.upload(batch),
+        })
+    }
+}
+
+impl State for TuneRelative {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.canvas_movement();
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => {
+                    return Transition::Pop;
+                }
+                "Update offset" => {
+                    let mut ts = app.primary.map.get_traffic_signal(self.i2).clone();
+                    let relative = Duration::seconds(self.panel.spinner("offset") as f64);
+                    let offset1 = app.primary.map.get_traffic_signal(self.i1).offset;
+                    ts.offset = offset1 + relative;
+                    app.primary.map.incremental_edit_traffic_signal(ts);
+                    return Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::Replace(ShowRelative::new(
+                            ctx,
+                            app,
+                            self.i1,
+                            self.members.clone(),
+                        )),
+                    ]);
+                }
+                _ => unreachable!(),
+            },
+            _ => {}
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.panel.draw(g);
         g.redraw(&self.labels);
     }
 }

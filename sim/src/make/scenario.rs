@@ -194,13 +194,16 @@ impl Scenario {
         let max_speed = Some(Scenario::rand_speed(
             rng,
             Speed::miles_per_hour(8.0),
-            Speed::miles_per_hour(10.0),
+            Scenario::max_bike_speed(),
         ));
         VehicleSpec {
             vehicle_type: VehicleType::Bike,
             length: BIKE_LENGTH,
             max_speed,
         }
+    }
+    pub fn max_bike_speed() -> Speed {
+        Speed::miles_per_hour(10.0)
     }
 
     pub fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
