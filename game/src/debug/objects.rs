@@ -56,11 +56,13 @@ impl ObjectDebugger {
                         PathConstraints::Bus,
                     ] {
                         if constraint.can_use(l, map) {
-                            println!(
-                                "Cost for {:?}: {}",
-                                constraint,
-                                l.get_max_cost(constraint, map)
-                            );
+                            let mut costs = Vec::new();
+                            for turn in map.get_turns_to_lane(l.id) {
+                                costs.push(map_model::connectivity::driving_cost(
+                                    l, turn, constraint, map,
+                                ));
+                            }
+                            println!("Costs for {:?}: {:?}", constraint, costs);
                         }
                     }
                 }

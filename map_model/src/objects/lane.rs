@@ -1,7 +1,5 @@
-use crate::pathfind;
 use crate::{
-    osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, PathConstraints, Road, RoadID,
-    TurnType,
+    osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, Road, RoadID, TurnType,
 };
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Line, PolyLine, Pt2D};
@@ -273,17 +271,5 @@ impl Lane {
                 vec![]
             }
         }))
-    }
-
-    pub fn get_max_cost(&self, constraints: PathConstraints, map: &Map) -> usize {
-        map.get_turns_to_lane(self.id)
-            .into_iter()
-            .map(|turn| pathfind::driving_cost(self, turn, constraints, map))
-            .max()
-            .unwrap_or_else(|| {
-                // Probably a border.
-                println!("{} has no incoming turns! Bogus cost 0", self.id);
-                0
-            })
     }
 }

@@ -155,7 +155,7 @@ impl UberTurnViewer {
         for i in &ic.members {
             batch.push(Color::BLUE.alpha(0.5), map.get_i(*i).polygon.clone());
         }
-        let mut sum_cost = 0;
+        let mut sum_cost = 0.0;
         if !ic.uber_turns.is_empty() {
             let ut = &ic.uber_turns[idx];
             batch.push(

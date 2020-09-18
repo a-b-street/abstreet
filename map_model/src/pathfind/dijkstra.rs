@@ -54,7 +54,7 @@ fn calc_path(graph: DiGraphMap<LaneID, TurnID>, req: PathRequest, map: &Map) -> 
         req.start.lane(),
         |l| l == req.end.lane(),
         |(_, _, turn)| driving_cost(map.get_l(turn.src), map.get_t(*turn), req.constraints, map),
-        |_| 0,
+        |_| 0.0,
     )?;
     let mut steps = Vec::new();
     for pair in path.windows(2) {

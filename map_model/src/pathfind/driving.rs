@@ -178,8 +178,7 @@ fn make_input_graph(
                     input_graph.add_edge(
                         from,
                         nodes.get(Node::Lane(turn.id.dst)),
-                        // Round up! 0 cost edges are ignored
-                        driving_cost(l, turn, constraints, map).max(1),
+                        round(driving_cost(l, turn, constraints, map)),
                     );
                 }
             } else {
@@ -187,11 +186,11 @@ fn make_input_graph(
                     any = true;
                     let ut = &uber_turns[*idx];
 
-                    let mut sum_cost = 0;
+                    let mut sum_cost = 0.0;
                     for t in &ut.path {
                         sum_cost += driving_cost(map.get_l(t.src), map.get_t(*t), constraints, map);
                     }
-                    input_graph.add_edge(from, nodes.get(Node::UberTurn(*idx)), sum_cost.max(1));
+                    input_graph.add_edge(from, nodes.get(Node::UberTurn(*idx)), round(sum_cost));
                     input_graph.add_edge(
                         nodes.get(Node::UberTurn(*idx)),
                         nodes.get(Node::Lane(ut.exit())),
@@ -214,7 +213,7 @@ fn make_input_graph(
     input_graph
 }
 
-pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -> usize {
+pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -> f64 {
     // TODO Could cost turns differently.
 
     let base = match constraints {
@@ -222,7 +221,7 @@ pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map:
             // Prefer slightly longer route on faster roads
             let t1 = lane.length() / map.get_r(lane.parent).speed_limit;
             let t2 = turn.geom.length() / map.get_parent(turn.id.dst).speed_limit;
-            (t1 + t2).inner_seconds().round() as usize
+            (t1 + t2).inner_seconds()
         }
         PathConstraints::Bike => {
             // Speed limits don't matter, bikes are usually constrained by their own speed limit.
@@ -243,7 +242,7 @@ pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map:
             };
 
             // 1m resolution is fine
-            (lt_penalty * dist).inner_meters().round() as usize
+            (lt_penalty * dist).inner_meters()
         }
         PathConstraints::Bus => {
             // Like Car, but prefer bus lanes.
@@ -255,7 +254,7 @@ pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map:
                 assert!(lane.is_driving());
                 1.1
             };
-            (lt_penalty * (t1 + t2)).inner_seconds().round() as usize
+            (lt_penalty * (t1 + t2)).inner_seconds()
         }
         PathConstraints::Pedestrian => unreachable!(),
     };
@@ -270,5 +269,10 @@ pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map:
         extra_penalty = slow_lane;
     }
 
-    base + extra_penalty
+    base + (extra_penalty as f64)
+}
+
+// Round up! 0 cost edges are ignored
+fn round(cost: f64) -> usize {
+    (cost.round() as usize).max(1)
 }
