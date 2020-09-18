@@ -7,9 +7,10 @@ use geom::{Bounds, Polygon, Pt2D};
 use std::cell::{Cell, RefCell};
 
 // Lower is more on top
-const MAPSPACE_Z: f32 = 1.0;
-const SCREENSPACE_Z: f32 = 0.5;
-const TOOLTIP_Z: f32 = 0.0;
+pub(crate) const MAPSPACE_Z: f32 = 1.0;
+pub(crate) const SCREENSPACE_Z: f32 = 0.0;
+pub(crate) const MENU_Z: f32 = -1.0;
+pub(crate) const TOOLTIP_Z: f32 = -2.0;
 
 #[derive(Debug)]
 pub struct Uniforms {
