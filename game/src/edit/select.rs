@@ -1,9 +1,7 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::helpers::{intersections_from_roads, ID};
-use geom::Distance;
-use map_model::{IntersectionID, Map, RoadID};
-use petgraph::graphmap::UnGraphMap;
+use map_model::{IntersectionID, RoadID};
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 use widgetry::{Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
@@ -234,7 +232,7 @@ impl RoadSelector {
                         .unwrap_or(true)
                     {
                         let mut batch = GeomBatch::new();
-                        let roads = if let Some(roads) = pathfind(&app.primary.map, i1, i2) {
+                        let roads = if let Some(roads) = app.primary.map.simple_path_btwn(i1, i2) {
                             let mut intersections = BTreeSet::new();
                             for r in &roads {
                                 let r = app.primary.map.get_r(*r);
@@ -319,26 +317,4 @@ impl RoadSelector {
 
         CommonState::draw_osd(g, app);
     }
-}
-
-// Simple search along undirected roads
-fn pathfind(map: &Map, i1: IntersectionID, i2: IntersectionID) -> Option<Vec<RoadID>> {
-    let mut graph: UnGraphMap<IntersectionID, RoadID> = UnGraphMap::new();
-    for r in map.all_roads() {
-        if !r.is_light_rail() {
-            graph.add_edge(r.src_i, r.dst_i, r.id);
-        }
-    }
-    let (_, path) = petgraph::algo::astar(
-        &graph,
-        i1,
-        |i| i == i2,
-        |(_, _, r)| map.get_r(*r).center_pts.length(),
-        |_| Distance::ZERO,
-    )?;
-    Some(
-        path.windows(2)
-            .map(|pair| *graph.edge_weight(pair[0], pair[1]).unwrap())
-            .collect(),
-    )
 }

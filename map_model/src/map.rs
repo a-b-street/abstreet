@@ -6,7 +6,8 @@ use crate::{
     PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, Turn, TurnID, TurnType, Zone,
 };
 use abstutil::Timer;
-use geom::{Bounds, GPSBounds, Polygon, Pt2D, Ring, Time};
+use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D, Ring, Time};
+use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
@@ -647,5 +648,27 @@ impl Map {
 
     pub fn get_config(&self) -> &MapConfig {
         &self.config
+    }
+
+    // Simple search along undirected roads
+    pub fn simple_path_btwn(&self, i1: IntersectionID, i2: IntersectionID) -> Option<Vec<RoadID>> {
+        let mut graph: UnGraphMap<IntersectionID, RoadID> = UnGraphMap::new();
+        for r in self.all_roads() {
+            if !r.is_light_rail() {
+                graph.add_edge(r.src_i, r.dst_i, r.id);
+            }
+        }
+        let (_, path) = petgraph::algo::astar(
+            &graph,
+            i1,
+            |i| i == i2,
+            |(_, _, r)| self.get_r(*r).center_pts.length(),
+            |_| Distance::ZERO,
+        )?;
+        Some(
+            path.windows(2)
+                .map(|pair| *graph.edge_weight(pair[0], pair[1]).unwrap())
+                .collect(),
+        )
     }
 }

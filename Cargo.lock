@@ -1017,7 +1017,6 @@ dependencies = [
  "lttb 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "map_model 0.1.0",
  "maplit 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "petgraph 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "petname 1.0.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand_xorshift 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
