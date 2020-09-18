@@ -1,4 +1,4 @@
-use crate::{Color, FancyColor, GeomBatch, LinearGradient, Prerender};
+use crate::{Color, Fill, GeomBatch, LinearGradient, Prerender};
 use abstutil::VecMap;
 use geom::{Bounds, Polygon, Pt2D};
 use lyon::math::Point;
@@ -47,7 +47,7 @@ pub fn add_svg_inner(
     let mut fill_tess = tessellation::FillTessellator::new();
     let mut stroke_tess = tessellation::StrokeTessellator::new();
     // TODO This breaks on start.svg; the order there matters. color1, color2, then color1 again.
-    let mut mesh_per_color: VecMap<FancyColor, VertexBuffers<_, u16>> = VecMap::new();
+    let mut mesh_per_color: VecMap<Fill, VertexBuffers<_, u16>> = VecMap::new();
 
     for node in svg_tree.root().descendants() {
         if let usvg::NodeKind::Path(ref p) = *node.borrow() {
@@ -79,7 +79,7 @@ pub fn add_svg_inner(
     }
 
     for (color, mesh) in mesh_per_color.consume() {
-        batch.fancy_push(
+        batch.push(
             color,
             Polygon::precomputed(
                 mesh.vertices
@@ -204,7 +204,7 @@ fn convert_stroke(
     s: &usvg::Stroke,
     tolerance: f32,
     tree: &usvg::Tree,
-) -> (FancyColor, tessellation::StrokeOptions) {
+) -> (Fill, tessellation::StrokeOptions) {
     let color = convert_color(&s.paint, s.opacity.value(), tree);
     let linecap = match s.linecap {
         usvg::LineCap::Butt => tessellation::LineCap::Butt,
@@ -225,9 +225,9 @@ fn convert_stroke(
     (color, opt)
 }
 
-fn convert_color(paint: &usvg::Paint, opacity: f64, tree: &usvg::Tree) -> FancyColor {
+fn convert_color(paint: &usvg::Paint, opacity: f64, tree: &usvg::Tree) -> Fill {
     match paint {
-        usvg::Paint::Color(c) => FancyColor::RGBA(Color::rgba(
+        usvg::Paint::Color(c) => Fill::Color(Color::rgba(
             c.red as usize,
             c.green as usize,
             c.blue as usize,

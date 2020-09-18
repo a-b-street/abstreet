@@ -3,9 +3,7 @@ use abstutil::Counter;
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use std::collections::HashMap;
-use widgetry::{
-    Color, Drawable, EventCtx, FancyColor, GeomBatch, Line, LinearGradient, Text, Widget,
-};
+use widgetry::{Color, Drawable, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Widget};
 
 pub struct ColorDiscrete<'a> {
     map: &'a Map,
@@ -120,8 +118,8 @@ impl ColorLegend {
         let n = scale.0.len();
         let mut batch = GeomBatch::new();
         let width_each = width / ((n - 1) as f64);
-        batch.fancy_push(
-            FancyColor::LinearGradient(LinearGradient {
+        batch.push(
+            Fill::LinearGradient(LinearGradient {
                 line: Line::must_new(Pt2D::new(0.0, 0.0), Pt2D::new(width, 0.0)),
                 stops: scale
                     .0

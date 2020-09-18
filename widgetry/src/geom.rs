@@ -1,14 +1,13 @@
 use crate::widgets::button::BtnBuilder;
 use crate::{
-    svg, Btn, Color, DeferDraw, Drawable, EventCtx, FancyColor, GfxCtx, Prerender, ScreenDims,
-    Widget,
+    svg, Btn, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, Prerender, ScreenDims, Widget,
 };
 use geom::{Angle, Bounds, Polygon, Pt2D};
 
 /// A mutable builder for a group of colored polygons.
 #[derive(Clone)]
 pub struct GeomBatch {
-    pub(crate) list: Vec<(FancyColor, Polygon)>,
+    pub(crate) list: Vec<(Fill, Polygon)>,
     pub autocrop_dims: bool,
 }
 
@@ -24,33 +23,21 @@ impl GeomBatch {
     /// Creates a batch of colored polygons.
     pub fn from(list: Vec<(Color, Polygon)>) -> GeomBatch {
         GeomBatch {
-            list: list
-                .into_iter()
-                .map(|(c, p)| (FancyColor::RGBA(c), p))
-                .collect(),
+            list: list.into_iter().map(|(c, p)| (Fill::Color(c), p)).collect(),
             autocrop_dims: true,
         }
     }
 
-    /// Adds a single colored polygon.
-    pub fn push(&mut self, color: Color, p: Polygon) {
-        self.list.push((FancyColor::RGBA(color), p));
-    }
-    // TODO Not sure about this
-    pub fn fancy_push(&mut self, color: FancyColor, p: Polygon) {
-        self.list.push((color, p));
+    // Adds a single polygon, painted according to `Fill`
+    pub fn push<F: Into<Fill>>(&mut self, fill: F, p: Polygon) {
+        self.list.push((fill.into(), p));
     }
 
-    /// Applies one color to many polygons.
-    pub fn extend(&mut self, color: Color, polys: Vec<Polygon>) {
+    /// Applies one Fill to many polygons.
+    pub fn extend<F: Into<Fill>>(&mut self, fill: F, polys: Vec<Polygon>) {
+        let fill = fill.into();
         for p in polys {
-            self.list.push((FancyColor::RGBA(color), p));
-        }
-    }
-
-    pub fn fancy_extend(&mut self, color: FancyColor, polys: Vec<Polygon>) {
-        for p in polys {
-            self.list.push((color.clone(), p));
+            self.list.push((fill.clone(), p));
         }
     }
 
@@ -60,7 +47,7 @@ impl GeomBatch {
     }
 
     /// Returns the colored polygons in this batch, destroying the batch.
-    pub fn consume(self) -> Vec<(FancyColor, Polygon)> {
+    pub fn consume(self) -> Vec<(Fill, Polygon)> {
         self.list
     }
 
@@ -155,7 +142,7 @@ impl GeomBatch {
     /// Transforms all colors in a batch.
     pub fn color(mut self, transformation: RewriteColor) -> GeomBatch {
         for (fancy, _) in &mut self.list {
-            if let FancyColor::RGBA(ref mut c) = fancy {
+            if let Fill::Color(ref mut c) = fancy {
                 *c = transformation.apply(*c);
             }
         }

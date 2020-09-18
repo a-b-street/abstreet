@@ -20,10 +20,9 @@ impl fmt::Display for Color {
     }
 }
 
-// TODO Maybe needs a better name
 #[derive(Debug, Clone, PartialEq)]
-pub enum FancyColor {
-    RGBA(Color),
+pub enum Fill {
+    Color(Color),
     LinearGradient(LinearGradient),
 
     /// Once uploaded, textures are addressed by their id, starting from 1, from left to right, top
@@ -45,7 +44,7 @@ pub enum FancyColor {
     ColoredTexture(Color, Texture),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Texture(u32);
 
 #[allow(dead_code)]
@@ -149,7 +148,7 @@ pub struct LinearGradient {
 }
 
 impl LinearGradient {
-    pub(crate) fn new(lg: &usvg::LinearGradient) -> FancyColor {
+    pub(crate) fn new(lg: &usvg::LinearGradient) -> Fill {
         let line = Line::must_new(Pt2D::new(lg.x1, lg.y1), Pt2D::new(lg.x2, lg.y2));
         let mut stops = Vec::new();
         for stop in &lg.stops {
@@ -161,7 +160,7 @@ impl LinearGradient {
             );
             stops.push((stop.offset.value(), color));
         }
-        FancyColor::LinearGradient(LinearGradient { line, stops })
+        Fill::LinearGradient(LinearGradient { line, stops })
     }
 
     fn interp(&self, pt: Pt2D) -> Color {
@@ -196,18 +195,30 @@ fn lerp(pct: f64, (x1, x2): (f32, f32)) -> f32 {
     x1 + (pct as f32) * (x2 - x1)
 }
 
-impl FancyColor {
+impl Fill {
     pub(crate) fn shader_style(&self, pt: Pt2D) -> [f32; 5] {
         match self {
-            FancyColor::RGBA(c) => [c.r, c.g, c.b, c.a, 0.0],
-            FancyColor::LinearGradient(ref lg) => {
+            Fill::Color(c) => [c.r, c.g, c.b, c.a, 0.0],
+            Fill::LinearGradient(ref lg) => {
                 let c = lg.interp(pt);
                 [c.r, c.g, c.b, c.a, 0.0]
             }
-            FancyColor::Texture(texture) => [1.0, 1.0, 1.0, 1.0, texture.0 as f32],
-            FancyColor::ColoredTexture(color, texture) => {
+            Fill::Texture(texture) => [1.0, 1.0, 1.0, 1.0, texture.0 as f32],
+            Fill::ColoredTexture(color, texture) => {
                 [color.r, color.g, color.b, color.a, texture.0 as f32]
             }
         }
+    }
+}
+
+impl std::convert::From<Color> for Fill {
+    fn from(color: Color) -> Fill {
+        Fill::Color(color)
+    }
+}
+
+impl std::convert::From<Texture> for Fill {
+    fn from(texture: Texture) -> Fill {
+        Fill::Texture(texture)
     }
 }
