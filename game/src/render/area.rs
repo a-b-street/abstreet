@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
 use geom::Polygon;
 use map_model::{Area, AreaID, AreaType, Map};
-use widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Line, Text};
+use widgetry::{Color, EventCtx, Fill, GeomBatch, GfxCtx, Line, Text};
 
 pub struct DrawArea {
     pub id: AreaID,
@@ -17,7 +17,7 @@ impl DrawArea {
         cs: &ColorScheme,
         all_areas: &mut GeomBatch,
     ) -> DrawArea {
-        all_areas.push(DrawArea::color(area.area_type, cs), area.polygon.clone());
+        all_areas.push(DrawArea::fill(area.area_type, cs), area.polygon.clone());
         if false {
             // TODO Z-order needs to be on top of everything
             // TODO Need to auto-size better -- ensure it's completely contained in the polygon,
@@ -35,12 +35,13 @@ impl DrawArea {
         DrawArea { id: area.id }
     }
 
-    pub fn color(area_type: AreaType, cs: &ColorScheme) -> Color {
+    pub fn fill(area_type: AreaType, cs: &ColorScheme) -> Fill {
         match area_type {
-            AreaType::Park => cs.grass,
-            AreaType::Water => cs.water,
-            AreaType::PedestrianIsland => Color::grey(0.3),
-            AreaType::Island => cs.map_background,
+            // MJK TODO: convert some of these to be a Fill on the theme rather than `into`
+            AreaType::Park => cs.grass.into(),
+            AreaType::Water => cs.water.into(),
+            AreaType::PedestrianIsland => Color::grey(0.3).into(),
+            AreaType::Island => cs.map_background.into(),
         }
     }
 }

@@ -42,7 +42,7 @@ impl CityPicker {
 
             batch.push(app.cs.map_background, city.boundary);
             for (area_type, polygon) in city.areas {
-                batch.push(DrawArea::color(area_type, &app.cs), polygon);
+                batch.push(DrawArea::fill(area_type, &app.cs), polygon);
             }
 
             for (name, polygon) in city.regions {
