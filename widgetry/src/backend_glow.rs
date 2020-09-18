@@ -213,10 +213,10 @@ impl PrerenderInnards {
     }
 
     pub fn actually_upload(&self, permanent: bool, batch: GeomBatch) -> Drawable {
-        let mut vertices: Vec<[f32; 7]> = Vec::new();
+        let mut vertices: Vec<[f32; 8]> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
 
-        for (color, poly) in batch.consume() {
+        for (color, poly, z) in batch.consume() {
             let idx_offset = vertices.len() as u32;
             let (pts, raw_indices) = poly.raw_for_rendering();
             for pt in pts {
@@ -224,6 +224,7 @@ impl PrerenderInnards {
                 vertices.push([
                     pt.x() as f32,
                     pt.y() as f32,
+                    z as f32,
                     style[0],
                     style[1],
                     style[2],
@@ -261,7 +262,7 @@ impl PrerenderInnards {
             );
 
             let vertex_attributes: [i32; 3] = [
-                2, // position is vec2
+                3, // position is vec2
                 4, // color is vec4
                 1, // texture_id is float
             ];
