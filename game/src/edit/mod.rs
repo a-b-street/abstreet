@@ -185,7 +185,7 @@ impl State for EditMode {
                                 Transition::Replace(SaveEdits::new(
                                     ctx,
                                     app,
-                                    format!("Rename \"{}\" to what?", old_name),
+                                    format!("Rename \"{}\"", old_name),
                                     false,
                                     Some(Transition::Pop),
                                     Box::new(move |_, app| {
@@ -236,10 +236,7 @@ impl State for EditMode {
                             "save this proposal as..." => Transition::Replace(SaveEdits::new(
                                 ctx,
                                 app,
-                                format!(
-                                    "Copy \"{}\" to what new name?",
-                                    app.primary.map.get_edits().edits_name
-                                ),
+                                format!("Save \"{}\" as", app.primary.map.get_edits().edits_name),
                                 false,
                                 Some(Transition::Pop),
                                 Box::new(|_, _| {}),
@@ -376,8 +373,7 @@ impl SaveEdits {
         } else {
             format!("copy of {}", app.primary.map.get_edits().edits_name)
         };
-        let btn = SaveEdits::btn(ctx, app, &initial_name);
-        Box::new(SaveEdits {
+        let mut save = SaveEdits {
             current_name: initial_name.clone(),
             panel: Panel::new(Widget::col(vec![
                 Line(title).small_heading().draw(ctx),
@@ -385,37 +381,70 @@ impl SaveEdits {
                     "Name:".draw_text(ctx),
                     Widget::text_entry(ctx, initial_name, true).named("filename"),
                 ]),
+                // TODO Want this to always consistently be one line high, but it isn't for a blank
+                // line
+                Text::new().draw(ctx).named("warning"),
                 Widget::row(vec![
-                    btn,
                     if discard {
                         Btn::text_bg2("Discard proposal").build_def(ctx, None)
                     } else {
                         Widget::nothing()
                     },
                     if cancel.is_some() {
-                        Btn::text_bg2("Cancel").build_def(ctx, hotkey(Key::Escape))
+                        Btn::plaintext("Cancel").build_def(ctx, hotkey(Key::Escape))
                     } else {
                         Widget::nothing()
                     },
-                ]),
+                    Btn::text_bg2("Save").inactive(ctx).named("save"),
+                ])
+                .align_right(),
             ]))
             .build(ctx),
             cancel,
             on_success,
             reset: discard,
-        })
+        };
+        save.recalc_btn(ctx, app);
+        Box::new(save)
     }
 
-    fn btn(ctx: &mut EventCtx, app: &App, candidate: &str) -> Widget {
-        if candidate.is_empty() {
-            Btn::text_bg2("Save").inactive(ctx)
-        } else if abstutil::file_exists(abstutil::path_edits(app.primary.map.get_name(), candidate))
-        {
-            Btn::text_bg2("Overwrite existing proposal").build_def(ctx, None)
+    fn recalc_btn(&mut self, ctx: &mut EventCtx, app: &App) {
+        if self.current_name.is_empty() {
+            self.panel.replace(
+                ctx,
+                "save",
+                Btn::text_bg2("Save").inactive(ctx).named("save"),
+            );
+            self.panel
+                .replace(ctx, "warning", Text::new().draw(ctx).named("warning"));
+        } else if abstutil::file_exists(abstutil::path_edits(
+            app.primary.map.get_name(),
+            &self.current_name,
+        )) {
+            self.panel.replace(
+                ctx,
+                "save",
+                Btn::text_bg2("Save").inactive(ctx).named("save"),
+            );
+            self.panel.replace(
+                ctx,
+                "warning",
+                Line("A proposal with this name already exists")
+                    .fg(Color::hex("#FF5E5E"))
+                    .draw(ctx)
+                    .named("warning"),
+            );
         } else {
-            Btn::text_bg2("Save").build_def(ctx, hotkey(Key::Enter))
+            self.panel.replace(
+                ctx,
+                "save",
+                Btn::text_bg2("Save")
+                    .build_def(ctx, hotkey(Key::Enter))
+                    .named("save"),
+            );
+            self.panel
+                .replace(ctx, "warning", Text::new().draw(ctx).named("warning"));
         }
-        .named("save")
     }
 }
 
@@ -450,8 +479,7 @@ impl State for SaveEdits {
         let name = self.panel.text_box("filename");
         if name != self.current_name {
             self.current_name = name;
-            let btn = SaveEdits::btn(ctx, app, &self.current_name);
-            self.panel.replace(ctx, "save", btn);
+            self.recalc_btn(ctx, app);
         }
 
         Transition::Keep
