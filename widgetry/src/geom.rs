@@ -48,6 +48,12 @@ impl GeomBatch {
         }
     }
 
+    pub fn fancy_extend(&mut self, color: FancyColor, polys: Vec<Polygon>) {
+        for p in polys {
+            self.list.push((color.clone(), p));
+        }
+    }
+
     /// Appends all colored polygons from another batch to the current one.
     pub fn append(&mut self, other: GeomBatch) {
         self.list.extend(other.list);

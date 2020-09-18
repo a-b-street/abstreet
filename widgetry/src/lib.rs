@@ -56,7 +56,7 @@ mod backend {
 
 pub use crate::backend::Drawable;
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
-pub use crate::color::{Color, FancyColor, LinearGradient};
+pub use crate::color::{Color, FancyColor, LinearGradient, Texture};
 pub use crate::drawing::{GfxCtx, Prerender};
 pub use crate::event::{hotkey, hotkeys, lctrl, Event, Key, MultiKey};
 pub use crate::event_ctx::{EventCtx, UpdateType};

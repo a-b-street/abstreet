@@ -25,6 +25,44 @@ impl fmt::Display for Color {
 pub enum FancyColor {
     RGBA(Color),
     LinearGradient(LinearGradient),
+
+    /// Once uploaded, textures are addressed by their id, starting from 1, from left to right, top
+    /// to bottom, like so:
+    ///
+    ///     ┌─┬─┬─┐
+    ///     │1│2│3│
+    ///     ├─┼─┼─┤
+    ///     │4│5│6│
+    ///     ├─┼─┼─┤
+    ///     │7│8│9│
+    ///     └─┴─┴─┘
+    ///
+    /// Texture(0) is reserved for a pure white (no-op) texture.
+    Texture(Texture),
+
+    /// The `color` parameter is multiplied by any color baked into the texture, so typically this
+    /// only makes sense for grayscale textures.
+    ColoredTexture(Color, Texture),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Texture(u32);
+
+#[allow(dead_code)]
+impl Texture {
+    pub const NOOP: Texture = Texture(0);
+    pub const GRASS: Texture = Texture(1);
+    pub const STILL_WATER: Texture = Texture(2);
+    pub const RUNNING_WATER: Texture = Texture(3);
+    pub const CONCRETE: Texture = Texture(4);
+    pub const SAND: Texture = Texture(5);
+    pub const DIRT: Texture = Texture(6);
+    pub const SNOW: Texture = Texture(7);
+    pub const TREE: Texture = Texture(15);
+    pub const PINE_TREE: Texture = Texture(16);
+    pub const CACTUS: Texture = Texture(17);
+    pub const SHRUB: Texture = Texture(18);
+    pub const SNOW_PERSON: Texture = Texture(29);
 }
 
 impl Color {
@@ -159,12 +197,16 @@ fn lerp(pct: f64, (x1, x2): (f32, f32)) -> f32 {
 }
 
 impl FancyColor {
-    pub(crate) fn style(&self, pt: Pt2D) -> [f32; 4] {
+    pub(crate) fn shader_style(&self, pt: Pt2D) -> [f32; 5] {
         match self {
-            FancyColor::RGBA(c) => [c.r, c.g, c.b, c.a],
+            FancyColor::RGBA(c) => [c.r, c.g, c.b, c.a, 0.0],
             FancyColor::LinearGradient(ref lg) => {
                 let c = lg.interp(pt);
-                [c.r, c.g, c.b, c.a]
+                [c.r, c.g, c.b, c.a, 0.0]
+            }
+            FancyColor::Texture(texture) => [1.0, 1.0, 1.0, 1.0, texture.0 as f32],
+            FancyColor::ColoredTexture(color, texture) => {
+                [color.r, color.g, color.b, color.a, texture.0 as f32]
             }
         }
     }
