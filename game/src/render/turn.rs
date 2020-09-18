@@ -1,13 +1,13 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
-use crate::render::BIG_ARROW_THICKNESS;
+use crate::render::{traffic_signal, BIG_ARROW_THICKNESS};
 use geom::{Angle, ArrowCap, Circle, Distance, PolyLine, Polygon};
 use map_model::{
     IntersectionCluster, IntersectionID, LaneID, Map, MovementID, TurnPriority, UberTurnGroup,
     SIDEWALK_THICKNESS,
 };
 use std::collections::{HashMap, HashSet};
-use widgetry::{Color, GeomBatch};
+use widgetry::{Color, GeomBatch, Prerender};
 
 const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(1.5);
 
@@ -19,6 +19,7 @@ pub struct DrawMovement {
 impl DrawMovement {
     // Also returns the stuff to draw each movement
     pub fn for_i(
+        prerender: &Prerender,
         map: &Map,
         cs: &ColorScheme,
         i: IntersectionID,
@@ -34,11 +35,16 @@ impl DrawMovement {
             let mut batch = GeomBatch::new();
             // TODO Refactor the slice_start/slice_end stuff from draw_signal_stage.
             let hitbox = if stage.protected_movements.contains(&movement.id) {
-                let arrow = movement
-                    .geom
-                    .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
-                batch.push(cs.signal_protected_turn, arrow.clone());
-                arrow
+                if movement.id.crosswalk {
+                    batch = traffic_signal::walk_icon(movement, prerender);
+                    batch.unioned_polygon()
+                } else {
+                    let arrow = movement
+                        .geom
+                        .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
+                    batch.push(cs.signal_protected_turn, arrow.clone());
+                    arrow
+                }
             } else if stage.yield_movements.contains(&movement.id) {
                 let pl = &movement.geom;
                 batch.extend(
@@ -69,25 +75,30 @@ impl DrawMovement {
                     .geom
                     .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
             } else {
-                // Use circular icons for banned turns
-                let offset = movement
-                    .members
-                    .iter()
-                    .map(|t| *offset_per_lane.entry(t.src).or_insert(0))
-                    .max()
-                    .unwrap();
-                let (pl, _) = movement.src_center_and_width(map);
-                let (circle, arrow) = make_circle_geom(offset as f64, pl, movement.angle);
-                let mut seen_lanes = HashSet::new();
-                for t in &movement.members {
-                    if !seen_lanes.contains(&t.src) {
-                        *offset_per_lane.get_mut(&t.src).unwrap() = offset + 1;
-                        seen_lanes.insert(t.src);
+                if movement.id.crosswalk {
+                    batch = traffic_signal::dont_walk_icon(movement, prerender);
+                    batch.unioned_polygon()
+                } else {
+                    // Use circular icons for banned turns
+                    let offset = movement
+                        .members
+                        .iter()
+                        .map(|t| *offset_per_lane.entry(t.src).or_insert(0))
+                        .max()
+                        .unwrap();
+                    let (pl, _) = movement.src_center_and_width(map);
+                    let (circle, arrow) = make_circle_geom(offset as f64, pl, movement.angle);
+                    let mut seen_lanes = HashSet::new();
+                    for t in &movement.members {
+                        if !seen_lanes.contains(&t.src) {
+                            *offset_per_lane.get_mut(&t.src).unwrap() = offset + 1;
+                            seen_lanes.insert(t.src);
+                        }
                     }
+                    batch.push(Color::hex("#7C7C7C"), circle.clone());
+                    batch.push(Color::WHITE, arrow);
+                    circle
                 }
-                batch.push(Color::hex("#7C7C7C"), circle.clone());
-                batch.push(Color::WHITE, arrow);
-                circle
             };
             results.push((
                 DrawMovement {

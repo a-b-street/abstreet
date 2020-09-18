@@ -9,7 +9,7 @@ mod map;
 mod parking_lot;
 mod pedestrian;
 mod road;
-mod traffic_signal;
+pub mod traffic_signal;
 mod turn;
 
 use crate::app::App;
@@ -22,7 +22,6 @@ use crate::render::car::DrawCar;
 pub use crate::render::intersection::{calculate_corners, DrawIntersection};
 pub use crate::render::map::{AgentCache, DrawMap, UnzoomedAgents};
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
-pub use crate::render::traffic_signal::{draw_signal_stage, draw_stage_number};
 pub use crate::render::turn::{DrawMovement, DrawUberTurnGroup};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, Map};

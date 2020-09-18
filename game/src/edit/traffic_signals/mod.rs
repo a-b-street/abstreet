@@ -7,7 +7,7 @@ use crate::common::CommonState;
 use crate::edit::{apply_map_edits, ConfirmDiscard};
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::options::TrafficSignalStyle;
-use crate::render::{draw_signal_stage, draw_stage_number, DrawMovement, DrawOptions};
+use crate::render::{traffic_signal, DrawMovement, DrawOptions};
 use crate::sandbox::GameplayMode;
 use abstutil::Timer;
 use geom::{Distance, Duration, Line, Polygon, Pt2D};
@@ -144,12 +144,18 @@ impl TrafficSignalEditor {
         let mut movements = Vec::new();
         for i in &self.members {
             let stage = &app.primary.map.get_traffic_signal(*i).stages[self.current_stage];
-            for (m, draw) in DrawMovement::for_i(&app.primary.map, &app.cs, *i, self.current_stage)
-            {
+            for (m, draw) in DrawMovement::for_i(
+                ctx.prerender,
+                &app.primary.map,
+                &app.cs,
+                *i,
+                self.current_stage,
+            ) {
                 if self
                     .movement_selected
                     .map(|(x, _)| x != m.id)
                     .unwrap_or(true)
+                    || m.id.crosswalk
                 {
                     batch.append(draw);
                 } else if !stage.protected_movements.contains(&m.id)
@@ -163,7 +169,13 @@ impl TrafficSignalEditor {
                 }
                 movements.push(m);
             }
-            draw_stage_number(app, ctx.prerender, *i, self.current_stage, &mut batch);
+            traffic_signal::draw_stage_number(
+                app,
+                ctx.prerender,
+                *i,
+                self.current_stage,
+                &mut batch,
+            );
         }
 
         // Draw the selected thing on top of everything else
@@ -846,7 +858,7 @@ fn draw_multiple_signals(
             app.cs.normal_intersection,
             app.primary.map.get_i(*i).polygon.clone(),
         );
-        draw_signal_stage(
+        traffic_signal::draw_signal_stage(
             ctx.prerender,
             &app.primary.map.get_traffic_signal(*i).stages[idx],
             idx,

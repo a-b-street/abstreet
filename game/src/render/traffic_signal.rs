@@ -3,7 +3,7 @@ use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::BIG_ARROW_THICKNESS;
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
-use map_model::{IntersectionID, Stage, TurnPriority, SIDEWALK_THICKNESS};
+use map_model::{IntersectionID, Movement, Stage, TurnPriority, SIDEWALK_THICKNESS};
 use std::collections::BTreeSet;
 use widgetry::{Color, GeomBatch, Line, Prerender, RewriteColor, Text};
 
@@ -68,25 +68,15 @@ pub fn draw_signal_stage(
                         );
                     }
                 } else {
-                    let (center, angle) = crosswalk_icon(&signal.movements[m].geom);
                     batch.append(
-                        GeomBatch::load_svg(prerender, "system/assets/map/walk.svg")
-                            .scale(0.07)
-                            .centered_on(center)
-                            .rotate(angle)
+                        walk_icon(&signal.movements[m], prerender)
                             .color(RewriteColor::ChangeAlpha(percent)),
                     );
                     dont_walk.remove(m);
                 }
             }
             for m in dont_walk {
-                let (center, angle) = crosswalk_icon(&signal.movements[m].geom);
-                batch.append(
-                    GeomBatch::load_svg(prerender, "system/assets/map/dont_walk.svg")
-                        .scale(0.07)
-                        .centered_on(center)
-                        .rotate(angle),
-                );
+                batch.append(dont_walk_icon(&signal.movements[m], prerender));
             }
             for m in &stage.yield_movements {
                 assert!(!m.crosswalk);
@@ -239,6 +229,21 @@ fn draw_time_left(
             .scale(0.1)
             .centered_on(center),
     );
+}
+
+pub fn walk_icon(movement: &Movement, prerender: &Prerender) -> GeomBatch {
+    let (center, angle) = crosswalk_icon(&movement.geom);
+    GeomBatch::load_svg(prerender, "system/assets/map/walk.svg")
+        .scale(0.07)
+        .centered_on(center)
+        .rotate(angle)
+}
+pub fn dont_walk_icon(movement: &Movement, prerender: &Prerender) -> GeomBatch {
+    let (center, angle) = crosswalk_icon(&movement.geom);
+    GeomBatch::load_svg(prerender, "system/assets/map/dont_walk.svg")
+        .scale(0.07)
+        .centered_on(center)
+        .rotate(angle)
 }
 
 // TODO Kind of a hack to know that the second point is a better center.

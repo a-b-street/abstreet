@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::helpers::color_for_agent_type;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use crate::options::TrafficSignalStyle;
-use crate::render::draw_signal_stage;
+use crate::render::traffic_signal::draw_signal_stage;
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Time};
 use map_model::{IntersectionID, IntersectionType, PhaseType};
