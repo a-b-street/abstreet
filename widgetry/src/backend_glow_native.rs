@@ -96,7 +96,7 @@ impl WindowAdapter {
 /// friends to paint shapes.
 ///
 /// `path` - image file which is a grid of images.
-/// `sprite_width` - the width and height of an individual cell in the image grid
+/// `sprite_length` - the width and height of an individual cell in the image grid
 ///
 /// The image file can have any number of sprites, but they must all be the same size.
 ///
@@ -118,7 +118,7 @@ impl WindowAdapter {
 fn load_textures(
     gl: &glow::Context,
     filename: &str,
-    sprite_width: u32,
+    sprite_length: u32,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let path = abstutil::path(filename);
     let image_bytes = abstutil::slurp_file(&path)?;
@@ -140,13 +140,13 @@ fn load_textures(
     }
 
     let (img_width, img_height) = img.dimensions();
-    let sprite_height = sprite_width;
-    let sprites_per_row = img_width / sprite_width;
-    let sprites_per_column = img_height / sprite_width;
+    let sprite_height = sprite_length;
+    let sprites_per_row = img_width / sprite_length;
+    let sprites_per_column = img_height / sprite_length;
     let sprite_count = sprites_per_row * sprites_per_column;
 
     assert_eq!(
-        sprites_per_row * sprite_width,
+        sprites_per_row * sprite_length,
         img_width,
         "sprites must align exactly"
     );
@@ -161,7 +161,7 @@ fn load_textures(
         img_width,
         img_height,
         img.pixels().len(),
-        sprite_width,
+        sprite_length,
         sprite_height,
         sprites_per_row,
         sprites_per_column,
@@ -172,7 +172,7 @@ fn load_textures(
     // Even "non-textured" styles like FancyColor::RGBA, use a "default" no-op (pure white) texture,
     // which we generate here.
     let mut formatted_pixels: Vec<image::Rgba<u8>> =
-        vec![image::Rgba([255; 4]); (sprite_width * sprite_width) as usize];
+        vec![image::Rgba([255; 4]); (sprite_length * sprite_length) as usize];
 
     // OpenGL texture arrays expect each textures bytes to be contiguous, but it's conventional to
     // store textures in a grid within a single spritesheet image, where a row and column contains
@@ -197,9 +197,9 @@ fn load_textures(
     for y in 0..sprites_per_column {
         for x in 0..sprites_per_row {
             let sprite_cell = img.view(
-                x * sprite_width,
+                x * sprite_length,
                 y * sprite_height,
-                sprite_width,
+                sprite_length,
                 sprite_height,
             );
             for p in sprite_cell.pixels() {
@@ -214,7 +214,7 @@ fn load_textures(
             target,
             mipmap_level,
             internal_format,
-            sprite_width as i32,
+            sprite_length as i32,
             sprite_height as i32,
             sprite_count as i32,
         );
@@ -241,7 +241,7 @@ fn load_textures(
             0,
             0,
             0,
-            sprite_width as i32,
+            sprite_length as i32,
             sprite_height as i32,
             sprite_count as i32,
             format,
@@ -253,7 +253,7 @@ fn load_textures(
             target,
             0,
             format as i32,
-            sprite_width as i32,
+            sprite_length as i32,
             sprite_height as i32,
             sprite_count as i32,
             0,
@@ -265,7 +265,7 @@ fn load_textures(
             target,
             1,
             format as i32,
-            (sprite_width / 2) as i32,
+            (sprite_length / 2) as i32,
             (sprite_height / 2) as i32,
             sprite_count as i32,
             0,
@@ -277,7 +277,7 @@ fn load_textures(
             target,
             2,
             format as i32,
-            (sprite_width / 4) as i32,
+            (sprite_length / 4) as i32,
             (sprite_height / 4) as i32,
             sprite_count as i32,
             0,
