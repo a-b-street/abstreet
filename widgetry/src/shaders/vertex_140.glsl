@@ -5,7 +5,7 @@ uniform vec3 transform;
 // (window width, window height, z value)
 uniform vec3 window;
 // textures grid
-uniform sampler3D textures;
+uniform sampler2DArray textures;
 
 layout (location = 0) in vec2 position;
 layout (location = 1) in vec4 color;
