@@ -1,4 +1,5 @@
 mod edits;
+mod offsets;
 mod picker;
 mod preview;
 
@@ -58,24 +59,7 @@ impl TrafficSignalEditor {
         members: BTreeSet<IntersectionID>,
         mode: GameplayMode,
     ) -> Box<dyn State> {
-        let map = &app.primary.map;
         app.primary.current_selection = None;
-
-        let fade_area = {
-            let mut holes = Vec::new();
-            for i in &members {
-                let i = map.get_i(*i);
-                holes.push(i.polygon.clone());
-                for r in &i.roads {
-                    holes.push(map.get_r(*r).get_thick_polygon(map));
-                }
-            }
-            // The convex hull illuminates a bit more of the surrounding area, looks better
-            Polygon::with_holes(
-                map.get_boundary_polygon().clone().into_ring(),
-                vec![Polygon::convex_hull(holes).into_ring()],
-            )
-        };
 
         let original = BundleEdits::get_current(app, &members);
         let synced = BundleEdits::synchronize(app, &members);
@@ -86,7 +70,6 @@ impl TrafficSignalEditor {
             side_panel: make_side_panel(ctx, app, &members, 0, None),
             top_panel: make_top_panel(ctx, app, false, false),
             mode,
-            members,
             current_stage: 0,
             movements: Vec::new(),
             movement_selected: None,
@@ -95,7 +78,8 @@ impl TrafficSignalEditor {
             redo_stack: Vec::new(),
             warn_changed,
             original,
-            fade_irrelevant: GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx),
+            fade_irrelevant: fade_irrelevant(app, &members).upload(ctx),
+            members,
         };
         editor.recalc_draw_current(ctx, app);
         Box::new(editor)
@@ -221,6 +205,13 @@ impl State for TrafficSignalEditor {
                         canonical_signal.id,
                         self.mode.clone(),
                         self.original.clone(),
+                    ));
+                }
+                if x == "Tune offsets between signals" {
+                    return Transition::Push(offsets::ShowAbsolute::new(
+                        ctx,
+                        app,
+                        self.members.clone(),
                     ));
                 }
                 if x == "Add a new stage" {
@@ -605,6 +596,8 @@ fn make_side_panel(
 
     if members.len() == 1 {
         col.push(Btn::text_bg2("Edit entire signal").build_def(ctx, Key::E));
+    } else {
+        col.push(Btn::text_bg2("Tune offsets between signals").build_def(ctx, Key::O));
     }
 
     let translations = squish_polygons_together(
@@ -869,4 +862,26 @@ fn squish_polygons_together(mut polygons: Vec<Polygon>) -> Vec<(f64, f64)> {
     }
 
     translations
+}
+
+pub fn fade_irrelevant(app: &App, members: &BTreeSet<IntersectionID>) -> GeomBatch {
+    let mut holes = Vec::new();
+    for i in members {
+        let i = app.primary.map.get_i(*i);
+        holes.push(i.polygon.clone());
+        for r in &i.roads {
+            holes.push(
+                app.primary
+                    .map
+                    .get_r(*r)
+                    .get_thick_polygon(&app.primary.map),
+            );
+        }
+    }
+    // The convex hull illuminates a bit more of the surrounding area, looks better
+    let fade_area = Polygon::with_holes(
+        app.primary.map.get_boundary_polygon().clone().into_ring(),
+        vec![Polygon::convex_hull(holes).into_ring()],
+    );
+    GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)])
 }
