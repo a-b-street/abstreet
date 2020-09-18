@@ -10,7 +10,7 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
 use widgetry::{
-    hotkey, lctrl, Btn, Checkbox, Color, Drawable, EventCtx, FancyColor, GeomBatch, GfxCtx,
+    hotkey, lctrl, Btn, Checkbox, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text, TextExt,
     Texture, UpdateType, VerticalAlignment, Widget, GUI,
 };
@@ -216,7 +216,7 @@ fn setup_texture_demo(ctx: &mut EventCtx) -> Drawable {
     rect = rect.translate(200.0, 900.0);
     // Texture::NOOP should always be pure white, since all "non-textured" colors are multiplied by
     // Texture::NOOP (Texture::NOOP.0 == 0)
-    batch.fancy_push(FancyColor::Texture(Texture::NOOP), rect);
+    batch.push(Texture::NOOP, rect);
 
     let triangle = geom::Triangle {
         pt1: Pt2D::new(0.0, 100.0),
@@ -225,19 +225,16 @@ fn setup_texture_demo(ctx: &mut EventCtx) -> Drawable {
     };
     let mut triangle_poly = Polygon::from_triangle(&triangle);
     triangle_poly = triangle_poly.translate(400.0, 900.0);
-    batch.fancy_push(FancyColor::Texture(Texture::SAND), triangle_poly);
+    batch.push(Texture::SAND, triangle_poly);
 
     let circle = geom::Circle::new(Pt2D::new(50.0, 50.0), geom::Distance::meters(50.0));
     let mut circle_poly = circle.to_polygon();
     circle_poly = circle_poly.translate(600.0, 900.0);
-    batch.fancy_push(
-        FancyColor::ColoredTexture(Color::RED, Texture::SAND),
+    batch.push(
+        Fill::ColoredTexture(Color::RED, Texture::SAND),
         circle_poly.clone(),
     );
-    batch.fancy_push(
-        FancyColor::Texture(Texture::SNOW_PERSON),
-        circle_poly.clone(),
-    );
+    batch.push(Texture::SNOW_PERSON, circle_poly.clone());
 
     batch.upload(ctx)
 }

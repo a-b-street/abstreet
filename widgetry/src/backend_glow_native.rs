@@ -92,7 +92,7 @@ impl WindowAdapter {
     }
 }
 
-/// Uploads a sprite sheet of textures to the GPU so they can be used by FancyColor::Texture and
+/// Uploads a sprite sheet of textures to the GPU so they can be used by Fill::Texture and
 /// friends to paint shapes.
 ///
 /// `path` - image file which is a grid of images.
@@ -169,7 +169,7 @@ fn load_textures(
     );
 
     // In order to avoid branching in our shader logic, all shapes are rendered with a texture.
-    // Even "non-textured" styles like FancyColor::RGBA, use a "default" no-op (pure white) texture,
+    // Even "non-textured" styles like Fill::Color, use a "default" no-op (pure white) texture,
     // which we generate here.
     let mut formatted_pixels: Vec<image::Rgba<u8>> =
         vec![image::Rgba([255; 4]); (sprite_length * sprite_length) as usize];
