@@ -927,22 +927,6 @@
 <span id="927">927</span>
 <span id="928">928</span>
 <span id="929">929</span>
-<span id="930">930</span>
-<span id="931">931</span>
-<span id="932">932</span>
-<span id="933">933</span>
-<span id="934">934</span>
-<span id="935">935</span>
-<span id="936">936</span>
-<span id="937">937</span>
-<span id="938">938</span>
-<span id="939">939</span>
-<span id="940">940</span>
-<span id="941">941</span>
-<span id="942">942</span>
-<span id="943">943</span>
-<span id="944">944</span>
-<span id="945">945</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">edits</span>;
 <span class="kw">mod</span> <span class="ident">picker</span>;
@@ -953,7 +937,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">ConfirmDiscard</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">TrafficSignalStyle</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">draw_signal_stage</span>, <span class="ident">DrawMovement</span>, <span class="ident">DrawOptions</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">draw_signal_stage</span>, <span class="ident">draw_stage_number</span>, <span class="ident">DrawMovement</span>, <span class="ident">DrawOptions</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -1023,11 +1007,6 @@
             )
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">movements</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">members</span> {
-            <span class="ident">movements</span>.<span class="ident">extend</span>(<span class="ident">DrawMovement</span>::<span class="ident">for_i</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>));
-        }
-
         <span class="kw">let</span> <span class="ident">original</span> <span class="op">=</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">members</span>);
         <span class="kw">let</span> <span class="ident">synced</span> <span class="op">=</span> <span class="ident">BundleEdits</span>::<span class="ident">synchronize</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">members</span>);
         <span class="kw">let</span> <span class="ident">warn_changed</span> <span class="op">=</span> <span class="ident">original</span> <span class="op">!</span><span class="op">=</span> <span class="ident">synced</span>;
@@ -1039,7 +1018,7 @@
             <span class="ident">mode</span>,
             <span class="ident">members</span>,
             <span class="ident">current_stage</span>: <span class="number">0</span>,
-            <span class="ident">movements</span>,
+            <span class="ident">movements</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">movement_selected</span>: <span class="prelude-val">None</span>,
             <span class="ident">draw_current</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">new</span>()),
             <span class="ident">command_stack</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
@@ -1048,7 +1027,7 @@
             <span class="ident">original</span>,
             <span class="ident">fade_irrelevant</span>: <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)]).<span class="ident">upload</span>(<span class="ident">ctx</span>),
         };
-        <span class="ident">editor</span>.<span class="ident">draw_current</span> <span class="op">=</span> <span class="ident">editor</span>.<span class="ident">recalc_draw_current</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">editor</span>.<span class="ident">recalc_draw_current</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">editor</span>)
     }
 
@@ -1068,7 +1047,7 @@
                 .<span class="ident">scroll_to_member</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>));
         }
 
-        <span class="self">self</span>.<span class="ident">draw_current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">recalc_draw_current</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.<span class="ident">recalc_draw_current</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">add_new_edit</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ControlTrafficSignal</span>)<span class="op">&gt;</span>(
@@ -1090,55 +1069,45 @@
         <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">recalc_draw_current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
+    <span class="kw">fn</span> <span class="ident">recalc_draw_current</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">movements</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span> {
-            <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stage</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current_stage</span>].<span class="ident">clone</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">movement_selected</span> {
-                <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">parent</span> <span class="op">=</span><span class="op">=</span> <span class="ident">signal</span>.<span class="ident">id</span> {
-                    <span class="ident">stage</span>.<span class="ident">edit_movement</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>], <span class="ident">TurnPriority</span>::<span class="ident">Banned</span>);
+            <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current_stage</span>];
+            <span class="kw">for</span> (<span class="ident">m</span>, <span class="ident">draw</span>) <span class="kw">in</span> <span class="ident">DrawMovement</span>::<span class="ident">for_i</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="kw-2">*</span><span class="ident">i</span>, <span class="self">self</span>.<span class="ident">current_stage</span>)
+            {
+                <span class="kw">if</span> <span class="self">self</span>
+                    .<span class="ident">movement_selected</span>
+                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">m</span>.<span class="ident">id</span>)
+                    .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
+                {
+                    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">draw</span>);
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">id</span>)
+                    <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">id</span>)
+                {
+                    <span class="comment">// Still draw the icon, but highlight it</span>
+                    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">draw</span>.<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(
+                        <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#7C7C7C&quot;</span>),
+                        <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#72CE36&quot;</span>),
+                    )));
+                }
+                <span class="ident">movements</span>.<span class="ident">push</span>(<span class="ident">m</span>);
+            }
+            <span class="ident">draw_stage_number</span>(<span class="ident">app</span>, <span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="kw-2">*</span><span class="ident">i</span>, <span class="self">self</span>.<span class="ident">current_stage</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>);
+        }
+
+        <span class="comment">// Draw the selected thing on top of everything else</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">selected</span>, <span class="ident">next_priority</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">movement_selected</span> {
+            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">movements</span> {
+                <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">selected</span> {
+                    <span class="ident">m</span>.<span class="ident">draw_selected_movement</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">next_priority</span>);
+                    <span class="kw">break</span>;
                 }
             }
-            <span class="ident">draw_signal_stage</span>(
-                <span class="ident">ctx</span>.<span class="ident">prerender</span>,
-                <span class="kw-2">&amp;</span><span class="ident">stage</span>,
-                <span class="self">self</span>.<span class="ident">current_stage</span>,
-                <span class="ident">signal</span>.<span class="ident">id</span>,
-                <span class="prelude-val">None</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>,
-                <span class="ident">app</span>,
-                <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">traffic_signal_style</span>.<span class="ident">clone</span>(),
-            );
         }
 
-        <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">movements</span> {
-            <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">m</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
-            <span class="kw">if</span> <span class="self">self</span>
-                .<span class="ident">movement_selected</span>
-                .<span class="ident">as_ref</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">m</span>.<span class="ident">id</span>)
-                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
-            {
-                <span class="ident">m</span>.<span class="ident">draw_selected_movement</span>(
-                    <span class="ident">app</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">id</span>],
-                    <span class="self">self</span>.<span class="ident">movement_selected</span>.<span class="ident">unwrap</span>().<span class="number">1</span>,
-                );
-            } <span class="kw">else</span> {
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">signal_turn_block_bg</span>, <span class="ident">m</span>.<span class="ident">block</span>.<span class="ident">clone</span>());
-                <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current_stage</span>];
-                <span class="kw">let</span> <span class="ident">arrow_color</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">stage</span>.<span class="ident">get_priority_of_movement</span>(<span class="ident">m</span>.<span class="ident">id</span>) {
-                    <span class="ident">TurnPriority</span>::<span class="ident">Protected</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">signal_protected_turn</span>,
-                    <span class="ident">TurnPriority</span>::<span class="ident">Yield</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">signal_permitted_turn</span>,
-                    <span class="ident">TurnPriority</span>::<span class="ident">Banned</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">signal_banned_turn</span>,
-                };
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">arrow_color</span>, <span class="ident">m</span>.<span class="ident">arrow</span>.<span class="ident">clone</span>());
-            }
-        }
-        <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)
+        <span class="self">self</span>.<span class="ident">draw_current</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
+        <span class="self">self</span>.<span class="ident">movements</span> <span class="op">=</span> <span class="ident">movements</span>;
     }
 }
 
@@ -1356,7 +1325,7 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
                 <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">movements</span> {
                     <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">m</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
-                    <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">block</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
+                    <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">hitbox</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
                         <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current_stage</span>];
                         <span class="kw">let</span> <span class="ident">next_priority</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">stage</span>.<span class="ident">get_priority_of_movement</span>(<span class="ident">m</span>.<span class="ident">id</span>) {
                             <span class="ident">TurnPriority</span>::<span class="ident">Banned</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1384,7 +1353,6 @@
             }
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">movement_selected</span> <span class="op">!</span><span class="op">=</span> <span class="ident">old</span> {
-                <span class="self">self</span>.<span class="ident">draw_current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">recalc_draw_current</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_stage</span>);
             }
         }
