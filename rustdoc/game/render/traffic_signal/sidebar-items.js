@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["crosswalk_icon",""],["draw_signal_stage",""],["draw_stage_number",""],["draw_time_left",""]]});
+initSidebarItems({"fn":[["crosswalk_icon",""],["dont_walk_icon",""],["draw_signal_stage",""],["draw_stage_number",""],["draw_time_left",""],["walk_icon",""]]});

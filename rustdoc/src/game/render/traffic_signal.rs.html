@@ -250,13 +250,18 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">TrafficSignalStyle</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">intersection</span>::<span class="ident">make_crosswalk</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">BIG_ARROW_THICKNESS</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Stage</span>, <span class="ident">TurnPriority</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Movement</span>, <span class="ident">Stage</span>, <span class="ident">TurnPriority</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">Prerender</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>};
 
@@ -321,25 +326,15 @@
                         );
                     }
                 } <span class="kw">else</span> {
-                    <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">crosswalk_icon</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">geom</span>);
                     <span class="ident">batch</span>.<span class="ident">append</span>(
-                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/walk.svg&quot;</span>)
-                            .<span class="ident">scale</span>(<span class="number">0.07</span>)
-                            .<span class="ident">centered_on</span>(<span class="ident">center</span>)
-                            .<span class="ident">rotate</span>(<span class="ident">angle</span>)
+                        <span class="ident">walk_icon</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">movements</span>[<span class="ident">m</span>], <span class="ident">prerender</span>)
                             .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAlpha</span>(<span class="ident">percent</span>)),
                     );
                     <span class="ident">dont_walk</span>.<span class="ident">remove</span>(<span class="ident">m</span>);
                 }
             }
             <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">dont_walk</span> {
-                <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">crosswalk_icon</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">geom</span>);
-                <span class="ident">batch</span>.<span class="ident">append</span>(
-                    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/dont_walk.svg&quot;</span>)
-                        .<span class="ident">scale</span>(<span class="number">0.07</span>)
-                        .<span class="ident">centered_on</span>(<span class="ident">center</span>)
-                        .<span class="ident">rotate</span>(<span class="ident">angle</span>),
-                );
+                <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">dont_walk_icon</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">movements</span>[<span class="ident">m</span>], <span class="ident">prerender</span>));
             }
             <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">yield_movements</span> {
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">m</span>.<span class="ident">crosswalk</span>);
@@ -492,6 +487,21 @@
             .<span class="ident">scale</span>(<span class="number">0.1</span>)
             .<span class="ident">centered_on</span>(<span class="ident">center</span>),
     );
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">walk_icon</span>(<span class="ident">movement</span>: <span class="kw-2">&amp;</span><span class="ident">Movement</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+    <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">crosswalk_icon</span>(<span class="kw-2">&amp;</span><span class="ident">movement</span>.<span class="ident">geom</span>);
+    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/walk.svg&quot;</span>)
+        .<span class="ident">scale</span>(<span class="number">0.07</span>)
+        .<span class="ident">centered_on</span>(<span class="ident">center</span>)
+        .<span class="ident">rotate</span>(<span class="ident">angle</span>)
+}
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dont_walk_icon</span>(<span class="ident">movement</span>: <span class="kw-2">&amp;</span><span class="ident">Movement</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+    <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">crosswalk_icon</span>(<span class="kw-2">&amp;</span><span class="ident">movement</span>.<span class="ident">geom</span>);
+    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/dont_walk.svg&quot;</span>)
+        .<span class="ident">scale</span>(<span class="number">0.07</span>)
+        .<span class="ident">centered_on</span>(<span class="ident">center</span>)
+        .<span class="ident">rotate</span>(<span class="ident">angle</span>)
 }
 
 <span class="comment">// TODO Kind of a hack to know that the second point is a better center.</span>
