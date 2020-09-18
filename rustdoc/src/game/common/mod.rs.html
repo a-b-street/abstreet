@@ -325,7 +325,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>,
     <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -382,7 +382,7 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">clone</span>() {
                 <span class="comment">// Allow hotkeys to work without opening the panel.</span>
                 <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">action</span>) <span class="kw">in</span> <span class="ident">ctx_actions</span>.<span class="ident">actions</span>(<span class="ident">app</span>, <span class="ident">id</span>.<span class="ident">clone</span>()) {
-                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">k</span>) {
+                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">k</span>) {
                         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">ctx_actions</span>.<span class="ident">execute</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">action</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="bool-val">false</span>));
                     }
                     <span class="self">self</span>.<span class="ident">cached_actions</span>.<span class="ident">push</span>(<span class="ident">k</span>);
@@ -601,7 +601,7 @@
 <span class="comment">// TODO Kinda misnomer</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tool_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+        <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
         <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/settings.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;settings&quot;</span>, <span class="prelude-val">None</span>),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">BottomAboveOSD</span>)

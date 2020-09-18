@@ -139,7 +139,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">debug_tooltip_key_held</span> {
             <span class="self">self</span>.<span class="ident">debug_tooltip_key_held</span> <span class="op">=</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_released</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>);
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">debug_tooltip_key_held</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>);
+            <span class="self">self</span>.<span class="ident">debug_tooltip_key_held</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>);
         }
     }
 

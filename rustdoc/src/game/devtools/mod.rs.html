@@ -157,7 +157,7 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">Percent</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>,
+    <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -172,7 +172,7 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Internal dev tools&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">align_right</span>(),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -184,11 +184,11 @@
                     ),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;edit a polygon&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>)),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;draw a polygon&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;load scenario&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">W</span>)),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;view KML&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">K</span>)),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;story maps&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">S</span>)),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;edit a polygon&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">E</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;draw a polygon&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">P</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;load scenario&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">W</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;view KML&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">K</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;story maps&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
                 ])
                 .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">60</span>)),
             ]))

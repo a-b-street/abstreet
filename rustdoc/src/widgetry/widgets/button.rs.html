@@ -666,11 +666,11 @@
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">action_tooltip</span>: <span class="ident">I</span>,
-        <span class="ident">key</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span>,
+        <span class="ident">key</span>: <span class="ident">MK</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">BtnBuilder</span>::<span class="ident">SVG</span> {
@@ -687,7 +687,7 @@
                     <span class="ident">ctx</span>,
                     <span class="ident">normal</span>,
                     <span class="ident">hovered</span>,
-                    <span class="ident">key</span>,
+                    <span class="ident">key</span>.<span class="ident">into</span>(),
                     <span class="kw-2">&amp;</span><span class="ident">action_tooltip</span>.<span class="ident">into</span>(),
                     <span class="ident">maybe_tooltip</span>,
                     <span class="ident">geom</span>,
@@ -711,7 +711,7 @@
                     <span class="ident">ctx</span>,
                     <span class="ident">normal</span>,
                     <span class="ident">hovered</span>,
-                    <span class="ident">key</span>,
+                    <span class="ident">key</span>.<span class="ident">into</span>(),
                     <span class="kw-2">&amp;</span><span class="ident">action_tooltip</span>.<span class="ident">into</span>(),
                     <span class="ident">maybe_t</span>,
                     <span class="ident">hitbox</span>,
@@ -739,7 +739,7 @@
                     <span class="ident">ctx</span>,
                     <span class="ident">normal</span>,
                     <span class="ident">hovered</span>,
-                    <span class="ident">key</span>,
+                    <span class="ident">key</span>.<span class="ident">into</span>(),
                     <span class="kw-2">&amp;</span><span class="ident">action_tooltip</span>.<span class="ident">into</span>(),
                     <span class="ident">maybe_tooltip</span>,
                     <span class="ident">hitbox</span>,
@@ -770,7 +770,7 @@
                     <span class="ident">ctx</span>,
                     <span class="ident">normal</span>,
                     <span class="ident">hovered</span>,
-                    <span class="ident">key</span>,
+                    <span class="ident">key</span>.<span class="ident">into</span>(),
                     <span class="kw-2">&amp;</span><span class="ident">action_tooltip</span>.<span class="ident">into</span>(),
                     <span class="ident">maybe_tooltip</span>,
                     <span class="ident">hitbox</span>,
@@ -780,7 +780,7 @@
                 <span class="ident">ctx</span>,
                 <span class="ident">normal</span>,
                 <span class="ident">hovered</span>,
-                <span class="ident">key</span>,
+                <span class="ident">key</span>.<span class="ident">into</span>(),
                 <span class="kw-2">&amp;</span><span class="ident">action_tooltip</span>.<span class="ident">into</span>(),
                 <span class="ident">maybe_t</span>,
                 <span class="ident">hitbox</span>,
@@ -789,7 +789,7 @@
     }
 
     <span class="comment">// Use the text as the action</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_def</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">hotkey</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_def</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">key</span>: <span class="ident">MK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">BtnBuilder</span>::<span class="ident">SVG</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t use build_def on an SVG button&quot;</span>),
             <span class="ident">BtnBuilder</span>::<span class="ident">Custom</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t use build_def on a custom button&quot;</span>),
@@ -798,7 +798,7 @@
             <span class="op">|</span> <span class="ident">BtnBuilder</span>::<span class="ident">TextBG</span> { <span class="kw-2">ref</span> <span class="ident">label</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">label</span>.<span class="ident">is_empty</span>());
                 <span class="kw">let</span> <span class="ident">copy</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">clone</span>();
-                <span class="self">self</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">copy</span>, <span class="ident">hotkey</span>)
+                <span class="self">self</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">copy</span>, <span class="ident">key</span>)
             }
         }
     }

@@ -582,10 +582,6 @@
 <span id="582">582</span>
 <span id="583">583</span>
 <span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
@@ -595,8 +591,8 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">DontDrawAgents</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>,
-    <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
+    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="comment">// TODO This is a really great example of things that widgetry ought to make easier. Maybe a radio</span>
@@ -660,7 +656,7 @@
                     }
                 }
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span> {
-                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
+                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                         <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span>
                             <span class="ident">Mode</span>::<span class="ident">Dragging</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">unwrap</span>(), <span class="ident">idx</span>);
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit marker&quot;</span>) {
@@ -911,7 +907,7 @@
                 )
             },
             <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                 .<span class="ident">align_right</span>(),
         ]),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -922,11 +918,7 @@
                     <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>), <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>)),
                 )
             } <span class="kw">else</span> {
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;new marker&quot;</span>,
-                    <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>),
-                )
+                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;new marker&quot;</span>, <span class="ident">Key</span>::<span class="ident">M</span>)
             },
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Mode</span>::<span class="ident">View</span> <span class="op">=</span> <span class="ident">mode</span> {
                 <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
@@ -935,7 +927,7 @@
                     <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>)),
                 )
             } <span class="kw">else</span> {
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
             },
             <span class="kw">match</span> <span class="ident">mode</span> {
                 <span class="ident">Mode</span>::<span class="ident">Freehand</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
@@ -946,7 +938,7 @@
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>).<span class="ident">build</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;draw freehand&quot;</span>,
-                    <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>),
+                    <span class="ident">Key</span>::<span class="ident">P</span>,
                 ),
             },
         ])
@@ -1099,12 +1091,12 @@
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Editing marker&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                     .<span class="ident">align_right</span>(),
             ]),
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;delete&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
             <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">event</span>.<span class="ident">clone</span>(), <span class="bool-val">true</span>).<span class="ident">named</span>(<span class="string">&quot;event&quot;</span>),
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;confirm&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)),
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;confirm&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
         ]))
         .<span class="ident">build</span>(<span class="ident">ctx</span>)
     }

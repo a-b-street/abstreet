@@ -407,14 +407,6 @@
 <span id="407">407</span>
 <span id="408">408</span>
 <span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Warping</span>;
@@ -425,8 +417,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AlertLocation</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SpeedControls</span> {
@@ -453,17 +445,9 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="ident">row</span>.<span class="ident">push</span>(
             <span class="kw">if</span> <span class="ident">paused</span> {
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;play&quot;</span>,
-                    <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Space</span>),
-                )
+                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;play&quot;</span>, <span class="ident">Key</span>::<span class="ident">Space</span>)
             } <span class="kw">else</span> {
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/speed/pause.svg&quot;</span>).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;pause&quot;</span>,
-                    <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Space</span>),
-                )
+                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/speed/pause.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;pause&quot;</span>, <span class="ident">Key</span>::<span class="ident">Space</span>)
             }
             .<span class="ident">container</span>()
             .<span class="ident">padding</span>(<span class="number">9</span>)
@@ -482,8 +466,8 @@
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">s</span>, <span class="ident">label</span>)<span class="op">|</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>).<span class="ident">small</span>());
-                    <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>), <span class="string">&quot;slow down&quot;</span>));
-                    <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>), <span class="string">&quot;speed up&quot;</span>));
+                    <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">LeftArrow</span>, <span class="string">&quot;slow down&quot;</span>));
+                    <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">RightArrow</span>, <span class="string">&quot;speed up&quot;</span>));
 
                     <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
                         .<span class="ident">color</span>(<span class="kw">if</span> <span class="ident">setting</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">s</span> {
@@ -509,7 +493,7 @@
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;step forwards&quot;</span>,
                 <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">time_increment</span>,
-                <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>),
+                <span class="ident">Key</span>::<span class="ident">M</span>,
                 <span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;+1h&quot;</span>, <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>)),
                     <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;+30m&quot;</span>, <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">30</span>)),
@@ -524,11 +508,11 @@
         <span class="ident">row</span>.<span class="ident">push</span>(
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to specific time&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">B</span>))
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to specific time&quot;</span>, <span class="ident">Key</span>::<span class="ident">B</span>)
                     .<span class="ident">container</span>()
                     .<span class="ident">padding</span>(<span class="number">9</span>),
                 <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/speed/reset.svg&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;reset to midnight&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">X</span>))
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;reset to midnight&quot;</span>, <span class="ident">Key</span>::<span class="ident">X</span>)
                     .<span class="ident">container</span>()
                     .<span class="ident">padding</span>(<span class="number">9</span>),
             ])
@@ -633,7 +617,7 @@
         <span class="comment">// Just kind of constantly scrape this</span>
         <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">time_increment</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;step forwards&quot;</span>);
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>) {
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>) {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">setting</span> {
                 <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
                 <span class="ident">SpeedSetting</span>::<span class="ident">Fast</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -650,7 +634,7 @@
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>) {
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>) {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">setting</span> {
                 <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">paused</span> {

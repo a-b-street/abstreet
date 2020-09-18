@@ -473,25 +473,25 @@
             }
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">keys_to_pan</span> {
-                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>) {
+                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>) {
                     <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">-</span><span class="op">=</span> <span class="ident">PAN_SPEED</span>;
                 }
-                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>) {
+                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>) {
                     <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">PAN_SPEED</span>;
                 }
-                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">UpArrow</span>) {
+                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">UpArrow</span>) {
                     <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">-</span><span class="op">=</span> <span class="ident">PAN_SPEED</span>;
                 }
-                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">DownArrow</span>) {
+                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">DownArrow</span>) {
                     <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">PAN_SPEED</span>;
                 }
-                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">Q</span>) {
+                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Q</span>) {
                     <span class="self">self</span>.<span class="ident">zoom</span>(
                         <span class="number">1.0</span>,
                         <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">/</span> <span class="number">2.0</span>),
                     );
                 }
-                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">W</span>) {
+                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">W</span>) {
                     <span class="self">self</span>.<span class="ident">zoom</span>(
                         <span class="op">-</span><span class="number">1.0</span>,
                         <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">/</span> <span class="number">2.0</span>),

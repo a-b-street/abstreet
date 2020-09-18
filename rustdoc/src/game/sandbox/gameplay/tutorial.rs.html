@@ -1447,10 +1447,6 @@
 <span id="1447">1447</span>
 <span id="1448">1448</span>
 <span id="1449">1449</span>
-<span id="1450">1450</span>
-<span id="1451">1451</span>
-<span id="1452">1452</span>
-<span id="1453">1453</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">Minimap</span>, <span class="ident">Warping</span>};
@@ -1473,8 +1469,8 @@
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">hotkeys</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
+    <span class="ident">RewriteColor</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">const</span> <span class="ident">ESCORT</span>: <span class="ident">CarID</span> <span class="op">=</span> <span class="ident">CarID</span>(<span class="number">0</span>, <span class="ident">VehicleType</span>::<span class="ident">Car</span>);
@@ -2275,11 +2271,7 @@
                             <span class="string">&quot;system/assets/tools/prev.svg&quot;</span>,
                             <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>),
                         )
-                        .<span class="ident">build</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="string">&quot;previous message&quot;</span>,
-                            <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>),
-                        )
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous message&quot;</span>, <span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
                     } <span class="kw">else</span> {
                         <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
                             <span class="ident">ctx</span>,

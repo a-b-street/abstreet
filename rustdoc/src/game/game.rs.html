@@ -489,7 +489,6 @@
 <span id="489">489</span>
 <span id="490">490</span>
 <span id="491">491</span>
-<span id="492">492</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Flags</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">Options</span>;
@@ -499,9 +498,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">PermanentMapEdits</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Canvas</span>, <span class="ident">Choice</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>,
-    <span class="ident">Widget</span>, <span class="ident">GUI</span>,
+    <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Canvas</span>, <span class="ident">Choice</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
+    <span class="ident">Line</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">GUI</span>,
 };
 
 <span class="comment">// This is the top-level of the GUI logic. This module should just manage interactions between the</span>
@@ -793,7 +791,7 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="ident">query</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">align_right</span>(),
                 ]),
                 <span class="ident">Menu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">choices</span>).<span class="ident">named</span>(<span class="string">&quot;menu&quot;</span>),
@@ -836,7 +834,7 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="comment">// new_below doesn&#39;t make an X button</span>
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>) {
+                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>) {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="ident">Transition</span>::<span class="ident">Keep</span>
@@ -870,11 +868,11 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="ident">query</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">align_right</span>(),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="ident">String</span>::<span class="ident">new</span>(), <span class="bool-val">true</span>).<span class="ident">named</span>(<span class="string">&quot;input&quot;</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;confirm&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)),
+                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;confirm&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
             ]))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">cb</span>,

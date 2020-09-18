@@ -421,6 +421,8 @@
 <span id="421">421</span>
 <span id="422">422</span>
 <span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
@@ -834,16 +836,18 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkey</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span> {
-    <span class="prelude-val">Some</span>(<span class="ident">MultiKey</span>::<span class="ident">Normal</span>(<span class="ident">key</span>))
-}
-
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lctrl</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span> {
     <span class="prelude-val">Some</span>(<span class="ident">MultiKey</span>::<span class="ident">LCtrl</span>(<span class="ident">key</span>))
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkeys</span>(<span class="ident">keys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span> {
     <span class="prelude-val">Some</span>(<span class="ident">MultiKey</span>::<span class="ident">Any</span>(<span class="ident">keys</span>))
+}
+
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">From</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">MultiKey</span>::<span class="ident">Normal</span>(<span class="ident">key</span>))
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "widgetry";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

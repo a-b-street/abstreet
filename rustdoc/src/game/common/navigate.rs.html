@@ -295,8 +295,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">RoadID</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Autocomplete</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">Autocomplete</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
+    <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };
 
 <span class="comment">// TODO Canonicalize names, handling abbreviations like east/e and street/st</span>
@@ -311,7 +311,7 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Enter a street name&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">align_right</span>(),
                 ]),
                 <span class="ident">Autocomplete</span>::<span class="ident">new</span>(
@@ -324,7 +324,7 @@
                         .<span class="ident">collect</span>(),
                 )
                 .<span class="ident">named</span>(<span class="string">&quot;street&quot;</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Search by business name or address&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Tab</span>)),
+                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Search by business name or address&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Tab</span>),
             ]))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
         })
@@ -403,7 +403,7 @@
                         <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>)
                     },
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">align_right</span>(),
                 ]),
                 <span class="ident">Autocomplete</span>::<span class="ident">new</span>(
@@ -495,7 +495,7 @@
                         .<span class="ident">small_heading</span>()
                         .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">align_right</span>(),
                 ]),
                 <span class="ident">Autocomplete</span>::<span class="ident">new</span>(
@@ -530,7 +530,7 @@
                         .<span class="ident">collect</span>(),
                 )
                 .<span class="ident">named</span>(<span class="string">&quot;bldg&quot;</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Search for streets&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Tab</span>)),
+                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Search for streets&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Tab</span>),
             ]))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
         })

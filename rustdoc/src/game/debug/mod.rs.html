@@ -750,11 +750,6 @@
 <span id="750">750</span>
 <span id="751">751</span>
 <span id="752">752</span>
-<span id="753">753</span>
-<span id="754">754</span>
-<span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">floodfill</span>;
 <span class="kw">mod</span> <span class="ident">objects</span>;
@@ -774,7 +769,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Sim</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -798,35 +793,30 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Debug Mode&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">align_right</span>(),
                 ]),
                 <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current info&quot;</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show buildings&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Num1</span>), <span class="bool-val">true</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show intersections&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Num2</span>), <span class="bool-val">true</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show lanes&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Num3</span>), <span class="bool-val">true</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show areas&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Num4</span>), <span class="bool-val">true</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show labels&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Num5</span>), <span class="bool-val">false</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show route for all agents&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">R</span>), <span class="bool-val">false</span>),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
-                        (<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">H</span>), <span class="string">&quot;unhide everything&quot;</span>),
-                        (<span class="prelude-val">None</span>, <span class="string">&quot;screenshot everything&quot;</span>),
-                        (<span class="prelude-val">None</span>, <span class="string">&quot;screenshot all of the everything&quot;</span>),
-                        (<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Slash</span>), <span class="string">&quot;search OSM metadata&quot;</span>),
-                        (<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Slash</span>), <span class="string">&quot;clear OSM search results&quot;</span>),
-                        (<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">O</span>), <span class="string">&quot;save sim state&quot;</span>),
-                        (<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Y</span>), <span class="string">&quot;load previous sim state&quot;</span>),
-                        (<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">U</span>), <span class="string">&quot;load next sim state&quot;</span>),
-                        (<span class="prelude-val">None</span>, <span class="string">&quot;pick a savestate to load&quot;</span>),
-                        (<span class="prelude-val">None</span>, <span class="string">&quot;find bad traffic signals&quot;</span>),
-                        (<span class="prelude-val">None</span>, <span class="string">&quot;find degenerate roads&quot;</span>),
-                        (<span class="prelude-val">None</span>, <span class="string">&quot;find large intersections&quot;</span>),
-                    ]
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">action</span>)<span class="op">|</span> <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="ident">action</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">key</span>))
-                    .<span class="ident">collect</span>(),
-                ),
+                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show buildings&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num1</span>, <span class="bool-val">true</span>),
+                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show intersections&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num2</span>, <span class="bool-val">true</span>),
+                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show lanes&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num3</span>, <span class="bool-val">true</span>),
+                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show areas&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num4</span>, <span class="bool-val">true</span>),
+                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show labels&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num5</span>, <span class="bool-val">false</span>),
+                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show route for all agents&quot;</span>, <span class="ident">Key</span>::<span class="ident">R</span>, <span class="bool-val">false</span>),
+                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;unhide everything&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">H</span>)),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;screenshot everything&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;screenshot all of the everything&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;search OSM metadata&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Slash</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;clear OSM search results&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Slash</span>)),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;save sim state&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">O</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;load previous sim state&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Y</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;load next sim state&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">U</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;pick a savestate to load&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;find bad traffic signals&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;find degenerate roads&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;find large intersections&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                ]),
                 <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Hold &quot;</span>),
                     <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>),

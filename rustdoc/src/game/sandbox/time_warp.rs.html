@@ -471,8 +471,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">AreaSlider</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
+    <span class="ident">AreaSlider</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
 };
 
 <span class="comment">// TODO Text entry would be great</span>
@@ -491,7 +491,7 @@
             <span class="ident">maybe_mode</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                     .<span class="ident">align_right</span>(),
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Jump to time&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>),
@@ -608,7 +608,7 @@
             <span class="ident">maybe_mode</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                     .<span class="ident">align_right</span>(),
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Jump to time&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
@@ -730,7 +730,7 @@
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;text&quot;</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;stop now&quot;</span>)
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">centered_horiz</span>(),
                 ])
                 <span class="comment">// hardcoded width avoids jiggle due to text updates</span>
@@ -912,14 +912,14 @@
 
 <span class="kw">fn</span> <span class="ident">build_jump_to_time_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">target</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Jump to {}&quot;</span>, <span class="ident">target</span>.<span class="ident">ampm_tostring</span>()))
-        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to time&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>))
+        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to time&quot;</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>)
         .<span class="ident">centered_horiz</span>()
         .<span class="ident">margin_above</span>(<span class="number">16</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">build_jump_to_delay_button</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">delay</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Jump to next {} delay&quot;</span>, <span class="ident">delay</span>))
-        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to delay&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">D</span>))
+        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to delay&quot;</span>, <span class="ident">Key</span>::<span class="ident">D</span>)
         .<span class="ident">centered_horiz</span>()
         .<span class="ident">margin_above</span>(<span class="number">16</span>)
 }

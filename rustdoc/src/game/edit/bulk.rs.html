@@ -292,8 +292,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneType</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BulkSelect</span> {
@@ -332,7 +332,7 @@
             } <span class="kw">else</span> {
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
         ])
         .<span class="ident">evenly_spaced</span>(),
     ]))
@@ -438,12 +438,12 @@
                     ])
                 },
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)),
+                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
                     <span class="ident">Btn</span>::<span class="ident">plaintext_custom</span>(
                         <span class="string">&quot;Cancel&quot;</span>,
                         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>))),
                     )
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                     .<span class="ident">align_right</span>(),
                 ]),
             ]))

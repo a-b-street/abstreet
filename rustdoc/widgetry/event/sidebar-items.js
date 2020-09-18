@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Event",""],["Key",""],["MultiKey",""]],"fn":[["hotkey",""],["hotkeys",""],["lctrl",""]]});
+initSidebarItems({"enum":[["Event",""],["Key",""],["MultiKey",""]],"fn":[["hotkeys",""],["lctrl",""]]});

@@ -86,7 +86,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip_table</span>::<span class="ident">TripTable</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Widget</span>};
 
 <span class="comment">// Oh the dashboards melted, but we still had the radio</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
@@ -126,7 +126,7 @@
             <span class="comment">// available space evenly. Fancy fill rules... hmmm.</span>
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>).<span class="ident">margin_vert</span>(<span class="number">16</span>),
             <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                 .<span class="ident">align_right</span>(),
         ])
     }

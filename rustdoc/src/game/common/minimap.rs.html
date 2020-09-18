@@ -461,8 +461,8 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">clamp</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="comment">// TODO Some of the math in here might assume map bound minimums start at (0, 0).</span>
@@ -882,10 +882,10 @@
         })
         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>),
         <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;change layers&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">L</span>))
+            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;change layers&quot;</span>, <span class="ident">Key</span>::<span class="ident">L</span>)
             .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>),
         <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">K</span>))
+            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>, <span class="ident">Key</span>::<span class="ident">K</span>)
             .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>),
     ])
 }

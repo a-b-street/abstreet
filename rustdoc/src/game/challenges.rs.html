@@ -408,8 +408,6 @@
 <span id="408">408</span>
 <span id="409">409</span>
 <span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
@@ -420,9 +418,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">Map</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AlertHandler</span>, <span class="ident">OrigPersonID</span>, <span class="ident">Scenario</span>, <span class="ident">Sim</span>, <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
-};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="comment">// TODO Also have some kind of screenshot to display for each challenge</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Challenge</span> {
@@ -542,7 +538,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">links</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">master_col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/pregame/back.svg&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                 .<span class="ident">align_left</span>(),
             <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;A/B STREET&quot;</span>).<span class="ident">display_title</span>(),
@@ -568,7 +564,7 @@
             {
                 <span class="ident">flex_row</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>));
             } <span class="kw">else</span> {
-                <span class="ident">flex_row</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">NUM_KEYS</span>[<span class="ident">idx</span>])));
+                <span class="ident">flex_row</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">NUM_KEYS</span>[<span class="ident">idx</span>]));
                 <span class="ident">links</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), (<span class="ident">name</span>, <span class="number">0</span>));
             }
         }
@@ -617,7 +613,7 @@
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inner_col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Start!&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)),
+                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Start!&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
             ];
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">scores</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">high_scores</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">challenge</span>.<span class="ident">gameplay</span>) {

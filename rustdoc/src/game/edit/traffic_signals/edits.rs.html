@@ -223,7 +223,6 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
-<span id="226">226</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">traffic_signals</span>::{<span class="ident">BundleEdits</span>, <span class="ident">TrafficSignalEditor</span>};
@@ -236,8 +235,7 @@
     <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">PhaseType</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">TextExt</span>,
-    <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChangeDuration</span> {
@@ -254,7 +252,7 @@
                         .<span class="ident">small_heading</span>()
                         .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">align_right</span>(),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -280,7 +278,7 @@
                         },
                     ),
                 ]),
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Apply&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)),
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Apply&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
             ]))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">idx</span>,

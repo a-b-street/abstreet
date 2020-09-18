@@ -324,7 +324,7 @@
         }
 
         <span class="comment">// Handle nav keys</span>
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>) {
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>) {
             <span class="kw">let</span> <span class="ident">choice</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">choices</span>[<span class="self">self</span>.<span class="ident">current_idx</span>];
             <span class="kw">if</span> <span class="ident">choice</span>.<span class="ident">active</span> {
                 <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">choice</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
@@ -332,11 +332,11 @@
             } <span class="kw">else</span> {
                 <span class="kw">return</span>;
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">UpArrow</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">UpArrow</span>) {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_idx</span> <span class="op">&gt;</span> <span class="number">0</span> {
                 <span class="self">self</span>.<span class="ident">current_idx</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_pressed</span>(<span class="ident">Key</span>::<span class="ident">DownArrow</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">DownArrow</span>) {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_idx</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">choices</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
                 <span class="self">self</span>.<span class="ident">current_idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }

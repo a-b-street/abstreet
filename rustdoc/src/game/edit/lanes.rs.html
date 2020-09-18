@@ -233,10 +233,6 @@
 <span id="233">233</span>
 <span id="234">234</span>
 <span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
@@ -250,8 +246,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LaneEditor</span> {
@@ -297,11 +293,7 @@
             ),
         ] {
             <span class="ident">row</span>.<span class="ident">push</span>(<span class="kw">if</span> <span class="ident">active</span> {
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/assets/edit/{}.svg&quot;</span>, <span class="ident">icon</span>)).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">label</span>,
-                    <span class="ident">hotkey</span>(<span class="ident">key</span>),
-                )
+                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/assets/edit/{}.svg&quot;</span>, <span class="ident">icon</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>, <span class="ident">key</span>)
             } <span class="kw">else</span> {
                 <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/assets/edit/{}.svg&quot;</span>, <span class="ident">icon</span>))
                     .<span class="ident">container</span>()
@@ -318,11 +310,11 @@
                     <span class="string">&quot;Edit multiple lanes&quot;</span>,
                     <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;+ Edit multiple&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>))),
                 )
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>)),
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">M</span>),
             ]),
             <span class="string">&quot;Type of lane&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">centered</span>(),
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;reverse direction&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)),
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;reverse direction&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">F</span>),
             {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="ident">speed_limit_choices</span>();
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">choices</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">data</span> <span class="op">=</span><span class="op">=</span> <span class="ident">parent</span>.<span class="ident">speed_limit</span>) {
@@ -336,8 +328,8 @@
                     <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;speed limit&quot;</span>, <span class="ident">parent</span>.<span class="ident">speed_limit</span>, <span class="ident">choices</span>),
                 ])
             },
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Change access restrictions&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">A</span>)),
-            <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Change access restrictions&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">A</span>),
+            <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
         ];
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))

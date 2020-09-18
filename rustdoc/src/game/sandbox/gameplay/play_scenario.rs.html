@@ -441,10 +441,6 @@
 <span id="441">441</span>
 <span id="442">442</span>
 <span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CityPicker</span>;
@@ -458,8 +454,8 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ScenarioModifier</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">lctrl</span>, <span class="ident">AreaSlider</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">AreaSlider</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PlayScenario</span> {
@@ -573,11 +569,7 @@
                 <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>),
             ),
             <span class="string">&quot;Traffic:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} ↓&quot;</span>, <span class="ident">scenario_name</span>)).<span class="ident">build</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;change traffic&quot;</span>,
-                <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">S</span>),
-            ),
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} ↓&quot;</span>, <span class="ident">scenario_name</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;change traffic&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
             <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/edit_map.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit map&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>)),
         ])
         .<span class="ident">centered</span>(),
@@ -656,8 +648,8 @@
         ]));
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Apply&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)),
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Discard changes&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Apply&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Discard changes&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
             ])
             .<span class="ident">centered</span>(),
         );
@@ -818,8 +810,8 @@
                     <span class="ident">AreaSlider</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="number">0.25</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.3</span>).<span class="ident">named</span>(<span class="string">&quot;depart to&quot;</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Apply&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)),
-                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Discard changes&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Apply&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Discard changes&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
                 ])
                 .<span class="ident">centered</span>(),
             ]))

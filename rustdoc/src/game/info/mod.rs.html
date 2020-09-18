@@ -762,10 +762,6 @@
 <span id="762">762</span>
 <span id="763">763</span>
 <span id="764">764</span>
-<span id="765">765</span>
-<span id="766">766</span>
-<span id="767">767</span>
-<span id="768">768</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">building</span>;
 <span class="kw">mod</span> <span class="ident">bus</span>;
@@ -791,8 +787,8 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip</span>::<span class="ident">OpenTrip</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InfoPanel</span> {
@@ -1445,12 +1441,8 @@
 
 <span class="kw">fn</span> <span class="ident">header_btns</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>).<span class="ident">build</span>(
-            <span class="ident">ctx</span>,
-            <span class="string">&quot;jump to object&quot;</span>,
-            <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">J</span>),
-        ),
-        <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close info&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+        <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to object&quot;</span>, <span class="ident">Key</span>::<span class="ident">J</span>),
+        <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close info&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
     ])
     .<span class="ident">align_right</span>()
 }

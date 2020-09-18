@@ -278,8 +278,8 @@
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">DontDrawAgents</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UberTurnPicker</span> {
@@ -304,12 +304,12 @@
                         .<span class="ident">small_heading</span>()
                         .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">align_right</span>(),
                 ]),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;View uber-turns&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Edit&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>)),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Detect all clusters&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">D</span>)),
+                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;View uber-turns&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
+                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Edit&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">E</span>),
+                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Detect all clusters&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">D</span>),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
@@ -444,7 +444,7 @@
                     <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&lt;&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
                     } <span class="kw">else</span> {
-                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&lt;&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous uber-turn&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>))
+                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&lt;&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous uber-turn&quot;</span>, <span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
                     },
                     <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">len</span>())).<span class="ident">secondary</span>())
                         .<span class="ident">draw</span>(<span class="ident">ctx</span>)
@@ -452,9 +452,9 @@
                     <span class="kw">if</span> <span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
                         <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&gt;&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
                     } <span class="kw">else</span> {
-                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&gt;&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;next uber-turn&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>))
+                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&gt;&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;next uber-turn&quot;</span>, <span class="ident">Key</span>::<span class="ident">RightArrow</span>)
                     },
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Checkbox</span>::<span class="ident">toggle</span>(

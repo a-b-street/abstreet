@@ -545,8 +545,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">speed</span>::{<span class="ident">SpeedControls</span>, <span class="ident">TimePanel</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">time_warp</span>::<span class="ident">TimeWarpScreen</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SandboxMode</span> {
@@ -883,7 +883,7 @@
                     <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>)
                 },
                 <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;more data&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Q</span>))
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;more data&quot;</span>, <span class="ident">Key</span>::<span class="ident">Q</span>)
                     .<span class="ident">align_right</span>(),
             ]),
         ];

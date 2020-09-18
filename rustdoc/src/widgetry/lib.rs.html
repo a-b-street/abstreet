@@ -227,7 +227,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">canvas</span>::{<span class="ident">Canvas</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">VerticalAlignment</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">color</span>::{<span class="ident">Color</span>, <span class="ident">Fill</span>, <span class="ident">LinearGradient</span>, <span class="ident">Texture</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">drawing</span>::{<span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">event</span>::{<span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">lctrl</span>, <span class="ident">Event</span>, <span class="ident">Key</span>, <span class="ident">MultiKey</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">event</span>::{<span class="ident">hotkeys</span>, <span class="ident">lctrl</span>, <span class="ident">Event</span>, <span class="ident">Key</span>, <span class="ident">MultiKey</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">event_ctx</span>::{<span class="ident">EventCtx</span>, <span class="ident">UpdateType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">geom</span>::{<span class="ident">GeomBatch</span>, <span class="ident">RewriteColor</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">input</span>::<span class="ident">UserInput</span>;
@@ -285,7 +285,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">hotkey</span>, <span class="prelude-val">None</span>);
-        <span class="self">self</span>.<span class="ident">hotkey</span> <span class="op">=</span> <span class="ident">hotkey</span>(<span class="ident">key</span>);
+        <span class="self">self</span>.<span class="ident">hotkey</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">into</span>();
         <span class="self">self</span>
     }
 

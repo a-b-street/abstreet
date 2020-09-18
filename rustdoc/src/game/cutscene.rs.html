@@ -325,8 +325,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>,
+    <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CutsceneBuilder</span> {
@@ -495,7 +495,7 @@
             <span class="string">&quot;system/assets/tools/prev.svg&quot;</span>,
             <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>),
         )
-        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>))
+        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>, <span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
     } <span class="kw">else</span> {
         <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
             <span class="ident">ctx</span>,
@@ -517,7 +517,7 @@
         <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             (<span class="ident">make_task</span>)(<span class="ident">ctx</span>),
             <span class="ident">Btn</span>::<span class="ident">txt</span>(<span class="string">&quot;Start&quot;</span>, <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Start&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)))
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>))
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>)
                 .<span class="ident">centered_horiz</span>()
                 .<span class="ident">align_bottom</span>(),
         ])

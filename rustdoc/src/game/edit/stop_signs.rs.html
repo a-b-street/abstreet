@@ -242,7 +242,7 @@
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
+    <span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -283,13 +283,13 @@
             <span class="kw">if</span> <span class="ident">ControlStopSign</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">id</span>)
                 <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_stop_sign</span>(<span class="ident">id</span>).<span class="ident">clone</span>()
             {
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;reset to default&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">R</span>))
+                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;reset to default&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">R</span>)
             } <span class="kw">else</span> {
                 <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;reset to default&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
             },
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;close intersection for construction&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">C</span>)),
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;close intersection for construction&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">C</span>),
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;convert to traffic signal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);

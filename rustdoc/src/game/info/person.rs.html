@@ -645,7 +645,6 @@
 <span id="645">645</span>
 <span id="646">646</span>
 <span id="647">647</span>
-<span id="648">648</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">building</span>, <span class="ident">header_btns</span>, <span class="ident">make_table</span>, <span class="ident">make_tabs</span>, <span class="ident">trip</span>, <span class="ident">Details</span>, <span class="ident">OpenTrip</span>, <span class="ident">Tab</span>};
@@ -660,8 +659,7 @@
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkey</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>,
-    <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trips</span>(
@@ -1116,16 +1114,16 @@
                 <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>).<span class="ident">build</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;follow (run the simulation)&quot;</span>,
-                    <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>),
+                    <span class="ident">Key</span>::<span class="ident">F</span>,
                 )
             } <span class="kw">else</span> {
                 <span class="comment">// TODO Blink</span>
                 <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                     .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>)))
                     .<span class="ident">to_btn</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>))
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>, <span class="ident">Key</span>::<span class="ident">F</span>)
             },
-            <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close info&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+            <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close info&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
         ])
         .<span class="ident">align_right</span>(),
     ]));
@@ -1236,16 +1234,16 @@
                 <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>).<span class="ident">build</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;follow (run the simulation)&quot;</span>,
-                    <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>),
+                    <span class="ident">Key</span>::<span class="ident">F</span>,
                 )
             } <span class="kw">else</span> {
                 <span class="comment">// TODO Blink</span>
                 <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                     .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>)))
                     .<span class="ident">to_btn</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>))
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>, <span class="ident">Key</span>::<span class="ident">F</span>)
             },
-            <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close info&quot;</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)),
+            <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close info&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
         ])
         .<span class="ident">align_right</span>(),
     ]));
