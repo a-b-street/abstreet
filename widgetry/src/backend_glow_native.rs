@@ -174,7 +174,7 @@ fn load_textures(
     let mut formatted_pixels: Vec<image::Rgba<u8>> =
         vec![image::Rgba([255; 4]); (sprite_width * sprite_width) as usize];
 
-    // OpenGL texture arrays expect each textures bytes to be contiguous But it's conventional to
+    // OpenGL texture arrays expect each textures bytes to be contiguous, but it's conventional to
     // store textures in a grid within a single spritesheet image, where a row and column contains
     // multiple sprites.
     //

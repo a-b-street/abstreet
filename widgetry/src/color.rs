@@ -46,7 +46,7 @@ pub enum FancyColor {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Texture(i32);
+pub struct Texture(u32);
 
 #[allow(dead_code)]
 impl Texture {
