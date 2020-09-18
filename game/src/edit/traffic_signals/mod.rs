@@ -7,7 +7,7 @@ use crate::common::CommonState;
 use crate::edit::{apply_map_edits, ConfirmDiscard};
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::options::TrafficSignalStyle;
-use crate::render::{draw_signal_stage, DrawMovement, DrawOptions};
+use crate::render::{draw_signal_stage, draw_stage_number, DrawMovement, DrawOptions};
 use crate::sandbox::GameplayMode;
 use abstutil::Timer;
 use geom::{Distance, Duration, Line, Polygon, Pt2D};
@@ -77,11 +77,6 @@ impl TrafficSignalEditor {
             )
         };
 
-        let mut movements = Vec::new();
-        for i in &members {
-            movements.extend(DrawMovement::for_i(*i, &app.primary.map));
-        }
-
         let original = BundleEdits::get_current(app, &members);
         let synced = BundleEdits::synchronize(app, &members);
         let warn_changed = original != synced;
@@ -93,7 +88,7 @@ impl TrafficSignalEditor {
             mode,
             members,
             current_stage: 0,
-            movements,
+            movements: Vec::new(),
             movement_selected: None,
             draw_current: ctx.upload(GeomBatch::new()),
             command_stack: Vec::new(),
@@ -102,7 +97,7 @@ impl TrafficSignalEditor {
             original,
             fade_irrelevant: GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx),
         };
-        editor.draw_current = editor.recalc_draw_current(ctx, app);
+        editor.recalc_draw_current(ctx, app);
         Box::new(editor)
     }
 
@@ -122,7 +117,7 @@ impl TrafficSignalEditor {
                 .scroll_to_member(ctx, format!("stage {}", idx + 1));
         }
 
-        self.draw_current = self.recalc_draw_current(ctx, app);
+        self.recalc_draw_current(ctx, app);
     }
 
     fn add_new_edit<F: Fn(&mut ControlTrafficSignal)>(
@@ -144,55 +139,45 @@ impl TrafficSignalEditor {
         self.change_stage(ctx, app, idx);
     }
 
-    fn recalc_draw_current(&self, ctx: &mut EventCtx, app: &App) -> Drawable {
+    fn recalc_draw_current(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut batch = GeomBatch::new();
-
+        let mut movements = Vec::new();
         for i in &self.members {
-            let signal = app.primary.map.get_traffic_signal(*i);
-            let mut stage = signal.stages[self.current_stage].clone();
-            if let Some((id, _)) = self.movement_selected {
-                if id.parent == signal.id {
-                    stage.edit_movement(&signal.movements[&id], TurnPriority::Banned);
+            let stage = &app.primary.map.get_traffic_signal(*i).stages[self.current_stage];
+            for (m, draw) in DrawMovement::for_i(&app.primary.map, &app.cs, *i, self.current_stage)
+            {
+                if self
+                    .movement_selected
+                    .map(|(x, _)| x != m.id)
+                    .unwrap_or(true)
+                {
+                    batch.append(draw);
+                } else if !stage.protected_movements.contains(&m.id)
+                    && !stage.yield_movements.contains(&m.id)
+                {
+                    // Still draw the icon, but highlight it
+                    batch.append(draw.color(RewriteColor::Change(
+                        Color::hex("#7C7C7C"),
+                        Color::hex("#72CE36"),
+                    )));
+                }
+                movements.push(m);
+            }
+            draw_stage_number(app, ctx.prerender, *i, self.current_stage, &mut batch);
+        }
+
+        // Draw the selected thing on top of everything else
+        if let Some((selected, next_priority)) = self.movement_selected {
+            for m in &movements {
+                if m.id == selected {
+                    m.draw_selected_movement(app, &mut batch, next_priority);
+                    break;
                 }
             }
-            draw_signal_stage(
-                ctx.prerender,
-                &stage,
-                self.current_stage,
-                signal.id,
-                None,
-                &mut batch,
-                app,
-                app.opts.traffic_signal_style.clone(),
-            );
         }
 
-        for m in &self.movements {
-            let signal = app.primary.map.get_traffic_signal(m.id.parent);
-            if self
-                .movement_selected
-                .as_ref()
-                .map(|(id, _)| *id == m.id)
-                .unwrap_or(false)
-            {
-                m.draw_selected_movement(
-                    app,
-                    &mut batch,
-                    &signal.movements[&m.id],
-                    self.movement_selected.unwrap().1,
-                );
-            } else {
-                batch.push(app.cs.signal_turn_block_bg, m.block.clone());
-                let stage = &signal.stages[self.current_stage];
-                let arrow_color = match stage.get_priority_of_movement(m.id) {
-                    TurnPriority::Protected => app.cs.signal_protected_turn,
-                    TurnPriority::Yield => app.cs.signal_permitted_turn,
-                    TurnPriority::Banned => app.cs.signal_banned_turn,
-                };
-                batch.push(arrow_color, m.arrow.clone());
-            }
-        }
-        ctx.upload(batch)
+        self.draw_current = ctx.upload(batch);
+        self.movements = movements;
     }
 }
 
@@ -410,7 +395,7 @@ impl State for TrafficSignalEditor {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 for m in &self.movements {
                     let signal = app.primary.map.get_traffic_signal(m.id.parent);
-                    if m.block.contains_pt(pt) {
+                    if m.hitbox.contains_pt(pt) {
                         let stage = &signal.stages[self.current_stage];
                         let next_priority = match stage.get_priority_of_movement(m.id) {
                             TurnPriority::Banned => {
@@ -438,7 +423,6 @@ impl State for TrafficSignalEditor {
             }
 
             if self.movement_selected != old {
-                self.draw_current = self.recalc_draw_current(ctx, app);
                 self.change_stage(ctx, app, self.current_stage);
             }
         }

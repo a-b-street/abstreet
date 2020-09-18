@@ -119,19 +119,7 @@ pub fn draw_signal_stage(
                         ),
                 );
             }
-
-            let radius = Distance::meters(1.0);
-            let center = app.primary.map.get_i(i).polygon.polylabel();
-            batch.push(
-                Color::hex("#5B5B5B"),
-                Circle::new(center, radius).to_polygon(),
-            );
-            batch.append(
-                Text::from(Line(format!("{}", idx + 1)))
-                    .render_to_batch(prerender)
-                    .scale(0.075)
-                    .centered_on(center),
-            );
+            draw_stage_number(app, prerender, i, idx, batch);
         }
         TrafficSignalStyle::Yuwen => {
             for m in &stage.yield_movements {
@@ -198,6 +186,27 @@ pub fn draw_signal_stage(
             }
         }
     }
+}
+
+pub fn draw_stage_number(
+    app: &App,
+    prerender: &Prerender,
+    i: IntersectionID,
+    idx: usize,
+    batch: &mut GeomBatch,
+) {
+    let radius = Distance::meters(1.0);
+    let center = app.primary.map.get_i(i).polygon.polylabel();
+    batch.push(
+        Color::hex("#5B5B5B"),
+        Circle::new(center, radius).to_polygon(),
+    );
+    batch.append(
+        Text::from(Line(format!("{}", idx + 1)))
+            .render_to_batch(prerender)
+            .scale(0.075)
+            .centered_on(center),
+    );
 }
 
 fn draw_time_left(
