@@ -828,6 +828,34 @@
 <span id="828">828</span>
 <span id="829">829</span>
 <span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">bulk</span>;
 <span class="kw">mod</span> <span class="ident">cluster_traffic_signals</span>;
@@ -1016,7 +1044,7 @@
                                 <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SaveEdits</span>::<span class="ident">new</span>(
                                     <span class="ident">ctx</span>,
                                     <span class="ident">app</span>,
-                                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Rename \&quot;{}\&quot; to what?&quot;</span>, <span class="ident">old_name</span>),
+                                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Rename \&quot;{}\&quot;&quot;</span>, <span class="ident">old_name</span>),
                                     <span class="bool-val">false</span>,
                                     <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Pop</span>),
                                     <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="ident">app</span><span class="op">|</span> {
@@ -1067,10 +1095,7 @@
                             <span class="string">&quot;save this proposal as...&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SaveEdits</span>::<span class="ident">new</span>(
                                 <span class="ident">ctx</span>,
                                 <span class="ident">app</span>,
-                                <span class="macro">format</span><span class="macro">!</span>(
-                                    <span class="string">&quot;Copy \&quot;{}\&quot; to what new name?&quot;</span>,
-                                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>
-                                ),
+                                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Save \&quot;{}\&quot; as&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>),
                                 <span class="bool-val">false</span>,
                                 <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Pop</span>),
                                 <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
@@ -1207,8 +1232,7 @@
         } <span class="kw">else</span> {
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;copy of {}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>)
         };
-        <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">SaveEdits</span>::<span class="ident">btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">initial_name</span>);
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">SaveEdits</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">save</span> <span class="op">=</span> <span class="ident">SaveEdits</span> {
             <span class="ident">current_name</span>: <span class="ident">initial_name</span>.<span class="ident">clone</span>(),
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
@@ -1216,37 +1240,70 @@
                     <span class="string">&quot;Name:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                     <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="ident">initial_name</span>, <span class="bool-val">true</span>).<span class="ident">named</span>(<span class="string">&quot;filename&quot;</span>),
                 ]),
+                <span class="comment">// TODO Want this to always consistently be one line high, but it isn&#39;t for a blank</span>
+                <span class="comment">// line</span>
+                <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;warning&quot;</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">btn</span>,
                     <span class="kw">if</span> <span class="ident">discard</span> {
                         <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Discard proposal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
                     } <span class="kw">else</span> {
                         <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                     },
                     <span class="kw">if</span> <span class="ident">cancel</span>.<span class="ident">is_some</span>() {
-                        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
+                        <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>))
                     } <span class="kw">else</span> {
                         <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                     },
-                ]),
+                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Save&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;save&quot;</span>),
+                ])
+                .<span class="ident">align_right</span>(),
             ]))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">cancel</span>,
             <span class="ident">on_success</span>,
             <span class="ident">reset</span>: <span class="ident">discard</span>,
-        })
+        };
+        <span class="ident">save</span>.<span class="ident">recalc_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">save</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">candidate</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="kw">if</span> <span class="ident">candidate</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Save&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path_edits</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">candidate</span>))
-        {
-            <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Overwrite existing proposal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+    <span class="kw">fn</span> <span class="ident">recalc_btn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_name</span>.<span class="ident">is_empty</span>() {
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;save&quot;</span>,
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Save&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;save&quot;</span>),
+            );
+            <span class="self">self</span>.<span class="ident">panel</span>
+                .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>, <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;warning&quot;</span>));
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path_edits</span>(
+            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
+            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current_name</span>,
+        )) {
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;save&quot;</span>,
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Save&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;save&quot;</span>),
+            );
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;warning&quot;</span>,
+                <span class="ident">Line</span>(<span class="string">&quot;A proposal with this name already exists&quot;</span>)
+                    .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>))
+                    .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">named</span>(<span class="string">&quot;warning&quot;</span>),
+            );
         } <span class="kw">else</span> {
-            <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Save&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>))
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;save&quot;</span>,
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Save&quot;</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>))
+                    .<span class="ident">named</span>(<span class="string">&quot;save&quot;</span>),
+            );
+            <span class="self">self</span>.<span class="ident">panel</span>
+                .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>, <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;warning&quot;</span>));
         }
-        .<span class="ident">named</span>(<span class="string">&quot;save&quot;</span>)
     }
 }
 
@@ -1281,8 +1338,7 @@
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">text_box</span>(<span class="string">&quot;filename&quot;</span>);
         <span class="kw">if</span> <span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">current_name</span> {
             <span class="self">self</span>.<span class="ident">current_name</span> <span class="op">=</span> <span class="ident">name</span>;
-            <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">SaveEdits</span>::<span class="ident">btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current_name</span>);
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;save&quot;</span>, <span class="ident">btn</span>);
+            <span class="self">self</span>.<span class="ident">recalc_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         }
 
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
