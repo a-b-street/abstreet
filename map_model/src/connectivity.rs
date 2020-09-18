@@ -1,3 +1,4 @@
+pub use crate::pathfind::driving_cost;
 use crate::{BuildingID, LaneID, Map, PathConstraints, PathRequest};
 use geom::Distance;
 use petgraph::graphmap::DiGraphMap;

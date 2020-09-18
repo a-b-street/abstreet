@@ -5,7 +5,7 @@ use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use geom::ArrowCap;
-use map_model::{IntersectionCluster, IntersectionID};
+use map_model::{IntersectionCluster, IntersectionID, PathConstraints};
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 use widgetry::{
@@ -146,24 +146,32 @@ impl UberTurnViewer {
         legal_turns: bool,
     ) -> Box<dyn State> {
         app.primary.current_selection = None;
+        let map = &app.primary.map;
 
-        let (ic1, ic2) = IntersectionCluster::new(members, &app.primary.map);
+        let (ic1, ic2) = IntersectionCluster::new(members, map);
         let ic = if legal_turns { ic1 } else { ic2 };
 
         let mut batch = GeomBatch::new();
         for i in &ic.members {
-            batch.push(
-                Color::BLUE.alpha(0.5),
-                app.primary.map.get_i(*i).polygon.clone(),
-            );
+            batch.push(Color::BLUE.alpha(0.5), map.get_i(*i).polygon.clone());
         }
+        let mut sum_cost = 0;
         if !ic.uber_turns.is_empty() {
+            let ut = &ic.uber_turns[idx];
             batch.push(
                 Color::RED,
-                ic.uber_turns[idx]
-                    .geom(&app.primary.map)
+                ut.geom(map)
                     .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
             );
+
+            for t in &ut.path {
+                sum_cost += map_model::connectivity::driving_cost(
+                    map.get_l(t.src),
+                    map.get_t(*t),
+                    PathConstraints::Car,
+                    map,
+                );
+            }
         }
 
         Box::new(UberTurnViewer {
@@ -187,6 +195,7 @@ impl UberTurnViewer {
                     },
                     Btn::text_fg("X").build(ctx, "close", Key::Escape),
                 ]),
+                format!("driving_cost for a Car: {}", sum_cost).draw_text(ctx),
                 Widget::row(vec![
                     Checkbox::toggle(
                         ctx,
