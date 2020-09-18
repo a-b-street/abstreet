@@ -26,8 +26,8 @@ use sim::AgentType;
 pub use speed::{SpeedControls, TimePanel};
 pub use time_warp::TimeWarpScreen;
 use widgetry::{
-    hotkey, lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 pub struct SandboxMode {
@@ -364,7 +364,7 @@ impl AgentMeter {
                     txt.draw(ctx)
                 },
                 Btn::svg_def("system/assets/meters/trip_histogram.svg")
-                    .build(ctx, "more data", hotkey(Key::Q))
+                    .build(ctx, "more data", Key::Q)
                     .align_right(),
             ]),
         ];

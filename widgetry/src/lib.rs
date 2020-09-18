@@ -58,7 +58,7 @@ pub use crate::backend::Drawable;
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::{Color, Fill, LinearGradient, Texture};
 pub use crate::drawing::{GfxCtx, Prerender};
-pub use crate::event::{hotkey, hotkeys, lctrl, Event, Key, MultiKey};
+pub use crate::event::{hotkeys, lctrl, Event, Key, MultiKey};
 pub use crate::event_ctx::{EventCtx, UpdateType};
 pub use crate::geom::{GeomBatch, RewriteColor};
 pub use crate::input::UserInput;
@@ -116,7 +116,7 @@ impl<T> Choice<T> {
 
     pub fn key(mut self, key: Key) -> Choice<T> {
         assert_eq!(self.hotkey, None);
-        self.hotkey = hotkey(key);
+        self.hotkey = key.into();
         self
     }
 

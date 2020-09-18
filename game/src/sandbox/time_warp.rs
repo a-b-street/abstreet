@@ -8,8 +8,8 @@ use abstutil::prettyprint_usize;
 use geom::{Duration, Polygon, Pt2D, Ring, Time};
 use instant::Instant;
 use widgetry::{
-    hotkey, AreaSlider, Btn, Checkbox, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line,
-    Outcome, Panel, Text, UpdateType, Widget,
+    AreaSlider, Btn, Checkbox, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    Panel, Text, UpdateType, Widget,
 };
 
 // TODO Text entry would be great
@@ -28,7 +28,7 @@ impl JumpToTime {
             maybe_mode,
             panel: Panel::new(Widget::col(vec![
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
                 Widget::custom_row(vec![
                     Btn::text_bg2("Jump to time").inactive(ctx),
@@ -145,7 +145,7 @@ impl JumpToDelay {
             maybe_mode,
             panel: Panel::new(Widget::col(vec![
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
                 Widget::custom_row(vec![
                     Btn::text_bg2("Jump to time").build_def(ctx, None),
@@ -267,7 +267,7 @@ impl TimeWarpScreen {
                 Widget::col(vec![
                     Text::new().draw(ctx).named("text"),
                     Btn::text_bg2("stop now")
-                        .build_def(ctx, hotkey(Key::Escape))
+                        .build_def(ctx, Key::Escape)
                         .centered_horiz(),
                 ])
                 // hardcoded width avoids jiggle due to text updates
@@ -449,14 +449,14 @@ fn compare_count(after: usize, before: usize) -> String {
 
 fn build_jump_to_time_btn(ctx: &EventCtx, target: Time) -> Widget {
     Btn::text_bg2(format!("Jump to {}", target.ampm_tostring()))
-        .build(ctx, "jump to time", hotkey(Key::Enter))
+        .build(ctx, "jump to time", Key::Enter)
         .centered_horiz()
         .margin_above(16)
 }
 
 fn build_jump_to_delay_button(ctx: &EventCtx, delay: Duration) -> Widget {
     Btn::text_bg2(format!("Jump to next {} delay", delay))
-        .build(ctx, "jump to delay", hotkey(Key::D))
+        .build(ctx, "jump to delay", Key::D)
         .centered_horiz()
         .margin_above(16)
 }

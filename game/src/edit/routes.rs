@@ -4,8 +4,8 @@ use crate::game::{State, Transition};
 use geom::{Duration, Time};
 use map_model::{BusRouteID, EditCmd};
 use widgetry::{
-    hotkey, Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner,
-    TextExt, VerticalAlignment, Widget,
+    Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, TextExt,
+    VerticalAlignment, Widget,
 };
 
 pub struct RouteEditor {
@@ -23,7 +23,7 @@ impl RouteEditor {
                 Widget::row(vec![
                     Line("Route editor").small_heading().draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Line(&route.full_name).draw(ctx),
@@ -32,7 +32,7 @@ impl RouteEditor {
                     "Frequency in minutes".draw_text(ctx),
                     Spinner::new(ctx, (1, 120), 60).named("freq_mins"),
                 ]),
-                Btn::text_bg2("Apply").build_def(ctx, hotkey(Key::Enter)),
+                Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),

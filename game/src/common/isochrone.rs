@@ -4,8 +4,8 @@ use crate::game::{State, Transition};
 use geom::{Distance, Polygon};
 use map_model::{connectivity, BuildingID};
 use widgetry::{
-    hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, VerticalAlignment, Widget,
 };
 
 // TODO Move cursor live
@@ -22,7 +22,7 @@ impl IsochroneViewer {
                 Widget::row(vec![
                     Line("Isochrone").small_heading().draw(ctx),
                     Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 // TODO legend, mode picker

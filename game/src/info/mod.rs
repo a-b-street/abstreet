@@ -22,8 +22,8 @@ use sim::{
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 use widgetry::{
-    hotkey, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget,
+    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct InfoPanel {
@@ -676,12 +676,8 @@ fn make_tabs(
 
 fn header_btns(ctx: &EventCtx) -> Widget {
     Widget::row(vec![
-        Btn::svg_def("system/assets/tools/location.svg").build(
-            ctx,
-            "jump to object",
-            hotkey(Key::J),
-        ),
-        Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
+        Btn::svg_def("system/assets/tools/location.svg").build(ctx, "jump to object", Key::J),
+        Btn::plaintext("X").build(ctx, "close info", Key::Escape),
     ])
     .align_right()
 }

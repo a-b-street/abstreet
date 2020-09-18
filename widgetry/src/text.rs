@@ -196,8 +196,8 @@ impl Text {
     }
 
     // TODO Not exactly sure this is the right place for this, but better than code duplication
-    pub fn tooltip(ctx: &EventCtx, hotkey: Option<MultiKey>, action: &str) -> Text {
-        if let Some(ref key) = hotkey {
+    pub fn tooltip<MK: Into<Option<MultiKey>>>(ctx: &EventCtx, hotkey: MK, action: &str) -> Text {
+        if let Some(ref key) = hotkey.into() {
             Text::from_all(vec![
                 Line(key.describe()).fg(ctx.style().hotkey_color).small(),
                 Line(format!(" - {}", action)).small(),

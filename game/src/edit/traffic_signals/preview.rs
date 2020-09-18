@@ -6,8 +6,8 @@ use geom::Duration;
 use map_model::IntersectionID;
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, TextExt,
-    UpdateType, VerticalAlignment, Widget,
+    Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, TextExt, UpdateType,
+    VerticalAlignment, Widget,
 };
 
 // TODO Show diagram, auto-sync the stage.
@@ -23,7 +23,7 @@ impl PreviewTrafficSignal {
         Box::new(PreviewTrafficSignal {
             panel: Panel::new(Widget::col(vec![
                 "Previewing traffic signal".draw_text(ctx),
-                Btn::text_fg("back to editing").build_def(ctx, hotkey(Key::Escape)),
+                Btn::text_fg("back to editing").build_def(ctx, Key::Escape),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),

@@ -19,8 +19,8 @@ use sim::{
 };
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
+    hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
 };
 
 const ESCORT: CarID = CarID(0, VehicleType::Car);
@@ -821,11 +821,7 @@ impl TutorialState {
                             "system/assets/tools/prev.svg",
                             RewriteColor::Change(Color::WHITE, app.cs.hovering),
                         )
-                        .build(
-                            ctx,
-                            "previous message",
-                            hotkey(Key::LeftArrow),
-                        )
+                        .build(ctx, "previous message", Key::LeftArrow)
                     } else {
                         Widget::draw_svg_transform(
                             ctx,

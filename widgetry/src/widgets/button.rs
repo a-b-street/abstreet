@@ -250,11 +250,11 @@ impl BtnBuilder {
         self
     }
 
-    pub fn build<I: Into<String>>(
+    pub fn build<I: Into<String>, MK: Into<Option<MultiKey>>>(
         self,
         ctx: &EventCtx,
         action_tooltip: I,
-        key: Option<MultiKey>,
+        key: MK,
     ) -> Widget {
         match self {
             BtnBuilder::SVG {
@@ -271,7 +271,7 @@ impl BtnBuilder {
                     ctx,
                     normal,
                     hovered,
-                    key,
+                    key.into(),
                     &action_tooltip.into(),
                     maybe_tooltip,
                     geom,
@@ -295,7 +295,7 @@ impl BtnBuilder {
                     ctx,
                     normal,
                     hovered,
-                    key,
+                    key.into(),
                     &action_tooltip.into(),
                     maybe_t,
                     hitbox,
@@ -323,7 +323,7 @@ impl BtnBuilder {
                     ctx,
                     normal,
                     hovered,
-                    key,
+                    key.into(),
                     &action_tooltip.into(),
                     maybe_tooltip,
                     hitbox,
@@ -354,7 +354,7 @@ impl BtnBuilder {
                     ctx,
                     normal,
                     hovered,
-                    key,
+                    key.into(),
                     &action_tooltip.into(),
                     maybe_tooltip,
                     hitbox,
@@ -364,7 +364,7 @@ impl BtnBuilder {
                 ctx,
                 normal,
                 hovered,
-                key,
+                key.into(),
                 &action_tooltip.into(),
                 maybe_t,
                 hitbox,
@@ -373,7 +373,7 @@ impl BtnBuilder {
     }
 
     // Use the text as the action
-    pub fn build_def(self, ctx: &EventCtx, hotkey: Option<MultiKey>) -> Widget {
+    pub fn build_def<MK: Into<Option<MultiKey>>>(self, ctx: &EventCtx, key: MK) -> Widget {
         match self {
             BtnBuilder::SVG { .. } => panic!("Can't use build_def on an SVG button"),
             BtnBuilder::Custom(_, _, _, _) => panic!("Can't use build_def on a custom button"),
@@ -382,7 +382,7 @@ impl BtnBuilder {
             | BtnBuilder::TextBG { ref label, .. } => {
                 assert!(!label.is_empty());
                 let copy = label.clone();
-                self.build(ctx, copy, hotkey)
+                self.build(ctx, copy, key)
             }
         }
     }

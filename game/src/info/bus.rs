@@ -6,7 +6,7 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Time};
 use map_model::{BusRoute, BusRouteID, BusStopID, PathStep};
 use sim::{AgentID, CarID};
-use widgetry::{hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
+use widgetry::{Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
 
 pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
     let bs = app.primary.map.get_bs(id);
@@ -287,11 +287,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
 
     // TODO Soon it'll be time to split into tabs
     {
-        rows.push(Btn::text_fg("Edit schedule").build(
-            ctx,
-            format!("edit {}", route.id),
-            hotkey(Key::E),
-        ));
+        rows.push(Btn::text_fg("Edit schedule").build(ctx, format!("edit {}", route.id), Key::E));
         rows.push(describe_schedule(route).draw(ctx));
     }
 

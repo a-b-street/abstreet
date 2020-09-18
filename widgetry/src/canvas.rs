@@ -106,25 +106,25 @@ impl Canvas {
             }
 
             if self.keys_to_pan {
-                if input.key_pressed(Key::LeftArrow) {
+                if input.pressed(Key::LeftArrow) {
                     self.cam_x -= PAN_SPEED;
                 }
-                if input.key_pressed(Key::RightArrow) {
+                if input.pressed(Key::RightArrow) {
                     self.cam_x += PAN_SPEED;
                 }
-                if input.key_pressed(Key::UpArrow) {
+                if input.pressed(Key::UpArrow) {
                     self.cam_y -= PAN_SPEED;
                 }
-                if input.key_pressed(Key::DownArrow) {
+                if input.pressed(Key::DownArrow) {
                     self.cam_y += PAN_SPEED;
                 }
-                if input.key_pressed(Key::Q) {
+                if input.pressed(Key::Q) {
                     self.zoom(
                         1.0,
                         ScreenPt::new(self.window_width / 2.0, self.window_height / 2.0),
                     );
                 }
-                if input.key_pressed(Key::W) {
+                if input.pressed(Key::W) {
                     self.zoom(
                         -1.0,
                         ScreenPt::new(self.window_width / 2.0, self.window_height / 2.0),

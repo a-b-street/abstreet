@@ -12,7 +12,7 @@ use map_model::{
 use maplit::btreeset;
 use std::collections::HashMap;
 use widgetry::{
-    hotkey, Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
     VerticalAlignment, Widget,
 };
 
@@ -53,13 +53,13 @@ impl StopSignEditor {
             if ControlStopSign::new(&app.primary.map, id)
                 != app.primary.map.get_stop_sign(id).clone()
             {
-                Btn::text_fg("reset to default").build_def(ctx, hotkey(Key::R))
+                Btn::text_fg("reset to default").build_def(ctx, Key::R)
             } else {
                 Btn::text_fg("reset to default").inactive(ctx)
             },
-            Btn::text_fg("close intersection for construction").build_def(ctx, hotkey(Key::C)),
+            Btn::text_fg("close intersection for construction").build_def(ctx, Key::C),
             Btn::text_fg("convert to traffic signal").build_def(ctx, None),
-            Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
+            Btn::text_fg("Finish").build_def(ctx, Key::Escape),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);

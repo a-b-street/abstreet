@@ -410,14 +410,16 @@ impl MultiKey {
     }
 }
 
-pub fn hotkey(key: Key) -> Option<MultiKey> {
-    Some(MultiKey::Normal(key))
-}
-
 pub fn lctrl(key: Key) -> Option<MultiKey> {
     Some(MultiKey::LCtrl(key))
 }
 
 pub fn hotkeys(keys: Vec<Key>) -> Option<MultiKey> {
     Some(MultiKey::Any(keys))
+}
+
+impl std::convert::From<Key> for Option<MultiKey> {
+    fn from(key: Key) -> Option<MultiKey> {
+        Some(MultiKey::Normal(key))
+    }
 }

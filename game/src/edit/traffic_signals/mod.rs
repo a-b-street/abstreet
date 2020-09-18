@@ -17,8 +17,8 @@ use map_model::{
 };
 use std::collections::{BTreeSet, HashMap, VecDeque};
 use widgetry::{
-    hotkey, lctrl, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, RewriteColor, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, RewriteColor, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 
 // Welcome to one of the most overwhelmingly complicated parts of the UI...
@@ -391,11 +391,11 @@ impl State for TrafficSignalEditor {
         }
 
         {
-            if self.current_stage != 0 && ctx.input.key_pressed(Key::UpArrow) {
+            if self.current_stage != 0 && ctx.input.pressed(Key::UpArrow) {
                 self.change_stage(ctx, app, self.current_stage - 1);
             }
 
-            if self.current_stage != num_stages - 1 && ctx.input.key_pressed(Key::DownArrow) {
+            if self.current_stage != num_stages - 1 && ctx.input.pressed(Key::DownArrow) {
                 self.change_stage(ctx, app, self.current_stage + 1);
             }
         }
@@ -513,7 +513,7 @@ impl State for TrafficSignalEditor {
 
 fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
     let row = vec![
-        Btn::text_bg2("Finish").build_def(ctx, hotkey(Key::Enter)),
+        Btn::text_bg2("Finish").build_def(ctx, Key::Enter),
         Btn::text_bg2("Preview").build_def(ctx, lctrl(Key::P)),
         (if can_undo {
             Btn::svg_def("system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
@@ -544,7 +544,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             "Cancel",
             Text::from(Line("Cancel").fg(Color::hex("#FF5E5E"))),
         )
-        .build_def(ctx, hotkey(Key::Escape))
+        .build_def(ctx, Key::Escape)
         .align_right(),
     ];
     Panel::new(Widget::col(vec![
@@ -554,7 +554,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
                 "Edit multiple signals",
                 Text::from(Line("+ Edit multiple").fg(Color::hex("#4CA7E9"))),
             )
-            .build_def(ctx, hotkey(Key::M)),
+            .build_def(ctx, Key::M),
         ]),
         Widget::row(row),
         if app.opts.dev {
@@ -630,7 +630,7 @@ fn make_side_panel(
     }
 
     if members.len() == 1 {
-        col.push(Btn::text_bg2("Edit entire signal").build_def(ctx, hotkey(Key::E)));
+        col.push(Btn::text_bg2("Edit entire signal").build_def(ctx, Key::E));
         col.push(Widget::row(vec![
             "Offset (s):".draw_text(ctx),
             Spinner::new(
@@ -685,11 +685,7 @@ fn make_side_panel(
                     Btn::svg_def("system/assets/tools/edit.svg").build(
                         ctx,
                         format!("change duration of stage {}", idx + 1),
-                        if selected == idx {
-                            hotkey(Key::X)
-                        } else {
-                            None
-                        },
+                        if selected == idx { Key::X.into() } else { None },
                     ),
                     if canonical_signal.stages.len() > 1 {
                         Btn::svg_def("system/assets/tools/delete.svg")

@@ -5,8 +5,8 @@ use geom::ArrowCap;
 use map_model::{IntersectionCluster, IntersectionID};
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel,
-    VerticalAlignment, Widget,
+    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, VerticalAlignment,
+    Widget,
 };
 
 pub struct ClusterTrafficSignalEditor {
@@ -22,7 +22,7 @@ impl ClusterTrafficSignalEditor {
         app.primary.current_selection = None;
         Box::new(ClusterTrafficSignalEditor {
             panel: Panel::new(Widget::row(vec![
-                Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape))
+                Btn::text_fg("Finish").build_def(ctx, Key::Escape)
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),

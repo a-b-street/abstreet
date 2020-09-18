@@ -8,8 +8,8 @@ use kml::ExtraShapes;
 use map_model::BuildingID;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use widgetry::{
-    hotkey, lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct ViewKML {
@@ -117,7 +117,7 @@ impl ViewKML {
                     Widget::row(vec![
                         Line("KML viewer").small_heading().draw(ctx),
                         Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
+                            .build(ctx, "close", Key::Escape)
                             .align_right(),
                     ]),
                     format!(

@@ -5,7 +5,7 @@ use geom::{Circle, Distance, LonLat, Pt2D, Ring};
 use std::fs::File;
 use std::io::{Error, Write};
 use widgetry::{
-    hotkey, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
     VerticalAlignment, Widget,
 };
 
@@ -32,10 +32,10 @@ impl PolygonEditor {
                 Widget::row(vec![
                     Line("Polygon editor").small_heading().draw(ctx),
                     Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
-                Btn::text_fg("export as an Osmosis polygon filter").build_def(ctx, hotkey(Key::X)),
+                Btn::text_fg("export as an Osmosis polygon filter").build_def(ctx, Key::X),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
@@ -92,7 +92,7 @@ impl State for PolygonEditor {
         }
         // TODO maybe click-and-drag is more intuitive
         if self.mouseover_pt.is_some() {
-            if ctx.input.key_pressed(Key::LeftControl) {
+            if ctx.input.pressed(Key::LeftControl) {
                 self.moving_pt = true;
             }
         } else if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {

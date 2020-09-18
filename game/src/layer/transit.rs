@@ -3,8 +3,8 @@ use crate::common::ColorDiscrete;
 use crate::layer::{Layer, LayerOutcome};
 use map_model::{PathConstraints, PathStep};
 use widgetry::{
-    hotkey, Btn, Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel,
-    TextExt, VerticalAlignment, Widget,
+    Btn, Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, TextExt,
+    VerticalAlignment, Widget,
 };
 
 pub struct TransitNetwork {
@@ -118,7 +118,7 @@ impl TransitNetwork {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Transit network".draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             Checkbox::switch(ctx, "show all routes", None, show_all_routes),

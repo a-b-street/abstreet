@@ -5,8 +5,8 @@ use crate::game::{State, Transition};
 use abstutil::prettyprint_usize;
 use sim::Scenario;
 use widgetry::{
-    hotkey, Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    Text, VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    VerticalAlignment, Widget,
 };
 
 pub struct ScenarioManager {
@@ -52,10 +52,10 @@ impl ScenarioManager {
                         .small_heading()
                         .draw(ctx),
                     Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
-                Btn::text_fg("popular destinations").build_def(ctx, hotkey(Key::D)),
+                Btn::text_fg("popular destinations").build_def(ctx, Key::D),
                 Text::from_multiline(vec![
                     Line(format!(
                         "{} people",

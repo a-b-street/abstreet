@@ -4,8 +4,8 @@ use crate::game::{State, Transition};
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use std::collections::HashSet;
 use widgetry::{
-    hotkey, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, TextExt, VerticalAlignment, Widget,
+    Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    TextExt, VerticalAlignment, Widget,
 };
 
 pub struct Floodfiller {
@@ -51,7 +51,7 @@ impl Floodfiller {
                 Widget::row(vec![
                     Line(title).small_heading().draw(ctx),
                     Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 format!("{} unreachable lanes", num_unreachable).draw_text(ctx),

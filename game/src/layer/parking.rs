@@ -10,8 +10,8 @@ use map_model::{
 use sim::{GetDrawAgents, ParkingSpot, Scenario, VehicleType};
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Checkbox, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Checkbox, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct Occupancy {
@@ -113,7 +113,7 @@ impl Occupancy {
                     Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                     "Parking occupancy".draw_text(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Text::from_multiline(vec![
@@ -213,7 +213,7 @@ impl Occupancy {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Parking occupancy".draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             Text::from_multiline(vec![
@@ -371,7 +371,7 @@ impl Efficiency {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Parking efficiency".draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             Text::from(Line("How far away are people parked? (minutes)").secondary())

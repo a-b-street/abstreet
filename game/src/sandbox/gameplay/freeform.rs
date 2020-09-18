@@ -15,8 +15,8 @@ use sim::{
     SpawnTrip, TripEndpoint, TripMode, TripSpec,
 };
 use widgetry::{
-    hotkey, lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 
 // TODO Maybe remember what things were spawned, offer to replay this later
@@ -121,7 +121,7 @@ fn make_top_center(ctx: &mut EventCtx, app: &App) -> Panel {
                 lctrl(Key::L),
             ),
             "Traffic:".draw_text(ctx),
-            Btn::text_fg("none ↓").build(ctx, "change traffic", hotkey(Key::S)),
+            Btn::text_fg("none ↓").build(ctx, "change traffic", Key::S),
             Btn::svg_def("system/assets/tools/edit_map.svg").build(ctx, "edit map", lctrl(Key::E)),
         ])
         .centered(),
@@ -227,7 +227,7 @@ impl AgentSpawner {
                 Widget::row(vec![
                     Line("New trip").small_heading().draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 "Click a building or border to specify start"
@@ -423,7 +423,7 @@ impl State for AgentSpawner {
                     self.panel.replace(
                         ctx,
                         "Confirm",
-                        Btn::text_fg("Confirm").build_def(ctx, hotkey(Key::Enter)),
+                        Btn::text_fg("Confirm").build_def(ctx, Key::Enter),
                     );
                 }
             }

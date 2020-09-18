@@ -10,7 +10,7 @@ use crate::app::App;
 use crate::common::HeatmapOptions;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::hotkey_btn;
-use widgetry::{hotkey, Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget};
+use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget};
 
 // TODO Good ideas in
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70
@@ -76,7 +76,7 @@ impl PickLayer {
         let mut col = vec![Widget::custom_row(vec![
             Line("Layers").small_heading().draw(ctx),
             Btn::plaintext("X")
-                .build(ctx, "close", hotkey(Key::Escape))
+                .build(ctx, "close", Key::Escape)
                 .align_right(),
         ])];
 

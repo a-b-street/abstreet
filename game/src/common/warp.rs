@@ -8,9 +8,7 @@ use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
 use std::collections::BTreeMap;
-use widgetry::{
-    hotkey, Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, Warper, Widget,
-};
+use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, Warper, Widget};
 
 const WARP_TO_CAM_ZOOM: f64 = 10.0;
 
@@ -77,7 +75,7 @@ impl DebugWarp {
                 Widget::row(vec![
                     Line("Warp to an object by ID").small_heading().draw(ctx),
                     Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 "Example: r42 is Road #42".draw_text(ctx),
@@ -117,7 +115,7 @@ impl DebugWarp {
                 ])
                 .draw(ctx),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
-                Btn::text_fg("Go!").build_def(ctx, hotkey(Key::Enter)),
+                Btn::text_fg("Go!").build_def(ctx, Key::Enter),
             ]))
             .build(ctx),
         })

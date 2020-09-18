@@ -82,7 +82,7 @@ impl WidgetImpl for TextBox {
         if !self.has_focus && !self.autofocus {
             return;
         }
-        if let Some(key) = ctx.input.any_key_pressed() {
+        if let Some(key) = ctx.input.any_pressed() {
             match key {
                 Key::LeftArrow => {
                     if self.cursor_x > 0 {

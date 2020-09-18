@@ -3,7 +3,7 @@ use geom::{Duration, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use sim::{AgentID, AgentType, CarID, PedestrianID, TripMode, TripPhaseType};
 use std::collections::BTreeSet;
-use widgetry::{hotkey, Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
+use widgetry::{Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
 
 // Aside from Road and Trip, everything here can actually be selected.
 #[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
@@ -242,7 +242,7 @@ pub fn hotkey_btn<I: Into<String>>(ctx: &EventCtx, app: &App, label: I, key: Key
     let mut txt = Text::new();
     txt.append(Line(key.describe()).fg(ctx.style().hotkey_color));
     txt.append(Line(format!(" - {}", label)));
-    Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering).build_def(ctx, hotkey(key))
+    Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering).build_def(ctx, key)
 }
 
 pub fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet<IntersectionID> {

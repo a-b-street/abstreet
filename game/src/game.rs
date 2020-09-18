@@ -6,9 +6,8 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use geom::Polygon;
 use map_model::PermanentMapEdits;
 use widgetry::{
-    hotkey, hotkeys, Btn, Canvas, Choice, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Menu, Outcome, Panel, ScreenRectangle, Text, VerticalAlignment,
-    Widget, GUI,
+    hotkeys, Btn, Canvas, Choice, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Menu, Outcome, Panel, ScreenRectangle, Text, VerticalAlignment, Widget, GUI,
 };
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
@@ -300,7 +299,7 @@ impl<T: 'static> ChooseSomething<T> {
                 Widget::row(vec![
                     Line(query).small_heading().draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Menu::new(ctx, choices).named("menu"),
@@ -343,7 +342,7 @@ impl<T: 'static> State for ChooseSomething<T> {
                     return Transition::Pop;
                 }
                 // new_below doesn't make an X button
-                if ctx.input.key_pressed(Key::Escape) {
+                if ctx.input.pressed(Key::Escape) {
                     return Transition::Pop;
                 }
                 Transition::Keep
@@ -377,11 +376,11 @@ impl PromptInput {
                 Widget::row(vec![
                     Line(query).small_heading().draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
-                Btn::text_fg("confirm").build_def(ctx, hotkey(Key::Enter)),
+                Btn::text_fg("confirm").build_def(ctx, Key::Enter),
             ]))
             .build(ctx),
             cb,

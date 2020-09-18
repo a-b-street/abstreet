@@ -10,9 +10,9 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
 use widgetry::{
-    hotkey, lctrl, Btn, Checkbox, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text, TextExt,
-    Texture, UpdateType, VerticalAlignment, Widget, GUI,
+    lctrl, Btn, Checkbox, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text, TextExt, Texture, UpdateType,
+    VerticalAlignment, Widget, GUI,
 };
 
 fn main() {
@@ -293,12 +293,12 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
             // This just cycles between two arbitrary buttons
             Checkbox::new(
                 false,
-                Btn::text_bg1("Pause").build(ctx, "pause the stopwatch", hotkey(Key::Space)),
-                Btn::text_bg1("Resume").build(ctx, "resume the stopwatch", hotkey(Key::Space)),
+                Btn::text_bg1("Pause").build(ctx, "pause the stopwatch", Key::Space),
+                Btn::text_bg1("Resume").build(ctx, "resume the stopwatch", Key::Space),
             )
             .named("paused"),
             Btn::text_fg("Reset timer").build(ctx, "reset the stopwatch", None),
-            Btn::text_fg("New faces").build(ctx, "generate new faces", hotkey(Key::F)),
+            Btn::text_fg("New faces").build(ctx, "generate new faces", Key::F),
             Checkbox::switch(ctx, "Draw scrollable canvas", None, true),
             Checkbox::switch(ctx, "Show timeseries", lctrl(Key::T), false),
         ])

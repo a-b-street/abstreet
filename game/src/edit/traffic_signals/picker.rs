@@ -8,8 +8,8 @@ use map_model::IntersectionID;
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, VerticalAlignment, Widget,
+    hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, VerticalAlignment, Widget,
 };
 
 pub struct SignalPicker {
@@ -31,7 +31,7 @@ impl SignalPicker {
                         .small_heading()
                         .draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 make_btn(ctx, members.len()),

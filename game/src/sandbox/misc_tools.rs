@@ -6,8 +6,8 @@ use geom::{ArrowCap, Distance, Time};
 use map_model::{LaneID, TurnType};
 use sim::{AgentID, DontDrawAgents};
 use widgetry::{
-    hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct RoutePreview {
@@ -175,7 +175,7 @@ impl TurnExplorer {
             if idx == 0 {
                 Btn::text_fg("<").inactive(ctx)
             } else {
-                Btn::text_fg("<").build(ctx, "previous turn", hotkey(Key::LeftArrow))
+                Btn::text_fg("<").build(ctx, "previous turn", Key::LeftArrow)
             },
             Text::from(Line(format!("{}/{}", idx, turns.len())).secondary())
                 .draw(ctx)
@@ -183,9 +183,9 @@ impl TurnExplorer {
             if idx == turns.len() {
                 Btn::text_fg(">").inactive(ctx)
             } else {
-                Btn::text_fg(">").build(ctx, "next turn", hotkey(Key::RightArrow))
+                Btn::text_fg(">").build(ctx, "next turn", Key::RightArrow)
             },
-            Btn::text_fg("X").build(ctx, "close", hotkey(Key::Escape)),
+            Btn::text_fg("X").build(ctx, "close", Key::Escape),
         ])];
         if idx == 0 {
             if app.primary.map.get_l(l).is_walkable() {

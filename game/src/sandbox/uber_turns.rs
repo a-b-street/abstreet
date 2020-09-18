@@ -9,8 +9,8 @@ use map_model::{IntersectionCluster, IntersectionID};
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct UberTurnPicker {
@@ -35,12 +35,12 @@ impl UberTurnPicker {
                         .small_heading()
                         .draw(ctx),
                     Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
-                Btn::text_fg("View uber-turns").build_def(ctx, hotkey(Key::Enter)),
-                Btn::text_fg("Edit").build_def(ctx, hotkey(Key::E)),
-                Btn::text_fg("Detect all clusters").build_def(ctx, hotkey(Key::D)),
+                Btn::text_fg("View uber-turns").build_def(ctx, Key::Enter),
+                Btn::text_fg("Edit").build_def(ctx, Key::E),
+                Btn::text_fg("Detect all clusters").build_def(ctx, Key::D),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
@@ -175,7 +175,7 @@ impl UberTurnViewer {
                     if idx == 0 {
                         Btn::text_fg("<").inactive(ctx)
                     } else {
-                        Btn::text_fg("<").build(ctx, "previous uber-turn", hotkey(Key::LeftArrow))
+                        Btn::text_fg("<").build(ctx, "previous uber-turn", Key::LeftArrow)
                     },
                     Text::from(Line(format!("{}/{}", idx + 1, ic.uber_turns.len())).secondary())
                         .draw(ctx)
@@ -183,9 +183,9 @@ impl UberTurnViewer {
                     if ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - 1 {
                         Btn::text_fg(">").inactive(ctx)
                     } else {
-                        Btn::text_fg(">").build(ctx, "next uber-turn", hotkey(Key::RightArrow))
+                        Btn::text_fg(">").build(ctx, "next uber-turn", Key::RightArrow)
                     },
-                    Btn::text_fg("X").build(ctx, "close", hotkey(Key::Escape)),
+                    Btn::text_fg("X").build(ctx, "close", Key::Escape),
                 ]),
                 Widget::row(vec![
                     Checkbox::toggle(

@@ -5,8 +5,8 @@ use crate::layer::PickLayer;
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
 use widgetry::{
-    hotkey, Btn, Checkbox, Color, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Outcome, Panel, ScreenPt, Spinner, VerticalAlignment, Widget,
+    Btn, Checkbox, Color, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome,
+    Panel, ScreenPt, Spinner, VerticalAlignment, Widget,
 };
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
@@ -426,10 +426,10 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
         })
         .bg(app.cs.inner_panel),
         Btn::svg_def("system/assets/tools/layers.svg")
-            .build(ctx, "change layers", hotkey(Key::L))
+            .build(ctx, "change layers", Key::L)
             .bg(app.cs.inner_panel),
         Btn::svg_def("system/assets/tools/search.svg")
-            .build(ctx, "search", hotkey(Key::K))
+            .build(ctx, "search", Key::K)
             .bg(app.cs.inner_panel),
     ])
 }

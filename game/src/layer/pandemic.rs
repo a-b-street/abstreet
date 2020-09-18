@@ -6,8 +6,8 @@ use geom::{Circle, Distance, Pt2D, Time};
 use sim::{GetDrawAgents, PersonState};
 use std::collections::HashSet;
 use widgetry::{
-    hotkey, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
@@ -178,7 +178,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
             Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
             "Pandemic model".draw_text(ctx),
             Btn::plaintext("X")
-                .build(ctx, "close", hotkey(Key::Escape))
+                .build(ctx, "close", Key::Escape)
                 .align_right(),
         ]),
         Text::from_multiline(vec![

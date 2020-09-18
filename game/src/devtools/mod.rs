@@ -12,7 +12,7 @@ use crate::helpers::nice_map_name;
 use abstutil::Timer;
 use geom::{LonLat, Percent};
 use widgetry::{
-    hotkey, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, TextExt,
+    Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, TextExt,
     VerticalAlignment, Widget,
 };
 
@@ -27,7 +27,7 @@ impl DevToolsMode {
                 Widget::row(vec![
                     Line("Internal dev tools").small_heading().draw(ctx),
                     Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Widget::row(vec![
@@ -39,11 +39,11 @@ impl DevToolsMode {
                     ),
                 ]),
                 Widget::custom_row(vec![
-                    Btn::text_fg("edit a polygon").build_def(ctx, hotkey(Key::E)),
-                    Btn::text_fg("draw a polygon").build_def(ctx, hotkey(Key::P)),
-                    Btn::text_fg("load scenario").build_def(ctx, hotkey(Key::W)),
-                    Btn::text_fg("view KML").build_def(ctx, hotkey(Key::K)),
-                    Btn::text_fg("story maps").build_def(ctx, hotkey(Key::S)),
+                    Btn::text_fg("edit a polygon").build_def(ctx, Key::E),
+                    Btn::text_fg("draw a polygon").build_def(ctx, Key::P),
+                    Btn::text_fg("load scenario").build_def(ctx, Key::W),
+                    Btn::text_fg("view KML").build_def(ctx, Key::K),
+                    Btn::text_fg("story maps").build_def(ctx, Key::S),
                 ])
                 .flex_wrap(ctx, Percent::int(60)),
             ]))

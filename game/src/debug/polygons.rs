@@ -2,8 +2,8 @@ use crate::app::App;
 use crate::game::{State, Transition};
 use geom::{Polygon, Pt2D, Triangle};
 use widgetry::{
-    hotkey, Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    Slider, Text, TextExt, VerticalAlignment, Widget,
+    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 pub struct PolygonDebugger {
@@ -31,14 +31,14 @@ impl PolygonDebugger {
                 Widget::row(vec![
                     Line("Geometry debugger").small_heading().draw(ctx),
                     Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Widget::row(vec![
                     // TODO inactive
-                    Btn::text_fg("<").build(ctx, "previous", hotkey(Key::LeftArrow)),
+                    Btn::text_fg("<").build(ctx, "previous", Key::LeftArrow),
                     "noun X/Y".draw_text(ctx).named("pointer"),
-                    Btn::text_fg(">").build(ctx, "next", hotkey(Key::RightArrow)),
+                    Btn::text_fg(">").build(ctx, "next", Key::RightArrow),
                 ])
                 .evenly_spaced(),
                 Slider::horizontal(ctx, 100.0, 25.0, 0.0)

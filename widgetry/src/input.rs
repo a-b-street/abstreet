@@ -1,4 +1,4 @@
-use crate::{hotkey, Canvas, Event, Key, MultiKey, ScreenPt};
+use crate::{Canvas, Event, Key, MultiKey, ScreenPt};
 use geom::Duration;
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -19,12 +19,8 @@ impl UserInput {
         }
     }
 
-    pub fn key_pressed(&mut self, key: Key) -> bool {
-        self.pressed(hotkey(key))
-    }
-
-    pub fn pressed(&mut self, multikey: Option<MultiKey>) -> bool {
-        let mk = if let Some(mk) = multikey {
+    pub fn pressed<MK: Into<Option<MultiKey>>>(&mut self, multikey: MK) -> bool {
+        let mk = if let Some(mk) = multikey.into() {
             mk
         } else {
             return false;
@@ -47,7 +43,7 @@ impl UserInput {
         false
     }
 
-    pub(crate) fn any_key_pressed(&mut self) -> Option<Key> {
+    pub(crate) fn any_pressed(&mut self) -> Option<Key> {
         if self.event_consumed {
             return None;
         }

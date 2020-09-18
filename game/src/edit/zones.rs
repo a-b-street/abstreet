@@ -11,7 +11,7 @@ use maplit::btreeset;
 use sim::TripMode;
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 
@@ -62,8 +62,8 @@ impl ZoneEditor {
                         .named("cap_vehicles"),
                 ]),
                 Widget::custom_row(vec![
-                    Btn::text_fg("Apply").build_def(ctx, hotkey(Key::Enter)),
-                    Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
+                    Btn::text_fg("Apply").build_def(ctx, Key::Enter),
+                    Btn::text_fg("Cancel").build_def(ctx, Key::Escape),
                 ])
                 .evenly_spaced(),
             ]))

@@ -6,8 +6,8 @@ use geom::Speed;
 use map_model::{LaneType, RoadID};
 use maplit::btreeset;
 use widgetry::{
-    hotkey, hotkeys, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    hotkeys, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct BulkSelect {
@@ -46,7 +46,7 @@ fn make_select_panel(ctx: &mut EventCtx, app: &App, selector: &RoadSelector) -> 
             } else {
                 Widget::nothing()
             },
-            Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
+            Btn::text_fg("Cancel").build_def(ctx, Key::Escape),
         ])
         .evenly_spaced(),
     ]))
@@ -152,12 +152,12 @@ impl BulkEdit {
                     ])
                 },
                 Widget::row(vec![
-                    Btn::text_bg2("Finish").build_def(ctx, hotkey(Key::Enter)),
+                    Btn::text_bg2("Finish").build_def(ctx, Key::Enter),
                     Btn::plaintext_custom(
                         "Cancel",
                         Text::from(Line("Cancel").fg(Color::hex("#FF5E5E"))),
                     )
-                    .build_def(ctx, hotkey(Key::Escape))
+                    .build_def(ctx, Key::Escape)
                     .align_right(),
                 ]),
             ]))

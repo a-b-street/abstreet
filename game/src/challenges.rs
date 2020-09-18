@@ -7,9 +7,7 @@ use geom::{Duration, Percent, Time};
 use map_model::Map;
 use sim::{AlertHandler, OrigPersonID, Scenario, Sim, SimFlags, SimOptions};
 use std::collections::{BTreeMap, HashSet};
-use widgetry::{
-    hotkey, Btn, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, Widget,
-};
+use widgetry::{Btn, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, Widget};
 
 // TODO Also have some kind of screenshot to display for each challenge
 pub struct Challenge {
@@ -129,7 +127,7 @@ impl ChallengesPicker {
         let mut links = BTreeMap::new();
         let mut master_col = vec![
             Btn::svg_def("system/assets/pregame/back.svg")
-                .build(ctx, "back", hotkey(Key::Escape))
+                .build(ctx, "back", Key::Escape)
                 .align_left(),
             Text::from_multiline(vec![
                 Line("A/B STREET").display_title(),
@@ -155,7 +153,7 @@ impl ChallengesPicker {
             {
                 flex_row.push(Btn::text_bg2(&name).inactive(ctx));
             } else {
-                flex_row.push(Btn::text_bg2(&name).build_def(ctx, hotkey(Key::NUM_KEYS[idx])));
+                flex_row.push(Btn::text_bg2(&name).build_def(ctx, Key::NUM_KEYS[idx]));
                 links.insert(name.clone(), (name, 0));
             }
         }
@@ -204,7 +202,7 @@ impl ChallengesPicker {
 
             let mut inner_col = vec![
                 txt.draw(ctx),
-                Btn::text_fg("Start!").build_def(ctx, hotkey(Key::Enter)),
+                Btn::text_fg("Start!").build_def(ctx, Key::Enter),
             ];
 
             if let Some(scores) = app.session.high_scores.get(&challenge.gameplay) {

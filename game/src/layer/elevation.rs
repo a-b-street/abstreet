@@ -3,8 +3,8 @@ use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
 use geom::{ArrowCap, Distance, PolyLine};
 use widgetry::{
-    hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Panel, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 pub struct Elevation {
@@ -91,7 +91,7 @@ impl Elevation {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Elevation change".draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             Text::from_multiline(vec![

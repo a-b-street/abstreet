@@ -9,8 +9,7 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType,
 };
 use widgetry::{
-    hotkey, Btn, Checkbox, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner, TextExt,
-    Widget,
+    Btn, Checkbox, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner, TextExt, Widget,
 };
 
 pub struct ChangeDuration {
@@ -27,7 +26,7 @@ impl ChangeDuration {
                         .small_heading()
                         .draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Widget::row(vec![
@@ -53,7 +52,7 @@ impl ChangeDuration {
                         },
                     ),
                 ]),
-                Btn::text_bg2("Apply").build_def(ctx, hotkey(Key::Enter)),
+                Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
             ]))
             .build(ctx),
             idx,

@@ -7,8 +7,8 @@ use map_model::{IntersectionID, Map, Traversable};
 use maplit::btreeset;
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct Backpressure {
@@ -69,7 +69,7 @@ impl Backpressure {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Backpressure".draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             Text::from(
@@ -169,7 +169,7 @@ impl Throughput {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Throughput".draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             Text::from(Line("This counts all people crossing since midnight").secondary())
@@ -264,7 +264,7 @@ impl Throughput {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Relative Throughput".draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             Checkbox::switch(ctx, "Compare before proposal", None, true),
@@ -376,7 +376,7 @@ impl Delay {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Delay (minutes)".draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             if app.has_prebaked().is_some() {
@@ -429,7 +429,7 @@ impl Delay {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Delay".draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             Checkbox::switch(ctx, "Compare before proposal", None, true),
@@ -524,7 +524,7 @@ impl TrafficJams {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Traffic jams".draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             Text::from(

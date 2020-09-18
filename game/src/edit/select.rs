@@ -6,9 +6,7 @@ use map_model::{IntersectionID, Map, RoadID};
 use petgraph::graphmap::UnGraphMap;
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
-use widgetry::{
-    hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget,
-};
+use widgetry::{Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
 
 pub struct RoadSelector {
     pub roads: BTreeSet<RoadID>,
@@ -49,7 +47,7 @@ impl RoadSelector {
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("system/assets/tools/pencil.svg").build(ctx, "paint", hotkey(Key::P))
+                Btn::svg_def("system/assets/tools/pencil.svg").build(ctx, "paint", Key::P)
             },
             if let Mode::Erase = self.mode {
                 Widget::draw_svg_transform(
@@ -58,11 +56,7 @@ impl RoadSelector {
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("system/assets/tools/eraser.svg").build(
-                    ctx,
-                    "erase",
-                    hotkey(Key::Backspace),
-                )
+                Btn::svg_def("system/assets/tools/eraser.svg").build(ctx, "erase", Key::Backspace)
             },
             if let Mode::Route { .. } = self.mode {
                 Widget::draw_svg_transform(
@@ -74,7 +68,7 @@ impl RoadSelector {
                 Btn::svg_def("system/assets/timeline/start_pos.svg").build(
                     ctx,
                     "select along route",
-                    hotkey(Key::R),
+                    Key::R,
                 )
             },
             if let Mode::Pan = self.mode {
@@ -84,7 +78,7 @@ impl RoadSelector {
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", hotkey(Key::Escape))
+                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", Key::Escape)
             },
         ])
         .evenly_spaced()

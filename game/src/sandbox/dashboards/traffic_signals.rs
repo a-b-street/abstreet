@@ -8,8 +8,8 @@ use map_model::{IntersectionID, MovementID, PathStep, TurnType};
 use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::HashMap;
 use widgetry::{
-    hotkey, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct TrafficSignalDemand {
@@ -36,7 +36,7 @@ impl TrafficSignalDemand {
                         .small_heading()
                         .draw(ctx),
                     Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Widget::row(vec![

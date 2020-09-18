@@ -10,9 +10,8 @@ use maplit::hashset;
 use sim::{DontDrawAgents, TripEndpoint, TripInfo, TripMode};
 use std::collections::{BTreeSet, HashMap, HashSet};
 use widgetry::{
-    hotkey, AreaSlider, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment,
-    Widget,
+    AreaSlider, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct CommuterPatterns {
@@ -694,17 +693,10 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         Widget::row(vec![
             Line("Commute map by block").small_heading().draw(ctx),
             Btn::text_fg("X")
-                .build(ctx, "close", hotkey(Key::Escape))
+                .build(ctx, "close", Key::Escape)
                 .align_right(),
         ]),
-        Checkbox::toggle(
-            ctx,
-            "from / to this block",
-            "from",
-            "to",
-            hotkey(Key::Space),
-            true,
-        ),
+        Checkbox::toggle(ctx, "from / to this block", "from", "to", Key::Space, true),
         Checkbox::switch(ctx, "include borders", None, true),
         Widget::row(vec![
             "Departing from:".draw_text(ctx).margin_right(20),

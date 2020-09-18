@@ -12,8 +12,8 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 use widgetry::{
-    hotkey, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Menu, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Menu, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct ParkingMapper {
@@ -125,7 +125,7 @@ impl ParkingMapper {
                 Widget::row(vec![
                     Line("Parking mapper").small_heading().draw(ctx),
                     Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Widget::row(vec![
@@ -280,7 +280,7 @@ impl State for ParkingMapper {
                 self.data.clone(),
             ));
         }
-        if self.selected.is_some() && ctx.input.key_pressed(Key::N) {
+        if self.selected.is_some() && ctx.input.pressed(Key::N) {
             let osm_way_id = app
                 .primary
                 .map
@@ -291,7 +291,7 @@ impl State for ParkingMapper {
             new_data.insert(osm_way_id, Value::NoStopping);
             return Transition::Replace(ParkingMapper::make(ctx, app, self.show, new_data));
         }
-        if self.selected.is_some() && ctx.input.key_pressed(Key::S) {
+        if self.selected.is_some() && ctx.input.pressed(Key::S) {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 let gps = pt.to_gps(app.primary.map.get_gps_bounds());
                 open_browser(format!(
@@ -302,7 +302,7 @@ impl State for ParkingMapper {
             }
         }
         if let Some((ref roads, _)) = self.selected {
-            if ctx.input.key_pressed(Key::O) {
+            if ctx.input.pressed(Key::O) {
                 open_browser(format!(
                     "{}",
                     app.primary
@@ -436,7 +436,7 @@ impl ChangeWay {
                         .small_heading()
                         .draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Menu::new(

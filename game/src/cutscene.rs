@@ -1,8 +1,8 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
 use widgetry::{
-    hotkey, hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    RewriteColor, Text, Widget,
+    hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, RewriteColor,
+    Text, Widget,
 };
 
 pub struct CutsceneBuilder {
@@ -171,7 +171,7 @@ fn make_panel(
             "system/assets/tools/prev.svg",
             RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
-        .build(ctx, "back", hotkey(Key::LeftArrow))
+        .build(ctx, "back", Key::LeftArrow)
     } else {
         Widget::draw_svg_transform(
             ctx,
@@ -193,7 +193,7 @@ fn make_panel(
         Widget::custom_col(vec![
             (make_task)(ctx),
             Btn::txt("Start", Text::from(Line("Start").fg(Color::BLACK)))
-                .build_def(ctx, hotkey(Key::Enter))
+                .build_def(ctx, Key::Enter)
                 .centered_horiz()
                 .align_bottom(),
         ])

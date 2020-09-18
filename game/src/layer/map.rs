@@ -7,8 +7,8 @@ use geom::{Distance, Time};
 use map_model::LaneType;
 use sim::AgentType;
 use widgetry::{
-    hotkey, Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, Text,
-    TextExt, VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 
 pub struct BikeNetwork {
@@ -109,7 +109,7 @@ impl BikeNetwork {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Bike network".draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             Text::from_multiline(vec![
@@ -193,7 +193,7 @@ impl Static {
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 title.draw_text(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             extra,

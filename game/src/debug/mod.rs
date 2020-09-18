@@ -16,7 +16,7 @@ use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
 use std::collections::HashSet;
 use widgetry::{
-    hotkey, lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
+    lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, Text, UpdateType, VerticalAlignment, Widget,
 };
 
@@ -40,35 +40,30 @@ impl DebugMode {
                 Widget::row(vec![
                     Line("Debug Mode").small_heading().draw(ctx),
                     Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Text::new().draw(ctx).named("current info"),
-                Checkbox::switch(ctx, "show buildings", hotkey(Key::Num1), true),
-                Checkbox::switch(ctx, "show intersections", hotkey(Key::Num2), true),
-                Checkbox::switch(ctx, "show lanes", hotkey(Key::Num3), true),
-                Checkbox::switch(ctx, "show areas", hotkey(Key::Num4), true),
-                Checkbox::switch(ctx, "show labels", hotkey(Key::Num5), false),
-                Checkbox::switch(ctx, "show route for all agents", hotkey(Key::R), false),
-                Widget::col(
-                    vec![
-                        (lctrl(Key::H), "unhide everything"),
-                        (None, "screenshot everything"),
-                        (None, "screenshot all of the everything"),
-                        (hotkey(Key::Slash), "search OSM metadata"),
-                        (lctrl(Key::Slash), "clear OSM search results"),
-                        (hotkey(Key::O), "save sim state"),
-                        (hotkey(Key::Y), "load previous sim state"),
-                        (hotkey(Key::U), "load next sim state"),
-                        (None, "pick a savestate to load"),
-                        (None, "find bad traffic signals"),
-                        (None, "find degenerate roads"),
-                        (None, "find large intersections"),
-                    ]
-                    .into_iter()
-                    .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
-                    .collect(),
-                ),
+                Checkbox::switch(ctx, "show buildings", Key::Num1, true),
+                Checkbox::switch(ctx, "show intersections", Key::Num2, true),
+                Checkbox::switch(ctx, "show lanes", Key::Num3, true),
+                Checkbox::switch(ctx, "show areas", Key::Num4, true),
+                Checkbox::switch(ctx, "show labels", Key::Num5, false),
+                Checkbox::switch(ctx, "show route for all agents", Key::R, false),
+                Widget::col(vec![
+                    Btn::text_fg("unhide everything").build_def(ctx, lctrl(Key::H)),
+                    Btn::text_fg("screenshot everything").build_def(ctx, None),
+                    Btn::text_fg("screenshot all of the everything").build_def(ctx, None),
+                    Btn::text_fg("search OSM metadata").build_def(ctx, Key::Slash),
+                    Btn::text_fg("clear OSM search results").build_def(ctx, lctrl(Key::Slash)),
+                    Btn::text_fg("save sim state").build_def(ctx, Key::O),
+                    Btn::text_fg("load previous sim state").build_def(ctx, Key::Y),
+                    Btn::text_fg("load next sim state").build_def(ctx, Key::U),
+                    Btn::text_fg("pick a savestate to load").build_def(ctx, None),
+                    Btn::text_fg("find bad traffic signals").build_def(ctx, None),
+                    Btn::text_fg("find degenerate roads").build_def(ctx, None),
+                    Btn::text_fg("find large intersections").build_def(ctx, None),
+                ]),
                 Text::from_all(vec![
                     Line("Hold "),
                     Line(Key::LeftControl.describe()).fg(ctx.style().hotkey_color),

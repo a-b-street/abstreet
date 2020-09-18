@@ -10,8 +10,8 @@ use maplit::btreeset;
 use sim::{ScenarioModifier, TripMode};
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, lctrl, AreaSlider, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, AreaSlider, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct PlayScenario {
@@ -125,11 +125,7 @@ fn make_top_center(
                 lctrl(Key::L),
             ),
             "Traffic:".draw_text(ctx),
-            Btn::text_fg(format!("{} ↓", scenario_name)).build(
-                ctx,
-                "change traffic",
-                hotkey(Key::S),
-            ),
+            Btn::text_fg(format!("{} ↓", scenario_name)).build(ctx, "change traffic", Key::S),
             Btn::svg_def("system/assets/tools/edit_map.svg").build(ctx, "edit map", lctrl(Key::E)),
         ])
         .centered(),
@@ -208,8 +204,8 @@ impl EditScenarioModifiers {
         ]));
         rows.push(
             Widget::row(vec![
-                Btn::text_bg2("Apply").build_def(ctx, hotkey(Key::Enter)),
-                Btn::text_bg2("Discard changes").build_def(ctx, hotkey(Key::Escape)),
+                Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
+                Btn::text_bg2("Discard changes").build_def(ctx, Key::Escape),
             ])
             .centered(),
         );
@@ -370,8 +366,8 @@ impl ChangeMode {
                     AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.3).named("depart to"),
                 ]),
                 Widget::row(vec![
-                    Btn::text_bg2("Apply").build_def(ctx, hotkey(Key::Enter)),
-                    Btn::text_bg2("Discard changes").build_def(ctx, hotkey(Key::Escape)),
+                    Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
+                    Btn::text_bg2("Discard changes").build_def(ctx, Key::Escape),
                 ])
                 .centered(),
             ]))

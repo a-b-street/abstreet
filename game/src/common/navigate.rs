@@ -5,8 +5,8 @@ use crate::helpers::ID;
 use map_model::RoadID;
 use std::collections::HashSet;
 use widgetry::{
-    hotkey, Autocomplete, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, Text, Widget,
+    Autocomplete, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    Text, Widget,
 };
 
 // TODO Canonicalize names, handling abbreviations like east/e and street/st
@@ -21,7 +21,7 @@ impl Navigator {
                 Widget::row(vec![
                     Line("Enter a street name").small_heading().draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Autocomplete::new(
@@ -34,7 +34,7 @@ impl Navigator {
                         .collect(),
                 )
                 .named("street"),
-                Btn::text_fg("Search by business name or address").build_def(ctx, hotkey(Key::Tab)),
+                Btn::text_fg("Search by business name or address").build_def(ctx, Key::Tab),
             ]))
             .build(ctx),
         })
@@ -113,7 +113,7 @@ impl CrossStreet {
                         txt.draw(ctx)
                     },
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Autocomplete::new(
@@ -205,7 +205,7 @@ impl SearchBuildings {
                         .small_heading()
                         .draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Autocomplete::new(
@@ -240,7 +240,7 @@ impl SearchBuildings {
                         .collect(),
                 )
                 .named("bldg"),
-                Btn::text_fg("Search for streets").build_def(ctx, hotkey(Key::Tab)),
+                Btn::text_fg("Search for streets").build_def(ctx, Key::Tab),
             ]))
             .build(ctx),
         })

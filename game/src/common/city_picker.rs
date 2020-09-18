@@ -5,8 +5,7 @@ use crate::render::DrawArea;
 use geom::{Distance, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
-    hotkey, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenPt, Text,
-    Widget,
+    Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenPt, Text, Widget,
 };
 
 pub struct CityPicker {
@@ -90,7 +89,7 @@ impl CityPicker {
                     Widget::row(vec![
                         Line("Select a region").small_heading().draw(ctx),
                         Btn::plaintext("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
+                            .build(ctx, "close", Key::Escape)
                             .align_right(),
                     ]),
                     Widget::row(vec![

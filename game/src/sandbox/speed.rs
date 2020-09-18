@@ -7,8 +7,8 @@ use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use geom::{Duration, Polygon, Time};
 use sim::AlertLocation;
 use widgetry::{
-    hotkey, Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, PersistentSplit, RewriteColor, Text, VerticalAlignment, Widget,
+    Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, PersistentSplit, RewriteColor, Text, VerticalAlignment, Widget,
 };
 
 pub struct SpeedControls {
@@ -35,17 +35,9 @@ impl SpeedControls {
         let mut row = Vec::new();
         row.push(
             if paused {
-                Btn::svg_def("system/assets/speed/triangle.svg").build(
-                    ctx,
-                    "play",
-                    hotkey(Key::Space),
-                )
+                Btn::svg_def("system/assets/speed/triangle.svg").build(ctx, "play", Key::Space)
             } else {
-                Btn::svg_def("system/assets/speed/pause.svg").build(
-                    ctx,
-                    "pause",
-                    hotkey(Key::Space),
-                )
+                Btn::svg_def("system/assets/speed/pause.svg").build(ctx, "pause", Key::Space)
             }
             .container()
             .padding(9)
@@ -64,8 +56,8 @@ impl SpeedControls {
                 .into_iter()
                 .map(|(s, label)| {
                     let mut txt = Text::from(Line(label).small());
-                    txt.extend(Text::tooltip(ctx, hotkey(Key::LeftArrow), "slow down"));
-                    txt.extend(Text::tooltip(ctx, hotkey(Key::RightArrow), "speed up"));
+                    txt.extend(Text::tooltip(ctx, Key::LeftArrow, "slow down"));
+                    txt.extend(Text::tooltip(ctx, Key::RightArrow, "speed up"));
 
                     GeomBatch::load_svg(ctx.prerender, "system/assets/speed/triangle.svg")
                         .color(if setting >= s {
@@ -91,7 +83,7 @@ impl SpeedControls {
                 ctx,
                 "step forwards",
                 app.opts.time_increment,
-                hotkey(Key::M),
+                Key::M,
                 vec![
                     Choice::new("+1h", Duration::hours(1)),
                     Choice::new("+30m", Duration::minutes(30)),
@@ -106,11 +98,11 @@ impl SpeedControls {
         row.push(
             Widget::custom_row(vec![
                 Btn::svg_def("system/assets/speed/jump_to_time.svg")
-                    .build(ctx, "jump to specific time", hotkey(Key::B))
+                    .build(ctx, "jump to specific time", Key::B)
                     .container()
                     .padding(9),
                 Btn::svg_def("system/assets/speed/reset.svg")
-                    .build(ctx, "reset to midnight", hotkey(Key::X))
+                    .build(ctx, "reset to midnight", Key::X)
                     .container()
                     .padding(9),
             ])
@@ -215,7 +207,7 @@ impl SpeedControls {
         // Just kind of constantly scrape this
         app.opts.time_increment = self.panel.persistent_split_value("step forwards");
 
-        if ctx.input.key_pressed(Key::LeftArrow) {
+        if ctx.input.pressed(Key::LeftArrow) {
             match self.setting {
                 SpeedSetting::Realtime => self.pause(ctx, app),
                 SpeedSetting::Fast => {
@@ -232,7 +224,7 @@ impl SpeedControls {
                 }
             }
         }
-        if ctx.input.key_pressed(Key::RightArrow) {
+        if ctx.input.pressed(Key::RightArrow) {
             match self.setting {
                 SpeedSetting::Realtime => {
                     if self.paused {

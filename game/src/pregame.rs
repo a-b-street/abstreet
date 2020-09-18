@@ -15,7 +15,7 @@ use rand_xorshift::XorShiftRng;
 use sim::ScenarioGenerator;
 use std::collections::HashMap;
 use widgetry::{
-    hotkey, hotkeys, Btn, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, RewriteColor, Text,
+    hotkeys, Btn, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, RewriteColor, Text,
     UpdateType, Widget,
 };
 
@@ -88,7 +88,7 @@ impl MainMenu {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let col = vec![
             Btn::svg_def("system/assets/pregame/quit.svg")
-                .build(ctx, "quit", hotkey(Key::Escape))
+                .build(ctx, "quit", Key::Escape)
                 .align_left(),
             {
                 let mut txt = Text::from(Line("A/B STREET").display_title());
@@ -101,53 +101,50 @@ impl MainMenu {
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
                 .tooltip({
-                    let mut txt = Text::tooltip(ctx, hotkey(Key::T), "Tutorial");
+                    let mut txt = Text::tooltip(ctx, Key::T, "Tutorial");
                     txt.add(Line("Learn how to play the game").small());
                     txt
                 })
-                .build(ctx, "Tutorial", hotkey(Key::T)),
+                .build(ctx, "Tutorial", Key::T),
                 Btn::svg(
                     "system/assets/pregame/sandbox.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
                 .tooltip({
-                    let mut txt = Text::tooltip(ctx, hotkey(Key::S), "Sandbox");
+                    let mut txt = Text::tooltip(ctx, Key::S, "Sandbox");
                     txt.add(Line("No goals, try out any idea here").small());
                     txt
                 })
-                .build(ctx, "Sandbox mode", hotkey(Key::S)),
+                .build(ctx, "Sandbox mode", Key::S),
                 Btn::svg(
                     "system/assets/pregame/challenges.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
                 .tooltip({
-                    let mut txt = Text::tooltip(ctx, hotkey(Key::C), "Challenges");
+                    let mut txt = Text::tooltip(ctx, Key::C, "Challenges");
                     txt.add(Line("Fix specific problems").small());
                     txt
                 })
-                .build(ctx, "Challenges", hotkey(Key::C)),
+                .build(ctx, "Challenges", Key::C),
             ])
             .centered(),
             Widget::row(vec![
                 Btn::text_bg2("Community Proposals")
                     .tooltip({
-                        let mut txt = Text::tooltip(ctx, hotkey(Key::P), "Community Proposals");
+                        let mut txt = Text::tooltip(ctx, Key::P, "Community Proposals");
                         txt.add(Line("See existing ideas for improving traffic").small());
                         txt
                     })
-                    .build_def(ctx, hotkey(Key::P)),
+                    .build_def(ctx, Key::P),
                 Btn::text_bg2("Contribute parking data to OpenStreetMap")
                     .tooltip({
-                        let mut txt = Text::tooltip(
-                            ctx,
-                            hotkey(Key::M),
-                            "Contribute parking data to OpenStreetMap",
-                        );
+                        let mut txt =
+                            Text::tooltip(ctx, Key::M, "Contribute parking data to OpenStreetMap");
                         txt.add(Line("Improve parking data in OpenStreetMap").small());
                         txt
                     })
-                    .build_def(ctx, hotkey(Key::M)),
-                Btn::text_bg2("Internal Dev Tools").build_def(ctx, hotkey(Key::D)),
+                    .build_def(ctx, Key::M),
+                Btn::text_bg2("Internal Dev Tools").build_def(ctx, Key::D),
             ])
             .centered(),
             Widget::col(vec![
@@ -248,7 +245,7 @@ impl About {
     fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let col = vec![
             Btn::svg_def("system/assets/pregame/back.svg")
-                .build(ctx, "back", hotkey(Key::Escape))
+                .build(ctx, "back", Key::Escape)
                 .align_left(),
             {
                 Text::from_multiline(vec![
@@ -391,7 +388,7 @@ impl Proposals {
             proposals,
             panel: Panel::new(Widget::custom_col(vec![
                 Btn::svg_def("system/assets/pregame/back.svg")
-                    .build(ctx, "back", hotkey(Key::Escape))
+                    .build(ctx, "back", Key::Escape)
                     .align_left()
                     .margin_below(20),
                 Widget::col(col).bg(app.cs.panel_bg).padding(16),

@@ -13,11 +13,11 @@ pub struct PersistentSplit<T: Clone + PartialEq> {
 }
 
 impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
-    pub fn new(
+    pub fn new<MK: Into<Option<MultiKey>>>(
         ctx: &EventCtx,
         label: &str,
         default_value: T,
-        hotkey: Option<MultiKey>,
+        hotkey: MK,
         choices: Vec<Choice<T>>,
     ) -> Widget {
         let dropdown = Dropdown::new(ctx, "change", default_value, choices, true);

@@ -29,8 +29,8 @@ use maplit::btreeset;
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 use widgetry::{
-    hotkey, lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Menu, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
+    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub struct EditMode {
@@ -391,7 +391,7 @@ impl SaveEdits {
                         Widget::nothing()
                     },
                     if cancel.is_some() {
-                        Btn::plaintext("Cancel").build_def(ctx, hotkey(Key::Escape))
+                        Btn::plaintext("Cancel").build_def(ctx, Key::Escape)
                     } else {
                         Widget::nothing()
                     },
@@ -439,7 +439,7 @@ impl SaveEdits {
                 ctx,
                 "save",
                 Btn::text_bg2("Save")
-                    .build_def(ctx, hotkey(Key::Enter))
+                    .build_def(ctx, Key::Enter)
                     .named("save"),
             );
             self.panel
@@ -526,7 +526,7 @@ impl LoadEdits {
                 Widget::row(vec![
                     Line("Load proposal").small_heading().draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 Btn::text_fg("Start over with blank proposal").build_def(ctx, None),
@@ -621,7 +621,7 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
             "Finish & resume from {}",
             app.suspended_sim.as_ref().unwrap().time().ampm_tostring()
         ))
-        .build(ctx, "finish editing", hotkey(Key::Escape)),
+        .build(ctx, "finish editing", Key::Escape),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
@@ -822,12 +822,12 @@ impl ConfirmDiscard {
                     Widget::draw_svg(ctx, "system/assets/tools/alert.svg"),
                     Line("Alert").small_heading().draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 "Are you sure you want to discard changes you made?".draw_text(ctx),
                 Widget::row(vec![
-                    Btn::plaintext("Cancel").build_def(ctx, hotkey(Key::Escape)),
+                    Btn::plaintext("Cancel").build_def(ctx, Key::Escape),
                     Btn::text_bg2("Yes, discard").build_def(ctx, None),
                 ])
                 .align_right(),

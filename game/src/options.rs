@@ -4,7 +4,7 @@ use crate::game::{State, Transition};
 use crate::render::DrawBuilding;
 use geom::Duration;
 use widgetry::{
-    hotkey, Btn, Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner,
+    Btn, Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner,
     TextExt, Widget,
 };
 
@@ -77,7 +77,7 @@ impl OptionsPanel {
                 Widget::custom_row(vec![
                     Line("Settings").small_heading().draw(ctx),
                     Btn::plaintext("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
+                        .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
                 "Camera controls".draw_text(ctx),
@@ -207,7 +207,7 @@ impl OptionsPanel {
                 .bg(app.cs.section_bg)
                 .padding(8),
                 Btn::text_bg2("Apply")
-                    .build_def(ctx, hotkey(Key::Enter))
+                    .build_def(ctx, Key::Enter)
                     .centered_horiz(),
             ]))
             .build(ctx),

@@ -11,8 +11,7 @@ use sim::{
 };
 use std::collections::BTreeMap;
 use widgetry::{
-    hotkey, Btn, Color, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan,
-    Widget,
+    Btn, Color, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan, Widget,
 };
 
 pub fn trips(
@@ -467,16 +466,16 @@ pub fn parked_car(
                 Btn::svg_def("system/assets/tools/location.svg").build(
                     ctx,
                     "follow (run the simulation)",
-                    hotkey(Key::F),
+                    Key::F,
                 )
             } else {
                 // TODO Blink
                 GeomBatch::load_svg(ctx.prerender, "system/assets/tools/location.svg")
                     .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
                     .to_btn(ctx)
-                    .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))
+                    .build(ctx, "unfollow (pause the simulation)", Key::F)
             },
-            Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
+            Btn::plaintext("X").build(ctx, "close info", Key::Escape),
         ])
         .align_right(),
     ]));
@@ -587,16 +586,16 @@ fn header(
                 Btn::svg_def("system/assets/tools/location.svg").build(
                     ctx,
                     "follow (run the simulation)",
-                    hotkey(Key::F),
+                    Key::F,
                 )
             } else {
                 // TODO Blink
                 GeomBatch::load_svg(ctx.prerender, "system/assets/tools/location.svg")
                     .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
                     .to_btn(ctx)
-                    .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))
+                    .build(ctx, "unfollow (pause the simulation)", Key::F)
             },
-            Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
+            Btn::plaintext("X").build(ctx, "close info", Key::Escape),
         ])
         .align_right(),
     ]));

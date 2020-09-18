@@ -135,7 +135,7 @@ impl<T: 'static> WidgetImpl for Menu<T> {
         }
 
         // Handle nav keys
-        if ctx.input.key_pressed(Key::Enter) {
+        if ctx.input.pressed(Key::Enter) {
             let choice = &self.choices[self.current_idx];
             if choice.active {
                 output.outcome = Outcome::Clicked(choice.label.clone());
@@ -143,11 +143,11 @@ impl<T: 'static> WidgetImpl for Menu<T> {
             } else {
                 return;
             }
-        } else if ctx.input.key_pressed(Key::UpArrow) {
+        } else if ctx.input.pressed(Key::UpArrow) {
             if self.current_idx > 0 {
                 self.current_idx -= 1;
             }
-        } else if ctx.input.key_pressed(Key::DownArrow) {
+        } else if ctx.input.pressed(Key::DownArrow) {
             if self.current_idx < self.choices.len() - 1 {
                 self.current_idx += 1;
             }

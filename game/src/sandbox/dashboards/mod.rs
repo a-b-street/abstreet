@@ -8,7 +8,7 @@ mod trip_table;
 use crate::app::App;
 use crate::game::Transition;
 pub use trip_table::TripTable;
-use widgetry::{hotkey, Btn, Color, EventCtx, Key, Widget};
+use widgetry::{Btn, Color, EventCtx, Key, Widget};
 
 // Oh the dashboards melted, but we still had the radio
 #[derive(PartialEq)]
@@ -48,7 +48,7 @@ impl DashTab {
             // available space evenly. Fancy fill rules... hmmm.
             Widget::custom_row(row).bg(Color::WHITE).margin_vert(16),
             Btn::plaintext("X")
-                .build(ctx, "close", hotkey(Key::Escape))
+                .build(ctx, "close", Key::Escape)
                 .align_right(),
         ])
     }

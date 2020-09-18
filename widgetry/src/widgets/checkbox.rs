@@ -27,10 +27,10 @@ impl Checkbox {
         }
     }
 
-    pub fn switch<I: Into<String>>(
+    pub fn switch<I: Into<String>, MK: Into<Option<MultiKey>>>(
         ctx: &EventCtx,
         label: I,
-        hotkey: Option<MultiKey>,
+        hotkey: MK,
         enabled: bool,
     ) -> Widget {
         let label = label.into();
@@ -49,6 +49,7 @@ impl Checkbox {
         ])
         .to_geom(ctx, None);
 
+        let hotkey = hotkey.into();
         Checkbox::new(
             enabled,
             Btn::custom(
@@ -73,13 +74,14 @@ impl Checkbox {
         .named(label)
     }
 
-    pub fn checkbox<I: Into<String>>(
+    pub fn checkbox<I: Into<String>, MK: Into<Option<MultiKey>>>(
         ctx: &EventCtx,
         label: I,
-        hotkey: Option<MultiKey>,
+        hotkey: MK,
         enabled: bool,
     ) -> Widget {
         let label = label.into();
+        let hotkey = hotkey.into();
         Checkbox::new(
             enabled,
             Btn::text_fg(format!("[ ] {}", label)).build(ctx, &label, hotkey.clone()),
@@ -89,14 +91,15 @@ impl Checkbox {
         .named(label)
     }
 
-    pub fn custom_checkbox<I: Into<String>>(
+    pub fn custom_checkbox<I: Into<String>, MK: Into<Option<MultiKey>>>(
         ctx: &EventCtx,
         label: I,
         spans: Vec<TextSpan>,
-        hotkey: Option<MultiKey>,
+        hotkey: MK,
         enabled: bool,
     ) -> Widget {
         let label = label.into();
+        let hotkey = hotkey.into();
         let mut off = vec![Line("[ ] ")];
         let mut on = vec![Line("[X] ")];
         off.extend(spans.clone());
@@ -154,16 +157,17 @@ impl Checkbox {
     }
 
     // TODO These should actually be radio buttons
-    pub fn toggle<I: Into<String>>(
+    pub fn toggle<I: Into<String>, MK: Into<Option<MultiKey>>>(
         ctx: &EventCtx,
         label: I,
         left_label: I,
         right_label: I,
-        hotkey: Option<MultiKey>,
+        hotkey: MK,
         enabled: bool,
     ) -> Widget {
         let left_label = left_label.into();
         let right_label = right_label.into();
+        let hotkey = hotkey.into();
         Widget::row(vec![
             left_label.clone().draw_text(ctx),
             Checkbox::new(

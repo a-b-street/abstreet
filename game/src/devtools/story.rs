@@ -6,8 +6,8 @@ use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use serde::{Deserialize, Serialize};
 use sim::DontDrawAgents;
 use widgetry::{
-    hotkey, lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, Panel, RewriteColor, Text, VerticalAlignment, Widget,
+    lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, RewriteColor, Text, VerticalAlignment, Widget,
 };
 
 // TODO This is a really great example of things that widgetry ought to make easier. Maybe a radio
@@ -71,7 +71,7 @@ impl State for StoryMapEditor {
                     }
                 }
                 if let Some(idx) = self.hovering {
-                    if ctx.input.key_pressed(Key::LeftControl) {
+                    if ctx.input.pressed(Key::LeftControl) {
                         self.mode =
                             Mode::Dragging(ctx.canvas.get_cursor_in_map_space().unwrap(), idx);
                     } else if app.per_obj.left_click(ctx, "edit marker") {
@@ -322,7 +322,7 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
                 )
             },
             Btn::plaintext("X")
-                .build(ctx, "close", hotkey(Key::Escape))
+                .build(ctx, "close", Key::Escape)
                 .align_right(),
         ]),
         Widget::row(vec![
@@ -333,11 +333,7 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
                     RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("system/assets/timeline/goal_pos.svg").build(
-                    ctx,
-                    "new marker",
-                    hotkey(Key::M),
-                )
+                Btn::svg_def("system/assets/timeline/goal_pos.svg").build(ctx, "new marker", Key::M)
             },
             if let Mode::View = mode {
                 Widget::draw_svg_transform(
@@ -346,7 +342,7 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", hotkey(Key::Escape))
+                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", Key::Escape)
             },
             match mode {
                 Mode::Freehand(_) => Widget::draw_svg_transform(
@@ -357,7 +353,7 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
                 _ => Btn::svg_def("system/assets/tools/select.svg").build(
                     ctx,
                     "draw freehand",
-                    hotkey(Key::P),
+                    Key::P,
                 ),
             },
         ])
@@ -510,12 +506,12 @@ impl Marker {
             Widget::row(vec![
                 Line("Editing marker").small_heading().draw(ctx),
                 Btn::plaintext("X")
-                    .build(ctx, "close", hotkey(Key::Escape))
+                    .build(ctx, "close", Key::Escape)
                     .align_right(),
             ]),
             Btn::text_fg("delete").build_def(ctx, None),
             Widget::text_entry(ctx, self.event.clone(), true).named("event"),
-            Btn::text_fg("confirm").build_def(ctx, hotkey(Key::Enter)),
+            Btn::text_fg("confirm").build_def(ctx, Key::Enter),
         ]))
         .build(ctx)
     }

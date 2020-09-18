@@ -10,8 +10,8 @@ use crate::render::Renderable;
 use crate::sandbox::GameplayMode;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
-    hotkey, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    Text, TextExt, VerticalAlignment, Widget,
+    Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 pub struct LaneEditor {
@@ -57,11 +57,7 @@ impl LaneEditor {
             ),
         ] {
             row.push(if active {
-                Btn::svg_def(format!("system/assets/edit/{}.svg", icon)).build(
-                    ctx,
-                    label,
-                    hotkey(key),
-                )
+                Btn::svg_def(format!("system/assets/edit/{}.svg", icon)).build(ctx, label, key)
             } else {
                 Widget::draw_svg(ctx, &format!("system/assets/edit/{}.svg", icon))
                     .container()
@@ -78,11 +74,11 @@ impl LaneEditor {
                     "Edit multiple lanes",
                     Text::from(Line("+ Edit multiple").fg(Color::hex("#4CA7E9"))),
                 )
-                .build_def(ctx, hotkey(Key::M)),
+                .build_def(ctx, Key::M),
             ]),
             "Type of lane".draw_text(ctx),
             Widget::custom_row(row).centered(),
-            Btn::text_fg("reverse direction").build_def(ctx, hotkey(Key::F)),
+            Btn::text_fg("reverse direction").build_def(ctx, Key::F),
             {
                 let mut choices = speed_limit_choices();
                 if !choices.iter().any(|c| c.data == parent.speed_limit) {
@@ -96,8 +92,8 @@ impl LaneEditor {
                     Widget::dropdown(ctx, "speed limit", parent.speed_limit, choices),
                 ])
             },
-            Btn::text_fg("Change access restrictions").build_def(ctx, hotkey(Key::A)),
-            Btn::text_bg2("Finish").build_def(ctx, hotkey(Key::Escape)),
+            Btn::text_fg("Change access restrictions").build_def(ctx, Key::A),
+            Btn::text_bg2("Finish").build_def(ctx, Key::Escape),
         ];
 
         let panel = Panel::new(Widget::col(col))
