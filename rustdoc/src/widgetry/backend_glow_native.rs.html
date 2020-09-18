@@ -385,7 +385,7 @@
     }
 }
 
-<span class="doccomment">/// Uploads a sprite sheet of textures to the GPU so they can be used by FancyColor::Texture and</span>
+<span class="doccomment">/// Uploads a sprite sheet of textures to the GPU so they can be used by Fill::Texture and</span>
 <span class="doccomment">/// friends to paint shapes.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// `path` - image file which is a grid of images.</span>
@@ -462,7 +462,7 @@
     );
 
     <span class="comment">// In order to avoid branching in our shader logic, all shapes are rendered with a texture.</span>
-    <span class="comment">// Even &quot;non-textured&quot; styles like FancyColor::RGBA, use a &quot;default&quot; no-op (pure white) texture,</span>
+    <span class="comment">// Even &quot;non-textured&quot; styles like Fill::Color, use a &quot;default&quot; no-op (pure white) texture,</span>
     <span class="comment">// which we generate here.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">formatted_pixels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">image</span>::<span class="ident">Rgba</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">image</span>::<span class="ident">Rgba</span>([<span class="number">255</span>; <span class="number">4</span>]); (<span class="ident">sprite_length</span> <span class="op">*</span> <span class="ident">sprite_length</span>) <span class="kw">as</span> <span class="ident">usize</span>];

@@ -219,31 +219,17 @@
 <span id="219">219</span>
 <span id="220">220</span>
 <span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::<span class="ident">BtnBuilder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">svg</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">FancyColor</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>,
-    <span class="ident">Widget</span>,
+    <span class="ident">svg</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">Widget</span>,
 };
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="doccomment">/// A mutable builder for a group of colored polygons.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GeomBatch</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">FancyColor</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Fill</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">autocrop_dims</span>: <span class="ident">bool</span>,
 }
 
@@ -259,33 +245,21 @@
     <span class="doccomment">/// Creates a batch of colored polygons.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Color</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
         <span class="ident">GeomBatch</span> {
-            <span class="ident">list</span>: <span class="ident">list</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">c</span>, <span class="ident">p</span>)<span class="op">|</span> (<span class="ident">FancyColor</span>::<span class="ident">RGBA</span>(<span class="ident">c</span>), <span class="ident">p</span>))
-                .<span class="ident">collect</span>(),
+            <span class="ident">list</span>: <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">c</span>, <span class="ident">p</span>)<span class="op">|</span> (<span class="ident">Fill</span>::<span class="ident">Color</span>(<span class="ident">c</span>), <span class="ident">p</span>)).<span class="ident">collect</span>(),
             <span class="ident">autocrop_dims</span>: <span class="bool-val">true</span>,
         }
     }
 
-    <span class="doccomment">/// Adds a single colored polygon.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">p</span>: <span class="ident">Polygon</span>) {
-        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">FancyColor</span>::<span class="ident">RGBA</span>(<span class="ident">color</span>), <span class="ident">p</span>));
-    }
-    <span class="comment">// TODO Not sure about this</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fancy_push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">FancyColor</span>, <span class="ident">p</span>: <span class="ident">Polygon</span>) {
-        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">color</span>, <span class="ident">p</span>));
+    <span class="comment">// Adds a single polygon, painted according to `Fill`</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">p</span>: <span class="ident">Polygon</span>) {
+        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">fill</span>.<span class="ident">into</span>(), <span class="ident">p</span>));
     }
 
-    <span class="doccomment">/// Applies one color to many polygons.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">polys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) {
+    <span class="doccomment">/// Applies one Fill to many polygons.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">polys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) {
+        <span class="kw">let</span> <span class="ident">fill</span> <span class="op">=</span> <span class="ident">fill</span>.<span class="ident">into</span>();
         <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polys</span> {
-            <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">FancyColor</span>::<span class="ident">RGBA</span>(<span class="ident">color</span>), <span class="ident">p</span>));
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fancy_extend</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">FancyColor</span>, <span class="ident">polys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) {
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polys</span> {
-            <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">color</span>.<span class="ident">clone</span>(), <span class="ident">p</span>));
+            <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">fill</span>.<span class="ident">clone</span>(), <span class="ident">p</span>));
         }
     }
 
@@ -295,7 +269,7 @@
     }
 
     <span class="doccomment">/// Returns the colored polygons in this batch, destroying the batch.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">FancyColor</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Fill</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">list</span>
     }
 
@@ -390,7 +364,7 @@
     <span class="doccomment">/// Transforms all colors in a batch.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">transformation</span>: <span class="ident">RewriteColor</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
         <span class="kw">for</span> (<span class="ident">fancy</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">FancyColor</span>::<span class="ident">RGBA</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">c</span>) <span class="op">=</span> <span class="ident">fancy</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Fill</span>::<span class="ident">Color</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">c</span>) <span class="op">=</span> <span class="ident">fancy</span> {
                 <span class="kw-2">*</span><span class="ident">c</span> <span class="op">=</span> <span class="ident">transformation</span>.<span class="ident">apply</span>(<span class="kw-2">*</span><span class="ident">c</span>);
             }
         }
