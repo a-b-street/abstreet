@@ -84,7 +84,6 @@ impl DrawBuilding {
                 let map_length = Pt2D::new(0.0, 0.0).dist_to(map_max).inner_meters();
 
                 let distance = |pt: &Pt2D| {
-                    // this is flipped...
                     let projection_origin = match x {
                         CameraAngle::IsometricNE => Pt2D::new(0.0, map_height),
                         CameraAngle::IsometricNW => Pt2D::new(map_width, map_height),
@@ -93,30 +92,15 @@ impl DrawBuilding {
                         CameraAngle::TopDown => unreachable!(),
                     };
 
-                    let ortho_axis = match x {
-                        CameraAngle::IsometricNE => Line::new(
-                            projection_origin.offset(-map_length / 2., -map_length / 2.),
-                            projection_origin.offset(map_length / 2., map_length / 2.),
-                        ),
-                        CameraAngle::IsometricNW => Line::new(
-                            projection_origin.offset(-map_length / 2., map_length / 2.),
-                            projection_origin.offset(map_length / 2., -map_length / 2.),
-                        ),
-                        CameraAngle::IsometricSE => Line::new(
-                            projection_origin.offset(map_length / 2., map_length / 2.),
-                            projection_origin.offset(-map_length / 2., -map_length / 2.),
-                        ),
-                        CameraAngle::IsometricSW => Line::new(
-                            projection_origin.offset(-map_length / 2., map_length / 2.),
-                            projection_origin.offset(map_length / 2., -map_length / 2.),
-                        ),
-                        CameraAngle::TopDown => unreachable!(),
-                    }
-                    .unwrap();
+                    let abs_pt = Pt2D::new(
+                        (pt.x() - projection_origin.x()).abs(),
+                        (pt.y() - projection_origin.y()).abs(),
+                    );
 
-                    // TODO: compute distance to line directly
-                    let nearest_point_on_axis = ortho_axis.project_pt(*pt);
-                    pt.dist_to(nearest_point_on_axis)
+                    let a = f64::hypot(abs_pt.x(), abs_pt.y());
+                    let theta = f64::atan(abs_pt.y() / abs_pt.x());
+                    let distance = a * f64::sin(theta + std::f64::consts::PI / 4.0);
+                    Distance::meters(distance)
                 };
 
                 // Things closer to the isometric projection origin should appear in front of
