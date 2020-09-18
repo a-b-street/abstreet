@@ -20,14 +20,6 @@ impl GeomBatch {
         }
     }
 
-    /// Creates a batch of colored polygons.
-    pub fn from(list: Vec<(Color, Polygon)>) -> GeomBatch {
-        GeomBatch {
-            list: list.into_iter().map(|(c, p)| (Fill::Color(c), p)).collect(),
-            autocrop_dims: true,
-        }
-    }
-
     // Adds a single polygon, painted according to `Fill`
     pub fn push<F: Into<Fill>>(&mut self, fill: F, p: Polygon) {
         self.list.push((fill.into(), p));
@@ -193,6 +185,16 @@ impl GeomBatch {
             *poly = poly.strip_rings().scale(factor);
         }
         self
+    }
+}
+
+impl<F: Into<Fill>> From<Vec<(F, Polygon)>> for GeomBatch {
+    /// Creates a batch of filled polygons.
+    fn from(list: Vec<(F, Polygon)>) -> GeomBatch {
+        GeomBatch {
+            list: list.into_iter().map(|(c, p)| (c.into(), p)).collect(),
+            autocrop_dims: true,
+        }
     }
 }
 

@@ -40,7 +40,7 @@ impl CityPicker {
             let zoom = (0.8 * ctx.canvas.window_width / bounds.width())
                 .min(0.8 * ctx.canvas.window_height / bounds.height());
 
-            batch.push(app.cs.map_background, city.boundary);
+            batch.push(app.cs.map_background.clone(), city.boundary);
             for (area_type, polygon) in city.areas {
                 batch.push(DrawArea::fill(area_type, &app.cs), polygon);
             }

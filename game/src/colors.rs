@@ -84,7 +84,7 @@ pub struct ColorScheme {
 
     // Other static elements
     pub void_background: Color,
-    pub map_background: Color,
+    pub map_background: Fill,
     pub unzoomed_interesting_intersection: Color,
     pub residential_building: Color,
     pub commerical_building: Color,
@@ -187,7 +187,7 @@ impl ColorScheme {
 
             // Other static elements
             void_background: Color::BLACK,
-            map_background: Color::grey(0.87),
+            map_background: Color::grey(0.87).into(),
             unzoomed_interesting_intersection: Color::BLACK,
             residential_building: Color::hex("#C4C1BC"),
             commerical_building: Color::hex("#9FABA7"),
@@ -271,7 +271,7 @@ impl ColorScheme {
         cs.sidewalk = hex("#7C55C8");
         cs.grass = hex("#063D88").into();
         cs.dialog_bg = hex("#063D88");
-        cs.map_background = hex("#070747");
+        cs.map_background = hex("#070747").into();
         cs.unzoomed_arterial = hex("#54247A");
         cs.unzoomed_highway = hex("#DD1F7F");
         cs.unzoomed_residential = hex("#4D51AC");
@@ -284,7 +284,7 @@ impl ColorScheme {
 
     fn sam_green_day() -> ColorScheme {
         let mut cs = ColorScheme::standard();
-        cs.map_background = hex("#CFE2C4");
+        cs.map_background = hex("#CFE2C4").into();
         cs.water = hex("#B4D3E5").into();
         cs.driving_lane = hex("#C6CDD5");
         cs.residential_building = hex("#CCD4BD");
@@ -294,7 +294,7 @@ impl ColorScheme {
 
     fn sam_desert_day() -> ColorScheme {
         let mut cs = ColorScheme::standard();
-        cs.map_background = hex("#FEE4D7");
+        cs.map_background = hex("#FEE4D7").into();
         cs.grass = hex("#F6C6AF").into();
         cs.dialog_bg = hex("#F6C6AF");
         cs.driving_lane = hex("#BECBD3");
@@ -324,7 +324,7 @@ impl ColorScheme {
         cs.sidewalk = hex("#89ABD9");
         cs.sidewalk_lines = hex("#4B5485");
         cs.general_road_marking = hex("#89ABD9");
-        cs.map_background = hex("#589D54"); // #153F14
+        cs.map_background = hex("#589D54").into(); // #153F14
         cs.ped_crowd = hex("#DD5444");
         cs.road_center_line = hex("#BCFF00");
         cs
@@ -343,7 +343,7 @@ impl ColorScheme {
         cs.grass = hex("#3F8C0C").into();
         cs.dialog_bg = hex("#3F8C0C");
         cs.residential_building = hex("#8099A8"); // #5E7486
-        cs.map_background = hex("#737373");
+        cs.map_background = hex("#737373").into();
         cs.driving_lane = hex("#2A2A2A"); // TODO for arterial
         cs.road_center_line = hex("#DB952E");
         cs.general_road_marking = hex("#D6D6D6");
@@ -358,6 +358,7 @@ impl ColorScheme {
         let mut cs = ColorScheme::standard();
         cs.grass = Texture::GRASS.into();
         cs.water = Texture::STILL_WATER.into();
+        cs.map_background = Texture::CONCRETE.into();
         cs
     }
 }

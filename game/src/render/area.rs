@@ -41,7 +41,7 @@ impl DrawArea {
             AreaType::Park => cs.grass.clone(),
             AreaType::Water => cs.water.clone(),
             AreaType::PedestrianIsland => Color::grey(0.3).into(),
-            AreaType::Island => cs.map_background.into(),
+            AreaType::Island => cs.map_background.clone(),
         }
     }
 }
