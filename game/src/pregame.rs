@@ -45,7 +45,7 @@ impl TitleScreen {
                         hotkeys(vec![Key::Space, Key::Enter]),
                     ),
                 ])
-                .bg(app.cs.grass)
+                .bg(app.cs.dialog_bg)
                 .padding(16)
                 .outline(3.0, Color::BLACK)
                 .centered(),
@@ -235,7 +235,7 @@ impl State for MainMenu {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.grass);
+        g.clear(app.cs.dialog_bg);
         self.panel.draw(g);
     }
 }
@@ -315,7 +315,7 @@ impl State for About {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.grass);
+        g.clear(app.cs.dialog_bg);
         self.panel.draw(g);
     }
 }
@@ -472,7 +472,7 @@ impl State for Proposals {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.grass);
+        g.clear(app.cs.dialog_bg);
         self.panel.draw(g);
     }
 }

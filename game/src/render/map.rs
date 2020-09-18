@@ -134,7 +134,7 @@ impl DrawMap {
         timer.stop("upload all areas");
 
         let boundary_polygon = ctx.upload(GeomBatch::from(vec![(
-            cs.map_background,
+            cs.map_background.clone(),
             map.get_boundary_polygon().clone(),
         )]));
 

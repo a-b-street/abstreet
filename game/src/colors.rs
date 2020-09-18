@@ -1,5 +1,5 @@
 use crate::common::ColorScale;
-use widgetry::{Choice, Color, Style};
+use widgetry::{Choice, Color, Fill, Style, Texture};
 
 // I've gone back and forth how to organize color scheme code. I was previously against having one
 // centralized place with all definitions, because careful naming or comments are needed to explain
@@ -21,6 +21,7 @@ pub enum ColorSchemeChoice {
     BAP,
     OSM,
     Starcat,
+    Textured,
 }
 
 impl ColorSchemeChoice {
@@ -33,6 +34,7 @@ impl ColorSchemeChoice {
             Choice::new("bap", ColorSchemeChoice::BAP),
             Choice::new("osm", ColorSchemeChoice::OSM),
             Choice::new("starcat", ColorSchemeChoice::Starcat),
+            Choice::new("textured", ColorSchemeChoice::Textured),
         ]
     }
 }
@@ -52,6 +54,7 @@ pub struct ColorScheme {
     pub bottom_bar_name: Color,
     pub fade_map_dark: Color,
     pub gui_style: Style,
+    pub dialog_bg: Color,
 
     // Roads
     pub driving_lane: Color,
@@ -81,14 +84,14 @@ pub struct ColorScheme {
 
     // Other static elements
     pub void_background: Color,
-    pub map_background: Color,
+    pub map_background: Fill,
     pub unzoomed_interesting_intersection: Color,
     pub residential_building: Color,
     pub commerical_building: Color,
     pub building_outline: Color,
     pub parking_lot: Color,
-    pub grass: Color,
-    pub water: Color,
+    pub grass: Fill,
+    pub water: Fill,
 
     // Unzoomed dynamic elements
     pub unzoomed_car: Color,
@@ -133,6 +136,7 @@ impl ColorScheme {
             ColorSchemeChoice::BAP => ColorScheme::bap(),
             ColorSchemeChoice::OSM => ColorScheme::osm(),
             ColorSchemeChoice::Starcat => ColorScheme::starcat(),
+            ColorSchemeChoice::Textured => ColorScheme::textured(),
         }
     }
 
@@ -152,6 +156,7 @@ impl ColorScheme {
             bottom_bar_id: Color::RED,
             bottom_bar_name: Color::CYAN,
             fade_map_dark: Color::BLACK.alpha(0.6),
+            dialog_bg: hex("#94C84A"),
             gui_style,
 
             // Roads
@@ -182,14 +187,14 @@ impl ColorScheme {
 
             // Other static elements
             void_background: Color::BLACK,
-            map_background: Color::grey(0.87),
+            map_background: Color::grey(0.87).into(),
             unzoomed_interesting_intersection: Color::BLACK,
             residential_building: Color::hex("#C4C1BC"),
             commerical_building: Color::hex("#9FABA7"),
             building_outline: Color::hex("#938E85"),
             parking_lot: Color::grey(0.7),
-            grass: hex("#94C84A"),
-            water: Color::rgb(164, 200, 234),
+            grass: hex("#94C84A").into(),
+            water: Color::rgb(164, 200, 234).into(),
 
             // Unzoomed dynamic elements
             unzoomed_car: hex("#A32015"),
@@ -264,12 +269,13 @@ impl ColorScheme {
         let mut cs = ColorScheme::standard();
         cs.residential_building = hex("#42208B");
         cs.sidewalk = hex("#7C55C8");
-        cs.grass = hex("#063D88");
-        cs.map_background = hex("#070747");
+        cs.grass = hex("#063D88").into();
+        cs.dialog_bg = hex("#063D88");
+        cs.map_background = hex("#070747").into();
         cs.unzoomed_arterial = hex("#54247A");
         cs.unzoomed_highway = hex("#DD1F7F");
         cs.unzoomed_residential = hex("#4D51AC");
-        cs.water = hex("#2A43AA");
+        cs.water = hex("#2A43AA").into();
         // Horrible choice, but demonstrate it can be done.
         cs.panel_bg = Color::PURPLE;
         cs.gui_style.panel_bg = Color::PURPLE;
@@ -278,8 +284,8 @@ impl ColorScheme {
 
     fn sam_green_day() -> ColorScheme {
         let mut cs = ColorScheme::standard();
-        cs.map_background = hex("#CFE2C4");
-        cs.water = hex("#B4D3E5");
+        cs.map_background = hex("#CFE2C4").into();
+        cs.water = hex("#B4D3E5").into();
         cs.driving_lane = hex("#C6CDD5");
         cs.residential_building = hex("#CCD4BD");
         cs.sidewalk = hex("#98A1AA");
@@ -288,8 +294,9 @@ impl ColorScheme {
 
     fn sam_desert_day() -> ColorScheme {
         let mut cs = ColorScheme::standard();
-        cs.map_background = hex("#FEE4D7");
-        cs.grass = hex("#F6C6AF");
+        cs.map_background = hex("#FEE4D7").into();
+        cs.grass = hex("#F6C6AF").into();
+        cs.dialog_bg = hex("#F6C6AF");
         cs.driving_lane = hex("#BECBD3");
         cs.residential_building = hex("#DEAA95");
         cs.sidewalk = hex("#8B9EA8");
@@ -308,7 +315,8 @@ impl ColorScheme {
             hex("#FF616E"),
             hex("#FA8D37"),
         ];
-        cs.grass = hex("#84BA3B"); // #2F8C2C
+        cs.grass = hex("#84BA3B").into(); // #2F8C2C
+        cs.dialog_bg = hex("#84BA3B");
         cs.residential_building = hex("#367335"); // #194C18
         cs.normal_intersection = hex("#4B5485");
         cs.driving_lane = hex("#384173");
@@ -316,7 +324,7 @@ impl ColorScheme {
         cs.sidewalk = hex("#89ABD9");
         cs.sidewalk_lines = hex("#4B5485");
         cs.general_road_marking = hex("#89ABD9");
-        cs.map_background = hex("#589D54"); // #153F14
+        cs.map_background = hex("#589D54").into(); // #153F14
         cs.ped_crowd = hex("#DD5444");
         cs.road_center_line = hex("#BCFF00");
         cs
@@ -332,9 +340,10 @@ impl ColorScheme {
 
     fn starcat() -> ColorScheme {
         let mut cs = ColorScheme::standard();
-        cs.grass = hex("#3F8C0C");
+        cs.grass = hex("#3F8C0C").into();
+        cs.dialog_bg = hex("#3F8C0C");
         cs.residential_building = hex("#8099A8"); // #5E7486
-        cs.map_background = hex("#737373");
+        cs.map_background = hex("#737373").into();
         cs.driving_lane = hex("#2A2A2A"); // TODO for arterial
         cs.road_center_line = hex("#DB952E");
         cs.general_road_marking = hex("#D6D6D6");
@@ -342,6 +351,14 @@ impl ColorScheme {
         cs.sidewalk_lines = hex("#707070");
         cs.bike_lane = hex("#72CE36");
         cs.bus_lane = hex("#AD302D");
+        cs
+    }
+
+    fn textured() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        cs.grass = Texture::GRASS.into();
+        cs.water = Texture::STILL_WATER.into();
+        cs.map_background = Texture::CONCRETE.into();
         cs
     }
 }

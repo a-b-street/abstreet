@@ -138,7 +138,7 @@ impl State for DevToolsMode {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.grass);
+        g.clear(app.cs.dialog_bg);
         self.panel.draw(g);
     }
 }

@@ -153,7 +153,7 @@ impl State for CutscenePlayer {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         // Happens to be a nice background color too ;)
-        g.clear(app.cs.grass);
+        g.clear(app.cs.dialog_bg);
         self.panel.draw(g);
     }
 }
