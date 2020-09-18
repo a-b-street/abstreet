@@ -5,8 +5,8 @@ use crate::render::DrawArea;
 use geom::{Distance, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
-    hotkey, Btn, Color, EventCtx, FancyColor, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    ScreenPt, Text, Texture, Widget,
+    hotkey, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenPt, Text,
+    Widget,
 };
 
 pub struct CityPicker {
@@ -40,9 +40,9 @@ impl CityPicker {
             let zoom = (0.8 * ctx.canvas.window_width / bounds.width())
                 .min(0.8 * ctx.canvas.window_height / bounds.height());
 
-            batch.fancy_push(FancyColor::Texture(Texture::CONCRETE), city.boundary);
+            batch.push(app.cs.map_background, city.boundary);
             for (area_type, polygon) in city.areas {
-                batch.fancy_push(DrawArea::color(area_type, &app.cs), polygon);
+                batch.push(DrawArea::color(area_type, &app.cs), polygon);
             }
 
             for (name, polygon) in city.regions {
