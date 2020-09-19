@@ -413,12 +413,80 @@
 <span id="413">413</span>
 <span id="414">414</span>
 <span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">svg</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Button</span> {
     <span class="kw">pub</span> <span class="ident">action</span>: <span class="ident">String</span>,
@@ -826,6 +894,74 @@
                 .<span class="ident">container</span>()
                 .<span class="ident">padding</span>(<span class="number">8</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t use inactive on this kind of button&quot;</span>),
+        }
+    }
+}
+
+<span class="comment">// Like an image map from the old HTML days</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MultiButton</span> {
+    <span class="ident">draw</span>: <span class="ident">Drawable</span>,
+    <span class="ident">hitboxes</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
+    <span class="ident">hovering</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+
+    <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>,
+    <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">MultiButton</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">hitboxes</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">String</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MultiButton</span> {
+            <span class="ident">dims</span>: <span class="ident">batch</span>.<span class="ident">get_dims</span>(),
+            <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
+            <span class="ident">hitboxes</span>,
+            <span class="ident">hovering</span>: <span class="prelude-val">None</span>,
+        }))
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">MultiButton</span> {
+    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
+        <span class="self">self</span>.<span class="ident">dims</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">set_pos</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>) {
+        <span class="self">self</span>.<span class="ident">top_left</span> <span class="op">=</span> <span class="ident">top_left</span>;
+    }
+
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WidgetOutput</span>) {
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
+            <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cursor</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">ScreenRectangle</span>::<span class="ident">top_left</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="self">self</span>.<span class="ident">dims</span>).<span class="ident">contains</span>(<span class="ident">cursor</span>) {
+                    <span class="kw">return</span>;
+                }
+                <span class="kw">let</span> <span class="ident">translated</span> <span class="op">=</span>
+                    <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="ident">cursor</span>.<span class="ident">x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span>, <span class="ident">cursor</span>.<span class="ident">y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span>).<span class="ident">to_pt</span>();
+                <span class="comment">// TODO Assume regions are non-overlapping</span>
+                <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">region</span>, <span class="kw">_</span>)) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+                    <span class="kw">if</span> <span class="ident">region</span>.<span class="ident">contains_pt</span>(<span class="ident">translated</span>) {
+                        <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>);
+                        <span class="kw">break</span>;
+                    }
+                }
+            }
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span> {
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
+                <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="self">self</span>.<span class="ident">hitboxes</span>[<span class="ident">idx</span>].<span class="number">1</span>.<span class="ident">clone</span>());
+            }
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
+        <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hitboxes</span>[<span class="ident">idx</span>].<span class="number">0</span>.<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>)) {
+                <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">YELLOW</span>, <span class="ident">p</span>)]));
+                <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="ident">draw</span>);
+            }
         }
     }
 }

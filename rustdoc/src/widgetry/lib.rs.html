@@ -166,6 +166,7 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
+<span id="169">169</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # Widgets</span>
 <span class="doccomment">//!</span>
@@ -185,6 +186,7 @@
 <span class="doccomment">//! * [`JustDraw`] (argh private) - just draw text, `GeomBatch`es, SVGs</span>
 <span class="doccomment">//! * [`LinePlot`] - visualize 2 variables with a line plot</span>
 <span class="doccomment">//! * [`Menu`] - select something from a menu, with keybindings</span>
+<span class="doccomment">//! * [`MultiButton`] - clickable regions in one batch of geometry</span>
 <span class="doccomment">//! * [`PersistentSplit`] - a button with a dropdown to change its state</span>
 <span class="doccomment">//! * [`ScatterPlot`] - visualize 2 variables with a scatter plot</span>
 <span class="doccomment">//! * [`Slider`] - horizontal and vertical sliders</span>
@@ -237,8 +239,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">text</span>::{<span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">warper</span>::<span class="ident">Warper</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">autocomplete</span>::<span class="ident">Autocomplete</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::<span class="ident">Btn</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::<span class="ident">Button</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::{<span class="ident">Btn</span>, <span class="ident">MultiButton</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">checkbox</span>::<span class="ident">Checkbox</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">compare_times</span>::<span class="ident">CompareTimes</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">dropdown</span>::<span class="ident">Dropdown</span>;

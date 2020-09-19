@@ -621,7 +621,7 @@
         )
     }
 
-    <span class="comment">//the inner bound tells us whether auto-panning should or should not take place</span>
+    <span class="comment">// the inner bound tells us whether auto-panning should or should not take place</span>
     <span class="kw">fn</span> <span class="ident">get_inner_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bounds</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bounds</span>::<span class="ident">new</span>();
         <span class="ident">b</span>.<span class="ident">update</span>(<span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="ident">PANNING_THRESHOLD</span>, <span class="ident">PANNING_THRESHOLD</span>).<span class="ident">to_pt</span>());
