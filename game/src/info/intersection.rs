@@ -161,15 +161,20 @@ pub fn current_demand(
     );
 
     let mut tooltips: Vec<(Polygon, Text)> = Vec::new();
+    let mut outlines = Vec::new();
     for (pl, demand) in demand_per_movement {
         let percent = (demand as f64) / (total_demand as f64);
         let arrow = pl
             .make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle)
             .translate(-bounds.min_x, -bounds.min_y)
             .scale(zoom);
+        if let Ok(p) = arrow.to_outline(Distance::meters(1.0)) {
+            outlines.push(p);
+        }
         batch.push(Color::hex("#A3A3A3"), arrow.clone());
         tooltips.push((arrow, Text::from(Line(prettyprint_usize(demand)))));
     }
+    batch.extend(Color::WHITE, outlines);
 
     let mut txt = Text::from(Line(format!(
         "Active agent demand at {}",
