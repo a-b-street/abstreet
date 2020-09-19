@@ -4,7 +4,7 @@ mod picker;
 mod preview;
 
 use crate::app::{App, ShowEverything};
-use crate::common::CommonState;
+use crate::common::{CommonState, Warping};
 use crate::edit::{apply_map_edits, ConfirmDiscard};
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::options::TrafficSignalStyle;
@@ -19,7 +19,7 @@ use map_model::{
 use std::collections::{BTreeSet, VecDeque};
 use widgetry::{
     lctrl, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+    MultiButton, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
 
 // Welcome to one of the most overwhelmingly complicated parts of the UI...
@@ -247,9 +247,25 @@ impl State for TrafficSignalEditor {
                     return Transition::Keep;
                 }
                 if let Some(x) = x.strip_prefix("stage ") {
-                    let idx = x.parse::<usize>().unwrap() - 1;
+                    // 123, Intersection #456
+                    let parts = x.split(", Intersection #").collect::<Vec<_>>();
+                    let idx = parts[0].parse::<usize>().unwrap() - 1;
+                    let i = IntersectionID(parts[1].parse::<usize>().unwrap());
                     self.change_stage(ctx, app, idx);
-                    return Transition::Keep;
+                    let center = app.primary.map.get_i(i).polygon.center();
+                    // Constantly warping is really annoying, only do it if the intersection is
+                    // offscreen
+                    if ctx.canvas.get_screen_bounds().contains(center) {
+                        return Transition::Keep;
+                    } else {
+                        return Transition::Push(Warping::new(
+                            ctx,
+                            center,
+                            Some(15.0),
+                            None,
+                            &mut app.primary,
+                        ));
+                    }
                 }
                 unreachable!()
             }
@@ -604,15 +620,7 @@ fn make_side_panel(
     );
 
     for (idx, canonical_stage) in canonical_signal.stages.iter().enumerate() {
-        let unselected_btn = draw_multiple_signals(ctx, app, members, idx, &translations);
-        let mut selected_btn = unselected_btn.clone();
-        let bbox = unselected_btn.get_bounds().get_rectangle();
-        selected_btn.push(Color::RED, bbox.to_outline(Distance::meters(5.0)).unwrap());
-        let stage_btn = Btn::custom(unselected_btn, selected_btn, bbox).build(
-            ctx,
-            format!("stage {}", idx + 1),
-            None,
-        );
+        let stage_btn = draw_multiple_signals(ctx, app, members, idx, &translations);
 
         let stage_controls = Widget::row(vec![
             Widget::col(vec![
@@ -769,7 +777,7 @@ fn draw_multiple_signals(
     members: &BTreeSet<IntersectionID>,
     idx: usize,
     translations: &Vec<(f64, f64)>,
-) -> GeomBatch {
+) -> Widget {
     let mut batch = GeomBatch::new();
     for (i, (dx, dy)) in members.iter().zip(translations) {
         let mut piece = GeomBatch::new();
@@ -791,10 +799,27 @@ fn draw_multiple_signals(
     }
 
     // Make the whole thing fit a fixed width
+    let bounds_before = batch.get_bounds();
     batch = batch.autocrop();
     let bounds = batch.get_bounds();
     let zoom = (300.0 / bounds.width()).min(300.0 / bounds.height());
-    batch.scale(zoom)
+    let batch = batch.scale(zoom);
+
+    // Figure out the hitboxes per intersection, after all of these transformations
+    let mut hitboxes = Vec::new();
+    for (i, (dx, dy)) in members.iter().zip(translations) {
+        hitboxes.push((
+            app.primary
+                .map
+                .get_i(*i)
+                .polygon
+                .clone()
+                .translate(*dx - bounds_before.min_x, *dy - bounds_before.min_y)
+                .scale(zoom),
+            format!("stage {}, {}", idx + 1, i),
+        ));
+    }
+    MultiButton::new(ctx, batch, hitboxes).named(format!("stage {}", idx + 1))
 }
 
 // TODO Move to geom?

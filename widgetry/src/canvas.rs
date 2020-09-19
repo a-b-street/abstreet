@@ -254,7 +254,7 @@ impl Canvas {
         )
     }
 
-    //the inner bound tells us whether auto-panning should or should not take place
+    // the inner bound tells us whether auto-panning should or should not take place
     fn get_inner_bounds(&self) -> Bounds {
         let mut b = Bounds::new();
         b.update(ScreenPt::new(PANNING_THRESHOLD, PANNING_THRESHOLD).to_pt());
