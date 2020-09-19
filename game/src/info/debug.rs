@@ -17,7 +17,8 @@ pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widge
         a.osm_tags
             .inner()
             .iter()
-            .map(|(k, v)| (k.to_string(), v.to_string())),
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect(),
     ));
 
     rows

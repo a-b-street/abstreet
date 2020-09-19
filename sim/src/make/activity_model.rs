@@ -1,6 +1,6 @@
 use crate::{
     IndividTrip, PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnTrip, TripEndpoint,
-    TripMode,
+    TripMode, TripPurpose,
 };
 use abstutil::{prettyprint_usize, Parallelism, Timer};
 use geom::{Distance, Duration, Time};
@@ -272,8 +272,8 @@ fn create_prole(
         id: PersonID(0),
         orig_id: None,
         trips: vec![
-            IndividTrip::new(depart_am, goto_work),
-            IndividTrip::new(depart_pm, return_home),
+            IndividTrip::new(depart_am, TripPurpose::Work, goto_work),
+            IndividTrip::new(depart_pm, TripPurpose::Home, return_home),
         ],
     })
 }

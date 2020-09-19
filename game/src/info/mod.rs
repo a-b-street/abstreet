@@ -603,18 +603,16 @@ impl InfoPanel {
     }
 }
 
-fn make_table<I: Into<String>>(
-    ctx: &EventCtx,
-    rows: impl Iterator<Item = (I, String)>,
-) -> Vec<Widget> {
-    rows.map(|(k, v)| {
-        Widget::row(vec![
-            Line(k).secondary().draw(ctx),
-            // TODO not quite...
-            v.draw_text(ctx).centered_vert().align_right(),
-        ])
-    })
-    .collect()
+fn make_table<I: Into<String>>(ctx: &EventCtx, rows: Vec<(I, String)>) -> Vec<Widget> {
+    rows.into_iter()
+        .map(|(k, v)| {
+            Widget::row(vec![
+                Line(k).secondary().draw(ctx),
+                // TODO not quite...
+                v.draw_text(ctx).centered_vert().align_right(),
+            ])
+        })
+        .collect()
 }
 
 fn throughput<F: Fn(&Analytics) -> Vec<(AgentType, Vec<(Time, usize)>)>>(

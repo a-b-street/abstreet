@@ -3,7 +3,7 @@ use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::{osm, Map};
 use serde::{Deserialize, Serialize};
-use sim::{OrigPersonID, TripMode};
+use sim::{OrigPersonID, TripMode, TripPurpose};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 #[derive(Serialize, Deserialize)]
@@ -54,7 +54,7 @@ fn import_trips(huge_map: &Map, timer: &mut Timer) -> Vec<OrigTrip> {
         let depart_at = Time::START_OF_DAY + Duration::minutes(rec.deptm as usize);
 
         let mode = get_mode(&rec.mode);
-        let purpose = (get_purpose(&rec.opurp), get_purpose(&rec.dpurp));
+        let purpose = get_purpose(&rec.dpurp);
 
         let trip_time = Duration::f64_minutes(rec.travtime);
         let trip_dist = Distance::miles(rec.travdist);
@@ -218,19 +218,19 @@ fn import_parcels(
 }
 
 // From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp
-fn get_purpose(code: &str) -> Purpose {
+fn get_purpose(code: &str) -> TripPurpose {
     match code {
-        "0.0" => Purpose::Home,
-        "1.0" => Purpose::Work,
-        "2.0" => Purpose::School,
-        "3.0" => Purpose::Escort,
-        "4.0" => Purpose::PersonalBusiness,
-        "5.0" => Purpose::Shopping,
-        "6.0" => Purpose::Meal,
-        "7.0" => Purpose::Social,
-        "8.0" => Purpose::Recreation,
-        "9.0" => Purpose::Medical,
-        "10.0" => Purpose::ParkAndRideTransfer,
+        "0.0" => TripPurpose::Home,
+        "1.0" => TripPurpose::Work,
+        "2.0" => TripPurpose::School,
+        "3.0" => TripPurpose::Escort,
+        "4.0" => TripPurpose::PersonalBusiness,
+        "5.0" => TripPurpose::Shopping,
+        "6.0" => TripPurpose::Meal,
+        "7.0" => TripPurpose::Social,
+        "8.0" => TripPurpose::Recreation,
+        "9.0" => TripPurpose::Medical,
+        "10.0" => TripPurpose::ParkAndRideTransfer,
         _ => panic!("Unknown opurp/dpurp {}", code),
     }
 }
@@ -251,6 +251,20 @@ fn get_mode(code: &str) -> TripMode {
 }
 
 // See https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv
+//
+// A/B Street flattens a person's trips into a simple list, but the Soundcast model is more
+// detailed:
+//
+// A person takes 1+ tours a day. Each tour starts and ends at the same place (usually home) and
+// has some primary destination. A tour has two legs (to the destination, then returning from it),
+// each split into individual trips.
+//
+// An example: someone takes the bus to work, but stops for a coffee and walks the final bit to
+// work. Then later they bus home. This would be encoded like so:
+//
+// - Tour 1 (purpose work), leg = to destination, trip 1 (purpose eat, using transit)
+// - Tour 1 (purpose work), leg = to destination, trip 2 (purpose work, walking)
+// - Tour 1 (purpose work), leg = return from destination, trip 1 (purpose home, using transit)
 #[derive(Debug, Deserialize)]
 struct RawTrip {
     opcl: f64,
@@ -290,7 +304,8 @@ pub struct OrigTrip {
     pub person: OrigPersonID,
     // (tour, false is to destination and true is back from dst, trip within half-tour)
     pub seq: (usize, bool, usize),
-    pub purpose: (Purpose, Purpose),
+    // Purpose at the destination of this trip, not the entire tour.
+    pub purpose: TripPurpose,
     pub trip_time: Duration,
     pub trip_dist: Distance,
 }
@@ -300,19 +315,4 @@ pub struct Endpoint {
     pub pos: LonLat,
     pub osm_building: Option<osm::OsmID>,
     pub parcel_id: usize,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-pub enum Purpose {
-    Home,
-    Work,
-    School,
-    Escort,
-    PersonalBusiness,
-    Shopping,
-    Meal,
-    Social,
-    Recreation,
-    Medical,
-    ParkAndRideTransfer,
 }

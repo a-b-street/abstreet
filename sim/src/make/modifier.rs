@@ -112,7 +112,8 @@ fn repeat_days(mut s: Scenario, days: usize) -> Scenario {
         let mut offset = Duration::ZERO;
         for _ in 0..days {
             for trip in &person.trips {
-                let mut new = IndividTrip::new(trip.depart + offset, trip.trip.clone());
+                let mut new =
+                    IndividTrip::new(trip.depart + offset, trip.purpose, trip.trip.clone());
                 new.modified = true;
                 trips.push(new);
             }

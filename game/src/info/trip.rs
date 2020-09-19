@@ -112,6 +112,13 @@ pub fn ongoing(
             ]),
         ]));
     }
+    {
+        col.push(Widget::custom_row(vec![
+            Widget::custom_row(vec![Line("Purpose").secondary().draw(ctx)])
+                .force_width_pct(ctx, col_width),
+            Line(trip.purpose.to_string()).secondary().draw(ctx),
+        ]));
+    }
 
     col.push(make_timeline(
         ctx,
@@ -141,7 +148,7 @@ pub fn future(
     if now > trip.departure {
         col.extend(make_table(
             ctx,
-            vec![("Start delayed", (now - trip.departure).to_string())].into_iter(),
+            vec![("Start delayed", (now - trip.departure).to_string())],
         ));
     }
 
@@ -151,7 +158,10 @@ pub fn future(
     {
         col.extend(make_table(
             ctx,
-            vec![("Estimated trip time", estimated_trip_time.to_string())].into_iter(),
+            vec![
+                ("Estimated trip time", estimated_trip_time.to_string()),
+                ("Purpose", trip.purpose.to_string()),
+            ],
         ));
 
         let phases = app.prebaked().get_trip_phases(id, &app.primary.map);
@@ -204,7 +214,10 @@ pub fn future(
 
         col.extend(make_table(
             ctx,
-            vec![("Departure", trip.departure.ampm_tostring())].into_iter(),
+            vec![
+                ("Departure", trip.departure.ampm_tostring()),
+                ("Purpose", trip.purpose.to_string()),
+            ],
         ));
     }
 
@@ -298,6 +311,12 @@ pub fn finished(
                 .force_width_pct(ctx, col_width),
             waiting.to_string().draw_text(ctx),
         ]));
+
+        col.push(Widget::custom_row(vec![
+            Widget::custom_row(vec![Line("Purpose").secondary().draw(ctx)])
+                .force_width_pct(ctx, col_width),
+            Line(trip.purpose.to_string()).secondary().draw(ctx),
+        ]));
     }
 
     col.push(make_timeline(
@@ -331,8 +350,8 @@ pub fn aborted(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
             ("Departure", trip.departure.ampm_tostring()),
             ("From", name1),
             ("To", name2),
-        ]
-        .into_iter(),
+            ("Purpose", trip.purpose.to_string()),
+        ],
     ));
 
     Widget::col(col)
@@ -352,8 +371,8 @@ pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
             ("Departure", trip.departure.ampm_tostring()),
             ("From", name1),
             ("To", name2),
-        ]
-        .into_iter(),
+            ("Purpose", trip.purpose.to_string()),
+        ],
     ));
 
     Widget::col(col)

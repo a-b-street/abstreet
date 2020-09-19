@@ -12,5 +12,7 @@ pub use self::generator::{
 };
 pub use self::load::SimFlags;
 pub use self::modifier::ScenarioModifier;
-pub use self::scenario::{IndividTrip, OffMapLocation, PersonSpec, Scenario, SpawnTrip};
+pub use self::scenario::{
+    IndividTrip, OffMapLocation, PersonSpec, Scenario, SpawnTrip, TripPurpose,
+};
 pub use self::spawner::{TripSpawner, TripSpec};

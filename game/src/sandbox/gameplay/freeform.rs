@@ -12,7 +12,7 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use sim::{
     DontDrawAgents, DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot,
-    SpawnTrip, TripEndpoint, TripMode, TripSpec,
+    SpawnTrip, TripEndpoint, TripMode, TripPurpose, TripSpec,
 };
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
@@ -290,7 +290,11 @@ impl State for AgentSpawner {
                             scenario.people.push(PersonSpec {
                                 id: PersonID(app.primary.sim.get_all_people().len() + i),
                                 orig_id: None,
-                                trips: vec![IndividTrip::new(app.primary.sim.time(), trip)],
+                                trips: vec![IndividTrip::new(
+                                    app.primary.sim.time(),
+                                    TripPurpose::Shopping,
+                                    trip,
+                                )],
                             });
                         }
                     }
@@ -511,6 +515,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         origin: None,
                     },
                     TripEndpoint::Border(lane.src_i, None),
+                    TripPurpose::Shopping,
                     false,
                     false,
                     map,
@@ -533,6 +538,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         ),
                     },
                     TripEndpoint::Border(lane.src_i, None),
+                    TripPurpose::Shopping,
                     false,
                     false,
                     map,

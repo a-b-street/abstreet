@@ -1,4 +1,4 @@
-use crate::{IndividTrip, PersonID, PersonSpec, SpawnTrip, TripEndpoint, TripMode};
+use crate::{IndividTrip, PersonID, PersonSpec, SpawnTrip, TripEndpoint, TripMode, TripPurpose};
 use geom::{Distance, FindClosest, LonLat, Pt2D, Time};
 use map_model::Map;
 use serde::Deserialize;
@@ -47,7 +47,9 @@ impl ExternalPerson {
             for trip in person.trips {
                 let to = lookup_pt(trip.position)?;
                 if let Some(t) = SpawnTrip::new(from.clone(), to.clone(), trip.mode, &map) {
-                    spec.trips.push(IndividTrip::new(trip.departure, t));
+                    // TODO Add space in the API to specify purpose, but probably make it optional.
+                    spec.trips
+                        .push(IndividTrip::new(trip.departure, TripPurpose::Shopping, t));
                     from = to;
                 } else {
                     return Err(format!(

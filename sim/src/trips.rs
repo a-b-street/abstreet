@@ -3,8 +3,8 @@ use crate::{
     AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
     Event, IndividTrip, OffMapLocation, OrigPersonID, ParkedCar, ParkingSim, ParkingSpot,
     PedestrianID, PersonID, PersonSpec, Scenario, Scheduler, SidewalkPOI, SidewalkSpot, SpawnTrip,
-    TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle, VehicleSpec, VehicleType,
-    WalkingSimState,
+    TransitSimState, TripID, TripPhaseType, TripPurpose, TripSpec, Vehicle, VehicleSpec,
+    VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Duration, Speed, Time};
@@ -93,6 +93,7 @@ impl TripManager {
         departure: Time,
         start: TripEndpoint,
         mode: TripMode,
+        purpose: TripPurpose,
         modified: bool,
         legs: Vec<TripLeg>,
         map: &Map,
@@ -128,6 +129,7 @@ impl TripManager {
                 mode,
                 start,
                 end,
+                purpose,
                 modified,
                 capped: false,
             },
@@ -1341,7 +1343,9 @@ impl TripManager {
                             trip.info.mode,
                             map,
                         )
-                        .map(|spawn| IndividTrip::new(trip.info.departure, spawn))
+                        .map(|spawn| {
+                            IndividTrip::new(trip.info.departure, trip.info.purpose, spawn)
+                        })
                     })
                     .collect(),
             });
@@ -1370,6 +1374,7 @@ pub struct TripInfo {
     pub mode: TripMode,
     pub start: TripEndpoint,
     pub end: TripEndpoint,
+    pub purpose: TripPurpose,
     // Did a ScenarioModifier apply to this?
     pub modified: bool,
     // Was this trip affected by a congestion cap?

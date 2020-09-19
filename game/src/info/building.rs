@@ -47,7 +47,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         kv.push(("Parking", "None".to_string()));
     }
 
-    rows.extend(make_table(ctx, kv.into_iter()));
+    rows.extend(make_table(ctx, kv));
 
     let mut txt = Text::new();
 

@@ -53,7 +53,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
 
     kv.push(("Length", l.length().describe_rounded()));
 
-    rows.extend(make_table(ctx, kv.into_iter()));
+    rows.extend(make_table(ctx, kv));
 
     if l.is_parking() {
         let capacity = l.number_parking_spots();
@@ -153,7 +153,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
         format!("{}, {}", r.dir(l.id), r.offset(l.id)),
     ));
 
-    rows.extend(make_table(ctx, kv.into_iter()));
+    rows.extend(make_table(ctx, kv));
 
     rows.push(Btn::text_bg1("Open OSM way").build(
         ctx,
@@ -167,7 +167,11 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     rows.extend(make_table(
         ctx,
-        r.osm_tags.inner().iter().map(|(k, v)| (k, v.to_string())),
+        r.osm_tags
+            .inner()
+            .iter()
+            .map(|(k, v)| (k, v.to_string()))
+            .collect(),
     ));
 
     rows

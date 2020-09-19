@@ -1,4 +1,6 @@
-use crate::{DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip};
+use crate::{
+    DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip, TripPurpose,
+};
 use abstutil::Timer;
 use geom::{Duration, Time};
 use map_model::{BuildingID, DirectedRoadID, Map, PathConstraints};
@@ -184,6 +186,7 @@ impl SpawnOverTime {
                     orig_id: None,
                     trips: vec![IndividTrip::new(
                         depart,
+                        TripPurpose::Shopping,
                         SpawnTrip::UsingParkedCar(from_bldg, goal),
                     )],
                 });
@@ -201,6 +204,7 @@ impl SpawnOverTime {
                     orig_id: None,
                     trips: vec![IndividTrip::new(
                         depart,
+                        TripPurpose::Shopping,
                         SpawnTrip::UsingBike(from_bldg, goal),
                     )],
                 });
@@ -226,6 +230,7 @@ impl SpawnOverTime {
                         orig_id: None,
                         trips: vec![IndividTrip::new(
                             depart,
+                            TripPurpose::Shopping,
                             SpawnTrip::UsingTransit(start_spot, goal, route, stop1, maybe_stop2),
                         )],
                     });
@@ -238,6 +243,7 @@ impl SpawnOverTime {
                 orig_id: None,
                 trips: vec![IndividTrip::new(
                     depart,
+                    TripPurpose::Shopping,
                     SpawnTrip::JustWalking(start_spot, goal),
                 )],
             });
@@ -287,6 +293,7 @@ impl BorderSpawnOverTime {
                             orig_id: None,
                             trips: vec![IndividTrip::new(
                                 depart,
+                                TripPurpose::Shopping,
                                 SpawnTrip::UsingTransit(
                                     start.clone(),
                                     goal,
@@ -305,6 +312,7 @@ impl BorderSpawnOverTime {
                     orig_id: None,
                     trips: vec![IndividTrip::new(
                         depart,
+                        TripPurpose::Shopping,
                         SpawnTrip::JustWalking(start.clone(), goal),
                     )],
                 });
@@ -330,6 +338,7 @@ impl BorderSpawnOverTime {
                     orig_id: None,
                     trips: vec![IndividTrip::new(
                         depart,
+                        TripPurpose::Shopping,
                         SpawnTrip::FromBorder {
                             dr: self.start_from_border,
                             goal,

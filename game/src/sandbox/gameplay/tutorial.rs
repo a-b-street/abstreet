@@ -15,7 +15,8 @@ use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, DirectedRoadID, Direction, Map, Position};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
-    PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, VehicleType,
+    PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, TripPurpose,
+    VehicleType,
 };
 use std::collections::BTreeSet;
 use widgetry::{
@@ -1060,6 +1061,7 @@ impl TutorialState {
                         orig_id: None,
                         trips: vec![IndividTrip::new(
                             Time::START_OF_DAY,
+                            TripPurpose::Shopping,
                             SpawnTrip::VehicleAppearing {
                                 start: Position::new(
                                     start_lane,
@@ -1077,6 +1079,7 @@ impl TutorialState {
                             orig_id: None,
                             trips: vec![IndividTrip::new(
                                 Time::START_OF_DAY,
+                                TripPurpose::Shopping,
                                 SpawnTrip::VehicleAppearing {
                                     start: Position::new(
                                         lane_near_bldg,

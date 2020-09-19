@@ -1,6 +1,6 @@
 use crate::{
     CarID, Command, DrivingGoal, OffMapLocation, Person, PersonID, Scheduler, SidewalkSpot,
-    TripEndpoint, TripLeg, TripManager, TripMode, VehicleType,
+    TripEndpoint, TripLeg, TripManager, TripMode, TripPurpose, VehicleType,
 };
 use abstutil::{Parallelism, Timer};
 use geom::{Duration, Time};
@@ -63,7 +63,15 @@ pub enum TripSpec {
 
 // This structure is created temporarily by a Scenario or to interactively spawn agents.
 pub struct TripSpawner {
-    trips: Vec<(PersonID, Time, TripSpec, TripEndpoint, bool, bool)>,
+    trips: Vec<(
+        PersonID,
+        Time,
+        TripSpec,
+        TripEndpoint,
+        TripPurpose,
+        bool,
+        bool,
+    )>,
 }
 
 impl TripSpawner {
@@ -77,6 +85,7 @@ impl TripSpawner {
         start_time: Time,
         mut spec: TripSpec,
         trip_start: TripEndpoint,
+        purpose: TripPurpose,
         cancelled: bool,
         modified: bool,
         map: &Map,
@@ -179,8 +188,9 @@ impl TripSpawner {
             TripSpec::Remote { .. } => {}
         };
 
-        self.trips
-            .push((person.id, start_time, spec, trip_start, cancelled, modified));
+        self.trips.push((
+            person.id, start_time, spec, trip_start, purpose, cancelled, modified,
+        ));
     }
 
     pub fn finalize(
@@ -217,7 +227,11 @@ impl TripSpawner {
         }
 
         timer.start_iter("spawn trips", paths.len());
-        for ((p, start_time, spec, trip_start, cancelled, modified), maybe_req, maybe_path) in paths
+        for (
+            (p, start_time, spec, trip_start, purpose, cancelled, modified),
+            maybe_req,
+            maybe_path,
+        ) in paths
         {
             timer.next();
 
@@ -243,6 +257,7 @@ impl TripSpawner {
                         } else {
                             TripMode::Drive
                         },
+                        purpose,
                         modified,
                         legs,
                         map,
@@ -264,6 +279,7 @@ impl TripSpawner {
                         } else {
                             TripMode::Drive
                         },
+                        purpose,
                         modified,
                         legs,
                         map,
@@ -285,6 +301,7 @@ impl TripSpawner {
                         start_time,
                         trip_start,
                         TripMode::Drive,
+                        purpose,
                         modified,
                         legs,
                         map,
@@ -295,6 +312,7 @@ impl TripSpawner {
                     start_time,
                     trip_start,
                     TripMode::Walk,
+                    purpose,
                     modified,
                     vec![TripLeg::Walk(goal.clone())],
                     map,
@@ -316,6 +334,7 @@ impl TripSpawner {
                         start_time,
                         trip_start,
                         TripMode::Bike,
+                        purpose,
                         modified,
                         legs,
                         map,
@@ -346,6 +365,7 @@ impl TripSpawner {
                         start_time,
                         trip_start,
                         TripMode::Transit,
+                        purpose,
                         modified,
                         legs,
                         map,
@@ -356,6 +376,7 @@ impl TripSpawner {
                     start_time,
                     trip_start,
                     mode,
+                    purpose,
                     modified,
                     vec![TripLeg::Remote(to)],
                     map,

@@ -265,7 +265,7 @@ pub fn make_weekday_scenario(
     // person -> (trip seq, index into individ_trips)
     let mut trips_per_person: MultiMap<OrigPersonID, ((usize, bool, usize), usize)> =
         MultiMap::new();
-    for (trip, depart, person, seq) in timer.parallelize(
+    for (trip, depart, person, seq, purpose) in timer.parallelize(
         "turn Soundcast trips into SpawnTrips",
         Parallelism::Polite,
         trips,
@@ -275,12 +275,13 @@ pub fn make_weekday_scenario(
                 trip.orig.depart_at,
                 trip.orig.person,
                 trip.orig.seq,
+                trip.orig.purpose,
             )
         },
     ) {
         if let Some(trip) = trip {
             let idx = individ_trips.len();
-            individ_trips.push(Some(IndividTrip::new(depart, trip)));
+            individ_trips.push(Some(IndividTrip::new(depart, purpose, trip)));
             trips_per_person.insert(person, (seq, idx));
         }
     }
@@ -348,7 +349,11 @@ pub fn make_weekday_scenario_with_everyone(
             mode: orig_trip.mode,
         };
         let idx = individ_trips.len();
-        individ_trips.push(Some(IndividTrip::new(orig_trip.depart_at, trip)));
+        individ_trips.push(Some(IndividTrip::new(
+            orig_trip.depart_at,
+            orig_trip.purpose,
+            trip,
+        )));
         trips_per_person.insert(orig_trip.person, (orig_trip.seq, idx));
     }
 

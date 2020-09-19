@@ -14,6 +14,7 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+use std::fmt;
 
 // How to start a simulation.
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -38,16 +39,18 @@ pub struct PersonSpec {
 pub struct IndividTrip {
     pub depart: Time,
     pub trip: SpawnTrip,
+    pub purpose: TripPurpose,
     pub cancelled: bool,
     // Did a ScenarioModifier affect this?
     pub modified: bool,
 }
 
 impl IndividTrip {
-    pub fn new(depart: Time, trip: SpawnTrip) -> IndividTrip {
+    pub fn new(depart: Time, purpose: TripPurpose, trip: SpawnTrip) -> IndividTrip {
         IndividTrip {
             depart,
             trip,
+            purpose,
             cancelled: false,
             modified: false,
         }
@@ -92,6 +95,45 @@ pub enum SpawnTrip {
 pub struct OffMapLocation {
     pub parcel_id: usize,
     pub gps: LonLat,
+}
+
+// Lifted from Seattle's Soundcast model, but seems general enough to use anyhere.
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum TripPurpose {
+    Home,
+    Work,
+    School,
+    Escort,
+    PersonalBusiness,
+    Shopping,
+    Meal,
+    Social,
+    Recreation,
+    Medical,
+    ParkAndRideTransfer,
+}
+
+impl fmt::Display for TripPurpose {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                TripPurpose::Home => "home",
+                TripPurpose::Work => "work",
+                TripPurpose::School => "school",
+                // Is this like a parent escorting a child to school?
+                TripPurpose::Escort => "escort",
+                TripPurpose::PersonalBusiness => "personal business",
+                TripPurpose::Shopping => "shopping",
+                TripPurpose::Meal => "eating",
+                TripPurpose::Social => "social",
+                TripPurpose::Recreation => "recreation",
+                TripPurpose::Medical => "medical",
+                TripPurpose::ParkAndRideTransfer => "park-and-ride transfer",
+            }
+        )
+    }
 }
 
 impl Scenario {
@@ -150,6 +192,7 @@ impl Scenario {
                     t.depart,
                     spec,
                     t.trip.start(map),
+                    t.purpose,
                     t.cancelled,
                     t.modified,
                     map,
