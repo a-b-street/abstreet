@@ -240,7 +240,7 @@ pub fn amenity_type(a: &str) -> Option<&'static str> {
 pub fn hotkey_btn<I: Into<String>>(ctx: &EventCtx, app: &App, label: I, key: Key) -> Widget {
     let label = label.into();
     let mut txt = Text::new();
-    txt.append(Line(key.describe()).fg(ctx.style().hotkey_color));
+    txt.append(key.txt(ctx));
     txt.append(Line(format!(" - {}", label)));
     Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering).build_def(ctx, key)
 }

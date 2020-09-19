@@ -259,6 +259,9 @@ impl Panel {
     pub fn spinner(&self, name: &str) -> isize {
         self.find::<Spinner>(name).current
     }
+    pub fn modify_spinner(&mut self, name: &str, delta: isize) {
+        self.find_mut::<Spinner>(name).modify(delta)
+    }
 
     pub fn dropdown_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {
         self.find::<Dropdown<T>>(name).current_value()

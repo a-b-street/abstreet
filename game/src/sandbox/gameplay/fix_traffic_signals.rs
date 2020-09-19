@@ -206,11 +206,11 @@ impl GameplayState for FixTrafficSignals {
                     txt.add(Line(""));
                     txt.add_appended(vec![
                         Line("Press "),
-                        Line(Key::L.describe()).fg(ctx.style().hotkey_color),
+                        Key::L.txt(ctx),
                         Line(" to open layers. Try "),
-                        Line(Key::D.describe()).fg(ctx.style().hotkey_color),
+                        Key::D.txt(ctx),
                         Line("elay or worst traffic "),
-                        Line(Key::J.describe()).fg(ctx.style().hotkey_color),
+                        Key::J.txt(ctx),
                         Line("ams"),
                     ]);
                     let contents = txt.draw(ctx);

@@ -39,6 +39,14 @@ impl TrafficSignalDemand {
                         .build(ctx, "close", Key::Escape)
                         .align_right(),
                 ]),
+                Text::from_all(vec![
+                    Line("Press "),
+                    Key::LeftArrow.txt(ctx),
+                    Line(" and "),
+                    Key::RightArrow.txt(ctx),
+                    Line(" to adjust the hour"),
+                ])
+                .draw(ctx),
                 Widget::row(vec![
                     "Hour:".draw_text(ctx),
                     Spinner::new(ctx, (0, 24), 7).named("hour"),
@@ -54,6 +62,7 @@ impl State for TrafficSignalDemand {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
+        let mut changed = false;
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -62,11 +71,21 @@ impl State for TrafficSignalDemand {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                self.hour =
-                    Time::START_OF_DAY + Duration::hours(self.panel.spinner("hour") as usize);
-                self.draw_all = Demand::draw_demand(ctx, app, &self.all_demand, self.hour);
+                changed = true;
             }
             _ => {}
+        }
+        if ctx.input.pressed(Key::LeftArrow) {
+            self.panel.modify_spinner("hour", -1);
+            changed = true;
+        }
+        if ctx.input.pressed(Key::RightArrow) {
+            self.panel.modify_spinner("hour", 1);
+            changed = true;
+        }
+        if changed {
+            self.hour = Time::START_OF_DAY + Duration::hours(self.panel.spinner("hour") as usize);
+            self.draw_all = Demand::draw_demand(ctx, app, &self.all_demand, self.hour);
         }
 
         Transition::Keep

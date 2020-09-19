@@ -1,4 +1,4 @@
-use crate::{ScreenDims, ScreenPt};
+use crate::{EventCtx, Line, ScreenDims, ScreenPt, TextSpan};
 use geom::Duration;
 use winit::event::{
     ElementState, KeyboardInput, MouseButton, MouseScrollDelta, VirtualKeyCode, WindowEvent,
@@ -385,6 +385,10 @@ impl Key {
                 return None;
             }
         })
+    }
+
+    pub fn txt(self, ctx: &EventCtx) -> TextSpan {
+        Line(self.describe()).fg(ctx.style().hotkey_color)
     }
 }
 

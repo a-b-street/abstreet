@@ -66,7 +66,7 @@ impl DebugMode {
                 ]),
                 Text::from_all(vec![
                     Line("Hold "),
-                    Line(Key::LeftControl.describe()).fg(ctx.style().hotkey_color),
+                    Key::LeftControl.txt(ctx),
                     Line(" to show position"),
                 ])
                 .draw(ctx),

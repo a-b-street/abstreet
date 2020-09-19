@@ -234,17 +234,17 @@ impl State for ParkingMapper {
                     txt.add(Line(format!("Click to map parking for OSM way {}", way)));
                     txt.add_appended(vec![
                         Line("Shortcut: press "),
-                        Line(Key::N.describe()).fg(ctx.style().hotkey_color),
+                        Key::N.txt(ctx),
                         Line(" to indicate no parking"),
                     ]);
                     txt.add_appended(vec![
                         Line("Press "),
-                        Line(Key::S.describe()).fg(ctx.style().hotkey_color),
+                        Key::S.txt(ctx),
                         Line(" to open Bing StreetSide here"),
                     ]);
                     txt.add_appended(vec![
                         Line("Press "),
-                        Line(Key::O.describe()).fg(ctx.style().hotkey_color),
+                        Key::O.txt(ctx),
                         Line(" to open OpenStreetMap for this way"),
                     ]);
                     for (k, v) in road.osm_tags.inner() {

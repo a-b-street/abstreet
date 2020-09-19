@@ -48,6 +48,12 @@ impl Spinner {
             dims,
         }))
     }
+
+    pub fn modify(&mut self, delta: isize) {
+        self.current += delta;
+        self.current = self.current.min(self.high);
+        self.current = self.current.max(self.low);
+    }
 }
 
 impl WidgetImpl for Spinner {

@@ -132,7 +132,7 @@ fn make_top_center(ctx: &mut EventCtx, app: &App) -> Panel {
         .centered(),
         Text::from_all(vec![
             Line("Select an intersection and press "),
-            Line(Key::Z.describe()).fg(ctx.style().hotkey_color),
+            Key::Z.txt(ctx),
             Line(" to start traffic nearby"),
         ])
         .draw(ctx),
