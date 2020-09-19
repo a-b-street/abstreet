@@ -142,7 +142,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, driving_side: DrivingSide) -> Vec<LaneSpe
     } else {
         ""
     };
-    {
+    if !fwd_bus_spec.is_empty() {
         let parts: Vec<&str> = fwd_bus_spec.split("|").collect();
         let offset = if fwd_side[0].lt == LaneType::SharedLeftTurn {
             1
