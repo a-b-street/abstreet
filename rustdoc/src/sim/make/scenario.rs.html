@@ -744,6 +744,9 @@
 <span id="744">744</span>
 <span id="745">745</span>
 <span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>, <span class="ident">OrigPersonID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">Sim</span>,
@@ -941,13 +944,16 @@
         <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Scenario</span>::<span class="ident">rand_speed</span>(
             <span class="ident">rng</span>,
             <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">8.0</span>),
-            <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>),
+            <span class="ident">Scenario</span>::<span class="ident">max_bike_speed</span>(),
         ));
         <span class="ident">VehicleSpec</span> {
             <span class="ident">vehicle_type</span>: <span class="ident">VehicleType</span>::<span class="ident">Bike</span>,
             <span class="ident">length</span>: <span class="ident">BIKE_LENGTH</span>,
             <span class="ident">max_speed</span>,
         }
+    }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_bike_speed</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Speed</span> {
+        <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Distance</span>, <span class="ident">high</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
