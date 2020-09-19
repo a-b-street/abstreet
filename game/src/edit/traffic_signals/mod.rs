@@ -67,7 +67,7 @@ impl TrafficSignalEditor {
         synced.apply(app);
 
         let mut editor = TrafficSignalEditor {
-            side_panel: make_side_panel(ctx, app, &members, 0, None),
+            side_panel: make_side_panel(ctx, app, &members, 0),
             top_panel: make_top_panel(ctx, app, false, false),
             mode,
             current_stage: 0,
@@ -86,16 +86,13 @@ impl TrafficSignalEditor {
     }
 
     fn change_stage(&mut self, ctx: &mut EventCtx, app: &App, idx: usize) {
-        let hovering = self.movement_selected.map(|(m, _)| m.parent);
-
         if self.current_stage == idx {
-            let mut new = make_side_panel(ctx, app, &self.members, self.current_stage, hovering);
+            let mut new = make_side_panel(ctx, app, &self.members, self.current_stage);
             new.restore(ctx, &self.side_panel);
             self.side_panel = new;
         } else {
             self.current_stage = idx;
-            self.side_panel =
-                make_side_panel(ctx, app, &self.members, self.current_stage, hovering);
+            self.side_panel = make_side_panel(ctx, app, &self.members, self.current_stage);
             // TODO Maybe center of previous member
             self.side_panel
                 .scroll_to_member(ctx, format!("stage {}", idx + 1));
@@ -546,7 +543,6 @@ fn make_side_panel(
     app: &App,
     members: &BTreeSet<IntersectionID>,
     selected: usize,
-    hovering: Option<IntersectionID>,
 ) -> Panel {
     let map = &app.primary.map;
     // Use any member for stage duration
@@ -608,7 +604,7 @@ fn make_side_panel(
     );
 
     for (idx, canonical_stage) in canonical_signal.stages.iter().enumerate() {
-        let unselected_btn = draw_multiple_signals(ctx, app, members, idx, hovering, &translations);
+        let unselected_btn = draw_multiple_signals(ctx, app, members, idx, &translations);
         let mut selected_btn = unselected_btn.clone();
         let bbox = unselected_btn.get_bounds().get_rectangle();
         selected_btn.push(Color::RED, bbox.to_outline(Distance::meters(5.0)).unwrap());
@@ -772,7 +768,6 @@ fn draw_multiple_signals(
     app: &App,
     members: &BTreeSet<IntersectionID>,
     idx: usize,
-    hovering: Option<IntersectionID>,
     translations: &Vec<(f64, f64)>,
 ) -> GeomBatch {
     let mut batch = GeomBatch::new();
@@ -792,19 +787,6 @@ fn draw_multiple_signals(
             app,
             TrafficSignalStyle::Yuwen,
         );
-        if members.len() > 1 && hovering.map(|x| x == *i).unwrap_or(false) {
-            // TODO This makes the side-panel jump a little, because the outline slightly increases
-            // the bounds...
-            if let Ok(p) = app
-                .primary
-                .map
-                .get_i(*i)
-                .polygon
-                .to_outline(Distance::meters(0.1))
-            {
-                piece.push(Color::YELLOW, p);
-            }
-        }
         batch.append(piece.translate(*dx, *dy));
     }
 
