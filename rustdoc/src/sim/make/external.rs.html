@@ -63,8 +63,10 @@
 <span id="63">63</span>
 <span id="64">64</span>
 <span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">Map</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
@@ -113,7 +115,9 @@
             <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="ident">person</span>.<span class="ident">trips</span> {
                 <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">lookup_pt</span>(<span class="ident">trip</span>.<span class="ident">position</span>)<span class="question-mark">?</span>;
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">SpawnTrip</span>::<span class="ident">new</span>(<span class="ident">from</span>.<span class="ident">clone</span>(), <span class="ident">to</span>.<span class="ident">clone</span>(), <span class="ident">trip</span>.<span class="ident">mode</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>) {
-                    <span class="ident">spec</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">trip</span>.<span class="ident">departure</span>, <span class="ident">t</span>));
+                    <span class="comment">// TODO Add space in the API to specify purpose, but probably make it optional.</span>
+                    <span class="ident">spec</span>.<span class="ident">trips</span>
+                        .<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">trip</span>.<span class="ident">departure</span>, <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>, <span class="ident">t</span>));
                     <span class="ident">from</span> <span class="op">=</span> <span class="ident">to</span>;
                 } <span class="kw">else</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(

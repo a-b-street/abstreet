@@ -416,10 +416,31 @@
 <span id="416">416</span>
 <span id="417">417</span>
 <span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">DrivingGoal</span>, <span class="ident">OffMapLocation</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkSpot</span>,
-    <span class="ident">TripEndpoint</span>, <span class="ident">TripLeg</span>, <span class="ident">TripManager</span>, <span class="ident">TripMode</span>, <span class="ident">VehicleType</span>,
+    <span class="ident">TripEndpoint</span>, <span class="ident">TripLeg</span>, <span class="ident">TripManager</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>, <span class="ident">VehicleType</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
@@ -482,7 +503,15 @@
 
 <span class="comment">// This structure is created temporarily by a Scenario or to interactively spawn agents.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripSpawner</span> {
-    <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PersonID</span>, <span class="ident">Time</span>, <span class="ident">TripSpec</span>, <span class="ident">TripEndpoint</span>, <span class="ident">bool</span>, <span class="ident">bool</span>)<span class="op">&gt;</span>,
+    <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(
+        <span class="ident">PersonID</span>,
+        <span class="ident">Time</span>,
+        <span class="ident">TripSpec</span>,
+        <span class="ident">TripEndpoint</span>,
+        <span class="ident">TripPurpose</span>,
+        <span class="ident">bool</span>,
+        <span class="ident">bool</span>,
+    )<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">TripSpawner</span> {
@@ -496,6 +525,7 @@
         <span class="ident">start_time</span>: <span class="ident">Time</span>,
         <span class="kw-2">mut</span> <span class="ident">spec</span>: <span class="ident">TripSpec</span>,
         <span class="ident">trip_start</span>: <span class="ident">TripEndpoint</span>,
+        <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
         <span class="ident">cancelled</span>: <span class="ident">bool</span>,
         <span class="ident">modified</span>: <span class="ident">bool</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
@@ -598,8 +628,9 @@
             <span class="ident">TripSpec</span>::<span class="ident">Remote</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {}
         };
 
-        <span class="self">self</span>.<span class="ident">trips</span>
-            .<span class="ident">push</span>((<span class="ident">person</span>.<span class="ident">id</span>, <span class="ident">start_time</span>, <span class="ident">spec</span>, <span class="ident">trip_start</span>, <span class="ident">cancelled</span>, <span class="ident">modified</span>));
+        <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">push</span>((
+            <span class="ident">person</span>.<span class="ident">id</span>, <span class="ident">start_time</span>, <span class="ident">spec</span>, <span class="ident">trip_start</span>, <span class="ident">purpose</span>, <span class="ident">cancelled</span>, <span class="ident">modified</span>,
+        ));
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finalize</span>(
@@ -636,7 +667,11 @@
         }
 
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;spawn trips&quot;</span>, <span class="ident">paths</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> ((<span class="ident">p</span>, <span class="ident">start_time</span>, <span class="ident">spec</span>, <span class="ident">trip_start</span>, <span class="ident">cancelled</span>, <span class="ident">modified</span>), <span class="ident">maybe_req</span>, <span class="ident">maybe_path</span>) <span class="kw">in</span> <span class="ident">paths</span>
+        <span class="kw">for</span> (
+            (<span class="ident">p</span>, <span class="ident">start_time</span>, <span class="ident">spec</span>, <span class="ident">trip_start</span>, <span class="ident">purpose</span>, <span class="ident">cancelled</span>, <span class="ident">modified</span>),
+            <span class="ident">maybe_req</span>,
+            <span class="ident">maybe_path</span>,
+        ) <span class="kw">in</span> <span class="ident">paths</span>
         {
             <span class="ident">timer</span>.<span class="ident">next</span>();
 
@@ -662,6 +697,7 @@
                         } <span class="kw">else</span> {
                             <span class="ident">TripMode</span>::<span class="ident">Drive</span>
                         },
+                        <span class="ident">purpose</span>,
                         <span class="ident">modified</span>,
                         <span class="ident">legs</span>,
                         <span class="ident">map</span>,
@@ -683,6 +719,7 @@
                         } <span class="kw">else</span> {
                             <span class="ident">TripMode</span>::<span class="ident">Drive</span>
                         },
+                        <span class="ident">purpose</span>,
                         <span class="ident">modified</span>,
                         <span class="ident">legs</span>,
                         <span class="ident">map</span>,
@@ -704,6 +741,7 @@
                         <span class="ident">start_time</span>,
                         <span class="ident">trip_start</span>,
                         <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
+                        <span class="ident">purpose</span>,
                         <span class="ident">modified</span>,
                         <span class="ident">legs</span>,
                         <span class="ident">map</span>,
@@ -714,6 +752,7 @@
                     <span class="ident">start_time</span>,
                     <span class="ident">trip_start</span>,
                     <span class="ident">TripMode</span>::<span class="ident">Walk</span>,
+                    <span class="ident">purpose</span>,
                     <span class="ident">modified</span>,
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">goal</span>.<span class="ident">clone</span>())],
                     <span class="ident">map</span>,
@@ -735,6 +774,7 @@
                         <span class="ident">start_time</span>,
                         <span class="ident">trip_start</span>,
                         <span class="ident">TripMode</span>::<span class="ident">Bike</span>,
+                        <span class="ident">purpose</span>,
                         <span class="ident">modified</span>,
                         <span class="ident">legs</span>,
                         <span class="ident">map</span>,
@@ -765,6 +805,7 @@
                         <span class="ident">start_time</span>,
                         <span class="ident">trip_start</span>,
                         <span class="ident">TripMode</span>::<span class="ident">Transit</span>,
+                        <span class="ident">purpose</span>,
                         <span class="ident">modified</span>,
                         <span class="ident">legs</span>,
                         <span class="ident">map</span>,
@@ -775,6 +816,7 @@
                     <span class="ident">start_time</span>,
                     <span class="ident">trip_start</span>,
                     <span class="ident">mode</span>,
+                    <span class="ident">purpose</span>,
                     <span class="ident">modified</span>,
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TripLeg</span>::<span class="ident">Remote</span>(<span class="ident">to</span>)],
                     <span class="ident">map</span>,

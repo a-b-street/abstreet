@@ -747,6 +747,49 @@
 <span id="747">747</span>
 <span id="748">748</span>
 <span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>, <span class="ident">OrigPersonID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">Sim</span>,
@@ -764,6 +807,7 @@
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
 <span class="comment">// How to start a simulation.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
@@ -788,16 +832,18 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IndividTrip</span> {
     <span class="kw">pub</span> <span class="ident">depart</span>: <span class="ident">Time</span>,
     <span class="kw">pub</span> <span class="ident">trip</span>: <span class="ident">SpawnTrip</span>,
+    <span class="kw">pub</span> <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
     <span class="kw">pub</span> <span class="ident">cancelled</span>: <span class="ident">bool</span>,
     <span class="comment">// Did a ScenarioModifier affect this?</span>
     <span class="kw">pub</span> <span class="ident">modified</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">IndividTrip</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">depart</span>: <span class="ident">Time</span>, <span class="ident">trip</span>: <span class="ident">SpawnTrip</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IndividTrip</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">depart</span>: <span class="ident">Time</span>, <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>, <span class="ident">trip</span>: <span class="ident">SpawnTrip</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IndividTrip</span> {
         <span class="ident">IndividTrip</span> {
             <span class="ident">depart</span>,
             <span class="ident">trip</span>,
+            <span class="ident">purpose</span>,
             <span class="ident">cancelled</span>: <span class="bool-val">false</span>,
             <span class="ident">modified</span>: <span class="bool-val">false</span>,
         }
@@ -842,6 +888,45 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OffMapLocation</span> {
     <span class="kw">pub</span> <span class="ident">parcel_id</span>: <span class="ident">usize</span>,
     <span class="kw">pub</span> <span class="ident">gps</span>: <span class="ident">LonLat</span>,
+}
+
+<span class="comment">// Lifted from Seattle&#39;s Soundcast model, but seems general enough to use anyhere.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TripPurpose</span> {
+    <span class="ident">Home</span>,
+    <span class="ident">Work</span>,
+    <span class="ident">School</span>,
+    <span class="ident">Escort</span>,
+    <span class="ident">PersonalBusiness</span>,
+    <span class="ident">Shopping</span>,
+    <span class="ident">Meal</span>,
+    <span class="ident">Social</span>,
+    <span class="ident">Recreation</span>,
+    <span class="ident">Medical</span>,
+    <span class="ident">ParkAndRideTransfer</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">TripPurpose</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="macro">write</span><span class="macro">!</span>(
+            <span class="ident">f</span>,
+            <span class="string">&quot;{}&quot;</span>,
+            <span class="kw">match</span> <span class="self">self</span> {
+                <span class="ident">TripPurpose</span>::<span class="ident">Home</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;home&quot;</span>,
+                <span class="ident">TripPurpose</span>::<span class="ident">Work</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;work&quot;</span>,
+                <span class="ident">TripPurpose</span>::<span class="ident">School</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;school&quot;</span>,
+                <span class="comment">// Is this like a parent escorting a child to school?</span>
+                <span class="ident">TripPurpose</span>::<span class="ident">Escort</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;escort&quot;</span>,
+                <span class="ident">TripPurpose</span>::<span class="ident">PersonalBusiness</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;personal business&quot;</span>,
+                <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;shopping&quot;</span>,
+                <span class="ident">TripPurpose</span>::<span class="ident">Meal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;eating&quot;</span>,
+                <span class="ident">TripPurpose</span>::<span class="ident">Social</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;social&quot;</span>,
+                <span class="ident">TripPurpose</span>::<span class="ident">Recreation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;recreation&quot;</span>,
+                <span class="ident">TripPurpose</span>::<span class="ident">Medical</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;medical&quot;</span>,
+                <span class="ident">TripPurpose</span>::<span class="ident">ParkAndRideTransfer</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;park-and-ride transfer&quot;</span>,
+            }
+        )
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">Scenario</span> {
@@ -900,6 +985,7 @@
                     <span class="ident">t</span>.<span class="ident">depart</span>,
                     <span class="ident">spec</span>,
                     <span class="ident">t</span>.<span class="ident">trip</span>.<span class="ident">start</span>(<span class="ident">map</span>),
+                    <span class="ident">t</span>.<span class="ident">purpose</span>,
                     <span class="ident">t</span>.<span class="ident">cancelled</span>,
                     <span class="ident">t</span>.<span class="ident">modified</span>,
                     <span class="ident">map</span>,

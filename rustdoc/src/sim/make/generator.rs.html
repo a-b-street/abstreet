@@ -403,8 +403,19 @@
 <span id="403">403</span>
 <span id="404">404</span>
 <span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DrivingGoal</span>, <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">SpawnTrip</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">DrivingGoal</span>, <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripPurpose</span>,
+};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>};
@@ -590,6 +601,7 @@
                     <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
                     <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                         <span class="ident">depart</span>,
+                        <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                         <span class="ident">SpawnTrip</span>::<span class="ident">UsingParkedCar</span>(<span class="ident">from_bldg</span>, <span class="ident">goal</span>),
                     )],
                 });
@@ -607,6 +619,7 @@
                     <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
                     <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                         <span class="ident">depart</span>,
+                        <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                         <span class="ident">SpawnTrip</span>::<span class="ident">UsingBike</span>(<span class="ident">from_bldg</span>, <span class="ident">goal</span>),
                     )],
                 });
@@ -632,6 +645,7 @@
                         <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
                         <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                             <span class="ident">depart</span>,
+                            <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                             <span class="ident">SpawnTrip</span>::<span class="ident">UsingTransit</span>(<span class="ident">start_spot</span>, <span class="ident">goal</span>, <span class="ident">route</span>, <span class="ident">stop1</span>, <span class="ident">maybe_stop2</span>),
                         )],
                     });
@@ -644,6 +658,7 @@
                 <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
                 <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                     <span class="ident">depart</span>,
+                    <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                     <span class="ident">SpawnTrip</span>::<span class="ident">JustWalking</span>(<span class="ident">start_spot</span>, <span class="ident">goal</span>),
                 )],
             });
@@ -693,6 +708,7 @@
                             <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
                             <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                                 <span class="ident">depart</span>,
+                                <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                                 <span class="ident">SpawnTrip</span>::<span class="ident">UsingTransit</span>(
                                     <span class="ident">start</span>.<span class="ident">clone</span>(),
                                     <span class="ident">goal</span>,
@@ -711,6 +727,7 @@
                     <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
                     <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                         <span class="ident">depart</span>,
+                        <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                         <span class="ident">SpawnTrip</span>::<span class="ident">JustWalking</span>(<span class="ident">start</span>.<span class="ident">clone</span>(), <span class="ident">goal</span>),
                     )],
                 });
@@ -736,6 +753,7 @@
                     <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
                     <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                         <span class="ident">depart</span>,
+                        <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                         <span class="ident">SpawnTrip</span>::<span class="ident">FromBorder</span> {
                             <span class="ident">dr</span>: <span class="self">self</span>.<span class="ident">start_from_border</span>,
                             <span class="ident">goal</span>,

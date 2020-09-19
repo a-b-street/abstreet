@@ -760,8 +760,6 @@
 <span id="760">760</span>
 <span id="761">761</span>
 <span id="762">762</span>
-<span id="763">763</span>
-<span id="764">764</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">building</span>;
 <span class="kw">mod</span> <span class="ident">bus</span>;
@@ -1368,18 +1366,16 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_table</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-    <span class="ident">rows</span>: <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">I</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
-    <span class="ident">rows</span>.<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> {
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="ident">k</span>).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-            <span class="comment">// TODO not quite...</span>
-            <span class="ident">v</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">align_right</span>(),
-        ])
-    })
-    .<span class="ident">collect</span>()
+<span class="kw">fn</span> <span class="ident">make_table</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">I</span>, <span class="ident">String</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
+    <span class="ident">rows</span>.<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> {
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Line</span>(<span class="ident">k</span>).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="comment">// TODO not quite...</span>
+                <span class="ident">v</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">align_right</span>(),
+            ])
+        })
+        .<span class="ident">collect</span>()
 }
 
 <span class="kw">fn</span> <span class="ident">throughput</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Analytics</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span><span class="op">&gt;</span>(

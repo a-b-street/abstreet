@@ -913,7 +913,7 @@
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
         <span class="ident">table</span>.<span class="ident">push</span>((<span class="string">&quot;Debug ID&quot;</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">person</span>.<span class="ident">orig_id</span>)));
     }
-    <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(<span class="ident">ctx</span>, <span class="ident">table</span>.<span class="ident">into_iter</span>()));
+    <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(<span class="ident">ctx</span>, <span class="ident">table</span>));
     <span class="comment">// TODO Mad libs!</span>
     <span class="comment">// - Keeps a collection of ___ at all times</span>
     <span class="comment">// - Origin story: accidentally fell into a vat of cheese curds</span>

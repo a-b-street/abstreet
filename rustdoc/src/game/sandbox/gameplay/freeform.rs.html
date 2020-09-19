@@ -563,6 +563,12 @@
 <span id="563">563</span>
 <span id="564">564</span>
 <span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">CityPicker</span>, <span class="ident">CommonState</span>};
@@ -578,7 +584,7 @@
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{
     <span class="ident">DontDrawAgents</span>, <span class="ident">DrivingGoal</span>, <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">SidewalkSpot</span>,
-    <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripSpec</span>,
+    <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>, <span class="ident">TripSpec</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
@@ -856,7 +862,11 @@
                             <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
                                 <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_all_people</span>().<span class="ident">len</span>() <span class="op">+</span> <span class="ident">i</span>),
                                 <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-                                <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(), <span class="ident">trip</span>)],
+                                <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
+                                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
+                                    <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
+                                    <span class="ident">trip</span>,
+                                )],
                             });
                         }
                     }
@@ -1077,6 +1087,7 @@
                         <span class="ident">origin</span>: <span class="prelude-val">None</span>,
                     },
                     <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                     <span class="bool-val">false</span>,
                     <span class="bool-val">false</span>,
                     <span class="ident">map</span>,
@@ -1099,6 +1110,7 @@
                         ),
                     },
                     <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                     <span class="bool-val">false</span>,
                     <span class="bool-val">false</span>,
                     <span class="ident">map</span>,

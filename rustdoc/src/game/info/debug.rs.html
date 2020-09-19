@@ -22,6 +22,7 @@
 <span id="22">22</span>
 <span id="23">23</span>
 <span id="24">24</span>
+<span id="25">25</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">header_btns</span>, <span class="ident">make_table</span>, <span class="ident">Details</span>};
@@ -42,7 +43,8 @@
         <span class="ident">a</span>.<span class="ident">osm_tags</span>
             .<span class="ident">inner</span>()
             .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>.<span class="ident">to_string</span>(), <span class="ident">v</span>.<span class="ident">to_string</span>())),
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>.<span class="ident">to_string</span>(), <span class="ident">v</span>.<span class="ident">to_string</span>()))
+            .<span class="ident">collect</span>(),
     ));
 
     <span class="ident">rows</span>

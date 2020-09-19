@@ -324,7 +324,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>,
-    <span class="ident">TripMode</span>,
+    <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
@@ -596,8 +596,8 @@
         <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="number">0</span>),
         <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_am</span>, <span class="ident">goto_work</span>),
-            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_pm</span>, <span class="ident">return_home</span>),
+            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_am</span>, <span class="ident">TripPurpose</span>::<span class="ident">Work</span>, <span class="ident">goto_work</span>),
+            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_pm</span>, <span class="ident">TripPurpose</span>::<span class="ident">Home</span>, <span class="ident">return_home</span>),
         ],
     })
 }
