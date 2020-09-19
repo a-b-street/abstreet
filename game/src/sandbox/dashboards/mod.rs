@@ -53,7 +53,7 @@ impl DashTab {
         ])
     }
 
-    pub fn transition(self, ctx: &mut EventCtx, app: &App, action: &str) -> Transition {
+    pub fn transition(self, ctx: &mut EventCtx, app: &mut App, action: &str) -> Transition {
         match action {
             "close" => Transition::Pop,
             "trip table" => Transition::Replace(TripTable::new(ctx, app)),

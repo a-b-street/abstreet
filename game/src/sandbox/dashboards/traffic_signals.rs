@@ -1,10 +1,11 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::game::{DrawBaselayer, State, Transition};
+use crate::helpers::ID;
 use crate::render::DrawOptions;
 use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
-use geom::{ArrowCap, Distance, Duration, Time};
-use map_model::{IntersectionID, MovementID, PathStep, TurnType};
+use geom::{ArrowCap, Distance, Duration, Polygon, Time};
+use map_model::{ControlTrafficSignal, IntersectionID, MovementID, PathStep, TurnType};
 use sim::{DontDrawAgents, TripEndpoint};
 use std::collections::HashMap;
 use widgetry::{
@@ -17,10 +18,13 @@ pub struct TrafficSignalDemand {
     all_demand: HashMap<IntersectionID, Demand>,
     hour: Time,
     draw_all: Drawable,
+    selected: Option<(Drawable, Text)>,
 }
 
 impl TrafficSignalDemand {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+        app.primary.current_selection = None;
+
         let all_demand = ctx.loading_screen("predict all demand", |_, timer| {
             Demand::all_demand(app, timer)
         });
@@ -30,6 +34,7 @@ impl TrafficSignalDemand {
             all_demand,
             hour,
             draw_all,
+            selected: None,
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Traffic signal demand over time")
@@ -61,6 +66,39 @@ impl TrafficSignalDemand {
 impl State for TrafficSignalDemand {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
+        // TODO DrawWithTooltips works great in screenspace; make a similar tool for mapspace?
+        if ctx.redo_mouseover() {
+            self.selected = None;
+            if let Some(ID::Intersection(i)) = app.calculate_current_selection(
+                ctx,
+                &DontDrawAgents {},
+                &ShowEverything::new(),
+                false,
+                false,
+                false,
+            ) {
+                if let Some(ts) = app.primary.map.maybe_get_traffic_signal(i) {
+                    // If we're mousing over something, the cursor is on the map.
+                    let pt = ctx.canvas.get_cursor_in_map_space().unwrap();
+                    for (arrow, count) in self.all_demand[&i].make_arrows(ts, self.hour) {
+                        if arrow.contains_pt(pt) {
+                            let mut batch = GeomBatch::new();
+                            batch.push(Color::hex("#EE702E"), arrow.clone());
+                            if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
+                                batch.push(Color::WHITE, p);
+                            }
+                            let txt = Text::from(Line(format!(
+                                "{} / {}",
+                                prettyprint_usize(count),
+                                self.all_demand[&i].count(self.hour).sum()
+                            )));
+                            self.selected = Some((ctx.upload(batch), txt));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         let mut changed = false;
         match self.panel.event(ctx) {
@@ -96,14 +134,16 @@ impl State for TrafficSignalDemand {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        app.draw(
-            g,
-            DrawOptions::new(),
-            &DontDrawAgents {},
-            &ShowEverything::new(),
-        );
+        let mut opts = DrawOptions::new();
+        opts.suppress_traffic_signal_details
+            .extend(self.all_demand.keys().cloned());
+        app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
 
         g.redraw(&self.draw_all);
+        if let Some((ref draw, ref count)) = self.selected {
+            g.redraw(draw);
+            g.draw_mouse_tooltip(count.clone());
+        }
 
         self.panel.draw(g);
         CommonState::draw_osd(g, app);
@@ -176,35 +216,38 @@ impl Demand {
         cnt
     }
 
+    fn make_arrows(&self, ts: &ControlTrafficSignal, hour: Time) -> Vec<(Polygon, usize)> {
+        let cnt = self.count(hour);
+        let total_demand = cnt.sum() as f64;
+
+        let mut arrows = Vec::new();
+        for (m, demand) in cnt.consume() {
+            let percent = (demand as f64) / total_demand;
+            let arrow = ts.movements[&m]
+                .geom
+                .make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle);
+            arrows.push((arrow, demand));
+        }
+        arrows
+    }
+
     fn draw_demand(
         ctx: &mut EventCtx,
         app: &App,
         all_demand: &HashMap<IntersectionID, Demand>,
         hour: Time,
     ) -> Drawable {
-        let mut arrow_batch = GeomBatch::new();
-        let mut txt_batch = GeomBatch::new();
+        let mut batch = GeomBatch::new();
         for (i, demand) in all_demand {
-            let cnt = demand.count(hour);
-            let total_demand = cnt.sum() as f64;
-
-            // TODO Refactor with info/intersection after deciding exactly how to draw this
-            for (m, demand) in cnt.consume() {
-                let percent = (demand as f64) / total_demand;
-                let pl = &app.primary.map.get_traffic_signal(*i).movements[&m].geom;
-                arrow_batch.push(
-                    Color::hex("#A3A3A3"),
-                    pl.make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle),
-                );
-                txt_batch.append(
-                    Text::from(Line(prettyprint_usize(demand)).fg(Color::RED))
-                        .render_ctx(ctx)
-                        .scale(0.15)
-                        .centered_on(pl.middle()),
-                );
+            let mut outlines = Vec::new();
+            for (arrow, _) in demand.make_arrows(app.primary.map.get_traffic_signal(*i), hour) {
+                if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
+                    outlines.push(p);
+                }
+                batch.push(Color::hex("#A3A3A3"), arrow);
             }
+            batch.extend(Color::WHITE, outlines);
         }
-        arrow_batch.append(txt_batch);
-        ctx.upload(arrow_batch)
+        ctx.upload(batch)
     }
 }
