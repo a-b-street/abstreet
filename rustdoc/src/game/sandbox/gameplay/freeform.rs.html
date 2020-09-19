@@ -698,7 +698,7 @@
         .<span class="ident">centered</span>(),
         <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Select an intersection and press &quot;</span>),
-            <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">Z</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>),
+            <span class="ident">Key</span>::<span class="ident">Z</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
             <span class="ident">Line</span>(<span class="string">&quot; to start traffic nearby&quot;</span>),
         ])
         .<span class="ident">draw</span>(<span class="ident">ctx</span>),

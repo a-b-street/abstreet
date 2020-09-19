@@ -933,17 +933,17 @@
                     <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Click to map parking for OSM way {}&quot;</span>, <span class="ident">way</span>)));
                     <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Shortcut: press &quot;</span>),
-                        <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">N</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>),
+                        <span class="ident">Key</span>::<span class="ident">N</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                         <span class="ident">Line</span>(<span class="string">&quot; to indicate no parking&quot;</span>),
                     ]);
                     <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
-                        <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">S</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>),
+                        <span class="ident">Key</span>::<span class="ident">S</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                         <span class="ident">Line</span>(<span class="string">&quot; to open Bing StreetSide here&quot;</span>),
                     ]);
                     <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
-                        <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">O</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>),
+                        <span class="ident">Key</span>::<span class="ident">O</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                         <span class="ident">Line</span>(<span class="string">&quot; to open OpenStreetMap for this way&quot;</span>),
                     ]);
                     <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">inner</span>() {

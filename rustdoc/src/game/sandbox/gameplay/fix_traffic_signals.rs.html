@@ -612,11 +612,11 @@
                     <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;&quot;</span>));
                     <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
-                        <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">L</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>),
+                        <span class="ident">Key</span>::<span class="ident">L</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                         <span class="ident">Line</span>(<span class="string">&quot; to open layers. Try &quot;</span>),
-                        <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">D</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>),
+                        <span class="ident">Key</span>::<span class="ident">D</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                         <span class="ident">Line</span>(<span class="string">&quot;elay or worst traffic &quot;</span>),
-                        <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">J</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>),
+                        <span class="ident">Key</span>::<span class="ident">J</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                         <span class="ident">Line</span>(<span class="string">&quot;ams&quot;</span>),
                     ]);
                     <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>);

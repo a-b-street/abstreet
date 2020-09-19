@@ -423,8 +423,12 @@
 <span id="423">423</span>
 <span id="424">424</span>
 <span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">TextSpan</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 <span class="kw">use</span> <span class="ident">winit</span>::<span class="ident">event</span>::{
     <span class="ident">ElementState</span>, <span class="ident">KeyboardInput</span>, <span class="ident">MouseButton</span>, <span class="ident">MouseScrollDelta</span>, <span class="ident">VirtualKeyCode</span>, <span class="ident">WindowEvent</span>,
@@ -811,6 +815,10 @@
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
         })
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">txt</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+        <span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>)
     }
 }
 
