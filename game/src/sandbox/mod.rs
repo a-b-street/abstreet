@@ -1,4 +1,4 @@
-mod dashboards;
+pub mod dashboards;
 pub mod gameplay;
 mod misc_tools;
 mod speed;

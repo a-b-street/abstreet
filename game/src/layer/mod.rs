@@ -10,6 +10,7 @@ use crate::app::App;
 use crate::common::HeatmapOptions;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::hotkey_btn;
+use crate::sandbox::dashboards;
 use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget};
 
 // TODO Good ideas in
@@ -115,21 +116,33 @@ impl PickLayer {
             .evenly_spaced(),
         );
 
-        col.extend(vec![
-            "Experimental".draw_text(ctx),
-            btn("amenities", Key::A),
-            btn("backpressure", Key::Z),
-            btn("elevation", Key::V),
-            btn("parking efficiency", Key::O),
-            if app.opts.dev {
-                btn("blackholes", Key::L)
-            } else {
-                Widget::nothing()
-            },
-        ]);
-        if app.primary.sim.get_pandemic_model().is_some() {
-            col.push(btn("pandemic model", Key::Y));
-        }
+        col.push(
+            Widget::custom_row(vec![
+                Widget::col(vec![
+                    "Experimental".draw_text(ctx),
+                    btn("amenities", Key::A),
+                    btn("backpressure", Key::Z),
+                    btn("elevation", Key::V),
+                    btn("parking efficiency", Key::O),
+                    if app.opts.dev {
+                        btn("blackholes", Key::L)
+                    } else {
+                        Widget::nothing()
+                    },
+                    if app.primary.sim.get_pandemic_model().is_some() {
+                        btn("pandemic model", Key::Y)
+                    } else {
+                        Widget::nothing()
+                    },
+                ]),
+                Widget::col(vec![
+                    "Data".draw_text(ctx),
+                    btn("traffic signal demand", Key::M),
+                    btn("commuter patterns", Key::C),
+                ]),
+            ])
+            .evenly_spaced(),
+        );
 
         Box::new(PickLayer {
             panel: Panel::new(Widget::col(col))
@@ -208,6 +221,12 @@ impl State for PickLayer {
                     app.layer = Some(Box::new(transit::TransitNetwork::new(
                         ctx, app, false, true, true,
                     )));
+                }
+                "traffic signal demand" => {
+                    return Transition::Replace(dashboards::TrafficSignalDemand::new(ctx, app));
+                }
+                "commuter patterns" => {
+                    return Transition::Replace(dashboards::CommuterPatterns::new(ctx, app));
                 }
                 _ => unreachable!(),
             },

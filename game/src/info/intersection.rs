@@ -208,6 +208,7 @@ pub fn current_demand(
         .bg(app.cs.inner_panel)
         .outline(2.0, Color::WHITE),
     );
+    rows.push(Btn::text_fg("Explore demand across all traffic signals").build_def(ctx, None));
 
     rows
 }

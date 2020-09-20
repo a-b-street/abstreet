@@ -7,6 +7,8 @@ mod trip_table;
 
 use crate::app::App;
 use crate::game::Transition;
+pub use commuter::CommuterPatterns;
+pub use traffic_signals::TrafficSignalDemand;
 pub use trip_table::TripTable;
 use widgetry::{Btn, Color, EventCtx, Key, Widget};
 
@@ -67,10 +69,8 @@ impl DashTab {
             }
             "active traffic" => Transition::Replace(misc::ActiveTraffic::new(ctx, app)),
             "transit routes" => Transition::Replace(misc::TransitRoutes::new(ctx, app)),
-            "commuter patterns" => Transition::Replace(commuter::CommuterPatterns::new(ctx, app)),
-            "traffic signal demand" => {
-                Transition::Replace(traffic_signals::TrafficSignalDemand::new(ctx, app))
-            }
+            "commuter patterns" => Transition::Replace(CommuterPatterns::new(ctx, app)),
+            "traffic signal demand" => Transition::Replace(TrafficSignalDemand::new(ctx, app)),
             _ => unreachable!(),
         }
     }

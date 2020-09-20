@@ -12,7 +12,7 @@ use crate::common::Warping;
 use crate::edit::{EditMode, RouteEditor};
 use crate::game::Transition;
 use crate::helpers::{color_for_agent_type, hotkey_btn, open_browser, ID};
-use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
+use crate::sandbox::{dashboards, GameplayMode, SandboxMode, TimeWarpScreen};
 use geom::{Circle, Distance, Time};
 use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
 use sim::{
@@ -563,6 +563,13 @@ impl InfoPanel {
                                 BusRouteID(x.parse::<usize>().unwrap()),
                             )),
                         ])),
+                    )
+                } else if action == "Explore demand across all traffic signals" {
+                    (
+                        false,
+                        Some(Transition::Push(dashboards::TrafficSignalDemand::new(
+                            ctx, app,
+                        ))),
                     )
                 } else {
                     let mut close_panel = true;
