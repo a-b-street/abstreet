@@ -20,8 +20,10 @@
 <span id="20">20</span>
 <span id="21">21</span>
 <span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Color</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">Text</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Style</span> {
@@ -30,6 +32,7 @@
     <span class="kw">pub</span> <span class="ident">panel_bg</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">hotkey_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">hovering_color</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">loading_tips</span>: <span class="ident">Text</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Style</span> {
@@ -40,6 +43,7 @@
             <span class="ident">panel_bg</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.4</span>),
             <span class="ident">hotkey_color</span>: <span class="ident">Color</span>::<span class="ident">GREEN</span>,
             <span class="ident">hovering_color</span>: <span class="ident">Color</span>::<span class="ident">ORANGE</span>,
+            <span class="ident">loading_tips</span>: <span class="ident">Text</span>::<span class="ident">new</span>(),
         }
     }
 }

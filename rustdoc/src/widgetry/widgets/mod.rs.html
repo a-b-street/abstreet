@@ -675,6 +675,10 @@
 <span id="675">675</span>
 <span id="676">676</span>
 <span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">autocomplete</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">button</span>;
@@ -813,6 +817,10 @@
         <span class="self">self</span>
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fill_width</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">size</span>.<span class="ident">width</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Percent</span>(<span class="number">1.0</span>);
+        <span class="self">self</span>
+    }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fill_height</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">size</span>.<span class="ident">height</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Percent</span>(<span class="number">1.0</span>);
         <span class="self">self</span>
