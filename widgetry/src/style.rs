@@ -1,4 +1,4 @@
-use crate::Color;
+use crate::{Color, Text};
 
 #[derive(Clone)]
 pub struct Style {
@@ -7,6 +7,7 @@ pub struct Style {
     pub panel_bg: Color,
     pub hotkey_color: Color,
     pub hovering_color: Color,
+    pub loading_tips: Text,
 }
 
 impl Style {
@@ -17,6 +18,7 @@ impl Style {
             panel_bg: Color::grey(0.4),
             hotkey_color: Color::GREEN,
             hovering_color: Color::ORANGE,
+            loading_tips: Text::new(),
         }
     }
 }

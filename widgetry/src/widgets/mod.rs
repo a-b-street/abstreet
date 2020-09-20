@@ -135,6 +135,10 @@ impl Widget {
         self
     }
 
+    pub fn fill_width(mut self) -> Widget {
+        self.layout.style.size.width = Dimension::Percent(1.0);
+        self
+    }
     pub fn fill_height(mut self) -> Widget {
         self.layout.style.size.height = Dimension::Percent(1.0);
         self

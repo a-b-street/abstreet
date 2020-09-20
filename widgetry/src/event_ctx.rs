@@ -1,9 +1,9 @@
 use crate::{
-    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, Line, Prerender, ScreenDims,
-    ScreenPt, Style, Text, UserInput,
+    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel,
+    Prerender, ScreenDims, Style, Text, UserInput, VerticalAlignment, Widget,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
-use geom::Polygon;
+use geom::{Percent, Polygon};
 use instant::Instant;
 use std::collections::VecDeque;
 
@@ -41,6 +41,7 @@ impl<'a> EventCtx<'a> {
             &timer_name,
             Box::new(LoadingScreen::new(
                 self.prerender,
+                self.style.clone(),
                 self.canvas.get_window_dims(),
                 timer_name.clone(),
             )),
@@ -140,6 +141,7 @@ pub struct LoadingScreen<'a> {
 impl<'a> LoadingScreen<'a> {
     pub fn new(
         prerender: &'a Prerender,
+        style: Style,
         initial_size: ScreenDims,
         title: String,
     ) -> LoadingScreen<'a> {
@@ -154,7 +156,7 @@ impl<'a> LoadingScreen<'a> {
             last_drawn: Instant::now(),
             title,
             canvas,
-            style: Style::standard(),
+            style,
         }
     }
 
@@ -164,26 +166,72 @@ impl<'a> LoadingScreen<'a> {
             return;
         }
         self.last_drawn = Instant::now();
+        let mut ctx = EventCtx {
+            fake_mouseover: true,
+            input: UserInput::new(Event::NoOp, &self.canvas),
+            canvas: &mut self.canvas,
+            prerender: self.prerender,
+            style: &mut self.style,
+            updates_requested: vec![],
+        };
 
         let mut txt = Text::from(Line(&self.title).small_heading());
         for l in &self.lines {
             txt.add(Line(l));
         }
+        let border = Color::hex("#F4DA22");
+        let panel = Panel::new(Widget::row(vec![
+            Widget::custom_col(vec![
+                Widget::draw_batch(
+                    &ctx,
+                    GeomBatch::load_svg(ctx.prerender, "system/assets/map/dont_walk.svg")
+                        .scale(5.0),
+                )
+                .container()
+                .bg(Color::BLACK)
+                .padding(15)
+                .outline(5.0, border)
+                .centered_horiz()
+                .margin_below(5),
+                Widget::draw_batch(
+                    &ctx,
+                    GeomBatch::from(vec![(Color::grey(0.5), Polygon::rectangle(10.0, 30.0))]),
+                )
+                .centered_horiz(),
+                ctx.style
+                    .loading_tips
+                    .clone()
+                    .wrap_to_pct(&ctx, 25)
+                    .draw(&ctx)
+                    .container()
+                    .bg(Color::BLACK)
+                    .padding(15)
+                    .outline(5.0, Color::YELLOW)
+                    .force_width_pct(&ctx, Percent::int(30))
+                    .margin_below(5),
+                Widget::draw_batch(
+                    &ctx,
+                    GeomBatch::from(vec![(Color::grey(0.5), Polygon::rectangle(10.0, 100.0))]),
+                )
+                .centered_horiz(),
+            ])
+            .centered_vert(),
+            Widget::draw_batch(
+                &ctx,
+                txt.inner_render(&ctx.prerender.assets, svg::LOW_QUALITY),
+            )
+            .container()
+            .fill_width()
+            .padding(16)
+            .bg(text::BG_COLOR),
+        ]))
+        .exact_size_percent(80, 80)
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
+        .build_custom(&mut ctx);
 
         let mut g = GfxCtx::new(self.prerender, &self.canvas, &self.style, false);
         g.clear(Color::BLACK);
-
-        let mut batch = GeomBatch::from(vec![(
-            text::BG_COLOR,
-            Polygon::rectangle(0.8 * g.canvas.window_width, 0.8 * g.canvas.window_height),
-        )]);
-        batch.append(txt.inner_render(&g.prerender.assets, svg::LOW_QUALITY));
-        let draw = g.upload(batch);
-        g.redraw_at(
-            ScreenPt::new(0.1 * g.canvas.window_width, 0.1 * g.canvas.window_height),
-            &draw,
-        );
-
+        panel.draw(&mut g);
         g.prerender.inner.draw_finished(g.inner);
     }
 }

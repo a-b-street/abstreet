@@ -587,3 +587,14 @@ changes here.
 - small UI tweaks for parking, editing multiple signals
 - fixed last bugs for left-handed driving, should work just as well now
 - lots of graphics experiments from the hackathon, not merged yet
+
+0.2.12
+
+- new textured color scheme and isometric buildings, in settings
+- new layer to show how far away people parked
+- Massive UI overhauls: jump to time/delay, edit mode, traffic signal editor (now with offsets), lane editor, bulk lane edit, traffic signal demand (individual intersections and all), loading screen
+- the Go API example compares trip times and detects gridlock
+- infinite parking mode
+- show how long a car has been parked in one spot
+- bugfix for some pathfinding costs around uber-turns
+- start to show a trip's purpose

@@ -287,3 +287,15 @@ pub fn open_browser(url: String) {
         let _ = webbrowser::open(&url);
     }
 }
+
+pub fn loading_tips() -> Text {
+    Text::from_multiline(vec![
+        Line("Recent changes (September 20)"),
+        Line(""),
+        Line("- Try out the new traffic signal editor!"),
+        Line("- The \"traffic signal demand\" layer shows all intersections through the whole day"),
+        Line("- New 3D buildings and textured color schemes in settings"),
+        Line("- Support for bidirectional cycletracks"),
+        Line("- An API to control A/B Street from any language"),
+    ])
+}

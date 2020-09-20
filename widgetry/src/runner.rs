@@ -1,6 +1,6 @@
 use crate::assets::Assets;
 use crate::tools::screenshot::screenshot_everything;
-use crate::{Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, UpdateType, UserInput};
+use crate::{Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, Text, UpdateType, UserInput};
 use geom::Duration;
 use image::{GenericImageView, Pixel};
 use instant::Instant;
@@ -160,6 +160,7 @@ pub struct Settings {
     dump_raw_events: bool,
     scale_factor: Option<f64>,
     window_icon: Option<String>,
+    loading_tips: Option<Text>,
 }
 
 impl Settings {
@@ -170,6 +171,7 @@ impl Settings {
             dump_raw_events: false,
             scale_factor: None,
             window_icon: None,
+            loading_tips: None,
         }
     }
 
@@ -189,6 +191,10 @@ impl Settings {
 
     pub fn window_icon(&mut self, path: String) {
         self.window_icon = Some(path);
+    }
+
+    pub fn loading_tips(&mut self, txt: Text) {
+        self.loading_tips = Some(txt);
     }
 }
 
@@ -216,6 +222,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
         scale_factor: RefCell::new(settings.scale_factor.unwrap_or(monitor_scale_factor)),
     };
     let mut style = Style::standard();
+    style.loading_tips = settings.loading_tips.unwrap_or_else(Text::new);
 
     let initial_size = prerender.window_size();
     let mut canvas = Canvas::new(initial_size);

@@ -1,4 +1,5 @@
 use crate::common::ColorScale;
+use crate::helpers::loading_tips;
 use widgetry::{Choice, Color, Fill, Style, Texture};
 
 // I've gone back and forth how to organize color scheme code. I was previously against having one
@@ -141,7 +142,8 @@ impl ColorScheme {
     }
 
     fn standard() -> ColorScheme {
-        let gui_style = Style::standard();
+        let mut gui_style = Style::standard();
+        gui_style.loading_tips = loading_tips();
         ColorScheme {
             // UI
             hovering: gui_style.hovering_color,
