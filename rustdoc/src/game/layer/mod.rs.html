@@ -230,6 +230,25 @@
 <span id="230">230</span>
 <span id="231">231</span>
 <span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">elevation</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">map</span>;
@@ -243,6 +262,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">HeatmapOptions</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">hotkey_btn</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="comment">// TODO Good ideas in</span>
@@ -348,21 +368,33 @@
             .<span class="ident">evenly_spaced</span>(),
         );
 
-        <span class="ident">col</span>.<span class="ident">extend</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;Experimental&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-            <span class="ident">btn</span>(<span class="string">&quot;amenities&quot;</span>, <span class="ident">Key</span>::<span class="ident">A</span>),
-            <span class="ident">btn</span>(<span class="string">&quot;backpressure&quot;</span>, <span class="ident">Key</span>::<span class="ident">Z</span>),
-            <span class="ident">btn</span>(<span class="string">&quot;elevation&quot;</span>, <span class="ident">Key</span>::<span class="ident">V</span>),
-            <span class="ident">btn</span>(<span class="string">&quot;parking efficiency&quot;</span>, <span class="ident">Key</span>::<span class="ident">O</span>),
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                <span class="ident">btn</span>(<span class="string">&quot;blackholes&quot;</span>, <span class="ident">Key</span>::<span class="ident">L</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Widget</span>::<span class="ident">nothing</span>()
-            },
-        ]);
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_pandemic_model</span>().<span class="ident">is_some</span>() {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">btn</span>(<span class="string">&quot;pandemic model&quot;</span>, <span class="ident">Key</span>::<span class="ident">Y</span>));
-        }
+        <span class="ident">col</span>.<span class="ident">push</span>(
+            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="string">&quot;Experimental&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;amenities&quot;</span>, <span class="ident">Key</span>::<span class="ident">A</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;backpressure&quot;</span>, <span class="ident">Key</span>::<span class="ident">Z</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;elevation&quot;</span>, <span class="ident">Key</span>::<span class="ident">V</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;parking efficiency&quot;</span>, <span class="ident">Key</span>::<span class="ident">O</span>),
+                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
+                        <span class="ident">btn</span>(<span class="string">&quot;blackholes&quot;</span>, <span class="ident">Key</span>::<span class="ident">L</span>)
+                    } <span class="kw">else</span> {
+                        <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+                    },
+                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_pandemic_model</span>().<span class="ident">is_some</span>() {
+                        <span class="ident">btn</span>(<span class="string">&quot;pandemic model&quot;</span>, <span class="ident">Key</span>::<span class="ident">Y</span>)
+                    } <span class="kw">else</span> {
+                        <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+                    },
+                ]),
+                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="string">&quot;Data&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;traffic signal demand&quot;</span>, <span class="ident">Key</span>::<span class="ident">M</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;commuter patterns&quot;</span>, <span class="ident">Key</span>::<span class="ident">C</span>),
+                ]),
+            ])
+            .<span class="ident">evenly_spaced</span>(),
+        );
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PickLayer</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
@@ -441,6 +473,12 @@
                     <span class="ident">app</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">transit</span>::<span class="ident">TransitNetwork</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>,
                     )));
+                }
+                <span class="string">&quot;traffic signal demand&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">dashboards</span>::<span class="ident">TrafficSignalDemand</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                }
+                <span class="string">&quot;commuter patterns&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">dashboards</span>::<span class="ident">CommuterPatterns</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
