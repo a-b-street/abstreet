@@ -1,7 +1,8 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::info::{OpenTrip, Tab};
-use crate::sandbox::dashboards::trip_table::{make_table, preview_trip};
+use crate::sandbox::dashboards::table::make_table;
+use crate::sandbox::dashboards::trip_table::preview_trip;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;

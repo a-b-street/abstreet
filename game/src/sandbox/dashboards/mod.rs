@@ -2,6 +2,7 @@ mod commuter;
 mod misc;
 mod parking_overhead;
 mod summaries;
+mod table;
 mod traffic_signals;
 mod trip_table;
 

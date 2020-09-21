@@ -4,83 +4,32 @@ use crate::helpers::{
     checkbox_per_mode, cmp_duration_shorter, color_for_mode, color_for_trip_phase,
 };
 use crate::info::{OpenTrip, Tab};
+use crate::sandbox::dashboards::table::{Col, Filter, Table};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
-use geom::{Distance, Duration, Polygon, Pt2D, Time};
+use geom::{Distance, Duration, Pt2D, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use std::collections::{BTreeSet, HashMap};
 use widgetry::{
-    Btn, Checkbox, Color, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, RewriteColor,
-    ScreenPt, Text, TextExt, Widget,
+    Checkbox, Color, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, RewriteColor,
+    ScreenPt, Text, Widget,
 };
 
-const ROWS: usize = 8;
-
 pub struct TripTable {
+    table: Table<FinishedTrip, Filters>,
     panel: Panel,
-    opts: Options,
-}
-
-struct Options {
-    sort_by: SortBy,
-    descending: bool,
-    modes: BTreeSet<TripMode>,
-    // TODO Adding more attributes isn't scaling well
-    off_map_starts: bool,
-    off_map_ends: bool,
-    unmodified_trips: bool,
-    modified_trips: bool,
-    uncapped_trips: bool,
-    capped_trips: bool,
-    skip: usize,
-}
-
-impl Options {
-    fn change(&mut self, value: SortBy) {
-        self.skip = 0;
-        if self.sort_by == value {
-            self.descending = !self.descending;
-        } else {
-            self.sort_by = value;
-            self.descending = true;
-        }
-    }
-}
-
-// TODO Is there a heterogenously typed table crate somewhere?
-#[derive(Clone, Copy, PartialEq)]
-enum SortBy {
-    Departure,
-    Duration,
-    RelativeDuration,
-    PercentChangeDuration,
-    Waiting,
-    PercentWaiting,
 }
 
 impl TripTable {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let opts = Options {
-            sort_by: SortBy::PercentWaiting,
-            descending: true,
-            modes: TripMode::all().into_iter().collect(),
-            off_map_starts: true,
-            off_map_ends: true,
-            unmodified_trips: true,
-            modified_trips: true,
-            uncapped_trips: true,
-            capped_trips: true,
-            skip: 0,
-        };
-        Box::new(TripTable {
-            panel: make(ctx, app, &opts),
-            opts,
-        })
+        let table = make_table_finished_trips(app);
+        let panel = make_panel(ctx, app, &table);
+        Box::new(TripTable { table, panel })
     }
 
     fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut new = make(ctx, app, &self.opts);
+        let mut new = make_panel(ctx, app, &self.table);
         new.restore(ctx, &self.panel);
         self.panel = new;
     }
@@ -89,86 +38,31 @@ impl TripTable {
 impl State for TripTable {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "Departure" => {
-                    self.opts.change(SortBy::Departure);
+            Outcome::Clicked(x) => {
+                if self.table.clicked(&x) {
                     self.recalc(ctx, app);
+                } else if let Ok(idx) = x.parse::<usize>() {
+                    let trip = TripID(idx);
+                    let person = app.primary.sim.trip_to_person(trip);
+                    return Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::ModifyState(Box::new(move |state, ctx, app| {
+                            let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
+                            let mut actions = sandbox.contextual_actions();
+                            sandbox.controls.common.as_mut().unwrap().launch_info_panel(
+                                ctx,
+                                app,
+                                Tab::PersonTrips(person, OpenTrip::single(trip)),
+                                &mut actions,
+                            );
+                        })),
+                    ]);
+                } else {
+                    return DashTab::TripTable.transition(ctx, app, &x);
                 }
-                "Duration" => {
-                    self.opts.change(SortBy::Duration);
-                    self.recalc(ctx, app);
-                }
-                "Comparison" => {
-                    self.opts.change(SortBy::RelativeDuration);
-                    self.recalc(ctx, app);
-                }
-                "Normalized" => {
-                    self.opts.change(SortBy::PercentChangeDuration);
-                    self.recalc(ctx, app);
-                }
-                "Time spent waiting" => {
-                    self.opts.change(SortBy::Waiting);
-                    self.recalc(ctx, app);
-                }
-                "Percent waiting" => {
-                    self.opts.change(SortBy::PercentWaiting);
-                    self.recalc(ctx, app);
-                }
-                "previous trips" => {
-                    self.opts.skip -= ROWS;
-                    self.recalc(ctx, app);
-                }
-                "next trips" => {
-                    self.opts.skip += ROWS;
-                    self.recalc(ctx, app);
-                }
-                x => {
-                    if let Ok(idx) = x.parse::<usize>() {
-                        let trip = TripID(idx);
-                        let person = app.primary.sim.trip_to_person(trip);
-                        return Transition::Multi(vec![
-                            Transition::Pop,
-                            Transition::ModifyState(Box::new(move |state, ctx, app| {
-                                let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                                let mut actions = sandbox.contextual_actions();
-                                sandbox.controls.common.as_mut().unwrap().launch_info_panel(
-                                    ctx,
-                                    app,
-                                    Tab::PersonTrips(person, OpenTrip::single(trip)),
-                                    &mut actions,
-                                );
-                            })),
-                        ]);
-                    }
-                    return DashTab::TripTable.transition(ctx, app, x);
-                }
-            },
+            }
             Outcome::Changed => {
-                self.opts.modes = BTreeSet::new();
-                for m in TripMode::all() {
-                    if self.panel.is_checked(m.ongoing_verb()) {
-                        self.opts.modes.insert(m);
-                    }
-                }
-                self.opts.skip = 0;
-                self.opts.off_map_starts = self.panel.is_checked("starting off-map");
-                self.opts.off_map_ends = self.panel.is_checked("ending off-map");
-                self.opts.unmodified_trips = self
-                    .panel
-                    .maybe_is_checked("trips unmodified by experiment")
-                    .unwrap_or(true);
-                self.opts.modified_trips = self
-                    .panel
-                    .maybe_is_checked("trips modified by experiment")
-                    .unwrap_or(true);
-                self.opts.uncapped_trips = self
-                    .panel
-                    .maybe_is_checked("trips not affected by congestion caps")
-                    .unwrap_or(true);
-                self.opts.capped_trips = self
-                    .panel
-                    .maybe_is_checked("trips affected by congestion caps")
-                    .unwrap_or(true);
+                self.table.panel_changed(&self.panel);
                 self.recalc(ctx, app);
             }
             _ => {}
@@ -188,11 +82,13 @@ impl State for TripTable {
     }
 }
 
-struct Entry {
-    trip: TripID,
+struct FinishedTrip {
+    id: TripID,
     mode: TripMode,
     modified: bool,
     capped: bool,
+    starts_off_map: bool,
+    ends_off_map: bool,
     departure: Time,
     duration_after: Duration,
     duration_before: Duration,
@@ -200,7 +96,34 @@ struct Entry {
     percent_waiting: usize,
 }
 
-fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
+struct CancelledTrip {
+    _id: TripID,
+    // TODO Original mode
+    _departure: Time,
+}
+
+struct UnfinishedTrip {
+    _id: TripID,
+    _mode: TripMode,
+    _departure: Time,
+    _duration_before: Duration,
+}
+
+struct Filters {
+    modes: BTreeSet<TripMode>,
+    off_map_starts: bool,
+    off_map_ends: bool,
+    unmodified_trips: bool,
+    modified_trips: bool,
+    uncapped_trips: bool,
+    capped_trips: bool,
+}
+
+fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>, Vec<UnfinishedTrip>) {
+    let mut finished = Vec::new();
+    let mut cancelled = Vec::new();
+    let unfinished = Vec::new();
+
     // Only make one pass through prebaked data
     let trip_times_before = if app.has_prebaked().is_some() {
         let mut times = HashMap::new();
@@ -214,62 +137,52 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
         None
     };
 
-    // Gather raw data
-    let mut data = Vec::new();
     let sim = &app.primary.sim;
-    let mut aborted = 0;
     for (_, id, maybe_mode, duration_after) in &sim.get_analytics().finished_trips {
+        let trip = sim.trip_info(*id);
+
         let mode = if let Some(m) = maybe_mode {
-            if !opts.modes.contains(m) {
-                continue;
-            }
             *m
         } else {
-            aborted += 1;
+            cancelled.push(CancelledTrip {
+                _id: *id,
+                _departure: trip.departure,
+            });
             continue;
         };
-        let trip = sim.trip_info(*id);
-        if !opts.off_map_starts {
-            if let TripEndpoint::Border(_, _) = trip.start {
-                continue;
-            }
-        }
-        if !opts.off_map_ends {
-            if let TripEndpoint::Border(_, _) = trip.end {
-                continue;
-            }
-        }
-        if !opts.unmodified_trips && !trip.modified {
-            continue;
-        }
-        if !opts.modified_trips && trip.modified {
-            continue;
-        }
-        if !opts.uncapped_trips && !trip.capped {
-            continue;
-        }
-        if !opts.capped_trips && trip.capped {
-            continue;
-        }
+
+        let starts_off_map = match trip.start {
+            TripEndpoint::Border(_, _) => true,
+            _ => false,
+        };
+        let ends_off_map = match trip.end {
+            TripEndpoint::Border(_, _) => true,
+            _ => false,
+        };
 
         let (_, waiting) = sim.finished_trip_time(*id).unwrap();
         let duration_before = if let Some(ref times) = trip_times_before {
             if let Some(dt) = times.get(id) {
                 *dt
             } else {
-                aborted += 1;
+                cancelled.push(CancelledTrip {
+                    _id: *id,
+                    _departure: trip.departure,
+                });
                 continue;
             }
         } else {
             Duration::ZERO
         };
 
-        data.push(Entry {
-            trip: *id,
+        finished.push(FinishedTrip {
+            id: *id,
             mode,
             departure: trip.departure,
             modified: trip.modified,
             capped: trip.capped,
+            starts_off_map,
+            ends_off_map,
             duration_after: *duration_after,
             duration_before,
             waiting,
@@ -277,153 +190,239 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
         });
     }
 
-    // Sort
-    match opts.sort_by {
-        SortBy::Departure => data.sort_by_key(|x| x.departure),
-        SortBy::Duration => data.sort_by_key(|x| x.duration_after),
-        SortBy::RelativeDuration => data.sort_by_key(|x| x.duration_after - x.duration_before),
-        SortBy::PercentChangeDuration => {
-            data.sort_by_key(|x| (100.0 * (x.duration_after / x.duration_before)) as isize)
-        }
-        SortBy::Waiting => data.sort_by_key(|x| x.waiting),
-        SortBy::PercentWaiting => data.sort_by_key(|x| x.percent_waiting),
-    }
-    if opts.descending {
-        data.reverse();
-    }
-    let finished = data.len();
+    (finished, cancelled, unfinished)
+}
 
+fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
+    let (finished, _, _) = produce_raw_data(app);
     let any_congestion_caps = app
         .primary
         .map
         .all_zones()
         .iter()
         .any(|z| z.restrictions.cap_vehicles_per_hour.is_some());
-
-    // Render data
-    let mut rows = Vec::new();
-    for x in data.into_iter().skip(opts.skip).take(ROWS) {
-        let mut row = vec![Text::from(Line(x.trip.0.to_string())).render_ctx(ctx)];
-        if app.primary.has_modified_trips {
-            row.push(Text::from(Line(if x.modified { "Yes" } else { "No" })).render_ctx(ctx));
-        }
-        if any_congestion_caps {
-            row.push(Text::from(Line(if x.capped { "Yes" } else { "No" })).render_ctx(ctx));
-        }
-        row.extend(vec![
-            Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render_ctx(ctx),
-            Text::from(Line(x.departure.ampm_tostring())).render_ctx(ctx),
-            Text::from(Line(x.duration_after.to_string())).render_ctx(ctx),
-        ]);
-        if app.has_prebaked().is_some() {
-            row.push(
-                Text::from_all(cmp_duration_shorter(x.duration_after, x.duration_before))
-                    .render_ctx(ctx),
-            );
-            if x.duration_after == x.duration_before {
-                row.push(Text::from(Line("same")).render_ctx(ctx));
-            } else if x.duration_after < x.duration_before {
-                row.push(
-                    Text::from(Line(format!(
-                        "{}% faster",
-                        (100.0 * (1.0 - (x.duration_after / x.duration_before))) as usize
-                    )))
-                    .render_ctx(ctx),
-                );
-            } else {
-                row.push(
-                    Text::from(Line(format!(
-                        "{}% slower ",
-                        (100.0 * ((x.duration_after / x.duration_before) - 1.0)) as usize
-                    )))
-                    .render_ctx(ctx),
-                );
+    let filter: Filter<FinishedTrip, Filters> = Filter {
+        state: Filters {
+            modes: TripMode::all().into_iter().collect(),
+            off_map_starts: true,
+            off_map_ends: true,
+            unmodified_trips: true,
+            modified_trips: true,
+            uncapped_trips: true,
+            capped_trips: true,
+        },
+        to_controls: Box::new(move |ctx, app, state| {
+            Widget::col(vec![
+                checkbox_per_mode(ctx, app, &state.modes),
+                Widget::row(vec![
+                    Checkbox::switch(ctx, "starting off-map", None, state.off_map_starts),
+                    Checkbox::switch(ctx, "ending off-map", None, state.off_map_ends),
+                    if app.primary.has_modified_trips {
+                        Checkbox::switch(
+                            ctx,
+                            "trips unmodified by experiment",
+                            None,
+                            state.unmodified_trips,
+                        )
+                    } else {
+                        Widget::nothing()
+                    },
+                    if app.primary.has_modified_trips {
+                        Checkbox::switch(
+                            ctx,
+                            "trips modified by experiment",
+                            None,
+                            state.modified_trips,
+                        )
+                    } else {
+                        Widget::nothing()
+                    },
+                    if any_congestion_caps {
+                        Checkbox::switch(
+                            ctx,
+                            "trips not affected by congestion caps",
+                            None,
+                            state.uncapped_trips,
+                        )
+                    } else {
+                        Widget::nothing()
+                    },
+                    if any_congestion_caps {
+                        Checkbox::switch(
+                            ctx,
+                            "trips affected by congestion caps",
+                            None,
+                            state.capped_trips,
+                        )
+                    } else {
+                        Widget::nothing()
+                    },
+                ]),
+            ])
+        }),
+        from_controls: Box::new(|panel| {
+            let mut modes = BTreeSet::new();
+            for m in TripMode::all() {
+                if panel.is_checked(m.ongoing_verb()) {
+                    modes.insert(m);
+                }
             }
-        }
-        row.push(Text::from(Line(x.waiting.to_string())).render_ctx(ctx));
-        row.push(Text::from(Line(format!("{}%", x.percent_waiting))).render_ctx(ctx));
-
-        rows.push((x.trip.0.to_string(), row));
-    }
-
-    let btn = |value, name| {
-        if opts.sort_by == value {
-            Btn::text_bg2(format!(
-                "{} {}",
-                name,
-                if opts.descending { "↓" } else { "↑" }
-            ))
-            .build(ctx, name, None)
-        } else {
-            Btn::text_bg2(name).build_def(ctx, None)
-        }
+            Filters {
+                modes,
+                off_map_starts: panel.is_checked("starting off-map"),
+                off_map_ends: panel.is_checked("ending off-map"),
+                unmodified_trips: panel
+                    .maybe_is_checked("trips unmodified by experiment")
+                    .unwrap_or(true),
+                modified_trips: panel
+                    .maybe_is_checked("trips modified by experiment")
+                    .unwrap_or(true),
+                uncapped_trips: panel
+                    .maybe_is_checked("trips not affected by congestion caps")
+                    .unwrap_or(true),
+                capped_trips: panel
+                    .maybe_is_checked("trips affected by congestion caps")
+                    .unwrap_or(true),
+            }
+        }),
+        apply: Box::new(|state, x| {
+            // TODO One big boolean expression?
+            let mut ok = true;
+            if !state.modes.contains(&x.mode) {
+                ok = false;
+            }
+            if !state.off_map_starts && x.starts_off_map {
+                ok = false;
+            }
+            if !state.off_map_ends && x.ends_off_map {
+                ok = false;
+            }
+            if !state.unmodified_trips && !x.modified {
+                ok = false;
+            }
+            if !state.modified_trips && x.modified {
+                ok = false;
+            }
+            if !state.uncapped_trips && !x.capped {
+                ok = false;
+            }
+            if !state.capped_trips && x.capped {
+                ok = false;
+            }
+            ok
+        }),
     };
-    let mut headers = vec![Line("Trip ID").draw(ctx)];
+
+    let mut table = Table::new(
+        finished,
+        Box::new(|x| x.id.0.to_string()),
+        "Percent waiting",
+        filter,
+    );
+    table.static_col("Trip ID", Box::new(|x| x.id.0.to_string()));
     if app.primary.has_modified_trips {
-        headers.push(Line("Modified").draw(ctx));
+        table.static_col(
+            "Modified",
+            Box::new(|x| {
+                if x.modified {
+                    "Yes".to_string()
+                } else {
+                    "No".to_string()
+                }
+            }),
+        );
     }
     if any_congestion_caps {
-        headers.push(Line("Capped").draw(ctx));
+        table.static_col(
+            "Capped",
+            Box::new(|x| {
+                if x.capped {
+                    "Yes".to_string()
+                } else {
+                    "No".to_string()
+                }
+            }),
+        );
     }
-    headers.extend(vec![
-        Line("Type").draw(ctx),
-        btn(SortBy::Departure, "Departure"),
-        btn(SortBy::Duration, "Duration"),
-    ]);
+    table.column(
+        "Type",
+        Box::new(|ctx, app, x| {
+            Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render_ctx(ctx)
+        }),
+        Col::Static,
+    );
+    table.column(
+        "Departure",
+        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render_ctx(ctx)),
+        Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
+    );
+    table.column(
+        "Duration",
+        Box::new(|ctx, _, x| Text::from(Line(x.duration_after.to_string())).render_ctx(ctx)),
+        Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_after))),
+    );
+
     if app.has_prebaked().is_some() {
-        headers.push(btn(SortBy::RelativeDuration, "Comparison"));
-        headers.push(btn(SortBy::PercentChangeDuration, "Normalized"));
+        table.column(
+            "Comparison",
+            Box::new(|ctx, _, x| {
+                Text::from_all(cmp_duration_shorter(x.duration_after, x.duration_before))
+                    .render_ctx(ctx)
+            }),
+            Col::Sortable(Box::new(|rows| {
+                rows.sort_by_key(|x| x.duration_after - x.duration_before)
+            })),
+        );
+        table.column(
+            "Normalized",
+            Box::new(|ctx, _, x| {
+                Text::from(Line(if x.duration_after == x.duration_before {
+                    format!("same")
+                } else if x.duration_after < x.duration_before {
+                    format!(
+                        "{}% faster",
+                        (100.0 * (1.0 - (x.duration_after / x.duration_before))) as usize
+                    )
+                } else {
+                    format!(
+                        "{}% slower ",
+                        (100.0 * ((x.duration_after / x.duration_before) - 1.0)) as usize
+                    )
+                }))
+                .render_ctx(ctx)
+            }),
+            Col::Sortable(Box::new(|rows| {
+                rows.sort_by_key(|x| (100.0 * (x.duration_after / x.duration_before)) as isize)
+            })),
+        );
     }
-    headers.push(btn(SortBy::Waiting, "Time spent waiting"));
-    headers.push(btn(SortBy::PercentWaiting, "Percent waiting"));
+
+    table.column(
+        "Time spent waiting",
+        Box::new(|ctx, _, x| Text::from(Line(x.waiting.to_string())).render_ctx(ctx)),
+        Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.waiting))),
+    );
+    table.column(
+        "Percent waiting",
+        Box::new(|ctx, _, x| Text::from(Line(x.percent_waiting.to_string())).render_ctx(ctx)),
+        Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.percent_waiting))),
+    );
+
+    table
+}
+
+fn make_panel(ctx: &mut EventCtx, app: &App, table: &Table<FinishedTrip, Filters>) -> Panel {
+    let (finished, unfinished) = app.primary.sim.num_trips();
+    let mut aborted = 0;
+    // TODO Can we avoid iterating through this again?
+    for (_, _, maybe_mode, _) in &app.primary.sim.get_analytics().finished_trips {
+        if maybe_mode.is_none() {
+            aborted += 1;
+        }
+    }
 
     let mut col = vec![DashTab::TripTable.picker(ctx, app)];
-    col.push(checkbox_per_mode(ctx, app, &opts.modes));
-    col.push(Widget::row(vec![
-        Checkbox::switch(ctx, "starting off-map", None, opts.off_map_starts),
-        Checkbox::switch(ctx, "ending off-map", None, opts.off_map_ends),
-        if app.primary.has_modified_trips {
-            Checkbox::switch(
-                ctx,
-                "trips unmodified by experiment",
-                None,
-                opts.unmodified_trips,
-            )
-        } else {
-            Widget::nothing()
-        },
-        if app.primary.has_modified_trips {
-            Checkbox::switch(
-                ctx,
-                "trips modified by experiment",
-                None,
-                opts.modified_trips,
-            )
-        } else {
-            Widget::nothing()
-        },
-        if any_congestion_caps {
-            Checkbox::switch(
-                ctx,
-                "trips not affected by congestion caps",
-                None,
-                opts.uncapped_trips,
-            )
-        } else {
-            Widget::nothing()
-        },
-        if any_congestion_caps {
-            Checkbox::switch(
-                ctx,
-                "trips affected by congestion caps",
-                None,
-                opts.capped_trips,
-            )
-        } else {
-            Widget::nothing()
-        },
-    ]));
-    let (_, unfinished) = app.primary.sim.num_trips();
+
     col.push(Widget::custom_row(vec![
         Text::from(
             Line(format!(
@@ -449,37 +448,8 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
         .draw(ctx),
     ]));
 
-    col.push(Widget::row(vec![
-        if opts.skip > 0 {
-            Btn::text_fg("<").build(ctx, "previous trips", None)
-        } else {
-            Btn::text_fg("<").inactive(ctx)
-        },
-        format!(
-            "{}-{} of {}",
-            if finished > 0 {
-                prettyprint_usize(opts.skip + 1)
-            } else {
-                "0".to_string()
-            },
-            prettyprint_usize((opts.skip + 1 + ROWS).min(finished)),
-            prettyprint_usize(finished)
-        )
-        .draw_text(ctx),
-        if opts.skip + 1 + ROWS < finished {
-            Btn::text_fg(">").build(ctx, "next trips", None)
-        } else {
-            Btn::text_fg(">").inactive(ctx)
-        },
-    ]));
+    col.push(table.render(ctx, app));
 
-    col.push(make_table(
-        ctx,
-        app,
-        headers,
-        rows,
-        0.88 * ctx.canvas.window_width,
-    ));
     col.push(
         Filler::square_width(ctx, 0.15)
             .named("preview")
@@ -489,66 +459,6 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
     Panel::new(Widget::col(col))
         .exact_size_percent(90, 90)
         .build(ctx)
-}
-
-// TODO Figure out a nicer API to construct generic sortable tables.
-pub fn make_table(
-    ctx: &mut EventCtx,
-    app: &App,
-    headers: Vec<Widget>,
-    rows: Vec<(String, Vec<GeomBatch>)>,
-    total_width: f64,
-) -> Widget {
-    let total_width = total_width;
-    let mut width_per_col: Vec<f64> = headers.iter().map(|w| w.get_width_for_forcing()).collect();
-    for (_, row) in &rows {
-        for (col, width) in row.iter().zip(width_per_col.iter_mut()) {
-            *width = width.max(col.get_dims().width);
-        }
-    }
-    let extra_margin = ((total_width - width_per_col.clone().into_iter().sum::<f64>())
-        / (width_per_col.len() - 1) as f64)
-        .max(0.0);
-
-    let mut col = vec![Widget::custom_row(
-        headers
-            .into_iter()
-            .enumerate()
-            .map(|(idx, w)| {
-                let margin = extra_margin + width_per_col[idx] - w.get_width_for_forcing();
-                if idx == width_per_col.len() - 1 {
-                    w.margin_right((margin - extra_margin) as usize)
-                } else {
-                    w.margin_right(margin as usize)
-                }
-            })
-            .collect(),
-    )
-    .bg(app.cs.section_bg)];
-
-    // TODO Maybe can do this now simpler with to_geom
-    for (label, row) in rows {
-        let mut batch = GeomBatch::new();
-        batch.autocrop_dims = false;
-        let mut x1 = 0.0;
-        for (col, width) in row.into_iter().zip(width_per_col.iter()) {
-            batch.append(col.translate(x1, 0.0));
-            x1 += *width + extra_margin;
-        }
-
-        let rect = Polygon::rectangle(total_width, batch.get_dims().height);
-        let mut hovered = GeomBatch::new();
-        hovered.push(app.cs.hovering, rect.clone());
-        hovered.append(batch.clone());
-
-        col.push(
-            Btn::custom(batch, hovered, rect)
-                .tooltip(Text::new())
-                .build(ctx, label, None),
-        );
-    }
-
-    Widget::custom_col(col)
 }
 
 pub fn preview_trip(g: &mut GfxCtx, app: &App, panel: &Panel) {
