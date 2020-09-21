@@ -72,9 +72,9 @@ impl DrawBuilding {
                 };
 
                 let bldg_height_per_level = 3.5;
-                // artifically compress height of tall buildings. Subjectively, this makes
-                // downtown areas a little more pleasant to look at.
-                let bldg_rendered_meters = bldg_height_per_level * bldg.levels;
+                // In downtown areas, really tall buildings look kind of ridculous next to
+                // everything else. So we artifically compress the number of levels a bit.
+                let bldg_rendered_meters = bldg_height_per_level * bldg.levels.powf(0.8);
                 let height = Distance::meters(bldg_rendered_meters);
 
                 let map_bounds = map.get_gps_bounds().to_bounds();
