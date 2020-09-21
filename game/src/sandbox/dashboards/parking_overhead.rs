@@ -15,7 +15,6 @@ const ROWS: usize = 20;
 
 // TODO Mostly dupliclated code with trip_table. Find the right generalization.
 // TODO Compare all of these things before/after
-// TODO Filter out border trips
 
 pub struct ParkingOverhead {
     panel: Panel,

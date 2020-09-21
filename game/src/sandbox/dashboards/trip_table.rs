@@ -291,7 +291,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
     if opts.descending {
         data.reverse();
     }
-    let total_rows = data.len();
+    let finished = data.len();
 
     let any_congestion_caps = app
         .primary
@@ -424,19 +424,30 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
         },
     ]));
     let (_, unfinished) = app.primary.sim.num_trips();
-    col.push(
-        Text::from_multiline(vec![
+    col.push(Widget::custom_row(vec![
+        Text::from(
             Line(format!(
-                "{} trips cancelled or aborted due to simulation glitch",
-                prettyprint_usize(aborted)
-            )),
+                "{} ({:.1}%) Finished Trips",
+                prettyprint_usize(finished),
+                (finished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
+            ))
+            .underlined(),
+        )
+        .draw(ctx)
+        .margin_right(28),
+        Text::from(Line(format!("{} Canceled Trips", prettyprint_usize(aborted))).secondary())
+            .draw(ctx)
+            .margin_right(28),
+        Text::from(
             Line(format!(
-                "{} unfinished trips remaining",
-                prettyprint_usize(unfinished)
-            )),
-        ])
+                "{} ({:.1}%) Unfinished Trips",
+                prettyprint_usize(unfinished),
+                (unfinished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
+            ))
+            .secondary(),
+        )
         .draw(ctx),
-    );
+    ]));
 
     col.push(Widget::row(vec![
         if opts.skip > 0 {
@@ -446,16 +457,16 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Panel {
         },
         format!(
             "{}-{} of {}",
-            if total_rows > 0 {
+            if finished > 0 {
                 prettyprint_usize(opts.skip + 1)
             } else {
                 "0".to_string()
             },
-            prettyprint_usize((opts.skip + 1 + ROWS).min(total_rows)),
-            prettyprint_usize(total_rows)
+            prettyprint_usize((opts.skip + 1 + ROWS).min(finished)),
+            prettyprint_usize(finished)
         )
         .draw_text(ctx),
-        if opts.skip + 1 + ROWS < total_rows {
+        if opts.skip + 1 + ROWS < finished {
             Btn::text_fg(">").build(ctx, "next trips", None)
         } else {
             Btn::text_fg(">").inactive(ctx)
