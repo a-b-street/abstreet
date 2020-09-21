@@ -26,6 +26,7 @@ impl fmt::Display for BuildingID {
 pub struct Building {
     pub id: BuildingID,
     pub polygon: Polygon,
+    pub levels: f64,
     pub address: String,
     pub name: Option<NamePerLanguage>,
     pub orig_id: osm::OsmID,
