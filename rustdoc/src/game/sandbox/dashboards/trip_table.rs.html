@@ -619,6 +619,17 @@
 <span id="619">619</span>
 <span id="620">620</span>
 <span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
@@ -913,7 +924,7 @@
     <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">descending</span> {
         <span class="ident">data</span>.<span class="ident">reverse</span>();
     }
-    <span class="kw">let</span> <span class="ident">total_rows</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">len</span>();
+    <span class="kw">let</span> <span class="ident">finished</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">len</span>();
 
     <span class="kw">let</span> <span class="ident">any_congestion_caps</span> <span class="op">=</span> <span class="ident">app</span>
         .<span class="ident">primary</span>
@@ -1046,19 +1057,30 @@
         },
     ]));
     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">unfinished</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_trips</span>();
-    <span class="ident">col</span>.<span class="ident">push</span>(
-        <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Text</span>::<span class="ident">from</span>(
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;{} trips cancelled or aborted due to simulation glitch&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">aborted</span>)
-            )),
+                <span class="string">&quot;{} ({:.1}%) Finished Trips&quot;</span>,
+                <span class="ident">prettyprint_usize</span>(<span class="ident">finished</span>),
+                (<span class="ident">finished</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">finished</span> <span class="op">+</span> <span class="ident">aborted</span> <span class="op">+</span> <span class="ident">unfinished</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="number">100.0</span>
+            ))
+            .<span class="ident">underlined</span>(),
+        )
+        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+        .<span class="ident">margin_right</span>(<span class="number">28</span>),
+        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} Canceled Trips&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">aborted</span>))).<span class="ident">secondary</span>())
+            .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+            .<span class="ident">margin_right</span>(<span class="number">28</span>),
+        <span class="ident">Text</span>::<span class="ident">from</span>(
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;{} unfinished trips remaining&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">unfinished</span>)
-            )),
-        ])
+                <span class="string">&quot;{} ({:.1}%) Unfinished Trips&quot;</span>,
+                <span class="ident">prettyprint_usize</span>(<span class="ident">unfinished</span>),
+                (<span class="ident">unfinished</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">finished</span> <span class="op">+</span> <span class="ident">aborted</span> <span class="op">+</span> <span class="ident">unfinished</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="number">100.0</span>
+            ))
+            .<span class="ident">secondary</span>(),
+        )
         .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-    );
+    ]));
 
     <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">skip</span> <span class="op">&gt;</span> <span class="number">0</span> {
@@ -1068,16 +1090,16 @@
         },
         <span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;{}-{} of {}&quot;</span>,
-            <span class="kw">if</span> <span class="ident">total_rows</span> <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">finished</span> <span class="op">&gt;</span> <span class="number">0</span> {
                 <span class="ident">prettyprint_usize</span>(<span class="ident">opts</span>.<span class="ident">skip</span> <span class="op">+</span> <span class="number">1</span>)
             } <span class="kw">else</span> {
                 <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>()
             },
-            <span class="ident">prettyprint_usize</span>((<span class="ident">opts</span>.<span class="ident">skip</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">ROWS</span>).<span class="ident">min</span>(<span class="ident">total_rows</span>)),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">total_rows</span>)
+            <span class="ident">prettyprint_usize</span>((<span class="ident">opts</span>.<span class="ident">skip</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">ROWS</span>).<span class="ident">min</span>(<span class="ident">finished</span>)),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">finished</span>)
         )
         .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-        <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">skip</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">ROWS</span> <span class="op">&lt;</span> <span class="ident">total_rows</span> {
+        <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">skip</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">ROWS</span> <span class="op">&lt;</span> <span class="ident">finished</span> {
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&gt;&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;next trips&quot;</span>, <span class="prelude-val">None</span>)
         } <span class="kw">else</span> {
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&gt;&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
