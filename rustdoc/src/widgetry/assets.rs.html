@@ -120,6 +120,8 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">text</span>::<span class="ident">Font</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">text</span>, <span class="ident">GeomBatch</span>};
@@ -127,7 +129,6 @@
 <span class="kw">use</span> <span class="ident">lru</span>::<span class="ident">LruCache</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
 <span class="kw">use</span> <span class="ident">usvg</span>::<span class="ident">fontdb</span>;
 <span class="kw">use</span> <span class="ident">usvg</span>::<span class="ident">Options</span>;
 
@@ -139,7 +140,6 @@
     <span class="comment">// Keyed by filename, then scale factor mangled into a hashable form. Tuple doesn&#39;t work</span>
     <span class="comment">// because of borrowing.</span>
     <span class="ident">svg_cache</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
     <span class="ident">font_to_id</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Font</span>, <span class="ident">fontdb</span>::<span class="ident">ID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">text_opts</span>: <span class="ident">Options</span>,
 }
@@ -151,47 +151,62 @@
             <span class="ident">text_cache</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">LruCache</span>::<span class="ident">new</span>(<span class="number">500</span>)),
             <span class="ident">line_height_cache</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">HashMap</span>::<span class="ident">new</span>()),
             <span class="ident">svg_cache</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">HashMap</span>::<span class="ident">new</span>()),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
             <span class="ident">font_to_id</span>: <span class="ident">HashMap</span>::<span class="ident">new</span>(),
             <span class="ident">text_opts</span>: <span class="ident">Options</span>::<span class="ident">default</span>(),
         };
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
-        {
-            <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span> <span class="op">=</span> <span class="ident">fontdb</span>::<span class="ident">Database</span>::<span class="ident">new</span>();
-            <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_fonts_dir</span>(<span class="ident">font_dir</span>);
-            <span class="kw">for</span> <span class="ident">font</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Font</span>::<span class="ident">BungeeInlineRegular</span>,
-                <span class="ident">Font</span>::<span class="ident">BungeeRegular</span>,
-                <span class="ident">Font</span>::<span class="ident">OverpassBold</span>,
-                <span class="ident">Font</span>::<span class="ident">OverpassRegular</span>,
-                <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span>,
-                <span class="ident">Font</span>::<span class="ident">OverpassMonoBold</span>,
-                <span class="ident">Font</span>::<span class="ident">ZcoolXiaoWei</span>,
-            ] {
-                <span class="ident">a</span>.<span class="ident">font_to_id</span>.<span class="ident">insert</span>(
-                    <span class="ident">font</span>,
-                    <span class="ident">a</span>.<span class="ident">text_opts</span>
-                        .<span class="ident">fontdb</span>
-                        .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">fontdb</span>::<span class="ident">Query</span> {
-                            <span class="ident">families</span>: <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[<span class="ident">fontdb</span>::<span class="ident">Family</span>::<span class="ident">Name</span>(<span class="ident">font</span>.<span class="ident">family</span>())],
-                            <span class="ident">weight</span>: <span class="kw">match</span> <span class="ident">font</span> {
-                                <span class="ident">Font</span>::<span class="ident">OverpassBold</span> <span class="op">|</span> <span class="ident">Font</span>::<span class="ident">OverpassMonoBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fontdb</span>::<span class="ident">Weight</span>::<span class="ident">BOLD</span>,
-                                <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fontdb</span>::<span class="ident">Weight</span>::<span class="ident">SEMIBOLD</span>,
-                                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fontdb</span>::<span class="ident">Weight</span>::<span class="ident">NORMAL</span>,
-                            },
-                            <span class="ident">stretch</span>: <span class="ident">fontdb</span>::<span class="ident">Stretch</span>::<span class="ident">Normal</span>,
-                            <span class="ident">style</span>: <span class="ident">fontdb</span>::<span class="ident">Style</span>::<span class="ident">Normal</span>,
-                        })
-                        .<span class="ident">unwrap</span>(),
-                );
-            }
-            <span class="kw-2">*</span><span class="ident">a</span>.<span class="ident">default_line_height</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span>
-                <span class="ident">a</span>.<span class="ident">line_height</span>(<span class="ident">text</span>::<span class="ident">DEFAULT_FONT</span>, <span class="ident">text</span>::<span class="ident">DEFAULT_FONT_SIZE</span>);
+        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span> <span class="op">=</span> <span class="ident">fontdb</span>::<span class="ident">Database</span>::<span class="ident">new</span>();
+        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(
+            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/BungeeInline-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>(),
+        );
+        <span class="ident">a</span>.<span class="ident">text_opts</span>
+            .<span class="ident">fontdb</span>
+            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/Bungee-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">a</span>.<span class="ident">text_opts</span>
+            .<span class="ident">fontdb</span>
+            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/Overpass-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(
+            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/OverpassMono-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>(),
+        );
+        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(
+            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/Overpass-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>(),
+        );
+        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(
+            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/Overpass-SemiBold.ttf&quot;</span>).<span class="ident">to_vec</span>(),
+        );
+        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(
+            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/ZCOOLXiaoWei-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>(),
+        );
+        <span class="kw">for</span> <span class="ident">font</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Font</span>::<span class="ident">BungeeInlineRegular</span>,
+            <span class="ident">Font</span>::<span class="ident">BungeeRegular</span>,
+            <span class="ident">Font</span>::<span class="ident">OverpassBold</span>,
+            <span class="ident">Font</span>::<span class="ident">OverpassRegular</span>,
+            <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span>,
+            <span class="ident">Font</span>::<span class="ident">OverpassMonoBold</span>,
+            <span class="ident">Font</span>::<span class="ident">ZcoolXiaoWei</span>,
+        ] {
+            <span class="ident">a</span>.<span class="ident">font_to_id</span>.<span class="ident">insert</span>(
+                <span class="ident">font</span>,
+                <span class="ident">a</span>.<span class="ident">text_opts</span>
+                    .<span class="ident">fontdb</span>
+                    .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">fontdb</span>::<span class="ident">Query</span> {
+                        <span class="ident">families</span>: <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[<span class="ident">fontdb</span>::<span class="ident">Family</span>::<span class="ident">Name</span>(<span class="ident">font</span>.<span class="ident">family</span>())],
+                        <span class="ident">weight</span>: <span class="kw">match</span> <span class="ident">font</span> {
+                            <span class="ident">Font</span>::<span class="ident">OverpassBold</span> <span class="op">|</span> <span class="ident">Font</span>::<span class="ident">OverpassMonoBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fontdb</span>::<span class="ident">Weight</span>::<span class="ident">BOLD</span>,
+                            <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fontdb</span>::<span class="ident">Weight</span>::<span class="ident">SEMIBOLD</span>,
+                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fontdb</span>::<span class="ident">Weight</span>::<span class="ident">NORMAL</span>,
+                        },
+                        <span class="ident">stretch</span>: <span class="ident">fontdb</span>::<span class="ident">Stretch</span>::<span class="ident">Normal</span>,
+                        <span class="ident">style</span>: <span class="ident">fontdb</span>::<span class="ident">Style</span>::<span class="ident">Normal</span>,
+                    })
+                    .<span class="ident">unwrap</span>(),
+            );
         }
+        <span class="kw-2">*</span><span class="ident">a</span>.<span class="ident">default_line_height</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span>
+            <span class="ident">a</span>.<span class="ident">line_height</span>(<span class="ident">text</span>::<span class="ident">DEFAULT_FONT</span>, <span class="ident">text</span>::<span class="ident">DEFAULT_FONT_SIZE</span>);
         <span class="ident">a</span>
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">line_height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">font</span>: <span class="ident">Font</span>, <span class="ident">font_size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> (<span class="ident">font</span>, <span class="ident">font_size</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">height</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">line_height_cache</span>.<span class="ident">borrow</span>().<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>) {
@@ -215,17 +230,6 @@
 
         <span class="self">self</span>.<span class="ident">line_height_cache</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert</span>(<span class="ident">key</span>, <span class="ident">height</span>);
         <span class="ident">height</span>
-    }
-
-    <span class="comment">// TODO No text in wasm yet</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">line_height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">font</span>: <span class="ident">Font</span>, <span class="ident">font_size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> (<span class="ident">font</span>, <span class="ident">font_size</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">height</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">line_height_cache</span>.<span class="ident">borrow</span>().<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>) {
-            <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">height</span>;
-        }
-
-        <span class="ident">text</span>::<span class="ident">SCALE_LINE_HEIGHT</span> <span class="op">*</span> <span class="number">30.0</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cached_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span> {
