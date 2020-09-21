@@ -24,12 +24,14 @@ For now, the API is JSON over HTTP. The exact format is unspecified, error codes
 are missing, etc. A summary of the commands available so far:
 
 - **/sim**
-  - **GET /sim/reset**: Reset all map edits and the simulation state. The trips
-    that will run don't change; they're determined by the scenario file you
-    initially pass to `headless`.
+  - **GET /sim/reset**: Reset all temporary map edits and the simulation state.
+    The trips that will run don't change; they're determined by the scenario
+    file you initially pass to `headless`. If you made live map edits using
+    things like `/traffic-signals/set`, they'll be reset. If you specified
+    `--edits` or used `/map/set-edits`, these will remain in effect.
   - **POST /sim/load**: Switch the scenario being simulated. Takes a
     [SimFlags](https://dabreegster.github.io/abstreet/rustdoc/sim/struct.SimFlags.html)
-    as a JSON POST body.
+    as a JSON POST body. Resets all map edits.
   - **GET /sim/get-time**: Returns the current simulation time.
   - **GET /sim/goto-time?t=06:30:00**: Simulate until 6:30 AM. If the time you
     specify is before the current time, you have to call **/sim/reset** first.
@@ -61,6 +63,10 @@ are missing, etc. A summary of the commands available so far:
     this to a file in `data/player/edits/map_name/` and later use it in-game
     normally. You can also later run the `headless` server with
     `--edits=name_of_edits`.
+  - **POST /map/set-edits**: The POST body must be
+    [PermanentMapEdits](https://dabreegster.github.io/abstreet/rustdoc/map_model/struct.PermanentMapEdits.html)
+    in JSON format. This is the same as the files in `data/player/edits/`. The
+    edits will remain as you call `/sim/reset`, but get reset with `/sim/load`.
 
 ## Working with the map model
 

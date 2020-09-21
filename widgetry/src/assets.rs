@@ -20,7 +20,7 @@ pub struct Assets {
 }
 
 impl Assets {
-    pub fn new(font_dir: String) -> Assets {
+    pub fn new() -> Assets {
         let mut a = Assets {
             default_line_height: RefCell::new(0.0),
             text_cache: RefCell::new(LruCache::new(500)),
@@ -29,6 +29,9 @@ impl Assets {
             font_to_id: HashMap::new(),
             text_opts: Options::default(),
         };
+        // TODO These paths are now hardcoded for WASM. This is reasonable, since the fonts
+        // available are currently fixed anyway. For widgetry to become a library, need to figure
+        // out how to override these.
         a.text_opts.fontdb = fontdb::Database::new();
         a.text_opts.fontdb.load_font_data(
             include_bytes!("../../data/system/fonts/BungeeInline-Regular.ttf").to_vec(),

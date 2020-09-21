@@ -1,5 +1,5 @@
-// This runs a simulation without any graphics and serves a very basic API to control things. The
-// API is not documented yet. To run this:
+// This runs a simulation without any graphics and serves a very basic API to control things. See
+// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:
 //
 // > cd headless; cargo run -- --port=1234 ../data/system/scenarios/montlake/weekday.bin
 // > curl http://localhost:1234/get-time
@@ -30,18 +30,24 @@ lazy_static::lazy_static! {
     static ref MAP: RwLock<Map> = RwLock::new(Map::blank());
     static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp"), &mut Timer::throwaway()));
     static ref FLAGS: RwLock<SimFlags> = RwLock::new(SimFlags::for_test("tmp"));
-    static ref EDITS: RwLock<Option<String>> = RwLock::new(None);
+    static ref EDITS: RwLock<Option<MapEdits>> = RwLock::new(None);
 }
 
 #[tokio::main]
 async fn main() {
     let mut args = CmdArgs::new();
+    let mut timer = Timer::new("setup headless");
     let sim_flags = SimFlags::from_args(&mut args);
     let port = args.required("--port").parse::<u16>().unwrap();
-    *EDITS.write().unwrap() = args.optional("--edits");
+    let load_edits = args.optional("--edits");
     args.done();
 
-    let (mut map, sim, _) = sim_flags.load(&mut Timer::new("setup headless"));
+    let (mut map, sim, _) = sim_flags.load(&mut timer);
+    if let Some(path) = load_edits {
+        let edits = MapEdits::load(&map, path, &mut timer).unwrap();
+        *EDITS.write().unwrap() = Some(edits);
+    }
+
     apply_edits(&mut map);
     *MAP.write().unwrap() = map;
     *SIM.write().unwrap() = sim;
@@ -243,7 +249,7 @@ fn handle_command(
                 })
                 .collect(),
         })),
-        // Querying the map
+        // Controlling the map
         "/map/get-edits" => {
             let mut edits = map.get_edits().clone();
             edits.commands.clear();
@@ -252,16 +258,21 @@ fn handle_command(
                 &edits, map,
             )))
         }
+        "/map/set-edits" => {
+            let perma: PermanentMapEdits = abstutil::from_json(body)?;
+            let edits = PermanentMapEdits::from_permanent(perma, map)?;
+            *EDITS.write().unwrap() = Some(edits);
+            apply_edits(map);
+            Ok(format!("loaded edits"))
+        }
         _ => Err("Unknown command".into()),
     }
 }
 
 fn apply_edits(map: &mut Map) {
-    if let Some(name) = EDITS.read().unwrap().as_ref() {
-        let mut timer = Timer::new(format!("apply edits {}", name));
-        let edits =
-            MapEdits::load(map, abstutil::path_edits(map.get_name(), name), &mut timer).unwrap();
-        map.must_apply_edits(edits, &mut timer);
+    if let Some(edits) = EDITS.read().unwrap().as_ref() {
+        let mut timer = Timer::new(format!("apply edits {}", edits.edits_name));
+        map.must_apply_edits(edits.clone(), &mut timer);
     }
 }
 

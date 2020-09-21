@@ -216,7 +216,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
 
     let monitor_scale_factor = prerender_innards.monitor_scale_factor();
     let prerender = Prerender {
-        assets: Assets::new(abstutil::path("system/fonts")),
+        assets: Assets::new(),
         num_uploads: Cell::new(0),
         inner: prerender_innards,
         scale_factor: RefCell::new(settings.scale_factor.unwrap_or(monitor_scale_factor)),
