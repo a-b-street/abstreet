@@ -60,7 +60,8 @@ pub fn make_all_buildings(
 
             let mut rng = XorShiftRng::seed_from_u64(orig_id.inner() as u64);
             // TODO is it worth using height or building:height as an alternative if not tagged?
-            let levels = b.osm_tags
+            let levels = b
+                .osm_tags
                 .get("building:levels")
                 .and_then(|x| x.parse::<f64>().ok())
                 .unwrap_or(1.0);
@@ -74,7 +75,13 @@ pub fn make_all_buildings(
                 orig_id,
                 label_center: b.polygon.polylabel(),
                 amenities: b.amenities.clone(),
-                bldg_type: classify_bldg(&b.osm_tags, &b.amenities, levels, b.polygon.area(), &mut rng),
+                bldg_type: classify_bldg(
+                    &b.osm_tags,
+                    &b.amenities,
+                    levels,
+                    b.polygon.area(),
+                    &mut rng,
+                ),
                 parking: if let Some(n) = b.public_garage_name.clone() {
                     OffstreetParking::PublicGarage(n, b.num_parking_spots)
                 } else {
