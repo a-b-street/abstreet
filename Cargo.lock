@@ -856,12 +856,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "fontdb"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+version = "0.2.0"
+source = "git+https://github.com/dabreegster/fontdb?branch=wasm#04c8ffc9f0c2676202ff9562a2f52415d74b8d68"
 dependencies = [
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "memmap2 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "ttf-parser 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ttf-parser 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1132,6 +1132,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "cfg-if 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.68 (registry+https://github.com/rust-lang/crates.io-index)",
+ "stdweb 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "wasi 0.9.0+wasi-snapshot-preview1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -3271,6 +3272,11 @@ version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "ttf-parser"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "typenum"
 version = "1.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3371,12 +3377,12 @@ dependencies = [
 [[package]]
 name = "usvg"
 version = "0.11.0"
-source = "git+https://github.com/RazrFalcon/resvg#6e54e0c250fdd1c5f0b2e4ea5aefa7da70cc700d"
+source = "git+https://github.com/dabreegster/resvg/?branch=wasm#97ff3956fe7404333a72c2951a844d457510a4f0"
 dependencies = [
  "base64 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "data-url 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "flate2 1.0.14 (registry+https://github.com/rust-lang/crates.io-index)",
- "fontdb 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "fontdb 0.2.0 (git+https://github.com/dabreegster/fontdb?branch=wasm)",
  "kurbo 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "memmap2 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3662,7 +3668,7 @@ dependencies = [
  "stretch 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "svg_face 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ttf-parser 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "usvg 0.11.0 (git+https://github.com/RazrFalcon/resvg)",
+ "usvg 0.11.0 (git+https://github.com/dabreegster/resvg/?branch=wasm)",
  "webgl_stdweb 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "winit 0.22.2 (git+https://github.com/rust-windowing/winit)",
 ]
@@ -3906,7 +3912,7 @@ dependencies = [
 "checksum float-cmp 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "75224bec9bfe1a65e2d34132933f2de7fe79900c96a0174307554244ece8150e"
 "checksum float_next_after 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)" = "4fc612c5837986b7104a87a0df74a5460931f1c5274be12f8d0f40aa2f30d632"
 "checksum fnv 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)" = "2fad85553e09a6f881f739c29f0b00b0f01357c743266d478b68951ce23285f3"
-"checksum fontdb 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "afa64e442fe4adbae6edd55ab3ebe905a858208db2aa12ab204e261890b69fd5"
+"checksum fontdb 0.2.0 (git+https://github.com/dabreegster/fontdb?branch=wasm)" = "<none>"
 "checksum foreign-types 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "f6f339eb8adc052cd2ca78910fda869aefa38d22d5cb648e6485e4d3fc06f3b1"
 "checksum foreign-types-shared 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
 "checksum fuchsia-cprng 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "a06f77d526c1a601b7c4cdd98f54b5eaabffc14d5f2f0296febdc7f357c6d3ba"
@@ -4168,6 +4174,7 @@ dependencies = [
 "checksum tracing-core 0.1.13 (registry+https://github.com/rust-lang/crates.io-index)" = "d593f98af59ebc017c0648f0117525db358745a8894a8d684e185ba3f45954f9"
 "checksum try-lock 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e604eb7b43c06650e854be16a2a03155743d3752dd1c943f6829e26b7a36e382"
 "checksum ttf-parser 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "3e5d7cd7ab3e47dda6e56542f4bbf3824c15234958c6e1bd6aaa347e93499fdc"
+"checksum ttf-parser 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = "d973cfa0e6124166b50a1105a67c85de40bbc625082f35c0f56f84cb1fb0a827"
 "checksum typenum 1.11.2 (registry+https://github.com/rust-lang/crates.io-index)" = "6d2783fe2d6b8c1101136184eb41be8b1ad379e4657050b8aaff0c79ee7575f9"
 "checksum unicase 2.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "50f37be617794602aabbeee0be4f259dc1778fabe05e2d67ee8f79326d5cb4f6"
 "checksum unicode-bidi 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)" = "49f2bd0c6468a8230e1db229cff8029217cf623c767ea5d60bfbd42729ea54d5"
@@ -4182,7 +4189,7 @@ dependencies = [
 "checksum unreachable 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "1f2ae5ddb18e1c92664717616dd9549dde73f539f01bd7b77c2edb2446bdff91"
 "checksum untrusted 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)" = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
 "checksum url 2.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "829d4a8476c35c9bf0bbce5a3b23f4106f79728039b726d292bb93bc106787cb"
-"checksum usvg 0.11.0 (git+https://github.com/RazrFalcon/resvg)" = "<none>"
+"checksum usvg 0.11.0 (git+https://github.com/dabreegster/resvg/?branch=wasm)" = "<none>"
 "checksum utf-8 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a9aee9ba280438b56d1ebc5329f2094f0ff457f811eeeff0b278d75aa99db400"
 "checksum uuid 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "9fde2f6a4bea1d6e007c4ad38c6839fa71cbb63b6dbf5b595aa38dc9b1093c11"
 "checksum vec_map 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "05c78687fb1a80548ae3250346c3db86a80a7cdd77bda190189f2d0a0987c81a"

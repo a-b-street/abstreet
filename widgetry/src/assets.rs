@@ -4,7 +4,6 @@ use geom::Bounds;
 use lru::LruCache;
 use std::cell::RefCell;
 use std::collections::HashMap;
-#[cfg(not(feature = "wasm-backend"))]
 use usvg::fontdb;
 use usvg::Options;
 
@@ -16,7 +15,6 @@ pub struct Assets {
     // Keyed by filename, then scale factor mangled into a hashable form. Tuple doesn't work
     // because of borrowing.
     svg_cache: RefCell<HashMap<String, (GeomBatch, Bounds)>>,
-    #[cfg(not(feature = "wasm-backend"))]
     font_to_id: HashMap<Font, fontdb::ID>,
     pub text_opts: Options,
 }
@@ -28,47 +26,62 @@ impl Assets {
             text_cache: RefCell::new(LruCache::new(500)),
             line_height_cache: RefCell::new(HashMap::new()),
             svg_cache: RefCell::new(HashMap::new()),
-            #[cfg(not(feature = "wasm-backend"))]
             font_to_id: HashMap::new(),
             text_opts: Options::default(),
         };
-        #[cfg(not(feature = "wasm-backend"))]
-        {
-            a.text_opts.fontdb = fontdb::Database::new();
-            a.text_opts.fontdb.load_fonts_dir(font_dir);
-            for font in vec![
-                Font::BungeeInlineRegular,
-                Font::BungeeRegular,
-                Font::OverpassBold,
-                Font::OverpassRegular,
-                Font::OverpassSemiBold,
-                Font::OverpassMonoBold,
-                Font::ZcoolXiaoWei,
-            ] {
-                a.font_to_id.insert(
-                    font,
-                    a.text_opts
-                        .fontdb
-                        .query(&fontdb::Query {
-                            families: &vec![fontdb::Family::Name(font.family())],
-                            weight: match font {
-                                Font::OverpassBold | Font::OverpassMonoBold => fontdb::Weight::BOLD,
-                                Font::OverpassSemiBold => fontdb::Weight::SEMIBOLD,
-                                _ => fontdb::Weight::NORMAL,
-                            },
-                            stretch: fontdb::Stretch::Normal,
-                            style: fontdb::Style::Normal,
-                        })
-                        .unwrap(),
-                );
-            }
-            *a.default_line_height.borrow_mut() =
-                a.line_height(text::DEFAULT_FONT, text::DEFAULT_FONT_SIZE);
+        a.text_opts.fontdb = fontdb::Database::new();
+        a.text_opts.fontdb.load_font_data(
+            include_bytes!("../../data/system/fonts/BungeeInline-Regular.ttf").to_vec(),
+        );
+        a.text_opts
+            .fontdb
+            .load_font_data(include_bytes!("../../data/system/fonts/Bungee-Regular.ttf").to_vec());
+        a.text_opts
+            .fontdb
+            .load_font_data(include_bytes!("../../data/system/fonts/Overpass-Bold.ttf").to_vec());
+        a.text_opts.fontdb.load_font_data(
+            include_bytes!("../../data/system/fonts/OverpassMono-Bold.ttf").to_vec(),
+        );
+        a.text_opts.fontdb.load_font_data(
+            include_bytes!("../../data/system/fonts/Overpass-Regular.ttf").to_vec(),
+        );
+        a.text_opts.fontdb.load_font_data(
+            include_bytes!("../../data/system/fonts/Overpass-SemiBold.ttf").to_vec(),
+        );
+        a.text_opts.fontdb.load_font_data(
+            include_bytes!("../../data/system/fonts/ZCOOLXiaoWei-Regular.ttf").to_vec(),
+        );
+        for font in vec![
+            Font::BungeeInlineRegular,
+            Font::BungeeRegular,
+            Font::OverpassBold,
+            Font::OverpassRegular,
+            Font::OverpassSemiBold,
+            Font::OverpassMonoBold,
+            Font::ZcoolXiaoWei,
+        ] {
+            a.font_to_id.insert(
+                font,
+                a.text_opts
+                    .fontdb
+                    .query(&fontdb::Query {
+                        families: &vec![fontdb::Family::Name(font.family())],
+                        weight: match font {
+                            Font::OverpassBold | Font::OverpassMonoBold => fontdb::Weight::BOLD,
+                            Font::OverpassSemiBold => fontdb::Weight::SEMIBOLD,
+                            _ => fontdb::Weight::NORMAL,
+                        },
+                        stretch: fontdb::Stretch::Normal,
+                        style: fontdb::Style::Normal,
+                    })
+                    .unwrap(),
+            );
         }
+        *a.default_line_height.borrow_mut() =
+            a.line_height(text::DEFAULT_FONT, text::DEFAULT_FONT_SIZE);
         a
     }
 
-    #[cfg(not(target_arch = "wasm32"))]
     pub fn line_height(&self, font: Font, font_size: usize) -> f64 {
         let key = (font, font_size);
         if let Some(height) = self.line_height_cache.borrow().get(&key) {
@@ -92,17 +105,6 @@ impl Assets {
 
         self.line_height_cache.borrow_mut().insert(key, height);
         height
-    }
-
-    // TODO No text in wasm yet
-    #[cfg(target_arch = "wasm32")]
-    pub fn line_height(&self, font: Font, font_size: usize) -> f64 {
-        let key = (font, font_size);
-        if let Some(height) = self.line_height_cache.borrow().get(&key) {
-            return *height;
-        }
-
-        text::SCALE_LINE_HEIGHT * 30.0
     }
 
     pub fn get_cached_text(&self, key: &String) -> Option<GeomBatch> {
