@@ -181,7 +181,6 @@
 <span id="181">181</span>
 <span id="182">182</span>
 <span id="183">183</span>
-<span id="184">184</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Btn</span>, <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
@@ -331,8 +330,7 @@
                 <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
                 <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="ident">m</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">pad</span>, <span class="ident">m</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">pad</span>),
                 <span class="number">1.0</span>,
-                <span class="comment">// Between SCREENSPACE_Z and TOOLTIP_Z</span>
-                <span class="prelude-val">Some</span>(<span class="number">0.1</span>),
+                <span class="prelude-val">Some</span>(<span class="kw">crate</span>::<span class="ident">drawing</span>::<span class="ident">MENU_Z</span>),
             );
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_bg</span>);
             <span class="ident">g</span>.<span class="ident">unfork</span>();

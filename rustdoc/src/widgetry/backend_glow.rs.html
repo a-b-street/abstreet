@@ -350,6 +350,7 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
+<span id="353">353</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">drawing</span>::<span class="ident">Uniforms</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">GeomBatch</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenRectangle</span>};
@@ -566,10 +567,10 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">actually_upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">permanent</span>: <span class="ident">bool</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vertices</span>: <span class="ident">Vec</span><span class="op">&lt;</span>[<span class="ident">f32</span>; <span class="number">7</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vertices</span>: <span class="ident">Vec</span><span class="op">&lt;</span>[<span class="ident">f32</span>; <span class="number">8</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
-        <span class="kw">for</span> (<span class="ident">color</span>, <span class="ident">poly</span>) <span class="kw">in</span> <span class="ident">batch</span>.<span class="ident">consume</span>() {
+        <span class="kw">for</span> (<span class="ident">color</span>, <span class="ident">poly</span>, <span class="ident">z</span>) <span class="kw">in</span> <span class="ident">batch</span>.<span class="ident">consume</span>() {
             <span class="kw">let</span> <span class="ident">idx_offset</span> <span class="op">=</span> <span class="ident">vertices</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>;
             <span class="kw">let</span> (<span class="ident">pts</span>, <span class="ident">raw_indices</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">raw_for_rendering</span>();
             <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
@@ -577,6 +578,7 @@
                 <span class="ident">vertices</span>.<span class="ident">push</span>([
                     <span class="ident">pt</span>.<span class="ident">x</span>() <span class="kw">as</span> <span class="ident">f32</span>,
                     <span class="ident">pt</span>.<span class="ident">y</span>() <span class="kw">as</span> <span class="ident">f32</span>,
+                    <span class="ident">z</span> <span class="kw">as</span> <span class="ident">f32</span>,
                     <span class="ident">style</span>[<span class="number">0</span>],
                     <span class="ident">style</span>[<span class="number">1</span>],
                     <span class="ident">style</span>[<span class="number">2</span>],
@@ -614,7 +616,7 @@
             );
 
             <span class="kw">let</span> <span class="ident">vertex_attributes</span>: [<span class="ident">i32</span>; <span class="number">3</span>] <span class="op">=</span> [
-                <span class="number">2</span>, <span class="comment">// position is vec2</span>
+                <span class="number">3</span>, <span class="comment">// position is vec2</span>
                 <span class="number">4</span>, <span class="comment">// color is vec4</span>
                 <span class="number">1</span>, <span class="comment">// texture_id is float</span>
             ];

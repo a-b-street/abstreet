@@ -268,6 +268,11 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">assets</span>::<span class="ident">Assets</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend</span>::{<span class="ident">GfxCtxInnards</span>, <span class="ident">PrerenderInnards</span>};
@@ -277,10 +282,15 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::{<span class="ident">Cell</span>, <span class="ident">RefCell</span>};
 
-<span class="comment">// Lower is more on top</span>
-<span class="kw">const</span> <span class="ident">MAPSPACE_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">1.0</span>;
-<span class="kw">const</span> <span class="ident">SCREENSPACE_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">0.5</span>;
-<span class="kw">const</span> <span class="ident">TOOLTIP_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">0.0</span>;
+<span class="comment">// We organize major layers of the app with whole number z values, with lower values being more on</span>
+<span class="comment">// top.</span>
+<span class="comment">//</span>
+<span class="comment">// Within each layer, we must only adjust the z-offset of individual polygons within (-1, 0] to</span>
+<span class="comment">// avoid traversing layers.</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">MAPSPACE_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">1.0</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">SCREENSPACE_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">0.0</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">MENU_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="op">-</span><span class="number">1.0</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">TOOLTIP_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="op">-</span><span class="number">2.0</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Uniforms</span> {
