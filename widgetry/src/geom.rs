@@ -7,6 +7,8 @@ use geom::{Angle, Bounds, Polygon, Pt2D};
 /// A mutable builder for a group of colored polygons.
 #[derive(Clone)]
 pub struct GeomBatch {
+    // f64 is the z-value offset. This must be in (-1, 0], with values closer to -1.0
+    // rendering above values closer to 0.0.
     pub(crate) list: Vec<(Fill, Polygon, f64)>,
     pub autocrop_dims: bool,
 }
@@ -25,8 +27,13 @@ impl GeomBatch {
         self.push_with_z(fill, p, 0.0);
     }
 
-    pub fn push_with_z<F: Into<Fill>>(&mut self, fill: F, p: Polygon, z: f64) {
-        self.list.push((fill.into(), p, z));
+    /// Offset z value to render above/below other polygons.
+    /// z must be in (-1, 0] to ensure we don't traverse layers of the UI - to make
+    /// sure we don't inadvertently render something *above* a tooltip, etc.
+    pub fn push_with_z<F: Into<Fill>>(&mut self, fill: F, p: Polygon, z_offset: f64) {
+        debug_assert!(z_offset > -1.0);
+        debug_assert!(z_offset <= 0.0);
+        self.list.push((fill.into(), p, z_offset));
     }
 
     /// Applies one Fill to many polygons.

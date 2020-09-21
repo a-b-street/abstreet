@@ -6,7 +6,11 @@ use crate::{
 use geom::{Bounds, Polygon, Pt2D};
 use std::cell::{Cell, RefCell};
 
-// Lower is more on top
+// We organize major layers of the app with whole number z values, with lower values being more on
+// top.
+//
+// Within each layer, we must only adjust the z-offset of individual polygons within (-1, 0] to
+// avoid traversing layers.
 pub(crate) const MAPSPACE_Z: f32 = 1.0;
 pub(crate) const SCREENSPACE_Z: f32 = 0.0;
 pub(crate) const MENU_Z: f32 = -1.0;
