@@ -206,6 +206,7 @@ impl State for JumpToDelay {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
+                app.opts.dont_draw_time_warp = self.panel.is_checked("don't draw");
                 self.panel.replace(
                     ctx,
                     "jump to delay",
