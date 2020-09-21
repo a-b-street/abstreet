@@ -32,7 +32,7 @@ impl JumpToTime {
                     .align_right(),
                 Widget::custom_row(vec![
                     Btn::text_bg2("Jump to time").inactive(ctx),
-                    Btn::text_bg2("Jump to delay").build_def(ctx, None),
+                    Btn::text_bg2("Jump to delay").build_def(ctx, Key::D),
                 ])
                 .bg(Color::WHITE),
                 Line("Jump to what time?").small_heading().draw(ctx),
@@ -148,7 +148,7 @@ impl JumpToDelay {
                     .build(ctx, "close", Key::Escape)
                     .align_right(),
                 Widget::custom_row(vec![
-                    Btn::text_bg2("Jump to time").build_def(ctx, None),
+                    Btn::text_bg2("Jump to time").build_def(ctx, Key::T),
                     Btn::text_bg2("Jump to delay").inactive(ctx),
                 ])
                 .bg(Color::WHITE),
@@ -206,6 +206,7 @@ impl State for JumpToDelay {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
+                app.opts.dont_draw_time_warp = self.panel.is_checked("don't draw");
                 self.panel.replace(
                     ctx,
                     "jump to delay",
@@ -456,7 +457,7 @@ fn build_jump_to_time_btn(ctx: &EventCtx, target: Time) -> Widget {
 
 fn build_jump_to_delay_button(ctx: &EventCtx, delay: Duration) -> Widget {
     Btn::text_bg2(format!("Jump to next {} delay", delay))
-        .build(ctx, "jump to delay", Key::D)
+        .build(ctx, "jump to delay", Key::Enter)
         .centered_horiz()
         .margin_above(16)
 }
