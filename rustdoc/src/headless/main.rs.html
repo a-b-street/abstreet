@@ -299,9 +299,20 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. The</span>
-<span class="comment">// API is not documented yet. To run this:</span>
+<span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
+<span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
 <span class="comment">//</span>
 <span class="comment">// &gt; cd headless; cargo run -- --port=1234 ../data/system/scenarios/montlake/weekday.bin</span>
 <span class="comment">// &gt; curl http://localhost:1234/get-time</span>
@@ -332,18 +343,24 @@
     <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">MAP</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="ident">Map</span>::<span class="ident">blank</span>());
     <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">SIM</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">Sim</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="ident">Sim</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">Map</span>::<span class="ident">blank</span>(), <span class="ident">SimOptions</span>::<span class="ident">new</span>(<span class="string">&quot;tmp&quot;</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>()));
     <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">FLAGS</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">SimFlags</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="ident">SimFlags</span>::<span class="ident">for_test</span>(<span class="string">&quot;tmp&quot;</span>));
-    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">EDITS</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>);
+    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">EDITS</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MapEdits</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>);
 }
 
 <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;setup headless&quot;</span>);
     <span class="kw">let</span> <span class="ident">sim_flags</span> <span class="op">=</span> <span class="ident">SimFlags</span>::<span class="ident">from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>);
     <span class="kw">let</span> <span class="ident">port</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--port&quot;</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-    <span class="kw-2">*</span><span class="ident">EDITS</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--edits&quot;</span>);
+    <span class="kw">let</span> <span class="ident">load_edits</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--edits&quot;</span>);
     <span class="ident">args</span>.<span class="ident">done</span>();
 
-    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">map</span>, <span class="ident">sim</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">sim_flags</span>.<span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;setup headless&quot;</span>));
+    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">map</span>, <span class="ident">sim</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">sim_flags</span>.<span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">load_edits</span> {
+        <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">MapEdits</span>::<span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>).<span class="ident">unwrap</span>();
+        <span class="kw-2">*</span><span class="ident">EDITS</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>);
+    }
+
     <span class="ident">apply_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>);
     <span class="kw-2">*</span><span class="ident">MAP</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">map</span>;
     <span class="kw-2">*</span><span class="ident">SIM</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">sim</span>;
@@ -545,7 +562,7 @@
                 })
                 .<span class="ident">collect</span>(),
         })),
-        <span class="comment">// Querying the map</span>
+        <span class="comment">// Controlling the map</span>
         <span class="string">&quot;/map/get-edits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
             <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">clear</span>();
@@ -554,16 +571,21 @@
                 <span class="kw-2">&amp;</span><span class="ident">edits</span>, <span class="ident">map</span>,
             )))
         }
+        <span class="string">&quot;/map/set-edits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">perma</span>: <span class="ident">PermanentMapEdits</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">from_json</span>(<span class="ident">body</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">PermanentMapEdits</span>::<span class="ident">from_permanent</span>(<span class="ident">perma</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
+            <span class="kw-2">*</span><span class="ident">EDITS</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>);
+            <span class="ident">apply_edits</span>(<span class="ident">map</span>);
+            <span class="prelude-val">Ok</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;loaded edits&quot;</span>))
+        }
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Unknown command&quot;</span>.<span class="ident">into</span>()),
     }
 }
 
 <span class="kw">fn</span> <span class="ident">apply_edits</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="ident">EDITS</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>().<span class="ident">as_ref</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;apply edits {}&quot;</span>, <span class="ident">name</span>));
-        <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span>
-            <span class="ident">MapEdits</span>::<span class="ident">load</span>(<span class="ident">map</span>, <span class="ident">abstutil</span>::<span class="ident">path_edits</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">name</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>).<span class="ident">unwrap</span>();
-        <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>) <span class="op">=</span> <span class="ident">EDITS</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>().<span class="ident">as_ref</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;apply edits {}&quot;</span>, <span class="ident">edits</span>.<span class="ident">edits_name</span>));
+        <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
     }
 }
 

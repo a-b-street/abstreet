@@ -122,6 +122,9 @@
 <span id="122">122</span>
 <span id="123">123</span>
 <span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">text</span>::<span class="ident">Font</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">text</span>, <span class="ident">GeomBatch</span>};
@@ -145,7 +148,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Assets</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">font_dir</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Assets</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Assets</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">Assets</span> {
             <span class="ident">default_line_height</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="number">0.0</span>),
             <span class="ident">text_cache</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">LruCache</span>::<span class="ident">new</span>(<span class="number">500</span>)),
@@ -154,6 +157,9 @@
             <span class="ident">font_to_id</span>: <span class="ident">HashMap</span>::<span class="ident">new</span>(),
             <span class="ident">text_opts</span>: <span class="ident">Options</span>::<span class="ident">default</span>(),
         };
+        <span class="comment">// TODO These paths are now hardcoded for WASM. This is reasonable, since the fonts</span>
+        <span class="comment">// available are currently fixed anyway. For widgetry to become a library, need to figure</span>
+        <span class="comment">// out how to override these.</span>
         <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span> <span class="op">=</span> <span class="ident">fontdb</span>::<span class="ident">Database</span>::<span class="ident">new</span>();
         <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(
             <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/BungeeInline-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>(),
