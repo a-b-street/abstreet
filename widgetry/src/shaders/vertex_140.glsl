@@ -7,7 +7,7 @@ uniform vec3 window;
 // textures grid
 uniform sampler2DArray textures;
 
-layout (location = 0) in vec2 position;
+layout (location = 0) in vec3 position;
 layout (location = 1) in vec4 color;
 layout (location = 2) in float texture_index;
 
@@ -25,9 +25,10 @@ void main() {
     // Translate that to normalized device coordinates (NDC)
     float x = (screen_x / window[0] * 2.0) - 1.0;
     float y = (screen_y / window[1] * 2.0) - 1.0;
+    float z = position[2] + window[2];
 
     // Note the y inversion
-    gl_Position = vec4(x, -y, window[2], 1.0);
+    gl_Position = vec4(x, -y, z, 1.0);
 
     // An arbitrary factor to scale the textures we're using.
     //

@@ -74,8 +74,57 @@ impl DrawBuilding {
                 };
 
                 // TODO For now, blindly guess the building height
+                let max_height = 15.0;
                 let mut rng = XorShiftRng::seed_from_u64(bldg.id.0 as u64);
-                let height = Distance::meters(rng.gen_range(1.0, 15.0));
+                let height = Distance::meters(rng.gen_range(1.0, max_height));
+
+                let map_bounds = map.get_gps_bounds().to_bounds();
+                let (map_width, map_height) = (map_bounds.width(), map_bounds.height());
+                let map_length = map_width.hypot(map_height);
+
+                let distance = |pt: &Pt2D| {
+                    // some normalization so we can compute the distance to the corner of the
+                    // screen from which the orthographic projection is based.
+                    let projection_origin = match x {
+                        CameraAngle::IsometricNE => Pt2D::new(0.0, map_height),
+                        CameraAngle::IsometricNW => Pt2D::new(map_width, map_height),
+                        CameraAngle::IsometricSE => Pt2D::new(0.0, 0.0),
+                        CameraAngle::IsometricSW => Pt2D::new(map_width, 0.0),
+                        CameraAngle::TopDown => unreachable!(),
+                    };
+
+                    let abs_pt = Pt2D::new(
+                        (pt.x() - projection_origin.x()).abs(),
+                        (pt.y() - projection_origin.y()).abs(),
+                    );
+
+                    let a = f64::hypot(abs_pt.x(), abs_pt.y());
+                    let theta = f64::atan(abs_pt.y() / abs_pt.x());
+                    let distance = a * f64::sin(theta + std::f64::consts::PI / 4.0);
+                    Distance::meters(distance)
+                };
+
+                // Things closer to the isometric axis should appear in front of things farther
+                // away, so we give them a higher z-index.
+                //
+                // Naively, we compute the entire building's distance as the distance from it's
+                // closest point. This is simple and usually works, but will likely fail on more
+                // complex building arrangements, e.g. if a building were tightly encircled by a
+                // large building.
+                let closest_pt = bldg
+                    .polygon
+                    .points()
+                    .into_iter()
+                    .min_by(|a, b| distance(a).cmp(&distance(b)));
+
+                let distance_from_projection_axis = closest_pt
+                    .map(|pt| distance(pt).inner_meters())
+                    .unwrap_or(0.0);
+
+                // smaller z renders above larger
+                let scale_factor = map_length + max_height;
+                let groundfloor_z = (distance_from_projection_axis) / scale_factor - 1.0;
+                let roof_z = groundfloor_z - height.inner_meters() / scale_factor;
 
                 // TODO Some buildings have holes in them
                 if let Ok(roof) = Ring::new(
@@ -89,13 +138,19 @@ impl DrawBuilding {
                         bldg_batch.push(Color::BLACK, p);
                     }
 
+                    // In actuality, the z of the walls should start at groundfloor_z and end at
+                    // roof_z, but since we aren't dealing with actual 3d geometries, we have to
+                    // pick one value. Anecdotally, picking a value between the two seems to
+                    // usually looks right, but probably breaks down in certain overlap scenarios.
+                    let wall_z = (groundfloor_z + roof_z) / 2.0;
+
                     let mut wall_beams = Vec::new();
                     for (low, high) in bldg.polygon.points().iter().zip(roof.points().iter()) {
                         wall_beams.push(Line::must_new(*low, *high));
                     }
                     let wall_color = Color::hex("#BBBEC3");
                     for (wall1, wall2) in wall_beams.iter().zip(wall_beams.iter().skip(1)) {
-                        bldg_batch.push(
+                        bldg_batch.push_with_z(
                             wall_color,
                             Ring::must_new(vec![
                                 wall1.pt1(),
@@ -105,14 +160,23 @@ impl DrawBuilding {
                                 wall1.pt1(),
                             ])
                             .to_polygon(),
+                            wall_z,
                         );
                     }
                     for wall in wall_beams {
-                        bldg_batch.push(Color::BLACK, wall.make_polygons(Distance::meters(0.1)));
+                        bldg_batch.push_with_z(
+                            Color::BLACK,
+                            wall.make_polygons(Distance::meters(0.1)),
+                            wall_z,
+                        );
                     }
 
-                    bldg_batch.push(bldg_color, roof.clone().to_polygon());
-                    bldg_batch.push(Color::BLACK, roof.to_outline(Distance::meters(0.3)));
+                    bldg_batch.push_with_z(bldg_color, roof.clone().to_polygon(), roof_z);
+                    bldg_batch.push_with_z(
+                        Color::BLACK,
+                        roof.to_outline(Distance::meters(0.3)),
+                        roof_z,
+                    );
                 } else {
                     bldg_batch.push(bldg_color, bldg.polygon.clone());
                     if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.1)) {

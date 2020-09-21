@@ -7,7 +7,9 @@ use geom::{Angle, Bounds, Polygon, Pt2D};
 /// A mutable builder for a group of colored polygons.
 #[derive(Clone)]
 pub struct GeomBatch {
-    pub(crate) list: Vec<(Fill, Polygon)>,
+    // f64 is the z-value offset. This must be in (-1, 0], with values closer to -1.0
+    // rendering above values closer to 0.0.
+    pub(crate) list: Vec<(Fill, Polygon, f64)>,
     pub autocrop_dims: bool,
 }
 
@@ -22,14 +24,23 @@ impl GeomBatch {
 
     // Adds a single polygon, painted according to `Fill`
     pub fn push<F: Into<Fill>>(&mut self, fill: F, p: Polygon) {
-        self.list.push((fill.into(), p));
+        self.push_with_z(fill, p, 0.0);
+    }
+
+    /// Offset z value to render above/below other polygons.
+    /// z must be in (-1, 0] to ensure we don't traverse layers of the UI - to make
+    /// sure we don't inadvertently render something *above* a tooltip, etc.
+    pub fn push_with_z<F: Into<Fill>>(&mut self, fill: F, p: Polygon, z_offset: f64) {
+        debug_assert!(z_offset > -1.0);
+        debug_assert!(z_offset <= 0.0);
+        self.list.push((fill.into(), p, z_offset));
     }
 
     /// Applies one Fill to many polygons.
     pub fn extend<F: Into<Fill>>(&mut self, fill: F, polys: Vec<Polygon>) {
         let fill = fill.into();
         for p in polys {
-            self.list.push((fill.clone(), p));
+            self.list.push((fill.clone(), p, 0.0));
         }
     }
 
@@ -39,7 +50,7 @@ impl GeomBatch {
     }
 
     /// Returns the colored polygons in this batch, destroying the batch.
-    pub fn consume(self) -> Vec<(Fill, Polygon)> {
+    pub fn consume(self) -> Vec<(Fill, Polygon, f64)> {
         self.list
     }
 
@@ -72,7 +83,7 @@ impl GeomBatch {
     /// Compute the bounds of all polygons in this batch.
     pub fn get_bounds(&self) -> Bounds {
         let mut bounds = Bounds::new();
-        for (_, poly) in &self.list {
+        for (_, poly, _) in &self.list {
             bounds.union(poly.get_bounds());
         }
         if !self.autocrop_dims {
@@ -87,7 +98,7 @@ impl GeomBatch {
         if bounds.min_x == 0.0 && bounds.min_y == 0.0 {
             return self;
         }
-        for (_, poly) in &mut self.list {
+        for (_, poly, _) in &mut self.list {
             *poly = poly.translate(-bounds.min_x, -bounds.min_y);
         }
         self
@@ -96,7 +107,7 @@ impl GeomBatch {
     /// Builds a single polygon covering everything in this batch. Use to create a hitbox.
     pub fn unioned_polygon(&self) -> Polygon {
         let mut result = self.list[0].1.clone();
-        for (_, p) in &self.list[1..] {
+        for (_, p, _) in &self.list[1..] {
             result = result.union(p.clone());
         }
         result
@@ -133,7 +144,7 @@ impl GeomBatch {
 
     /// Transforms all colors in a batch.
     pub fn color(mut self, transformation: RewriteColor) -> GeomBatch {
-        for (fancy, _) in &mut self.list {
+        for (fancy, _, _) in &mut self.list {
             if let Fill::Color(ref mut c) = fancy {
                 *c = transformation.apply(*c);
             }
@@ -151,7 +162,7 @@ impl GeomBatch {
 
     /// Translates the batch by some offset.
     pub fn translate(mut self, dx: f64, dy: f64) -> GeomBatch {
-        for (_, poly) in &mut self.list {
+        for (_, poly, _) in &mut self.list {
             *poly = poly.translate(dx, dy);
         }
         self
@@ -159,7 +170,7 @@ impl GeomBatch {
 
     /// Rotates each polygon in the batch relative to the center of that polygon.
     pub fn rotate(mut self, angle: Angle) -> GeomBatch {
-        for (_, poly) in &mut self.list {
+        for (_, poly, _) in &mut self.list {
             *poly = poly.rotate(angle);
         }
         self
@@ -168,7 +179,7 @@ impl GeomBatch {
     /// Rotates each polygon in the batch relative to the center of the entire batch.
     pub fn rotate_around_batch_center(mut self, angle: Angle) -> GeomBatch {
         let center = self.get_bounds().center();
-        for (_, poly) in &mut self.list {
+        for (_, poly, _) in &mut self.list {
             *poly = poly.rotate_around(angle, center);
         }
         self
@@ -179,7 +190,7 @@ impl GeomBatch {
         if factor == 1.0 {
             return self;
         }
-        for (_, poly) in &mut self.list {
+        for (_, poly, _) in &mut self.list {
             // strip_rings first -- sometimes when scaling down, the original rings collapse. Since
             // this polygon is part of a GeomBatch anyway, not calling to_outline on it.
             *poly = poly.strip_rings().scale(factor);
@@ -192,7 +203,7 @@ impl<F: Into<Fill>> From<Vec<(F, Polygon)>> for GeomBatch {
     /// Creates a batch of filled polygons.
     fn from(list: Vec<(F, Polygon)>) -> GeomBatch {
         GeomBatch {
-            list: list.into_iter().map(|(c, p)| (c.into(), p)).collect(),
+            list: list.into_iter().map(|(c, p)| (c.into(), p, 0.0)).collect(),
             autocrop_dims: true,
         }
     }

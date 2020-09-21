@@ -146,8 +146,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                 Pt2D::new(0.0, 0.0),
                 ScreenPt::new(m.top_left.x - pad, m.top_left.y - pad),
                 1.0,
-                // Between SCREENSPACE_Z and TOOLTIP_Z
-                Some(0.1),
+                Some(crate::drawing::MENU_Z),
             );
             g.redraw(&draw_bg);
             g.unfork();

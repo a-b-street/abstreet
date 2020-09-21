@@ -160,8 +160,12 @@ impl<T: 'static> WidgetImpl for Menu<T> {
         }
 
         let draw = g.upload(self.calculate_txt(g.style()).render_g(g));
-        // In between tooltip and normal screenspace
-        g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0, Some(0.1));
+        g.fork(
+            Pt2D::new(0.0, 0.0),
+            self.top_left,
+            1.0,
+            Some(crate::drawing::MENU_Z),
+        );
         g.redraw(&draw);
         g.unfork();
 
