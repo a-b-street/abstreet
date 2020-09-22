@@ -242,7 +242,6 @@
 <span id="242">242</span>
 <span id="243">243</span>
 <span id="244">244</span>
-<span id="245">245</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -251,8 +250,6 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">OffstreetParking</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
-<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
-<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
 
@@ -319,10 +316,11 @@
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                 };
 
-                <span class="comment">// TODO For now, blindly guess the building height</span>
-                <span class="kw">let</span> <span class="ident">max_height</span> <span class="op">=</span> <span class="number">15.0</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="ident">bldg</span>.<span class="ident">id</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">u64</span>);
-                <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">1.0</span>, <span class="ident">max_height</span>));
+                <span class="kw">let</span> <span class="ident">bldg_height_per_level</span> <span class="op">=</span> <span class="number">3.5</span>;
+                <span class="comment">// In downtown areas, really tall buildings look kind of ridculous next to</span>
+                <span class="comment">// everything else. So we artifically compress the number of levels a bit.</span>
+                <span class="kw">let</span> <span class="ident">bldg_rendered_meters</span> <span class="op">=</span> <span class="ident">bldg_height_per_level</span> <span class="op">*</span> <span class="ident">bldg</span>.<span class="ident">levels</span>.<span class="ident">powf</span>(<span class="number">0.8</span>);
+                <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">bldg_rendered_meters</span>);
 
                 <span class="kw">let</span> <span class="ident">map_bounds</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>().<span class="ident">to_bounds</span>();
                 <span class="kw">let</span> (<span class="ident">map_width</span>, <span class="ident">map_height</span>) <span class="op">=</span> (<span class="ident">map_bounds</span>.<span class="ident">width</span>(), <span class="ident">map_bounds</span>.<span class="ident">height</span>());
@@ -368,8 +366,8 @@
                     .<span class="ident">unwrap_or</span>(<span class="number">0.0</span>);
 
                 <span class="comment">// smaller z renders above larger</span>
-                <span class="kw">let</span> <span class="ident">scale_factor</span> <span class="op">=</span> <span class="ident">map_length</span> <span class="op">+</span> <span class="ident">max_height</span>;
-                <span class="kw">let</span> <span class="ident">groundfloor_z</span> <span class="op">=</span> (<span class="ident">distance_from_projection_axis</span>) <span class="op">/</span> <span class="ident">scale_factor</span> <span class="op">-</span> <span class="number">1.0</span>;
+                <span class="kw">let</span> <span class="ident">scale_factor</span> <span class="op">=</span> <span class="ident">map_length</span>;
+                <span class="kw">let</span> <span class="ident">groundfloor_z</span> <span class="op">=</span> <span class="ident">distance_from_projection_axis</span> <span class="op">/</span> <span class="ident">scale_factor</span> <span class="op">-</span> <span class="number">1.0</span>;
                 <span class="kw">let</span> <span class="ident">roof_z</span> <span class="op">=</span> <span class="ident">groundfloor_z</span> <span class="op">-</span> <span class="ident">height</span>.<span class="ident">inner_meters</span>() <span class="op">/</span> <span class="ident">scale_factor</span>;
 
                 <span class="comment">// TODO Some buildings have holes in them</span>
