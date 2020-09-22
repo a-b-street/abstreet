@@ -83,6 +83,10 @@
 <span id="83">83</span>
 <span id="84">84</span>
 <span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">commuter</span>;
 <span class="kw">mod</span> <span class="ident">generic_trip_table</span>;
@@ -105,6 +109,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DashTab</span> {
     <span class="ident">FinishedTripTable</span>,
     <span class="ident">CancelledTripTable</span>,
+    <span class="ident">UnfinishedTripTable</span>,
     <span class="ident">TripSummaries</span>,
     <span class="ident">ParkingOverhead</span>,
     <span class="ident">ActiveTraffic</span>,
@@ -165,6 +170,9 @@
             <span class="comment">// for some of the sub-tabs.</span>
             <span class="string">&quot;finished trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">FinishedTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
             <span class="string">&quot;cancelled trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">trip_table</span>::<span class="ident">CancelledTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+            <span class="string">&quot;unfinished trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">trip_table</span>::<span class="ident">UnfinishedTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+            }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
