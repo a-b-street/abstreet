@@ -286,30 +286,28 @@ fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
             }
         }),
         apply: Box::new(|state, x| {
-            // TODO One big boolean expression?
-            let mut ok = true;
             if !state.modes.contains(&x.mode) {
-                ok = false;
+                return false;
             }
             if !state.off_map_starts && x.starts_off_map {
-                ok = false;
+                return false;
             }
             if !state.off_map_ends && x.ends_off_map {
-                ok = false;
+                return false;
             }
             if !state.unmodified_trips && !x.modified {
-                ok = false;
+                return false;
             }
             if !state.modified_trips && x.modified {
-                ok = false;
+                return false;
             }
             if !state.uncapped_trips && !x.capped {
-                ok = false;
+                return false;
             }
             if !state.capped_trips && x.capped {
-                ok = false;
+                return false;
             }
-            ok
+            true
         }),
     };
 

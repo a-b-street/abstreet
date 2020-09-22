@@ -201,7 +201,7 @@ impl<T: 'static, F> Table<T, F> {
     }
 }
 
-pub fn make_table(
+fn make_table(
     ctx: &mut EventCtx,
     app: &App,
     headers: Vec<Widget>,
