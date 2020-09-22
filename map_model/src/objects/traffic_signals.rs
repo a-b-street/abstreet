@@ -1,14 +1,17 @@
+use std::collections::{BTreeMap, BTreeSet};
+use std::convert::TryFrom;
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
+use geom::{Distance, Duration, Speed};
+
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
 use crate::raw::OriginalRoad;
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
     MovementID, TurnID, TurnPriority, TurnType,
 };
-use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
-use geom::{Distance, Duration, Speed};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
-use std::convert::TryFrom;
 
 // The pace to use for crosswalk pace in m/s
 // https://en.wikipedia.org/wiki/Preferred_walking_speed
@@ -76,19 +79,24 @@ impl ControlTrafficSignal {
     }
 
     pub fn get_min_crossing_time(&self, idx: usize) -> Duration {
-        let mut minimum_distance = Distance::meters(0.0);
+        let mut max_distance = Distance::meters(0.0);
         for movement in &self.stages[idx].protected_movements {
             if movement.crosswalk {
-                let dis = self.movements.get(&movement).unwrap().geom.length();
-                println!("Distance: {}", dis);
-                if minimum_distance == Distance::meters(0.0) {
-                    minimum_distance = dis;
-                } else if dis < minimum_distance {
-                    minimum_distance = dis;
+                let distance = self.movements.get(&movement).unwrap().geom.length();
+                println!("Distance: {}", distance);
+                if max_distance == Distance::meters(0.0) {
+                    max_distance = distance;
+                } else if max_distance < distance {
+                    max_distance = distance;
                 }
             }
         }
-        minimum_distance / CROSSWALK_PACE
+        let time = max_distance / CROSSWALK_PACE;
+        if time >= Duration::ZERO {
+            time
+        } else {
+            Duration::seconds(5.0)
+        }
     }
 
     pub fn validate(self) -> Result<ControlTrafficSignal, String> {
@@ -133,7 +141,7 @@ impl ControlTrafficSignal {
                 assert!(m.turn_type != TurnType::Crosswalk);
             }
             // Is there enough time in each stage to walk across the crosswalk
-            assert!(stage.phase_type.simple_duration() < self.get_min_crossing_time(stage_index));
+            assert!(self.get_min_crossing_time(stage_index) < stage.phase_type.simple_duration());
             stage_index += 1;
         }
         Ok(self)
