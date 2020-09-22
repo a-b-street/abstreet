@@ -57,16 +57,31 @@ pub fn make_all_buildings(
             };
 
             let id = BuildingID(results.len());
+
             let mut rng = XorShiftRng::seed_from_u64(orig_id.inner() as u64);
+            // TODO is it worth using height or building:height as an alternative if not tagged?
+            let levels = b
+                .osm_tags
+                .get("building:levels")
+                .and_then(|x| x.parse::<f64>().ok())
+                .unwrap_or(1.0);
+
             results.push(Building {
                 id,
                 polygon: b.polygon.clone(),
+                levels,
                 address: get_address(&b.osm_tags, sidewalk_pos.lane(), map),
                 name: NamePerLanguage::new(&b.osm_tags),
                 orig_id,
                 label_center: b.polygon.polylabel(),
                 amenities: b.amenities.clone(),
-                bldg_type: classify_bldg(&b.osm_tags, &b.amenities, b.polygon.area(), &mut rng),
+                bldg_type: classify_bldg(
+                    &b.osm_tags,
+                    &b.amenities,
+                    levels,
+                    b.polygon.area(),
+                    &mut rng,
+                ),
                 parking: if let Some(n) = b.public_garage_name.clone() {
                     OffstreetParking::PublicGarage(n, b.num_parking_spots)
                 } else {
@@ -117,6 +132,7 @@ fn get_address(tags: &Tags, sidewalk: LaneID, map: &Map) -> String {
 fn classify_bldg(
     tags: &Tags,
     amenities: &BTreeSet<(NamePerLanguage, String)>,
+    levels: f64,
     ground_area_sq_meters: f64,
     rng: &mut XorShiftRng,
 ) -> BuildingType {
@@ -124,11 +140,6 @@ fn classify_bldg(
 
     let mut commercial = false;
 
-    // TODO is it worth using height or building:height as an alternative if not tagged?
-    let levels = tags
-        .get("building:levels")
-        .and_then(|x| x.parse::<f64>().ok())
-        .unwrap_or(1.0);
     let area_sq_meters = levels * ground_area_sq_meters;
 
     // These are (name, amenity type) pairs, produced by get_bldg_amenities in

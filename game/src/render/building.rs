@@ -5,8 +5,6 @@ use crate::options::{CameraAngle, Options};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use geom::{Angle, Distance, Line, Polygon, Pt2D, Ring};
 use map_model::{Building, BuildingID, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
-use rand::{Rng, SeedableRng};
-use rand_xorshift::XorShiftRng;
 use std::cell::RefCell;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
@@ -73,10 +71,11 @@ impl DrawBuilding {
                     _ => unreachable!(),
                 };
 
-                // TODO For now, blindly guess the building height
-                let max_height = 15.0;
-                let mut rng = XorShiftRng::seed_from_u64(bldg.id.0 as u64);
-                let height = Distance::meters(rng.gen_range(1.0, max_height));
+                let bldg_height_per_level = 3.5;
+                // In downtown areas, really tall buildings look kind of ridculous next to
+                // everything else. So we artifically compress the number of levels a bit.
+                let bldg_rendered_meters = bldg_height_per_level * bldg.levels.powf(0.8);
+                let height = Distance::meters(bldg_rendered_meters);
 
                 let map_bounds = map.get_gps_bounds().to_bounds();
                 let (map_width, map_height) = (map_bounds.width(), map_bounds.height());
@@ -122,8 +121,8 @@ impl DrawBuilding {
                     .unwrap_or(0.0);
 
                 // smaller z renders above larger
-                let scale_factor = map_length + max_height;
-                let groundfloor_z = (distance_from_projection_axis) / scale_factor - 1.0;
+                let scale_factor = map_length;
+                let groundfloor_z = distance_from_projection_axis / scale_factor - 1.0;
                 let roof_z = groundfloor_z - height.inner_meters() / scale_factor;
 
                 // TODO Some buildings have holes in them
