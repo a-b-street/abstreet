@@ -242,6 +242,10 @@
 <span id="242">242</span>
 <span id="243">243</span>
 <span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -390,7 +394,11 @@
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wall_beams</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
                     <span class="kw">for</span> (<span class="ident">low</span>, <span class="ident">high</span>) <span class="kw">in</span> <span class="ident">bldg</span>.<span class="ident">polygon</span>.<span class="ident">points</span>().<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">roof</span>.<span class="ident">points</span>().<span class="ident">iter</span>()) {
-                        <span class="ident">wall_beams</span>.<span class="ident">push</span>(<span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="kw-2">*</span><span class="ident">low</span>, <span class="kw-2">*</span><span class="ident">high</span>));
+                        <span class="comment">// Sometimes building height is 0!</span>
+                        <span class="comment">// https://www.openstreetmap.org/way/390547658</span>
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">new</span>(<span class="kw-2">*</span><span class="ident">low</span>, <span class="kw-2">*</span><span class="ident">high</span>) {
+                            <span class="ident">wall_beams</span>.<span class="ident">push</span>(<span class="ident">l</span>);
+                        }
                     }
                     <span class="kw">let</span> <span class="ident">wall_color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#BBBEC3&quot;</span>);
                     <span class="kw">for</span> (<span class="ident">wall1</span>, <span class="ident">wall2</span>) <span class="kw">in</span> <span class="ident">wall_beams</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">wall_beams</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>)) {
