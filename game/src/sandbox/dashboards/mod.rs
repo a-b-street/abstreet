@@ -1,4 +1,5 @@
 mod commuter;
+mod generic_trip_table;
 mod misc;
 mod parking_overhead;
 mod summaries;
@@ -10,13 +11,14 @@ use crate::app::App;
 use crate::game::Transition;
 pub use commuter::CommuterPatterns;
 pub use traffic_signals::TrafficSignalDemand;
-pub use trip_table::TripTable;
+pub use trip_table::FinishedTripTable;
 use widgetry::{Btn, Color, EventCtx, Key, Widget};
 
 // Oh the dashboards melted, but we still had the radio
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum DashTab {
-    TripTable,
+    FinishedTripTable,
+    CancelledTripTable,
     TripSummaries,
     ParkingOverhead,
     ActiveTraffic,
@@ -29,7 +31,7 @@ impl DashTab {
     pub fn picker(self, ctx: &EventCtx, app: &App) -> Widget {
         let mut row = Vec::new();
         for (name, tab) in vec![
-            ("trip table", DashTab::TripTable),
+            ("trip table", DashTab::FinishedTripTable),
             ("trip summaries", DashTab::TripSummaries),
             ("parking overhead", DashTab::ParkingOverhead),
             ("active traffic", DashTab::ActiveTraffic),
@@ -59,7 +61,7 @@ impl DashTab {
     pub fn transition(self, ctx: &mut EventCtx, app: &mut App, action: &str) -> Transition {
         match action {
             "close" => Transition::Pop,
-            "trip table" => Transition::Replace(TripTable::new(ctx, app)),
+            "trip table" => Transition::Replace(FinishedTripTable::new(ctx, app)),
             "trip summaries" => Transition::Replace(summaries::TripSummaries::new(
                 ctx,
                 app,
@@ -72,6 +74,11 @@ impl DashTab {
             "transit routes" => Transition::Replace(misc::TransitRoutes::new(ctx, app)),
             "commuter patterns" => Transition::Replace(CommuterPatterns::new(ctx, app)),
             "traffic signal demand" => Transition::Replace(TrafficSignalDemand::new(ctx, app)),
+
+            // TODO Misleading. These doesn't show up under the DashTab, but we're hijacking this
+            // for some of the sub-tabs.
+            "finished trips" => Transition::Replace(FinishedTripTable::new(ctx, app)),
+            "cancelled trips" => Transition::Replace(trip_table::CancelledTripTable::new(ctx, app)),
             _ => unreachable!(),
         }
     }

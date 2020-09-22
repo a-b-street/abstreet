@@ -387,7 +387,9 @@ impl AgentMeter {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "more data" => {
-                    return Some(Transition::Push(dashboards::TripTable::new(ctx, app)));
+                    return Some(Transition::Push(dashboards::FinishedTripTable::new(
+                        ctx, app,
+                    )));
                 }
                 _ => unreachable!(),
             },

@@ -1,84 +1,40 @@
 use crate::app::App;
-use crate::game::{DrawBaselayer, State, Transition};
-use crate::helpers::{
-    checkbox_per_mode, cmp_duration_shorter, color_for_mode, color_for_trip_phase,
-};
-use crate::info::{OpenTrip, Tab};
+use crate::game::State;
+use crate::helpers::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
+use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
 use crate::sandbox::dashboards::table::{Col, Filter, Table};
 use crate::sandbox::dashboards::DashTab;
-use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
-use geom::{Distance, Duration, Pt2D, Time};
+use geom::{Duration, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use std::collections::{BTreeSet, HashMap};
-use widgetry::{
-    Checkbox, Color, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, RewriteColor,
-    ScreenPt, Text, Widget,
-};
+use widgetry::{Btn, Checkbox, EventCtx, Filler, Line, Panel, Text, Widget};
 
-pub struct TripTable {
-    table: Table<FinishedTrip, Filters>,
-    panel: Panel,
-}
+pub struct FinishedTripTable;
 
-impl TripTable {
+impl FinishedTripTable {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let table = make_table_finished_trips(app);
-        let panel = make_panel(ctx, app, &table);
-        Box::new(TripTable { table, panel })
-    }
-
-    fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut new = make_panel(ctx, app, &self.table);
-        new.restore(ctx, &self.panel);
-        self.panel = new;
+        GenericTripTable::new(
+            ctx,
+            app,
+            DashTab::FinishedTripTable,
+            make_table_finished_trips(app),
+            make_panel_finished_trips,
+        )
     }
 }
 
-impl State for TripTable {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => {
-                if self.table.clicked(&x) {
-                    self.recalc(ctx, app);
-                } else if let Ok(idx) = x.parse::<usize>() {
-                    let trip = TripID(idx);
-                    let person = app.primary.sim.trip_to_person(trip);
-                    return Transition::Multi(vec![
-                        Transition::Pop,
-                        Transition::ModifyState(Box::new(move |state, ctx, app| {
-                            let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                            let mut actions = sandbox.contextual_actions();
-                            sandbox.controls.common.as_mut().unwrap().launch_info_panel(
-                                ctx,
-                                app,
-                                Tab::PersonTrips(person, OpenTrip::single(trip)),
-                                &mut actions,
-                            );
-                        })),
-                    ]);
-                } else {
-                    return DashTab::TripTable.transition(ctx, app, &x);
-                }
-            }
-            Outcome::Changed => {
-                self.table.panel_changed(&self.panel);
-                self.recalc(ctx, app);
-            }
-            _ => {}
-        }
+pub struct CancelledTripTable;
 
-        Transition::Keep
-    }
-
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.dialog_bg);
-        self.panel.draw(g);
-        preview_trip(g, app, &self.panel);
+impl CancelledTripTable {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        GenericTripTable::new(
+            ctx,
+            app,
+            DashTab::CancelledTripTable,
+            make_table_cancelled_trips(app),
+            make_panel_cancelled_trips,
+        )
     }
 }
 
@@ -97,17 +53,21 @@ struct FinishedTrip {
 }
 
 struct CancelledTrip {
-    _id: TripID,
-    // TODO Original mode
-    _departure: Time,
+    id: TripID,
+    mode: TripMode,
+    departure: Time,
+    starts_off_map: bool,
+    ends_off_map: bool,
+    duration_before: Duration,
+    // TODO Reason
 }
 
-struct UnfinishedTrip {
-    _id: TripID,
-    _mode: TripMode,
-    _departure: Time,
-    _duration_before: Duration,
-}
+/*struct UnfinishedTrip {
+    id: TripID,
+    mode: TripMode,
+    departure: Time,
+    duration_before: Duration,
+}*/
 
 struct Filters {
     modes: BTreeSet<TripMode>,
@@ -119,10 +79,9 @@ struct Filters {
     capped_trips: bool,
 }
 
-fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>, Vec<UnfinishedTrip>) {
+fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
     let mut finished = Vec::new();
     let mut cancelled = Vec::new();
-    let unfinished = Vec::new();
 
     // Only make one pass through prebaked data
     let trip_times_before = if app.has_prebaked().is_some() {
@@ -140,17 +99,6 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>, Vec<Un
     let sim = &app.primary.sim;
     for (_, id, maybe_mode, duration_after) in &sim.get_analytics().finished_trips {
         let trip = sim.trip_info(*id);
-
-        let mode = if let Some(m) = maybe_mode {
-            *m
-        } else {
-            cancelled.push(CancelledTrip {
-                _id: *id,
-                _departure: trip.departure,
-            });
-            continue;
-        };
-
         let starts_off_map = match trip.start {
             TripEndpoint::Border(_, _) => true,
             _ => false,
@@ -159,42 +107,46 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>, Vec<Un
             TripEndpoint::Border(_, _) => true,
             _ => false,
         };
+        let duration_before = if let Some(ref times) = trip_times_before {
+            times.get(id).cloned()
+        } else {
+            Some(Duration::ZERO)
+        };
+
+        if maybe_mode.is_none() || duration_before.is_none() {
+            cancelled.push(CancelledTrip {
+                id: *id,
+                mode: trip.mode,
+                departure: trip.departure,
+                starts_off_map,
+                ends_off_map,
+                duration_before: duration_before.unwrap_or(Duration::ZERO),
+            });
+            continue;
+        };
 
         let (_, waiting) = sim.finished_trip_time(*id).unwrap();
-        let duration_before = if let Some(ref times) = trip_times_before {
-            if let Some(dt) = times.get(id) {
-                *dt
-            } else {
-                cancelled.push(CancelledTrip {
-                    _id: *id,
-                    _departure: trip.departure,
-                });
-                continue;
-            }
-        } else {
-            Duration::ZERO
-        };
 
         finished.push(FinishedTrip {
             id: *id,
-            mode,
+            mode: trip.mode,
             departure: trip.departure,
             modified: trip.modified,
             capped: trip.capped,
             starts_off_map,
             ends_off_map,
             duration_after: *duration_after,
-            duration_before,
+            duration_before: duration_before.unwrap(),
             waiting,
             percent_waiting: (100.0 * waiting / *duration_after) as usize,
         });
     }
 
-    (finished, cancelled, unfinished)
+    (finished, cancelled)
 }
 
 fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
-    let (finished, _, _) = produce_raw_data(app);
+    let (finished, _) = produce_raw_data(app);
     let any_congestion_caps = app
         .primary
         .map
@@ -409,7 +361,92 @@ fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
     table
 }
 
-fn make_panel(ctx: &mut EventCtx, app: &App, table: &Table<FinishedTrip, Filters>) -> Panel {
+fn make_table_cancelled_trips(app: &App) -> Table<CancelledTrip, Filters> {
+    let (_, cancelled) = produce_raw_data(app);
+    // Reuse the same filters, but ignore modified and capped trips
+    let filter: Filter<CancelledTrip, Filters> = Filter {
+        state: Filters {
+            modes: TripMode::all().into_iter().collect(),
+            off_map_starts: true,
+            off_map_ends: true,
+            unmodified_trips: true,
+            modified_trips: true,
+            uncapped_trips: true,
+            capped_trips: true,
+        },
+        to_controls: Box::new(move |ctx, app, state| {
+            Widget::col(vec![
+                checkbox_per_mode(ctx, app, &state.modes),
+                Widget::row(vec![
+                    Checkbox::switch(ctx, "starting off-map", None, state.off_map_starts),
+                    Checkbox::switch(ctx, "ending off-map", None, state.off_map_ends),
+                ]),
+            ])
+        }),
+        from_controls: Box::new(|panel| {
+            let mut modes = BTreeSet::new();
+            for m in TripMode::all() {
+                if panel.is_checked(m.ongoing_verb()) {
+                    modes.insert(m);
+                }
+            }
+            Filters {
+                modes,
+                off_map_starts: panel.is_checked("starting off-map"),
+                off_map_ends: panel.is_checked("ending off-map"),
+                unmodified_trips: true,
+                modified_trips: true,
+                uncapped_trips: true,
+                capped_trips: true,
+            }
+        }),
+        apply: Box::new(|state, x| {
+            if !state.modes.contains(&x.mode) {
+                return false;
+            }
+            if !state.off_map_starts && x.starts_off_map {
+                return false;
+            }
+            if !state.off_map_ends && x.ends_off_map {
+                return false;
+            }
+            true
+        }),
+    };
+
+    let mut table = Table::new(
+        cancelled,
+        Box::new(|x| x.id.0.to_string()),
+        "Departure",
+        filter,
+    );
+    table.static_col("Trip ID", Box::new(|x| x.id.0.to_string()));
+    table.column(
+        "Type",
+        Box::new(|ctx, app, x| {
+            Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render_ctx(ctx)
+        }),
+        Col::Static,
+    );
+    table.column(
+        "Departure",
+        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render_ctx(ctx)),
+        Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
+    );
+    table.column(
+        "Estimated duration",
+        Box::new(|ctx, _, x| Text::from(Line(x.duration_before.to_string())).render_ctx(ctx)),
+        Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
+    );
+
+    table
+}
+
+fn make_panel_finished_trips(
+    ctx: &mut EventCtx,
+    app: &App,
+    table: &Table<FinishedTrip, Filters>,
+) -> Panel {
     let (finished, unfinished) = app.primary.sim.num_trips();
     let mut aborted = 0;
     // TODO Can we avoid iterating through this again?
@@ -419,7 +456,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App, table: &Table<FinishedTrip, Filters
         }
     }
 
-    let mut col = vec![DashTab::TripTable.picker(ctx, app)];
+    let mut col = vec![DashTab::FinishedTripTable.picker(ctx, app)];
 
     col.push(Widget::custom_row(vec![
         Text::from(
@@ -432,8 +469,8 @@ fn make_panel(ctx: &mut EventCtx, app: &App, table: &Table<FinishedTrip, Filters
         )
         .draw(ctx)
         .margin_right(28),
-        Text::from(Line(format!("{} Canceled Trips", prettyprint_usize(aborted))).secondary())
-            .draw(ctx)
+        Btn::plaintext(format!("{} Cancelled Trips", prettyprint_usize(aborted)))
+            .build(ctx, "cancelled trips", None)
             .margin_right(28),
         Text::from(
             Line(format!(
@@ -459,82 +496,54 @@ fn make_panel(ctx: &mut EventCtx, app: &App, table: &Table<FinishedTrip, Filters
         .build(ctx)
 }
 
-pub fn preview_trip(g: &mut GfxCtx, app: &App, panel: &Panel) {
-    let inner_rect = panel.rect_of("preview").clone();
-    let map_bounds = app.primary.map.get_bounds().clone();
-    let zoom = 0.15 * g.canvas.window_width / map_bounds.width().max(map_bounds.height());
-    g.fork(
-        Pt2D::new(map_bounds.min_x, map_bounds.min_y),
-        ScreenPt::new(inner_rect.x1, inner_rect.y1),
-        zoom,
-        None,
-    );
-    g.enable_clipping(inner_rect);
-
-    g.redraw(&app.primary.draw_map.boundary_polygon);
-    g.redraw(&app.primary.draw_map.draw_all_areas);
-    g.redraw(
-        &app.primary
-            .draw_map
-            .draw_all_unzoomed_roads_and_intersections,
-    );
-
-    if let Some(x) = panel.currently_hovering() {
-        if let Ok(idx) = x.parse::<usize>() {
-            let trip = TripID(idx);
-            preview_route(g, app, trip).draw(g);
+// TODO Dedupe some code
+fn make_panel_cancelled_trips(
+    ctx: &mut EventCtx,
+    app: &App,
+    table: &Table<CancelledTrip, Filters>,
+) -> Panel {
+    let (finished, unfinished) = app.primary.sim.num_trips();
+    let mut aborted = 0;
+    // TODO Can we avoid iterating through this again?
+    for (_, _, maybe_mode, _) in &app.primary.sim.get_analytics().finished_trips {
+        if maybe_mode.is_none() {
+            aborted += 1;
         }
     }
 
-    g.disable_clipping();
-    g.unfork();
-}
+    let mut col = vec![DashTab::CancelledTripTable.picker(ctx, app)];
 
-fn preview_route(g: &mut GfxCtx, app: &App, id: TripID) -> GeomBatch {
-    let mut batch = GeomBatch::new();
-    for p in app
-        .primary
-        .sim
-        .get_analytics()
-        .get_trip_phases(id, &app.primary.map)
-    {
-        if let Some((dist, ref path)) = p.path {
-            if let Some(trace) = path.trace(&app.primary.map, dist, None) {
-                batch.push(
-                    color_for_trip_phase(app, p.phase_type),
-                    trace.make_polygons(Distance::meters(20.0)),
-                );
-            }
-        }
-    }
+    col.push(Widget::custom_row(vec![
+        Btn::plaintext(format!(
+            "{} ({:.1}%) Finished Trips",
+            prettyprint_usize(finished),
+            (finished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
+        ))
+        .build(ctx, "finished trips", None)
+        .margin_right(28),
+        Text::from(Line(format!("{} Cancelled Trips", prettyprint_usize(aborted))).underlined())
+            .draw(ctx)
+            .margin_right(28),
+        Text::from(
+            Line(format!(
+                "{} ({:.1}%) Unfinished Trips",
+                prettyprint_usize(unfinished),
+                (unfinished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
+            ))
+            .secondary(),
+        )
+        .draw(ctx),
+    ]));
 
-    let trip = app.primary.sim.trip_info(id);
-    batch.append(
-        GeomBatch::load_svg(g.prerender, "system/assets/timeline/start_pos.svg")
-            .scale(10.0)
-            .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-            .color(RewriteColor::Change(
-                Color::hex("#5B5B5B"),
-                Color::hex("#CC4121"),
-            ))
-            .centered_on(match trip.start {
-                TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
-                TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),
-            }),
-    );
-    batch.append(
-        GeomBatch::load_svg(g.prerender, "system/assets/timeline/goal_pos.svg")
-            .scale(10.0)
-            .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-            .color(RewriteColor::Change(
-                Color::hex("#5B5B5B"),
-                Color::hex("#CC4121"),
-            ))
-            .centered_on(match trip.end {
-                TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
-                TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),
-            }),
+    col.push(table.render(ctx, app));
+
+    col.push(
+        Filler::square_width(ctx, 0.15)
+            .named("preview")
+            .centered_horiz(),
     );
 
-    batch
+    Panel::new(Widget::col(col))
+        .exact_size_percent(90, 90)
+        .build(ctx)
 }

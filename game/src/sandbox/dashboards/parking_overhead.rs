@@ -1,79 +1,20 @@
 use crate::app::App;
-use crate::game::{DrawBaselayer, State, Transition};
-use crate::info::{OpenTrip, Tab};
+use crate::game::State;
+use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
 use crate::sandbox::dashboards::table::{Col, Filter, Table};
-use crate::sandbox::dashboards::trip_table::preview_trip;
 use crate::sandbox::dashboards::DashTab;
-use crate::sandbox::SandboxMode;
 use geom::Duration;
 use sim::{TripEndpoint, TripID, TripPhaseType};
-use widgetry::{Checkbox, EventCtx, Filler, GfxCtx, Line, Outcome, Panel, Text, Widget};
+use widgetry::{Checkbox, EventCtx, Filler, Line, Panel, Text, Widget};
 
 // TODO Compare all of these things before/after
 
-pub struct ParkingOverhead {
-    table: Table<Entry, Filters>,
-    panel: Panel,
-}
+pub struct ParkingOverhead;
 
 impl ParkingOverhead {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let table = make_table(app);
-        let panel = make_panel(ctx, app, &table);
-        Box::new(ParkingOverhead { table, panel })
-    }
-
-    fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut new = make_panel(ctx, app, &self.table);
-        new.restore(ctx, &self.panel);
-        self.panel = new;
-    }
-}
-
-impl State for ParkingOverhead {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => {
-                if self.table.clicked(&x) {
-                    self.recalc(ctx, app);
-                } else if let Ok(idx) = x.parse::<usize>() {
-                    let trip = TripID(idx);
-                    let person = app.primary.sim.trip_to_person(trip);
-                    return Transition::Multi(vec![
-                        Transition::Pop,
-                        Transition::ModifyState(Box::new(move |state, ctx, app| {
-                            let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                            let mut actions = sandbox.contextual_actions();
-                            sandbox.controls.common.as_mut().unwrap().launch_info_panel(
-                                ctx,
-                                app,
-                                Tab::PersonTrips(person, OpenTrip::single(trip)),
-                                &mut actions,
-                            );
-                        })),
-                    ]);
-                } else {
-                    return DashTab::ParkingOverhead.transition(ctx, app, &x);
-                }
-            }
-            Outcome::Changed => {
-                self.table.panel_changed(&self.panel);
-                self.recalc(ctx, app);
-            }
-            _ => {}
-        };
-
-        Transition::Keep
-    }
-
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.dialog_bg);
-        self.panel.draw(g);
-        preview_trip(g, app, &self.panel);
+        GenericTripTable::new(ctx, app, DashTab::ParkingOverhead, table, make_panel)
     }
 }
 
