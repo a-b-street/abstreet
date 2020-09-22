@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_panel",""],["make_table_finished_trips",""],["preview_route",""],["preview_trip",""],["produce_raw_data",""]],"struct":[["CancelledTrip",""],["Filters",""],["FinishedTrip",""],["TripTable",""],["UnfinishedTrip",""]]});
+initSidebarItems({"fn":[["make_panel_cancelled_trips",""],["make_panel_finished_trips",""],["make_table_cancelled_trips",""],["make_table_finished_trips",""],["produce_raw_data",""]],"struct":[["CancelledTrip",""],["CancelledTripTable",""],["Filters",""],["FinishedTrip",""],["FinishedTripTable",""]]});

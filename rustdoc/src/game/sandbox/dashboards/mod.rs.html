@@ -76,8 +76,16 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">commuter</span>;
+<span class="kw">mod</span> <span class="ident">generic_trip_table</span>;
 <span class="kw">mod</span> <span class="ident">misc</span>;
 <span class="kw">mod</span> <span class="ident">parking_overhead</span>;
 <span class="kw">mod</span> <span class="ident">summaries</span>;
@@ -89,13 +97,14 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">commuter</span>::<span class="ident">CommuterPatterns</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">traffic_signals</span>::<span class="ident">TrafficSignalDemand</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip_table</span>::<span class="ident">TripTable</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip_table</span>::<span class="ident">FinishedTripTable</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Widget</span>};
 
 <span class="comment">// Oh the dashboards melted, but we still had the radio</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DashTab</span> {
-    <span class="ident">TripTable</span>,
+    <span class="ident">FinishedTripTable</span>,
+    <span class="ident">CancelledTripTable</span>,
     <span class="ident">TripSummaries</span>,
     <span class="ident">ParkingOverhead</span>,
     <span class="ident">ActiveTraffic</span>,
@@ -108,7 +117,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">picker</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">tab</span>) <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
-            (<span class="string">&quot;trip table&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TripTable</span>),
+            (<span class="string">&quot;trip table&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">FinishedTripTable</span>),
             (<span class="string">&quot;trip summaries&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TripSummaries</span>),
             (<span class="string">&quot;parking overhead&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">ParkingOverhead</span>),
             (<span class="string">&quot;active traffic&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">ActiveTraffic</span>),
@@ -138,7 +147,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transition</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="ident">action</span> {
             <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-            <span class="string">&quot;trip table&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">TripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+            <span class="string">&quot;trip table&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">FinishedTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
             <span class="string">&quot;trip summaries&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">summaries</span>::<span class="ident">TripSummaries</span>::<span class="ident">new</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
@@ -151,6 +160,11 @@
             <span class="string">&quot;transit routes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">misc</span>::<span class="ident">TransitRoutes</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
             <span class="string">&quot;commuter patterns&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">CommuterPatterns</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
             <span class="string">&quot;traffic signal demand&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">TrafficSignalDemand</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+
+            <span class="comment">// TODO Misleading. These doesn&#39;t show up under the DashTab, but we&#39;re hijacking this</span>
+            <span class="comment">// for some of the sub-tabs.</span>
+            <span class="string">&quot;finished trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">FinishedTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+            <span class="string">&quot;cancelled trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">trip_table</span>::<span class="ident">CancelledTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
