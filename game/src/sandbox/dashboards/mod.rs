@@ -19,6 +19,7 @@ use widgetry::{Btn, Color, EventCtx, Key, Widget};
 pub enum DashTab {
     FinishedTripTable,
     CancelledTripTable,
+    UnfinishedTripTable,
     TripSummaries,
     ParkingOverhead,
     ActiveTraffic,
@@ -79,6 +80,9 @@ impl DashTab {
             // for some of the sub-tabs.
             "finished trips" => Transition::Replace(FinishedTripTable::new(ctx, app)),
             "cancelled trips" => Transition::Replace(trip_table::CancelledTripTable::new(ctx, app)),
+            "unfinished trips" => {
+                Transition::Replace(trip_table::UnfinishedTripTable::new(ctx, app))
+            }
             _ => unreachable!(),
         }
     }

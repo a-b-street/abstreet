@@ -38,6 +38,20 @@ impl CancelledTripTable {
     }
 }
 
+pub struct UnfinishedTripTable;
+
+impl UnfinishedTripTable {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        GenericTripTable::new(
+            ctx,
+            app,
+            DashTab::UnfinishedTripTable,
+            make_table_unfinished_trips(app),
+            make_panel_unfinished_trips,
+        )
+    }
+}
+
 struct FinishedTrip {
     id: TripID,
     mode: TripMode,
@@ -62,12 +76,13 @@ struct CancelledTrip {
     // TODO Reason
 }
 
-/*struct UnfinishedTrip {
+struct UnfinishedTrip {
     id: TripID,
     mode: TripMode,
     departure: Time,
     duration_before: Duration,
-}*/
+    // TODO Estimated wait time?
+}
 
 struct Filters {
     modes: BTreeSet<TripMode>,
@@ -433,11 +448,110 @@ fn make_table_cancelled_trips(app: &App) -> Table<CancelledTrip, Filters> {
         Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render_ctx(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
     );
-    table.column(
-        "Estimated duration",
-        Box::new(|ctx, _, x| Text::from(Line(x.duration_before.to_string())).render_ctx(ctx)),
-        Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
+    if app.has_prebaked().is_some() {
+        table.column(
+            "Estimated duration",
+            Box::new(|ctx, _, x| Text::from(Line(x.duration_before.to_string())).render_ctx(ctx)),
+            Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
+        );
+    }
+
+    table
+}
+
+fn make_table_unfinished_trips(app: &App) -> Table<UnfinishedTrip, Filters> {
+    // Only make one pass through prebaked data
+    let trip_times_before = if app.has_prebaked().is_some() {
+        let mut times = HashMap::new();
+        for (_, id, maybe_mode, dt) in &app.prebaked().finished_trips {
+            if maybe_mode.is_some() {
+                times.insert(*id, *dt);
+            }
+        }
+        Some(times)
+    } else {
+        None
+    };
+    let mut unfinished = Vec::new();
+    for (id, trip) in app.primary.sim.all_trip_info() {
+        if app.primary.sim.finished_trip_time(id).is_none() {
+            let duration_before = trip_times_before
+                .as_ref()
+                .and_then(|times| times.get(&id))
+                .cloned()
+                .unwrap_or(Duration::ZERO);
+            unfinished.push(UnfinishedTrip {
+                id,
+                mode: trip.mode,
+                departure: trip.departure,
+                duration_before,
+            });
+        }
+    }
+
+    // Reuse the same filters, but ignore modified and capped trips
+    let filter: Filter<UnfinishedTrip, Filters> = Filter {
+        state: Filters {
+            modes: TripMode::all().into_iter().collect(),
+            off_map_starts: true,
+            off_map_ends: true,
+            unmodified_trips: true,
+            modified_trips: true,
+            uncapped_trips: true,
+            capped_trips: true,
+        },
+        to_controls: Box::new(move |ctx, app, state| checkbox_per_mode(ctx, app, &state.modes)),
+        from_controls: Box::new(|panel| {
+            let mut modes = BTreeSet::new();
+            for m in TripMode::all() {
+                if panel.is_checked(m.ongoing_verb()) {
+                    modes.insert(m);
+                }
+            }
+            Filters {
+                modes,
+                off_map_starts: true,
+                off_map_ends: true,
+                unmodified_trips: true,
+                modified_trips: true,
+                uncapped_trips: true,
+                capped_trips: true,
+            }
+        }),
+        apply: Box::new(|state, x| {
+            if !state.modes.contains(&x.mode) {
+                return false;
+            }
+            true
+        }),
+    };
+
+    let mut table = Table::new(
+        unfinished,
+        Box::new(|x| x.id.0.to_string()),
+        "Departure",
+        filter,
     );
+    table.static_col("Trip ID", Box::new(|x| x.id.0.to_string()));
+    table.column(
+        "Type",
+        Box::new(|ctx, app, x| {
+            Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render_ctx(ctx)
+        }),
+        Col::Static,
+    );
+    table.column(
+        "Departure",
+        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render_ctx(ctx)),
+        Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
+    );
+    if app.has_prebaked().is_some() {
+        table.column(
+            "Estimated duration",
+            Box::new(|ctx, _, x| Text::from(Line(x.duration_before.to_string())).render_ctx(ctx)),
+            Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
+        );
+    }
 
     table
 }
@@ -472,15 +586,12 @@ fn make_panel_finished_trips(
         Btn::plaintext(format!("{} Cancelled Trips", prettyprint_usize(aborted)))
             .build(ctx, "cancelled trips", None)
             .margin_right(28),
-        Text::from(
-            Line(format!(
-                "{} ({:.1}%) Unfinished Trips",
-                prettyprint_usize(unfinished),
-                (unfinished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
-            ))
-            .secondary(),
-        )
-        .draw(ctx),
+        Btn::plaintext(format!(
+            "{} ({:.1}%) Unfinished Trips",
+            prettyprint_usize(unfinished),
+            (unfinished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
+        ))
+        .build(ctx, "unfinished trips", None),
     ]));
 
     col.push(table.render(ctx, app));
@@ -523,6 +634,54 @@ fn make_panel_cancelled_trips(
         .margin_right(28),
         Text::from(Line(format!("{} Cancelled Trips", prettyprint_usize(aborted))).underlined())
             .draw(ctx)
+            .margin_right(28),
+        Btn::plaintext(format!(
+            "{} ({:.1}%) Unfinished Trips",
+            prettyprint_usize(unfinished),
+            (unfinished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
+        ))
+        .build(ctx, "unfinished trips", None),
+    ]));
+
+    col.push(table.render(ctx, app));
+
+    col.push(
+        Filler::square_width(ctx, 0.15)
+            .named("preview")
+            .centered_horiz(),
+    );
+
+    Panel::new(Widget::col(col))
+        .exact_size_percent(90, 90)
+        .build(ctx)
+}
+
+fn make_panel_unfinished_trips(
+    ctx: &mut EventCtx,
+    app: &App,
+    table: &Table<UnfinishedTrip, Filters>,
+) -> Panel {
+    let (finished, unfinished) = app.primary.sim.num_trips();
+    let mut aborted = 0;
+    // TODO Can we avoid iterating through this again?
+    for (_, _, maybe_mode, _) in &app.primary.sim.get_analytics().finished_trips {
+        if maybe_mode.is_none() {
+            aborted += 1;
+        }
+    }
+
+    let mut col = vec![DashTab::UnfinishedTripTable.picker(ctx, app)];
+
+    col.push(Widget::custom_row(vec![
+        Btn::plaintext(format!(
+            "{} ({:.1}%) Finished Trips",
+            prettyprint_usize(finished),
+            (finished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
+        ))
+        .build(ctx, "finished trips", None)
+        .margin_right(28),
+        Btn::plaintext(format!("{} Cancelled Trips", prettyprint_usize(aborted)))
+            .build(ctx, "cancelled trips", None)
             .margin_right(28),
         Text::from(
             Line(format!(
