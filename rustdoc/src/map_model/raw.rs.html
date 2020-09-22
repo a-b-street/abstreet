@@ -378,6 +378,13 @@
 <span id="378">378</span>
 <span id="379">379</span>
 <span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>::<span class="ident">lane_specs</span>::<span class="ident">get_lane_specs_ltr</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -550,6 +557,13 @@
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">make_polygons</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">half_width</span>))
                 .<span class="ident">collect</span>(),
             <span class="ident">debug</span>,
+        )
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(
+            <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/raw_maps/{}.bin&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>)),
+            <span class="self">self</span>,
         )
     }
 }

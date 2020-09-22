@@ -43,7 +43,6 @@
 <span id="43">43</span>
 <span id="44">44</span>
 <span id="45">45</span>
-<span id="46">46</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">download</span>, <span class="ident">osmconvert</span>};
@@ -88,8 +87,7 @@
         },
         <span class="ident">timer</span>,
     );
-    <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/raw_maps/{}.bin&quot;</span>, <span class="ident">name</span>));
-    <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="ident">output</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>);
+    <span class="ident">map</span>.<span class="ident">save</span>();
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "importer";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
