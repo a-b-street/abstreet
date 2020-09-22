@@ -102,8 +102,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
         },
         timer,
     );
-    let output = abstutil::path(format!("input/raw_maps/{}.bin", name));
-    abstutil::write_binary(output, &map);
+    map.save();
 }
 
 // Download and pre-process data needed to generate Seattle scenarios.

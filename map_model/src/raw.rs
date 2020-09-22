@@ -171,6 +171,13 @@ impl RawMap {
             debug,
         )
     }
+
+    pub fn save(&self) {
+        abstutil::write_binary(
+            abstutil::path(format!("input/raw_maps/{}.bin", self.name)),
+            self,
+        )
+    }
 }
 
 // Mutations and supporting queries
