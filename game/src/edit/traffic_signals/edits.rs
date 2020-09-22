@@ -18,7 +18,7 @@ pub struct ChangeDuration {
 }
 
 impl ChangeDuration {
-    pub fn new(ctx: &mut EventCtx, current: PhaseType, idx: usize) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, signal: ControlTrafficSignal, idx: usize) -> Box<dyn State> {
         Box::new(ChangeDuration {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -33,8 +33,14 @@ impl ChangeDuration {
                     "Seconds:".draw_text(ctx),
                     Spinner::new(
                         ctx,
-                        (5, 300),
-                        current.simple_duration().inner_seconds() as isize,
+                        (
+                            signal.get_min_crossing_time(idx).inner_seconds() as isize,
+                            300,
+                        ),
+                        signal.stages[idx]
+                            .phase_type
+                            .simple_duration()
+                            .inner_seconds() as isize,
                     )
                     .named("duration"),
                 ]),
@@ -46,7 +52,7 @@ impl ChangeDuration {
                         "fixed",
                         "adaptive",
                         None,
-                        match current {
+                        match signal.stages[idx].phase_type {
                             PhaseType::Fixed(_) => true,
                             PhaseType::Adaptive(_) => false,
                         },
@@ -94,12 +100,12 @@ impl State for ChangeDuration {
         }
     }
 
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::PreviousState
-    }
-
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 }
 
