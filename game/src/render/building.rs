@@ -145,7 +145,11 @@ impl DrawBuilding {
 
                     let mut wall_beams = Vec::new();
                     for (low, high) in bldg.polygon.points().iter().zip(roof.points().iter()) {
-                        wall_beams.push(Line::must_new(*low, *high));
+                        // Sometimes building height is 0!
+                        // https://www.openstreetmap.org/way/390547658
+                        if let Some(l) = Line::new(*low, *high) {
+                            wall_beams.push(l);
+                        }
                     }
                     let wall_color = Color::hex("#BBBEC3");
                     for (wall1, wall2) in wall_beams.iter().zip(wall_beams.iter().skip(1)) {
