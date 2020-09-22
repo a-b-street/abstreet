@@ -206,9 +206,6 @@ impl Map {
         }
 
         for i in map.intersections.iter_mut() {
-            if is_border(i, &map.lanes) {
-                i.intersection_type = IntersectionType::Border;
-            }
             if i.is_border() {
                 if i.roads.len() != 1 {
                     panic!(
@@ -336,29 +333,6 @@ impl Map {
 
         map
     }
-}
-
-fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
-    // RawIntersection said it is.
-    if intersection.is_border() {
-        return true;
-    }
-
-    // This only detects one-way borders! Two-way ones will just look like dead-ends.
-
-    // Bias for driving
-    if intersection.roads.len() != 1 {
-        return false;
-    }
-    let has_driving_in = intersection
-        .incoming_lanes
-        .iter()
-        .any(|l| lanes[l.0].is_driving());
-    let has_driving_out = intersection
-        .outgoing_lanes
-        .iter()
-        .any(|l| lanes[l.0].is_driving());
-    has_driving_in != has_driving_out
 }
 
 // If the result doesn't contain a requested point, then there was no matching lane close
