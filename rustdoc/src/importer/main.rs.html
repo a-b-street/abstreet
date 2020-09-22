@@ -231,6 +231,11 @@
 <span id="231">231</span>
 <span id="232">232</span>
 <span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">berlin</span>;
 <span class="kw">mod</span> <span class="ident">configuration</span>;
@@ -459,6 +464,11 @@
         },
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
     );
+
+    <span class="comment">// Often helpful to save intermediate representation in case user</span>
+    <span class="comment">// wants to load into map_editor</span>
+    <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="ident">abstutil</span>::<span class="ident">path_raw_map</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>), <span class="kw-2">&amp;</span><span class="ident">raw</span>);
+
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">create_from_raw</span>(<span class="ident">raw</span>, <span class="ident">build_ch</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;save map&quot;</span>);
     <span class="ident">map</span>.<span class="ident">save</span>();
