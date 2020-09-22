@@ -5,10 +5,14 @@ use crate::{
     MovementID, TurnID, TurnPriority, TurnType,
 };
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
-use geom::Duration;
+use geom::{Distance, Duration, Speed};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::convert::TryFrom;
+
+// The pace to use for crosswalk pace in m/s
+// https://en.wikipedia.org/wiki/Preferred_walking_speed
+const CROSSWALK_PACE: Speed = Speed::const_meters_per_second(1.4);
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ControlTrafficSignal {
@@ -71,6 +75,22 @@ impl ControlTrafficSignal {
         brute_force(map, id)
     }
 
+    pub fn get_min_crossing_time(&self, idx: usize) -> Duration {
+        let mut minimum_distance = Distance::meters(0.0);
+        for movement in &self.stages[idx].protected_movements {
+            if movement.crosswalk {
+                let dis = self.movements.get(&movement).unwrap().geom.length();
+                println!("Distance: {}", dis);
+                if minimum_distance == Distance::meters(0.0) {
+                    minimum_distance = dis;
+                } else if dis < minimum_distance {
+                    minimum_distance = dis;
+                }
+            }
+        }
+        minimum_distance / CROSSWALK_PACE
+    }
+
     pub fn validate(self) -> Result<ControlTrafficSignal, String> {
         // Does the assignment cover the correct set of movements?
         let expected_movements: BTreeSet<MovementID> = self.movements.keys().cloned().collect();
@@ -93,7 +113,7 @@ impl ControlTrafficSignal {
                     .collect::<Vec<_>>()
             ));
         }
-
+        let mut stage_index = 0;
         for stage in &self.stages {
             // Do any of the priority movements in one stage conflict?
             for m1 in stage.protected_movements.iter().map(|m| &self.movements[m]) {
@@ -112,8 +132,10 @@ impl ControlTrafficSignal {
             for m in stage.yield_movements.iter().map(|m| &self.movements[m]) {
                 assert!(m.turn_type != TurnType::Crosswalk);
             }
+            // Is there enough time in each stage to walk across the crosswalk
+            assert!(stage.phase_type.simple_duration() < self.get_min_crossing_time(stage_index));
+            stage_index += 1;
         }
-
         Ok(self)
     }
 
