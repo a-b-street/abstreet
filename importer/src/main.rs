@@ -225,6 +225,11 @@ fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool, build_c
         },
         &mut timer,
     );
+
+    // Often helpful to save intermediate representation in case user
+    // wants to load into map_editor
+    abstutil::write_binary(abstutil::path_raw_map(&name), &raw);
+
     let map = map_model::Map::create_from_raw(raw, build_ch, &mut timer);
     timer.start("save map");
     map.save();
