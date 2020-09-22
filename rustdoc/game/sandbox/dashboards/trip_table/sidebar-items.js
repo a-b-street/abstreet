@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["ROWS",""]],"enum":[["SortBy",""]],"fn":[["make",""],["make_table",""],["preview_route",""],["preview_trip",""]],"struct":[["Entry",""],["Options",""],["TripTable",""]]});
+initSidebarItems({"fn":[["make_panel",""],["make_table_finished_trips",""],["preview_route",""],["preview_trip",""],["produce_raw_data",""]],"struct":[["CancelledTrip",""],["Filters",""],["FinishedTrip",""],["TripTable",""],["UnfinishedTrip",""]]});
