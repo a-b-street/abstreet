@@ -391,32 +391,6 @@
 <span id="391">391</span>
 <span id="392">392</span>
 <span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">bridges</span>;
 <span class="kw">mod</span> <span class="ident">buildings</span>;
@@ -626,9 +600,6 @@
         }
 
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">intersections</span>.<span class="ident">iter_mut</span>() {
-            <span class="kw">if</span> <span class="ident">is_border</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">lanes</span>) {
-                <span class="ident">i</span>.<span class="ident">intersection_type</span> <span class="op">=</span> <span class="ident">IntersectionType</span>::<span class="ident">Border</span>;
-            }
             <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_border</span>() {
                 <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
                     <span class="macro">panic</span><span class="macro">!</span>(
@@ -756,29 +727,6 @@
 
         <span class="ident">map</span>
     }
-}
-
-<span class="kw">fn</span> <span class="ident">is_border</span>(<span class="ident">intersection</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">lanes</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Lane</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-    <span class="comment">// RawIntersection said it is.</span>
-    <span class="kw">if</span> <span class="ident">intersection</span>.<span class="ident">is_border</span>() {
-        <span class="kw">return</span> <span class="bool-val">true</span>;
-    }
-
-    <span class="comment">// This only detects one-way borders! Two-way ones will just look like dead-ends.</span>
-
-    <span class="comment">// Bias for driving</span>
-    <span class="kw">if</span> <span class="ident">intersection</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
-        <span class="kw">return</span> <span class="bool-val">false</span>;
-    }
-    <span class="kw">let</span> <span class="ident">has_driving_in</span> <span class="op">=</span> <span class="ident">intersection</span>
-        .<span class="ident">incoming_lanes</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">any</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">lanes</span>[<span class="ident">l</span>.<span class="number">0</span>].<span class="ident">is_driving</span>());
-    <span class="kw">let</span> <span class="ident">has_driving_out</span> <span class="op">=</span> <span class="ident">intersection</span>
-        .<span class="ident">outgoing_lanes</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">any</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">lanes</span>[<span class="ident">l</span>.<span class="number">0</span>].<span class="ident">is_driving</span>());
-    <span class="ident">has_driving_in</span> <span class="op">!</span><span class="op">=</span> <span class="ident">has_driving_out</span>
 }
 
 <span class="comment">// If the result doesn&#39;t contain a requested point, then there was no matching lane close</span>

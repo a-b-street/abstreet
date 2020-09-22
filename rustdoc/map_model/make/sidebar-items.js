@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["is_border",""],["match_points_to_lanes",""]],"mod":[["bridges",""],["buildings",""],["initial",""],["parking_lots",""],["remove_disconnected",""],["traffic_signals",""],["transit",""],["turns",""],["walking_turns",""]]});
+initSidebarItems({"fn":[["match_points_to_lanes",""]],"mod":[["bridges",""],["buildings",""],["initial",""],["parking_lots",""],["remove_disconnected",""],["traffic_signals",""],["transit",""],["turns",""],["walking_turns",""]]});
