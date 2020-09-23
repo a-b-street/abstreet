@@ -253,12 +253,12 @@ impl Analytics {
         None
     }
 
-    // Returns pairs of trip times for finished trips in both worlds. (before, after, mode)
+    // Returns pairs of trip times for finished trips in both worlds. (ID, before, after, mode)
     pub fn both_finished_trips(
         &self,
         now: Time,
         before: &Analytics,
-    ) -> Vec<(Duration, Duration, TripMode)> {
+    ) -> Vec<(TripID, Duration, Duration, TripMode)> {
         let mut a = BTreeMap::new();
         for (t, id, maybe_mode, dt) in &self.finished_trips {
             if *t > now {
@@ -276,7 +276,7 @@ impl Analytics {
             }
             if let Some(mode) = maybe_mode {
                 if let Some(dt1) = a.remove(id) {
-                    results.push((*dt, dt1, *mode));
+                    results.push((*id, *dt, dt1, *mode));
                 }
             }
         }

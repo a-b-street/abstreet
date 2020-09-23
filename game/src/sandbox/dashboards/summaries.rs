@@ -1,13 +1,15 @@
 use crate::app::App;
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::checkbox_per_mode;
 use crate::sandbox::dashboards::DashTab;
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
 use sim::TripMode;
 use std::collections::BTreeSet;
+use std::fs::File;
+use std::io::Write;
 use widgetry::{
-    Choice, Color, CompareTimes, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
+    Btn, Choice, Color, CompareTimes, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
     Panel, Text, Widget,
 };
 
@@ -42,6 +44,7 @@ impl TripSummaries {
                     scatter_plot(ctx, app, &filter),
                 ])
                 .evenly_spaced(),
+                Btn::plaintext("Export to CSV").build_def(ctx, None),
             ]))
             .exact_size_percent(90, 90)
             .build(ctx),
@@ -52,7 +55,19 @@ impl TripSummaries {
 impl State for TripSummaries {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
-            Outcome::Clicked(x) => DashTab::TripSummaries.transition(ctx, app, &x),
+            Outcome::Clicked(x) => match x.as_ref() {
+                "Export to CSV" => {
+                    return Transition::Push(match export_times(app) {
+                        Ok(path) => PopupMsg::new(
+                            ctx,
+                            "Data exported",
+                            vec![format!("Data exported to {}", path)],
+                        ),
+                        Err(err) => PopupMsg::new(ctx, "Export failed", vec![err.to_string()]),
+                    });
+                }
+                x => DashTab::TripSummaries.transition(ctx, app, x),
+            },
             Outcome::Changed => {
                 let mut filter = Filter {
                     changes_pct: self.panel.dropdown_value("filter"),
@@ -89,7 +104,7 @@ fn summary(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     let mut num_slower = 0;
     let mut sum_faster = Duration::ZERO;
     let mut sum_slower = Duration::ZERO;
-    for (b, a, mode) in app
+    for (_, b, a, mode) in app
         .primary
         .sim
         .get_analytics()
@@ -325,7 +340,7 @@ impl Filter {
 
     fn get_trips(&self, app: &App) -> Vec<(Duration, Duration)> {
         let mut points = Vec::new();
-        for (b, a, mode) in app
+        for (_, b, a, mode) in app
             .primary
             .sim
             .get_analytics()
@@ -350,4 +365,30 @@ fn pct_diff(a: Duration, b: Duration) -> f64 {
     } else {
         (b / a) - 1.0
     }
+}
+
+fn export_times(app: &App) -> Result<String, std::io::Error> {
+    let path = format!(
+        "trip_times_{}_{}.csv",
+        app.primary.map.get_name(),
+        app.primary.sim.time().as_filename()
+    );
+    let mut f = File::create(&path)?;
+    writeln!(f, "id,mode,seconds_before,seconds_after")?;
+    for (id, b, a, mode) in app
+        .primary
+        .sim
+        .get_analytics()
+        .both_finished_trips(app.primary.sim.time(), app.prebaked())
+    {
+        writeln!(
+            f,
+            "{},{:?},{},{}",
+            id.0,
+            mode,
+            b.inner_seconds(),
+            a.inner_seconds()
+        )?;
+    }
+    Ok(path)
 }

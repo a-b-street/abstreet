@@ -253,7 +253,7 @@ impl Tutorial {
             if app.primary.sim.is_done() {
                 let mut before = Duration::ZERO;
                 let mut after = Duration::ZERO;
-                for (b, a, _) in app
+                for (_, b, a, _) in app
                     .primary
                     .sim
                     .get_analytics()
