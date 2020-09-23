@@ -1706,7 +1706,7 @@
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">is_done</span>() {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
-                <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">a</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">app</span>
+                <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">b</span>, <span class="ident">a</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">app</span>
                     .<span class="ident">primary</span>
                     .<span class="ident">sim</span>
                     .<span class="ident">get_analytics</span>()
