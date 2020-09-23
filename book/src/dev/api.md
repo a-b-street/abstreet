@@ -10,9 +10,11 @@ This
 [Python example](https://github.com/dabreegster/abstreet/blob/master/headless/examples/python_client.py)
 has everything you need to get started.
 
-Also check out the
-[Go example](https://github.com/dabreegster/abstreet/blob/master/headless/examples/go_client.go),
-which demonstrates just a few of the API calls.
+There's an experiment to cancel different percentages of trips and quantify the
+trip time savings on the remaining trips. The experiment is written in both
+[Go](https://github.com/dabreegster/abstreet/blob/master/headless/examples/go_client.go)
+and
+[Python](https://github.com/dabreegster/abstreet/blob/master/headless/examples/cancel_experiment.py).
 
 ## API details
 
