@@ -283,6 +283,48 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">select</span>::<span class="ident">RoadSelector</span>;
@@ -396,37 +438,7 @@
                     .<span class="ident">small_heading</span>()
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="string">&quot;Lane types&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Change all&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                    <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;from lt&quot;</span>,
-                        <span class="prelude-val">None</span>,
-                        <span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;---&quot;</span>, <span class="prelude-val">None</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;driving&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>)),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;parking&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Parking</span>)),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bike&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>)),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bus&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Bus</span>)),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;construction&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Construction</span>)),
-                        ],
-                    ),
-                    <span class="string">&quot;lanes to&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                    <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;to lt&quot;</span>,
-                        <span class="prelude-val">None</span>,
-                        <span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;---&quot;</span>, <span class="prelude-val">None</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;driving&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>)),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;parking&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Parking</span>)),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bike&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>)),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bus&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Bus</span>)),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;construction&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Construction</span>)),
-                        ],
-                    ),
-                    <span class="comment">// TODO Add another transformation</span>
-                ]),
+                <span class="ident">make_lt_switcher</span>(<span class="ident">ctx</span>, <span class="macro">vec</span><span class="macro">!</span>[(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)]),
                 {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;don&#39;t change&quot;</span>, <span class="prelude-val">None</span>)];
                     <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">speed_limit_choices</span>() {
@@ -464,49 +476,30 @@
                 <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="self">self</span>
                         .<span class="ident">panel</span>
-                        .<span class="ident">dropdown_value</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;speed limit&quot;</span>)
+                        .<span class="ident">dropdown_value</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="string">&quot;speed limit&quot;</span>)
                         .<span class="ident">is_none</span>()
-                        <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>
-                            .<span class="ident">panel</span>
-                            .<span class="ident">dropdown_value</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;from lt&quot;</span>)
-                            .<span class="ident">is_none</span>()
-                        <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>
-                            .<span class="ident">panel</span>
-                            .<span class="ident">dropdown_value</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;to lt&quot;</span>)
-                            .<span class="ident">is_none</span>()
+                        <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">get_lt_transformations</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>)
+                            .<span class="ident">into_iter</span>()
+                            .<span class="ident">all</span>(<span class="op">|</span>(<span class="ident">lt1</span>, <span class="ident">lt2</span>)<span class="op">|</span> <span class="ident">lt1</span>.<span class="ident">is_none</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">lt2</span>.<span class="ident">is_none</span>())
                     {
                         <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                     }
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ConfirmDiscard</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> {})));
                 }
                 <span class="string">&quot;Finish&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">speed</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;speed limit&quot;</span>) {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
-                            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">speed_limit</span> <span class="op">!</span><span class="op">=</span> <span class="ident">speed</span> {
-                                <span class="ident">edits</span>
-                                    .<span class="ident">commands</span>
-                                    .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                                        <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">speed</span>;
-                                    }));
-                            }
-                        }
-                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                    }
-                    <span class="comment">// TODO In both cases, mention what speed limit changes happened</span>
-                    <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">from</span>), <span class="prelude-val">Some</span>(<span class="ident">to</span>)) <span class="op">=</span> (
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;from lt&quot;</span>),
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;to lt&quot;</span>),
-                    ) {
-                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">change_lane_types</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>,
-                            <span class="ident">from</span>,
-                            <span class="ident">to</span>,
-                        ));
-                    }
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">make_bulk_edits</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>,
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;speed limit&quot;</span>),
+                        <span class="ident">get_lt_transformations</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>),
+                    ));
+                }
+                <span class="string">&quot;add another lane type transformation&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">get_lt_transformations</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
+                    <span class="ident">pairs</span>.<span class="ident">push</span>((<span class="prelude-val">None</span>, <span class="prelude-val">None</span>));
+                    <span class="kw">let</span> <span class="ident">switcher</span> <span class="op">=</span> <span class="ident">make_lt_switcher</span>(<span class="ident">ctx</span>, <span class="ident">pairs</span>);
+                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;lt transformations&quot;</span>, <span class="ident">switcher</span>);
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
@@ -522,32 +515,120 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">change_lane_types</span>(
+<span class="kw">fn</span> <span class="ident">get_lt_transformations</span>(<span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">loop</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">from</span>) <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">maybe_dropdown_value</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;from lt #{}&quot;</span>, <span class="ident">idx</span>)) {
+            <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;to lt #{}&quot;</span>, <span class="ident">idx</span>));
+            <span class="ident">pairs</span>.<span class="ident">push</span>((<span class="ident">from</span>, <span class="ident">to</span>));
+            <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        } <span class="kw">else</span> {
+            <span class="kw">break</span>;
+        }
+    }
+    <span class="ident">pairs</span>
+}
+
+<span class="kw">fn</span> <span class="ident">make_lt_switcher</span>(
+    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+    <span class="ident">pairs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">from</span>, <span class="ident">to</span>)) <span class="kw">in</span> <span class="ident">pairs</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="string">&quot;Change all&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+            <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                <span class="ident">ctx</span>,
+                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;from lt #{}&quot;</span>, <span class="ident">idx</span>),
+                <span class="ident">from</span>,
+                <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;---&quot;</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;driving&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>)),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;parking&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Parking</span>)),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bike&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>)),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bus&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Bus</span>)),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;construction&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Construction</span>)),
+                ],
+            ),
+            <span class="string">&quot;lanes to&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+            <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                <span class="ident">ctx</span>,
+                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;to lt #{}&quot;</span>, <span class="ident">idx</span>),
+                <span class="ident">to</span>,
+                <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;---&quot;</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;driving&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>)),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;parking&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Parking</span>)),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bike&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>)),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bus&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Bus</span>)),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;construction&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Construction</span>)),
+                ],
+            ),
+            <span class="ident">Btn</span>::<span class="ident">plaintext_custom</span>(
+                <span class="string">&quot;add another lane type transformation&quot;</span>,
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;+ Add&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>))),
+            )
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+        ]));
+    }
+    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">named</span>(<span class="string">&quot;lt transformations&quot;</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">make_bulk_edits</span>(
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-    <span class="ident">from</span>: <span class="ident">LaneType</span>,
-    <span class="ident">to</span>: <span class="ident">LaneType</span>,
+    <span class="ident">speed_limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span>,
+    <span class="ident">lt_transformations</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changes</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">speed_changes</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lt_changes</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">errors</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;change lane types&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;transform roads&quot;</span>, <span class="ident">roads</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">roads</span> {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">all_lanes</span>() {
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">from</span> {
-                    <span class="kw">match</span> <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">l</span>, <span class="ident">to</span>) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                            <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">cmd</span>);
-                            <span class="comment">// Do this immediately, so the next lane we consider sees the true state</span>
-                            <span class="comment">// of the world.</span>
-                            <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                            <span class="ident">changes</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                        }
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="ident">errors</span>.<span class="ident">push</span>(<span class="ident">err</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">speed</span>) <span class="op">=</span> <span class="ident">speed_limit</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">roads</span> {
+                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">speed_limit</span> <span class="op">!</span><span class="op">=</span> <span class="ident">speed</span> {
+                    <span class="ident">edits</span>
+                        .<span class="ident">commands</span>
+                        .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
+                            <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">speed</span>;
+                        }));
+                    <span class="ident">speed_changes</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                }
+            }
+            <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+        }
+
+        <span class="kw">for</span> (<span class="ident">maybe_from</span>, <span class="ident">maybe_to</span>) <span class="kw">in</span> <span class="ident">lt_transformations</span> {
+            <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>) <span class="op">=</span> <span class="ident">maybe_from</span> {
+                <span class="ident">lt</span>
+            } <span class="kw">else</span> {
+                <span class="kw">continue</span>;
+            };
+            <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>) <span class="op">=</span> <span class="ident">maybe_to</span> {
+                <span class="ident">lt</span>
+            } <span class="kw">else</span> {
+                <span class="kw">continue</span>;
+            };
+            <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;change {:?} to {:?}&quot;</span>, <span class="ident">from</span>, <span class="ident">to</span>), <span class="ident">roads</span>.<span class="ident">len</span>());
+            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">roads</span> {
+                <span class="ident">timer</span>.<span class="ident">next</span>();
+                <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">all_lanes</span>() {
+                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">from</span> {
+                        <span class="kw">match</span> <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">l</span>, <span class="ident">to</span>) {
+                            <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+                                <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">cmd</span>);
+                                <span class="comment">// Do this immediately, so the next lane we consider sees the true</span>
+                                <span class="comment">// state of the world.</span>
+                                <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                                <span class="ident">lt_changes</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                            }
+                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">errors</span>.<span class="ident">push</span>(<span class="ident">err</span>);
+                            }
                         }
                     }
                 }
@@ -557,17 +638,20 @@
 
     <span class="comment">// TODO Need to express the errors in some form that we can union here.</span>
 
-    <span class="ident">PopupMsg</span>::<span class="ident">new</span>(
-        <span class="ident">ctx</span>,
-        <span class="string">&quot;Changed lane types&quot;</span>,
-        <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;Changed {} {:?} lanes to {:?} lanes. {} errors&quot;</span>,
-            <span class="ident">changes</span>,
-            <span class="ident">from</span>,
-            <span class="ident">to</span>,
-            <span class="ident">errors</span>.<span class="ident">len</span>()
-        )],
-    )
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">speed</span>) <span class="op">=</span> <span class="ident">speed_limit</span> {
+        <span class="ident">results</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="string">&quot;Changed {} roads to have a speed limit of {}&quot;</span>,
+            <span class="ident">speed_changes</span>, <span class="ident">speed</span>
+        ));
+    }
+    <span class="ident">results</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="string">&quot;Changed {} lane types, encountered {} problems&quot;</span>,
+        <span class="ident">lt_changes</span>,
+        <span class="ident">errors</span>.<span class="ident">len</span>()
+    ));
+
+    <span class="ident">PopupMsg</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="string">&quot;Edited roads&quot;</span>, <span class="ident">results</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "game";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
