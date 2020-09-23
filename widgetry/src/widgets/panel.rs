@@ -263,8 +263,19 @@ impl Panel {
         self.find_mut::<Spinner>(name).modify(delta)
     }
 
-    pub fn dropdown_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {
-        self.find::<Dropdown<T>>(name).current_value()
+    pub fn dropdown_value<T: 'static + PartialEq + Clone, I: Into<String>>(&self, name: I) -> T {
+        self.find::<Dropdown<T>>(&name.into()).current_value()
+    }
+    pub fn maybe_dropdown_value<T: 'static + PartialEq + Clone, I: Into<String>>(
+        &self,
+        name: I,
+    ) -> Option<T> {
+        let name = name.into();
+        if self.has_widget(&name) {
+            Some(self.find::<Dropdown<T>>(&name).current_value())
+        } else {
+            None
+        }
     }
     pub fn persistent_split_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {
         self.find::<PersistentSplit<T>>(name).current_value()

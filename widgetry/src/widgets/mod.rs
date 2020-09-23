@@ -336,15 +336,16 @@ impl Widget {
     }
 
     // TODO Likewise
-    pub fn dropdown<T: 'static + PartialEq + Clone + std::fmt::Debug>(
+    pub fn dropdown<T: 'static + PartialEq + Clone + std::fmt::Debug, I: Into<String>>(
         ctx: &EventCtx,
-        label: &str,
+        label: I,
         default_value: T,
         choices: Vec<Choice<T>>,
     ) -> Widget {
+        let label = label.into();
         Widget::new(Box::new(Dropdown::new(
             ctx,
-            label,
+            &label,
             default_value,
             choices,
             false,
