@@ -183,7 +183,9 @@ impl<'a> GfxCtx<'a> {
         ];
         self.num_forks += 1;
         // Temporarily disable clipping if needed.
-        let clip = self.inner.take_clip();
+        let clip = self
+            .inner
+            .take_clip(self.prerender.get_scale_factor(), self.canvas);
         batch.draw(self);
         self.unfork();
         self.inner.restore_clip(clip);

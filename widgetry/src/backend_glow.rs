@@ -88,8 +88,10 @@ impl<'a> GfxCtxInnards<'a> {
         }
     }
 
-    pub fn take_clip(&mut self) -> Option<[i32; 4]> {
-        self.current_clip.take()
+    pub fn take_clip(&mut self, scale_factor: f64, canvas: &Canvas) -> Option<[i32; 4]> {
+        let clip = self.current_clip?;
+        self.disable_clipping(scale_factor, canvas);
+        Some(clip)
     }
 
     pub fn restore_clip(&mut self, clip: Option<[i32; 4]>) {
