@@ -273,6 +273,7 @@ fn apply_edits(map: &mut Map) {
     if let Some(edits) = EDITS.read().unwrap().as_ref() {
         let mut timer = Timer::new(format!("apply edits {}", edits.edits_name));
         map.must_apply_edits(edits.clone(), &mut timer);
+        map.recalculate_pathfinding_after_edits(&mut timer);
     }
 }
 
