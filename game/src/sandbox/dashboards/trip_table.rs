@@ -556,104 +556,87 @@ fn make_table_unfinished_trips(app: &App) -> Table<UnfinishedTrip, Filters> {
     table
 }
 
+fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget {
+    let (finished, unfinished) = app.primary.sim.num_trips();
+    let mut aborted = 0;
+    // TODO Can we avoid iterating through this again?
+    for (_, _, maybe_mode, _) in &app.primary.sim.get_analytics().finished_trips {
+        if maybe_mode.is_none() {
+            aborted += 1;
+        }
+    }
+
+    let btn = |dash, action, label| {
+        if dash == tab {
+            Text::from(Line(label).underlined())
+                .draw(ctx)
+                .centered_vert()
+        } else {
+            Btn::plaintext(label).build(ctx, action, None)
+        }
+    };
+
+    Widget::custom_row(vec![
+        btn(
+            DashTab::FinishedTripTable,
+            "finished trips",
+            format!(
+                "{} ({:.1}%) Finished Trips",
+                prettyprint_usize(finished),
+                (finished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
+            ),
+        )
+        .margin_right(28),
+        btn(
+            DashTab::CancelledTripTable,
+            "cancelled trips",
+            format!("{} Cancelled Trips", prettyprint_usize(aborted)),
+        )
+        .margin_right(28),
+        btn(
+            DashTab::UnfinishedTripTable,
+            "unfinished trips",
+            format!(
+                "{} ({:.1}%) Unfinished Trips",
+                prettyprint_usize(unfinished),
+                (unfinished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
+            ),
+        ),
+    ])
+}
+
 fn make_panel_finished_trips(
     ctx: &mut EventCtx,
     app: &App,
     table: &Table<FinishedTrip, Filters>,
 ) -> Panel {
-    let (finished, unfinished) = app.primary.sim.num_trips();
-    let mut aborted = 0;
-    // TODO Can we avoid iterating through this again?
-    for (_, _, maybe_mode, _) in &app.primary.sim.get_analytics().finished_trips {
-        if maybe_mode.is_none() {
-            aborted += 1;
-        }
-    }
-
-    let mut col = vec![DashTab::FinishedTripTable.picker(ctx, app)];
-
-    col.push(Widget::custom_row(vec![
-        Text::from(
-            Line(format!(
-                "{} ({:.1}%) Finished Trips",
-                prettyprint_usize(finished),
-                (finished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
-            ))
-            .underlined(),
-        )
-        .draw(ctx)
-        .margin_right(28),
-        Btn::plaintext(format!("{} Cancelled Trips", prettyprint_usize(aborted)))
-            .build(ctx, "cancelled trips", None)
-            .margin_right(28),
-        Btn::plaintext(format!(
-            "{} ({:.1}%) Unfinished Trips",
-            prettyprint_usize(unfinished),
-            (unfinished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
-        ))
-        .build(ctx, "unfinished trips", None),
-    ]));
-
-    col.push(table.render(ctx, app));
-
-    col.push(
+    Panel::new(Widget::col(vec![
+        DashTab::FinishedTripTable.picker(ctx, app),
+        trip_category_selector(ctx, app, DashTab::FinishedTripTable),
+        table.render(ctx, app),
         Filler::square_width(ctx, 0.15)
             .named("preview")
             .centered_horiz(),
-    );
-
-    Panel::new(Widget::col(col))
-        .exact_size_percent(90, 90)
-        .build(ctx)
+    ]))
+    .exact_size_percent(90, 90)
+    .build(ctx)
 }
 
-// TODO Dedupe some code
 fn make_panel_cancelled_trips(
     ctx: &mut EventCtx,
     app: &App,
     table: &Table<CancelledTrip, Filters>,
 ) -> Panel {
-    let (finished, unfinished) = app.primary.sim.num_trips();
-    let mut aborted = 0;
-    // TODO Can we avoid iterating through this again?
-    for (_, _, maybe_mode, _) in &app.primary.sim.get_analytics().finished_trips {
-        if maybe_mode.is_none() {
-            aborted += 1;
-        }
-    }
-
-    let mut col = vec![DashTab::CancelledTripTable.picker(ctx, app)];
-
-    col.push(Widget::custom_row(vec![
-        Btn::plaintext(format!(
-            "{} ({:.1}%) Finished Trips",
-            prettyprint_usize(finished),
-            (finished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
-        ))
-        .build(ctx, "finished trips", None)
-        .margin_right(28),
-        Text::from(Line(format!("{} Cancelled Trips", prettyprint_usize(aborted))).underlined())
-            .draw(ctx)
-            .margin_right(28),
-        Btn::plaintext(format!(
-            "{} ({:.1}%) Unfinished Trips",
-            prettyprint_usize(unfinished),
-            (unfinished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
-        ))
-        .build(ctx, "unfinished trips", None),
-    ]));
-
-    col.push(table.render(ctx, app));
-
-    col.push(
+    Panel::new(Widget::col(vec![
+        DashTab::CancelledTripTable.picker(ctx, app),
+        trip_category_selector(ctx, app, DashTab::CancelledTripTable),
+        table.render(ctx, app),
         Filler::square_width(ctx, 0.15)
             .named("preview")
             .centered_horiz(),
-    );
-
-    Panel::new(Widget::col(col))
-        .exact_size_percent(90, 90)
-        .build(ctx)
+    ]))
+    .exact_size_percent(90, 90)
+    .build(ctx)
 }
 
 fn make_panel_unfinished_trips(
@@ -661,48 +644,14 @@ fn make_panel_unfinished_trips(
     app: &App,
     table: &Table<UnfinishedTrip, Filters>,
 ) -> Panel {
-    let (finished, unfinished) = app.primary.sim.num_trips();
-    let mut aborted = 0;
-    // TODO Can we avoid iterating through this again?
-    for (_, _, maybe_mode, _) in &app.primary.sim.get_analytics().finished_trips {
-        if maybe_mode.is_none() {
-            aborted += 1;
-        }
-    }
-
-    let mut col = vec![DashTab::UnfinishedTripTable.picker(ctx, app)];
-
-    col.push(Widget::custom_row(vec![
-        Btn::plaintext(format!(
-            "{} ({:.1}%) Finished Trips",
-            prettyprint_usize(finished),
-            (finished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
-        ))
-        .build(ctx, "finished trips", None)
-        .margin_right(28),
-        Btn::plaintext(format!("{} Cancelled Trips", prettyprint_usize(aborted)))
-            .build(ctx, "cancelled trips", None)
-            .margin_right(28),
-        Text::from(
-            Line(format!(
-                "{} ({:.1}%) Unfinished Trips",
-                prettyprint_usize(unfinished),
-                (unfinished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
-            ))
-            .secondary(),
-        )
-        .draw(ctx),
-    ]));
-
-    col.push(table.render(ctx, app));
-
-    col.push(
+    Panel::new(Widget::col(vec![
+        DashTab::UnfinishedTripTable.picker(ctx, app),
+        trip_category_selector(ctx, app, DashTab::UnfinishedTripTable),
+        table.render(ctx, app),
         Filler::square_width(ctx, 0.15)
             .named("preview")
             .centered_horiz(),
-    );
-
-    Panel::new(Widget::col(col))
-        .exact_size_percent(90, 90)
-        .build(ctx)
+    ]))
+    .exact_size_percent(90, 90)
+    .build(ctx)
 }

@@ -1,7 +1,7 @@
 use crate::app::App;
 use abstutil::prettyprint_usize;
 use geom::Polygon;
-use widgetry::{Btn, EventCtx, GeomBatch, Line, Panel, Text, TextExt, Widget};
+use widgetry::{Btn, Color, EventCtx, GeomBatch, Key, Line, Panel, Text, TextExt, Widget};
 
 // TODO With a bit more detangling from App, this could be lifted to widgetry!
 
@@ -108,7 +108,7 @@ impl<T, F> Table<T, F> {
                 } else if let Col::Sortable(_) = col.col {
                     Btn::text_bg2(&col.name).build_def(ctx, None)
                 } else {
-                    Line(&col.name).draw(ctx)
+                    Line(&col.name).draw(ctx).centered_vert()
                 }
             })
             .collect();
@@ -126,36 +126,10 @@ impl<T, F> Table<T, F> {
         }
 
         // Put together the UI
-        let table_widget = make_table(ctx, app, headers, rows, 0.88 * ctx.canvas.window_width);
-
-        let pagination = Widget::row(vec![
-            if self.skip > 0 {
-                Btn::text_fg("<").build(ctx, "previous", None)
-            } else {
-                Btn::text_fg("<").inactive(ctx)
-            },
-            format!(
-                "{}-{} of {}",
-                if num_filtered > 0 {
-                    prettyprint_usize(self.skip + 1)
-                } else {
-                    "0".to_string()
-                },
-                prettyprint_usize((self.skip + 1 + ROWS).min(num_filtered)),
-                prettyprint_usize(num_filtered)
-            )
-            .draw_text(ctx),
-            if self.skip + 1 + ROWS < num_filtered {
-                Btn::text_fg(">").build(ctx, "next", None)
-            } else {
-                Btn::text_fg(">").inactive(ctx)
-            },
-        ]);
-
         Widget::col(vec![
             (self.filter.to_controls)(ctx, app, &self.filter.state),
-            pagination,
-            table_widget,
+            make_table(ctx, headers, rows, 0.88 * ctx.canvas.window_width),
+            make_pagination(ctx, num_filtered, self.skip),
         ])
     }
 
@@ -186,6 +160,7 @@ impl<T, F> Table<T, F> {
 
     pub fn panel_changed(&mut self, panel: &Panel) {
         self.filter.state = (self.filter.from_controls)(panel);
+        self.skip = 0;
     }
 }
 
@@ -201,9 +176,35 @@ impl<T: 'static, F> Table<T, F> {
     }
 }
 
+fn make_pagination(ctx: &mut EventCtx, total: usize, skip: usize) -> Widget {
+    Widget::row(vec![
+        if skip > 0 {
+            Btn::plaintext("<").build(ctx, "previous", Key::LeftArrow)
+        } else {
+            Btn::plaintext("<").inactive(ctx)
+        },
+        format!(
+            "{}-{} of {}",
+            if total > 0 {
+                prettyprint_usize(skip + 1)
+            } else {
+                "0".to_string()
+            },
+            prettyprint_usize((skip + 1 + ROWS).min(total)),
+            prettyprint_usize(total)
+        )
+        .draw_text(ctx)
+        .centered_vert(),
+        if skip + 1 + ROWS < total {
+            Btn::plaintext(">").build(ctx, "next", Key::RightArrow)
+        } else {
+            Btn::plaintext(">").inactive(ctx)
+        },
+    ])
+}
+
 fn make_table(
     ctx: &mut EventCtx,
-    app: &App,
     headers: Vec<Widget>,
     rows: Vec<(String, Vec<GeomBatch>)>,
     total_width: f64,
@@ -232,8 +233,7 @@ fn make_table(
                 }
             })
             .collect(),
-    )
-    .bg(app.cs.section_bg)];
+    )];
 
     // TODO Maybe can do this now simpler with to_geom
     for (label, row) in rows {
@@ -247,7 +247,7 @@ fn make_table(
 
         let rect = Polygon::rectangle(total_width, batch.get_dims().height);
         let mut hovered = GeomBatch::new();
-        hovered.push(app.cs.hovering, rect.clone());
+        hovered.push(Color::hex("#7C7C7C"), rect.clone());
         hovered.append(batch.clone());
 
         col.push(
