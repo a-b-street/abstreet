@@ -273,6 +273,8 @@
 <span id="273">273</span>
 <span id="274">274</span>
 <span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">assets</span>::<span class="ident">Assets</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend</span>::{<span class="ident">GfxCtxInnards</span>, <span class="ident">PrerenderInnards</span>};
@@ -459,7 +461,9 @@
         ];
         <span class="self">self</span>.<span class="ident">num_forks</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         <span class="comment">// Temporarily disable clipping if needed.</span>
-        <span class="kw">let</span> <span class="ident">clip</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">take_clip</span>();
+        <span class="kw">let</span> <span class="ident">clip</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">inner</span>
+            .<span class="ident">take_clip</span>(<span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">get_scale_factor</span>(), <span class="self">self</span>.<span class="ident">canvas</span>);
         <span class="ident">batch</span>.<span class="ident">draw</span>(<span class="self">self</span>);
         <span class="self">self</span>.<span class="ident">unfork</span>();
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">restore_clip</span>(<span class="ident">clip</span>);

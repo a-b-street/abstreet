@@ -351,6 +351,8 @@
 <span id="351">351</span>
 <span id="352">352</span>
 <span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">drawing</span>::<span class="ident">Uniforms</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">GeomBatch</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenRectangle</span>};
@@ -442,8 +444,10 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_clip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">4</span>]<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">current_clip</span>.<span class="ident">take</span>()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_clip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">4</span>]<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">clip</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_clip</span><span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">disable_clipping</span>(<span class="ident">scale_factor</span>, <span class="ident">canvas</span>);
+        <span class="prelude-val">Some</span>(<span class="ident">clip</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore_clip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">clip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">4</span>]<span class="op">&gt;</span>) {
