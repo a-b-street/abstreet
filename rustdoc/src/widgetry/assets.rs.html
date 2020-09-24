@@ -224,7 +224,7 @@
             .<span class="ident">text_opts</span>
             .<span class="ident">fontdb</span>
             .<span class="ident">with_face_data</span>(<span class="self">self</span>.<span class="ident">font_to_id</span>[<span class="kw-2">&amp;</span><span class="ident">font</span>], <span class="op">|</span><span class="ident">data</span>, <span class="ident">face_index</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">font</span> <span class="op">=</span> <span class="ident">ttf_parser</span>::<span class="ident">Font</span>::<span class="ident">from_data</span>(<span class="ident">data</span>, <span class="ident">face_index</span>).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">font</span> <span class="op">=</span> <span class="ident">ttf_parser</span>::<span class="ident">Face</span>::<span class="ident">from_slice</span>(<span class="ident">data</span>, <span class="ident">face_index</span>).<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">units_per_em</span> <span class="op">=</span> <span class="ident">font</span>.<span class="ident">units_per_em</span>().<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">ascent</span> <span class="op">=</span> <span class="ident">font</span>.<span class="ident">ascender</span>();
                 <span class="kw">let</span> <span class="ident">descent</span> <span class="op">=</span> <span class="ident">font</span>.<span class="ident">descender</span>();
