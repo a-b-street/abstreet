@@ -8,4 +8,4 @@ edition = "2018"
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 quick-xml = "0.18.1"
-serde = "1.0.110"
+serde = "1.0.116"

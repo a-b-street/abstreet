@@ -6,14 +6,14 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-downcast-rs = "1.1.1"
+downcast-rs = "1.2.0"
 enum_dispatch = "0.3.3"
 geom = { path = "../geom" }
-instant = "0.1.2"
+instant = "0.1.7"
 libm = "0.2.1"
-log = "0.4"
+log = "0.4.11"
 map_model = { path = "../map_model" }
 rand = "0.7.0"
-rand_distr = "0.2.2"
+rand_distr = "0.3.0"
 rand_xorshift = "0.2.0"
-serde = "1.0.110"
+serde = "1.0.116"

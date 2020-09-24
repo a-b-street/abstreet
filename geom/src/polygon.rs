@@ -326,7 +326,7 @@ impl Polygon {
     // Usually m^2, unless the polygon is in screen-space
     pub fn area(&self) -> f64 {
         // Polygon orientation messes this up sometimes
-        to_geo(&self.points()).area().abs()
+        to_geo(&self.points()).unsigned_area()
     }
 
     // Doesn't handle multiple crossings in and out.

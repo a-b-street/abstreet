@@ -17,8 +17,9 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
         .build_windowed(window, &event_loop)
         .unwrap();
     let windowed_context = unsafe { context.make_current().unwrap() };
-    let gl =
-        glow::Context::from_loader_function(|s| windowed_context.get_proc_address(s) as *const _);
+    let gl = unsafe {
+        glow::Context::from_loader_function(|s| windowed_context.get_proc_address(s) as *const _)
+    };
     let program = unsafe { gl.create_program().expect("Cannot create program") };
 
     unsafe {
