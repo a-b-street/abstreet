@@ -155,11 +155,10 @@ automatically control it through an API.</p>
 <p>This
 <a href="https://github.com/dabreegster/abstreet/blob/master/headless/examples/python_client.py">Python example</a>
 has everything you need to get started.</p>
-<p>There's an experiment to cancel different percentages of trips and quantify the
-trip time savings on the remaining trips. The experiment is written in both
-<a href="https://github.com/dabreegster/abstreet/blob/master/headless/examples/go_client.go">Go</a>
-and
-<a href="https://github.com/dabreegster/abstreet/blob/master/headless/examples/cancel_experiment.py">Python</a>.</p>
+<p>See
+<a href="https://github.com/dabreegster/abstreet/tree/master/headless/examples">all example code</a>
+-- there are different experiments in Go and Python that automate running a
+simulation, measuring some metric, and making a change to improve the metric.</p>
 <h2><a class="header" href="#api-details" id="api-details">API details</a></h2>
 <blockquote>
 <p><strong>Under construction</strong>: The API will keep changing. There are no backwards
@@ -211,6 +210,8 @@ or &quot;Drive&quot;, or null if the trip was aborted (due to a simulation bug o
 disconnected map).</li>
 <li><strong>GET /data/get-agent-positions</strong>: Returns a JSON list of all active agents.
 Vehicle type (or pedestrian), person ID, and position is included.</li>
+<li><strong>GET /data/get-road-thruput</strong>: Returns a JSON list of (road, agent type,
+hour since midnight, throughput for that one hour period).</li>
 </ul>
 </li>
 <li><strong>/map</strong>

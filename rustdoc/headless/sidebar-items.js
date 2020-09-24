@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["apply_edits",""],["handle_command",""],["main",""],["serve_req",""]],"struct":[["AgentPosition",""],["AgentPositions",""],["Delays",""],["EDITS",""],["FLAGS",""],["FinishedTrips",""],["MAP",""],["SIM",""],["Throughput",""]]});
+initSidebarItems({"fn":[["apply_edits",""],["handle_command",""],["main",""],["serve_req",""]],"struct":[["AgentPosition",""],["AgentPositions",""],["Delays",""],["EDITS",""],["FLAGS",""],["FinishedTrips",""],["MAP",""],["RoadThroughput",""],["SIM",""],["Throughput",""]]});
