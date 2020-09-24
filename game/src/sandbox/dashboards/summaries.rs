@@ -66,9 +66,16 @@ impl State for TripSummaries {
                         Err(err) => PopupMsg::new(ctx, "Export failed", vec![err.to_string()]),
                     });
                 }
-                x => DashTab::TripSummaries.transition(ctx, app, x),
+                "close" => {
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
             },
             Outcome::Changed => {
+                if let Some(t) = DashTab::TripSummaries.transition(ctx, app, &self.panel) {
+                    return t;
+                }
+
                 let mut filter = Filter {
                     changes_pct: self.panel.dropdown_value("filter"),
                     modes: BTreeSet::new(),

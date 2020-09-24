@@ -56,7 +56,13 @@ impl ActiveTraffic {
 impl State for ActiveTraffic {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
-            Outcome::Clicked(x) => DashTab::TripSummaries.transition(ctx, app, &x),
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => Transition::Pop,
+                _ => unreachable!(),
+            },
+            Outcome::Changed => DashTab::ActiveTraffic
+                .transition(ctx, app, &self.panel)
+                .unwrap(),
             _ => Transition::Keep,
         }
     }
@@ -194,11 +200,20 @@ impl State for TransitRoutes {
             Outcome::Clicked(x) => {
                 if let Some(x) = x.strip_prefix("BusRoute #") {
                     BusRouteID(x.parse::<usize>().unwrap())
+                } else if x == "close" {
+                    return Transition::Pop;
                 } else {
-                    return DashTab::TransitRoutes.transition(ctx, app, &x);
+                    unreachable!()
                 }
             }
-            _ => {
+            Outcome::Changed => {
+                if let Some(t) = DashTab::TransitRoutes.transition(ctx, app, &self.panel) {
+                    return t;
+                } else {
+                    return Transition::Keep;
+                }
+            }
+            Outcome::Nothing => {
                 if let Some(routes) = self.panel.autocomplete_done("search") {
                     if !routes.is_empty() {
                         routes[0]

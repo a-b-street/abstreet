@@ -3,6 +3,7 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::color_for_trip_phase;
 use crate::info::{OpenTrip, Tab};
 use crate::sandbox::dashboards::table::Table;
+use crate::sandbox::dashboards::trip_table;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use geom::{Distance, Pt2D};
@@ -66,11 +67,23 @@ impl<T: 'static, F: 'static, P: 'static + Fn(&mut EventCtx, &App, &Table<T, F>) 
                             );
                         })),
                     ]);
+                } else if x == "close" {
+                    return Transition::Pop;
+                } else if x == "finished trips" {
+                    return Transition::Replace(trip_table::FinishedTripTable::new(ctx, app));
+                } else if x == "cancelled trips" {
+                    return Transition::Replace(trip_table::CancelledTripTable::new(ctx, app));
+                } else if x == "unfinished trips" {
+                    return Transition::Replace(trip_table::UnfinishedTripTable::new(ctx, app));
                 } else {
-                    return self.tab.transition(ctx, app, &x);
+                    unreachable!()
                 }
             }
             Outcome::Changed => {
+                if let Some(t) = self.tab.transition(ctx, app, &self.panel) {
+                    return t;
+                }
+
                 self.table.panel_changed(&self.panel);
                 self.recalc(ctx, app);
             }

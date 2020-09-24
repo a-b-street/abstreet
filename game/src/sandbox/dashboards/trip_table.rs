@@ -565,6 +565,7 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
             aborted += 1;
         }
     }
+    let total = finished + aborted + unfinished;
 
     let btn = |dash, action, label| {
         if dash == tab {
@@ -583,7 +584,11 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
             format!(
                 "{} ({:.1}%) Finished Trips",
                 prettyprint_usize(finished),
-                (finished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
+                if total > 0 {
+                    (finished as f64) / (total as f64) * 100.0
+                } else {
+                    0.0
+                }
             ),
         )
         .margin_right(28),
@@ -599,7 +604,11 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
             format!(
                 "{} ({:.1}%) Unfinished Trips",
                 prettyprint_usize(unfinished),
-                (unfinished as f64) / ((finished + aborted + unfinished) as f64) * 100.0
+                if total > 0 {
+                    (unfinished as f64) / (total as f64) * 100.0
+                } else {
+                    0.0
+                }
             ),
         ),
     ])
@@ -622,13 +631,14 @@ fn make_panel_finished_trips(
     .build(ctx)
 }
 
+// Always use DashTab::FinishedTripTable, so the dropdown works
 fn make_panel_cancelled_trips(
     ctx: &mut EventCtx,
     app: &App,
     table: &Table<CancelledTrip, Filters>,
 ) -> Panel {
     Panel::new(Widget::col(vec![
-        DashTab::CancelledTripTable.picker(ctx, app),
+        DashTab::FinishedTripTable.picker(ctx, app),
         trip_category_selector(ctx, app, DashTab::CancelledTripTable),
         table.render(ctx, app),
         Filler::square_width(ctx, 0.15)
@@ -645,7 +655,7 @@ fn make_panel_unfinished_trips(
     table: &Table<UnfinishedTrip, Filters>,
 ) -> Panel {
     Panel::new(Widget::col(vec![
-        DashTab::UnfinishedTripTable.picker(ctx, app),
+        DashTab::FinishedTripTable.picker(ctx, app),
         trip_category_selector(ctx, app, DashTab::UnfinishedTripTable),
         table.render(ctx, app),
         Filler::square_width(ctx, 0.15)
