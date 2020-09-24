@@ -35,14 +35,14 @@ impl Checkbox {
     ) -> Widget {
         let label = label.into();
         let (off, hitbox) = Widget::row(vec![
-            GeomBatch::load_svg(ctx.prerender, "system/assets/tools/toggle_off.svg")
+            GeomBatch::load_svg(ctx.prerender, "system/assets/widgetry/toggle_off.svg")
                 .batch()
                 .centered_vert(),
             label.clone().batch_text(ctx),
         ])
         .to_geom(ctx, None);
         let (on, _) = Widget::row(vec![
-            GeomBatch::load_svg(ctx.prerender, "system/assets/tools/toggle_on.svg")
+            GeomBatch::load_svg(ctx.prerender, "system/assets/widgetry/toggle_on.svg")
                 .batch()
                 .centered_vert(),
             label.clone().batch_text(ctx),
@@ -116,7 +116,7 @@ impl Checkbox {
 
     pub fn colored(ctx: &EventCtx, label: &str, color: Color, enabled: bool) -> Widget {
         let (off, hitbox) = Widget::row(vec![
-            GeomBatch::load_svg(ctx.prerender, "system/assets/tools/checkbox.svg")
+            GeomBatch::load_svg(ctx.prerender, "system/assets/widgetry/checkbox.svg")
                 .color(RewriteColor::ChangeAll(color.alpha(0.3)))
                 .batch()
                 .centered_vert(),
@@ -124,7 +124,7 @@ impl Checkbox {
         ])
         .to_geom(ctx, None);
         let (on, _) = Widget::row(vec![
-            GeomBatch::load_svg(ctx.prerender, "system/assets/tools/checkbox.svg")
+            GeomBatch::load_svg(ctx.prerender, "system/assets/widgetry/checkbox.svg")
                 .color(RewriteColor::Change(Color::BLACK, color))
                 .batch()
                 .centered_vert(),
@@ -172,12 +172,12 @@ impl Checkbox {
             left_label.clone().draw_text(ctx),
             Checkbox::new(
                 enabled,
-                Btn::svg_def("system/assets/tools/toggle_right.svg").build(
+                Btn::svg_def("system/assets/widgetry/toggle_right.svg").build(
                     ctx,
                     left_label,
                     hotkey.clone(),
                 ),
-                Btn::svg_def("system/assets/tools/toggle_left.svg").build(
+                Btn::svg_def("system/assets/widgetry/toggle_left.svg").build(
                     ctx,
                     right_label.clone(),
                     hotkey,
