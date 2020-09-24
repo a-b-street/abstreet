@@ -10,11 +10,10 @@ This
 [Python example](https://github.com/dabreegster/abstreet/blob/master/headless/examples/python_client.py)
 has everything you need to get started.
 
-There's an experiment to cancel different percentages of trips and quantify the
-trip time savings on the remaining trips. The experiment is written in both
-[Go](https://github.com/dabreegster/abstreet/blob/master/headless/examples/go_client.go)
-and
-[Python](https://github.com/dabreegster/abstreet/blob/master/headless/examples/cancel_experiment.py).
+See
+[all example code](https://github.com/dabreegster/abstreet/tree/master/headless/examples)
+-- there are different experiments in Go and Python that automate running a
+simulation, measuring some metric, and making a change to improve the metric.
 
 ## API details
 
@@ -60,6 +59,8 @@ are missing, etc. A summary of the commands available so far:
     disconnected map).
   - **GET /data/get-agent-positions**: Returns a JSON list of all active agents.
     Vehicle type (or pedestrian), person ID, and position is included.
+  - **GET /data/get-road-thruput**: Returns a JSON list of (road, agent type,
+    hour since midnight, throughput for that one hour period).
 - **/map**
   - **GET /map/get-edits**: Returns the current map edits in JSON. You can save
     this to a file in `data/player/edits/map_name/` and later use it in-game

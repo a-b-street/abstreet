@@ -14,12 +14,12 @@ use geom::{Duration, LonLat, Time};
 use hyper::{Body, Request, Response, Server};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
-    MapEdits, MovementID, PermanentMapEdits,
+    MapEdits, MovementID, PermanentMapEdits, RoadID,
 };
 use serde::Serialize;
 use sim::{
-    ExternalPerson, GetDrawAgents, PersonID, Scenario, Sim, SimFlags, SimOptions, TripID, TripMode,
-    VehicleType,
+    AgentType, ExternalPerson, GetDrawAgents, PersonID, Scenario, Sim, SimFlags, SimOptions,
+    TripID, TripMode, VehicleType,
 };
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
@@ -249,6 +249,15 @@ fn handle_command(
                 })
                 .collect(),
         })),
+        "/data/get-road-thruput" => Ok(abstutil::to_json(&RoadThroughput {
+            counts: sim
+                .get_analytics()
+                .road_thruput
+                .counts
+                .iter()
+                .map(|((r, a, hr), cnt)| (*r, *a, *hr, *cnt))
+                .collect(),
+        })),
         // Controlling the map
         "/map/get-edits" => {
             let mut edits = map.get_edits().clone();
@@ -310,4 +319,10 @@ struct AgentPosition {
     pos: LonLat,
     // None for buses
     person: Option<PersonID>,
+}
+
+#[derive(Serialize)]
+struct RoadThroughput {
+    // (road, agent type, hour since midnight, throughput for that one hour period)
+    counts: Vec<(RoadID, AgentType, usize, usize)>,
 }
