@@ -224,6 +224,8 @@ normally. You can also later run the <code>headless</code> server with
 <a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/struct.PermanentMapEdits.html">PermanentMapEdits</a>
 in JSON format. This is the same as the files in <code>data/player/edits/</code>. The
 edits will remain as you call <code>/sim/reset</code>, but get reset with <code>/sim/load</code>.</li>
+<li><strong>GET /map/get-edit-road-command?id=123</strong>: Returns an object that can be
+modified and then added to map edits.</li>
 </ul>
 </li>
 </ul>

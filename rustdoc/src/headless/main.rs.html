@@ -326,6 +326,12 @@
 <span id="326">326</span>
 <span id="327">327</span>
 <span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
@@ -602,6 +608,12 @@
             <span class="kw-2">*</span><span class="ident">EDITS</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>);
             <span class="ident">apply_edits</span>(<span class="ident">map</span>);
             <span class="prelude-val">Ok</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;loaded edits&quot;</span>))
+        }
+        <span class="string">&quot;/map/get-edit-road-command&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">RoadID</span>(<span class="ident">params</span>[<span class="string">&quot;id&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
+            <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(
+                <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> {}).<span class="ident">to_perma</span>(<span class="ident">map</span>),
+            ))
         }
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Unknown command&quot;</span>.<span class="ident">into</span>()),
     }
