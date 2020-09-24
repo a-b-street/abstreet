@@ -79,14 +79,6 @@
 <span id="79">79</span>
 <span id="80">80</span>
 <span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
-<span id="88">88</span>
-<span id="89">89</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">commuter</span>;
 <span class="kw">mod</span> <span class="ident">generic_trip_table</span>;
@@ -102,10 +94,10 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">commuter</span>::<span class="ident">CommuterPatterns</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">traffic_signals</span>::<span class="ident">TrafficSignalDemand</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip_table</span>::<span class="ident">FinishedTripTable</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="comment">// Oh the dashboards melted, but we still had the radio</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DashTab</span> {
     <span class="ident">FinishedTripTable</span>,
     <span class="ident">CancelledTripTable</span>,
@@ -120,61 +112,53 @@
 
 <span class="kw">impl</span> <span class="ident">DashTab</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">picker</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">tab</span>) <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
-            (<span class="string">&quot;trip table&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">FinishedTripTable</span>),
-            (<span class="string">&quot;trip summaries&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TripSummaries</span>),
-            (<span class="string">&quot;parking overhead&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">ParkingOverhead</span>),
-            (<span class="string">&quot;active traffic&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">ActiveTraffic</span>),
-            (<span class="string">&quot;transit routes&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TransitRoutes</span>),
-            (<span class="string">&quot;commuter patterns&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">CommuterPatterns</span>),
-            (<span class="string">&quot;traffic signal demand&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TrafficSignals</span>),
-        ] {
-            <span class="kw">if</span> <span class="ident">tab</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DashTab</span>::<span class="ident">TripSummaries</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_none</span>() {
-                <span class="kw">continue</span>;
-            }
-            <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">tab</span> {
-                <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="ident">name</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>));
-            } <span class="kw">else</span> {
-                <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="ident">name</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
-            }
-        }
-        <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="comment">// TODO Centered, but actually, we need to set the padding of each button to divide the</span>
-            <span class="comment">// available space evenly. Fancy fill rules... hmmm.</span>
-            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>).<span class="ident">margin_vert</span>(<span class="number">16</span>),
+        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>),
+            <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;tab&quot;</span>,
+                <span class="self">self</span>,
+                <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Trip Table&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">FinishedTripTable</span>),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Trip Summaries&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TripSummaries</span>),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Parking Overhead&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">ParkingOverhead</span>),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Active Traffic&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">ActiveTraffic</span>),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Transit Routes&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TransitRoutes</span>),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Commuter Patterns&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">CommuterPatterns</span>),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Traffic Signal Demand&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TrafficSignals</span>),
+                ],
+            ),
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;By {}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>())
+                .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                .<span class="ident">centered_vert</span>(),
             <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
                 .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
                 .<span class="ident">align_right</span>(),
         ])
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transition</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="ident">action</span> {
-            <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-            <span class="string">&quot;trip table&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">FinishedTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="string">&quot;trip summaries&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">summaries</span>::<span class="ident">TripSummaries</span>::<span class="ident">new</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="ident">summaries</span>::<span class="ident">Filter</span>::<span class="ident">new</span>(),
-            )),
-            <span class="string">&quot;parking overhead&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">parking_overhead</span>::<span class="ident">ParkingOverhead</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
-            }
-            <span class="string">&quot;active traffic&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">misc</span>::<span class="ident">ActiveTraffic</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="string">&quot;transit routes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">misc</span>::<span class="ident">TransitRoutes</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="string">&quot;commuter patterns&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">CommuterPatterns</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="string">&quot;traffic signal demand&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">TrafficSignalDemand</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-
-            <span class="comment">// TODO Misleading. These doesn&#39;t show up under the DashTab, but we&#39;re hijacking this</span>
-            <span class="comment">// for some of the sub-tabs.</span>
-            <span class="string">&quot;finished trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">FinishedTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="string">&quot;cancelled trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">trip_table</span>::<span class="ident">CancelledTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="string">&quot;unfinished trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">trip_table</span>::<span class="ident">UnfinishedTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
-            }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transition</span>(
+        <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
+        <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">tab</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;tab&quot;</span>);
+        <span class="kw">if</span> <span class="ident">tab</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span> {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
+        <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">match</span> <span class="ident">tab</span> {
+            <span class="ident">DashTab</span>::<span class="ident">FinishedTripTable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">FinishedTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">DashTab</span>::<span class="ident">TripSummaries</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">summaries</span>::<span class="ident">TripSummaries</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">summaries</span>::<span class="ident">Filter</span>::<span class="ident">new</span>())
+            }
+            <span class="ident">DashTab</span>::<span class="ident">ParkingOverhead</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">parking_overhead</span>::<span class="ident">ParkingOverhead</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">DashTab</span>::<span class="ident">ActiveTraffic</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">misc</span>::<span class="ident">ActiveTraffic</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">DashTab</span>::<span class="ident">TransitRoutes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">misc</span>::<span class="ident">TransitRoutes</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">DashTab</span>::<span class="ident">CommuterPatterns</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommuterPatterns</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">DashTab</span>::<span class="ident">TrafficSignals</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TrafficSignalDemand</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">DashTab</span>::<span class="ident">CancelledTripTable</span> <span class="op">|</span> <span class="ident">DashTab</span>::<span class="ident">UnfinishedTripTable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        }))
     }
 }
 </pre></div>
