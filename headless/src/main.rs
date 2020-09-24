@@ -274,6 +274,12 @@ fn handle_command(
             apply_edits(map);
             Ok(format!("loaded edits"))
         }
+        "/map/get-edit-road-command" => {
+            let r = RoadID(params["id"].parse::<usize>()?);
+            Ok(abstutil::to_json(
+                &map.edit_road_cmd(r, |_| {}).to_perma(map),
+            ))
+        }
         _ => Err("Unknown command".into()),
     }
 }

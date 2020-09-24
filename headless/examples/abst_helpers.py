@@ -3,11 +3,13 @@ import statistics
 
 
 # Returns Results
-def run_sim(args, modifiers=[]):
+def run_sim(args, modifiers=[], edits=None):
     requests.post(args.api + '/sim/load', json={
         'load': 'data/system/scenarios/{}/weekday.bin'.format(args.map_name),
         'modifiers': modifiers,
     })
+    if edits:
+        requests.post(args.api + '/map/set-edits', json=edits)
     requests.get(args.api + '/sim/goto-time',
                  params={'t': '{}:00:00'.format(args.hours)})
     raw_trips = requests.get(
@@ -49,6 +51,13 @@ class Results:
                     slower.append(after_dt - before_dt)
 
         print('{:,} trips faster, average {:.1f}s savings'.format(
-            len(faster), statistics.mean(faster)))
+            len(faster), avg(faster)))
         print('{:,} trips slower, average {:.1f}s loss'.format(
-            len(slower), statistics.mean(slower)))
+            len(slower), avg(slower)))
+
+
+def avg(data):
+    if data:
+        return statistics.mean(data)
+    else:
+        return 0.0

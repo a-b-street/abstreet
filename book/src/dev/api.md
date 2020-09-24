@@ -70,6 +70,8 @@ are missing, etc. A summary of the commands available so far:
     [PermanentMapEdits](https://dabreegster.github.io/abstreet/rustdoc/map_model/struct.PermanentMapEdits.html)
     in JSON format. This is the same as the files in `data/player/edits/`. The
     edits will remain as you call `/sim/reset`, but get reset with `/sim/load`.
+  - **GET /map/get-edit-road-command?id=123**: Returns an object that can be
+    modified and then added to map edits.
 
 ## Working with the map model
 

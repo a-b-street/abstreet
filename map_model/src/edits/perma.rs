@@ -22,7 +22,7 @@ pub struct PermanentMapEdits {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub(crate) enum PermanentEditIntersection {
+pub enum PermanentEditIntersection {
     StopSign {
         #[serde(
             serialize_with = "serialize_btreemap",
@@ -35,7 +35,7 @@ pub(crate) enum PermanentEditIntersection {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub(crate) enum PermanentEditCmd {
+pub enum PermanentEditCmd {
     ChangeRoad {
         r: OriginalRoad,
         new: EditRoad,
@@ -54,7 +54,7 @@ pub(crate) enum PermanentEditCmd {
 }
 
 impl EditCmd {
-    pub(crate) fn to_perma(&self, map: &Map) -> PermanentEditCmd {
+    pub fn to_perma(&self, map: &Map) -> PermanentEditCmd {
         match self {
             EditCmd::ChangeRoad { r, new, old } => PermanentEditCmd::ChangeRoad {
                 r: map.get_r(*r).orig_id,
