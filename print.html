@@ -1063,12 +1063,11 @@ are missing, etc. A summary of the commands available so far:</p>
 <ul>
 <li><strong>GET /sim/reset</strong>: Reset all temporary map edits and the simulation state.
 The trips that will run don't change; they're determined by the scenario
-file you initially pass to <code>headless</code>. If you made live map edits using
-things like <code>/traffic-signals/set</code>, they'll be reset. If you specified
-<code>--edits</code> or used <code>/map/set-edits</code>, these will remain in effect.</li>
-<li><strong>POST /sim/load</strong>: Switch the scenario being simulated. Takes a
-<a href="https://dabreegster.github.io/abstreet/rustdoc/sim/struct.SimFlags.html">SimFlags</a>
-as a JSON POST body. Resets all map edits.</li>
+specified by the last call to <code>/sim/load</code>. If you made live map edits using
+things like <code>/traffic-signals/set</code>, they'll be reset to the <code>edits</code> from
+<code>/sim/load</code>.</li>
+<li><strong>POST /sim/load</strong>: Switch the scenario being simulated, and also optionally
+sets the map edits.</li>
 <li><strong>GET /sim/get-time</strong>: Returns the current simulation time.</li>
 <li><strong>GET /sim/goto-time?t=06:30:00</strong>: Simulate until 6:30 AM. If the time you
 specify is before the current time, you have to call <strong>/sim/reset</strong> first.</li>
@@ -1111,10 +1110,6 @@ hour since midnight, throughput for that one hour period).</li>
 this to a file in <code>data/player/edits/map_name/</code> and later use it in-game
 normally. You can also later run the <code>headless</code> server with
 <code>--edits=name_of_edits</code>.</li>
-<li><strong>POST /map/set-edits</strong>: The POST body must be
-<a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/struct.PermanentMapEdits.html">PermanentMapEdits</a>
-in JSON format. This is the same as the files in <code>data/player/edits/</code>. The
-edits will remain as you call <code>/sim/reset</code>, but get reset with <code>/sim/load</code>.</li>
 <li><strong>GET /map/get-edit-road-command?id=123</strong>: Returns an object that can be
 modified and then added to map edits.</li>
 </ul>
