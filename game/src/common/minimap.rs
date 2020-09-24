@@ -353,6 +353,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Panel {
                     GeomBatch::from(vec![(color, rect.clone())]),
                     GeomBatch::from(vec![(app.cs.hovering, rect.clone())]),
                     rect,
+                    None,
                 )
                 .build(ctx, format!("zoom to level {}", i + 1), None)
                 .margin_below(20),

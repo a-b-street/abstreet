@@ -204,6 +204,26 @@ impl Widget {
         self
     }
 
+    pub fn padding_top(mut self, pixels: usize) -> Widget {
+        self.layout.style.padding.top = Dimension::Points(pixels as f32);
+        self
+    }
+
+    pub fn padding_left(mut self, pixels: usize) -> Widget {
+        self.layout.style.padding.start = Dimension::Points(pixels as f32);
+        self
+    }
+
+    pub fn padding_bottom(mut self, pixels: usize) -> Widget {
+        self.layout.style.padding.bottom = Dimension::Points(pixels as f32);
+        self
+    }
+
+    pub fn padding_right(mut self, pixels: usize) -> Widget {
+        self.layout.style.padding.end = Dimension::Points(pixels as f32);
+        self
+    }
+
     pub fn margin_above(mut self, pixels: usize) -> Widget {
         self.layout.style.margin.top = Dimension::Points(pixels as f32);
         self
@@ -351,6 +371,7 @@ impl Widget {
             false,
         )))
         .named(label)
+        // Why is this still required? The button Dropdown uses *already* has an outline
         .outline(ctx.style().outline_thickness, ctx.style().outline_color)
     }
 

@@ -115,13 +115,13 @@ fn make_top_center(ctx: &mut EventCtx, app: &App) -> Panel {
             Line("Sandbox").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 50.0),
             "Map:".draw_text(ctx),
-            Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name()))).build(
+            Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
                 ctx,
                 "change map",
                 lctrl(Key::L),
             ),
             "Traffic:".draw_text(ctx),
-            Btn::text_fg("none ↓").build(ctx, "change traffic", Key::S),
+            Btn::pop_up(ctx, Some("none")).build(ctx, "change traffic", Key::S),
             Btn::svg_def("system/assets/tools/edit_map.svg").build(ctx, "edit map", lctrl(Key::E)),
         ])
         .centered(),

@@ -271,6 +271,7 @@ impl Text {
         self.render(assets).get_dims()
     }
 
+    // TODO: Combine all render_foo methods to be render(into<Assets>)?
     pub fn render(self, assets: &Assets) -> GeomBatch {
         self.inner_render(assets, svg::HIGH_QUALITY)
     }

@@ -59,6 +59,7 @@ impl Checkbox {
                     ctx.style().hovering_color,
                 )),
                 hitbox.clone(),
+                None,
             )
             .build(ctx, &label, hotkey.clone()),
             Btn::custom(
@@ -68,6 +69,7 @@ impl Checkbox {
                     ctx.style().hovering_color,
                 )),
                 hitbox,
+                None,
             )
             .build(ctx, &label, hotkey),
         )
@@ -141,6 +143,7 @@ impl Checkbox {
                     ctx.style().hovering_color,
                 )),
                 hitbox.clone(),
+                None,
             )
             .build(ctx, label, None),
             Btn::custom(
@@ -150,6 +153,7 @@ impl Checkbox {
                     ctx.style().hovering_color,
                 )),
                 hitbox,
+                None,
             )
             .build(ctx, label, None),
         )
