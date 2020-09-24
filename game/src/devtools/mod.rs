@@ -32,7 +32,7 @@ impl DevToolsMode {
                 ]),
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
-                    Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name()))).build(
+                    Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
                         ctx,
                         "change map",
                         None,

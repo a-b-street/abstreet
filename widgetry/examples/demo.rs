@@ -10,9 +10,9 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
 use widgetry::{
-    lctrl, Btn, Checkbox, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text, TextExt, Texture, UpdateType,
-    VerticalAlignment, Widget, GUI,
+    lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions, Series,
+    Text, TextExt, Texture, UpdateType, VerticalAlignment, Widget, GUI,
 };
 
 fn main() {
@@ -37,7 +37,7 @@ impl App {
             controls: make_controls(ctx),
             timeseries_panel: None,
             scrollable_canvas: setup_scrollable_canvas(ctx),
-            texture_demo: setup_texture_demo(ctx),
+            texture_demo: setup_texture_demo(ctx, Texture::SAND, Texture::CACTUS),
             elapsed: Duration::ZERO,
         }
     }
@@ -116,6 +116,17 @@ impl App {
         }
         c
     }
+
+    fn redraw_stopwatch(&mut self, ctx: &mut EventCtx) {
+        // We can replace any named widget with another one. Layout gets recalculated.
+        self.controls.replace(
+            ctx,
+            "stopwatch",
+            format!("Stopwatch: {}", self.elapsed)
+            .draw_text(ctx)
+            .named("stopwatch"),
+            );
+    }
 }
 
 impl GUI for App {
@@ -130,19 +141,21 @@ impl GUI for App {
                 // typesafe.
                 "reset the stopwatch" => {
                     self.elapsed = Duration::ZERO;
-                    // We can replace any named widget with another one. Layout gets recalculated.
-                    self.controls.replace(
-                        ctx,
-                        "stopwatch",
-                        format!("Stopwatch: {}", self.elapsed)
-                            .draw_text(ctx)
-                            .named("stopwatch"),
-                    );
+                    self.redraw_stopwatch(ctx); 
                 }
                 "generate new faces" => {
                     self.scrollable_canvas = setup_scrollable_canvas(ctx);
                 }
-                _ => unreachable!(),
+                "adjust timer" => {
+                    let offset: Duration = self.controls.persistent_split_value("adjust timer");
+                    self.elapsed += offset;
+                    self.redraw_stopwatch(ctx);
+                }
+                "apply textures" => {
+                    let (bg_texture, fg_texture) = self.controls.dropdown_value("texture dropdown");
+                    self.texture_demo = setup_texture_demo(ctx, bg_texture, fg_texture);
+                }
+                _ => unimplemented!("clicked: {:?}", x),
             },
             _ => {}
         }
@@ -154,13 +167,7 @@ impl GUI for App {
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             ctx.input.use_update_event();
             self.elapsed += dt;
-            self.controls.replace(
-                ctx,
-                "stopwatch",
-                format!("Stopwatch: {}", self.elapsed)
-                    .draw_text(ctx)
-                    .named("stopwatch"),
-            );
+            self.redraw_stopwatch(ctx);
         }
 
         if self.controls.is_checked("Show timeseries") {
@@ -209,7 +216,7 @@ impl GUI for App {
     }
 }
 
-fn setup_texture_demo(ctx: &mut EventCtx) -> Drawable {
+fn setup_texture_demo(ctx: &mut EventCtx, bg_texture: Texture, fg_texture: Texture) -> Drawable {
     let mut batch = GeomBatch::new();
 
     let mut rect = Polygon::rectangle(100.0, 100.0);
@@ -225,16 +232,16 @@ fn setup_texture_demo(ctx: &mut EventCtx) -> Drawable {
     };
     let mut triangle_poly = Polygon::from_triangle(&triangle);
     triangle_poly = triangle_poly.translate(400.0, 900.0);
-    batch.push(Texture::SAND, triangle_poly);
+    batch.push(bg_texture, triangle_poly);
 
     let circle = geom::Circle::new(Pt2D::new(50.0, 50.0), geom::Distance::meters(50.0));
     let mut circle_poly = circle.to_polygon();
     circle_poly = circle_poly.translate(600.0, 900.0);
     batch.push(
-        Fill::ColoredTexture(Color::RED, Texture::SAND),
+        Fill::ColoredTexture(Color::RED, bg_texture),
         circle_poly.clone(),
     );
-    batch.push(Texture::SNOW_PERSON, circle_poly.clone());
+    batch.push(fg_texture, circle_poly.clone());
 
     batch.upload(ctx)
 }
@@ -290,20 +297,44 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         ])
         .draw(ctx),
         Widget::row(vec![
-            // This just cycles between two arbitrary buttons
+            Btn::text_fg("New faces").build(ctx, "generate new faces", Key::F),
+            Checkbox::switch(ctx, "Draw scrollable canvas", None, true),
+            Checkbox::switch(ctx, "Show timeseries", lctrl(Key::T), false),
+        ]),
+        "Stopwatch: ...".draw_text(ctx).named("stopwatch").margin_above(30),
+        Widget::row(vec![
             Checkbox::new(
                 false,
                 Btn::text_bg1("Pause").build(ctx, "pause the stopwatch", Key::Space),
                 Btn::text_bg1("Resume").build(ctx, "resume the stopwatch", Key::Space),
             )
             .named("paused"),
-            Btn::text_fg("Reset timer").build(ctx, "reset the stopwatch", None),
-            Btn::text_fg("New faces").build(ctx, "generate new faces", Key::F),
-            Checkbox::switch(ctx, "Draw scrollable canvas", None, true),
-            Checkbox::switch(ctx, "Show timeseries", lctrl(Key::T), false),
+            PersistentSplit::new(
+                ctx,
+                "adjust timer",
+                Duration::seconds(20.0),
+                None,
+                vec![
+                    Choice::new("+20s", Duration::seconds(20.0)),
+                    Choice::new("-10s", Duration::seconds(-10.0)),
+                ],
+            ),
+            Btn::text_fg("Reset Timer").build(ctx, "reset the stopwatch", None),
         ])
         .evenly_spaced(),
-        "Stopwatch: ...".draw_text(ctx).named("stopwatch"),
+
+        Widget::row(vec![
+            Widget::dropdown(
+                ctx,
+                "texture dropdown",
+                (Texture::SAND, Texture::CACTUS),
+                vec![
+                    Choice::new("Cold", (Texture::SNOW, Texture::SNOW_PERSON)),
+                    Choice::new("Hot", (Texture::SAND, Texture::CACTUS))
+                ],
+            ),
+            Btn::text_fg("Apply Textures").build(ctx, "apply textures", None),
+        ]).margin_above(30),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
