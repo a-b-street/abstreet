@@ -5,11 +5,10 @@ import statistics
 # Returns Results
 def run_sim(args, modifiers=[], edits=None):
     requests.post(args.api + '/sim/load', json={
-        'load': 'data/system/scenarios/{}/weekday.bin'.format(args.map_name),
+        'scenario': 'data/system/scenarios/{}/weekday.bin'.format(args.map_name),
         'modifiers': modifiers,
+        'edits': edits,
     })
-    if edits:
-        requests.post(args.api + '/map/set-edits', json=edits)
     requests.get(args.api + '/sim/goto-time',
                  params={'t': '{}:00:00'.format(args.hours)})
     raw_trips = requests.get(

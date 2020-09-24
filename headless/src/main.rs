@@ -1,7 +1,7 @@
 // This runs a simulation without any graphics and serves a very basic API to control things. See
 // https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:
 //
-// > cd headless; cargo run -- --port=1234 ../data/system/scenarios/montlake/weekday.bin
+// > cd headless; cargo run -- --port=1234
 // > curl http://localhost:1234/get-time
 // 00:00:00.0
 // > curl http://localhost:1234/goto-time?t=01:01:00
@@ -9,17 +9,22 @@
 // > curl http://localhost:1234/get-delays
 // ... huge JSON blob
 
+#[macro_use]
+extern crate log;
+
 use abstutil::{serialize_btreemap, CmdArgs, Timer};
 use geom::{Duration, LonLat, Time};
 use hyper::{Body, Request, Response, Server};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
-    MapEdits, MovementID, PermanentMapEdits, RoadID,
+    MovementID, PermanentMapEdits, RoadID,
 };
-use serde::Serialize;
+use rand::SeedableRng;
+use rand_xorshift::XorShiftRng;
+use serde::{Deserialize, Serialize};
 use sim::{
-    AgentType, ExternalPerson, GetDrawAgents, PersonID, Scenario, Sim, SimFlags, SimOptions,
-    TripID, TripMode, VehicleType,
+    AgentType, ExternalPerson, GetDrawAgents, PersonID, Scenario, ScenarioModifier, Sim, SimFlags,
+    SimOptions, TripID, TripMode, VehicleType,
 };
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
@@ -29,32 +34,39 @@ use std::sync::RwLock;
 lazy_static::lazy_static! {
     static ref MAP: RwLock<Map> = RwLock::new(Map::blank());
     static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp"), &mut Timer::throwaway()));
-    static ref FLAGS: RwLock<SimFlags> = RwLock::new(SimFlags::for_test("tmp"));
-    static ref EDITS: RwLock<Option<MapEdits>> = RwLock::new(None);
+    static ref LOAD: RwLock<LoadSim> = RwLock::new({
+        let flags = SimFlags::for_test("tmp");
+        LoadSim {
+            scenario: abstutil::path_scenario("montlake", "weekday"),
+            modifiers: Vec::new(),
+            edits: None,
+            rng_seed: flags.rng_seed,
+            opts: flags.opts,
+        }
+    });
 }
 
 #[tokio::main]
 async fn main() {
     let mut args = CmdArgs::new();
     let mut timer = Timer::new("setup headless");
+    // TODO Misleading, because we ignore the free argument (load)
     let sim_flags = SimFlags::from_args(&mut args);
     let port = args.required("--port").parse::<u16>().unwrap();
-    let load_edits = args.optional("--edits");
     args.done();
 
-    let (mut map, sim, _) = sim_flags.load(&mut timer);
-    if let Some(path) = load_edits {
-        let edits = MapEdits::load(&map, path, &mut timer).unwrap();
-        *EDITS.write().unwrap() = Some(edits);
+    {
+        let mut load = LOAD.write().unwrap();
+        load.rng_seed = sim_flags.rng_seed;
+        load.opts = sim_flags.opts;
+
+        let (map, sim) = load.setup(&mut timer);
+        *MAP.write().unwrap() = map;
+        *SIM.write().unwrap() = sim;
     }
 
-    apply_edits(&mut map);
-    *MAP.write().unwrap() = map;
-    *SIM.write().unwrap() = sim;
-    *FLAGS.write().unwrap() = sim_flags;
-
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], port));
-    println!("Listening on http://{}", addr);
+    info!("Listening on http://{}", addr);
     let serve_future = Server::bind(&addr).serve(hyper::service::make_service_fn(|_| async {
         Ok::<_, hyper::Error>(hyper::service::service_fn(serve_req))
     }));
@@ -73,15 +85,18 @@ async fn serve_req(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
             .map(|(k, v)| (k.to_string(), v.to_string()))
             .collect();
     let body = hyper::body::to_bytes(req).await?.to_vec();
+    info!("Handling {}", path);
     let resp = match handle_command(
         &path,
         &params,
         &body,
         &mut SIM.write().unwrap(),
         &mut MAP.write().unwrap(),
+        &mut LOAD.write().unwrap(),
     ) {
         Ok(resp) => resp,
         Err(err) => {
+            error!("{}: {}", path, err);
             // TODO Error codes
             format!("Bad command {} with params {:?}: {}", path, params, err)
         }
@@ -95,31 +110,28 @@ fn handle_command(
     body: &Vec<u8>,
     sim: &mut Sim,
     map: &mut Map,
+    load: &mut LoadSim,
 ) -> Result<String, Box<dyn Error>> {
     match path {
         // Controlling the simulation
         "/sim/reset" => {
-            let (mut new_map, new_sim, _) =
-                FLAGS.read().unwrap().load(&mut Timer::new("reset sim"));
-            apply_edits(&mut new_map);
+            let (new_map, new_sim) = load.setup(&mut Timer::new("reset sim"));
             *map = new_map;
             *sim = new_sim;
             Ok(format!("sim reloaded"))
         }
         "/sim/load" => {
-            // Reset --edits
-            *EDITS.write().unwrap() = None;
+            let args: LoadSim = abstutil::from_json(body)?;
 
-            let flags: SimFlags = abstutil::from_json(body)?;
-            // Only a few fields from SimFlags can be specified through the API. For the rest
-            // (namely SimOptions), keep the ones from the command line.
-            FLAGS.write().unwrap().load = flags.load;
-            FLAGS.write().unwrap().modifiers = flags.modifiers;
+            load.scenario = args.scenario;
+            load.modifiers = args.modifiers;
+            load.edits = args.edits;
 
             // Also reset
-            let (new_map, new_sim, _) = FLAGS.read().unwrap().load(&mut Timer::new("reset sim"));
+            let (new_map, new_sim) = load.setup(&mut Timer::new("reset sim"));
             *map = new_map;
             *sim = new_sim;
+
             Ok(format!("flags changed and sim reloaded"))
         }
         "/sim/get-time" => Ok(sim.time().to_string()),
@@ -150,7 +162,7 @@ fn handle_command(
             scenario.people = ExternalPerson::import(map, vec![input])?;
             let id = PersonID(sim.get_all_people().len());
             scenario.people[0].id = id;
-            let mut rng = FLAGS.read().unwrap().make_rng();
+            let mut rng = XorShiftRng::from_seed([load.rng_seed; 16]);
             scenario.instantiate(sim, map, &mut rng, &mut Timer::throwaway());
             Ok(format!("{} created", id))
         }
@@ -267,13 +279,6 @@ fn handle_command(
                 &edits, map,
             )))
         }
-        "/map/set-edits" => {
-            let perma: PermanentMapEdits = abstutil::from_json(body)?;
-            let edits = PermanentMapEdits::from_permanent(perma, map)?;
-            *EDITS.write().unwrap() = Some(edits);
-            apply_edits(map);
-            Ok(format!("loaded edits"))
-        }
         "/map/get-edit-road-command" => {
             let r = RoadID(params["id"].parse::<usize>()?);
             Ok(abstutil::to_json(
@@ -281,14 +286,6 @@ fn handle_command(
             ))
         }
         _ => Err("Unknown command".into()),
-    }
-}
-
-fn apply_edits(map: &mut Map) {
-    if let Some(edits) = EDITS.read().unwrap().as_ref() {
-        let mut timer = Timer::new(format!("apply edits {}", edits.edits_name));
-        map.must_apply_edits(edits.clone(), &mut timer);
-        map.recalculate_pathfinding_after_edits(&mut timer);
     }
 }
 
@@ -331,4 +328,40 @@ struct AgentPosition {
 struct RoadThroughput {
     // (road, agent type, hour since midnight, throughput for that one hour period)
     counts: Vec<(RoadID, AgentType, usize, usize)>,
+}
+
+#[derive(Deserialize)]
+struct LoadSim {
+    scenario: String,
+    modifiers: Vec<ScenarioModifier>,
+    edits: Option<PermanentMapEdits>,
+    // These are fixed from the initial command line flags
+    #[serde(skip_deserializing)]
+    rng_seed: u8,
+    #[serde(skip_deserializing)]
+    opts: SimOptions,
+}
+
+impl LoadSim {
+    fn setup(&self, timer: &mut Timer) -> (Map, Sim) {
+        let mut scenario: Scenario = abstutil::read_binary(self.scenario.clone(), timer);
+
+        let mut map = Map::new(abstutil::path_map(&scenario.map_name), timer);
+        if let Some(perma) = self.edits.clone() {
+            let edits = PermanentMapEdits::from_permanent(perma, &map).unwrap();
+            map.must_apply_edits(edits, timer);
+            map.recalculate_pathfinding_after_edits(timer);
+        }
+
+        let mut modifier_rng = XorShiftRng::from_seed([self.rng_seed; 16]);
+        for m in &self.modifiers {
+            scenario = m.apply(&map, scenario, &mut modifier_rng);
+        }
+
+        let mut rng = XorShiftRng::from_seed([self.rng_seed; 16]);
+        let mut sim = Sim::new(&map, self.opts.clone(), timer);
+        scenario.instantiate(&mut sim, &map, &mut rng, timer);
+
+        (map, sim)
+    }
 }

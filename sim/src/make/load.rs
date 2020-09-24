@@ -3,17 +3,14 @@ use abstutil::CmdArgs;
 use map_model::{Map, MapEdits};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
-use serde::Deserialize;
 
 const RNG_SEED: u8 = 42;
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone)]
 pub struct SimFlags {
     pub load: String,
     pub modifiers: Vec<ScenarioModifier>,
-    #[serde(skip_deserializing)]
     pub rng_seed: u8,
-    #[serde(skip_deserializing)]
     pub opts: SimOptions,
 }
 
