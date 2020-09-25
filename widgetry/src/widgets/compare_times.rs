@@ -166,14 +166,26 @@ impl WidgetImpl for CompareTimes {
                 let before = pct_x * self.max;
                 let after = (1.0 - pct_y) * self.max;
                 if after <= before {
-                    g.draw_mouse_tooltip(Text::from_all(vec![
-                        Line(format!("{} faster", before - after)).fg(Color::GREEN),
-                        Line(format!(" than {}", before)),
+                    g.draw_mouse_tooltip(Text::from_multiline(vec![
+                        Line(format!("Before: {}", before)),
+                        Line(format!("After: {}", after)),
+                        Line(format!(
+                            "{} faster (-{:.1}%)",
+                            before - after,
+                            100.0 * (1.0 - after / before)
+                        ))
+                        .fg(Color::hex("#72CE36")),
                     ]));
                 } else {
-                    g.draw_mouse_tooltip(Text::from_all(vec![
-                        Line(format!("{} slower", after - before)).fg(Color::RED),
-                        Line(format!(" than {}", before)),
+                    g.draw_mouse_tooltip(Text::from_multiline(vec![
+                        Line(format!("Before: {}", before)),
+                        Line(format!("After: {}", after)),
+                        Line(format!(
+                            "{} slower (+{:.1}%)",
+                            after - before,
+                            100.0 * (after / before - 1.0)
+                        ))
+                        .fg(Color::hex("#EB3223")),
                     ]));
                 }
                 g.unfork();

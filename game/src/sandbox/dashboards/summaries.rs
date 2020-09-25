@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
-use crate::helpers::checkbox_per_mode;
+use crate::helpers::color_for_mode;
 use crate::sandbox::dashboards::DashTab;
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
@@ -9,8 +9,8 @@ use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::Write;
 use widgetry::{
-    Btn, Choice, Color, CompareTimes, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
-    Panel, Text, Widget,
+    Btn, Checkbox, Choice, Color, CompareTimes, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx,
+    Line, Outcome, Panel, Text, TextExt, Widget,
 };
 
 pub struct TripSummaries {
@@ -19,32 +19,46 @@ pub struct TripSummaries {
 
 impl TripSummaries {
     pub fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State> {
-        let filters = vec![
-            Widget::dropdown(
+        let mut filters = vec!["Filters".draw_text(ctx)];
+        for mode in TripMode::all() {
+            filters.push(Checkbox::colored(
                 ctx,
-                "filter",
-                filter.changes_pct,
-                vec![
-                    Choice::new("any change", None),
-                    Choice::new("at least 1% change", Some(0.01)),
-                    Choice::new("at least 10% change", Some(0.1)),
-                    Choice::new("at least 50% change", Some(0.5)),
-                ],
-            ),
-            checkbox_per_mode(ctx, app, &filter.modes),
-        ];
+                mode.ongoing_verb(),
+                color_for_mode(app, mode),
+                filter.modes.contains(&mode),
+            ));
+        }
+        filters.push(Widget::dropdown(
+            ctx,
+            "filter",
+            filter.changes_pct,
+            vec![
+                Choice::new("any change", None),
+                Choice::new("at least 1% change", Some(0.01)),
+                Choice::new("at least 10% change", Some(0.1)),
+                Choice::new("at least 50% change", Some(0.5)),
+            ],
+        ));
+        filters.push(
+            Btn::plaintext("Export to CSV")
+                .build_def(ctx, None)
+                .align_bottom(),
+        );
 
         Box::new(TripSummaries {
             panel: Panel::new(Widget::col(vec![
                 DashTab::TripSummaries.picker(ctx, app),
-                Widget::row(filters).centered_horiz(),
-                summary(ctx, app, &filter),
                 Widget::row(vec![
-                    contingency_table(ctx, app, &filter).centered_vert(),
-                    scatter_plot(ctx, app, &filter),
-                ])
-                .evenly_spaced(),
-                Btn::plaintext("Export to CSV").build_def(ctx, None),
+                    Widget::col(filters).padding(16).outline(2.0, Color::WHITE),
+                    Widget::col(vec![
+                        summary_boxes(ctx, app, &filter),
+                        Widget::row(vec![
+                            contingency_table(ctx, app, &filter),
+                            scatter_plot(ctx, app, &filter),
+                        ])
+                        .evenly_spaced(),
+                    ]),
+                ]),
             ]))
             .exact_size_percent(90, 90)
             .build(ctx),
@@ -101,7 +115,7 @@ impl State for TripSummaries {
     }
 }
 
-fn summary(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
+fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     if app.has_prebaked().is_none() {
         return Widget::nothing();
     }
@@ -136,45 +150,70 @@ fn summary(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             sum_slower += a - b;
         }
     }
+    let num_total = (num_faster + num_slower + num_same) as f64;
 
-    Widget::col(vec![Widget::row(vec![
-        Widget::col(vec![Text::from_multiline(vec![
-            Line(format!("{} trips faster", prettyprint_usize(num_faster))),
-            Line(format!("{} total time saved", sum_faster)),
+    Widget::row(vec![
+        Text::from_multiline(vec![
+            Line(format!("Faster Trips: {}", prettyprint_usize(num_faster))).big_heading_plain(),
             Line(format!(
-                "Average {} per faster trip",
+                "{:.2}% of finished trips",
+                100.0 * (num_faster as f64) / num_total
+            ))
+            .small(),
+            Line(format!(
+                "Average {} faster per trip",
                 if num_faster == 0 {
                     Duration::ZERO
                 } else {
                     sum_faster / (num_faster as f64)
                 }
-            )),
+            ))
+            .small(),
+            Line(format!("Saved {} in total", sum_faster)).small(),
         ])
-        .draw(ctx)])
-        .outline(2.0, Color::GREEN)
-        .padding(10),
-        Line(format!("{} trips unchanged", prettyprint_usize(num_same)))
-            .draw(ctx)
-            .centered_vert()
-            .outline(2.0, Color::YELLOW)
-            .padding(10),
-        Widget::col(vec![Text::from_multiline(vec![
-            Line(format!("{} trips slower", prettyprint_usize(num_slower))),
-            Line(format!("{} total time lost", sum_slower)),
+        .draw(ctx)
+        .container()
+        .padding(20)
+        .bg(Color::hex("#72CE36").alpha(0.5))
+        .outline(2.0, Color::WHITE),
+        Text::from_multiline(vec![
+            Line(format!("Slower Trips: {}", prettyprint_usize(num_slower))).big_heading_plain(),
             Line(format!(
-                "Average {} per slower trip",
+                "{:.2}% of finished trips",
+                100.0 * (num_slower as f64) / num_total
+            ))
+            .small(),
+            Line(format!(
+                "Average {} slower per trip",
                 if num_slower == 0 {
                     Duration::ZERO
                 } else {
                     sum_slower / (num_slower as f64)
                 }
-            )),
+            ))
+            .small(),
+            Line(format!("Lost {} in total", sum_slower)).small(),
         ])
-        .draw(ctx)])
-        .outline(2.0, Color::RED)
-        .padding(10),
+        .draw(ctx)
+        .container()
+        .padding(20)
+        .bg(Color::hex("#EB3223").alpha(0.5))
+        .outline(2.0, Color::WHITE),
+        Text::from_multiline(vec![
+            Line(format!("Unchanged: {}", prettyprint_usize(num_same))).big_heading_plain(),
+            Line(format!(
+                "{:.2}% of finished trips",
+                100.0 * (num_same as f64) / num_total
+            ))
+            .small(),
+        ])
+        .draw(ctx)
+        .container()
+        .padding(20)
+        .bg(Color::hex("#F4DA22").alpha(0.5))
+        .outline(2.0, Color::WHITE),
     ])
-    .evenly_spaced()])
+    .evenly_spaced()
 }
 
 fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
@@ -187,20 +226,23 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         return Widget::nothing();
     }
 
-    CompareTimes::new(
-        ctx,
-        format!(
-            "Trip time before \"{}\"",
-            app.primary.map.get_edits().edits_name
+    Widget::col(vec![
+        Line("Trip time before and after").small_heading().draw(ctx),
+        CompareTimes::new(
+            ctx,
+            format!(
+                "Trip time before \"{}\"",
+                app.primary.map.get_edits().edits_name
+            ),
+            format!(
+                "Trip time after \"{}\"",
+                app.primary.map.get_edits().edits_name
+            ),
+            points,
         ),
-        format!(
-            "Trip time after \"{}\"",
-            app.primary.map.get_edits().edits_name
-        ),
-        points,
-    )
+    ])
+    .padding(16)
     .outline(2.0, Color::WHITE)
-    .padding(10)
 }
 
 fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
@@ -229,12 +271,24 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     // Draw the X axis, time before changes in buckets.
     for (idx, mins) in endpts.iter().enumerate() {
         batch.append(
-            Text::from(Line(mins.to_string()).small())
+            Text::from(Line(mins.to_string()).secondary())
                 .render_ctx(ctx)
                 .centered_on(Pt2D::new(
                     (idx as f64) / (num_buckets as f64) * total_width,
                     total_height / 2.0,
                 )),
+        );
+    }
+    // TODO Position this better
+    if false {
+        batch.append(
+            Text::from_multiline(vec![
+                Line("trip").secondary(),
+                Line("time").secondary(),
+                Line("after").secondary(),
+            ])
+            .render_ctx(ctx)
+            .translate(total_width, total_height / 2.0),
         );
     }
 
@@ -296,7 +350,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                         endpts[idx],
                         endpts[idx + 1]
                     )),
-                    Line(format!("Total savings: {}", total_savings)),
+                    Line(format!("Saved {} in total", total_savings)).fg(Color::hex("#72CE36")),
                 ]),
             ));
         }
@@ -317,7 +371,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                         endpts[idx],
                         endpts[idx + 1]
                     )),
-                    Line(format!("Total losses: {}", total_loss)),
+                    Line(format!("Lost {} in total", total_loss)).fg(Color::hex("#EB3223")),
                 ]),
             ));
         }
@@ -326,10 +380,18 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     }
     batch.extend(Color::BLACK, outlines);
 
-    DrawWithTooltips::new(ctx, batch, tooltips, Box::new(|_| GeomBatch::new()))
-        .container()
-        .outline(2.0, Color::WHITE)
-        .padding(10)
+    Widget::col(vec![
+        Text::from_multiline(vec![
+            Line("Number of slower/faster trips").small_heading(),
+            Line("by ranges of trip time (after)").small_heading(),
+        ])
+        .draw(ctx),
+        Line("number of trips (faster)").secondary().draw(ctx),
+        DrawWithTooltips::new(ctx, batch, tooltips, Box::new(|_| GeomBatch::new())),
+        Line("number of trips (smaller)").secondary().draw(ctx),
+    ])
+    .padding(16)
+    .outline(2.0, Color::WHITE)
 }
 
 pub struct Filter {

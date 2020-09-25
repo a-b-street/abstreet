@@ -12,7 +12,7 @@ use crate::game::Transition;
 pub use commuter::CommuterPatterns;
 pub use traffic_signals::TrafficSignalDemand;
 pub use trip_table::FinishedTripTable;
-use widgetry::{Btn, Choice, EventCtx, Key, Panel, TextExt, Widget};
+use widgetry::{Btn, Choice, EventCtx, Key, Line, Panel, TextExt, Widget};
 
 // Oh the dashboards melted, but we still had the radio
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -32,6 +32,7 @@ impl DashTab {
     pub fn picker(self, ctx: &EventCtx, app: &App) -> Widget {
         Widget::row(vec![
             Widget::draw_svg(ctx, "system/assets/meters/trip_histogram.svg"),
+            Line("Data").big_heading_plain().draw(ctx),
             Widget::dropdown(
                 ctx,
                 "tab",
