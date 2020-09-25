@@ -1,7 +1,5 @@
-use crate::drawing::GfxCtx;
-use crate::event_ctx::EventCtx;
 use crate::text::Font;
-use crate::{text, GeomBatch};
+use crate::{text, EventCtx, GeomBatch, GfxCtx};
 use geom::Bounds;
 use lru::LruCache;
 use std::cell::RefCell;
