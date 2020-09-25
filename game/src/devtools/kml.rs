@@ -189,7 +189,10 @@ impl State for ViewKML {
                             .collect(),
                         ),
                         Box::new(|path, ctx, app| {
-                            Transition::Replace(ViewKML::new(ctx, app, Some(path)))
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::Replace(ViewKML::new(ctx, app, Some(path))),
+                            ])
                         }),
                     ));
                 }

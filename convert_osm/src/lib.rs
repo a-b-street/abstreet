@@ -2,6 +2,7 @@ mod clip;
 mod extract;
 mod parking;
 mod reader;
+mod snappy;
 mod split_ways;
 mod srtm;
 mod transit;
@@ -101,6 +102,8 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     if let Some(ref path) = opts.elevation {
         use_elevation(&mut map, path, timer);
     }
+
+    snappy::snap_cycleways(&mut map, timer);
 
     map.config = opts.map_config;
     map
