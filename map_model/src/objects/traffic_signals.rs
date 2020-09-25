@@ -145,7 +145,14 @@ impl ControlTrafficSignal {
             // Is there enough time in each stage to walk across the crosswalk
             let min_crossing_time = self.get_min_crossing_time(stage_index);
             if min_crossing_time <= stage.phase_type.simple_duration() {
-                return Err(format!("Traffic signal does not allow enough time in stage to complete the crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}", stage_index, stage, min_crossing_time, stage.phase_type.simple_duration()));
+                return Err(format!(
+                    "Traffic signal does not allow enough time in stage to complete the \
+                     crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}",
+                    stage_index,
+                    stage,
+                    min_crossing_time,
+                    stage.phase_type.simple_duration()
+                ));
             }
             stage_index += 1;
         }
