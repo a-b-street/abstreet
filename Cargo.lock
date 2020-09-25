@@ -743,7 +743,7 @@ dependencies = [
 
 [[package]]
 name = "euclid"
-version = "0.22.1"
+version = "0.20.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "num-traits 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1718,47 +1718,47 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "lyon"
-version = "0.16.0"
+version = "0.15.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "lyon_algorithms 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lyon_tessellation 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lyon_algorithms 0.15.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lyon_tessellation 0.15.9 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "lyon_algorithms"
-version = "0.16.0"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "lyon_path 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lyon_path 0.15.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "sid 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "lyon_geom"
-version = "0.16.0"
+version = "0.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "arrayvec 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "euclid 0.22.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "euclid 0.20.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "lyon_path"
-version = "0.16.0"
+version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "lyon_geom 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lyon_geom 0.15.3 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "lyon_tessellation"
-version = "0.16.0"
+version = "0.15.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "arrayvec 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "lyon_path 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lyon_path 0.15.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "sid 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -3711,7 +3711,7 @@ dependencies = [
  "instant 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "lru 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lyon 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lyon 0.15.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand_xorshift 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.116 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3950,7 +3950,7 @@ dependencies = [
 "checksum enumset 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "959a80a2062fedd66ed41d99736212de987b3a8c83a4c2cef243968075256bd1"
 "checksum enumset_derive 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "74bef436ac71820c5cf768d7af9ba33121246b09a00e09a55d94ef8095a875ac"
 "checksum error-chain 0.12.4 (registry+https://github.com/rust-lang/crates.io-index)" = "2d2f06b9cac1506ece98fe3231e3cc9c4410ec3d5b1f24ae1c8946f0742cdefc"
-"checksum euclid 0.22.1 (registry+https://github.com/rust-lang/crates.io-index)" = "5337024b8293bdce5265dc9570ef6e608a34bfacbbc87fe1a5dcb5f1dac2f4e2"
+"checksum euclid 0.20.14 (registry+https://github.com/rust-lang/crates.io-index)" = "2bb7ef65b3777a325d1eeefefab5b6d4959da54747e33bd6258e789640f307ad"
 "checksum failure 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "b8529c2421efa3066a5cbd8063d2244603824daccb6936b079010bb2aa89464b"
 "checksum failure_derive 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "030a733c8287d6213886dd487564ff5c8f6aae10278b3588ed177f9d18f8d231"
 "checksum fake-simd 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e88a8acf291dafb59c2d96e8f59828f3838bb1a70398823ade51a84de6a6deed"
@@ -4051,11 +4051,11 @@ dependencies = [
 "checksum log 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)" = "4fabed175da42fed1fa0746b0ea71f412aa9d35e76e95e59b192c64b9dc2bf8b"
 "checksum lru 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "111b945ac72ec09eb7bc62a0fbdc3cc6e80555a7245f52a69d3921a75b53b153"
 "checksum lttb 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "abfc750d3204167b4b1092f1c7ee3ddab3f3419627e2b0f8417bbdf2030b2448"
-"checksum lyon 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e70c7d8016c5c3a488b987ce9b90e5276cd0e4f977218b0ca00484518e06bbe7"
-"checksum lyon_algorithms 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)" = "11033936a5e9d7bf35b7ba71a19f8b6bc838f3206304175dc5b3524ca16672a8"
-"checksum lyon_geom 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cf8bab700a69f82616a1377df3c2fc4012fe8518833ae1f6e51a1cf9782cede4"
-"checksum lyon_path 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)" = "bf845aab7ec22d588fb82384fab4fecd88f9479cd00637d68166d37de0514f69"
-"checksum lyon_tessellation 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)" = "72817e64dc9c161c0785e61626dd76403356614b15a645d95d25b9003e0ba1a0"
+"checksum lyon 0.15.9 (registry+https://github.com/rust-lang/crates.io-index)" = "ed142d912ddc611081d50acd84ce1b8612da909aa4cf369642ba92cf51f09b40"
+"checksum lyon_algorithms 0.15.1 (registry+https://github.com/rust-lang/crates.io-index)" = "ef5d79947342462427efed6f49b1361d700c0f5dad97a1bac96a5f84d2d1abb1"
+"checksum lyon_geom 0.15.3 (registry+https://github.com/rust-lang/crates.io-index)" = "9962a2ba81382716b87d7d358493cb71844c1f9165ddad763cd9f4d3f5474df2"
+"checksum lyon_path 0.15.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c81a044414965c051b7b4785770820d23146480a2d8573cd825f03a00a5b8dd8"
+"checksum lyon_tessellation 0.15.9 (registry+https://github.com/rust-lang/crates.io-index)" = "71c45e7eb8cf9cba513aa72efd59894f861a91acabc9a100caeb0fe6e6315b71"
 "checksum mac 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c41e0c4fef86961ac6d6f8a82609f55f31b05e4fce149ac5710e439df7619ba4"
 "checksum malloc_buf 0.0.6 (registry+https://github.com/rust-lang/crates.io-index)" = "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb"
 "checksum maplit 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "3e2e65a1a2e43cfcb47a895c4c8b10d1f4a61097f9f254f183aee60cad9c651d"
