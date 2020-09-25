@@ -11,7 +11,7 @@ pub struct ExtraShapes {
     pub shapes: Vec<ExtraShape>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ExtraShape {
     pub points: Vec<LonLat>,
     pub attributes: BTreeMap<String, String>,
