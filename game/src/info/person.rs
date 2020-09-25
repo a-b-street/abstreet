@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, OpenTrip, Tab};
-use geom::{Duration, Time};
+use geom::{Angle, Duration, Time};
 use map_model::Map;
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
@@ -149,7 +149,12 @@ pub fn trips(
                 .batch(),
                 // Without this bottom padding, text is much closer to bottom of pill than top -
                 // seemingly moreso than just text ascender/descender descrepancies - why?
-                Line(trip_status).small().fg(color).batch(ctx).container().padding_bottom(2),
+                Line(trip_status)
+                    .small()
+                    .fg(color)
+                    .batch(ctx)
+                    .container()
+                    .padding_bottom(2),
             ])
             .centered()
             .fully_rounded()
@@ -187,15 +192,23 @@ pub fn trips(
             } else {
                 Widget::nothing()
             },
-            if open_trips.contains_key(t) {
-                "↓"
-            } else {
-                "↑"
-            }
-            .batch_text(ctx)
-            .centered_vert()
-            .align_right(),
+            {
+                let mut icon = GeomBatch::load_svg(
+                    ctx.prerender,
+                    "system/assets/widgetry/arrow_drop_down.svg",
+                )
+                .autocrop()
+                .color(RewriteColor::ChangeAll(Color::WHITE))
+                .scale(1.5);
+
+                if !open_trips.contains_key(t) {
+                    icon = icon.rotate(Angle::new_degs(180.0));
+                }
+
+                icon.batch().container().align_right().margin_right(10)
+            },
         ])
+        .centered()
         .outline(2.0, Color::WHITE)
         .padding(16)
         .bg(app.cs.inner_panel)
