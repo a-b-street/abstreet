@@ -124,41 +124,12 @@
 <span id="124">124</span>
 <span id="125">125</span>
 <span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AlertHandler</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">Sim</span>, <span class="ident">SimOptions</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">Sim</span>, <span class="ident">SimOptions</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">MapEdits</span>};
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
-
-<span class="kw">const</span> <span class="ident">RNG_SEED</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">42</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimFlags</span> {
@@ -169,44 +140,19 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SimFlags</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RNG_SEED</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">42</span>;
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_args</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CmdArgs</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimFlags</span> {
         <span class="kw">let</span> <span class="ident">rng_seed</span> <span class="op">=</span> <span class="ident">args</span>
             .<span class="ident">optional_parse</span>(<span class="string">&quot;--rng_seed&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>())
-            .<span class="ident">unwrap_or</span>(<span class="ident">RNG_SEED</span>);
-
+            .<span class="ident">unwrap_or</span>(<span class="ident">SimFlags</span>::<span class="ident">RNG_SEED</span>);
         <span class="ident">SimFlags</span> {
             <span class="ident">load</span>: <span class="ident">args</span>
                 .<span class="ident">optional_free</span>()
                 .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="string">&quot;montlake&quot;</span>)),
             <span class="ident">modifiers</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">rng_seed</span>,
-            <span class="ident">opts</span>: <span class="ident">SimOptions</span> {
-                <span class="ident">run_name</span>: <span class="ident">args</span>
-                    .<span class="ident">optional</span>(<span class="string">&quot;--run_name&quot;</span>)
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;unnamed&quot;</span>.<span class="ident">to_string</span>()),
-                <span class="ident">use_freeform_policy_everywhere</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--freeform_policy&quot;</span>),
-                <span class="ident">dont_block_the_box</span>: <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_block_the_box&quot;</span>),
-                <span class="ident">recalc_lanechanging</span>: <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_recalc_lc&quot;</span>),
-                <span class="ident">break_turn_conflict_cycles</span>: <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_break_turn_conflict_cycles&quot;</span>),
-                <span class="ident">handle_uber_turns</span>: <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_handle_uber_turns&quot;</span>),
-                <span class="ident">enable_pandemic_model</span>: <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--pandemic&quot;</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">XorShiftRng</span>::<span class="ident">from_seed</span>([<span class="ident">rng_seed</span>; <span class="number">16</span>]))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                },
-                <span class="ident">alerts</span>: <span class="ident">args</span>
-                    .<span class="ident">optional</span>(<span class="string">&quot;--alerts&quot;</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                        <span class="string">&quot;print&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AlertHandler</span>::<span class="ident">Print</span>,
-                        <span class="string">&quot;block&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AlertHandler</span>::<span class="ident">Block</span>,
-                        <span class="string">&quot;silence&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AlertHandler</span>::<span class="ident">Silence</span>,
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Bad --alerts={}. Must be print|block|silence&quot;</span>, <span class="ident">x</span>),
-                    })
-                    .<span class="ident">unwrap_or</span>(<span class="ident">AlertHandler</span>::<span class="ident">Print</span>),
-                <span class="ident">pathfinding_upfront</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--pathfinding_upfront&quot;</span>),
-                <span class="ident">live_map_edits</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--live_map_edits&quot;</span>),
-                <span class="ident">infinite_parking</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--infinite_parking&quot;</span>),
-            },
+            <span class="ident">opts</span>: <span class="ident">SimOptions</span>::<span class="ident">from_args</span>(<span class="ident">args</span>, <span class="ident">rng_seed</span>),
         }
     }
 
@@ -219,7 +165,7 @@
         <span class="ident">SimFlags</span> {
             <span class="ident">load</span>: <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="ident">map</span>),
             <span class="ident">modifiers</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">rng_seed</span>: <span class="ident">RNG_SEED</span>,
+            <span class="ident">rng_seed</span>: <span class="ident">SimFlags</span>::<span class="ident">RNG_SEED</span>,
             <span class="ident">opts</span>: <span class="ident">SimOptions</span>::<span class="ident">new</span>(<span class="ident">run_name</span>),
         }
     }

@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["RNG_SEED",""]],"struct":[["SimFlags",""]]});
+initSidebarItems({"struct":[["SimFlags",""]]});
