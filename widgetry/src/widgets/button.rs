@@ -226,9 +226,10 @@ impl Btn {
             .padding_right(8)
             .to_geom(ctx, None);
 
-        let hovered = button_geom
-            .clone()
-            .color(RewriteColor::Change(ctx.style().outline_color, ctx.style().hovering_color));
+        let hovered = button_geom.clone().color(RewriteColor::Change(
+            ctx.style().outline_color,
+            ctx.style().hovering_color,
+        ));
 
         let outline = (ctx.style().outline_thickness, ctx.style().outline_color);
         BtnBuilder::Custom {
