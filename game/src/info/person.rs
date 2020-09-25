@@ -11,7 +11,8 @@ use sim::{
 };
 use std::collections::BTreeMap;
 use widgetry::{
-    Btn, Color, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan, Widget,
+    Btn, Color, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan,
+    Widget,
 };
 
 pub fn trips(
@@ -142,16 +143,24 @@ pub fn trips(
                 )
                 // we want the icon to be about the same height as the text
                 .scale(0.75)
+                // discard any padding built into the svg
                 .autocrop()
                 .color(RewriteColor::ChangeAll(color))
                 .batch(),
-                Line(trip_status).small().fg(color).batch(ctx),
+                // Without this bottom padding, text is much closer to bottom of pill than top -
+                // seemingly moreso than just text ascender/descender descrepancies - why?
+                Line(trip_status).small().fg(color).batch(ctx).container().padding_bottom(2),
             ])
             .centered()
             .fully_rounded()
             .outline(1.0, color)
             .bg(color.alpha(0.2))
-            .padding(10)
+            .padding(EdgeInsets {
+                top: 5.0,
+                bottom: 5.0,
+                left: 10.0,
+                right: 10.0,
+            })
             .margin_right(21),
             if trip.modified {
                 Line("modified").batch(ctx).centered_vert().margin_right(15)
