@@ -7,6 +7,7 @@ use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer}
 use geom::{Distance, Duration, Speed};
 
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
+use crate::objects::traffic_signals::PhaseType::{Adaptive, Fixed};
 use crate::raw::OriginalRoad;
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
@@ -83,7 +84,6 @@ impl ControlTrafficSignal {
         for movement in &self.stages[idx].protected_movements {
             if movement.crosswalk {
                 let distance = self.movements.get(&movement).unwrap().geom.length();
-                println!("Distance: {}", distance);
                 if max_distance == Distance::meters(0.0) {
                     max_distance = distance;
                 } else if max_distance < distance {
@@ -93,7 +93,8 @@ impl ControlTrafficSignal {
         }
         let time = max_distance / CROSSWALK_PACE;
         if time >= Duration::ZERO {
-            time
+            //Round up because it is converted to a usize elsewhere
+            Duration::seconds(time.inner_seconds().ceil())
         } else {
             Duration::seconds(5.0)
         }
@@ -140,8 +141,12 @@ impl ControlTrafficSignal {
             for m in stage.yield_movements.iter().map(|m| &self.movements[m]) {
                 assert!(m.turn_type != TurnType::Crosswalk);
             }
+
             // Is there enough time in each stage to walk across the crosswalk
-            assert!(self.get_min_crossing_time(stage_index) < stage.phase_type.simple_duration());
+            let min_crossing_time = self.get_min_crossing_time(stage_index);
+            if min_crossing_time <= stage.phase_type.simple_duration() {
+                return Err(format!("Traffic signal does not allow enough time in stage to complete the crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}", stage_index, stage, min_crossing_time, stage.phase_type.simple_duration()));
+            }
             stage_index += 1;
         }
         Ok(self)
@@ -275,6 +280,7 @@ impl Stage {
                 parent: g.id.parent,
                 crosswalk: true,
             });
+            self.check_minimum_crosswalk_time(g);
         }
         for id in ids {
             self.protected_movements.remove(&id);
@@ -284,6 +290,20 @@ impl Stage {
             } else if pri == TurnPriority::Yield {
                 self.yield_movements.insert(id);
             }
+        }
+    }
+    pub fn check_minimum_crosswalk_time(&mut self, movement: &Movement) {
+        //Round up to an int, because it is exported as a usize
+        let time = Duration::seconds(
+            (movement.geom.length() / CROSSWALK_PACE)
+                .inner_seconds()
+                .ceil(),
+        );
+        if time > self.phase_type.simple_duration() {
+            self.phase_type = match self.phase_type {
+                PhaseType::Adaptive(_) => Adaptive(time),
+                PhaseType::Fixed(_) => Fixed(time),
+            };
         }
     }
 }
