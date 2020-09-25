@@ -10,13 +10,14 @@ use crate::{
     VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
     SPAWN_DIST,
 };
-use abstutil::{prettyprint_usize, serialized_size_bytes, Parallelism, Timer};
+use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, Parallelism, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use instant::Instant;
 use map_model::{
     BuildingID, BusRoute, LaneID, Map, ParkingLotID, Path, PathConstraints, PathRequest, Position,
     Traversable,
 };
+use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashSet};
@@ -82,6 +83,38 @@ pub struct SimOptions {
 impl std::default::Default for SimOptions {
     fn default() -> SimOptions {
         SimOptions::new("tmp")
+    }
+}
+
+impl SimOptions {
+    pub fn from_args(args: &mut CmdArgs, rng_seed: u8) -> SimOptions {
+        SimOptions {
+            run_name: args
+                .optional("--run_name")
+                .unwrap_or_else(|| "unnamed".to_string()),
+            use_freeform_policy_everywhere: args.enabled("--freeform_policy"),
+            dont_block_the_box: !args.enabled("--disable_block_the_box"),
+            recalc_lanechanging: !args.enabled("--disable_recalc_lc"),
+            break_turn_conflict_cycles: !args.enabled("--disable_break_turn_conflict_cycles"),
+            handle_uber_turns: !args.enabled("--disable_handle_uber_turns"),
+            enable_pandemic_model: if args.enabled("--pandemic") {
+                Some(XorShiftRng::from_seed([rng_seed; 16]))
+            } else {
+                None
+            },
+            alerts: args
+                .optional("--alerts")
+                .map(|x| match x.as_ref() {
+                    "print" => AlertHandler::Print,
+                    "block" => AlertHandler::Block,
+                    "silence" => AlertHandler::Silence,
+                    _ => panic!("Bad --alerts={}. Must be print|block|silence", x),
+                })
+                .unwrap_or(AlertHandler::Print),
+            pathfinding_upfront: args.enabled("--pathfinding_upfront"),
+            live_map_edits: args.enabled("--live_map_edits"),
+            infinite_parking: args.enabled("--infinite_parking"),
+        }
     }
 }
 

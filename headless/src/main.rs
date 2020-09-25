@@ -35,13 +35,12 @@ lazy_static::lazy_static! {
     static ref MAP: RwLock<Map> = RwLock::new(Map::blank());
     static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp"), &mut Timer::throwaway()));
     static ref LOAD: RwLock<LoadSim> = RwLock::new({
-        let flags = SimFlags::for_test("tmp");
         LoadSim {
             scenario: abstutil::path_scenario("montlake", "weekday"),
             modifiers: Vec::new(),
             edits: None,
-            rng_seed: flags.rng_seed,
-            opts: flags.opts,
+            rng_seed: SimFlags::RNG_SEED,
+            opts: SimOptions::default(),
         }
     });
 }
@@ -50,15 +49,17 @@ lazy_static::lazy_static! {
 async fn main() {
     let mut args = CmdArgs::new();
     let mut timer = Timer::new("setup headless");
-    // TODO Misleading, because we ignore the free argument (load)
-    let sim_flags = SimFlags::from_args(&mut args);
+    let rng_seed = args
+        .optional_parse("--rng_seed", |s| s.parse())
+        .unwrap_or(SimFlags::RNG_SEED);
+    let opts = SimOptions::from_args(&mut args, rng_seed);
     let port = args.required("--port").parse::<u16>().unwrap();
     args.done();
 
     {
         let mut load = LOAD.write().unwrap();
-        load.rng_seed = sim_flags.rng_seed;
-        load.opts = sim_flags.opts;
+        load.rng_seed = rng_seed;
+        load.opts = opts;
 
         let (map, sim) = load.setup(&mut timer);
         *MAP.write().unwrap() = map;
