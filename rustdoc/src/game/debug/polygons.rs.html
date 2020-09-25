@@ -265,7 +265,7 @@
                 <span class="ident">batch</span>.<span class="ident">append</span>(
                     <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">idx</span>.<span class="ident">to_string</span>()))
                         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
-                        .<span class="ident">render_g</span>(<span class="ident">g</span>)
+                        .<span class="ident">render</span>(<span class="ident">g</span>)
                         .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">map_to_screen</span>(<span class="kw-2">*</span><span class="ident">pt</span>).<span class="ident">to_pt</span>()),
                 );
             }
@@ -274,7 +274,7 @@
                     <span class="ident">batch</span>.<span class="ident">append</span>(
                         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">idx</span>.<span class="ident">to_string</span>()))
                             .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
-                            .<span class="ident">render_g</span>(<span class="ident">g</span>)
+                            .<span class="ident">render</span>(<span class="ident">g</span>)
                             .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">map_to_screen</span>(<span class="kw-2">*</span><span class="ident">pt</span>).<span class="ident">to_pt</span>()),
                     );
                 }
@@ -285,7 +285,7 @@
                 <span class="ident">batch</span>.<span class="ident">append</span>(
                     <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">idx</span>.<span class="ident">to_string</span>()))
                         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
-                        .<span class="ident">render_g</span>(<span class="ident">g</span>)
+                        .<span class="ident">render</span>(<span class="ident">g</span>)
                         .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">map_to_screen</span>(<span class="ident">poly</span>.<span class="ident">center</span>()).<span class="ident">to_pt</span>()),
                 );
             }
@@ -294,7 +294,7 @@
             <span class="ident">batch</span>.<span class="ident">append</span>(
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;c&quot;</span>))
                     .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
-                    .<span class="ident">render_g</span>(<span class="ident">g</span>)
+                    .<span class="ident">render</span>(<span class="ident">g</span>)
                     .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">map_to_screen</span>(<span class="ident">pt</span>).<span class="ident">to_pt</span>()),
             );
         }

@@ -736,7 +736,7 @@
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">mins</span>) <span class="kw">in</span> <span class="ident">endpts</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="ident">batch</span>.<span class="ident">append</span>(
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">mins</span>.<span class="ident">to_string</span>()).<span class="ident">secondary</span>())
-                .<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)
+                .<span class="ident">render</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_on</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(
                     (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">num_buckets</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">total_width</span>,
                     <span class="ident">total_height</span> <span class="op">/</span> <span class="number">2.0</span>,
@@ -751,7 +751,7 @@
                 <span class="ident">Line</span>(<span class="string">&quot;time&quot;</span>).<span class="ident">secondary</span>(),
                 <span class="ident">Line</span>(<span class="string">&quot;after&quot;</span>).<span class="ident">secondary</span>(),
             ])
-            .<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)
+            .<span class="ident">render</span>(<span class="ident">ctx</span>)
             .<span class="ident">translate</span>(<span class="ident">total_width</span>, <span class="ident">total_height</span> <span class="op">/</span> <span class="number">2.0</span>),
         );
     }

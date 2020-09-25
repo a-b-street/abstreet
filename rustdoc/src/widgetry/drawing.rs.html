@@ -435,7 +435,7 @@
         <span class="comment">// Add some padding</span>
         <span class="kw">let</span> <span class="ident">pad</span> <span class="op">=</span> <span class="number">5.0</span>;
 
-        <span class="kw">let</span> <span class="ident">txt_batch</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">render_g</span>(<span class="self">self</span>);
+        <span class="kw">let</span> <span class="ident">txt_batch</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">render</span>(<span class="self">self</span>);
         <span class="kw">let</span> <span class="ident">raw_dims</span> <span class="op">=</span> <span class="ident">txt_batch</span>.<span class="ident">get_dims</span>();
         <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">raw_dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>, <span class="ident">raw_dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>);
 

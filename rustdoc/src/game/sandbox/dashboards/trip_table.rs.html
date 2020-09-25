@@ -980,18 +980,18 @@
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Type&quot;</span>,
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span><span class="op">|</span> {
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">mode</span>.<span class="ident">ongoing_verb</span>()).<span class="ident">fg</span>(<span class="ident">color_for_mode</span>(<span class="ident">app</span>, <span class="ident">x</span>.<span class="ident">mode</span>))).<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">mode</span>.<span class="ident">ongoing_verb</span>()).<span class="ident">fg</span>(<span class="ident">color_for_mode</span>(<span class="ident">app</span>, <span class="ident">x</span>.<span class="ident">mode</span>))).<span class="ident">render</span>(<span class="ident">ctx</span>)
         }),
         <span class="ident">Col</span>::<span class="ident">Static</span>,
     );
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Departure&quot;</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">departure</span>.<span class="ident">ampm_tostring</span>())).<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)),
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">departure</span>.<span class="ident">ampm_tostring</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
         <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">departure</span>))),
     );
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Duration&quot;</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">duration_after</span>.<span class="ident">to_string</span>())).<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)),
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">duration_after</span>.<span class="ident">to_string</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
         <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">duration_after</span>))),
     );
 
@@ -1000,7 +1000,7 @@
             <span class="string">&quot;Comparison&quot;</span>,
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> {
                 <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="ident">cmp_duration_shorter</span>(<span class="ident">x</span>.<span class="ident">duration_after</span>, <span class="ident">x</span>.<span class="ident">duration_before</span>))
-                    .<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">render</span>(<span class="ident">ctx</span>)
             }),
             <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> {
                 <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">-</span> <span class="ident">x</span>.<span class="ident">duration_before</span>)
@@ -1022,7 +1022,7 @@
                         (<span class="number">100.0</span> <span class="op">*</span> ((<span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">/</span> <span class="ident">x</span>.<span class="ident">duration_before</span>) <span class="op">-</span> <span class="number">1.0</span>)) <span class="kw">as</span> <span class="ident">usize</span>
                     )
                 }))
-                .<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)
+                .<span class="ident">render</span>(<span class="ident">ctx</span>)
             }),
             <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> {
                 <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="number">100.0</span> <span class="op">*</span> (<span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">/</span> <span class="ident">x</span>.<span class="ident">duration_before</span>)) <span class="kw">as</span> <span class="ident">isize</span>)
@@ -1032,12 +1032,12 @@
 
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Time spent waiting&quot;</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">waiting</span>.<span class="ident">to_string</span>())).<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)),
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">waiting</span>.<span class="ident">to_string</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
         <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">waiting</span>))),
     );
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Percent waiting&quot;</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">percent_waiting</span>.<span class="ident">to_string</span>())).<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)),
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">percent_waiting</span>.<span class="ident">to_string</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
         <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">percent_waiting</span>))),
     );
 
@@ -1107,19 +1107,19 @@
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Type&quot;</span>,
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span><span class="op">|</span> {
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">mode</span>.<span class="ident">ongoing_verb</span>()).<span class="ident">fg</span>(<span class="ident">color_for_mode</span>(<span class="ident">app</span>, <span class="ident">x</span>.<span class="ident">mode</span>))).<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">mode</span>.<span class="ident">ongoing_verb</span>()).<span class="ident">fg</span>(<span class="ident">color_for_mode</span>(<span class="ident">app</span>, <span class="ident">x</span>.<span class="ident">mode</span>))).<span class="ident">render</span>(<span class="ident">ctx</span>)
         }),
         <span class="ident">Col</span>::<span class="ident">Static</span>,
     );
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Departure&quot;</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">departure</span>.<span class="ident">ampm_tostring</span>())).<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)),
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">departure</span>.<span class="ident">ampm_tostring</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
         <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">departure</span>))),
     );
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
         <span class="ident">table</span>.<span class="ident">column</span>(
             <span class="string">&quot;Estimated duration&quot;</span>,
-            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">duration_before</span>.<span class="ident">to_string</span>())).<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)),
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">duration_before</span>.<span class="ident">to_string</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
             <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">duration_before</span>))),
         );
     }
@@ -1204,19 +1204,19 @@
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Type&quot;</span>,
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span><span class="op">|</span> {
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">mode</span>.<span class="ident">ongoing_verb</span>()).<span class="ident">fg</span>(<span class="ident">color_for_mode</span>(<span class="ident">app</span>, <span class="ident">x</span>.<span class="ident">mode</span>))).<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">mode</span>.<span class="ident">ongoing_verb</span>()).<span class="ident">fg</span>(<span class="ident">color_for_mode</span>(<span class="ident">app</span>, <span class="ident">x</span>.<span class="ident">mode</span>))).<span class="ident">render</span>(<span class="ident">ctx</span>)
         }),
         <span class="ident">Col</span>::<span class="ident">Static</span>,
     );
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Departure&quot;</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">departure</span>.<span class="ident">ampm_tostring</span>())).<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)),
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">departure</span>.<span class="ident">ampm_tostring</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
         <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">departure</span>))),
     );
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
         <span class="ident">table</span>.<span class="ident">column</span>(
             <span class="string">&quot;Estimated duration&quot;</span>,
-            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">duration_before</span>.<span class="ident">to_string</span>())).<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)),
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">duration_before</span>.<span class="ident">to_string</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
             <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">duration_before</span>))),
         );
     }
