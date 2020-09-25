@@ -240,10 +240,10 @@ use
 <h3><a class="header" href="#why" id="why">Why?</a></h3>
 <p>I'm trying to build a realistic traffic simulation of Seattle using OSM data,
 then use it to strengthen proposals for
-<a href="https://dabreegster.github.io/abstreet/lake_wash/proposal.html">pedestrianized streets</a>,
+<a href="howto/../case_studies/lake_wash.html">pedestrianized streets</a>,
 <a href="https://www.glwstreets.org/45th-st-bridge-overview">improving the bike network</a>,
 and
-<a href="https://dabreegster.github.io/abstreet/west_seattle/proposal.html">mitigating the West Seattle bridge closure</a>.
+<a href="howto/../case_studies/west_seattle.html">mitigating the West Seattle bridge closure</a>.
 A/B Street is only as good as its data, and parking is one of the biggest gaps.
 Missing data means unrealistic traffic as vehicles contend for few parking
 spots, and roads that look much wider than they are in reality.</p>
@@ -393,7 +393,7 @@ resources for fixing OSM:</p>
 <ul>
 <li><a href="https://learnosm.org">https://learnosm.org</a></li>
 <li><a href="https://wiki.openstreetmap.org/wiki/StreetComplete">https://wiki.openstreetmap.org/wiki/StreetComplete</a></li>
-<li><a href="https://dabreegster.github.io/abstreet/map_parking.html">https://dabreegster.github.io/abstreet/map_parking.html</a></li>
+<li><a href="howto/map_parking.html">Mapping parking</a></li>
 </ul>
 <h1><a class="header" href="#how-ab-street-works" id="how-ab-street-works">How A/B Street works</a></h1>
 <p>The overview:</p>
@@ -448,8 +448,7 @@ can go are currently full two-way roads</li>
 <ul>
 <li>On-street: parallel parking lanes from
 <a href="http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface">GeoData blockface dataset</a>
-and
-<a href="https://dabreegster.github.io/abstreet/map_parking.html">manually mapped</a></li>
+and <a href="howto/map_parking.html">manually mapped</a></li>
 <li>Off-street: most buildings have at least a few parking spots in a driveway
 or carport
 <ul>
@@ -881,7 +880,8 @@ latest input.</p>
 <code>convert_osm</code>, you need <code>./import.sh --raw --map</code>.</li>
 <li>If you're modifying <code>map_model</code> but not the OSM -&gt; RawMap conversion, then you
 just need <code>./import.sh --map</code>.</li>
-<li>If you're modifying the demand model for Seattle, you can add <code>--scenario</code> to regenerate.</li>
+<li>If you're modifying the demand model for Seattle, you can add <code>--scenario</code> to
+regenerate.</li>
 <li>By default, all maps are regenerated. You can also specify a single map:
 <code>./import.sh --map downtown</code>.</li>
 <li>By default, Seattle is assumed as the city. You have to specify otherwise:
@@ -936,11 +936,7 @@ during map importing, since the player won't deal with this, and loudly stopping
 problems is useful. It's also fine to crash when initially constructing all of
 the renderable map objects, because this crash will consistently happen at
 startup-time and be noticed by somebody developing before a player gets to it.</p>
-<p>Regarding Testing: You'll surely note the lack of unit tests. If it bothers you,
-let's talk about what tests should exist. In the meantime, note lots of
-validation does happen via importing maps, running the prebaked scenarios, and
-screenshot diffing. Please read more in depth in the
-<a href="https://dabreegster.github.io/abstreet/dev/testing.html">testing strategy</a> doc.</p>
+<p>See the <a href="dev/testing.html">testing strategy</a> page.</p>
 <h1><a class="header" href="#development-notes" id="development-notes">Development notes</a></h1>
 <p>Find packages to upgrade: <code>cargo outdated -R</code></p>
 <p>Deal with compile tile: <code>cargo bloat --time</code></p>
@@ -1121,17 +1117,16 @@ modified and then added to map edits.</li>
 </code></pre>
 <p>The format of the map isn't well-documented yet. See the
 <a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html">generated API docs</a>
-and <a href="https://dabreegster.github.io/abstreet/map/index.html">the map model docs</a>
-in the meantime.</p>
+and <a href="dev/../map/index.html">the map model docs</a> in the meantime.</p>
 <h2><a class="header" href="#working-with-individual-trips" id="working-with-individual-trips">Working with individual trips</a></h2>
 <p>You can use the <strong>/sim/new-person</strong> API in the middle of a simulation, if
 needed. If possible, it's simpler to create a Scenario as input.</p>
 <h2><a class="header" href="#working-with-scenarios" id="working-with-scenarios">Working with Scenarios</a></h2>
 <p>You can
-<a href="https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import">import trips from your own data</a>.</p>
+<a href="dev/../trafficsim/travel_demand.html#custom-import">import trips from your own data</a>.</p>
 <p>You can also generate different variations of one of the
-<a href="https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#proletariat-robot">demand models</a>
-by specifying an RNG seed:</p>
+<a href="dev/../trafficsim/travel_demand.html#proletariat-robot">demand models</a> by specifying
+an RNG seed:</p>
 <pre><code>cargo run --bin random_scenario -- --rng=123 --map=data/system/maps/montlake.bin &gt; data/system/scenarios/montlake/home_to_work.json
 </code></pre>
 <p>You can also dump Scenarios (the file that defines all of the people and trips)
@@ -2049,9 +2044,8 @@ simplest way to express all the state transitons.</p>
 <h2><a class="header" href="#trips-starting-from-a-building" id="trips-starting-from-a-building">Trips starting from a building</a></h2>
 <p><img src="trafficsim/../mdbook-plantuml-img/92ec1d5cbfccd87df09b67ac1a2b26aebf81eee8.svg" alt="" /></p>
 <h1><a class="header" href="#live-edits-1" id="live-edits-1">Live edits</a></h1>
-<p>When the player edits the map, there's an
-<a href="https://dabreegster.github.io/abstreet/map/edits.html">efficient process</a> for
-applying the edits at the map model and rendering layer. In the middle of a
+<p>When the player edits the map, there's an <a href="trafficsim/../map/edits.html">efficient process</a>
+for applying the edits at the map model and rendering layer. In the middle of a
 simulation, it's less obvious how to apply all edits. Most of the time
 currently, edits cause the simulation to reset to midnight. Applying edits to
 the sim without reset is important for running machine learning experiments and
@@ -2187,7 +2181,7 @@ support. Besides that:</p>
 <li>Mapping, most of which directly contributes to OpenStreetMap:
 <ul>
 <li>sidewalks and crosswalks</li>
-<li><a href="https://dabreegster.github.io/abstreet/map_parking.html">on-street parking</a></li>
+<li><a href="project/../howto/map_parking.html">on-street parking</a></li>
 <li><a href="https://docs.google.com/document/d/1Od_7WvBVYsvpY4etRI0sKmYmZnwXMAXcJxVmm8Iwdcg/edit?usp=sharing">traffic signal timing</a></li>
 </ul>
 </li>
@@ -3278,8 +3272,7 @@ downtown congestion charging zone for Seattle.</p>
 <h2><a class="header" href="#xian" id="xian">Xi'an</a></h2>
 <p>Active as of Sept 2020</p>
 <p>A group (with their own demand data!) is studying traffic signal optimization in
-Xi'an. They're using the
-<a href="https://dabreegster.github.io/abstreet/dev/api.html">API</a>.</p>
+Xi'an. They're using the <a href="project/../dev/api.html">API</a>.</p>
 <h2><a class="header" href="#forecasting-group" id="forecasting-group">Forecasting group</a></h2>
 <p>Active as of Sept 2020</p>
 <p>A research group is making a bunch of live map edits and scheduling new trips in
