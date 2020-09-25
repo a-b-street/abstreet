@@ -159,7 +159,7 @@ impl<T: 'static> WidgetImpl for Menu<T> {
             return;
         }
 
-        let draw = g.upload(self.calculate_txt(g.style()).render_g(g));
+        let draw = g.upload(self.calculate_txt(g.style()).render(g));
         g.fork(
             Pt2D::new(0.0, 0.0),
             self.top_left,

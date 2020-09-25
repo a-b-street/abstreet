@@ -312,18 +312,18 @@ fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
     table.column(
         "Type",
         Box::new(|ctx, app, x| {
-            Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render_ctx(ctx)
+            Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render(ctx)
         }),
         Col::Static,
     );
     table.column(
         "Departure",
-        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render_ctx(ctx)),
+        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
     );
     table.column(
         "Duration",
-        Box::new(|ctx, _, x| Text::from(Line(x.duration_after.to_string())).render_ctx(ctx)),
+        Box::new(|ctx, _, x| Text::from(Line(x.duration_after.to_string())).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_after))),
     );
 
@@ -332,7 +332,7 @@ fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
             "Comparison",
             Box::new(|ctx, _, x| {
                 Text::from_all(cmp_duration_shorter(x.duration_after, x.duration_before))
-                    .render_ctx(ctx)
+                    .render(ctx)
             }),
             Col::Sortable(Box::new(|rows| {
                 rows.sort_by_key(|x| x.duration_after - x.duration_before)
@@ -354,7 +354,7 @@ fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
                         (100.0 * ((x.duration_after / x.duration_before) - 1.0)) as usize
                     )
                 }))
-                .render_ctx(ctx)
+                .render(ctx)
             }),
             Col::Sortable(Box::new(|rows| {
                 rows.sort_by_key(|x| (100.0 * (x.duration_after / x.duration_before)) as isize)
@@ -364,12 +364,12 @@ fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
 
     table.column(
         "Time spent waiting",
-        Box::new(|ctx, _, x| Text::from(Line(x.waiting.to_string())).render_ctx(ctx)),
+        Box::new(|ctx, _, x| Text::from(Line(x.waiting.to_string())).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.waiting))),
     );
     table.column(
         "Percent waiting",
-        Box::new(|ctx, _, x| Text::from(Line(x.percent_waiting.to_string())).render_ctx(ctx)),
+        Box::new(|ctx, _, x| Text::from(Line(x.percent_waiting.to_string())).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.percent_waiting))),
     );
 
@@ -439,19 +439,19 @@ fn make_table_cancelled_trips(app: &App) -> Table<CancelledTrip, Filters> {
     table.column(
         "Type",
         Box::new(|ctx, app, x| {
-            Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render_ctx(ctx)
+            Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render(ctx)
         }),
         Col::Static,
     );
     table.column(
         "Departure",
-        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render_ctx(ctx)),
+        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
     );
     if app.has_prebaked().is_some() {
         table.column(
             "Estimated duration",
-            Box::new(|ctx, _, x| Text::from(Line(x.duration_before.to_string())).render_ctx(ctx)),
+            Box::new(|ctx, _, x| Text::from(Line(x.duration_before.to_string())).render(ctx)),
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
         );
     }
@@ -536,19 +536,19 @@ fn make_table_unfinished_trips(app: &App) -> Table<UnfinishedTrip, Filters> {
     table.column(
         "Type",
         Box::new(|ctx, app, x| {
-            Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render_ctx(ctx)
+            Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render(ctx)
         }),
         Col::Static,
     );
     table.column(
         "Departure",
-        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render_ctx(ctx)),
+        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
     );
     if app.has_prebaked().is_some() {
         table.column(
             "Estimated duration",
-            Box::new(|ctx, _, x| Text::from(Line(x.duration_before.to_string())).render_ctx(ctx)),
+            Box::new(|ctx, _, x| Text::from(Line(x.duration_before.to_string())).render(ctx)),
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
         );
     }

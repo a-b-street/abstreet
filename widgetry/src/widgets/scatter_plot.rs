@@ -131,7 +131,7 @@ impl ScatterPlot {
                 ),
             );
 
-            let txt = Text::from(Line("avg")).render_ctx(ctx).autocrop();
+            let txt = Text::from(Line("avg")).render(ctx).autocrop();
             let width = txt.get_dims().width;
             batch.append(txt.centered_on(Pt2D::new(-width / 2.0, (1.0 - avg) * height)));
         }
@@ -150,7 +150,7 @@ impl ScatterPlot {
             let t = max_x.percent_of(percent_x);
             // TODO Need ticks now to actually see where this goes
             let batch = Text::from(Line(t.to_string()))
-                .render_ctx(ctx)
+                .render(ctx)
                 .rotate(Angle::new_degs(-15.0))
                 .autocrop();
             // The text is already scaled; don't use Widget::draw_batch and scale it again.

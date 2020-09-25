@@ -1,7 +1,6 @@
 use crate::assets::Assets;
 use crate::{
-    svg, Color, DeferDraw, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey, Prerender, ScreenDims,
-    Widget,
+    svg, Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, Prerender, ScreenDims, Widget,
 };
 use geom::{PolyLine, Polygon};
 use std::collections::hash_map::DefaultHasher;
@@ -271,16 +270,9 @@ impl Text {
         self.render(assets).get_dims()
     }
 
-    // TODO: Combine all render_foo methods to be render(into<Assets>)?
-    pub fn render(self, assets: &Assets) -> GeomBatch {
+    pub fn render<'a, A: AsRef<Assets>>(self, assets: &A) -> GeomBatch {
+        let assets: &Assets = assets.as_ref();
         self.inner_render(assets, svg::HIGH_QUALITY)
-    }
-
-    pub fn render_g(self, g: &GfxCtx) -> GeomBatch {
-        self.render(&g.prerender.assets)
-    }
-    pub fn render_ctx(self, ctx: &EventCtx) -> GeomBatch {
-        self.render(&ctx.prerender.assets)
     }
 
     pub(crate) fn inner_render(self, assets: &Assets, tolerance: f32) -> GeomBatch {
@@ -347,10 +339,10 @@ impl Text {
     }
 
     pub fn draw(self, ctx: &EventCtx) -> Widget {
-        JustDraw::wrap(ctx, self.render_ctx(ctx))
+        JustDraw::wrap(ctx, self.render(ctx))
     }
     pub fn batch(self, ctx: &EventCtx) -> Widget {
-        DeferDraw::new(self.render_ctx(ctx))
+        DeferDraw::new(self.render(ctx))
     }
 
     pub fn wrap_to_pct(self, ctx: &EventCtx, pct: usize) -> Text {

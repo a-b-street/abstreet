@@ -1,3 +1,5 @@
+use crate::drawing::GfxCtx;
+use crate::event_ctx::EventCtx;
 use crate::text::Font;
 use crate::{text, GeomBatch};
 use geom::Bounds;
@@ -123,5 +125,23 @@ impl Assets {
 
     pub fn cache_svg(&self, key: String, geom: GeomBatch, bounds: Bounds) {
         self.svg_cache.borrow_mut().insert(key, (geom, bounds));
+    }
+}
+
+impl std::convert::AsRef<Assets> for GfxCtx<'_> {
+    fn as_ref(&self) -> &Assets {
+        &self.prerender.assets
+    }
+}
+
+impl std::convert::AsRef<Assets> for EventCtx<'_> {
+    fn as_ref(&self) -> &Assets {
+        &self.prerender.assets
+    }
+}
+
+impl std::convert::AsRef<Assets> for Assets {
+    fn as_ref(&self) -> &Assets {
+        &self
     }
 }
