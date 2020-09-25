@@ -10,8 +10,9 @@
 # Keep this script formatted with autopep8 -i
 
 import abst_helpers
+from abst_helpers import get
+from abst_helpers import post
 import argparse
-import requests
 import sys
 import time
 
@@ -27,7 +28,7 @@ def main():
     print('Simulating {} hours of data/system/scenarios/{}/weekday.bin'.format(args.hours, args.map_name))
 
     baseline = abst_helpers.run_sim(args)
-    edits = requests.get(args.api + '/map/get-edits').json()
+    edits = get(args, '/map/get-edits').json()
 
     for _ in range(args.rounds):
         print('')
@@ -38,8 +39,8 @@ def main():
 
         # Cap the busiest road
         busiest_road, thruput = find_busiest_road(args)
-        cmd = requests.get(args.api + '/map/get-edit-road-command',
-                           params={'id': busiest_road}).json()
+        cmd = get(args, '/map/get-edit-road-command',
+                  params={'id': busiest_road}).json()
         cmd['ChangeRoad']['new']['access_restrictions']['cap_vehicles_per_hour'] = int(
             (args.cap_pct / 100.0) * thruput)
         edits['commands'].append(cmd)
@@ -47,8 +48,8 @@ def main():
 
 # Find the road with the most car traffic in any one hour period
 def find_busiest_road(args):
-    thruput = requests.get(
-        args.api + '/data/get-road-thruput').json()['counts']
+    thruput = get(
+        args, '/data/get-road-thruput').json()['counts']
     max_key = None
     max_value = 0
     for r, agent, hr, count in thruput:

@@ -14,7 +14,7 @@ extern crate log;
 
 use abstutil::{serialize_btreemap, CmdArgs, Timer};
 use geom::{Duration, LonLat, Time};
-use hyper::{Body, Request, Response, Server};
+use hyper::{Body, Request, Response, Server, StatusCode};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
     MovementID, PermanentMapEdits, RoadID,
@@ -87,22 +87,25 @@ async fn serve_req(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
             .collect();
     let body = hyper::body::to_bytes(req).await?.to_vec();
     info!("Handling {}", path);
-    let resp = match handle_command(
-        &path,
-        &params,
-        &body,
-        &mut SIM.write().unwrap(),
-        &mut MAP.write().unwrap(),
-        &mut LOAD.write().unwrap(),
-    ) {
-        Ok(resp) => resp,
-        Err(err) => {
-            error!("{}: {}", path, err);
-            // TODO Error codes
-            format!("Bad command {} with params {:?}: {}", path, params, err)
-        }
-    };
-    Ok(Response::new(Body::from(resp)))
+    Ok(
+        match handle_command(
+            &path,
+            &params,
+            &body,
+            &mut SIM.write().unwrap(),
+            &mut MAP.write().unwrap(),
+            &mut LOAD.write().unwrap(),
+        ) {
+            Ok(resp) => Response::new(Body::from(resp)),
+            Err(err) => {
+                error!("{}: {}", path, err);
+                Response::builder()
+                    .status(StatusCode::BAD_REQUEST)
+                    .body(Body::from(format!("Bad command {}: {}", path, err)))
+                    .unwrap()
+            }
+        },
+    )
 }
 
 fn handle_command(

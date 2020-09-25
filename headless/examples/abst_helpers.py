@@ -2,17 +2,31 @@ import requests
 import statistics
 
 
+def get(args, cmd, **kwargs):
+    resp = requests.get(args.api + cmd, **kwargs)
+    if resp.status_code != requests.codes.ok:
+        raise Exception(resp.text)
+    return resp
+
+
+def post(args, cmd, **kwargs):
+    resp = requests.post(args.api + cmd, **kwargs)
+    if resp.status_code != requests.codes.ok:
+        raise Exception(resp.text)
+    return resp
+
+
 # Returns Results
 def run_sim(args, modifiers=[], edits=None):
-    requests.post(args.api + '/sim/load', json={
+    post(args, '/sim/load', json={
         'scenario': 'data/system/scenarios/{}/weekday.bin'.format(args.map_name),
         'modifiers': modifiers,
         'edits': edits,
     })
-    requests.get(args.api + '/sim/goto-time',
-                 params={'t': '{}:00:00'.format(args.hours)})
-    raw_trips = requests.get(
-        args.api + '/data/get-finished-trips').json()['trips']
+    post(args, '/sim/goto-time',
+         params={'t': '{}:00:00'.format(args.hours)})
+    raw_trips = get(
+        args, '/data/get-finished-trips').json()['trips']
 
     # Map trip ID to the duration (in seconds) of the trip. Filter out aborted
     # (failed) trips.
