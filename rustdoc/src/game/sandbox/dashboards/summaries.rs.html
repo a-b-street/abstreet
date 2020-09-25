@@ -399,10 +399,72 @@
 <span id="399">399</span>
 <span id="400">400</span>
 <span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">checkbox_per_mode</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">color_for_mode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>::<span class="ident">DashTab</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -411,8 +473,8 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">CompareTimes</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">CompareTimes</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripSummaries</span> {
@@ -421,32 +483,46 @@
 
 <span class="kw">impl</span> <span class="ident">TripSummaries</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">filters</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filters</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Filters&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>)];
+        <span class="kw">for</span> <span class="ident">mode</span> <span class="kw">in</span> <span class="ident">TripMode</span>::<span class="ident">all</span>() {
+            <span class="ident">filters</span>.<span class="ident">push</span>(<span class="ident">Checkbox</span>::<span class="ident">colored</span>(
                 <span class="ident">ctx</span>,
-                <span class="string">&quot;filter&quot;</span>,
-                <span class="ident">filter</span>.<span class="ident">changes_pct</span>,
-                <span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;any change&quot;</span>, <span class="prelude-val">None</span>),
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;at least 1% change&quot;</span>, <span class="prelude-val">Some</span>(<span class="number">0.01</span>)),
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;at least 10% change&quot;</span>, <span class="prelude-val">Some</span>(<span class="number">0.1</span>)),
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;at least 50% change&quot;</span>, <span class="prelude-val">Some</span>(<span class="number">0.5</span>)),
-                ],
-            ),
-            <span class="ident">checkbox_per_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">filter</span>.<span class="ident">modes</span>),
-        ];
+                <span class="ident">mode</span>.<span class="ident">ongoing_verb</span>(),
+                <span class="ident">color_for_mode</span>(<span class="ident">app</span>, <span class="ident">mode</span>),
+                <span class="ident">filter</span>.<span class="ident">modes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">mode</span>),
+            ));
+        }
+        <span class="ident">filters</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+            <span class="ident">ctx</span>,
+            <span class="string">&quot;filter&quot;</span>,
+            <span class="ident">filter</span>.<span class="ident">changes_pct</span>,
+            <span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;any change&quot;</span>, <span class="prelude-val">None</span>),
+                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;at least 1% change&quot;</span>, <span class="prelude-val">Some</span>(<span class="number">0.01</span>)),
+                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;at least 10% change&quot;</span>, <span class="prelude-val">Some</span>(<span class="number">0.1</span>)),
+                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;at least 50% change&quot;</span>, <span class="prelude-val">Some</span>(<span class="number">0.5</span>)),
+            ],
+        ));
+        <span class="ident">filters</span>.<span class="ident">push</span>(
+            <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;Export to CSV&quot;</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+                .<span class="ident">align_bottom</span>(),
+        );
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TripSummaries</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">DashTab</span>::<span class="ident">TripSummaries</span>.<span class="ident">picker</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="ident">filters</span>).<span class="ident">centered_horiz</span>(),
-                <span class="ident">summary</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">filter</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">contingency_table</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">filter</span>).<span class="ident">centered_vert</span>(),
-                    <span class="ident">scatter_plot</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">filter</span>),
-                ])
-                .<span class="ident">evenly_spaced</span>(),
-                <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;Export to CSV&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">filters</span>).<span class="ident">padding</span>(<span class="number">16</span>).<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
+                    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="ident">summary_boxes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">filter</span>),
+                        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="ident">contingency_table</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">filter</span>),
+                            <span class="ident">scatter_plot</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">filter</span>),
+                        ])
+                        .<span class="ident">evenly_spaced</span>(),
+                    ]),
+                ]),
             ]))
             .<span class="ident">exact_size_percent</span>(<span class="number">90</span>, <span class="number">90</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
@@ -503,7 +579,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">summary</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="kw-2">&amp;</span><span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">summary_boxes</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="kw-2">&amp;</span><span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_none</span>() {
         <span class="kw">return</span> <span class="ident">Widget</span>::<span class="ident">nothing</span>();
     }
@@ -538,45 +614,70 @@
             <span class="ident">sum_slower</span> <span class="op">+</span><span class="op">=</span> <span class="ident">a</span> <span class="op">-</span> <span class="ident">b</span>;
         }
     }
+    <span class="kw">let</span> <span class="ident">num_total</span> <span class="op">=</span> (<span class="ident">num_faster</span> <span class="op">+</span> <span class="ident">num_slower</span> <span class="op">+</span> <span class="ident">num_same</span>) <span class="kw">as</span> <span class="ident">f64</span>;
 
-    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} trips faster&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">num_faster</span>))),
-            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} total time saved&quot;</span>, <span class="ident">sum_faster</span>)),
+    <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Faster Trips: {}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">num_faster</span>))).<span class="ident">big_heading_plain</span>(),
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;Average {} per faster trip&quot;</span>,
+                <span class="string">&quot;{:.2}% of finished trips&quot;</span>,
+                <span class="number">100.0</span> <span class="op">*</span> (<span class="ident">num_faster</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="ident">num_total</span>
+            ))
+            .<span class="ident">small</span>(),
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;Average {} faster per trip&quot;</span>,
                 <span class="kw">if</span> <span class="ident">num_faster</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
                     <span class="ident">Duration</span>::<span class="ident">ZERO</span>
                 } <span class="kw">else</span> {
                     <span class="ident">sum_faster</span> <span class="op">/</span> (<span class="ident">num_faster</span> <span class="kw">as</span> <span class="ident">f64</span>)
                 }
-            )),
+            ))
+            .<span class="ident">small</span>(),
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Saved {} in total&quot;</span>, <span class="ident">sum_faster</span>)).<span class="ident">small</span>(),
         ])
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>)])
-        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">GREEN</span>)
-        .<span class="ident">padding</span>(<span class="number">10</span>),
-        <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} trips unchanged&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">num_same</span>)))
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_vert</span>()
-            .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">YELLOW</span>)
-            .<span class="ident">padding</span>(<span class="number">10</span>),
-        <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} trips slower&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">num_slower</span>))),
-            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} total time lost&quot;</span>, <span class="ident">sum_slower</span>)),
+        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+        .<span class="ident">container</span>()
+        .<span class="ident">padding</span>(<span class="number">20</span>)
+        .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#72CE36&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.5</span>))
+        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
+        <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Slower Trips: {}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">num_slower</span>))).<span class="ident">big_heading_plain</span>(),
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;Average {} per slower trip&quot;</span>,
+                <span class="string">&quot;{:.2}% of finished trips&quot;</span>,
+                <span class="number">100.0</span> <span class="op">*</span> (<span class="ident">num_slower</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="ident">num_total</span>
+            ))
+            .<span class="ident">small</span>(),
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;Average {} slower per trip&quot;</span>,
                 <span class="kw">if</span> <span class="ident">num_slower</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
                     <span class="ident">Duration</span>::<span class="ident">ZERO</span>
                 } <span class="kw">else</span> {
                     <span class="ident">sum_slower</span> <span class="op">/</span> (<span class="ident">num_slower</span> <span class="kw">as</span> <span class="ident">f64</span>)
                 }
-            )),
+            ))
+            .<span class="ident">small</span>(),
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Lost {} in total&quot;</span>, <span class="ident">sum_slower</span>)).<span class="ident">small</span>(),
         ])
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>)])
-        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">RED</span>)
-        .<span class="ident">padding</span>(<span class="number">10</span>),
+        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+        .<span class="ident">container</span>()
+        .<span class="ident">padding</span>(<span class="number">20</span>)
+        .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#EB3223&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.5</span>))
+        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
+        <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Unchanged: {}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">num_same</span>))).<span class="ident">big_heading_plain</span>(),
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;{:.2}% of finished trips&quot;</span>,
+                <span class="number">100.0</span> <span class="op">*</span> (<span class="ident">num_same</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="ident">num_total</span>
+            ))
+            .<span class="ident">small</span>(),
+        ])
+        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+        .<span class="ident">container</span>()
+        .<span class="ident">padding</span>(<span class="number">20</span>)
+        .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#F4DA22&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.5</span>))
+        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
     ])
-    .<span class="ident">evenly_spaced</span>()])
+    .<span class="ident">evenly_spaced</span>()
 }
 
 <span class="kw">fn</span> <span class="ident">scatter_plot</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="kw-2">&amp;</span><span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
@@ -589,20 +690,23 @@
         <span class="kw">return</span> <span class="ident">Widget</span>::<span class="ident">nothing</span>();
     }
 
-    <span class="ident">CompareTimes</span>::<span class="ident">new</span>(
-        <span class="ident">ctx</span>,
-        <span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;Trip time before \&quot;{}\&quot;&quot;</span>,
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>
+    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Line</span>(<span class="string">&quot;Trip time before and after&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">CompareTimes</span>::<span class="ident">new</span>(
+            <span class="ident">ctx</span>,
+            <span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;Trip time before \&quot;{}\&quot;&quot;</span>,
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>
+            ),
+            <span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;Trip time after \&quot;{}\&quot;&quot;</span>,
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>
+            ),
+            <span class="ident">points</span>,
         ),
-        <span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;Trip time after \&quot;{}\&quot;&quot;</span>,
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>
-        ),
-        <span class="ident">points</span>,
-    )
+    ])
+    .<span class="ident">padding</span>(<span class="number">16</span>)
     .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
-    .<span class="ident">padding</span>(<span class="number">10</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">contingency_table</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="kw-2">&amp;</span><span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
@@ -631,12 +735,24 @@
     <span class="comment">// Draw the X axis, time before changes in buckets.</span>
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">mins</span>) <span class="kw">in</span> <span class="ident">endpts</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="ident">batch</span>.<span class="ident">append</span>(
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">mins</span>.<span class="ident">to_string</span>()).<span class="ident">small</span>())
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">mins</span>.<span class="ident">to_string</span>()).<span class="ident">secondary</span>())
                 .<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_on</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(
                     (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">num_buckets</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">total_width</span>,
                     <span class="ident">total_height</span> <span class="op">/</span> <span class="number">2.0</span>,
                 )),
+        );
+    }
+    <span class="comment">// TODO Position this better</span>
+    <span class="kw">if</span> <span class="bool-val">false</span> {
+        <span class="ident">batch</span>.<span class="ident">append</span>(
+            <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;trip&quot;</span>).<span class="ident">secondary</span>(),
+                <span class="ident">Line</span>(<span class="string">&quot;time&quot;</span>).<span class="ident">secondary</span>(),
+                <span class="ident">Line</span>(<span class="string">&quot;after&quot;</span>).<span class="ident">secondary</span>(),
+            ])
+            .<span class="ident">render_ctx</span>(<span class="ident">ctx</span>)
+            .<span class="ident">translate</span>(<span class="ident">total_width</span>, <span class="ident">total_height</span> <span class="op">/</span> <span class="number">2.0</span>),
         );
     }
 
@@ -698,7 +814,7 @@
                         <span class="ident">endpts</span>[<span class="ident">idx</span>],
                         <span class="ident">endpts</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]
                     )),
-                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Total savings: {}&quot;</span>, <span class="ident">total_savings</span>)),
+                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Saved {} in total&quot;</span>, <span class="ident">total_savings</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#72CE36&quot;</span>)),
                 ]),
             ));
         }
@@ -719,7 +835,7 @@
                         <span class="ident">endpts</span>[<span class="ident">idx</span>],
                         <span class="ident">endpts</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]
                     )),
-                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Total losses: {}&quot;</span>, <span class="ident">total_loss</span>)),
+                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Lost {} in total&quot;</span>, <span class="ident">total_loss</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#EB3223&quot;</span>)),
                 ]),
             ));
         }
@@ -728,10 +844,18 @@
     }
     <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">outlines</span>);
 
-    <span class="ident">DrawWithTooltips</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>()))
-        .<span class="ident">container</span>()
-        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
-        .<span class="ident">padding</span>(<span class="number">10</span>)
+    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Line</span>(<span class="string">&quot;Number of slower/faster trips&quot;</span>).<span class="ident">small_heading</span>(),
+            <span class="ident">Line</span>(<span class="string">&quot;by ranges of trip time (after)&quot;</span>).<span class="ident">small_heading</span>(),
+        ])
+        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;number of trips (faster)&quot;</span>).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">DrawWithTooltips</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>())),
+        <span class="ident">Line</span>(<span class="string">&quot;number of trips (smaller)&quot;</span>).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+    ])
+    .<span class="ident">padding</span>(<span class="number">16</span>)
+    .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Filter</span> {
