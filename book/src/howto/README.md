@@ -28,7 +28,7 @@ Grab a pre-built binary release -- updated every Sunday, announced at
 - [FreeBSD](https://www.freshports.org/games/abstreet/), thanks to
   [Yuri](https://github.com/yurivict)
 
-Or you can [compile from source](/docs/dev.md).
+Or you can [compile from source](../dev/index.md).
 
 ## Playing the game
 

@@ -14,10 +14,10 @@ available to other users yet.
 
 - If you're building **from source**, do: `./import.sh --oneshot=map.osm`. If
   you can't run `import.sh`, make sure you have all
-  [dependencies](dev.md#building-map-data). If you're using Windows and the
-  console logs appear in a new window, try running the command from `import.sh`
-  directly, changing the `$@` at the end to `--oneshot=map.osm` or whatever
-  arguments you're passing in.
+  [dependencies](../dev/index.md#building-map-data). If you're using Windows and
+  the console logs appear in a new window, try running the command from
+  `import.sh` directly, changing the `$@` at the end to `--oneshot=map.osm` or
+  whatever arguments you're passing in.
 
 The oneshot importer will will generate a new file in `data/system/maps` that
 you can then load in the game. If you have an Osmosis polygon filter (see
@@ -47,8 +47,8 @@ Follow this guide to add a new city to A/B street by default so other users can
 use it as well.
 
 1.  Make sure you can run `import.sh` -- see
-    [the instructions](dev.md#building-map-data). You'll need Rust, osmconvert,
-    gdal, etc.
+    [the instructions](../dev/index.md#building-map-data). You'll need Rust,
+    osmconvert, gdal, etc.
 
 2.  Create a new directory: `mkdir -p data/input/your_city/polygons`
 
