@@ -562,10 +562,12 @@
 <span id="562">562</span>
 <span id="563">563</span>
 <span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">svg</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">svg</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>,
+    <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
@@ -785,10 +787,12 @@
         <span class="kw">let</span> (<span class="ident">button_geom</span>, <span class="ident">hitbox</span>) <span class="op">=</span> <span class="ident">button_geom</span>
             .<span class="ident">batch</span>()
             .<span class="ident">container</span>()
-            .<span class="ident">padding_top</span>(<span class="number">4</span>)
-            .<span class="ident">padding_bottom</span>(<span class="number">4</span>)
-            .<span class="ident">padding_left</span>(<span class="number">8</span>)
-            .<span class="ident">padding_right</span>(<span class="number">8</span>)
+            .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
+                <span class="ident">top</span>: <span class="number">4.0</span>,
+                <span class="ident">bottom</span>: <span class="number">4.0</span>,
+                <span class="ident">left</span>: <span class="number">8.0</span>,
+                <span class="ident">right</span>: <span class="number">8.0</span>,
+            })
             .<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>);
 
         <span class="kw">let</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="ident">button_geom</span>.<span class="ident">clone</span>().<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(

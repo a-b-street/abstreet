@@ -646,10 +646,32 @@
 <span id="646">646</span>
 <span id="647">647</span>
 <span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">building</span>, <span class="ident">header_btns</span>, <span class="ident">make_table</span>, <span class="ident">make_tabs</span>, <span class="ident">trip</span>, <span class="ident">Details</span>, <span class="ident">OpenTrip</span>, <span class="ident">Tab</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">Map</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
@@ -660,7 +682,8 @@
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>,
+    <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trips</span>(
@@ -789,18 +812,31 @@
                         <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;system/assets/meters/bus.svg&quot;</span>,
                     },
                 )
+                <span class="comment">// we want the icon to be about the same height as the text</span>
+                .<span class="ident">scale</span>(<span class="number">0.75</span>)
+                <span class="comment">// discard any padding built into the svg</span>
+                .<span class="ident">autocrop</span>()
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">color</span>))
                 .<span class="ident">batch</span>(),
+                <span class="comment">// Without this bottom padding, text is much closer to bottom of pill than top -</span>
+                <span class="comment">// seemingly moreso than just text ascender/descender descrepancies - why?</span>
                 <span class="ident">Line</span>(<span class="ident">trip_status</span>)
                     .<span class="ident">small</span>()
                     .<span class="ident">fg</span>(<span class="ident">color</span>)
                     .<span class="ident">batch</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_vert</span>(),
+                    .<span class="ident">container</span>()
+                    .<span class="ident">padding_bottom</span>(<span class="number">2</span>),
             ])
+            .<span class="ident">centered</span>()
             .<span class="ident">fully_rounded</span>()
             .<span class="ident">outline</span>(<span class="number">1.0</span>, <span class="ident">color</span>)
             .<span class="ident">bg</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.2</span>))
-            .<span class="ident">padding</span>(<span class="number">10</span>)
+            .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
+                <span class="ident">top</span>: <span class="number">5.0</span>,
+                <span class="ident">bottom</span>: <span class="number">5.0</span>,
+                <span class="ident">left</span>: <span class="number">10.0</span>,
+                <span class="ident">right</span>: <span class="number">10.0</span>,
+            })
             .<span class="ident">margin_right</span>(<span class="number">21</span>),
             <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">modified</span> {
                 <span class="ident">Line</span>(<span class="string">&quot;modified&quot;</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">margin_right</span>(<span class="number">15</span>)
@@ -827,15 +863,23 @@
             } <span class="kw">else</span> {
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },
-            <span class="kw">if</span> <span class="ident">open_trips</span>.<span class="ident">contains_key</span>(<span class="ident">t</span>) {
-                <span class="string">&quot;↓&quot;</span>
-            } <span class="kw">else</span> {
-                <span class="string">&quot;↑&quot;</span>
-            }
-            .<span class="ident">batch_text</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_vert</span>()
-            .<span class="ident">align_right</span>(),
+            {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icon</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(
+                    <span class="ident">ctx</span>.<span class="ident">prerender</span>,
+                    <span class="string">&quot;system/assets/widgetry/arrow_drop_down.svg&quot;</span>,
+                )
+                .<span class="ident">autocrop</span>()
+                .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>))
+                .<span class="ident">scale</span>(<span class="number">1.5</span>);
+
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">open_trips</span>.<span class="ident">contains_key</span>(<span class="ident">t</span>) {
+                    <span class="ident">icon</span> <span class="op">=</span> <span class="ident">icon</span>.<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="number">180.0</span>));
+                }
+
+                <span class="ident">icon</span>.<span class="ident">batch</span>().<span class="ident">container</span>().<span class="ident">align_right</span>().<span class="ident">margin_right</span>(<span class="number">10</span>)
+            },
         ])
+        .<span class="ident">centered</span>()
         .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
         .<span class="ident">padding</span>(<span class="number">16</span>)
         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>)
