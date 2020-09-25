@@ -312,7 +312,7 @@
             .<span class="ident">clone</span>()
             .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hovering_color</span>));
         <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_bounds</span>().<span class="ident">get_rectangle</span>();
-        <span class="ident">Btn</span>::<span class="ident">custom</span>(<span class="self">self</span>, <span class="ident">hovered</span>, <span class="ident">hitbox</span>)
+        <span class="ident">Btn</span>::<span class="ident">custom</span>(<span class="self">self</span>, <span class="ident">hovered</span>, <span class="ident">hitbox</span>, <span class="prelude-val">None</span>)
     }
 
     <span class="doccomment">/// Compute the bounds of all polygons in this batch.</span>

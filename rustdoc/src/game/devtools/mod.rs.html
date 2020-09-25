@@ -177,7 +177,7 @@
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Change map:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} ↓&quot;</span>, <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))).<span class="ident">build</span>(
+                    <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))).<span class="ident">build</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;change map&quot;</span>,
                         <span class="prelude-val">None</span>,

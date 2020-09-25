@@ -178,9 +178,6 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Btn</span>, <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
@@ -356,14 +353,11 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">blank_btn_label</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Button</span> {
-    (<span class="kw">if</span> <span class="ident">blank_btn_label</span> {
-        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;↓&quot;</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} ↓&quot;</span>, <span class="ident">name</span>))
-    })
-    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>, <span class="prelude-val">None</span>)
-    .<span class="ident">take_btn</span>()
+<span class="kw">fn</span> <span class="ident">make_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">tooltip</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">blank_btn_label</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Button</span> {
+    <span class="kw">let</span> <span class="ident">button_label</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">blank_btn_label</span> { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="ident">label</span>) };
+    <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="ident">button_label</span>)
+        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">tooltip</span>, <span class="prelude-val">None</span>)
+        .<span class="ident">take_btn</span>()
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "widgetry";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

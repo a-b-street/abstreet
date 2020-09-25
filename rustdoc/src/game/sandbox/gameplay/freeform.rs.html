@@ -687,13 +687,13 @@
             <span class="ident">Line</span>(<span class="string">&quot;Sandbox&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
             <span class="string">&quot;Map:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} ↓&quot;</span>, <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))).<span class="ident">build</span>(
+            <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))).<span class="ident">build</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;change map&quot;</span>,
                 <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>),
             ),
             <span class="string">&quot;Traffic:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;none ↓&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;change traffic&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
+            <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;none&quot;</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;change traffic&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
             <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/edit_map.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit map&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>)),
         ])
         .<span class="ident">centered</span>(),

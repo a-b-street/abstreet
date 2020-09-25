@@ -453,6 +453,7 @@
 <span id="453">453</span>
 <span id="454">454</span>
 <span id="455">455</span>
+<span id="456">456</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">navigate</span>, <span class="ident">Warping</span>};
@@ -809,6 +810,7 @@
                     <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">color</span>, <span class="ident">rect</span>.<span class="ident">clone</span>())]),
                     <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>, <span class="ident">rect</span>.<span class="ident">clone</span>())]),
                     <span class="ident">rect</span>,
+                    <span class="prelude-val">None</span>,
                 )
                 .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;zoom to level {}&quot;</span>, <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
                 .<span class="ident">margin_below</span>(<span class="number">20</span>),

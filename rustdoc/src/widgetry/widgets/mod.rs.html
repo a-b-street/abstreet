@@ -680,6 +680,27 @@
 <span id="680">680</span>
 <span id="681">681</span>
 <span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">autocomplete</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">button</span>;
@@ -887,6 +908,26 @@
         <span class="self">self</span>
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_top</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pixels</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">padding</span>.<span class="ident">top</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">pixels</span> <span class="kw">as</span> <span class="ident">f32</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_left</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pixels</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">padding</span>.<span class="ident">start</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">pixels</span> <span class="kw">as</span> <span class="ident">f32</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_bottom</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pixels</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">padding</span>.<span class="ident">bottom</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">pixels</span> <span class="kw">as</span> <span class="ident">f32</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_right</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pixels</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">padding</span>.<span class="ident">end</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">pixels</span> <span class="kw">as</span> <span class="ident">f32</span>);
+        <span class="self">self</span>
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">margin_above</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pixels</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">margin</span>.<span class="ident">top</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">pixels</span> <span class="kw">as</span> <span class="ident">f32</span>);
         <span class="self">self</span>
@@ -1034,6 +1075,7 @@
             <span class="bool-val">false</span>,
         )))
         .<span class="ident">named</span>(<span class="ident">label</span>)
+        <span class="comment">// Why is this still required? The button Dropdown uses *already* has an outline</span>
         .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_thickness</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_color</span>)
     }
 

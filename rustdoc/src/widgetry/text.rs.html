@@ -555,6 +555,7 @@
 <span id="555">555</span>
 <span id="556">556</span>
 <span id="557">557</span>
+<span id="558">558</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">assets</span>::<span class="ident">Assets</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -829,6 +830,7 @@
         <span class="self">self</span>.<span class="ident">render</span>(<span class="ident">assets</span>).<span class="ident">get_dims</span>()
     }
 
+    <span class="comment">// TODO: Combine all render_foo methods to be render(into&lt;Assets&gt;)?</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
         <span class="self">self</span>.<span class="ident">inner_render</span>(<span class="ident">assets</span>, <span class="ident">svg</span>::<span class="ident">HIGH_QUALITY</span>)
     }

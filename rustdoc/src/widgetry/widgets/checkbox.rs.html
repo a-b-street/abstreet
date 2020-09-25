@@ -213,6 +213,10 @@
 <span id="213">213</span>
 <span id="214">214</span>
 <span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Btn</span>, <span class="ident">Button</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>,
@@ -251,14 +255,14 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into</span>();
         <span class="kw">let</span> (<span class="ident">off</span>, <span class="ident">hitbox</span>) <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/toggle_off.svg&quot;</span>)
+            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/widgetry/toggle_off.svg&quot;</span>)
                 .<span class="ident">batch</span>()
                 .<span class="ident">centered_vert</span>(),
             <span class="ident">label</span>.<span class="ident">clone</span>().<span class="ident">batch_text</span>(<span class="ident">ctx</span>),
         ])
         .<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>);
         <span class="kw">let</span> (<span class="ident">on</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/toggle_on.svg&quot;</span>)
+            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/widgetry/toggle_on.svg&quot;</span>)
                 .<span class="ident">batch</span>()
                 .<span class="ident">centered_vert</span>(),
             <span class="ident">label</span>.<span class="ident">clone</span>().<span class="ident">batch_text</span>(<span class="ident">ctx</span>),
@@ -275,6 +279,7 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hovering_color</span>,
                 )),
                 <span class="ident">hitbox</span>.<span class="ident">clone</span>(),
+                <span class="prelude-val">None</span>,
             )
             .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">label</span>, <span class="ident">hotkey</span>.<span class="ident">clone</span>()),
             <span class="ident">Btn</span>::<span class="ident">custom</span>(
@@ -284,6 +289,7 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hovering_color</span>,
                 )),
                 <span class="ident">hitbox</span>,
+                <span class="prelude-val">None</span>,
             )
             .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">label</span>, <span class="ident">hotkey</span>),
         )
@@ -332,7 +338,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">colored</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">enabled</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> (<span class="ident">off</span>, <span class="ident">hitbox</span>) <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/checkbox.svg&quot;</span>)
+            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/widgetry/checkbox.svg&quot;</span>)
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>)))
                 .<span class="ident">batch</span>()
                 .<span class="ident">centered_vert</span>(),
@@ -340,7 +346,7 @@
         ])
         .<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>);
         <span class="kw">let</span> (<span class="ident">on</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/checkbox.svg&quot;</span>)
+            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/widgetry/checkbox.svg&quot;</span>)
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">color</span>))
                 .<span class="ident">batch</span>()
                 .<span class="ident">centered_vert</span>(),
@@ -357,6 +363,7 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hovering_color</span>,
                 )),
                 <span class="ident">hitbox</span>.<span class="ident">clone</span>(),
+                <span class="prelude-val">None</span>,
             )
             .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>, <span class="prelude-val">None</span>),
             <span class="ident">Btn</span>::<span class="ident">custom</span>(
@@ -366,6 +373,7 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hovering_color</span>,
                 )),
                 <span class="ident">hitbox</span>,
+                <span class="prelude-val">None</span>,
             )
             .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>, <span class="prelude-val">None</span>),
         )
@@ -388,12 +396,12 @@
             <span class="ident">left_label</span>.<span class="ident">clone</span>().<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
             <span class="ident">Checkbox</span>::<span class="ident">new</span>(
                 <span class="ident">enabled</span>,
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/toggle_right.svg&quot;</span>).<span class="ident">build</span>(
+                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/widgetry/toggle_right.svg&quot;</span>).<span class="ident">build</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">left_label</span>,
                     <span class="ident">hotkey</span>.<span class="ident">clone</span>(),
                 ),
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/toggle_left.svg&quot;</span>).<span class="ident">build</span>(
+                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/widgetry/toggle_left.svg&quot;</span>).<span class="ident">build</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">right_label</span>.<span class="ident">clone</span>(),
                     <span class="ident">hotkey</span>,
