@@ -188,7 +188,7 @@ this as a Mac .app, to make this process simpler</li>
 <li><a href="https://www.freshports.org/games/abstreet/">FreeBSD</a>, thanks to
 <a href="https://github.com/yurivict">Yuri</a></li>
 </ul>
-<p>Or you can <a href="howto//docs/dev.html">compile from source</a>.</p>
+<p>Or you can <a href="howto/../dev/index.html">compile from source</a>.</p>
 <h2><a class="header" href="#playing-the-game" id="playing-the-game">Playing the game</a></h2>
 <ul>
 <li>Use the <strong>tutorial</strong> to learn the controls.</li>
@@ -223,7 +223,7 @@ License)</li>
 you have any trouble. Also give me a heads up when you make some edits, so I can
 regenerate the maps!</p>
 <ol>
-<li><a href="https://github.com/dabreegster/abstreet/blob/master/docs/INSTRUCTIONS.md">Install A/B Street</a></li>
+<li><a href="howto/index.html">Install A/B Street</a></li>
 <li>Choose <strong>Contribute parking data</strong> on the main screen</li>
 <li>Change the map if you'd like to focus somewhere in particular</li>
 <li>Click a road with unknown parking</li>
@@ -312,10 +312,10 @@ available to other users yet.</p>
 <li>
 <p>If you're building <strong>from source</strong>, do: <code>./import.sh --oneshot=map.osm</code>. If
 you can't run <code>import.sh</code>, make sure you have all
-<a href="howto/dev.html#building-map-data">dependencies</a>. If you're using Windows and the
-console logs appear in a new window, try running the command from <code>import.sh</code>
-directly, changing the <code>$@</code> at the end to <code>--oneshot=map.osm</code> or whatever
-arguments you're passing in.</p>
+<a href="howto/../dev/index.html#building-map-data">dependencies</a>. If you're using Windows and
+the console logs appear in a new window, try running the command from
+<code>import.sh</code> directly, changing the <code>$@</code> at the end to <code>--oneshot=map.osm</code> or
+whatever arguments you're passing in.</p>
 </li>
 </ul>
 <p>The oneshot importer will will generate a new file in <code>data/system/maps</code> that
@@ -342,8 +342,8 @@ use it as well.</p>
 <ol>
 <li>
 <p>Make sure you can run <code>import.sh</code> -- see
-<a href="howto/dev.html#building-map-data">the instructions</a>. You'll need Rust, osmconvert,
-gdal, etc.</p>
+<a href="howto/../dev/index.html#building-map-data">the instructions</a>. You'll need Rust,
+osmconvert, gdal, etc.</p>
 </li>
 <li>
 <p>Create a new directory: <code>mkdir -p data/input/your_city/polygons</code></p>
@@ -690,8 +690,7 @@ software to explore the impacts of changes like this on different modes of
 transportation. So, let's try implementing part of the proposed network and see
 what happens!</p>
 <blockquote>
-<p><strong><em>NOTE:</em></strong> You might want to read
-<a href="https://github.com/dabreegster/abstreet/blob/master/old_docs/how_it_works.md">how A/B Street works</a>
+<p><strong><em>NOTE:</em></strong> You might want to read <a href="case_studies/../how_it_works.html">how A/B Street works</a>
 first.</p>
 </blockquote>
 <h2><a class="header" href="#lake-washington-blvd" id="lake-washington-blvd">Lake Washington Blvd</a></h2>
@@ -704,11 +703,11 @@ closed anyway.</p>
 <h3><a class="header" href="#first-attempt" id="first-attempt">First attempt</a></h3>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/PU0iT-_3-es" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 <p>Let's get started! If you want to follow along,
-<a href="https://github.com/dabreegster/abstreet/blob/master/old_docs/INSTRUCTIONS.md">install A/B Street</a>,
-open sandbox mode, and switch the map to Lake Washington corridor. Zoom in on
-the southern tip of the Arboretum and hop into edit mode. We can see Lake
-Washington Blvd just has one travel lane in each direction here. Click each
-lane, convert it to a bike lane, and repeat north until Foster Island Road.</p>
+<a href="case_studies/../howto/index.html">install A/B Street</a>, open sandbox mode, and switch the map
+to Lake Washington corridor. Zoom in on the southern tip of the Arboretum and
+hop into edit mode. We can see Lake Washington Blvd just has one travel lane in
+each direction here. Click each lane, convert it to a bike lane, and repeat
+north until Foster Island Road.</p>
 <p>When we leave edit mode, the traffic simulation resets to midnight. Nothing
 really interesting happens until 5 or 6am, so we'll speed up time. Watching the
 section of road we edited, we'll only see pedestrians and bikes use this stretch
@@ -749,8 +748,7 @@ document using <a href="https://abstreet.org">A/B Street</a>, a traffic simulato
 to explore the impacts of changes like this on different modes of
 transportation.</p>
 <blockquote>
-<p><strong><em>NOTE:</em></strong> You might want to read
-<a href="https://github.com/dabreegster/abstreet/blob/master/old_docs/how_it_works.md">how A/B Street works</a>
+<p><strong><em>NOTE:</em></strong> You might want to read <a href="case_studies/../how_it_works.html">how A/B Street works</a>
 first.</p>
 </blockquote>
 <h2><a class="header" href="#16th-ave-sw-and-sw-holden-st" id="16th-ave-sw-and-sw-holden-st">16th Ave SW and SW Holden St</a></h2>
@@ -887,7 +885,7 @@ regenerate.</li>
 <li>By default, Seattle is assumed as the city. You have to specify otherwise:
 <code>./import.sh --city=los_angeles --map downtown_la</code>.</li>
 </ul>
-<p>You can also make the importer <a href="dev/new_city.html">import a new city</a>.</p>
+<p>You can also make the importer <a href="dev/../howto/new_city.html">import a new city</a>.</p>
 <h2><a class="header" href="#understanding-stuff" id="understanding-stuff">Understanding stuff</a></h2>
 <p>The docs listed at <a href="https://github.com/dabreegster/abstreet#documentation">https://github.com/dabreegster/abstreet#documentation</a>
 explain things like map importing and how the traffic simulation works.</p>
@@ -1963,7 +1961,7 @@ Note that while this and other clearly stupid behaviors are clearly
 unrealistic, it is not trivial to implement more realistic and more efficient
 decisions.</li>
 <li>Issues caused by the unrealistic
-<a href="https://github.com/dabreegster/abstreet/blob/master/docs/articles/trafficsim/article.md#lane-changing">lane-changing model</a>
+<a href="trafficsim/discrete_event.html#lane-changing">lane-changing model</a>
 <ul>
 <li>Two turns that go to the same lane (one going &quot;straight&quot;, the other often a
 lane-change) conflict. The conflict is coarse, at the granularity of the
