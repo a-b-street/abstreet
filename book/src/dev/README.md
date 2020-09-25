@@ -92,7 +92,8 @@ You can rerun specific stages of the importer:
   `convert_osm`, you need `./import.sh --raw --map`.
 - If you're modifying `map_model` but not the OSM -> RawMap conversion, then you
   just need `./import.sh --map`.
-- If you're modifying the demand model for Seattle, you can add `--scenario` to regenerate.
+- If you're modifying the demand model for Seattle, you can add `--scenario` to
+  regenerate.
 - By default, all maps are regenerated. You can also specify a single map:
   `./import.sh --map downtown`.
 - By default, Seattle is assumed as the city. You have to specify otherwise:
@@ -155,8 +156,4 @@ problems is useful. It's also fine to crash when initially constructing all of
 the renderable map objects, because this crash will consistently happen at
 startup-time and be noticed by somebody developing before a player gets to it.
 
-Regarding Testing: You'll surely note the lack of unit tests. If it bothers you,
-let's talk about what tests should exist. In the meantime, note lots of
-validation does happen via importing maps, running the prebaked scenarios, and
-screenshot diffing. Please read more in depth in the
-[testing strategy](https://dabreegster.github.io/abstreet/dev/testing.html) doc.
+See the [testing strategy](testing.md) page.

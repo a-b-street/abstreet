@@ -17,8 +17,7 @@ downtown congestion charging zone for Seattle.
 Active as of Sept 2020
 
 A group (with their own demand data!) is studying traffic signal optimization in
-Xi'an. They're using the
-[API](https://dabreegster.github.io/abstreet/dev/api.html).
+Xi'an. They're using the [API](../dev/api.md).
 
 ## Forecasting group
 

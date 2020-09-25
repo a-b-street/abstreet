@@ -78,8 +78,7 @@ cargo run --bin dump_map data/system/maps/montlake.bin > montlake.json
 
 The format of the map isn't well-documented yet. See the
 [generated API docs](https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html)
-and [the map model docs](https://dabreegster.github.io/abstreet/map/index.html)
-in the meantime.
+and [the map model docs](../map/index.md) in the meantime.
 
 ## Working with individual trips
 
@@ -89,11 +88,11 @@ needed. If possible, it's simpler to create a Scenario as input.
 ## Working with Scenarios
 
 You can
-[import trips from your own data](https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import).
+[import trips from your own data](../trafficsim/travel_demand.md#custom-import).
 
 You can also generate different variations of one of the
-[demand models](https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#proletariat-robot)
-by specifying an RNG seed:
+[demand models](../trafficsim/travel_demand.md#proletariat-robot) by specifying
+an RNG seed:
 
 ```
 cargo run --bin random_scenario -- --rng=123 --map=data/system/maps/montlake.bin > data/system/scenarios/montlake/home_to_work.json

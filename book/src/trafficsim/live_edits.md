@@ -1,8 +1,7 @@
 # Live edits
 
-When the player edits the map, there's an
-[efficient process](https://dabreegster.github.io/abstreet/map/edits.html) for
-applying the edits at the map model and rendering layer. In the middle of a
+When the player edits the map, there's an [efficient process](../map/edits.md)
+for applying the edits at the map model and rendering layer. In the middle of a
 simulation, it's less obvious how to apply all edits. Most of the time
 currently, edits cause the simulation to reset to midnight. Applying edits to
 the sim without reset is important for running machine learning experiments and
