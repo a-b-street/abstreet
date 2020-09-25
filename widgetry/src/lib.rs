@@ -85,7 +85,7 @@ pub use crate::widgets::scatter_plot::ScatterPlot;
 pub use crate::widgets::slider::{AreaSlider, Slider};
 pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;
-pub use crate::widgets::{Outcome, Panel, Widget, WidgetImpl, WidgetOutput};
+pub use crate::widgets::{EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput};
 
 pub struct Choice<T> {
     pub label: String,
