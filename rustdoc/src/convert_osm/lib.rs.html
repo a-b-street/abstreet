@@ -141,11 +141,15 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">clip</span>;
 <span class="kw">mod</span> <span class="ident">extract</span>;
 <span class="kw">mod</span> <span class="ident">parking</span>;
 <span class="kw">mod</span> <span class="ident">reader</span>;
+<span class="kw">mod</span> <span class="ident">snappy</span>;
 <span class="kw">mod</span> <span class="ident">split_ways</span>;
 <span class="kw">mod</span> <span class="ident">srtm</span>;
 <span class="kw">mod</span> <span class="ident">transit</span>;
@@ -245,6 +249,8 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">elevation</span> {
         <span class="ident">use_elevation</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>, <span class="ident">path</span>, <span class="ident">timer</span>);
     }
+
+    <span class="ident">snappy</span>::<span class="ident">snap_cycleways</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>, <span class="ident">timer</span>);
 
     <span class="ident">map</span>.<span class="ident">config</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">map_config</span>;
     <span class="ident">map</span>
