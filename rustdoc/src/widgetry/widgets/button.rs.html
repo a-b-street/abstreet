@@ -561,6 +561,7 @@
 <span id="561">561</span>
 <span id="562">562</span>
 <span id="563">563</span>
+<span id="564">564</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">svg</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>,
@@ -790,9 +791,10 @@
             .<span class="ident">padding_right</span>(<span class="number">8</span>)
             .<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="ident">button_geom</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_color</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hovering_color</span>));
+        <span class="kw">let</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="ident">button_geom</span>.<span class="ident">clone</span>().<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_color</span>,
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hovering_color</span>,
+        ));
 
         <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> (<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_thickness</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_color</span>);
         <span class="ident">BtnBuilder</span>::<span class="ident">Custom</span> {
