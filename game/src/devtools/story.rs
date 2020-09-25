@@ -311,7 +311,7 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
         Widget::row(vec![
             Line("Story map editor").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 30.0),
-            Btn::text_fg(format!("{} ↓", story.name)).build(ctx, "load", lctrl(Key::L)),
+            Btn::pop_up(ctx, Some(&story.name)).build(ctx, "load", lctrl(Key::L)),
             if dirty {
                 Btn::svg_def("system/assets/tools/save.svg").build(ctx, "save", lctrl(Key::S))
             } else {
