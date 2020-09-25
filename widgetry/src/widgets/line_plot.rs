@@ -172,7 +172,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
             let t = max_x.percent_of(percent_x);
             // TODO Need ticks now to actually see where this goes
             let batch = Text::from(Line(t.to_string()))
-                .render_ctx(ctx)
+                .render(ctx)
                 .rotate(Angle::new_degs(-15.0))
                 .autocrop();
             // The text is already scaled; don't use Widget::draw_batch and scale it again.

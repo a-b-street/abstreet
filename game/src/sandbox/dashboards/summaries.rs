@@ -272,7 +272,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     for (idx, mins) in endpts.iter().enumerate() {
         batch.append(
             Text::from(Line(mins.to_string()).secondary())
-                .render_ctx(ctx)
+                .render(ctx)
                 .centered_on(Pt2D::new(
                     (idx as f64) / (num_buckets as f64) * total_width,
                     total_height / 2.0,
@@ -287,7 +287,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                 Line("time").secondary(),
                 Line("after").secondary(),
             ])
-            .render_ctx(ctx)
+            .render(ctx)
             .translate(total_width, total_height / 2.0),
         );
     }

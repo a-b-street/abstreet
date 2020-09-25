@@ -110,7 +110,7 @@ impl State for PolygonDebugger {
                 batch.append(
                     Text::from(Line(idx.to_string()))
                         .bg(app.cs.panel_bg)
-                        .render_g(g)
+                        .render(g)
                         .centered_on(g.canvas.map_to_screen(*pt).to_pt()),
                 );
             }
@@ -119,7 +119,7 @@ impl State for PolygonDebugger {
                     batch.append(
                         Text::from(Line(idx.to_string()))
                             .bg(app.cs.panel_bg)
-                            .render_g(g)
+                            .render(g)
                             .centered_on(g.canvas.map_to_screen(*pt).to_pt()),
                     );
                 }
@@ -130,7 +130,7 @@ impl State for PolygonDebugger {
                 batch.append(
                     Text::from(Line(idx.to_string()))
                         .bg(app.cs.panel_bg)
-                        .render_g(g)
+                        .render(g)
                         .centered_on(g.canvas.map_to_screen(poly.center()).to_pt()),
                 );
             }
@@ -139,7 +139,7 @@ impl State for PolygonDebugger {
             batch.append(
                 Text::from(Line("c"))
                     .bg(app.cs.panel_bg)
-                    .render_g(g)
+                    .render(g)
                     .centered_on(g.canvas.map_to_screen(pt).to_pt()),
             );
         }

@@ -101,7 +101,7 @@ impl CompareTimes {
         .evenly_spaced();
         let y_label = {
             let label = Text::from(Line(format!("{} (minutes)", y_name.into())))
-                .render_ctx(ctx)
+                .render(ctx)
                 .rotate(Angle::new_degs(90.0))
                 .autocrop();
             // The text is already scaled; don't use Widget::draw_batch and scale it again.

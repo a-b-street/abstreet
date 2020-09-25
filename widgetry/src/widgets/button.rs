@@ -210,7 +210,7 @@ impl Btn {
 
         let button_geom = if let Some(label) = label {
             let text = Text::from(Line(label));
-            let mut text_geom: GeomBatch = text.render_ctx(ctx);
+            let mut text_geom: GeomBatch = text.render(ctx);
             text_geom.append(icon_batch.translate(text_geom.get_bounds().width() + 8.0, 0.0));
             text_geom
         } else {
