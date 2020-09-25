@@ -36,6 +36,8 @@ def main():
             len(edits['commands']), args.cap_pct))
         experiment = abst_helpers.run_sim(args, edits=edits)
         baseline.compare(experiment)
+        print('{:,} trips changed due to the caps'.format(
+            len(experiment.capped_trips)))
 
         # Cap the busiest road
         busiest_road, thruput = find_busiest_road(args)

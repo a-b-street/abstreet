@@ -90,8 +90,8 @@ func main() {
 func run(pct int64) (*results, error) {
 	start := time.Now()
 
-	_, err := post("sim/load", SimFlags{
-		Load:      fmt.Sprintf("data/system/scenarios/%v/weekday.bin", *mapName),
+	_, err := post("sim/load", LoadSim{
+		Scenario:  fmt.Sprintf("data/system/scenarios/%v/weekday.bin", *mapName),
 		Modifiers: []ScenarioModifier{{CancelPeople: pct}},
 	})
 	if err != nil {
@@ -107,18 +107,18 @@ func run(pct int64) (*results, error) {
 	if err != nil {
 		return nil, err
 	}
-	var trips FinishedTrips
+	var trips []FinishedTrip
 	if err := json.Unmarshal([]byte(resp), &trips); err != nil {
 		return nil, err
 	}
 
 	results := results{}
-	results.successTime = make(map[int]float64)
-	for _, trip := range trips.Trips {
-		if trip[2] == nil {
+	results.successTime = make(map[uint64]float64)
+	for _, trip := range trips {
+		if trip.Mode == "" {
 			results.numAborted++
 		} else {
-			results.successTime[int(trip[1].(float64))] = trip[3].(float64)
+			results.successTime[trip.ID] = trip.Duration
 		}
 	}
 
@@ -130,7 +130,7 @@ func run(pct int64) (*results, error) {
 type results struct {
 	numAborted int
 	// Trip ID to duration
-	successTime map[int]float64
+	successTime map[uint64]float64
 }
 
 func get(url string) (string, error) {
@@ -174,8 +174,8 @@ func avg(list []float64) string {
 	return fmt.Sprintf("%v", sum/float64(len(list)))
 }
 
-type SimFlags struct {
-	Load      string             `json:"load"`
+type LoadSim struct {
+	Scenario  string             `json:"scenario"`
 	Modifiers []ScenarioModifier `json:"modifiers"`
 }
 
@@ -183,7 +183,9 @@ type ScenarioModifier struct {
 	CancelPeople int64
 }
 
-type FinishedTrips struct {
-	// Vec<(Time, TripID, Option<TripMode>, Duration)>
-	Trips [][]interface{} `json:"trips"`
+type FinishedTrip struct {
+	ID       uint64  `json:"id"`
+	Duration float64 `json:"duration"`
+	Mode     string  `json:"mode"`
+	Capped   bool    `json:"capped"`
 }

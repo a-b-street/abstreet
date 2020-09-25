@@ -251,9 +251,19 @@ fn handle_command(
             Ok(abstutil::to_json(&thruput))
         }
         // Querying data
-        "/data/get-finished-trips" => Ok(abstutil::to_json(&FinishedTrips {
-            trips: sim.get_analytics().finished_trips.clone(),
-        })),
+        "/data/get-finished-trips" => {
+            let mut trips = Vec::new();
+            for (_, id, mode, duration) in &sim.get_analytics().finished_trips {
+                let info = sim.trip_info(*id);
+                trips.push(FinishedTrip {
+                    id: *id,
+                    duration: *duration,
+                    mode: *mode,
+                    capped: info.capped,
+                });
+            }
+            Ok(abstutil::to_json(&trips))
+        }
         "/data/get-agent-positions" => Ok(abstutil::to_json(&AgentPositions {
             agents: sim
                 .get_unzoomed_agents(map)
@@ -296,10 +306,12 @@ fn handle_command(
 // TODO I think specifying the API with protobufs or similar will be a better idea.
 
 #[derive(Serialize)]
-struct FinishedTrips {
+struct FinishedTrip {
+    id: TripID,
+    duration: Duration,
     // TODO Hack: No TripMode means aborted
-    // Finish time, ID, mode (or None as aborted), trip duration
-    trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
+    mode: Option<TripMode>,
+    capped: bool,
 }
 
 #[derive(Serialize)]
