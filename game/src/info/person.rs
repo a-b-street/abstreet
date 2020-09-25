@@ -140,14 +140,14 @@ pub fn trips(
                         TripMode::Transit => "system/assets/meters/bus.svg",
                     },
                 )
+                // we want the icon to be about the same height as the text
+                .scale(0.75)
+                .autocrop()
                 .color(RewriteColor::ChangeAll(color))
                 .batch(),
-                Line(trip_status)
-                    .small()
-                    .fg(color)
-                    .batch(ctx)
-                    .centered_vert(),
+                Line(trip_status).small().fg(color).batch(ctx),
             ])
+            .centered()
             .fully_rounded()
             .outline(1.0, color)
             .bg(color.alpha(0.2))
