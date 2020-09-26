@@ -59,7 +59,7 @@ impl ChangeDuration {
                         },
                     ),
                 ]),
-                Line("Minimum time required for crosswalk")
+                Line("Minimum time is set by the time required for crosswalk")
                     .secondary()
                     .draw(ctx),
                 Btn::text_bg2("Apply").build_def(ctx, Key::Enter),

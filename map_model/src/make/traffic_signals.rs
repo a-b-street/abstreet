@@ -64,6 +64,22 @@ pub fn get_possible_policies(
         "all walk, then free-for-all yield".to_string(),
         all_walk_all_yield(map, id),
     ));
+
+    // Make sure all possible policies have a minimum crosswalk time enforced
+    for (_, signal) in &mut results {
+        for stage in &mut signal.stages {
+            let crosswalks: Vec<MovementID> = stage
+                .protected_movements
+                .iter()
+                .filter(|id| id.crosswalk)
+                .cloned()
+                .collect();
+            for id in crosswalks {
+                stage.enforce_minimum_crosswalk_time(&signal.movements[&id]);
+            }
+        }
+    }
+    results.retain(|ts| ts.1.validate_stage_timings().is_ok());
     results
 }
 
@@ -89,10 +105,6 @@ fn greedy_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         match add {
             Some(idx) => {
                 let movement_id = remaining_movements.remove(idx);
-                if movement_id.crosswalk {
-                    let movement = ts.movements.get(&movement_id).unwrap();
-                    current_stage.check_minimum_crosswalk_time(&movement);
-                }
                 current_stage.protected_movements.insert(movement_id);
             }
             None => {
@@ -140,7 +152,6 @@ fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     for (id, movement) in &ts.movements {
         if id.crosswalk {
             ped_stage.edit_movement(movement, TurnPriority::Protected);
-            ped_stage.check_minimum_crosswalk_time(movement);
         } else {
             vehicle_stage.edit_movement(movement, TurnPriority::Protected);
         }
@@ -312,7 +323,6 @@ fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         match movement.turn_type {
             TurnType::Crosswalk => {
                 all_walk.protected_movements.insert(movement.id);
-                all_walk.check_minimum_crosswalk_time(movement);
             }
             _ => {
                 all_yield.yield_movements.insert(movement.id);
@@ -341,7 +351,6 @@ fn stage_per_road(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> 
             if movement.turn_type == TurnType::Crosswalk {
                 if movement.id.from.id == adj1 || movement.id.from.id == adj2 {
                     stage.protected_movements.insert(movement.id);
-                    stage.check_minimum_crosswalk_time(movement);
                 }
             } else if movement.id.from.id == r {
                 stage.yield_movements.insert(movement.id);
@@ -360,10 +369,6 @@ fn expand_all_stages(ts: &mut ControlTrafficSignal) {
     for stage in ts.stages.iter_mut() {
         for g in ts.movements.keys() {
             if stage.could_be_protected(*g, &ts.movements) {
-                if g.crosswalk {
-                    let movement = ts.movements.get(&g).unwrap();
-                    stage.check_minimum_crosswalk_time(&movement);
-                }
                 stage.protected_movements.insert(*g);
             }
         }
