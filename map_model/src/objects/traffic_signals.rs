@@ -256,7 +256,8 @@ impl Stage {
         Stage {
             protected_movements: BTreeSet::new(),
             yield_movements: BTreeSet::new(),
-            phase_type: PhaseType::Fixed(Duration::seconds(0.0)),
+            // TODO Set a default
+            phase_type: PhaseType::Fixed(Duration::seconds(30.0)),
         }
     }
 
