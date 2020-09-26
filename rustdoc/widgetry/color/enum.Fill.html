@@ -7,14 +7,13 @@
                    Variants<a href='#variants' class='anchor'></a></h2>
 <div id="variant.Color" class="variant small-section-header"><a href="#variant.Color" class="anchor field"></a><code>Color(<a class="struct" href="../../widgetry/struct.Color.html" title="struct widgetry::Color">Color</a>)</code></div><div id="variant.LinearGradient" class="variant small-section-header"><a href="#variant.LinearGradient" class="anchor field"></a><code>LinearGradient(<a class="struct" href="../../widgetry/struct.LinearGradient.html" title="struct widgetry::LinearGradient">LinearGradient</a>)</code></div><div id="variant.Texture" class="variant small-section-header"><a href="#variant.Texture" class="anchor field"></a><code>Texture(<a class="struct" href="../../widgetry/struct.Texture.html" title="struct widgetry::Texture">Texture</a>)</code></div><div class='docblock'><p>Once uploaded, textures are addressed by their id, starting from 1, from left to right, top
 to bottom, like so:</p>
-
-<pre><code>┌─┬─┬─┐
+<p>┌─┬─┬─┐
 │1│2│3│
 ├─┼─┼─┤
 │4│5│6│
 ├─┼─┼─┤
 │7│8│9│
-└─┴─┴─┘</code></pre>
+└─┴─┴─┘</p>
 <p>Texture(0) is reserved for a pure white (no-op) texture.</p>
 </div><div id="variant.ColoredTexture" class="variant small-section-header"><a href="#variant.ColoredTexture" class="anchor field"></a><code>ColoredTexture(<a class="struct" href="../../widgetry/struct.Color.html" title="struct widgetry::Color">Color</a>,&nbsp;<a class="struct" href="../../widgetry/struct.Texture.html" title="struct widgetry::Texture">Texture</a>)</code></div><div class='docblock'><p>The <code>color</code> parameter is multiplied by any color baked into the texture, so typically this
 only makes sense for grayscale textures.</p>
