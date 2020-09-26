@@ -299,6 +299,10 @@ during map importing, since the player won't deal with this, and loudly stopping
 problems is useful. It's also fine to crash when initially constructing all of
 the renderable map objects, because this crash will consistently happen at
 startup-time and be noticed by somebody developing before a player gets to it.</p>
+<p>Prefer using <code>info!</code>, <code>warn!</code>, <code>error!</code>, etc from the <code>log</code> crate. Or if a
+<code>Timer</code> is available and you want to collect all notes together, <code>timer.note</code>.
+There are still many places calling <code>println!</code>, but we're trying to clean these
+up.</p>
 <p>See the <a href="testing.html">testing strategy</a> page.</p>
 
                     </main>

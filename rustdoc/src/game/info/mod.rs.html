@@ -1184,7 +1184,7 @@
                             <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">current_object</span>, <span class="ident">poly</span>.<span class="ident">clone</span>());
                         }
                         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;No outline for {:?}: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>);
+                            <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;No outline for {:?}: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>);
                         }
                     }
 
