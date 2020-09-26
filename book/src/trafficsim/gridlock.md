@@ -42,7 +42,7 @@ front/back of vehicles.
   unrealistic, it is not trivial to implement more realistic and more efficient
   decisions.
 - Issues caused by the unrealistic
-  [lane-changing model](https://github.com/dabreegster/abstreet/blob/master/docs/articles/trafficsim/article.md#lane-changing)
+  [lane-changing model](discrete_event.md#lane-changing)
   - Two turns that go to the same lane (one going "straight", the other often a
     lane-change) conflict. The conflict is coarse, at the granularity of the
     entire intersection. So if vehicles are piled up in two lanes trying to

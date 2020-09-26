@@ -7,10 +7,13 @@ edition = "2018"
 [dependencies]
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
-hyper = "0.13.7"
+hyper = "0.13.8"
 lazy_static = "1.4.0"
+log = "0.4.11"
 map_model = { path = "../map_model" }
-serde = "1.0.110"
+rand = "0.7.0"
+rand_xorshift = "0.2.0"
+serde = "1.0.116"
 sim = { path = "../sim" }
-tokio = { version = "0.2", features = ["full"] }
+tokio = { version = "0.2.22", features = ["full"] }
 url = "2.1.1"

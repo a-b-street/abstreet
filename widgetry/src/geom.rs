@@ -77,7 +77,7 @@ impl GeomBatch {
             .clone()
             .color(RewriteColor::ChangeAll(ctx.style().hovering_color));
         let hitbox = self.get_bounds().get_rectangle();
-        Btn::custom(self, hovered, hitbox)
+        Btn::custom(self, hovered, hitbox, None)
     }
 
     /// Compute the bounds of all polygons in this batch.

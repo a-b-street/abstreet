@@ -1,7 +1,9 @@
 mod commuter;
+mod generic_trip_table;
 mod misc;
 mod parking_overhead;
 mod summaries;
+mod table;
 mod traffic_signals;
 mod trip_table;
 
@@ -9,13 +11,15 @@ use crate::app::App;
 use crate::game::Transition;
 pub use commuter::CommuterPatterns;
 pub use traffic_signals::TrafficSignalDemand;
-pub use trip_table::TripTable;
-use widgetry::{Btn, Color, EventCtx, Key, Widget};
+pub use trip_table::FinishedTripTable;
+use widgetry::{Btn, Choice, EventCtx, Key, Panel, TextExt, Widget};
 
 // Oh the dashboards melted, but we still had the radio
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum DashTab {
-    TripTable,
+    FinishedTripTable,
+    CancelledTripTable,
+    UnfinishedTripTable,
     TripSummaries,
     ParkingOverhead,
     ActiveTraffic,
@@ -26,52 +30,52 @@ pub enum DashTab {
 
 impl DashTab {
     pub fn picker(self, ctx: &EventCtx, app: &App) -> Widget {
-        let mut row = Vec::new();
-        for (name, tab) in vec![
-            ("trip table", DashTab::TripTable),
-            ("trip summaries", DashTab::TripSummaries),
-            ("parking overhead", DashTab::ParkingOverhead),
-            ("active traffic", DashTab::ActiveTraffic),
-            ("transit routes", DashTab::TransitRoutes),
-            ("commuter patterns", DashTab::CommuterPatterns),
-            ("traffic signal demand", DashTab::TrafficSignals),
-        ] {
-            if tab == DashTab::TripSummaries && app.has_prebaked().is_none() {
-                continue;
-            }
-            if self == tab {
-                row.push(Btn::text_bg2(name).inactive(ctx));
-            } else {
-                row.push(Btn::text_bg2(name).build_def(ctx, None));
-            }
-        }
-        Widget::custom_row(vec![
-            // TODO Centered, but actually, we need to set the padding of each button to divide the
-            // available space evenly. Fancy fill rules... hmmm.
-            Widget::custom_row(row).bg(Color::WHITE).margin_vert(16),
+        Widget::row(vec![
+            Widget::draw_svg(ctx, "system/assets/meters/trip_histogram.svg"),
+            Widget::dropdown(
+                ctx,
+                "tab",
+                self,
+                vec![
+                    Choice::new("Trip Table", DashTab::FinishedTripTable),
+                    Choice::new("Trip Summaries", DashTab::TripSummaries),
+                    Choice::new("Parking Overhead", DashTab::ParkingOverhead),
+                    Choice::new("Active Traffic", DashTab::ActiveTraffic),
+                    Choice::new("Transit Routes", DashTab::TransitRoutes),
+                    Choice::new("Commuter Patterns", DashTab::CommuterPatterns),
+                    Choice::new("Traffic Signal Demand", DashTab::TrafficSignals),
+                ],
+            ),
+            format!("By {}", app.primary.sim.time())
+                .draw_text(ctx)
+                .centered_vert(),
             Btn::plaintext("X")
                 .build(ctx, "close", Key::Escape)
                 .align_right(),
         ])
     }
 
-    pub fn transition(self, ctx: &mut EventCtx, app: &mut App, action: &str) -> Transition {
-        match action {
-            "close" => Transition::Pop,
-            "trip table" => Transition::Replace(TripTable::new(ctx, app)),
-            "trip summaries" => Transition::Replace(summaries::TripSummaries::new(
-                ctx,
-                app,
-                summaries::Filter::new(),
-            )),
-            "parking overhead" => {
-                Transition::Replace(parking_overhead::ParkingOverhead::new(ctx, app))
-            }
-            "active traffic" => Transition::Replace(misc::ActiveTraffic::new(ctx, app)),
-            "transit routes" => Transition::Replace(misc::TransitRoutes::new(ctx, app)),
-            "commuter patterns" => Transition::Replace(CommuterPatterns::new(ctx, app)),
-            "traffic signal demand" => Transition::Replace(TrafficSignalDemand::new(ctx, app)),
-            _ => unreachable!(),
+    pub fn transition(
+        self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        panel: &Panel,
+    ) -> Option<Transition> {
+        let tab = panel.dropdown_value("tab");
+        if tab == self {
+            return None;
         }
+        Some(Transition::Replace(match tab {
+            DashTab::FinishedTripTable => FinishedTripTable::new(ctx, app),
+            DashTab::TripSummaries => {
+                summaries::TripSummaries::new(ctx, app, summaries::Filter::new())
+            }
+            DashTab::ParkingOverhead => parking_overhead::ParkingOverhead::new(ctx, app),
+            DashTab::ActiveTraffic => misc::ActiveTraffic::new(ctx, app),
+            DashTab::TransitRoutes => misc::TransitRoutes::new(ctx, app),
+            DashTab::CommuterPatterns => CommuterPatterns::new(ctx, app),
+            DashTab::TrafficSignals => TrafficSignalDemand::new(ctx, app),
+            DashTab::CancelledTripTable | DashTab::UnfinishedTripTable => unreachable!(),
+        }))
     }
 }

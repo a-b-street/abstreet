@@ -93,16 +93,16 @@ def main():
 # Returns (trips, delay, throughput)
 def run_experiment():
     print(requests.get(api + '/sim/goto-time', params={'t': hours_to_sim}).text)
-    raw_trips = requests.get(api + '/data/get-finished-trips').json()['trips']
+    raw_trips = requests.get(api + '/data/get-finished-trips').json()
     raw_delays = requests.get(api + '/traffic-signals/get-delays', params={'id': 67, 't1': '00:00:00', 't2': hours_to_sim}).json()
     raw_thruput = requests.get(api + '/traffic-signals/get-cumulative-thruput', params={'id': 67}).json()
 
     # Map trip ID to the duration (in seconds) of the trip. Filter out aborted
     # (failed) trips.
     trips = {}
-    for (_, trip, mode, duration) in raw_trips:
-        if mode is not None:
-            trips[trip] = duration
+    for trip in raw_trips:
+        if trip['mode'] is not None:
+            trips[trip['id']] = trip['duration']
 
     # The direction is a dict, but Python can't handle dicts as keys. Stringify
     # the keys, also filtering out crosswalks and empty directions.

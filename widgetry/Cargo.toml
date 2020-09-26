@@ -12,20 +12,22 @@ wasm-backend = ["glow/stdweb", "instant/stdweb", "stdweb", "usvg/text", "usvg/te
 [dependencies]
 abstutil = { path = "../abstutil" }
 # backtrace = "0.3.40"
-downcast-rs = "1.1.1"
+downcast-rs = "1.2.0"
 geom = { path = "../geom" }
-glow = { version = "0.5.0", optional = true, default-features=false }
+glow = { version = "0.6.0", optional = true, default-features=false }
 glutin = { version = "0.24.1", optional = true }
 htmlescape = "0.3.1"
-image = { version = "0.23.4", default-features = false, features=["png"] }
-instant = "0.1.2"
-log = "0.4"
-lru = "0.4.3"
+image = { version = "0.23.9", default-features = false, features=["png"] }
+instant = "0.1.7"
+log = "0.4.11"
+lru = "0.6.0"
+# lyon 0.16.0 causes crash in widgetry demo
+# maybe related: https://github.com/nical/lyon/issues/607
 lyon = "0.15.8"
-serde = "1.0.110"
+serde = "1.0.116"
 stdweb  = { version = "0.4.20", optional = true }
 stretch = "0.3.2"
-ttf-parser = "0.6.1"
+ttf-parser = "0.8.2"
 usvg = { git = "https://github.com/dabreegster/resvg/", branch = "wasm", default-features=false }
 webgl_stdweb = { version = "0.3", optional = true }
 winit = "0.22.2"

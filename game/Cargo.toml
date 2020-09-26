@@ -13,15 +13,15 @@ wasm = ["widgetry/wasm-backend"]
 [dependencies]
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
-built = { version = "0.4.2", optional = true, features=["chrono"] }
-chrono = "0.4.10"
-colorous = "1.0.1"
+built = { version = "0.4.3", optional = true, features=["chrono"] }
+chrono = "0.4.15"
+colorous = "1.0.3"
 contour = "0.2.0"
-downcast-rs = "1.1.1"
-enumset = "1.0.0"
+downcast-rs = "1.2.0"
+enumset = "1.0.1"
 geojson = "0.19.0"
 geom = { path = "../geom" }
-instant = "0.1.2"
+instant = "0.1.7"
 kml = { path = "../kml" }
 lttb = "0.2.0"
 maplit = "1.0.2"
@@ -29,14 +29,14 @@ map_model = { path = "../map_model" }
 petname = "1.0.12"
 rand = "0.7.0"
 rand_xorshift = "0.2.0"
-reqwest = { version = "0.10.6", optional = true, default-features=false, features=["blocking", "rustls-tls"] }
-serde = "1.0.110"
-serde_json = "1.0.40"
+reqwest = { version = "0.10.8", optional = true, default-features=false, features=["blocking", "rustls-tls"] }
+serde = "1.0.116"
+serde_json = "1.0.57"
 svg_face = "0.1.2"
 sim = { path = "../sim" }
-webbrowser = { version = "0.5.2", optional = true }
+webbrowser = { version = "0.5.5", optional = true }
 widgetry = { path = "../widgetry", default-features=false }
-xmltree = "0.10.0"
+xmltree = "0.10.1"
 
 [build-dependencies]
 built = "0.4.2"

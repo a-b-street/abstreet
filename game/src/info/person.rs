@@ -196,6 +196,7 @@ pub fn trips(
                 row_btn.clone(),
                 row_btn.color(RewriteColor::Change(app.cs.inner_panel, app.cs.hovering)),
                 hitbox,
+                None,
             )
             .build(
                 ctx,

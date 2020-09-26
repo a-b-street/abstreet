@@ -23,8 +23,7 @@ software to explore the impacts of changes like this on different modes of
 transportation. So, let's try implementing part of the proposed network and see
 what happens!
 
-> **_NOTE:_** You might want to read
-> [how A/B Street works](https://github.com/dabreegster/abstreet/blob/master/old_docs/how_it_works.md)
+> **_NOTE:_** You might want to read [how A/B Street works](../how_it_works.md)
 > first.
 
 ## Lake Washington Blvd
@@ -42,11 +41,11 @@ closed anyway.
 <iframe width="560" height="315" src="https://www.youtube.com/embed/PU0iT-_3-es" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
 Let's get started! If you want to follow along,
-[install A/B Street](https://github.com/dabreegster/abstreet/blob/master/old_docs/INSTRUCTIONS.md),
-open sandbox mode, and switch the map to Lake Washington corridor. Zoom in on
-the southern tip of the Arboretum and hop into edit mode. We can see Lake
-Washington Blvd just has one travel lane in each direction here. Click each
-lane, convert it to a bike lane, and repeat north until Foster Island Road.
+[install A/B Street](../howto/index.md), open sandbox mode, and switch the map
+to Lake Washington corridor. Zoom in on the southern tip of the Arboretum and
+hop into edit mode. We can see Lake Washington Blvd just has one travel lane in
+each direction here. Click each lane, convert it to a bike lane, and repeat
+north until Foster Island Road.
 
 When we leave edit mode, the traffic simulation resets to midnight. Nothing
 really interesting happens until 5 or 6am, so we'll speed up time. Watching the

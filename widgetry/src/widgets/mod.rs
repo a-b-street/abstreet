@@ -204,6 +204,26 @@ impl Widget {
         self
     }
 
+    pub fn padding_top(mut self, pixels: usize) -> Widget {
+        self.layout.style.padding.top = Dimension::Points(pixels as f32);
+        self
+    }
+
+    pub fn padding_left(mut self, pixels: usize) -> Widget {
+        self.layout.style.padding.start = Dimension::Points(pixels as f32);
+        self
+    }
+
+    pub fn padding_bottom(mut self, pixels: usize) -> Widget {
+        self.layout.style.padding.bottom = Dimension::Points(pixels as f32);
+        self
+    }
+
+    pub fn padding_right(mut self, pixels: usize) -> Widget {
+        self.layout.style.padding.end = Dimension::Points(pixels as f32);
+        self
+    }
+
     pub fn margin_above(mut self, pixels: usize) -> Widget {
         self.layout.style.margin.top = Dimension::Points(pixels as f32);
         self
@@ -336,20 +356,22 @@ impl Widget {
     }
 
     // TODO Likewise
-    pub fn dropdown<T: 'static + PartialEq + Clone + std::fmt::Debug>(
+    pub fn dropdown<T: 'static + PartialEq + Clone + std::fmt::Debug, I: Into<String>>(
         ctx: &EventCtx,
-        label: &str,
+        label: I,
         default_value: T,
         choices: Vec<Choice<T>>,
     ) -> Widget {
+        let label = label.into();
         Widget::new(Box::new(Dropdown::new(
             ctx,
-            label,
+            &label,
             default_value,
             choices,
             false,
         )))
         .named(label)
+        // Why is this still required? The button Dropdown uses *already* has an outline
         .outline(ctx.style().outline_thickness, ctx.style().outline_color)
     }
 

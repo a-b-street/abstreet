@@ -119,13 +119,13 @@ fn make_top_center(
             Line("Sandbox").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 50.0),
             "Map:".draw_text(ctx),
-            Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name()))).build(
+            Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
                 ctx,
                 "change map",
                 lctrl(Key::L),
             ),
             "Traffic:".draw_text(ctx),
-            Btn::text_fg(format!("{} ↓", scenario_name)).build(ctx, "change traffic", Key::S),
+            Btn::pop_up(ctx, Some(scenario_name)).build(ctx, "change traffic", Key::S),
             Btn::svg_def("system/assets/tools/edit_map.svg").build(ctx, "edit map", lctrl(Key::E)),
         ])
         .centered(),
@@ -383,7 +383,7 @@ impl State for ChangeMode {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Discard changes" => Transition::Pop,
                 "Apply" => {
-                    let to_mode = self.panel.dropdown_value::<TripMode>("to_mode");
+                    let to_mode = self.panel.dropdown_value::<TripMode, _>("to_mode");
                     let pct_ppl = self.panel.spinner("pct_ppl") as usize;
                     let (p1, p2) = (
                         self.panel.area_slider("depart from").get_percent(),

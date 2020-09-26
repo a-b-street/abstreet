@@ -1,7 +1,6 @@
 use crate::{Bounds, Distance, Pt2D};
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
-use geo;
 use geo::algorithm::contains::Contains;
 use geo::prelude::{ClosestPoint, EuclideanDistance};
 use std::collections::BTreeMap;

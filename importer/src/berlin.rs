@@ -79,8 +79,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
         },
         timer,
     );
-    let output = abstutil::path(format!("input/raw_maps/{}.bin", name));
-    abstutil::write_binary(output, &map);
+    map.save();
 }
 
 // Modify the filtered KML of planning areas with the number of residents from a different dataset.

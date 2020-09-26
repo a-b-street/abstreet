@@ -1,5 +1,6 @@
 /target/
 *.swp
+__pycache__
 
 data/config
 

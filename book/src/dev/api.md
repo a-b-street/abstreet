@@ -10,9 +10,10 @@ This
 [Python example](https://github.com/dabreegster/abstreet/blob/master/headless/examples/python_client.py)
 has everything you need to get started.
 
-Also check out the
-[Go example](https://github.com/dabreegster/abstreet/blob/master/headless/examples/go_client.go),
-which demonstrates just a few of the API calls.
+See
+[all example code](https://github.com/dabreegster/abstreet/tree/master/headless/examples)
+-- there are different experiments in Go and Python that automate running a
+simulation, measuring some metric, and making a change to improve the metric.
 
 ## API details
 
@@ -26,12 +27,11 @@ are missing, etc. A summary of the commands available so far:
 - **/sim**
   - **GET /sim/reset**: Reset all temporary map edits and the simulation state.
     The trips that will run don't change; they're determined by the scenario
-    file you initially pass to `headless`. If you made live map edits using
-    things like `/traffic-signals/set`, they'll be reset. If you specified
-    `--edits` or used `/map/set-edits`, these will remain in effect.
-  - **POST /sim/load**: Switch the scenario being simulated. Takes a
-    [SimFlags](https://dabreegster.github.io/abstreet/rustdoc/sim/struct.SimFlags.html)
-    as a JSON POST body. Resets all map edits.
+    specified by the last call to `/sim/load`. If you made live map edits using
+    things like `/traffic-signals/set`, they'll be reset to the `edits` from
+    `/sim/load`.
+  - **POST /sim/load**: Switch the scenario being simulated, and also optionally
+    sets the map edits.
   - **GET /sim/get-time**: Returns the current simulation time.
   - **GET /sim/goto-time?t=06:30:00**: Simulate until 6:30 AM. If the time you
     specify is before the current time, you have to call **/sim/reset** first.
@@ -58,15 +58,15 @@ are missing, etc. A summary of the commands available so far:
     disconnected map).
   - **GET /data/get-agent-positions**: Returns a JSON list of all active agents.
     Vehicle type (or pedestrian), person ID, and position is included.
+  - **GET /data/get-road-thruput**: Returns a JSON list of (road, agent type,
+    hour since midnight, throughput for that one hour period).
 - **/map**
   - **GET /map/get-edits**: Returns the current map edits in JSON. You can save
     this to a file in `data/player/edits/map_name/` and later use it in-game
     normally. You can also later run the `headless` server with
     `--edits=name_of_edits`.
-  - **POST /map/set-edits**: The POST body must be
-    [PermanentMapEdits](https://dabreegster.github.io/abstreet/rustdoc/map_model/struct.PermanentMapEdits.html)
-    in JSON format. This is the same as the files in `data/player/edits/`. The
-    edits will remain as you call `/sim/reset`, but get reset with `/sim/load`.
+  - **GET /map/get-edit-road-command?id=123**: Returns an object that can be
+    modified and then added to map edits.
 
 ## Working with the map model
 
@@ -78,8 +78,7 @@ cargo run --bin dump_map data/system/maps/montlake.bin > montlake.json
 
 The format of the map isn't well-documented yet. See the
 [generated API docs](https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html)
-and [the map model docs](https://dabreegster.github.io/abstreet/map/index.html)
-in the meantime.
+and [the map model docs](../map/index.md) in the meantime.
 
 ## Working with individual trips
 
@@ -89,11 +88,11 @@ needed. If possible, it's simpler to create a Scenario as input.
 ## Working with Scenarios
 
 You can
-[import trips from your own data](https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import).
+[import trips from your own data](../trafficsim/travel_demand.md#custom-import).
 
 You can also generate different variations of one of the
-[demand models](https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#proletariat-robot)
-by specifying an RNG seed:
+[demand models](../trafficsim/travel_demand.md#proletariat-robot) by specifying
+an RNG seed:
 
 ```
 cargo run --bin random_scenario -- --rng=123 --map=data/system/maps/montlake.bin > data/system/scenarios/montlake/home_to_work.json
