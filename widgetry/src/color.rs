@@ -28,13 +28,13 @@ pub enum Fill {
     /// Once uploaded, textures are addressed by their id, starting from 1, from left to right, top
     /// to bottom, like so:
     ///
-    ///     ┌─┬─┬─┐
-    ///     │1│2│3│
-    ///     ├─┼─┼─┤
-    ///     │4│5│6│
-    ///     ├─┼─┼─┤
-    ///     │7│8│9│
-    ///     └─┴─┴─┘
+    ///   ┌─┬─┬─┐
+    ///   │1│2│3│
+    ///   ├─┼─┼─┤
+    ///   │4│5│6│
+    ///   ├─┼─┼─┤
+    ///   │7│8│9│
+    ///   └─┴─┴─┘
     ///
     /// Texture(0) is reserved for a pure white (no-op) texture.
     Texture(Texture),
