@@ -1,8 +1,3 @@
-use crate::app::App;
-use crate::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
-use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
-use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
-use crate::sandbox::GameplayMode;
 use abstutil::Timer;
 use geom::Duration;
 use map_model::{
@@ -12,13 +7,19 @@ use widgetry::{
     Btn, Checkbox, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner, TextExt, Widget,
 };
 
+use crate::app::App;
+use crate::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
+use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
+use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
+use crate::sandbox::GameplayMode;
+
 pub struct ChangeDuration {
     panel: Panel,
     idx: usize,
 }
 
 impl ChangeDuration {
-    pub fn new(ctx: &mut EventCtx, signal: ControlTrafficSignal, idx: usize) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, signal: &ControlTrafficSignal, idx: usize) -> Box<dyn State> {
         Box::new(ChangeDuration {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -58,6 +59,9 @@ impl ChangeDuration {
                         },
                     ),
                 ]),
+                Line("Minimum time required for crosswalk")
+                    .secondary()
+                    .draw(ctx),
                 Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
             ]))
             .build(ctx),

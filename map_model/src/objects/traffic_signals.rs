@@ -92,12 +92,9 @@ impl ControlTrafficSignal {
             }
         }
         let time = max_distance / CROSSWALK_PACE;
-        if time >= Duration::ZERO {
-            //Round up because it is converted to a usize elsewhere
-            Duration::seconds(time.inner_seconds().ceil())
-        } else {
-            Duration::seconds(5.0)
-        }
+        assert!(time >= Duration::ZERO);
+        // Round up because it is converted to a usize elsewhere
+        Duration::seconds(time.inner_seconds().ceil())
     }
 
     pub fn validate(self) -> Result<ControlTrafficSignal, String> {
@@ -287,7 +284,7 @@ impl Stage {
                 parent: g.id.parent,
                 crosswalk: true,
             });
-            self.check_minimum_crosswalk_time(g);
+            self.enforce_minimum_crosswalk_time(g);
         }
         for id in ids {
             self.protected_movements.remove(&id);
@@ -299,7 +296,7 @@ impl Stage {
             }
         }
     }
-    pub fn check_minimum_crosswalk_time(&mut self, movement: &Movement) {
+    pub fn enforce_minimum_crosswalk_time(&mut self, movement: &Movement) {
         //Round up to an int, because it is exported as a usize
         let time = Duration::seconds(
             (movement.geom.length() / CROSSWALK_PACE)
