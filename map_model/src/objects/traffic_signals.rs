@@ -119,7 +119,6 @@ impl ControlTrafficSignal {
                     .collect::<Vec<_>>()
             ));
         }
-        let mut stage_index = 0;
         for stage in &self.stages {
             // Do any of the priority movements in one stage conflict?
             for m1 in stage.protected_movements.iter().map(|m| &self.movements[m]) {
@@ -138,10 +137,24 @@ impl ControlTrafficSignal {
             for m in stage.yield_movements.iter().map(|m| &self.movements[m]) {
                 assert!(m.turn_type != TurnType::Crosswalk);
             }
-
-            // Is there enough time in each stage to walk across the crosswalk
+        }
+        Ok(self)
+    }
+    pub fn validate_stage_timings(&self) -> Result<&ControlTrafficSignal, String> {
+        // Is there enough time in each stage to walk across the crosswalk
+        let mut stage_index = 0;
+        for stage in &self.stages {
             let min_crossing_time = self.get_min_crossing_time(stage_index);
-            if min_crossing_time <= stage.phase_type.simple_duration() {
+            if min_crossing_time < stage.phase_type.simple_duration() {
+                // Warn/Error does not seem to be imported?
+                println!(
+                    "Traffic signal does not allow enough time in stage to complete the \
+                     crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}",
+                    stage_index,
+                    stage,
+                    min_crossing_time,
+                    stage.phase_type.simple_duration()
+                );
                 return Err(format!(
                     "Traffic signal does not allow enough time in stage to complete the \
                      crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}",
@@ -243,7 +256,7 @@ impl Stage {
         Stage {
             protected_movements: BTreeSet::new(),
             yield_movements: BTreeSet::new(),
-            phase_type: PhaseType::Fixed(Duration::seconds(30.0)),
+            phase_type: PhaseType::Fixed(Duration::seconds(0.0)),
         }
     }
 
