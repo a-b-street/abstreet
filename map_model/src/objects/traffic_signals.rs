@@ -71,7 +71,7 @@ impl ControlTrafficSignal {
         brute_force(map, id)
     }
 
-    pub fn validate(self) -> Result<ControlTrafficSignal, String> {
+    pub(crate) fn validate(&self) -> Result<(), String> {
         // Does the assignment cover the correct set of movements?
         let expected_movements: BTreeSet<MovementID> = self.movements.keys().cloned().collect();
         let mut actual_movements: BTreeSet<MovementID> = BTreeSet::new();
@@ -114,7 +114,7 @@ impl ControlTrafficSignal {
             }
         }
 
-        Ok(self)
+        Ok(())
     }
 
     // Returns true if this did anything
@@ -290,7 +290,7 @@ impl ControlTrafficSignal {
         }
     }
 
-    pub fn import(
+    pub(crate) fn import(
         raw: seattle_traffic_signals::TrafficSignal,
         id: IntersectionID,
         map: &Map,
@@ -330,13 +330,14 @@ impl ControlTrafficSignal {
                 ));
             }
         }
-        ControlTrafficSignal {
+        let ts = ControlTrafficSignal {
             id,
             stages,
             offset: Duration::seconds(raw.offset_seconds as f64),
             movements: Movement::for_i(id, map).unwrap(),
-        }
-        .validate()
+        };
+        ts.validate()?;
+        Ok(ts)
     }
 }
 

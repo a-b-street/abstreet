@@ -156,4 +156,9 @@ problems is useful. It's also fine to crash when initially constructing all of
 the renderable map objects, because this crash will consistently happen at
 startup-time and be noticed by somebody developing before a player gets to it.
 
+Prefer using `info!`, `warn!`, `error!`, etc from the `log` crate. Or if a
+`Timer` is available and you want to collect all notes together, `timer.note`.
+There are still many places calling `println!`, but we're trying to clean these
+up.
+
 See the [testing strategy](testing.md) page.

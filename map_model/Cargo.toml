@@ -10,6 +10,7 @@ abstutil = { path = "../abstutil" }
 enumset = { version = "1.0.1", features=["serde"] }
 fast_paths = { git = "https://github.com/easbar/fast_paths" }
 geom = { path = "../geom" }
+log = "0.4.11"
 nbez = "0.1.0"
 petgraph = "0.5.1"
 rand = "0.7.0"

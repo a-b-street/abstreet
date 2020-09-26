@@ -267,7 +267,7 @@ impl Lane {
                 vec![TurnType::Left]
             }
             s => {
-                println!("Unknown turn restriction {}", s);
+                warn!("Unknown turn restriction {}", s);
                 vec![]
             }
         }))

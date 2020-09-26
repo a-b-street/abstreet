@@ -51,9 +51,7 @@ pub fn get_possible_policies(
     if let Some(ts) = four_oneways(map, id) {
         results.push(("two-stage for 4 one-ways".to_string(), ts));
     }
-    if let Some(ts) = stage_per_road(map, id) {
-        results.push(("stage per road".to_string(), ts));
-    }
+    results.push(("stage per road".to_string(), stage_per_road(map, id)));
     results.push((
         "arbitrary assignment".to_string(),
         greedy_assignment(map, id),
@@ -62,6 +60,11 @@ pub fn get_possible_policies(
         "all walk, then free-for-all yield".to_string(),
         all_walk_all_yield(map, id),
     ));
+
+    // TODO Automatically fix things like minimum crosswalk time
+
+    results.retain(|pair| pair.1.validate().is_ok());
+
     results
 }
 
@@ -103,8 +106,7 @@ fn greedy_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
 
     expand_all_stages(&mut ts);
 
-    // This must succeed
-    ts.validate().unwrap()
+    ts
 }
 
 fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -121,7 +123,7 @@ fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         &mut ts,
         vec![vec![(vec![r1, r2], TurnType::Straight, PROTECTED)]],
     );
-    ts.validate().ok()
+    Some(ts)
 }
 
 fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -143,7 +145,7 @@ fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     ped_stage.phase_type = PhaseType::Fixed(Duration::seconds(10.0));
 
     ts.stages = vec![vehicle_stage, ped_stage];
-    ts.validate().ok()
+    Some(ts)
 }
 
 fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -182,7 +184,7 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         ],
     );
 
-    ts.validate().ok()
+    Some(ts)
 }
 
 fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -216,7 +218,7 @@ fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSig
             vec![(vec![east, west], TurnType::Left, PROTECTED)],
         ],
     );
-    ts.validate().ok()
+    Some(ts)
 }
 
 fn four_way_two_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -249,7 +251,7 @@ fn four_way_two_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSign
             ],
         ],
     );
-    ts.validate().ok()
+    Some(ts)
 }
 
 fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -293,7 +295,7 @@ fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
             ],
         ],
     );
-    ts.validate().ok()
+    Some(ts)
 }
 
 fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
@@ -314,11 +316,10 @@ fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     }
 
     ts.stages = vec![all_walk, all_yield];
-    // This must succeed
-    ts.validate().unwrap()
+    ts
 }
 
-fn stage_per_road(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+fn stage_per_road(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     let mut ts = new(i, map);
 
     let sorted_roads = map
@@ -344,7 +345,7 @@ fn stage_per_road(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> 
             ts.stages.push(stage);
         }
     }
-    ts.validate().ok()
+    ts
 }
 
 // Add all possible protected movements to existing stages.
