@@ -38,10 +38,10 @@ impl Spinner {
         );
         if current < low {
             current = low;
-            println!("Spinner current value is out of bounds!");
+            warn!("Spinner current value is out of bounds!");
         } else if high < current {
             current = high;
-            println!("Spinner current value is out of bounds!");
+            warn!("Spinner current value is out of bounds!");
         }
         Widget::new(Box::new(Spinner {
             low,
