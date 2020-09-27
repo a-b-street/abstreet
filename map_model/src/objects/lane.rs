@@ -232,7 +232,7 @@ impl Lane {
             return None;
         }
 
-        let (dir, offset) = road.dir_and_offset(self.id);
+        let dir = road.dir(self.id);
         let all = if dir == Direction::Fwd && road.osm_tags.contains_key(osm::ENDPT_FWD) {
             road.osm_tags
                 .get("turn:lanes:forward")
@@ -243,10 +243,25 @@ impl Lane {
             return None;
         };
         let parts: Vec<&str> = all.split('|').collect();
-        // TODO Verify the number of lanes matches up
-        let part = parts.get(offset)?;
+        // Verify the number of parts matches the road's lanes
+        let lanes: Vec<LaneID> = road
+            .children(dir)
+            .into_iter()
+            .filter(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Bus)
+            .map(|(id, _)| id)
+            .collect();
+        if parts.len() != lanes.len() {
+            warn!("{}'s turn restrictions don't match the lanes", road.orig_id);
+            return None;
+        }
+        // TODO More warnings if this fails
+        let part = parts[lanes.iter().position(|l| *l == self.id)?];
         // TODO Probably the target lane should get marked as LaneType::Bus
-        if part == &"no" || part == &"none" || part == &"yes" || part == &"psv" || part == &"bus" {
+        if part == "no" || part == "none" || part == "yes" || part == "psv" || part == "bus" {
+            return None;
+        }
+        // Empty means no restrictions
+        if part == "" {
             return None;
         }
         Some(part.split(';').flat_map(|s| match s {

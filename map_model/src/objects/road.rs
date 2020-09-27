@@ -407,18 +407,6 @@ impl Road {
         }
     }
 
-    // TODO Deprecated
-    // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
-    // it counts up from there.
-    pub(crate) fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
-        for &dir in [Direction::Fwd, Direction::Back].iter() {
-            if let Some(idx) = self.children(dir).iter().position(|pair| pair.0 == lane) {
-                return (dir, idx);
-            }
-        }
-        panic!("{} doesn't contain {}", self.id, lane);
-    }
-
     // Returns lanes from the "center" going out
     pub(crate) fn incoming_lanes(&self, i: IntersectionID) -> Vec<(LaneID, LaneType)> {
         if self.src_i == i {

@@ -9,6 +9,11 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 // Attempt to snap separately mapped cycleways to main roads. Emit extra KML files to debug later.
 pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
+    // TODO Hack! Fix upstream problems.
+    if map.name == "xian" {
+        return;
+    }
+
     let mut cycleways = HashMap::new();
     for shape in abstutil::read_binary::<ExtraShapes>(
         abstutil::path(format!("input/{}/footways.bin", map.city_name)),
