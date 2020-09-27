@@ -173,6 +173,9 @@ impl Road {
             // about 12mph
             return Speed::km_per_hour(20.0);
         }
+        if self.is_service() {
+            return Speed::miles_per_hour(10.0);
+        }
         Speed::miles_per_hour(20.0)
     }
 
@@ -324,6 +327,10 @@ impl Road {
 
     pub fn is_footway(&self) -> bool {
         self.lanes_ltr().len() == 1 && self.lanes_ltr()[0].2 == LaneType::Sidewalk
+    }
+
+    pub fn is_service(&self) -> bool {
+        self.osm_tags.is(osm::HIGHWAY, "service")
     }
 
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {

@@ -674,10 +674,12 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
 }
 
 pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, app: &App) -> bool {
+    let l = app.primary.map.get_l(l);
     mode.can_edit_lanes()
-        && !app.primary.map.get_l(l).is_walkable()
-        && app.primary.map.get_l(l).lane_type != LaneType::SharedLeftTurn
-        && !app.primary.map.get_l(l).is_light_rail()
+        && !l.is_walkable()
+        && l.lane_type != LaneType::SharedLeftTurn
+        && !l.is_light_rail()
+        && !app.primary.map.get_parent(l.id).is_service()
 }
 
 pub fn speed_limit_choices() -> Vec<Choice<Speed>> {
