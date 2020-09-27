@@ -299,6 +299,8 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">PerMap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Pt2D</span>};
@@ -592,8 +594,10 @@
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">loading_tips</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
     <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Recent changes (September 20)&quot;</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;Recent changes (September 27)&quot;</span>),
         <span class="ident">Line</span>(<span class="string">&quot;&quot;</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;- Alleyways are now included in the map&quot;</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;- Check out the trip tables and summary changes (press &#39;q&#39;)&quot;</span>),
         <span class="ident">Line</span>(<span class="string">&quot;- Try out the new traffic signal editor!&quot;</span>),
         <span class="ident">Line</span>(<span class="string">&quot;- The \&quot;traffic signal demand\&quot; layer shows all intersections through the whole day&quot;</span>),
         <span class="ident">Line</span>(<span class="string">&quot;- New 3D buildings and textured color schemes in settings&quot;</span>),

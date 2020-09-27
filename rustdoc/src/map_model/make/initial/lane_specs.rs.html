@@ -446,10 +446,18 @@
 <span id="446">446</span>
 <span id="447">447</span>
 <span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">SHOULDER_THICKNESS</span>,
-    <span class="ident">SIDEWALK_THICKNESS</span>,
+    <span class="ident">osm</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">SERVICE_ROAD_LANE_THICKNESS</span>,
+    <span class="ident">SHOULDER_THICKNESS</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
 };
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Tags</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
@@ -684,6 +692,14 @@
             <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>));
         } <span class="kw">else</span> {
             <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>));
+        }
+    }
+
+    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) {
+        <span class="kw">for</span> <span class="ident">spec</span> <span class="kw">in</span> <span class="ident">fwd_side</span>.<span class="ident">iter_mut</span>().<span class="ident">chain</span>(<span class="ident">back_side</span>.<span class="ident">iter_mut</span>()) {
+            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> {
+                <span class="ident">spec</span>.<span class="ident">width</span> <span class="op">=</span> <span class="ident">SERVICE_ROAD_LANE_THICKNESS</span>;
+            }
         }
     }
 
