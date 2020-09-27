@@ -1,10 +1,12 @@
+use std::collections::HashSet;
+
+use abstutil::Timer;
+use geom::Duration;
+
 use crate::{
     ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Movement, MovementID,
     PhaseType, RoadID, Stage, TurnPriority, TurnType,
 };
-use abstutil::Timer;
-use geom::Duration;
-use std::collections::HashSet;
 
 pub fn get_possible_policies(
     map: &Map,
@@ -77,7 +79,6 @@ pub fn get_possible_policies(
         }
     }
     results.retain(|pair| pair.1.validate().is_ok());
-    //results.retain(|ts| ts.1.validate_stage_timings().is_ok());
     results
 }
 

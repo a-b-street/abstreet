@@ -84,10 +84,9 @@ impl WidgetImpl for Spinner {
         self.up.event(ctx, output);
         if let Outcome::Clicked(_) = output.outcome {
             output.outcome = Outcome::Changed;
-            if self.current != self.high {
+            if self.current < self.high {
                 self.current += 1;
-            }
-            if self.high < self.current {
+            } else if self.high < self.current {
                 self.current = self.high;
             }
             ctx.no_op_event(true, |ctx| self.up.event(ctx, output));

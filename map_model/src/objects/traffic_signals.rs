@@ -1,14 +1,18 @@
+use std::collections::{BTreeMap, BTreeSet};
+use std::convert::TryFrom;
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
+use geom::{Distance, Duration, Speed};
+
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
+use crate::objects::traffic_signals::PhaseType::{Adaptive, Fixed};
 use crate::raw::OriginalRoad;
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
     MovementID, TurnID, TurnPriority, TurnType,
 };
-use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
-use geom::Duration;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
-use std::convert::TryFrom;
 
 // The pace to use for crosswalk pace in m/s
 // https://en.wikipedia.org/wiki/Preferred_walking_speed
@@ -78,12 +82,8 @@ impl ControlTrafficSignal {
         let mut max_distance = Distance::meters(0.0);
         for movement in &self.stages[idx].protected_movements {
             if movement.crosswalk {
-                let distance = self.movements.get(&movement).unwrap().geom.length();
-                if max_distance == Distance::meters(0.0) {
-                    max_distance = distance;
-                } else if max_distance < distance {
-                    max_distance = distance;
-                }
+                max_distance =
+                    max_distance.max(self.movements.get(&movement).unwrap().geom.length());
             }
         }
         let time = max_distance / CROSSWALK_PACE;
@@ -114,7 +114,7 @@ impl ControlTrafficSignal {
                     .collect::<Vec<_>>()
             ));
         }
-
+        let mut stage_index = 0;
         for stage in &self.stages {
             // Do any of the priority movements in one stage conflict?
             for m1 in stage.protected_movements.iter().map(|m| &self.movements[m]) {
@@ -133,15 +133,9 @@ impl ControlTrafficSignal {
             for m in stage.yield_movements.iter().map(|m| &self.movements[m]) {
                 assert!(m.turn_type != TurnType::Crosswalk);
             }
-        }
-        Ok(self)
-    }
-    pub fn validate_stage_timings(&self) -> Result<&ControlTrafficSignal, String> {
-        // Is there enough time in each stage to walk across the crosswalk
-        let mut stage_index = 0;
-        for stage in &self.stages {
+            // Is there enough time in each stage to walk across the crosswalk
             let min_crossing_time = self.get_min_crossing_time(stage_index);
-            if min_crossing_time < stage.phase_type.simple_duration() {
+            if stage.phase_type.simple_duration() < min_crossing_time {
                 // Warn/Error does not seem to be imported?
                 println!(
                     "Traffic signal does not allow enough time in stage to complete the \
@@ -162,7 +156,7 @@ impl ControlTrafficSignal {
             }
             stage_index += 1;
         }
-        Ok(self)
+        Ok(())
     }
 
     // Returns true if this did anything
