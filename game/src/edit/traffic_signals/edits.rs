@@ -1,8 +1,3 @@
-use crate::app::App;
-use crate::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
-use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
-use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
-use crate::sandbox::GameplayMode;
 use abstutil::Timer;
 use geom::Duration;
 use map_model::{
@@ -12,13 +7,19 @@ use widgetry::{
     Btn, Checkbox, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner, TextExt, Widget,
 };
 
+use crate::app::App;
+use crate::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
+use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
+use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
+use crate::sandbox::GameplayMode;
+
 pub struct ChangeDuration {
     panel: Panel,
     idx: usize,
 }
 
 impl ChangeDuration {
-    pub fn new(ctx: &mut EventCtx, current: PhaseType, idx: usize) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, signal: &ControlTrafficSignal, idx: usize) -> Box<dyn State> {
         Box::new(ChangeDuration {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -33,8 +34,14 @@ impl ChangeDuration {
                     "Seconds:".draw_text(ctx),
                     Spinner::new(
                         ctx,
-                        (5, 300),
-                        current.simple_duration().inner_seconds() as isize,
+                        (
+                            signal.get_min_crossing_time(idx).inner_seconds() as isize,
+                            300,
+                        ),
+                        signal.stages[idx]
+                            .phase_type
+                            .simple_duration()
+                            .inner_seconds() as isize,
                     )
                     .named("duration"),
                 ]),
@@ -46,12 +53,15 @@ impl ChangeDuration {
                         "fixed",
                         "adaptive",
                         None,
-                        match current {
+                        match signal.stages[idx].phase_type {
                             PhaseType::Fixed(_) => true,
                             PhaseType::Adaptive(_) => false,
                         },
                     ),
                 ]),
+                Line("Minimum time is set by the time required for crosswalk")
+                    .secondary()
+                    .draw(ctx),
                 Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
             ]))
             .build(ctx),
@@ -94,12 +104,12 @@ impl State for ChangeDuration {
         }
     }
 
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::PreviousState
-    }
-
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 }
 

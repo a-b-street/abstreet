@@ -1,8 +1,9 @@
+use geom::{Polygon, Pt2D};
+
 use crate::{
     text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
     ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::{Polygon, Pt2D};
 
 // TODO MAX_CHAR_WIDTH is a hardcoded nonsense value
 const TEXT_WIDTH: f64 = 2.0 * text::MAX_CHAR_WIDTH;
@@ -23,7 +24,7 @@ pub struct Spinner {
 }
 
 impl Spinner {
-    pub fn new(ctx: &EventCtx, (low, high): (isize, isize), current: isize) -> Widget {
+    pub fn new(ctx: &EventCtx, (low, high): (isize, isize), mut current: isize) -> Widget {
         let up = Btn::text_fg("↑")
             .build(ctx, "increase value", None)
             .take_btn();
@@ -35,7 +36,13 @@ impl Spinner {
             TEXT_WIDTH + up.get_dims().width,
             up.get_dims().height + down.get_dims().height,
         );
-
+        if current < low {
+            current = low;
+            warn!("Spinner current value is out of bounds!");
+        } else if high < current {
+            current = high;
+            warn!("Spinner current value is out of bounds!");
+        }
         Widget::new(Box::new(Spinner {
             low,
             high,
@@ -77,8 +84,13 @@ impl WidgetImpl for Spinner {
         self.up.event(ctx, output);
         if let Outcome::Clicked(_) = output.outcome {
             output.outcome = Outcome::Changed;
-            if self.current != self.high {
+            if self.current < self.high {
                 self.current += 1;
+            } else if self.high < self.current {
+                self.current = self.high;
+            }
+            if self.high < self.current {
+                self.current = self.high;
             }
             ctx.no_op_event(true, |ctx| self.up.event(ctx, output));
             return;
@@ -89,6 +101,9 @@ impl WidgetImpl for Spinner {
             output.outcome = Outcome::Changed;
             if self.current != self.low {
                 self.current -= 1;
+            }
+            if self.current < self.low {
+                self.current = self.low;
             }
             ctx.no_op_event(true, |ctx| self.down.event(ctx, output));
             return;
