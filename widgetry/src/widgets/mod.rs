@@ -194,13 +194,9 @@ impl Widget {
     }
 
     // TODO Maybe panic if we call this on a non-container
-    pub fn padding(mut self, pixels: usize) -> Widget {
-        self.layout.style.padding = Rect {
-            start: Dimension::Points(pixels as f32),
-            end: Dimension::Points(pixels as f32),
-            top: Dimension::Points(pixels as f32),
-            bottom: Dimension::Points(pixels as f32),
-        };
+    pub fn padding<I: Into<EdgeInsets>>(mut self, insets: I) -> Widget {
+        let insets = insets.into();
+        self.layout.style.padding = Rect::from(insets);
         self
     }
 
@@ -221,6 +217,12 @@ impl Widget {
 
     pub fn padding_right(mut self, pixels: usize) -> Widget {
         self.layout.style.padding.end = Dimension::Points(pixels as f32);
+        self
+    }
+
+    pub fn margin<I: Into<EdgeInsets>>(mut self, insets: I) -> Widget {
+        let insets = insets.into();
+        self.layout.style.margin = Rect::from(insets);
         self
     }
 
@@ -699,5 +701,34 @@ impl Widget {
     }
     pub(crate) fn take_just_draw(self) -> JustDraw {
         *self.widget.downcast::<JustDraw>().ok().unwrap()
+    }
+}
+
+pub struct EdgeInsets {
+    pub top: f32,
+    pub left: f32,
+    pub bottom: f32,
+    pub right: f32,
+}
+
+impl From<usize> for EdgeInsets {
+    fn from(uniform_size: usize) -> EdgeInsets {
+        EdgeInsets {
+            top: uniform_size as f32,
+            left: uniform_size as f32,
+            bottom: uniform_size as f32,
+            right: uniform_size as f32,
+        }
+    }
+}
+
+impl From<EdgeInsets> for Rect<Dimension> {
+    fn from(insets: EdgeInsets) -> Rect<Dimension> {
+        Rect {
+            start: Dimension::Points(insets.left),
+            end: Dimension::Points(insets.right),
+            top: Dimension::Points(insets.top),
+            bottom: Dimension::Points(insets.bottom),
+        }
     }
 }

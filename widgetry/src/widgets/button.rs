@@ -1,6 +1,6 @@
 use crate::{
-    svg, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, Outcome, RewriteColor,
-    ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
+    svg, Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, Outcome,
+    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::{Distance, Polygon};
 
@@ -210,7 +210,7 @@ impl Btn {
 
         let button_geom = if let Some(label) = label {
             let text = Text::from(Line(label));
-            let mut text_geom: GeomBatch = text.render_ctx(ctx);
+            let mut text_geom: GeomBatch = text.render(ctx);
             text_geom.append(icon_batch.translate(text_geom.get_bounds().width() + 8.0, 0.0));
             text_geom
         } else {
@@ -220,15 +220,18 @@ impl Btn {
         let (button_geom, hitbox) = button_geom
             .batch()
             .container()
-            .padding_top(4)
-            .padding_bottom(4)
-            .padding_left(8)
-            .padding_right(8)
+            .padding(EdgeInsets {
+                top: 4.0,
+                bottom: 4.0,
+                left: 8.0,
+                right: 8.0,
+            })
             .to_geom(ctx, None);
 
-        let hovered = button_geom
-            .clone()
-            .color(RewriteColor::Change(ctx.style().outline_color, ctx.style().hovering_color));
+        let hovered = button_geom.clone().color(RewriteColor::Change(
+            ctx.style().outline_color,
+            ctx.style().hovering_color,
+        ));
 
         let outline = (ctx.style().outline_thickness, ctx.style().outline_color);
         BtnBuilder::Custom {

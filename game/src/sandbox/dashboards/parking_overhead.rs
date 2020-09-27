@@ -128,27 +128,27 @@ fn make_table(app: &App) -> Table<Entry, Filters> {
     table.static_col("Trip ID", Box::new(|x| x.trip.0.to_string()));
     table.column(
         "Total duration",
-        Box::new(|ctx, _, x| Text::from(Line(x.total_duration.to_string())).render_ctx(ctx)),
+        Box::new(|ctx, _, x| Text::from(Line(x.total_duration.to_string())).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.total_duration))),
     );
     table.column(
         "Driving duration",
-        Box::new(|ctx, _, x| Text::from(Line(x.driving_duration.to_string())).render_ctx(ctx)),
+        Box::new(|ctx, _, x| Text::from(Line(x.driving_duration.to_string())).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.driving_duration))),
     );
     table.column(
         "Parking duration",
-        Box::new(|ctx, _, x| Text::from(Line(x.parking_duration.to_string())).render_ctx(ctx)),
+        Box::new(|ctx, _, x| Text::from(Line(x.parking_duration.to_string())).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.parking_duration))),
     );
     table.column(
         "Walking duration",
-        Box::new(|ctx, _, x| Text::from(Line(x.walking_duration.to_string())).render_ctx(ctx)),
+        Box::new(|ctx, _, x| Text::from(Line(x.walking_duration.to_string())).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.walking_duration))),
     );
     table.column(
         "Percent overhead",
-        Box::new(|ctx, _, x| Text::from(Line(format!("{}%", x.percent_overhead))).render_ctx(ctx)),
+        Box::new(|ctx, _, x| Text::from(Line(format!("{}%", x.percent_overhead))).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.percent_overhead))),
     );
 

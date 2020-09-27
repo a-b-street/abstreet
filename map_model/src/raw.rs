@@ -253,7 +253,7 @@ pub struct RawRoad {
 }
 
 impl RawRoad {
-    // Returns the corrected center and half width
+    // Returns the corrected center and total width
     pub fn get_geometry(
         &self,
         id: OriginalRoad,

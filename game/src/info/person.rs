@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, OpenTrip, Tab};
-use geom::{Duration, Time};
+use geom::{Angle, Duration, Time};
 use map_model::Map;
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
@@ -11,7 +11,8 @@ use sim::{
 };
 use std::collections::BTreeMap;
 use widgetry::{
-    Btn, Color, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan, Widget,
+    Btn, Color, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan,
+    Widget,
 };
 
 pub fn trips(
@@ -140,18 +141,31 @@ pub fn trips(
                         TripMode::Transit => "system/assets/meters/bus.svg",
                     },
                 )
+                // we want the icon to be about the same height as the text
+                .scale(0.75)
+                // discard any padding built into the svg
+                .autocrop()
                 .color(RewriteColor::ChangeAll(color))
                 .batch(),
+                // Without this bottom padding, text is much closer to bottom of pill than top -
+                // seemingly moreso than just text ascender/descender descrepancies - why?
                 Line(trip_status)
                     .small()
                     .fg(color)
                     .batch(ctx)
-                    .centered_vert(),
+                    .container()
+                    .padding_bottom(2),
             ])
+            .centered()
             .fully_rounded()
             .outline(1.0, color)
             .bg(color.alpha(0.2))
-            .padding(10)
+            .padding(EdgeInsets {
+                top: 5.0,
+                bottom: 5.0,
+                left: 10.0,
+                right: 10.0,
+            })
             .margin_right(21),
             if trip.modified {
                 Line("modified").batch(ctx).centered_vert().margin_right(15)
@@ -178,15 +192,23 @@ pub fn trips(
             } else {
                 Widget::nothing()
             },
-            if open_trips.contains_key(t) {
-                "↓"
-            } else {
-                "↑"
-            }
-            .batch_text(ctx)
-            .centered_vert()
-            .align_right(),
+            {
+                let mut icon = GeomBatch::load_svg(
+                    ctx.prerender,
+                    "system/assets/widgetry/arrow_drop_down.svg",
+                )
+                .autocrop()
+                .color(RewriteColor::ChangeAll(Color::WHITE))
+                .scale(1.5);
+
+                if !open_trips.contains_key(t) {
+                    icon = icon.rotate(Angle::new_degs(180.0));
+                }
+
+                icon.batch().container().align_right().margin_right(10)
+            },
         ])
+        .centered()
         .outline(2.0, Color::WHITE)
         .padding(16)
         .bg(app.cs.inner_panel)

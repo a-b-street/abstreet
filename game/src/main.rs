@@ -15,6 +15,9 @@ mod pregame;
 mod render;
 mod sandbox;
 
+#[macro_use]
+extern crate log;
+
 use crate::app::Flags;
 use abstutil::{CmdArgs, Timer};
 use geom::Duration;

@@ -247,7 +247,7 @@ impl Movement {
             let turn_types: BTreeSet<TurnType> =
                 members.iter().map(|t| map.get_t(*t).turn_type).collect();
             if turn_types.len() > 1 {
-                println!(
+                warn!(
                     "Movement between {} and {} has weird turn types! {:?}",
                     from, to, turn_types
                 );
@@ -349,7 +349,7 @@ fn movement_geom(
     let num_pts = polylines[0].points().len();
     for pl in &polylines {
         if num_pts != pl.points().len() {
-            println!(
+            warn!(
                 "Movement between {} and {} can't make nice geometry",
                 from, to
             );

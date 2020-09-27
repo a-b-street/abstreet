@@ -69,6 +69,22 @@ impl Distance {
             format!("{} ft", feet.round())
         }
     }
+
+    pub fn max(self, other: Distance) -> Distance {
+        if self >= other {
+            self
+        } else {
+            other
+        }
+    }
+
+    pub fn min(self, other: Distance) -> Distance {
+        if self <= other {
+            self
+        } else {
+            other
+        }
+    }
 }
 
 impl fmt::Display for Distance {

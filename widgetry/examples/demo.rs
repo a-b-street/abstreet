@@ -123,9 +123,9 @@ impl App {
             ctx,
             "stopwatch",
             format!("Stopwatch: {}", self.elapsed)
-            .draw_text(ctx)
-            .named("stopwatch"),
-            );
+                .draw_text(ctx)
+                .named("stopwatch"),
+        );
     }
 }
 
@@ -141,7 +141,7 @@ impl GUI for App {
                 // typesafe.
                 "reset the stopwatch" => {
                     self.elapsed = Duration::ZERO;
-                    self.redraw_stopwatch(ctx); 
+                    self.redraw_stopwatch(ctx);
                 }
                 "generate new faces" => {
                     self.scrollable_canvas = setup_scrollable_canvas(ctx);
@@ -301,7 +301,10 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
             Checkbox::switch(ctx, "Draw scrollable canvas", None, true),
             Checkbox::switch(ctx, "Show timeseries", lctrl(Key::T), false),
         ]),
-        "Stopwatch: ...".draw_text(ctx).named("stopwatch").margin_above(30),
+        "Stopwatch: ..."
+            .draw_text(ctx)
+            .named("stopwatch")
+            .margin_above(30),
         Widget::row(vec![
             Checkbox::new(
                 false,
@@ -322,7 +325,6 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
             Btn::text_fg("Reset Timer").build(ctx, "reset the stopwatch", None),
         ])
         .evenly_spaced(),
-
         Widget::row(vec![
             Widget::dropdown(
                 ctx,
@@ -330,11 +332,12 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 (Texture::SAND, Texture::CACTUS),
                 vec![
                     Choice::new("Cold", (Texture::SNOW, Texture::SNOW_PERSON)),
-                    Choice::new("Hot", (Texture::SAND, Texture::CACTUS))
+                    Choice::new("Hot", (Texture::SAND, Texture::CACTUS)),
                 ],
             ),
             Btn::text_fg("Apply Textures").build(ctx, "apply textures", None),
-        ]).margin_above(30),
+        ])
+        .margin_above(30),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)

@@ -23,6 +23,7 @@ geojson = "0.19.0"
 geom = { path = "../geom" }
 instant = "0.1.7"
 kml = { path = "../kml" }
+log = "0.4.11"
 lttb = "0.2.0"
 maplit = "1.0.2"
 map_model = { path = "../map_model" }

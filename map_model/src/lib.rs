@@ -9,6 +9,9 @@ mod pathfind;
 pub mod raw;
 mod traversable;
 
+#[macro_use]
+extern crate log;
+
 pub use crate::city::City;
 pub use crate::edits::{
     EditCmd, EditEffects, EditIntersection, EditRoad, MapEdits, PermanentMapEdits,

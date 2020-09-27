@@ -414,7 +414,7 @@ impl InfoPanel {
                             details.zoomed.push(app.cs.current_object, poly.clone());
                         }
                         Err(err) => {
-                            println!("No outline for {:?}: {}", id, err);
+                            warn!("No outline for {:?}: {}", id, err);
                         }
                     }
 

@@ -1,18 +1,14 @@
-use std::collections::{BTreeMap, BTreeSet};
-use std::convert::TryFrom;
-
-use serde::{Deserialize, Serialize};
-
-use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
-use geom::{Distance, Duration, Speed};
-
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
-use crate::objects::traffic_signals::PhaseType::{Adaptive, Fixed};
 use crate::raw::OriginalRoad;
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
     MovementID, TurnID, TurnPriority, TurnType,
 };
+use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
+use geom::Duration;
+use serde::{Deserialize, Serialize};
+use std::collections::{BTreeMap, BTreeSet};
+use std::convert::TryFrom;
 
 // The pace to use for crosswalk pace in m/s
 // https://en.wikipedia.org/wiki/Preferred_walking_speed
@@ -78,7 +74,6 @@ impl ControlTrafficSignal {
     pub fn brute_force(map: &Map, id: IntersectionID) {
         brute_force(map, id)
     }
-
     pub fn get_min_crossing_time(&self, idx: usize) -> Duration {
         let mut max_distance = Distance::meters(0.0);
         for movement in &self.stages[idx].protected_movements {
@@ -97,7 +92,7 @@ impl ControlTrafficSignal {
         Duration::seconds(time.inner_seconds().ceil())
     }
 
-    pub fn validate(self) -> Result<ControlTrafficSignal, String> {
+    pub(crate) fn validate(&self) -> Result<(), String> {
         // Does the assignment cover the correct set of movements?
         let expected_movements: BTreeSet<MovementID> = self.movements.keys().cloned().collect();
         let mut actual_movements: BTreeSet<MovementID> = BTreeSet::new();
@@ -119,6 +114,7 @@ impl ControlTrafficSignal {
                     .collect::<Vec<_>>()
             ));
         }
+
         for stage in &self.stages {
             // Do any of the priority movements in one stage conflict?
             for m1 in stage.protected_movements.iter().map(|m| &self.movements[m]) {
@@ -358,7 +354,7 @@ impl ControlTrafficSignal {
         }
     }
 
-    pub fn import(
+    pub(crate) fn import(
         raw: seattle_traffic_signals::TrafficSignal,
         id: IntersectionID,
         map: &Map,
@@ -398,13 +394,14 @@ impl ControlTrafficSignal {
                 ));
             }
         }
-        ControlTrafficSignal {
+        let ts = ControlTrafficSignal {
             id,
             stages,
             offset: Duration::seconds(raw.offset_seconds as f64),
             movements: Movement::for_i(id, map).unwrap(),
-        }
-        .validate()
+        };
+        ts.validate()?;
+        Ok(ts)
     }
 }
 
