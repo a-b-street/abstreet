@@ -89,6 +89,9 @@ impl WidgetImpl for Spinner {
             } else if self.high < self.current {
                 self.current = self.high;
             }
+            if self.high < self.current {
+                self.current = self.high;
+            }
             ctx.no_op_event(true, |ctx| self.up.event(ctx, output));
             return;
         }
