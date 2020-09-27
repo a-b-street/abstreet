@@ -297,6 +297,10 @@ impl RawRoad {
     pub fn is_footway(&self) -> bool {
         self.osm_tags.is(osm::HIGHWAY, "pedestrian")
     }
+
+    pub fn is_service(&self) -> bool {
+        self.osm_tags.is(osm::HIGHWAY, "service")
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

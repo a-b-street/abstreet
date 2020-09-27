@@ -33,7 +33,7 @@ pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
 
     let mut road_edges: HashMap<(OriginalRoad, Direction), PolyLine> = HashMap::new();
     for (id, r) in &map.roads {
-        if r.is_light_rail() || r.is_footway() {
+        if r.is_light_rail() || r.is_footway() || r.is_service() {
             continue;
         }
         let (pl, total_width) = r.get_geometry(*id, map.config.driving_side);

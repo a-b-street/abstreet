@@ -598,3 +598,11 @@ changes here.
 - show how long a car has been parked in one spot
 - bugfix for some pathfinding costs around uber-turns
 - start to show a trip's purpose
+
+0.2.13
+
+- alleyways from OSM imported
+- traffic signal minimum time now constrained by crosswalks; thanks Sam!
+- UI changes in progress for trip tables, summaries, bulk edit
+- more API / Python example work for congestion capping
+- bug fixes: isometric buildings, documentation links, dropdown widgets, turn restrictions

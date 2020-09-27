@@ -290,8 +290,10 @@ pub fn open_browser(url: String) {
 
 pub fn loading_tips() -> Text {
     Text::from_multiline(vec![
-        Line("Recent changes (September 20)"),
+        Line("Recent changes (September 27)"),
         Line(""),
+        Line("- Alleyways are now included in the map"),
+        Line("- Check out the trip tables and summary changes (press 'q')"),
         Line("- Try out the new traffic signal editor!"),
         Line("- The \"traffic signal demand\" layer shows all intersections through the whole day"),
         Line("- New 3D buildings and textured color schemes in settings"),
