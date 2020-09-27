@@ -9,6 +9,10 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 // Attempt to snap separately mapped cycleways to main roads. Emit extra KML files to debug later.
 pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
+    if map.city_name == "oneshot" {
+        return;
+    }
+
     // TODO Hack! Fix upstream problems.
     if map.name == "xian" {
         return;
