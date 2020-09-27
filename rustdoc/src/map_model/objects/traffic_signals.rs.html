@@ -436,26 +436,7 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
-
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>};
-
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">traffic_signals</span>::{<span class="ident">brute_force</span>, <span class="ident">get_possible_policies</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">traffic_signals</span>::<span class="ident">PhaseType</span>::{<span class="ident">Adaptive</span>, <span class="ident">Fixed</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
@@ -463,6 +444,11 @@
     <span class="ident">osm</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>,
     <span class="ident">MovementID</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
 };
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>};
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 
 <span class="comment">// The pace to use for crosswalk pace in m/s</span>
 <span class="comment">// https://en.wikipedia.org/wiki/Preferred_walking_speed</span>
@@ -528,6 +514,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brute_force</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) {
         <span class="ident">brute_force</span>(<span class="ident">map</span>, <span class="ident">id</span>)
     }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_min_crossing_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.0</span>);
         <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">protected_movements</span> {
@@ -586,15 +573,6 @@
             <span class="comment">// Is there enough time in each stage to walk across the crosswalk</span>
             <span class="kw">let</span> <span class="ident">min_crossing_time</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_min_crossing_time</span>(<span class="ident">stage_index</span>);
             <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>() <span class="op">&lt;</span> <span class="ident">min_crossing_time</span> {
-                <span class="comment">// Warn/Error does not seem to be imported?</span>
-                <span class="macro">println</span><span class="macro">!</span>(
-                    <span class="string">&quot;Traffic signal does not allow enough time in stage to complete the \
-                     crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}&quot;</span>,
-                    <span class="ident">stage_index</span>,
-                    <span class="ident">stage</span>,
-                    <span class="ident">min_crossing_time</span>,
-                    <span class="ident">stage</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>()
-                );
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;Traffic signal does not allow enough time in stage to complete the \
                      crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}&quot;</span>,
@@ -751,7 +729,7 @@
         }
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enforce_minimum_crosswalk_time</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">movement</span>: <span class="kw-2">&amp;</span><span class="ident">Movement</span>) {
-        <span class="comment">//Round up to an int, because it is exported as a usize</span>
+        <span class="comment">// Round up to an int, because it is exported as a usize</span>
         <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(
             (<span class="ident">movement</span>.<span class="ident">geom</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">CROSSWALK_PACE</span>)
                 .<span class="ident">inner_seconds</span>()

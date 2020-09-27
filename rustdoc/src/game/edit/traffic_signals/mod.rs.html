@@ -892,21 +892,11 @@
 <span id="892">892</span>
 <span id="893">893</span>
 <span id="894">894</span>
-<span id="895">895</span>
-<span id="896">896</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
-
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">MovementID</span>, <span class="ident">PhaseType</span>, <span class="ident">Stage</span>,
-    <span class="ident">TurnPriority</span>,
-};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">MultiButton</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
-};
+<span class="kw">mod</span> <span class="ident">edits</span>;
+<span class="kw">mod</span> <span class="ident">offsets</span>;
+<span class="kw">mod</span> <span class="ident">picker</span>;
+<span class="kw">mod</span> <span class="ident">preview</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">CommonState</span>, <span class="ident">Warping</span>};
@@ -915,11 +905,17 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">TrafficSignalStyle</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">traffic_signal</span>, <span class="ident">DrawMovement</span>, <span class="ident">DrawOptions</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>;
-
-<span class="kw">mod</span> <span class="ident">edits</span>;
-<span class="kw">mod</span> <span class="ident">offsets</span>;
-<span class="kw">mod</span> <span class="ident">picker</span>;
-<span class="kw">mod</span> <span class="ident">preview</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{
+    <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">MovementID</span>, <span class="ident">PhaseType</span>, <span class="ident">Stage</span>,
+    <span class="ident">TurnPriority</span>,
+};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">MultiButton</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+};
 
 <span class="comment">// Welcome to one of the most overwhelmingly complicated parts of the UI...</span>
 

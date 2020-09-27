@@ -130,26 +130,12 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">text</span>, <span class="ident">Btn</span>, <span class="ident">Button</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
     <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="comment">// TODO MAX_CHAR_WIDTH is a hardcoded nonsense value</span>
 <span class="kw">const</span> <span class="ident">TEXT_WIDTH</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">text</span>::<span class="ident">MAX_CHAR_WIDTH</span>;
@@ -230,14 +216,7 @@
         <span class="self">self</span>.<span class="ident">up</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">output</span>.<span class="ident">outcome</span> {
             <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Changed</span>;
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">high</span> {
-                <span class="self">self</span>.<span class="ident">current</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">high</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">current</span> {
-                <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">high</span>;
-            }
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">high</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">current</span> {
-                <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">high</span>;
-            }
+            <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">current</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">min</span>(<span class="self">self</span>.<span class="ident">high</span>);
             <span class="ident">ctx</span>.<span class="ident">no_op_event</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">up</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>));
             <span class="kw">return</span>;
         }
@@ -245,12 +224,7 @@
         <span class="self">self</span>.<span class="ident">down</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">output</span>.<span class="ident">outcome</span> {
             <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Changed</span>;
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">low</span> {
-                <span class="self">self</span>.<span class="ident">current</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-            }
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">low</span> {
-                <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">low</span>;
-            }
+            <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">current</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">max</span>(<span class="self">self</span>.<span class="ident">low</span>);
             <span class="ident">ctx</span>.<span class="ident">no_op_event</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">down</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>));
             <span class="kw">return</span>;
         }
