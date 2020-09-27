@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["PhaseType",""]],"fn":[["export_movement",""],["find_r",""],["import_movement",""]],"struct":[["ControlTrafficSignal",""],["Stage",""]]});
+initSidebarItems({"constant":[["CROSSWALK_PACE",""]],"enum":[["PhaseType",""]],"fn":[["export_movement",""],["find_r",""],["import_movement",""]],"struct":[["ControlTrafficSignal",""],["Stage",""]]});
