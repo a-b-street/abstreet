@@ -1,12 +1,10 @@
-use std::collections::HashSet;
-
-use abstutil::Timer;
-use geom::Duration;
-
 use crate::{
     ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Movement, MovementID,
     PhaseType, RoadID, Stage, TurnPriority, TurnType,
 };
+use abstutil::Timer;
+use geom::Duration;
+use std::collections::HashSet;
 
 pub fn get_possible_policies(
     map: &Map,
@@ -63,7 +61,6 @@ pub fn get_possible_policies(
         all_walk_all_yield(map, id),
     ));
 
-    // TODO Automatically fix things like minimum crosswalk time
     // Make sure all possible policies have a minimum crosswalk time enforced
     for (_, signal) in &mut results {
         for stage in &mut signal.stages {
@@ -78,6 +75,7 @@ pub fn get_possible_policies(
             }
         }
     }
+
     results.retain(|pair| pair.1.validate().is_ok());
     results
 }

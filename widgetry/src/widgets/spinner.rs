@@ -1,9 +1,8 @@
-use geom::{Polygon, Pt2D};
-
 use crate::{
     text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
     ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
+use geom::{Polygon, Pt2D};
 
 // TODO MAX_CHAR_WIDTH is a hardcoded nonsense value
 const TEXT_WIDTH: f64 = 2.0 * text::MAX_CHAR_WIDTH;
@@ -84,14 +83,7 @@ impl WidgetImpl for Spinner {
         self.up.event(ctx, output);
         if let Outcome::Clicked(_) = output.outcome {
             output.outcome = Outcome::Changed;
-            if self.current < self.high {
-                self.current += 1;
-            } else if self.high < self.current {
-                self.current = self.high;
-            }
-            if self.high < self.current {
-                self.current = self.high;
-            }
+            self.current = (self.current + 1).min(self.high);
             ctx.no_op_event(true, |ctx| self.up.event(ctx, output));
             return;
         }
@@ -99,12 +91,7 @@ impl WidgetImpl for Spinner {
         self.down.event(ctx, output);
         if let Outcome::Clicked(_) = output.outcome {
             output.outcome = Outcome::Changed;
-            if self.current != self.low {
-                self.current -= 1;
-            }
-            if self.current < self.low {
-                self.current = self.low;
-            }
+            self.current = (self.current - 1).max(self.low);
             ctx.no_op_event(true, |ctx| self.down.event(ctx, output));
             return;
         }

@@ -1,11 +1,3 @@
-use std::collections::{BTreeMap, BTreeSet};
-use std::convert::TryFrom;
-
-use serde::{Deserialize, Serialize};
-
-use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
-use geom::{Distance, Duration, Speed};
-
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
 use crate::objects::traffic_signals::PhaseType::{Adaptive, Fixed};
 use crate::raw::OriginalRoad;
@@ -13,6 +5,11 @@ use crate::{
     osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
     MovementID, TurnID, TurnPriority, TurnType,
 };
+use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
+use geom::{Distance, Duration, Speed};
+use serde::{Deserialize, Serialize};
+use std::collections::{BTreeMap, BTreeSet};
+use std::convert::TryFrom;
 
 // The pace to use for crosswalk pace in m/s
 // https://en.wikipedia.org/wiki/Preferred_walking_speed
@@ -78,6 +75,7 @@ impl ControlTrafficSignal {
     pub fn brute_force(map: &Map, id: IntersectionID) {
         brute_force(map, id)
     }
+
     pub fn get_min_crossing_time(&self, idx: usize) -> Duration {
         let mut max_distance = Distance::meters(0.0);
         for movement in &self.stages[idx].protected_movements {
@@ -136,15 +134,6 @@ impl ControlTrafficSignal {
             // Is there enough time in each stage to walk across the crosswalk
             let min_crossing_time = self.get_min_crossing_time(stage_index);
             if stage.phase_type.simple_duration() < min_crossing_time {
-                // Warn/Error does not seem to be imported?
-                println!(
-                    "Traffic signal does not allow enough time in stage to complete the \
-                     crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}",
-                    stage_index,
-                    stage,
-                    min_crossing_time,
-                    stage.phase_type.simple_duration()
-                );
                 return Err(format!(
                     "Traffic signal does not allow enough time in stage to complete the \
                      crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}",
@@ -301,7 +290,7 @@ impl Stage {
         }
     }
     pub fn enforce_minimum_crosswalk_time(&mut self, movement: &Movement) {
-        //Round up to an int, because it is exported as a usize
+        // Round up to an int, because it is exported as a usize
         let time = Duration::seconds(
             (movement.geom.length() / CROSSWALK_PACE)
                 .inner_seconds()
