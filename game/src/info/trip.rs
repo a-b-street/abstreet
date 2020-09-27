@@ -119,6 +119,25 @@ pub fn ongoing(
             Line(trip.purpose.to_string()).secondary().draw(ctx),
         ]));
     }
+    {
+        let data_opt = &app.primary.sim.get_analytics().trip_intersection_delays(id);
+        if data_opt.is_some() {
+            let data = data_opt.unwrap();
+            let mut msg = String::new();
+            for (intersection, time) in data {
+                msg.push_str(&format!(
+                    "ID: {},    Delay: {}",
+                    intersection.0.to_string(),
+                    time.inner_seconds().to_string(),
+                ));
+            }
+            col.push(Widget::custom_row(vec![
+                Widget::custom_row(vec![Line("Delays").secondary().draw(ctx)])
+                    .force_width_pct(ctx, col_width),
+                Line(msg).secondary().draw(ctx),
+            ]));
+        }
+    }
 
     col.push(make_timeline(
         ctx,
@@ -317,6 +336,25 @@ pub fn finished(
                 .force_width_pct(ctx, col_width),
             Line(trip.purpose.to_string()).secondary().draw(ctx),
         ]));
+        {
+            let data_opt = &app.primary.sim.get_analytics().trip_intersection_delays(id);
+            if data_opt.is_some() {
+                let data = data_opt.unwrap();
+                let mut msg = String::new();
+                for (intersection, time) in data {
+                    msg.push_str(&format!(
+                        "ID: {},    Delay: {}",
+                        intersection.0.to_string(),
+                        time.inner_seconds().to_string(),
+                    ));
+                }
+                col.push(Widget::custom_row(vec![
+                    Widget::custom_row(vec![Line("Delays").secondary().draw(ctx)])
+                        .force_width_pct(ctx, col_width),
+                    Line(msg).secondary().draw(ctx),
+                ]));
+            }
+        }
     }
 
     col.push(make_timeline(
@@ -595,7 +633,7 @@ fn make_timeline(
                 }
             }
             if let Some((ref unzoomed, ref zoomed)) = open_trip.cached_routes[idx] {
-                details.unzoomed.push(color, unzoomed.clone());
+                details.unzoomed.push(Color::WHITE, unzoomed.clone());
                 details.zoomed.extend(color, zoomed.clone());
             }
         } else if p.has_path_req {

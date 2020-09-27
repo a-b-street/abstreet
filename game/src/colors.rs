@@ -1,6 +1,7 @@
+use widgetry::{Choice, Color, Fill, Style, Texture};
+
 use crate::common::ColorScale;
 use crate::helpers::loading_tips;
-use widgetry::{Choice, Color, Fill, Style, Texture};
 
 // I've gone back and forth how to organize color scheme code. I was previously against having one
 // centralized place with all definitions, because careful naming or comments are needed to explain
@@ -99,6 +100,12 @@ pub struct ColorScheme {
     pub unzoomed_bike: Color,
     pub unzoomed_bus: Color,
     pub unzoomed_pedestrian: Color,
+
+    // Unzoomed dynamic time elements
+    pub unzoomed_car_very_slow: Color,
+    pub unzoomed_car_slow: Color,
+    pub unzoomed_car_normal: Color,
+    pub unzoomed_car_fast: Color,
 
     // Agents
     agent_colors: Vec<Color>,
@@ -203,6 +210,12 @@ impl ColorScheme {
             unzoomed_bike: hex("#5D9630"),
             unzoomed_bus: hex("#12409D"),
             unzoomed_pedestrian: hex("#DF8C3D"),
+
+            // Unzoomed dynamic time elements
+            unzoomed_car_very_slow: hex("#2d0906"),
+            unzoomed_car_slow: hex("#71170f"),
+            unzoomed_car_normal: hex("#A32015"),
+            unzoomed_car_fast: hex("#e8584a"),
 
             // Agents
             agent_colors: vec![

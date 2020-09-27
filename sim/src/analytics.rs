@@ -1,12 +1,15 @@
-use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
+use std::collections::{BTreeMap, VecDeque};
+
+use serde::{Deserialize, Serialize};
+
 use abstutil::Counter;
 use geom::{Distance, Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
     ParkingLotID, Path, PathRequest, RoadID, Traversable,
 };
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, VecDeque};
+
+use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Analytics {
@@ -30,6 +33,7 @@ pub struct Analytics {
     // TODO Hack: No TripMode means aborted
     // Finish time, ID, mode (or None as aborted), trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
+    pub trip_intersection_delays: BTreeMap<TripID, Vec<(IntersectionID, Duration)>>,
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
 
@@ -61,6 +65,7 @@ impl Analytics {
             passengers_alighting: BTreeMap::new(),
             started_trips: BTreeMap::new(),
             finished_trips: Vec::new(),
+            trip_intersection_delays: BTreeMap::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
             parking_lane_changes: BTreeMap::new(),
@@ -167,6 +172,14 @@ impl Analytics {
             self.finished_trips.push((time, id, None, Duration::ZERO));
         }
 
+        // Trip Intersection delay
+        if let Event::TripIntersectionDelay(trip_id, intersection_id, delay) = ev {
+            self.trip_intersection_delays
+                .entry(trip_id)
+                .or_insert_with(Vec::new)
+                .push((intersection_id, delay));
+        }
+
         // Intersection delays
         if let Event::IntersectionDelayMeasured(id, delay, agent) = ev {
             self.intersection_delays
@@ -237,6 +250,13 @@ impl Analytics {
 
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
+
+    pub fn trip_intersection_delays(
+        &self,
+        trip: TripID,
+    ) -> Option<&Vec<(IntersectionID, Duration)>> {
+        self.trip_intersection_delays.get(&trip)
+    }
 
     // Ignores the current time. Returns None for aborted trips.
     pub fn finished_trip_time(&self, trip: TripID) -> Option<Duration> {
