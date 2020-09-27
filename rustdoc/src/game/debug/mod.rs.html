@@ -750,6 +750,10 @@
 <span id="750">750</span>
 <span id="751">751</span>
 <span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">floodfill</span>;
 <span class="kw">mod</span> <span class="ident">objects</span>;
@@ -1046,10 +1050,14 @@
                         ) {
                             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">PURPLE</span>, <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>));
                         } <span class="kw">else</span> {
-                            <span class="macro">panic</span><span class="macro">!</span>(
-                                <span class="string">&quot;{} is accepted at or blocked by by {:?}, but no longer exists&quot;</span>,
-                                <span class="ident">a</span>, <span class="ident">id</span>
-                            );
+                            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="string">&quot;Wat&quot;</span>,
+                                <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
+                                    <span class="string">&quot;{} is accepted at or blocked by by {:?}, but no longer exists&quot;</span>,
+                                    <span class="ident">a</span>, <span class="ident">id</span>
+                                )],
+                            ));
                         }
                     }
                     <span class="self">self</span>.<span class="ident">highlighted_agents</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)));

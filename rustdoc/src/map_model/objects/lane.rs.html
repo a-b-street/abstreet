@@ -273,6 +273,21 @@
 <span id="273">273</span>
 <span id="274">274</span>
 <span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnType</span>,
@@ -508,7 +523,7 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
-        <span class="kw">let</span> (<span class="ident">dir</span>, <span class="ident">offset</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">dir_and_offset</span>(<span class="self">self</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">dir</span>(<span class="self">self</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">all</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">ENDPT_FWD</span>) {
             <span class="ident">road</span>.<span class="ident">osm_tags</span>
                 .<span class="ident">get</span>(<span class="string">&quot;turn:lanes:forward&quot;</span>)
@@ -519,10 +534,25 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         };
         <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">all</span>.<span class="ident">split</span>(<span class="string">&#39;|&#39;</span>).<span class="ident">collect</span>();
-        <span class="comment">// TODO Verify the number of lanes matches up</span>
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">get</span>(<span class="ident">offset</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Verify the number of parts matches the road&#39;s lanes</span>
+        <span class="kw">let</span> <span class="ident">lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">road</span>
+            .<span class="ident">children</span>(<span class="ident">dir</span>)
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span>)
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">id</span>)
+            .<span class="ident">collect</span>();
+        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">lanes</span>.<span class="ident">len</span>() {
+            <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;{}&#39;s turn restrictions don&#39;t match the lanes&quot;</span>, <span class="ident">road</span>.<span class="ident">orig_id</span>);
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        }
+        <span class="comment">// TODO More warnings if this fails</span>
+        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span>)<span class="question-mark">?</span>];
         <span class="comment">// TODO Probably the target lane should get marked as LaneType::Bus</span>
-        <span class="kw">if</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">&quot;no&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">&quot;none&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">&quot;yes&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">&quot;psv&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">&quot;bus&quot;</span> {
+        <span class="kw">if</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;no&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;none&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;yes&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;psv&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;bus&quot;</span> {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        }
+        <span class="comment">// Empty means no restrictions</span>
+        <span class="kw">if</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;&quot;</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="prelude-val">Some</span>(<span class="ident">part</span>.<span class="ident">split</span>(<span class="string">&#39;;&#39;</span>).<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">s</span> {
