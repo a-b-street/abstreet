@@ -1,3 +1,6 @@
+// Pathfinding for pedestrians using contraction hierarchies, as well as figuring out if somebody
+// should use public transit.
+
 use crate::pathfind::driving::VehiclePathfinder;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::{

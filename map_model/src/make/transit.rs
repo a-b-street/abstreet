@@ -1,3 +1,6 @@
+// Construct the final model of bus/train stops and routes. This is quite broken currently, so not
+// going to describe how it works.
+
 use crate::make::match_points_to_lanes;
 use crate::raw::{RawBusRoute, RawBusStop};
 use crate::{

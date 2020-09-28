@@ -1,3 +1,7 @@
+// Once a Map exists, the player can edit it in the UI (producing MapEdits in-memory), then save
+// the changes to a file (as PermanentMapEdits). See
+// https://dabreegster.github.io/abstreet/map/edits.html.
+
 mod compat;
 mod perma;
 
@@ -13,9 +17,12 @@ pub use perma::PermanentMapEdits;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
+// Represents changes to a map. Note this isn't serializable -- that's what PermanentMapEdits does.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MapEdits {
     pub edits_name: String,
+    // A stack, oldest edit is first. The same intersection may be edited multiple times in this
+    // stack, until compress() happens.
     pub commands: Vec<EditCmd>,
 
     // Derived from commands, kept up to date by update_derived
@@ -23,9 +30,9 @@ pub struct MapEdits {
     pub original_intersections: BTreeMap<IntersectionID, EditIntersection>,
     pub changed_routes: BTreeSet<BusRouteID>,
 
-    // Edits without these are player generated.
+    // Some edits are included in the game by default, in data/system/proposals, as "community
+    // proposals." They require a description and may have a link to a write-up.
     pub proposal_description: Vec<String>,
-    // The link is optional even for proposals
     pub proposal_link: Option<String>,
 }
 
@@ -134,6 +141,7 @@ impl MapEdits {
         match abstutil::maybe_read_json(path.clone(), timer) {
             Ok(perma) => PermanentMapEdits::from_permanent(perma, map),
             Err(_) => {
+                // The JSON format may have changed, so attempt backwards compatibility.
                 let bytes = abstutil::slurp_file(&path).map_err(|err| err.to_string())?;
                 let contents = std::str::from_utf8(&bytes).map_err(|err| err.to_string())?;
                 let value = serde_json::from_str(contents).map_err(|err| err.to_string())?;
@@ -143,7 +151,6 @@ impl MapEdits {
         }
     }
 
-    // TODO Version these? Or it's unnecessary, since we have a command stack.
     fn save(&self, map: &Map) {
         // If untitled and empty, don't actually save anything.
         if self.edits_name.starts_with("Untitled Proposal") && self.commands.is_empty() {
@@ -597,7 +604,6 @@ impl Map {
         self.edits = new_edits;
         self.pathfinder_dirty = true;
         (
-            // TODO We just care about contraflow roads here
             effects.changed_roads,
             effects.deleted_turns,
             // Some of these might've been added, then later deleted.
@@ -610,6 +616,8 @@ impl Map {
         )
     }
 
+    // This can expensive, so don't constantly do it while editing in the UI. But this must happen
+    // before the simulation resumes.
     pub fn recalculate_pathfinding_after_edits(&mut self, timer: &mut Timer) {
         if !self.pathfinder_dirty {
             return;

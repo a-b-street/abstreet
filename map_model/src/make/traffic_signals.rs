@@ -1,3 +1,6 @@
+// Heuristically generate a ControlTrafficSignal just based on the roads leading to each traffic
+// isignal.
+
 use crate::{
     ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Movement, MovementID,
     PhaseType, RoadID, Stage, TurnPriority, TurnType,
@@ -6,6 +9,8 @@ use abstutil::Timer;
 use geom::Duration;
 use std::collections::HashSet;
 
+// Applies a bunch of heuristics to a single intersection, returning the valid results in
+// best-first order.
 pub fn get_possible_policies(
     map: &Map,
     id: IntersectionID,
@@ -441,6 +446,7 @@ fn make_stages(
     }
 }
 
+// Temporary experiment to group all movements into the smallest number of stages.
 pub fn brute_force(map: &Map, i: IntersectionID) {
     let movements: Vec<Movement> = Movement::for_i(i, map)
         .unwrap()
@@ -513,6 +519,11 @@ fn helper(items: &[usize], max_size: usize) -> Vec<Partition> {
     results
 }
 
+// Simple second-pass after generating all signals. Find pairs of traffic signals very close to
+// each other with 2 stages each, see if the primary movement of the first stages lead to each
+// other, and flip the order of stages if not. This is often wrong when the most common movement is
+// actually turning left then going straight (near Mercer for example), but not sure how we could
+// know that without demand data.
 pub fn synchronize(map: &mut Map) {
     let mut seen = HashSet::new();
     let mut pairs = Vec::new();

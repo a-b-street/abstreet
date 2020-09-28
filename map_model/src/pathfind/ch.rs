@@ -1,3 +1,6 @@
+// Uses https://github.com/easbar/fast_paths. Slower creation during map importing, but very fast
+// queries.
+
 use crate::pathfind::driving::VehiclePathfinder;
 use crate::pathfind::walking::{
     one_step_walking_path, walking_path_to_steps, SidewalkPathfinder, WalkingNode,

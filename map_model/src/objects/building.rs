@@ -1,3 +1,6 @@
+// A building has connections to the road and sidewalk, may contain commercial amenities, and have
+// off-street parking.
+
 use crate::{osm, LaneID, Map, PathConstraints, Position};
 use abstutil::{
     deserialize_btreemap, deserialize_usize, serialize_btreemap, serialize_usize, Tags,

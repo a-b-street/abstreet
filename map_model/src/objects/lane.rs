@@ -1,3 +1,5 @@
+// A road segment is broken down into individual lanes, which have a LaneType.
+
 use crate::{
     osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, Road, RoadID, TurnType,
 };
@@ -33,6 +35,8 @@ pub enum LaneType {
     Driving,
     Parking,
     Sidewalk,
+    // Walkable like a Sidewalk, but very narrow. Used to model pedestrians walking on roads
+    // without sidewalks.
     Shoulder,
     Biking,
     Bus,

@@ -1,3 +1,5 @@
+// Finalize importing of buildings, mostly by matching them to the nearest sidewalk.
+
 use crate::make::match_points_to_lanes;
 use crate::raw::RawBuilding;
 use crate::{

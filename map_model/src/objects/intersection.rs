@@ -1,3 +1,5 @@
+// Intersection between some roads
+
 use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};

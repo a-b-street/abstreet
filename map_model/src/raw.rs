@@ -1,3 +1,7 @@
+// The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate
+// structure is useful to iterate quickly on parts of the map importing pipeline without having to
+// constantly read .osm files, and to visualize the intermediate state with map_editor.
+
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
     osm, AreaType, Direction, DrivingSide, IntersectionType, LaneType, MapConfig, NamePerLanguage,

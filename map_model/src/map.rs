@@ -1,3 +1,5 @@
+// A bunch of (mostly read-only) queries on a Map.
+
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     osm, Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,

@@ -1,3 +1,7 @@
+// Take in parking lots from OSM and all parking aisle roads. Match parking lots to the nearest
+// sidewalk + driving lane, then automatically generate individual parking spots perpendicular to
+// the aisles.
+
 use crate::make::match_points_to_lanes;
 use crate::raw::RawParkingLot;
 use crate::{

@@ -1,3 +1,9 @@
+// A Turn leads from the end of one Lane to the start of another. (Except for pedestrians;
+// sidewalks are bidirectional.)
+//
+// A Movement groups all turns from one road to another, letting traffic signals operate at a
+// higher level of abstraction.
+
 use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};

@@ -1,3 +1,5 @@
+// A Road represents a segment between exactly two Intersections. It contains Lanes as children.
+
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{
     osm, AccessRestrictions, BusStopID, IntersectionID, Lane, LaneID, LaneType, Map,

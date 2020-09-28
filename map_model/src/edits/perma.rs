@@ -6,8 +6,9 @@ use geom::Time;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
-// These use permanent IDs that have a better chance of surviving basemap updates over time.
-
+// MapEdits are converted to this before serializing. Referencing things like LaneID in a Map won't
+// work if the basemap is rebuilt from new OSM data, so instead we use stabler OSM IDs that're less
+// likely to change.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PermanentMapEdits {
     pub map_name: String,
@@ -90,6 +91,10 @@ impl PermanentMapEdits {
         }
     }
 
+    // Load edits from the permanent form, looking up the Map IDs by the hopefully stabler OSM IDs.
+    // Validate that the basemap hasn't changed in important ways.
+    // TODO When a change has happened, try to preserve as much of the original edits as possible,
+    // and warn the player about the rest?
     pub fn from_permanent(perma: PermanentMapEdits, map: &Map) -> Result<MapEdits, String> {
         let mut edits = MapEdits {
             edits_name: perma.edits_name,
@@ -102,6 +107,8 @@ impl PermanentMapEdits {
                     PermanentEditCmd::ChangeRoad { r, new, old } => {
                         let id = map.find_r_by_osm_id(r)?;
                         let num_current = map.get_r(id).lanes_ltr().len();
+                        // The basemap changed -- it'd be pretty hard to understand the original
+                        // intent of the edit.
                         if num_current != new.lanes_ltr.len() {
                             return Err(format!(
                                 "number of lanes in {} is {} now, but {} in the edits",

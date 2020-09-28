@@ -1,3 +1,6 @@
+// To deal with complicated intersections and short roads in OSM, cluster intersections close
+// together and then calculate UberTurns that string together several turns.
+
 use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map, TurnID};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};

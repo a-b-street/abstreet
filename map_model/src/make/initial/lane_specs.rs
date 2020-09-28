@@ -1,3 +1,5 @@
+// Purely from OSM tags, determine the lanes that a road segment has.
+
 use crate::{
     osm, Direction, DrivingSide, LaneType, NORMAL_LANE_THICKNESS, SERVICE_ROAD_LANE_THICKNESS,
     SHOULDER_THICKNESS, SIDEWALK_THICKNESS,

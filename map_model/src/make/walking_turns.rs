@@ -6,6 +6,7 @@ use abstutil::{wraparound_get, Timer};
 use geom::{Distance, Line, PolyLine, Pt2D, Ring};
 use std::collections::BTreeSet;
 
+// Generate Crosswalk and SharedSidewalkCorner (places where two sidewalks directly meet) turns
 pub fn make_walking_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
     let driving_side = map.config.driving_side;
     let all_roads = map.all_roads();
