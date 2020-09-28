@@ -1,5 +1,5 @@
 // Heuristically generate a ControlTrafficSignal just based on the roads leading to each traffic
-// isignal.
+// signal.
 
 use crate::{
     ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Movement, MovementID,

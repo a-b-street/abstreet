@@ -1,5 +1,5 @@
 // A traffic signal consists of a sequence of Stages that repeat in a cycle. Most Stages last for a
-// fixed duration. During a singe Stage, some movements are protected (can proceed with the highest
+// fixed duration. During a single Stage, some movements are protected (can proceed with the highest
 // priority), while others are permitted (have to yield before proceeding).
 
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
