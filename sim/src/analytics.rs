@@ -34,6 +34,7 @@ pub struct Analytics {
     // Finish time, ID, mode (or None as aborted), trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
     pub trip_intersection_delays: BTreeMap<TripID, Vec<(IntersectionID, Duration)>>,
+    pub lane_speed_percentage: BTreeMap<TripID, Vec<(LaneID, f64)>>,
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
 
@@ -66,6 +67,7 @@ impl Analytics {
             started_trips: BTreeMap::new(),
             finished_trips: Vec::new(),
             trip_intersection_delays: BTreeMap::new(),
+            lane_speed_percentage: BTreeMap::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
             parking_lane_changes: BTreeMap::new(),
@@ -179,6 +181,13 @@ impl Analytics {
                 .or_insert_with(Vec::new)
                 .push((intersection_id, delay));
         }
+        //Lane Speed
+        if let Event::LaneSpeedPercentage(trip_id, lane_id, speed_percent) = ev {
+            self.lane_speed_percentage
+                .entry(trip_id)
+                .or_insert_with(Vec::new)
+                .push((lane_id, speed_percent));
+        }
 
         // Intersection delays
         if let Event::IntersectionDelayMeasured(id, delay, agent) = ev {
@@ -256,6 +265,9 @@ impl Analytics {
         trip: TripID,
     ) -> Option<&Vec<(IntersectionID, Duration)>> {
         self.trip_intersection_delays.get(&trip)
+    }
+    pub fn trip_lane_speeds(&self, trip: TripID) -> Option<&Vec<(LaneID, f64)>> {
+        self.lane_speed_percentage.get(&trip)
     }
 
     // Ignores the current time. Returns None for aborted trips.

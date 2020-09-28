@@ -55,6 +55,7 @@ pub enum Event {
     TripAborted(TripID),
     TripPhaseStarting(TripID, PersonID, Option<PathRequest>, TripPhaseType),
     TripIntersectionDelay(TripID, IntersectionID, Duration),
+    LaneSpeedPercentage(TripID, LaneID, f64),
     // Just use for parking replanning. Not happy about copying the full path in here, but the way
     // to plumb info into Analytics is Event.
     PathAmended(Path),

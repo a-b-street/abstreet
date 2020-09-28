@@ -1,18 +1,21 @@
-mod analytics;
-mod cap;
-mod events;
-mod make;
-mod mechanics;
-mod pandemic;
-mod render;
-mod router;
-mod scheduler;
-mod sim;
-mod transit;
-mod trips;
-
 #[macro_use]
 extern crate log;
+
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_usize, serialize_usize};
+use geom::{Distance, Pt2D, Speed, Time};
+use map_model::{
+    BuildingID, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID,
+    Path, PathConstraints, PathRequest, Position,
+};
+
+pub use crate::render::{
+    CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents,
+    PedCrowdLocation, UnzoomedAgent,
+};
 
 pub use self::analytics::{Analytics, TripPhase};
 pub(crate) use self::cap::CapSimState;
@@ -34,18 +37,19 @@ pub(crate) use self::transit::TransitSimState;
 pub use self::trips::{Person, PersonState, TripInfo, TripResult};
 pub use self::trips::{TripEndpoint, TripMode};
 pub(crate) use self::trips::{TripLeg, TripManager};
-pub use crate::render::{
-    CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents,
-    PedCrowdLocation, UnzoomedAgent,
-};
-use abstutil::{deserialize_usize, serialize_usize};
-use geom::{Distance, Pt2D, Speed, Time};
-use map_model::{
-    BuildingID, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID,
-    Path, PathConstraints, PathRequest, Position,
-};
-use serde::{Deserialize, Serialize};
-use std::fmt;
+
+mod analytics;
+mod cap;
+mod events;
+mod make;
+mod mechanics;
+mod pandemic;
+mod render;
+mod router;
+mod scheduler;
+mod sim;
+mod transit;
+mod trips;
 
 // http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
 pub const BIKE_LENGTH: Distance = Distance::const_meters(1.8);
@@ -518,7 +522,7 @@ impl SidewalkSpot {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
 pub struct TimeInterval {
     // TODO Private fields
     pub start: Time,
@@ -551,7 +555,7 @@ impl TimeInterval {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
 pub struct DistanceInterval {
     // TODO Private fields
     pub start: Distance,

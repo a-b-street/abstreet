@@ -84,6 +84,10 @@ pub struct ColorScheme {
     pub signal_spinner: Color,
     pub signal_turn_block_bg: Color,
 
+    pub very_slow_intersection: Color,
+    pub slow_intersection: Color,
+    pub normal_slow_intersection: Color,
+
     // Other static elements
     pub void_background: Color,
     pub map_background: Fill,
@@ -195,6 +199,9 @@ impl ColorScheme {
             signal_turn_block_bg: Color::grey(0.6),
 
             // Other static elements
+            very_slow_intersection: Color::RED,
+            slow_intersection: Color::YELLOW,
+            normal_slow_intersection: Color::GREEN,
             void_background: Color::BLACK,
             map_background: Color::grey(0.87).into(),
             unzoomed_interesting_intersection: Color::BLACK,

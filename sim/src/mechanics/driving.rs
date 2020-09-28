@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Distance, Duration, PolyLine, Time};
+use geom::{Distance, Duration, PolyLine, Speed, Time};
 use map_model::{LaneID, Map, Path, PathStep, Traversable};
 
 use crate::mechanics::car::{Car, CarState};
@@ -246,7 +246,19 @@ impl DrivingSimState {
         transit: &mut TransitSimState,
     ) -> bool {
         match car.state {
-            CarState::Crossing(_, _) => {
+            CarState::Crossing(time_int, dist_int) => {
+                let time_cross = now - time_int.start;
+                let avg_speed = Speed::from_dist_time(dist_int.length(), time_cross);
+                let route = car.router.head();
+                let max_speed = route.speed_limit(ctx.map);
+                let speed_percent = avg_speed / max_speed;
+                if let Some((trip, _)) = car.trip_and_person {
+                    if let Traversable::Lane(lane) = route {
+                        self.events
+                            .push(Event::LaneSpeedPercentage(trip, lane, speed_percent));
+                    }
+                }
+
                 car.state = CarState::Queued { blocked_since: now };
                 if car.router.last_step() {
                     // Immediately run update_car_with_distances.
@@ -355,12 +367,13 @@ impl DrivingSimState {
                         // Don't schedule a retry here.
                         return false;
                     }
-                    self.events.push(Event::TripIntersectionDelay(
-                        // TODO Change the unwrap
-                        car.trip_and_person.unwrap().0,
-                        t.parent,
-                        Duration::seconds(blocked_since.inner_seconds()),
-                    ));
+                    if let Some((trip, _)) = car.trip_and_person {
+                        self.events.push(Event::TripIntersectionDelay(
+                            trip,
+                            t.parent,
+                            now - blocked_since,
+                        ));
+                    }
                 }
 
                 {
