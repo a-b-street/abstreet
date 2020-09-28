@@ -48,18 +48,23 @@
 <span id="48">48</span>
 <span id="49">49</span>
 <span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AreaType</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="comment">// TODO Ah we could also stash the friendly names here!</span>
+<span class="comment">// A single city (like Seattle) can be broken down into multiple boundary polygons (udistrict,</span>
+<span class="comment">// ballard, downtown, etc). The load map screen uses this struct to display the entire city.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">City</span> {
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">boundary</span>: <span class="ident">Polygon</span>,
     <span class="kw">pub</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AreaType</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>,
+    <span class="comment">// The individual maps</span>
     <span class="kw">pub</span> <span class="ident">regions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>,
+    <span class="comment">// TODO Move nice_map_name from game into here?</span>
 }
 
 <span class="kw">impl</span> <span class="ident">City</span> {
@@ -88,7 +93,6 @@
 
         <span class="ident">City</span> {
             <span class="ident">name</span>: <span class="ident">huge_map</span>.<span class="ident">get_city_name</span>().<span class="ident">to_string</span>(),
-            <span class="comment">// TODO Maybe simplify it? :P</span>
             <span class="ident">boundary</span>: <span class="ident">huge_map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>(),
             <span class="ident">areas</span>: <span class="ident">huge_map</span>
                 .<span class="ident">all_areas</span>()

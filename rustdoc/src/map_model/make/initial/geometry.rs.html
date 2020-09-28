@@ -567,7 +567,25 @@
 <span id="567">567</span>
 <span id="568">568</span>
 <span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// OSM describes roads as center-lines that intersect. Turn these into road and intersection</span>
+<span class="comment">// polygons roughly by</span>
+<span class="comment">// 1) treating the road as a PolyLine with a width, so that it has a left and right edge</span>
+<span class="comment">// 2) finding the places where the edges of different roads intersect</span>
+<span class="comment">// 3) &quot;Trimming back&quot; the center lines to avoid the overlap</span>
+<span class="comment">// 4) Producing a polygon for the intersection itsef</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>::{<span class="ident">Intersection</span>, <span class="ident">Road</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">osm</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
@@ -577,9 +595,11 @@
 
 <span class="kw">const</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">2.5</span>);
 
-<span class="comment">// The polygon should exist entirely within the thick bands around all original roads -- it just</span>
-<span class="comment">// carves up part of that space, doesn&#39;t reach past it.</span>
 <span class="comment">// Also returns a list of labeled polygons for debugging.</span>
+<span class="comment">//</span>
+<span class="comment">// Ideally, the resulting polygon should exist entirely within the thick bands around all original</span>
+<span class="comment">// roads -- it just carves up part of that space, doesn&#39;t reach past it. But that&#39;s not always true</span>
+<span class="comment">// yet.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersection_polygon</span>(
     <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>,
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
@@ -916,7 +936,9 @@
     <span class="ident">right</span>: <span class="ident">PolyLine</span>,
 }
 
-<span class="comment">// Try to apply to any 3-way. Might fail for many reasons.</span>
+<span class="comment">// The normal generalized_trim_back approach produces huge intersections when 3 roads meet at</span>
+<span class="comment">// certain angles. It usually happens for highway on/off ramps. Try something different here. In</span>
+<span class="comment">// lieu of proper docs, see https://twitter.com/CarlinoDustin/status/1290799086036111360.</span>
 <span class="kw">fn</span> <span class="ident">on_off_ramp</span>(
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
     <span class="ident">i</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,

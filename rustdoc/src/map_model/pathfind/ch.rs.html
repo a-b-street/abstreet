@@ -348,7 +348,13 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Uses https://github.com/easbar/fast_paths. Slower creation during map importing, but very fast</span>
+<span class="comment">// queries.</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">driving</span>::<span class="ident">VehiclePathfinder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">walking</span>::{
     <span class="ident">one_step_walking_path</span>, <span class="ident">walking_path_to_steps</span>, <span class="ident">SidewalkPathfinder</span>, <span class="ident">WalkingNode</span>,

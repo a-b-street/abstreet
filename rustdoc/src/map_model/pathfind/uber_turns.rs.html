@@ -345,7 +345,13 @@
 <span id="345">345</span>
 <span id="346">346</span>
 <span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// To deal with complicated intersections and short roads in OSM, cluster intersections close</span>
+<span class="comment">// together and then calculate UberTurns that string together several turns.</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">TurnID</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};

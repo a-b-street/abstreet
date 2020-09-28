@@ -436,7 +436,15 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// A traffic signal consists of a sequence of Stages that repeat in a cycle. Most Stages last for a</span>
+<span class="comment">// fixed duration. During a singe Stage, some movements are protected (can proceed with the highest</span>
+<span class="comment">// priority), while others are permitted (have to yield before proceeding).</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">traffic_signals</span>::{<span class="ident">brute_force</span>, <span class="ident">get_possible_policies</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">traffic_signals</span>::<span class="ident">PhaseType</span>::{<span class="ident">Adaptive</span>, <span class="ident">Fixed</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;

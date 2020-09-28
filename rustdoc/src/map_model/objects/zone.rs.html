@@ -166,7 +166,21 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Zones and AccessRestrictions are used to model things like:</span>
+<span class="comment">// 1) gated communities, where only trips beginning or ending at a building in the neighborhood may</span>
+<span class="comment">//    use any of the private roads</span>
+<span class="comment">// 2) Stay Healthy Streets, where most car traffic is banned, except for trips beginning/ending in</span>
+<span class="comment">//    the zone</span>
+<span class="comment">// 3) Congestion capping, where only so many cars per hour can enter the zone</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::{<span class="ident">driving_cost</span>, <span class="ident">walking_cost</span>, <span class="ident">WalkingNode</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>,

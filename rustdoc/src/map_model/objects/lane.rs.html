@@ -288,7 +288,13 @@
 <span id="288">288</span>
 <span id="289">289</span>
 <span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// A road segment is broken down into individual lanes, which have a LaneType.</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnType</span>,
 };
@@ -324,6 +330,8 @@
     <span class="ident">Driving</span>,
     <span class="ident">Parking</span>,
     <span class="ident">Sidewalk</span>,
+    <span class="comment">// Walkable like a Sidewalk, but very narrow. Used to model pedestrians walking on roads</span>
+    <span class="comment">// without sidewalks.</span>
     <span class="ident">Shoulder</span>,
     <span class="ident">Biking</span>,
     <span class="ident">Bus</span>,

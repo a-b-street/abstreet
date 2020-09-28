@@ -389,7 +389,15 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
+<span class="comment">// structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
+<span class="comment">// constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>::<span class="ident">lane_specs</span>::<span class="ident">get_lane_specs_ltr</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">AreaType</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>, <span class="ident">NamePerLanguage</span>,

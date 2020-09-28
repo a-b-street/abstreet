@@ -66,12 +66,16 @@
 <span id="66">66</span>
 <span id="67">67</span>
 <span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">osm</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
+<span class="comment">// Some roads might be totally disconnected from the largest clump because of how the map&#39;s</span>
+<span class="comment">// bounding polygon was drawn, or bad map data, or which roads are filtered from OSM. Remove them.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_disconnected_roads</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;removing disconnected roads&quot;</span>);
     <span class="comment">// This is a simple floodfill, not Tarjan&#39;s. Assumes all roads bidirectional.</span>

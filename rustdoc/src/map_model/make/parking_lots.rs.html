@@ -255,7 +255,15 @@
 <span id="255">255</span>
 <span id="256">256</span>
 <span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Take in parking lots from OSM and all parking aisle roads. Match parking lots to the nearest</span>
+<span class="comment">// sidewalk + driving lane, then automatically generate individual parking spots perpendicular to</span>
+<span class="comment">// the aisles.</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">match_points_to_lanes</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">RawParkingLot</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{

@@ -276,7 +276,11 @@
 <span id="276">276</span>
 <span id="277">277</span>
 <span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>};
