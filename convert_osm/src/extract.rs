@@ -263,6 +263,19 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 }
                 Err(err) => println!("Skipping building {}: {}", id, err),
             }
+        } else if rel.tags.is("amenity", "parking") {
+            for polygon in glue_multipolygon(
+                id,
+                get_multipolygon_members(id, rel, &doc),
+                &boundary,
+                timer,
+            ) {
+                map.parking_lots.push(RawParkingLot {
+                    osm_id: OsmID::Relation(id),
+                    polygon,
+                    osm_tags: rel.tags.clone(),
+                });
+            }
         } else if rel.tags.is("type", "route") {
             map.bus_routes.extend(transit::extract_route(
                 id,
