@@ -1,4 +1,6 @@
-// Intersection between some roads
+// An intersection connects roads. Most have >2 roads and are controlled by stop signs or traffic
+// signals. Roads that lead to the boundary of the map end at border intersections, with only that
+// one road attached.
 
 use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
 use abstutil::{deserialize_usize, serialize_usize};
