@@ -777,6 +777,19 @@
 <span id="777">777</span>
 <span id="778">778</span>
 <span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sim</span>::<span class="ident">Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1096,12 +1109,8 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">agent_properties</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">PedestrianID</span>, <span class="ident">now</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AgentProperties</span> {
         <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">peds</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
-        <span class="kw">let</span> <span class="ident">time_spent_waiting</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">state</span> {
-            <span class="ident">PedState</span>::<span class="ident">WaitingToTurn</span>(<span class="kw">_</span>, <span class="ident">blocked_since</span>)
-            <span class="op">|</span> <span class="ident">PedState</span>::<span class="ident">WaitingForBus</span>(<span class="kw">_</span>, <span class="ident">blocked_since</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">blocked_since</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
-        };
 
+        <span class="kw">let</span> <span class="ident">time_spent_waiting</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">state</span>.<span class="ident">time_spent_waiting</span>(<span class="ident">now</span>);
         <span class="comment">// TODO Incorporate this somewhere</span>
         <span class="comment">/*if let PedState::WaitingForBus(r, _) = p.state {
             extra.push(format!(&quot;Waiting for bus {}&quot;, map.get_br(r).name));
@@ -1282,6 +1291,15 @@
             }
         }
         <span class="ident">affected</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_waiting_people</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">delays</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">PersonID</span>, <span class="ident">Duration</span><span class="op">&gt;</span>) {
+        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">values</span>() {
+            <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">state</span>.<span class="ident">time_spent_waiting</span>(<span class="ident">now</span>);
+            <span class="kw">if</span> <span class="ident">delay</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
+                <span class="ident">delays</span>.<span class="ident">insert</span>(<span class="ident">p</span>.<span class="ident">person</span>, <span class="ident">delay</span>);
+            }
+        }
     }
 }
 
@@ -1509,6 +1527,14 @@
             <span class="ident">PedState</span>::<span class="ident">StartingToBike</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time_int</span>.<span class="ident">end</span>,
             <span class="ident">PedState</span>::<span class="ident">FinishingBiking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time_int</span>.<span class="ident">end</span>,
             <span class="ident">PedState</span>::<span class="ident">WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">time_spent_waiting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">PedState</span>::<span class="ident">WaitingToTurn</span>(<span class="kw">_</span>, <span class="ident">blocked_since</span>)
+            <span class="op">|</span> <span class="ident">PedState</span>::<span class="ident">WaitingForBus</span>(<span class="kw">_</span>, <span class="ident">blocked_since</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">now</span> <span class="op">-</span> <span class="kw-2">*</span><span class="ident">blocked_since</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
         }
     }
 }
