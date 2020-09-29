@@ -123,7 +123,9 @@ impl Minimap {
             // size at startup is incorrect and immediately corrected by the window manager after
             // Minimap::new happens.
             let bounds = app.primary.map.get_bounds();
-            self.base_zoom = 0.15 * ctx.canvas.window_width / bounds.width().min(bounds.height());
+            // On Windows, apparently minimizing can cause some resize events with 0, 0 dimensions!
+            self.base_zoom =
+                (0.15 * ctx.canvas.window_width / bounds.width().min(bounds.height())).max(0.0001);
             self.zoom = self.base_zoom;
             if self.zoomed {
                 self.recenter(ctx, app);
