@@ -1,4 +1,5 @@
 use crate::{IndividTrip, PersonID, PersonSpec, SpawnTrip, TripEndpoint, TripMode, TripPurpose};
+use abstutil::Timer;
 use geom::{Distance, FindClosest, LonLat, Pt2D, Time};
 use map_model::Map;
 use serde::Deserialize;
@@ -17,7 +18,12 @@ pub struct ExternalTrip {
 }
 
 impl ExternalPerson {
-    pub fn import(map: &Map, input: Vec<ExternalPerson>) -> Result<Vec<PersonSpec>, String> {
+    pub fn import(
+        map: &Map,
+        input: Vec<ExternalPerson>,
+        timer: &mut Timer,
+    ) -> Result<Vec<PersonSpec>, String> {
+        timer.start("build FindClosest");
         let mut closest: FindClosest<TripEndpoint> = FindClosest::new(map.get_bounds());
         for b in map.all_buildings() {
             closest.add(TripEndpoint::Bldg(b.id), b.polygon.points());
@@ -35,9 +41,11 @@ impl ExternalPerson {
                 gps
             )),
         };
+        timer.stop("build FindClosest");
 
         let mut results = Vec::new();
         for person in input {
+            timer.start("create one person");
             let mut spec = PersonSpec {
                 id: PersonID(results.len()),
                 orig_id: None,
@@ -61,6 +69,7 @@ impl ExternalPerson {
                 }
             }
             results.push(spec);
+            timer.stop("create one person");
         }
         Ok(results)
     }

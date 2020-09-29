@@ -150,7 +150,11 @@ fn handle_command(
             }
         }
         "/sim/new-person" => {
+            let mut timer = Timer::new("/sim/new-person");
+            timer.start("parse json");
             let input: ExternalPerson = abstutil::from_json(body)?;
+            timer.stop("parse json");
+            timer.start("before import");
             for trip in &input.trips {
                 if trip.departure < sim.time() {
                     return Err(format!(
@@ -163,11 +167,14 @@ fn handle_command(
             }
 
             let mut scenario = Scenario::empty(map, "one-shot");
-            scenario.people = ExternalPerson::import(map, vec![input])?;
+            timer.stop("before import");
+            scenario.people = ExternalPerson::import(map, vec![input], &mut timer)?;
+            timer.start("before instantiate");
             let id = PersonID(sim.get_all_people().len());
             scenario.people[0].id = id;
             let mut rng = XorShiftRng::from_seed([load.rng_seed; 16]);
-            scenario.instantiate(sim, map, &mut rng, &mut Timer::throwaway());
+            timer.stop("before instantiate");
+            scenario.instantiate(sim, map, &mut rng, &mut timer);
             Ok(format!("{} created", id))
         }
         // Traffic signals
