@@ -386,11 +386,11 @@
 <span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
 <span class="comment">//</span>
 <span class="comment">// &gt; cd headless; cargo run -- --port=1234</span>
-<span class="comment">// &gt; curl http://localhost:1234/get-time</span>
+<span class="comment">// &gt; curl http://localhost:1234/sim/get-time</span>
 <span class="comment">// 00:00:00.0</span>
-<span class="comment">// &gt; curl http://localhost:1234/goto-time?t=01:01:00</span>
+<span class="comment">// &gt; curl http://localhost:1234/sim/goto-time?t=01:01:00</span>
 <span class="comment">// it&#39;s now 01:01:00.0</span>
-<span class="comment">// &gt; curl http://localhost:1234/get-delays</span>
+<span class="comment">// &gt; curl http://localhost:1234/data/get-road-thruput</span>
 <span class="comment">// ... huge JSON blob</span>
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>

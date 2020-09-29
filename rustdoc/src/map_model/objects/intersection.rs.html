@@ -155,8 +155,12 @@
 <span id="155">155</span>
 <span id="156">156</span>
 <span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Intersection between some roads</span>
+<span class="comment">// An intersection connects roads. Most have &gt;2 roads and are controlled by stop signs or traffic</span>
+<span class="comment">// signals. Roads that lead to the boundary of the map end at border intersections, with only that</span>
+<span class="comment">// one road attached.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
