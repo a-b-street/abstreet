@@ -1,5 +1,6 @@
 mod floodfill;
 mod objects;
+pub mod path_counter;
 mod polygons;
 pub mod shared_row;
 
