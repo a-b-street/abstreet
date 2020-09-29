@@ -454,6 +454,8 @@
 <span id="454">454</span>
 <span id="455">455</span>
 <span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">navigate</span>, <span class="ident">Warping</span>};
@@ -580,7 +582,9 @@
             <span class="comment">// size at startup is incorrect and immediately corrected by the window manager after</span>
             <span class="comment">// Minimap::new happens.</span>
             <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>();
-            <span class="self">self</span>.<span class="ident">base_zoom</span> <span class="op">=</span> <span class="number">0.15</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="ident">bounds</span>.<span class="ident">width</span>().<span class="ident">min</span>(<span class="ident">bounds</span>.<span class="ident">height</span>());
+            <span class="comment">// On Windows, apparently minimizing can cause some resize events with 0, 0 dimensions!</span>
+            <span class="self">self</span>.<span class="ident">base_zoom</span> <span class="op">=</span>
+                (<span class="number">0.15</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="ident">bounds</span>.<span class="ident">width</span>().<span class="ident">min</span>(<span class="ident">bounds</span>.<span class="ident">height</span>())).<span class="ident">max</span>(<span class="number">0.0001</span>);
             <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_zoom</span>;
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoomed</span> {
                 <span class="self">self</span>.<span class="ident">recenter</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
