@@ -19,7 +19,6 @@ impl DrawArea {
     ) -> DrawArea {
         all_areas.push(DrawArea::fill(area.area_type, cs), area.polygon.clone());
         if false {
-            // TODO Z-order needs to be on top of everything
             // TODO Need to auto-size better -- ensure it's completely contained in the polygon,
             // probably
             if let Some(name) = area.osm_tags.get("name") {
@@ -27,7 +26,8 @@ impl DrawArea {
                     Text::from(Line(name).fg(Color::BLACK))
                         .render_to_batch(ctx.prerender)
                         .scale(1.0)
-                        .centered_on(area.polygon.polylabel()),
+                        .centered_on(area.polygon.polylabel())
+                        .set_z_offset(-0.1),
                 );
             }
         }
