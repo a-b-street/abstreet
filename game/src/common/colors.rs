@@ -277,6 +277,7 @@ impl<'a> ColorNetwork<'a> {
             .push(color.alpha(0.4), self.map.get_pl(pl).polygon.clone());
     }
 
+    // Order the roads by count, then interpolate a color based on position in that ordering.
     pub fn ranked_roads(&mut self, counter: Counter<RoadID>, scale: &ColorScale) {
         let roads = counter.sorted_asc();
         let len = roads.len() as f64;
@@ -295,6 +296,14 @@ impl<'a> ColorNetwork<'a> {
             for i in list {
                 self.add_i(i, color);
             }
+        }
+    }
+
+    // Interpolate a color for each road based on the max count.
+    pub fn pct_roads(&mut self, counter: Counter<RoadID>, scale: &ColorScale) {
+        let max = counter.max() as f64;
+        for (r, cnt) in counter.consume() {
+            self.add_r(r, scale.eval((cnt as f64) / max));
         }
     }
 

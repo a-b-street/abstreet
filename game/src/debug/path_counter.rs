@@ -55,7 +55,7 @@ impl PathCounter {
             .zoomed
             .push(Color::CYAN.alpha(0.5), map.get_i(i).polygon.clone());
 
-        colorer.ranked_roads(cnt.clone(), &app.cs.good_to_bad_red);
+        colorer.pct_roads(cnt.clone(), &app.cs.good_to_bad_red);
         let (unzoomed, zoomed) = colorer.build(ctx);
 
         Box::new(PathCounter {
