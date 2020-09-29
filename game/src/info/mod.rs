@@ -9,6 +9,7 @@ mod trip;
 
 use crate::app::App;
 use crate::common::Warping;
+use crate::debug::path_counter::PathCounter;
 use crate::edit::{EditMode, RouteEditor};
 use crate::game::Transition;
 use crate::helpers::{color_for_agent_type, hotkey_btn, open_browser, ID};
@@ -569,6 +570,15 @@ impl InfoPanel {
                         false,
                         Some(Transition::Push(dashboards::TrafficSignalDemand::new(
                             ctx, app,
+                        ))),
+                    )
+                } else if let Some(x) = action.strip_prefix("routes across Intersection #") {
+                    (
+                        false,
+                        Some(Transition::Push(PathCounter::demand_across_intersection(
+                            ctx,
+                            app,
+                            IntersectionID(x.parse::<usize>().unwrap()),
                         ))),
                     )
                 } else {
