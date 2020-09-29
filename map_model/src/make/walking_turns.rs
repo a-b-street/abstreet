@@ -289,7 +289,7 @@ fn make_degenerate_crosswalks(
     lanes: &Vec<Lane>,
     r1: &Road,
     r2: &Road,
-) -> Option<impl Iterator<Item = Turn>> {
+) -> Option<Vec<Turn>> {
     let l1_in = get_sidewalk(lanes, r1.incoming_lanes(i))?;
     let l1_out = get_sidewalk(lanes, r1.outgoing_lanes(i))?;
     let l2_in = get_sidewalk(lanes, r2.incoming_lanes(i))?;
@@ -343,7 +343,8 @@ fn make_degenerate_crosswalks(
         .map(|mut t| {
             t.other_crosswalk_ids.remove(&t.id);
             t
-        }),
+        })
+        .collect(),
     )
 }
 

@@ -228,10 +228,7 @@ impl Lane {
         }
     }
 
-    pub fn get_turn_restrictions<'a>(
-        &'a self,
-        road: &'a Road,
-    ) -> Option<impl Iterator<Item = TurnType> + 'a> {
+    pub fn get_turn_restrictions(&self, road: &Road) -> Option<BTreeSet<TurnType>> {
         if !self.is_driving() {
             return None;
         }
@@ -268,27 +265,31 @@ impl Lane {
         if part == "" {
             return None;
         }
-        Some(part.split(';').flat_map(|s| match s {
-            "left" | "left\\left" => vec![TurnType::Left],
-            "right" => vec![TurnType::Right],
-            // TODO What is blank supposed to mean? From few observed cases, same as through
-            "through" | "" => vec![TurnType::Straight],
-            // TODO Check this more carefully
-            "slight_right" | "slight right" | "merge_to_right" | "sharp_right" => {
-                vec![TurnType::Straight, TurnType::Right]
-            }
-            "slight_left" | "slight left" | "merge_to_left" | "sharp_left" => {
-                vec![TurnType::Straight, TurnType::Left]
-            }
-            "reverse" => {
-                // TODO We need TurnType::UTurn. Until then, u-turns usually show up as
-                // left turns.
-                vec![TurnType::Left]
-            }
-            s => {
-                warn!("Unknown turn restriction {}", s);
-                vec![]
-            }
-        }))
+        Some(
+            part.split(';')
+                .flat_map(|s| match s {
+                    "left" | "left\\left" => vec![TurnType::Left],
+                    "right" => vec![TurnType::Right],
+                    // TODO What is blank supposed to mean? From few observed cases, same as through
+                    "through" | "" => vec![TurnType::Straight],
+                    // TODO Check this more carefully
+                    "slight_right" | "slight right" | "merge_to_right" | "sharp_right" => {
+                        vec![TurnType::Straight, TurnType::Right]
+                    }
+                    "slight_left" | "slight left" | "merge_to_left" | "sharp_left" => {
+                        vec![TurnType::Straight, TurnType::Left]
+                    }
+                    "reverse" => {
+                        // TODO We need TurnType::UTurn. Until then, u-turns usually show up as
+                        // left turns.
+                        vec![TurnType::Left]
+                    }
+                    s => {
+                        warn!("Unknown turn restriction {}", s);
+                        vec![]
+                    }
+                })
+                .collect(),
+        )
     }
 }

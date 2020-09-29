@@ -85,15 +85,12 @@ impl Intersection {
         self.roads.iter().all(|r| map.get_r(*r).is_private())
     }
 
-    pub fn get_incoming_lanes<'a>(
-        &'a self,
-        map: &'a Map,
-        constraints: PathConstraints,
-    ) -> impl Iterator<Item = LaneID> + 'a {
+    pub fn get_incoming_lanes(&self, map: &Map, constraints: PathConstraints) -> Vec<LaneID> {
         self.incoming_lanes
             .iter()
             .filter(move |l| constraints.can_use(map.get_l(**l), map))
             .cloned()
+            .collect()
     }
 
     // Strict for bikes. If there are bike lanes, not allowed to use other lanes.

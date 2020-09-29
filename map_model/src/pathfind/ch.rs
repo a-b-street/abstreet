@@ -157,6 +157,7 @@ impl ContractionHierarchyPathfinder {
         // are actually connected by a turn.
         let src_choices = i
             .get_incoming_lanes(map, req.constraints)
+            .into_iter()
             .filter(|l| zone.members.contains(&map.get_l(*l).parent))
             .collect::<Vec<_>>();
         let dst_choices = i
@@ -240,6 +241,7 @@ impl ContractionHierarchyPathfinder {
         // are actually connected by a turn.
         let src_choices = i
             .get_incoming_lanes(map, req.constraints)
+            .into_iter()
             .filter(|l| !zone.members.contains(&map.get_l(*l).parent))
             .collect::<Vec<_>>();
         let dst_choices = i
