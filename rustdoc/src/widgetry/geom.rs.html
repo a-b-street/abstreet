@@ -232,6 +232,18 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::<span class="ident">BtnBuilder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -429,6 +441,18 @@
             <span class="comment">// strip_rings first -- sometimes when scaling down, the original rings collapse. Since</span>
             <span class="comment">// this polygon is part of a GeomBatch anyway, not calling to_outline on it.</span>
             <span class="kw-2">*</span><span class="ident">poly</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">strip_rings</span>().<span class="ident">scale</span>(<span class="ident">factor</span>);
+        }
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Overrides the Z-ordering offset for the batch. Must be in (-1, 0], with values closer to -1</span>
+    <span class="doccomment">/// rendering on top.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_z_offset</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+        <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span><span class="op">=</span> <span class="op">-</span><span class="number">1.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">offset</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
+            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;set_z_offset({}) must be in (-1, 0]&quot;</span>, <span class="ident">offset</span>);
+        }
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">z</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">list</span> {
+            <span class="kw-2">*</span><span class="ident">z</span> <span class="op">=</span> <span class="ident">offset</span>;
         }
         <span class="self">self</span>
     }

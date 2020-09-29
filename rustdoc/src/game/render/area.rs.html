@@ -80,7 +80,6 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawArea</span> {
         <span class="ident">all_areas</span>.<span class="ident">push</span>(<span class="ident">DrawArea</span>::<span class="ident">fill</span>(<span class="ident">area</span>.<span class="ident">area_type</span>, <span class="ident">cs</span>), <span class="ident">area</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
         <span class="kw">if</span> <span class="bool-val">false</span> {
-            <span class="comment">// TODO Z-order needs to be on top of everything</span>
             <span class="comment">// TODO Need to auto-size better -- ensure it&#39;s completely contained in the polygon,</span>
             <span class="comment">// probably</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="ident">area</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>) {
@@ -88,7 +87,8 @@
                     <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">name</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>))
                         .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)
                         .<span class="ident">scale</span>(<span class="number">1.0</span>)
-                        .<span class="ident">centered_on</span>(<span class="ident">area</span>.<span class="ident">polygon</span>.<span class="ident">polylabel</span>()),
+                        .<span class="ident">centered_on</span>(<span class="ident">area</span>.<span class="ident">polygon</span>.<span class="ident">polylabel</span>())
+                        .<span class="ident">set_z_offset</span>(<span class="op">-</span><span class="number">0.1</span>),
                 );
             }
         }
