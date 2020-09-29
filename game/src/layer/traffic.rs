@@ -2,9 +2,10 @@ use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork, ColorScale, DivergingScale};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
-use geom::{Distance, Duration, Polygon, Time};
-use map_model::{IntersectionID, Map, Traversable};
+use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
+use map_model::{IntersectionID, Map, Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 use maplit::btreeset;
+use sim::GetDrawAgents;
 use std::collections::BTreeSet;
 use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
@@ -594,5 +595,92 @@ impl Jam {
             polygons.push(map.get_i(i).polygon.clone());
         }
         polygons
+    }
+}
+
+pub struct DelayPerAgent {
+    time: Time,
+    unzoomed: Drawable,
+    panel: Panel,
+}
+
+impl Layer for DelayPerAgent {
+    fn name(&self) -> Option<&'static str> {
+        Some("delay per agent")
+    }
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        minimap: &Panel,
+    ) -> Option<LayerOutcome> {
+        if app.primary.sim.time() != self.time {
+            *self = DelayPerAgent::new(ctx, app);
+        }
+
+        self.panel.align_above(ctx, minimap);
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            },
+            _ => {}
+        }
+        None
+    }
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.panel.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        }
+    }
+    fn draw_minimap(&self, g: &mut GfxCtx) {
+        g.redraw(&self.unzoomed);
+    }
+}
+
+impl DelayPerAgent {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> DelayPerAgent {
+        let mut delays = app.primary.sim.all_waiting_people();
+        let mut unzoomed = GeomBatch::new();
+        unzoomed.push(
+            app.cs.fade_map_dark,
+            app.primary.map.get_boundary_polygon().clone(),
+        );
+        // A bit of copied code from draw_unzoomed_agents
+        let car_circle = Circle::new(Pt2D::new(0.0, 0.0), 4.0 * NORMAL_LANE_THICKNESS).to_polygon();
+        let ped_circle = Circle::new(Pt2D::new(0.0, 0.0), 4.0 * SIDEWALK_THICKNESS).to_polygon();
+        for agent in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
+            if let Some(delay) = agent.person.and_then(|p| delays.remove(&p)) {
+                let color = app
+                    .cs
+                    .good_to_bad_red
+                    .eval((delay / Duration::minutes(15)).min(1.0));
+                if agent.vehicle_type.is_some() {
+                    unzoomed.push(color, car_circle.translate(agent.pos.x(), agent.pos.y()));
+                } else {
+                    unzoomed.push(color, ped_circle.translate(agent.pos.x(), agent.pos.y()));
+                }
+            }
+        }
+
+        DelayPerAgent {
+            time: app.primary.sim.time(),
+            unzoomed: ctx.upload(unzoomed),
+            panel: Panel::new(Widget::col(vec![
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
+                    "Delay per agent (minutes)".draw_text(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", Key::Escape)
+                        .align_right(),
+                ]),
+                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "5", "10", "15+"]),
+            ]))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .build(ctx),
+        }
     }
 }

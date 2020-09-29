@@ -264,4 +264,13 @@ impl CarState {
             CarState::IdlingAtStop(_, ref time_int) => time_int.end,
         }
     }
+
+    pub fn time_spent_waiting(&self, now: Time) -> Duration {
+        match self {
+            CarState::Queued { blocked_since } | CarState::WaitingToAdvance { blocked_since } => {
+                now - *blocked_since
+            }
+            _ => Duration::ZERO,
+        }
+    }
 }
