@@ -469,8 +469,8 @@
         <span class="kw">let</span> <span class="ident">last_stop_l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>()).<span class="ident">driving_pos</span>.<span class="ident">lane</span>();
         <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">last_stop_l</span>).<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
             <span class="ident">end_border</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">last_stop_l</span>);
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_incoming_lanes</span>(<span class="ident">map</span>, <span class="ident">route_type</span>).<span class="ident">next</span>() {
-            <span class="ident">end_border</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_incoming_lanes</span>(<span class="ident">map</span>, <span class="ident">route_type</span>).<span class="ident">get</span>(<span class="number">0</span>) {
+            <span class="ident">end_border</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">l</span>);
         } <span class="kw">else</span> {
             <span class="comment">// TODO Should panic</span>
             <span class="macro">println</span><span class="macro">!</span>(

@@ -292,6 +292,7 @@
 <span id="292">292</span>
 <span id="293">293</span>
 <span id="294">294</span>
+<span id="295">295</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// A road segment is broken down into individual lanes, which have a LaneType.</span>
 
@@ -523,10 +524,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_turn_restrictions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
-        <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Road</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TurnType</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_turn_restrictions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_driving</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -563,28 +561,32 @@
         <span class="kw">if</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;&quot;</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
-        <span class="prelude-val">Some</span>(<span class="ident">part</span>.<span class="ident">split</span>(<span class="string">&#39;;&#39;</span>).<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">s</span> {
-            <span class="string">&quot;left&quot;</span> <span class="op">|</span> <span class="string">&quot;left\\left&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Left</span>],
-            <span class="string">&quot;right&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Right</span>],
-            <span class="comment">// TODO What is blank supposed to mean? From few observed cases, same as through</span>
-            <span class="string">&quot;through&quot;</span> <span class="op">|</span> <span class="string">&quot;&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Straight</span>],
-            <span class="comment">// TODO Check this more carefully</span>
-            <span class="string">&quot;slight_right&quot;</span> <span class="op">|</span> <span class="string">&quot;slight right&quot;</span> <span class="op">|</span> <span class="string">&quot;merge_to_right&quot;</span> <span class="op">|</span> <span class="string">&quot;sharp_right&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Straight</span>, <span class="ident">TurnType</span>::<span class="ident">Right</span>]
-            }
-            <span class="string">&quot;slight_left&quot;</span> <span class="op">|</span> <span class="string">&quot;slight left&quot;</span> <span class="op">|</span> <span class="string">&quot;merge_to_left&quot;</span> <span class="op">|</span> <span class="string">&quot;sharp_left&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Straight</span>, <span class="ident">TurnType</span>::<span class="ident">Left</span>]
-            }
-            <span class="string">&quot;reverse&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="comment">// TODO We need TurnType::UTurn. Until then, u-turns usually show up as</span>
-                <span class="comment">// left turns.</span>
-                <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Left</span>]
-            }
-            <span class="ident">s</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Unknown turn restriction {}&quot;</span>, <span class="ident">s</span>);
-                <span class="macro">vec</span><span class="macro">!</span>[]
-            }
-        }))
+        <span class="prelude-val">Some</span>(
+            <span class="ident">part</span>.<span class="ident">split</span>(<span class="string">&#39;;&#39;</span>)
+                .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">s</span> {
+                    <span class="string">&quot;left&quot;</span> <span class="op">|</span> <span class="string">&quot;left\\left&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Left</span>],
+                    <span class="string">&quot;right&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Right</span>],
+                    <span class="comment">// TODO What is blank supposed to mean? From few observed cases, same as through</span>
+                    <span class="string">&quot;through&quot;</span> <span class="op">|</span> <span class="string">&quot;&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Straight</span>],
+                    <span class="comment">// TODO Check this more carefully</span>
+                    <span class="string">&quot;slight_right&quot;</span> <span class="op">|</span> <span class="string">&quot;slight right&quot;</span> <span class="op">|</span> <span class="string">&quot;merge_to_right&quot;</span> <span class="op">|</span> <span class="string">&quot;sharp_right&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Straight</span>, <span class="ident">TurnType</span>::<span class="ident">Right</span>]
+                    }
+                    <span class="string">&quot;slight_left&quot;</span> <span class="op">|</span> <span class="string">&quot;slight left&quot;</span> <span class="op">|</span> <span class="string">&quot;merge_to_left&quot;</span> <span class="op">|</span> <span class="string">&quot;sharp_left&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Straight</span>, <span class="ident">TurnType</span>::<span class="ident">Left</span>]
+                    }
+                    <span class="string">&quot;reverse&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="comment">// TODO We need TurnType::UTurn. Until then, u-turns usually show up as</span>
+                        <span class="comment">// left turns.</span>
+                        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Left</span>]
+                    }
+                    <span class="ident">s</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Unknown turn restriction {}&quot;</span>, <span class="ident">s</span>);
+                        <span class="macro">vec</span><span class="macro">!</span>[]
+                    }
+                })
+                .<span class="ident">collect</span>(),
+        )
     }
 }
 </pre></div>

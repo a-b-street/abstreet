@@ -232,6 +232,7 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
+<span id="235">235</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">traffic_signals</span>::{<span class="ident">BundleEdits</span>, <span class="ident">TrafficSignalEditor</span>};
@@ -358,6 +359,7 @@
         .<span class="ident">primary</span>
         .<span class="ident">map</span>
         .<span class="ident">get_turns_in_intersection</span>(<span class="ident">i</span>)
+        .<span class="ident">into_iter</span>()
         .<span class="ident">any</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">between_sidewalks</span>());
 
     <span class="kw">let</span> <span class="ident">use_template</span> <span class="op">=</span> <span class="string">&quot;use template&quot;</span>;

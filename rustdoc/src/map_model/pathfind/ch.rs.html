@@ -351,6 +351,8 @@
 <span id="351">351</span>
 <span id="352">352</span>
 <span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Uses https://github.com/easbar/fast_paths. Slower creation during map importing, but very fast</span>
 <span class="comment">// queries.</span>
@@ -511,6 +513,7 @@
         <span class="comment">// are actually connected by a turn.</span>
         <span class="kw">let</span> <span class="ident">src_choices</span> <span class="op">=</span> <span class="ident">i</span>
             .<span class="ident">get_incoming_lanes</span>(<span class="ident">map</span>, <span class="ident">req</span>.<span class="ident">constraints</span>)
+            .<span class="ident">into_iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">zone</span>.<span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">parent</span>))
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">dst_choices</span> <span class="op">=</span> <span class="ident">i</span>
@@ -594,6 +597,7 @@
         <span class="comment">// are actually connected by a turn.</span>
         <span class="kw">let</span> <span class="ident">src_choices</span> <span class="op">=</span> <span class="ident">i</span>
             .<span class="ident">get_incoming_lanes</span>(<span class="ident">map</span>, <span class="ident">req</span>.<span class="ident">constraints</span>)
+            .<span class="ident">into_iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="op">!</span><span class="ident">zone</span>.<span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">parent</span>))
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">dst_choices</span> <span class="op">=</span> <span class="ident">i</span>
