@@ -371,6 +371,13 @@ impl Sim {
     pub fn infinite_parking(&self) -> bool {
         self.parking.is_infinite()
     }
+
+    pub fn all_waiting_people(&self) -> BTreeMap<PersonID, Duration> {
+        let mut delays = BTreeMap::new();
+        self.walking.all_waiting_people(self.time, &mut delays);
+        self.driving.all_waiting_people(self.time, &mut delays);
+        delays
+    }
 }
 
 pub struct AgentProperties {

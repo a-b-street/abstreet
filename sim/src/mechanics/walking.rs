@@ -316,12 +316,8 @@ impl WalkingSimState {
 
     pub fn agent_properties(&self, id: PedestrianID, now: Time) -> AgentProperties {
         let p = &self.peds[&id];
-        let time_spent_waiting = match p.state {
-            PedState::WaitingToTurn(_, blocked_since)
-            | PedState::WaitingForBus(_, blocked_since) => now - blocked_since,
-            _ => Duration::ZERO,
-        };
 
+        let time_spent_waiting = p.state.time_spent_waiting(now);
         // TODO Incorporate this somewhere
         /*if let PedState::WaitingForBus(r, _) = p.state {
             extra.push(format!("Waiting for bus {}", map.get_br(r).name));
@@ -502,6 +498,15 @@ impl WalkingSimState {
             }
         }
         affected
+    }
+
+    pub fn all_waiting_people(&self, now: Time, delays: &mut BTreeMap<PersonID, Duration>) {
+        for p in self.peds.values() {
+            let delay = p.state.time_spent_waiting(now);
+            if delay > Duration::ZERO {
+                delays.insert(p.person, delay);
+            }
+        }
     }
 }
 
@@ -729,6 +734,14 @@ impl PedState {
             PedState::StartingToBike(_, _, ref time_int) => time_int.end,
             PedState::FinishingBiking(_, _, ref time_int) => time_int.end,
             PedState::WaitingForBus(_, _) => unreachable!(),
+        }
+    }
+
+    fn time_spent_waiting(&self, now: Time) -> Duration {
+        match self {
+            PedState::WaitingToTurn(_, blocked_since)
+            | PedState::WaitingForBus(_, blocked_since) => now - *blocked_since,
+            _ => Duration::ZERO,
         }
     }
 }

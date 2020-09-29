@@ -134,6 +134,7 @@ impl PickLayer {
                     } else {
                         Widget::nothing()
                     },
+                    btn("delay per agent", Key::F),
                 ]),
                 Widget::col(vec![
                     "Data".draw_text(ctx),
@@ -227,6 +228,9 @@ impl State for PickLayer {
                 }
                 "commuter patterns" => {
                     return Transition::Replace(dashboards::CommuterPatterns::new(ctx, app));
+                }
+                "delay per agent" => {
+                    app.layer = Some(Box::new(traffic::DelayPerAgent::new(ctx, app)));
                 }
                 _ => unreachable!(),
             },
