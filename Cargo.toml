@@ -10,6 +10,7 @@ members = [
   "kml",
   "map_editor",
   "map_model",
+  "map_tests",
   "sim",
   "updater",
   "widgetry",

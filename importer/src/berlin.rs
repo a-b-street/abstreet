@@ -58,7 +58,10 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
 
     let map = convert_osm::convert(
         convert_osm::Options {
-            osm_input: abstutil::path(format!("input/berlin/osm/{}.osm", name)),
+            osm_input: convert_osm::Input::Path(abstutil::path(format!(
+                "input/berlin/osm/{}.osm",
+                name
+            ))),
             city_name: "berlin".to_string(),
             name: name.to_string(),
 
