@@ -44,6 +44,9 @@
 <span id="44">44</span>
 <span id="45">45</span>
 <span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">download</span>, <span class="ident">osmconvert</span>};
@@ -67,7 +70,10 @@
 
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">convert_osm</span>::<span class="ident">convert</span>(
         <span class="ident">convert_osm</span>::<span class="ident">Options</span> {
-            <span class="ident">osm_input</span>: <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/krakow/osm/{}.osm&quot;</span>, <span class="ident">name</span>)),
+            <span class="ident">osm_input</span>: <span class="ident">convert_osm</span>::<span class="ident">Input</span>::<span class="ident">Path</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;input/krakow/osm/{}.osm&quot;</span>,
+                <span class="ident">name</span>
+            ))),
             <span class="ident">city_name</span>: <span class="string">&quot;krakow&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">to_string</span>(),
 
