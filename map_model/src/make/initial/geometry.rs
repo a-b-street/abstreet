@@ -1,3 +1,10 @@
+// OSM describes roads as center-lines that intersect. Turn these into road and intersection
+// polygons roughly by
+// 1) treating the road as a PolyLine with a width, so that it has a left and right edge
+// 2) finding the places where the edges of different roads intersect
+// 3) "Trimming back" the center lines to avoid the overlap
+// 4) Producing a polygon for the intersection itsef
+
 use crate::make::initial::{Intersection, Road};
 use crate::osm;
 use crate::raw::OriginalRoad;
@@ -7,9 +14,11 @@ use std::collections::BTreeMap;
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5);
 
-// The polygon should exist entirely within the thick bands around all original roads -- it just
-// carves up part of that space, doesn't reach past it.
 // Also returns a list of labeled polygons for debugging.
+//
+// Ideally, the resulting polygon should exist entirely within the thick bands around all original
+// roads -- it just carves up part of that space, doesn't reach past it. But that's not always true
+// yet.
 pub fn intersection_polygon(
     i: &Intersection,
     roads: &mut BTreeMap<OriginalRoad, Road>,
@@ -346,7 +355,9 @@ struct Piece {
     right: PolyLine,
 }
 
-// Try to apply to any 3-way. Might fail for many reasons.
+// The normal generalized_trim_back approach produces huge intersections when 3 roads meet at
+// certain angles. It usually happens for highway on/off ramps. Try something different here. In
+// lieu of proper docs, see https://twitter.com/CarlinoDustin/status/1290799086036111360.
 fn on_off_ramp(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,

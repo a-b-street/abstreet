@@ -114,11 +114,11 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
         ));
     }
 
-    if let Some(types) = l
-        .get_turn_restrictions(r)
-        .map(|types| types.collect::<Vec<_>>())
-    {
-        kv.push(("Turn restrictions".to_string(), format!("{:?}", types)));
+    if let Some(types) = l.get_turn_restrictions(r) {
+        kv.push((
+            "Turn restrictions".to_string(),
+            format!("{:?}", types.into_iter().collect::<Vec<_>>()),
+        ));
     }
     for (restriction, to) in &r.turn_restrictions {
         kv.push((

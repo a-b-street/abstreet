@@ -1,5 +1,6 @@
 mod floodfill;
 mod objects;
+pub mod path_counter;
 mod polygons;
 pub mod shared_row;
 
@@ -293,10 +294,14 @@ impl State for DebugMode {
                         ) {
                             batch.push(Color::PURPLE, obj.get_outline(&app.primary.map));
                         } else {
-                            panic!(
-                                "{} is accepted at or blocked by by {:?}, but no longer exists",
-                                a, id
-                            );
+                            return Transition::Push(PopupMsg::new(
+                                ctx,
+                                "Wat",
+                                vec![format!(
+                                    "{} is accepted at or blocked by by {:?}, but no longer exists",
+                                    a, id
+                                )],
+                            ));
                         }
                     }
                     self.highlighted_agents = Some((id, ctx.upload(batch)));

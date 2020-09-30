@@ -1,3 +1,5 @@
+// Everything related to pathfinding through a map for different types of agents.
+
 mod ch;
 mod dijkstra;
 mod driving;

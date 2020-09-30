@@ -1,3 +1,6 @@
+// Construct the final model of bus/train stops and routes. This is quite broken currently, so not
+// going to describe how it works.
+
 use crate::make::match_points_to_lanes;
 use crate::raw::{RawBusRoute, RawBusStop};
 use crate::{
@@ -112,8 +115,8 @@ fn make_route(
         let last_stop_l = map.get_bs(*stops.last().unwrap()).driving_pos.lane();
         if map.get_l(last_stop_l).dst_i == i.id {
             end_border = Some(last_stop_l);
-        } else if let Some(l) = i.get_incoming_lanes(map, route_type).next() {
-            end_border = Some(l);
+        } else if let Some(l) = i.get_incoming_lanes(map, route_type).get(0) {
+            end_border = Some(*l);
         } else {
             // TODO Should panic
             println!(

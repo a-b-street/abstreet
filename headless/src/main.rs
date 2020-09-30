@@ -2,11 +2,11 @@
 // https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:
 //
 // > cd headless; cargo run -- --port=1234
-// > curl http://localhost:1234/get-time
+// > curl http://localhost:1234/sim/get-time
 // 00:00:00.0
-// > curl http://localhost:1234/goto-time?t=01:01:00
+// > curl http://localhost:1234/sim/goto-time?t=01:01:00
 // it's now 01:01:00.0
-// > curl http://localhost:1234/get-delays
+// > curl http://localhost:1234/data/get-road-thruput
 // ... huge JSON blob
 
 #[macro_use]

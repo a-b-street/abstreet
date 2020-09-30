@@ -1,3 +1,26 @@
+// map_model describes the world where simulations occur. Importing a map from OSM partly happens
+// in convert_osm and here.
+//
+// Helpful terminology:
+// - ch = contraction hierarchy, for speeding up pathfinding
+// - degenerate intersection = only has 2 roads connected, so why is it an intersection at all?
+// - lc = lane-change (which is modelled very strangely: https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#lane-changing)
+// - ltr = left-to-right, the order of lanes for a road
+// - osm = OpenStreetMap
+//
+// Map objects are usually abbreviated in method names:
+// - a = area
+// - b = building
+// - br = bus route
+// - bs = bus stop
+// - i = intersection
+// - l = lane
+// - pl = parking lot
+// - r = road
+// - ss = stop sign
+// - t = turn
+// - ts = traffic signal
+
 mod city;
 pub mod connectivity;
 mod edits;
@@ -45,9 +68,12 @@ use std::collections::BTreeMap;
 
 // TODO Minimize uses of these!
 pub const NORMAL_LANE_THICKNESS: Distance = Distance::const_meters(2.5);
+pub(crate) const SERVICE_ROAD_LANE_THICKNESS: Distance = Distance::const_meters(1.5);
 pub const SIDEWALK_THICKNESS: Distance = Distance::const_meters(1.5);
 pub(crate) const SHOULDER_THICKNESS: Distance = Distance::const_meters(0.5);
 
+// The map used by the simulation and UI. This struct is declared here so that the rest of the
+// crate can reach into private fields.
 #[derive(Serialize, Deserialize)]
 pub struct Map {
     roads: Vec<Road>,

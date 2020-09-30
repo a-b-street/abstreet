@@ -917,13 +917,7 @@ impl DrivingSimState {
     pub fn agent_properties(&self, id: CarID, now: Time) -> AgentProperties {
         let car = self.cars.get(&id).unwrap();
         let path = car.router.get_path();
-
-        let time_spent_waiting = match car.state {
-            CarState::Queued { blocked_since } | CarState::WaitingToAdvance { blocked_since } => {
-                now - blocked_since
-            }
-            _ => Duration::ZERO,
-        };
+        let time_spent_waiting = car.state.time_spent_waiting(now);
 
         AgentProperties {
             total_time: now - car.started_at,
@@ -1057,5 +1051,16 @@ impl DrivingSimState {
             }
         }
         affected
+    }
+
+    pub fn all_waiting_people(&self, now: Time, delays: &mut BTreeMap<PersonID, Duration>) {
+        for c in self.cars.values() {
+            if let Some((_, person)) = c.trip_and_person {
+                let delay = c.state.time_spent_waiting(now);
+                if delay > Duration::ZERO {
+                    delays.insert(person, delay);
+                }
+            }
+        }
     }
 }

@@ -1,3 +1,10 @@
+// Zones and AccessRestrictions are used to model things like:
+// 1) gated communities, where only trips beginning or ending at a building in the neighborhood may
+//    use any of the private roads
+// 2) Stay Healthy Streets, where most car traffic is banned, except for trips beginning/ending in
+//    the zone
+// 3) Congestion capping, where only so many cars per hour can enter the zone
+
 use crate::pathfind::{driving_cost, walking_cost, WalkingNode};
 use crate::{
     IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoadID, TurnID,

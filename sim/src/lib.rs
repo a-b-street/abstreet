@@ -476,9 +476,9 @@ impl SidewalkSpot {
 
         map.get_i(i)
             .get_incoming_lanes(map, PathConstraints::Pedestrian)
-            .next()
+            .get(0)
             .map(|l| SidewalkSpot {
-                sidewalk_pos: Position::end(l, map),
+                sidewalk_pos: Position::end(*l, map),
                 connection: SidewalkPOI::Border(i, origin),
             })
     }
@@ -491,10 +491,10 @@ impl SidewalkSpot {
         if let Some(l) = map
             .get_i(i)
             .get_incoming_lanes(map, PathConstraints::Pedestrian)
-            .next()
+            .get(0)
         {
             return Some(SidewalkSpot {
-                sidewalk_pos: Position::end(l, map),
+                sidewalk_pos: Position::end(*l, map),
                 connection: SidewalkPOI::Border(i, destination),
             });
         }

@@ -1,3 +1,5 @@
+// Areas are just used for drawing.
+
 use crate::osm;
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::Polygon;

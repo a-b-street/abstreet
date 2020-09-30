@@ -1,3 +1,7 @@
+// An intersection connects roads. Most have >2 roads and are controlled by stop signs or traffic
+// signals. Roads that lead to the boundary of the map end at border intersections, with only that
+// one road attached.
+
 use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};
@@ -81,15 +85,12 @@ impl Intersection {
         self.roads.iter().all(|r| map.get_r(*r).is_private())
     }
 
-    pub fn get_incoming_lanes<'a>(
-        &'a self,
-        map: &'a Map,
-        constraints: PathConstraints,
-    ) -> impl Iterator<Item = LaneID> + 'a {
+    pub fn get_incoming_lanes(&self, map: &Map, constraints: PathConstraints) -> Vec<LaneID> {
         self.incoming_lanes
             .iter()
             .filter(move |l| constraints.can_use(map.get_l(**l), map))
             .cloned()
+            .collect()
     }
 
     // Strict for bikes. If there are bike lanes, not allowed to use other lanes.

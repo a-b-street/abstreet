@@ -221,7 +221,7 @@ impl State for TrafficSignalEditor {
                     let idx = x.parse::<usize>().unwrap() - 1;
                     return Transition::Push(edits::ChangeDuration::new(
                         ctx,
-                        canonical_signal.stages[idx].phase_type.clone(),
+                        &canonical_signal,
                         idx,
                     ));
                 }

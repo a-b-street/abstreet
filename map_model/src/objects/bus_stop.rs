@@ -1,3 +1,6 @@
+// Bus stops and routes.
+// TODO Rename public transit -- these also cover light rail now.
+
 use crate::{osm, LaneID, Map, PathConstraints, PathRequest, Position};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::Time;

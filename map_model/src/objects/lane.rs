@@ -1,3 +1,5 @@
+// A road segment is broken down into individual lanes, which have a LaneType.
+
 use crate::{
     osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, Road, RoadID, TurnType,
 };
@@ -33,6 +35,8 @@ pub enum LaneType {
     Driving,
     Parking,
     Sidewalk,
+    // Walkable like a Sidewalk, but very narrow. Used to model pedestrians walking on roads
+    // without sidewalks.
     Shoulder,
     Biking,
     Bus,
@@ -224,15 +228,12 @@ impl Lane {
         }
     }
 
-    pub fn get_turn_restrictions<'a>(
-        &'a self,
-        road: &'a Road,
-    ) -> Option<impl Iterator<Item = TurnType> + 'a> {
+    pub fn get_turn_restrictions(&self, road: &Road) -> Option<BTreeSet<TurnType>> {
         if !self.is_driving() {
             return None;
         }
 
-        let (dir, offset) = road.dir_and_offset(self.id);
+        let dir = road.dir(self.id);
         let all = if dir == Direction::Fwd && road.osm_tags.contains_key(osm::ENDPT_FWD) {
             road.osm_tags
                 .get("turn:lanes:forward")
@@ -243,33 +244,52 @@ impl Lane {
             return None;
         };
         let parts: Vec<&str> = all.split('|').collect();
-        // TODO Verify the number of lanes matches up
-        let part = parts.get(offset)?;
-        // TODO Probably the target lane should get marked as LaneType::Bus
-        if part == &"no" || part == &"none" || part == &"yes" || part == &"psv" || part == &"bus" {
+        // Verify the number of parts matches the road's lanes
+        let lanes: Vec<LaneID> = road
+            .children(dir)
+            .into_iter()
+            .filter(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Bus)
+            .map(|(id, _)| id)
+            .collect();
+        if parts.len() != lanes.len() {
+            warn!("{}'s turn restrictions don't match the lanes", road.orig_id);
             return None;
         }
-        Some(part.split(';').flat_map(|s| match s {
-            "left" | "left\\left" => vec![TurnType::Left],
-            "right" => vec![TurnType::Right],
-            // TODO What is blank supposed to mean? From few observed cases, same as through
-            "through" | "" => vec![TurnType::Straight],
-            // TODO Check this more carefully
-            "slight_right" | "slight right" | "merge_to_right" | "sharp_right" => {
-                vec![TurnType::Straight, TurnType::Right]
-            }
-            "slight_left" | "slight left" | "merge_to_left" | "sharp_left" => {
-                vec![TurnType::Straight, TurnType::Left]
-            }
-            "reverse" => {
-                // TODO We need TurnType::UTurn. Until then, u-turns usually show up as
-                // left turns.
-                vec![TurnType::Left]
-            }
-            s => {
-                warn!("Unknown turn restriction {}", s);
-                vec![]
-            }
-        }))
+        // TODO More warnings if this fails
+        let part = parts[lanes.iter().position(|l| *l == self.id)?];
+        // TODO Probably the target lane should get marked as LaneType::Bus
+        if part == "no" || part == "none" || part == "yes" || part == "psv" || part == "bus" {
+            return None;
+        }
+        // Empty means no restrictions
+        if part == "" {
+            return None;
+        }
+        Some(
+            part.split(';')
+                .flat_map(|s| match s {
+                    "left" | "left\\left" => vec![TurnType::Left],
+                    "right" => vec![TurnType::Right],
+                    // TODO What is blank supposed to mean? From few observed cases, same as through
+                    "through" | "" => vec![TurnType::Straight],
+                    // TODO Check this more carefully
+                    "slight_right" | "slight right" | "merge_to_right" | "sharp_right" => {
+                        vec![TurnType::Straight, TurnType::Right]
+                    }
+                    "slight_left" | "slight left" | "merge_to_left" | "sharp_left" => {
+                        vec![TurnType::Straight, TurnType::Left]
+                    }
+                    "reverse" => {
+                        // TODO We need TurnType::UTurn. Until then, u-turns usually show up as
+                        // left turns.
+                        vec![TurnType::Left]
+                    }
+                    s => {
+                        warn!("Unknown turn restriction {}", s);
+                        vec![]
+                    }
+                })
+                .collect(),
+        )
     }
 }

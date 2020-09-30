@@ -1,6 +1,8 @@
+// Purely from OSM tags, determine the lanes that a road segment has.
+
 use crate::{
-    osm, Direction, DrivingSide, LaneType, NORMAL_LANE_THICKNESS, SHOULDER_THICKNESS,
-    SIDEWALK_THICKNESS,
+    osm, Direction, DrivingSide, LaneType, NORMAL_LANE_THICKNESS, SERVICE_ROAD_LANE_THICKNESS,
+    SHOULDER_THICKNESS, SIDEWALK_THICKNESS,
 };
 use abstutil::Tags;
 use geom::Distance;
@@ -235,6 +237,14 @@ pub fn get_lane_specs_ltr(tags: &Tags, driving_side: DrivingSide) -> Vec<LaneSpe
             back_side.push(back(LaneType::Sidewalk));
         } else {
             fwd_side.push(fwd(LaneType::Sidewalk));
+        }
+    }
+
+    if tags.is(osm::HIGHWAY, "service") {
+        for spec in fwd_side.iter_mut().chain(back_side.iter_mut()) {
+            if spec.lt == LaneType::Driving {
+                spec.width = SERVICE_ROAD_LANE_THICKNESS;
+            }
         }
     }
 

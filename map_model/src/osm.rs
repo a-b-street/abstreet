@@ -1,3 +1,5 @@
+// Useful utilities for working with OpenStreetMap.
+
 use serde::{Deserialize, Serialize};
 use std::fmt;
 

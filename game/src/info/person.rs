@@ -36,6 +36,16 @@ pub fn trips(
     let sim = &app.primary.sim;
     let person = sim.get_person(id);
 
+    // If there's at least one open trip, then we'll draw a route on the map. If so, add a dark
+    // overlay for better contrast in the unzoomed view. Only add it once, even if multiple trips
+    // are open.
+    if !open_trips.is_empty() {
+        details.unzoomed.push(
+            app.cs.fade_map_dark,
+            app.primary.map.get_boundary_polygon().clone(),
+        );
+    }
+
     // I'm sorry for bad variable names
     let mut wheres_waldo = true;
     for (idx, t) in person.trips.iter().enumerate() {

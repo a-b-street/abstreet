@@ -1,3 +1,5 @@
+// A bunch of (mostly read-only) queries on a Map.
+
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     osm, Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
@@ -280,11 +282,12 @@ impl Map {
 
     // All these helpers should take IDs and return objects.
 
-    pub fn get_turns_in_intersection<'a>(
-        &'a self,
-        id: IntersectionID,
-    ) -> impl Iterator<Item = &'a Turn> + 'a {
-        self.get_i(id).turns.iter().map(move |t| self.get_t(*t))
+    pub fn get_turns_in_intersection(&self, id: IntersectionID) -> Vec<&Turn> {
+        self.get_i(id)
+            .turns
+            .iter()
+            .map(|t| self.get_t(*t))
+            .collect()
     }
 
     // The turns may belong to two different intersections!
@@ -341,16 +344,17 @@ impl Map {
             .cloned()
     }
 
-    pub fn get_next_turns_and_lanes<'a>(
-        &'a self,
+    pub fn get_next_turns_and_lanes(
+        &self,
         from: LaneID,
         parent: IntersectionID,
-    ) -> impl Iterator<Item = (&'a Turn, &'a Lane)> + 'a {
+    ) -> Vec<(&Turn, &Lane)> {
         self.get_i(parent)
             .turns
             .iter()
-            .filter(move |t| t.src == from)
-            .map(move |t| (self.get_t(*t), self.get_l(t.dst)))
+            .filter(|t| t.src == from)
+            .map(|t| (self.get_t(*t), self.get_l(t.dst)))
+            .collect()
     }
 
     pub fn get_turns_for(&self, from: LaneID, constraints: PathConstraints) -> Vec<&Turn> {
@@ -372,16 +376,13 @@ impl Map {
         turns
     }
 
-    // These come back sorted
-    pub fn get_next_roads(&self, from: RoadID) -> impl Iterator<Item = RoadID> {
+    pub fn get_next_roads(&self, from: RoadID) -> BTreeSet<RoadID> {
         let mut roads: BTreeSet<RoadID> = BTreeSet::new();
-
         let r = self.get_r(from);
         for id in vec![r.src_i, r.dst_i].into_iter() {
             roads.extend(self.get_i(id).roads.clone());
         }
-
-        roads.into_iter()
+        roads
     }
 
     pub fn get_parent(&self, id: LaneID) -> &Road {

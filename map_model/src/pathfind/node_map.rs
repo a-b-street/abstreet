@@ -1,3 +1,5 @@
+// Some helpers for working with fast_paths.
+
 use fast_paths::{NodeId, ShortestPath};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::BTreeMap;

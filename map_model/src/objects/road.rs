@@ -1,3 +1,5 @@
+// A Road represents a segment between exactly two Intersections. It contains Lanes as children.
+
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{
     osm, AccessRestrictions, BusStopID, IntersectionID, Lane, LaneID, LaneType, Map,
@@ -173,6 +175,9 @@ impl Road {
             // about 12mph
             return Speed::km_per_hour(20.0);
         }
+        if self.is_service() {
+            return Speed::miles_per_hour(10.0);
+        }
         Speed::miles_per_hour(20.0)
     }
 
@@ -326,6 +331,10 @@ impl Road {
         self.lanes_ltr().len() == 1 && self.lanes_ltr()[0].2 == LaneType::Sidewalk
     }
 
+    pub fn is_service(&self) -> bool {
+        self.osm_tags.is(osm::HIGHWAY, "service")
+    }
+
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {
         if self.src_i == other.src_i || self.src_i == other.dst_i {
             self.src_i
@@ -405,18 +414,6 @@ impl Road {
         } else {
             self.children_backwards()
         }
-    }
-
-    // TODO Deprecated
-    // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
-    // it counts up from there.
-    pub(crate) fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
-        for &dir in [Direction::Fwd, Direction::Back].iter() {
-            if let Some(idx) = self.children(dir).iter().position(|pair| pair.0 == lane) {
-                return (dir, idx);
-            }
-        }
-        panic!("{} doesn't contain {}", self.id, lane);
     }
 
     // Returns lanes from the "center" going out

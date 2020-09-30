@@ -3,6 +3,7 @@ use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+// Represents a specific point some distance along a lane.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Position {
     // Don't let callers construct a Position directly, so it's easy to find callers of new().
@@ -113,7 +114,8 @@ impl Position {
     }
 }
 
-// TODO also building paths?
+// Either a lane or a turn, where most movement happens.
+// TODO Consider adding building and parking lot driveways here.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Traversable {
     Lane(LaneID),

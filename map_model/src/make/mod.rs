@@ -1,3 +1,6 @@
+// See https://dabreegster.github.io/abstreet/map/importing/index.html for an overview. This module
+// covers the RawMap->Map stage.
+
 mod bridges;
 mod buildings;
 pub mod initial;
@@ -335,8 +338,8 @@ impl Map {
     }
 }
 
-// If the result doesn't contain a requested point, then there was no matching lane close
-// enough.
+// Snap points to an exact Position along the nearest lane. If the result doesn't contain a
+// requested point, then there was no matching lane close enough.
 fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
     bounds: &Bounds,
     pts: HashSet<HashablePt2D>,

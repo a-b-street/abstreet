@@ -2,13 +2,16 @@ use crate::{AreaType, Map};
 use geom::{LonLat, Polygon, Ring};
 use serde::{Deserialize, Serialize};
 
-// TODO Ah we could also stash the friendly names here!
+// A single city (like Seattle) can be broken down into multiple boundary polygons (udistrict,
+// ballard, downtown, etc). The load map screen uses this struct to display the entire city.
 #[derive(Serialize, Deserialize)]
 pub struct City {
     pub name: String,
     pub boundary: Polygon,
     pub areas: Vec<(AreaType, Polygon)>,
+    // The individual maps
     pub regions: Vec<(String, Polygon)>,
+    // TODO Move nice_map_name from game into here?
 }
 
 impl City {
@@ -37,7 +40,6 @@ impl City {
 
         City {
             name: huge_map.get_city_name().to_string(),
-            // TODO Maybe simplify it? :P
             boundary: huge_map.get_boundary_polygon().clone(),
             areas: huge_map
                 .all_areas()

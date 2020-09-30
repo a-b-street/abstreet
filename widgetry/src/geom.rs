@@ -197,6 +197,18 @@ impl GeomBatch {
         }
         self
     }
+
+    /// Overrides the Z-ordering offset for the batch. Must be in (-1, 0], with values closer to -1
+    /// rendering on top.
+    pub fn set_z_offset(mut self, offset: f64) -> GeomBatch {
+        if offset <= -1.0 || offset > 0.0 {
+            panic!("set_z_offset({}) must be in (-1, 0]", offset);
+        }
+        for (_, _, z) in &mut self.list {
+            *z = offset;
+        }
+        self
+    }
 }
 
 impl<F: Into<Fill>> From<Vec<(F, Polygon)>> for GeomBatch {

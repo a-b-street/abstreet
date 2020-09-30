@@ -1,3 +1,6 @@
+// Naming is confusing, but RawMap -> InitialMap -> Map. InitialMap is separate pretty much just
+// for the step of producing https://dabreegster.github.io/abstreet/map/importing/geometry.html.
+
 mod geometry;
 pub mod lane_specs;
 

@@ -1,3 +1,5 @@
+// Pathfinding without needing to build a separate contraction hierarchy.
+
 use crate::pathfind::driving::driving_cost;
 use crate::pathfind::walking::{
     one_step_walking_path, walking_cost, walking_path_to_steps, WalkingNode,

@@ -263,6 +263,19 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 }
                 Err(err) => println!("Skipping building {}: {}", id, err),
             }
+        } else if rel.tags.is("amenity", "parking") {
+            for polygon in glue_multipolygon(
+                id,
+                get_multipolygon_members(id, rel, &doc),
+                &boundary,
+                timer,
+            ) {
+                map.parking_lots.push(RawParkingLot {
+                    osm_id: OsmID::Relation(id),
+                    polygon,
+                    osm_tags: rel.tags.clone(),
+                });
+            }
         } else if rel.tags.is("type", "route") {
             map.bus_routes.extend(transit::extract_route(
                 id,
@@ -423,8 +436,11 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
 
     // Service roads can represent lots of things, most of which we don't want to keep yet. What's
     // allowed here is just based on what's been encountered so far in Seattle and Kraków.
-    if highway == "service" && !tags.is_any("psv", vec!["yes", "bus"]) && !tags.is("bus", "yes") {
-        return false;
+    if highway == "service" {
+        let for_buses = tags.is_any("psv", vec!["bus", "yes"]) || tags.is("bus", "yes");
+        if !for_buses && !tags.is("service", "alley") {
+            return false;
+        }
     }
 
     // Not sure what this means, found in Seoul.
@@ -439,8 +455,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
     if !tags.contains_key(osm::PARKING_LEFT)
         && !tags.contains_key(osm::PARKING_RIGHT)
         && !tags.contains_key(osm::PARKING_BOTH)
-        && !tags.is(osm::HIGHWAY, "motorway")
-        && !tags.is(osm::HIGHWAY, "motorway_link")
+        && !tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link", "service"])
         && !tags.is("junction", "roundabout")
     {
         tags.insert(osm::PARKING_BOTH, "no_parking");

@@ -1,3 +1,5 @@
+// Pathfinding for cars, bikes, buses, and trains using contraction hierarchies
+
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
 use crate::{Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, Turn, TurnID};
