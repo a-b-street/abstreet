@@ -134,7 +134,6 @@ impl PickLayer {
                     } else {
                         Widget::nothing()
                     },
-                    btn("delay per agent", Key::F),
                 ]),
                 Widget::col(vec![
                     "Data".draw_text(ctx),
@@ -171,7 +170,7 @@ impl State for PickLayer {
                     app.layer = Some(Box::new(map::BikeNetwork::new(ctx, app)));
                 }
                 "delay" => {
-                    app.layer = Some(Box::new(traffic::Delay::new(ctx, app, false)));
+                    app.layer = Some(Box::new(traffic::Delay::new(ctx, app)));
                 }
                 "elevation" => {
                     app.layer = Some(Box::new(elevation::Elevation::new(ctx, app)));
@@ -228,9 +227,6 @@ impl State for PickLayer {
                 }
                 "commuter patterns" => {
                     return Transition::Replace(dashboards::CommuterPatterns::new(ctx, app));
-                }
-                "delay per agent" => {
-                    app.layer = Some(Box::new(traffic::DelayPerAgent::new(ctx, app)));
                 }
                 _ => unreachable!(),
             },
