@@ -22,6 +22,7 @@
     - [The rest](map/importing/rest.md)
   - [Live edits](map/edits.md)
   - [Misc](map/misc.md)
+  - [Exporting](map/platform.md)
 - [Traffic simulation](trafficsim/README.md)
   - [Discrete event simulation](trafficsim/discrete_event.md)
   - [Travel demand](trafficsim/travel_demand.md)
