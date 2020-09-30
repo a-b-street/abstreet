@@ -821,7 +821,7 @@
     <span class="comment">// Usually m^2, unless the polygon is in screen-space</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">area</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
         <span class="comment">// Polygon orientation messes this up sometimes</span>
-        <span class="ident">to_geo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>()).<span class="ident">unsigned_area</span>()
+        <span class="ident">to_geo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>()).<span class="ident">area</span>().<span class="ident">abs</span>()
     }
 
     <span class="comment">// Doesn&#39;t handle multiple crossings in and out.</span>
