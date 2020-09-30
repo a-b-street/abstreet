@@ -109,7 +109,7 @@ jobs:
         with:
                 path: target
                 # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
-                key: ${{ runner.os }}-build
+                key: wasm-build
       - name: Build game
         working-directory: game
         run: cargo web check --target wasm32-unknown-unknown --no-default-features --features wasm
