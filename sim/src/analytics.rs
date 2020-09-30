@@ -6,7 +6,7 @@ use abstutil::Counter;
 use geom::{Distance, Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
-    ParkingLotID, Path, PathRequest, RoadID, Traversable,
+    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID,
 };
 
 use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
@@ -33,7 +33,7 @@ pub struct Analytics {
     // TODO Hack: No TripMode means aborted
     // Finish time, ID, mode (or None as aborted), trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
-    pub trip_intersection_delays: BTreeMap<TripID, Vec<(IntersectionID, Duration)>>,
+    pub trip_intersection_delays: BTreeMap<TripID, Vec<(TurnID, Duration)>>,
     pub lane_speed_percentage: BTreeMap<TripID, Vec<(LaneID, f64)>>,
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
@@ -175,11 +175,11 @@ impl Analytics {
         }
 
         // Trip Intersection delay
-        if let Event::TripIntersectionDelay(trip_id, intersection_id, delay) = ev {
+        if let Event::TripIntersectionDelay(trip_id, turn_id, delay) = ev {
             self.trip_intersection_delays
                 .entry(trip_id)
                 .or_insert_with(Vec::new)
-                .push((intersection_id, delay));
+                .push((turn_id, delay));
         }
         //Lane Speed
         if let Event::LaneSpeedPercentage(trip_id, lane_id, speed_percent) = ev {
@@ -260,10 +260,7 @@ impl Analytics {
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
 
-    pub fn trip_intersection_delays(
-        &self,
-        trip: TripID,
-    ) -> Option<&Vec<(IntersectionID, Duration)>> {
+    pub fn trip_intersection_delays(&self, trip: TripID) -> Option<&Vec<(TurnID, Duration)>> {
         self.trip_intersection_delays.get(&trip)
     }
     pub fn trip_lane_speeds(&self, trip: TripID) -> Option<&Vec<(LaneID, f64)>> {

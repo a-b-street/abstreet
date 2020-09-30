@@ -2,12 +2,12 @@ use std::collections::BTreeMap;
 
 use maplit::btreemap;
 
-use geom::{ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
+use geom::{trim_f64, ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
     Btn, Color, DrawWithTooltips, EventCtx, Fill, GeomBatch, Line, LinePlot, PlotOptions,
-    RewriteColor, Series, Text, TextExt, Widget,
+    RewriteColor, Series, Text, TextExt, TextSpan, Widget,
 };
 
 use crate::app::App;
@@ -55,7 +55,6 @@ pub fn ongoing(
         .get_analytics()
         .get_trip_phases(id, &app.primary.map);
     let trip = app.primary.sim.trip_info(id);
-
     let col_width = Percent::int(7);
     let props = app.primary.sim.agent_properties(agent);
     let activity = agent.to_type().ongoing_verb();
@@ -133,7 +132,8 @@ pub fn ongoing(
         phases,
         Some(props.dist_crossed / props.total_dist),
     ));
-    highlight_slow_intersections(app, details, id);
+    highlight_slow_intersections(app, details, id, ctx);
+    highlight_slow_lanes(app, details, id, ctx);
     Widget::col(col)
 }
 
@@ -327,11 +327,11 @@ pub fn finished(
                 let data = data_opt.unwrap();
                 let mut msg = String::new();
                 for (intersection, time) in data {
-                    msg.push_str(&format!(
+                    /*                    msg.push_str(&format!(
                         "ID: {},    Delay: {}",
                         intersection.0.to_string(),
                         time.inner_seconds().to_string(),
-                    ));
+                    ));*/
                 }
                 col.push(Widget::custom_row(vec![
                     Widget::custom_row(vec![Line("Delays").secondary().draw(ctx)])
@@ -351,8 +351,8 @@ pub fn finished(
         phases,
         None,
     ));
-    highlight_slow_intersections(app, details, id);
-    highlight_slow_lanes(app, details, id);
+    highlight_slow_intersections(app, details, id, ctx);
+    highlight_slow_lanes(app, details, id, ctx);
     Widget::col(col)
 }
 
@@ -402,57 +402,72 @@ pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
     Widget::col(col)
 }
 
-fn highlight_slow_intersections(app: &App, details: &mut Details, id: TripID) {
-    let mut slow_draw = Vec::new();
-    let mut normal_draw = Vec::new();
-    let mut very_slow_draw = Vec::new();
-
+fn highlight_slow_intersections(app: &App, details: &mut Details, id: TripID, ctx: &EventCtx) {
     let data_opt = &app.primary.sim.get_analytics().trip_intersection_delays(id);
     if data_opt.is_some() {
-        let mut data = data_opt.unwrap();
-        let mut msg = String::new();
+        let data = data_opt.unwrap();
         //data.sort_by_key(|k| k.1);
         for (id, time) in data {
-            msg.push_str(&format!(
-                "ID: {},    Delay: {}",
-                id.0.to_string(),
-                time.inner_seconds().to_string(),
-            ));
-            let intersection = app.primary.map.get_i(*id);
-            if time < &Duration::seconds(5.0) {
-                normal_draw.push(intersection.polygon.clone());
-            } else if time < &Duration::seconds(30.0) {
-                slow_draw.push(intersection.polygon.clone());
+            let intersection = app.primary.map.get_i(id.parent);
+            let (normal_delay_time, slow_delay_time) = if intersection.is_traffic_signal() {
+                (30.0, 120.0)
             } else {
-                very_slow_draw.push(intersection.polygon.clone());
+                (5.0, 30.0)
+            };
+            if time < &Duration::seconds(normal_delay_time) {
+                details.unzoomed.push(
+                    Fill::Color(app.cs.normal_slow_intersection),
+                    intersection.polygon.clone(),
+                );
+                details.zoomed.extend(
+                    Fill::Color(app.cs.normal_slow_intersection),
+                    app.primary.map.get_t(*id).geom.dashed_lines(
+                        Distance::meters(0.75),
+                        Distance::meters(1.0),
+                        Distance::meters(0.4),
+                    ),
+                );
+            } else if time < &Duration::seconds(slow_delay_time) {
+                details.unzoomed.push(
+                    Fill::Color(app.cs.slow_intersection),
+                    intersection.polygon.clone(),
+                );
+                details.zoomed.extend(
+                    Fill::Color(app.cs.slow_intersection),
+                    app.primary.map.get_t(*id).geom.dashed_lines(
+                        Distance::meters(0.75),
+                        Distance::meters(1.0),
+                        Distance::meters(0.4),
+                    ),
+                );
+            } else {
+                details.unzoomed.push(
+                    Fill::Color(app.cs.very_slow_intersection),
+                    intersection.polygon.clone(),
+                );
+                details.zoomed.extend(
+                    Fill::Color(app.cs.very_slow_intersection),
+                    app.primary.map.get_t(*id).geom.dashed_lines(
+                        Distance::meters(0.75),
+                        Distance::meters(1.0),
+                        Distance::meters(0.4),
+                    ),
+                );
             }
+            // Draw label after, to prevent being obscured by the line
+            // TODO Change this colour?
+            // TODO Should zoomed be done to?
+            let label = Text::from(Line(time.to_string())).change_fg(Color::BLACK);
+            let rendered = label.render(ctx).centered_on(intersection.polygon.center());
+            details.unzoomed.append(rendered);
         }
-        /*        col.push(Widget::custom_row(vec![
-            Widget::custom_row(vec![Line("Delays").secondary().draw(ctx)])
-                .force_width_pct(ctx, col_width),
-            Line(msg).secondary().draw(ctx),
-        ]));*/
     }
-    details
-        .unzoomed
-        .extend(Fill::Color(app.cs.very_slow_intersection), very_slow_draw);
-    details
-        .unzoomed
-        .extend(Fill::Color(app.cs.slow_intersection), slow_draw);
-    details
-        .unzoomed
-        .extend(Fill::Color(app.cs.normal_slow_intersection), normal_draw);
 }
 
-fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID) {
-    let mut slow_draw = Vec::new();
-    let mut normal_draw = Vec::new();
-    let mut very_slow_draw = Vec::new();
-
+fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID, ctx: &EventCtx) {
     let data_opt = &app.primary.sim.get_analytics().trip_lane_speeds(id);
     if data_opt.is_some() {
         let mut data = data_opt.unwrap();
-        let mut msg = String::new();
         //data.sort_by_key(|k| k.1);
         for (id, speed_percent) in data {
             /*            msg.push_str(&format!(
@@ -462,28 +477,56 @@ fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID) {
             ));*/
             let lane = app.primary.map.get_l(*id);
             if speed_percent > &0.95 {
-                normal_draw.push(lane.lane_center_pts.make_polygons(Distance::meters(10.0)));
+                details.unzoomed.push(
+                    Fill::Color(app.cs.normal_slow_intersection),
+                    lane.lane_center_pts.make_polygons(Distance::meters(10.0)),
+                );
+                details.zoomed.extend(
+                    Fill::Color(app.cs.normal_slow_intersection),
+                    lane.lane_center_pts.dashed_lines(
+                        Distance::meters(0.75),
+                        Distance::meters(1.0),
+                        Distance::meters(0.4),
+                    ),
+                );
             } else if speed_percent > &0.6 {
-                slow_draw.push(lane.lane_center_pts.make_polygons(Distance::meters(10.0)));
+                details.unzoomed.push(
+                    Fill::Color(app.cs.slow_intersection),
+                    lane.lane_center_pts.make_polygons(Distance::meters(10.0)),
+                );
+                details.zoomed.extend(
+                    Fill::Color(app.cs.slow_intersection),
+                    lane.lane_center_pts.dashed_lines(
+                        Distance::meters(0.75),
+                        Distance::meters(1.0),
+                        Distance::meters(0.4),
+                    ),
+                );
             } else {
-                very_slow_draw.push(lane.lane_center_pts.make_polygons(Distance::meters(10.0)));
+                details.unzoomed.push(
+                    Fill::Color(app.cs.very_slow_intersection),
+                    lane.lane_center_pts.make_polygons(Distance::meters(10.0)),
+                );
+                details.zoomed.extend(
+                    Fill::Color(app.cs.very_slow_intersection),
+                    lane.lane_center_pts.dashed_lines(
+                        Distance::meters(0.75),
+                        Distance::meters(1.0),
+                        Distance::meters(0.4),
+                    ),
+                );
             }
+            // Draw label after, to prevent being obscured by the line
+            // TODO Change this colour?
+            // TODO Should zoomed be done to?
+            let label = Text::from(Line(trim_f64(speed_percent))).change_fg(Color::BLACK);
+            let (pt, angle) = lane
+                .lane_center_pts
+                .must_dist_along(lane.lane_center_pts.length() / 2.0);
+            let rendered = label.render(ctx).centered_on(pt); //.rotate(angle);
+            details.unzoomed.append(rendered);
         }
-        /*        col.push(Widget::custom_row(vec![
-            Widget::custom_row(vec![Line("Delays").secondary().draw(ctx)])
-                .force_width_pct(ctx, col_width),
-            Line(msg).secondary().draw(ctx),
-        ]));*/
     }
-    details
-        .unzoomed
-        .extend(Fill::Color(app.cs.very_slow_intersection), very_slow_draw);
-    details
-        .unzoomed
-        .extend(Fill::Color(app.cs.slow_intersection), slow_draw);
-    details
-        .unzoomed
-        .extend(Fill::Color(app.cs.normal_slow_intersection), normal_draw);
 }
 
 fn make_timeline(
@@ -674,7 +717,7 @@ fn make_timeline(
             .centered_vert(),
         );
 
-        if let Some((_dist, ref path)) = p.path {
+        if let Some((dist, ref path)) = p.path {
             if app.opts.dev
                 && (p.phase_type == TripPhaseType::Walking || p.phase_type == TripPhaseType::Biking)
             {
@@ -686,26 +729,26 @@ fn make_timeline(
                     map,
                 ));
             }
-        /*
-        // This is expensive, so cache please
-        if idx == open_trip.cached_routes.len() {
-            if let Some(trace) = path.trace(map, dist, None) {
-                open_trip.cached_routes.push(Some((
-                    trace.make_polygons(Distance::meters(10.0)),
-                    trace.dashed_lines(
-                        Distance::meters(0.75),
-                        Distance::meters(1.0),
-                        Distance::meters(0.4),
-                    ),
-                )));
-            } else {
-                open_trip.cached_routes.push(None);
+
+            // This is expensive, so cache please
+            if idx == open_trip.cached_routes.len() {
+                if let Some(trace) = path.trace(map, dist, None) {
+                    open_trip.cached_routes.push(Some((
+                        trace.make_polygons(Distance::meters(10.0)),
+                        trace.dashed_lines(
+                            Distance::meters(0.75),
+                            Distance::meters(1.0),
+                            Distance::meters(0.4),
+                        ),
+                    )));
+                } else {
+                    open_trip.cached_routes.push(None);
+                }
             }
-        }
-        if let Some((ref unzoomed, ref zoomed)) = open_trip.cached_routes[idx] {
-            details.unzoomed.push(Color::grey(100.0), unzoomed.clone());
-            details.zoomed.extend(color, zoomed.clone());
-        }*/
+            if let Some((ref unzoomed, ref zoomed)) = open_trip.cached_routes[idx] {
+                details.unzoomed.push(color, unzoomed.clone());
+                details.zoomed.extend(color, zoomed.clone());
+            }
         } else if p.has_path_req {
             path_impossible = true;
         }

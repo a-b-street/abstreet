@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use geom::Duration;
 use map_model::{
     BuildingID, BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, Path,
-    PathRequest, Traversable,
+    PathRequest, Traversable, Turn, TurnID,
 };
 
 use crate::{
@@ -54,7 +54,7 @@ pub enum Event {
     },
     TripAborted(TripID),
     TripPhaseStarting(TripID, PersonID, Option<PathRequest>, TripPhaseType),
-    TripIntersectionDelay(TripID, IntersectionID, Duration),
+    TripIntersectionDelay(TripID, TurnID, Duration),
     LaneSpeedPercentage(TripID, LaneID, f64),
     // Just use for parking replanning. Not happy about copying the full path in here, but the way
     // to plumb info into Analytics is Event.

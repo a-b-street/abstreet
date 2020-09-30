@@ -370,7 +370,7 @@ impl DrivingSimState {
                     if let Some((trip, _)) = car.trip_and_person {
                         self.events.push(Event::TripIntersectionDelay(
                             trip,
-                            t.parent,
+                            t,
                             now - blocked_since,
                         ));
                     }
