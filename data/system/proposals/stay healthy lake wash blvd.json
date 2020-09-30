@@ -5935,6 +5935,10 @@
               "Fwd"
             ],
             [
+              "Driving",
+              "Fwd"
+            ],
+            [
               "Sidewalk",
               "Fwd"
             ]
@@ -5954,6 +5958,10 @@
             [
               "Driving",
               "Back"
+            ],
+            [
+              "Driving",
+              "Fwd"
             ],
             [
               "Driving",

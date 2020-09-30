@@ -306,8 +306,7 @@ pub fn prebake_all() {
         }
     }
 
-    // TODO Get lakeslice working again
-    for name in vec![] {
+    for name in vec!["lakeslice"] {
         let map = map_model::Map::new(abstutil::path_map(name), &mut timer);
         let scenario: Scenario =
             abstutil::read_binary(abstutil::path_scenario(name, "weekday"), &mut timer);
