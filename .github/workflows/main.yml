@@ -94,3 +94,23 @@ jobs:
         with:
           name: abst_linux
           path: abst_linux.zip
+  build-wasm:
+    runs-on: ubuntu-latest
+    if: "contains(github.event.head_commit.message, '[rebuild]')"
+    steps:
+      - uses: actions/checkout@master
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: 1.46.0
+      - name: Install cargo-web
+        run: cargo install cargo-web
+      - name: Cache build
+        uses: actions/cache@v2
+        with:
+                path: target
+                # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
+                key: ${{ runner.os }}-build
+      - name: Build game
+        working-directory: game
+        run: cargo web check --target wasm32-unknown-unknown --no-default-features --features wasm
+        # TODO For now, just check that the build works. Later, build fully and package.
