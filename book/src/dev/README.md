@@ -122,6 +122,7 @@ Constructing the map:
   scratch. pretty abandoned as of June 2020
 - `importer`: tool to run the entire import pipeline
 - `updater`: tool to download/upload large files used in the import pipeline
+- `map_tests`: tests for the map import pipeline
 
 Traffic simulation:
 

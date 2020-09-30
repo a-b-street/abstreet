@@ -203,7 +203,7 @@ fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool, build_c
     let name = abstutil::basename(&osm_path);
     let raw = convert_osm::convert(
         convert_osm::Options {
-            osm_input: osm_path,
+            osm_input: convert_osm::Input::Path(osm_path),
             city_name: "oneshot".to_string(),
             name: name.clone(),
 
