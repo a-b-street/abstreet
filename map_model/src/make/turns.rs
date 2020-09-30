@@ -1,9 +1,9 @@
 use crate::raw::RestrictionType;
-use crate::{Intersection, Lane, LaneID, Map, Turn, TurnID, TurnType};
+use crate::{Intersection, Lane, LaneID, Map, RoadID, Turn, TurnID, TurnType};
 use abstutil::Timer;
 use geom::{Distance, PolyLine, Pt2D};
 use nbez::{Bez3o, BezCurve, Point2d};
-use std::collections::{BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 // Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
 pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
@@ -88,6 +88,9 @@ pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Tur
             incoming_missing.remove(&l);
         }
     }
+
+    final_turns = remove_merging_turns(map, final_turns, TurnType::Right);
+    final_turns = remove_merging_turns(map, final_turns, TurnType::Left);
 
     let mut outgoing_missing: HashSet<LaneID> = HashSet::new();
     for l in &i.outgoing_lanes {
@@ -293,4 +296,68 @@ fn lc_penalty(t: &Turn, map: &Map) -> isize {
     };
 
     ((from_idx as isize) - (to_idx as isize)).abs()
+}
+
+fn remove_merging_turns(map: &Map, input: Vec<Turn>, turn_type: TurnType) -> Vec<Turn> {
+    let mut turns = Vec::new();
+
+    // Group turns of the specified type by (from, to) road
+    let mut pairs: BTreeMap<(RoadID, RoadID), Vec<Turn>> = BTreeMap::new();
+    for t in input {
+        // Only do this for driving lanes
+        if !map.get_l(t.id.src).is_driving() || !map.get_l(t.id.dst).is_driving() {
+            turns.push(t);
+            continue;
+        }
+
+        if t.turn_type == turn_type {
+            pairs
+                .entry((map.get_l(t.id.src).parent, map.get_l(t.id.dst).parent))
+                .or_insert_with(Vec::new)
+                .push(t);
+        } else {
+            turns.push(t);
+        }
+    }
+
+    for (_, group) in pairs {
+        if group.len() == 1 {
+            turns.extend(group);
+            continue;
+        }
+
+        // From one to many is fine
+        if group.iter().map(|t| t.id.src).collect::<HashSet<_>>().len() == 1 {
+            turns.extend(group);
+            continue;
+        }
+
+        // TODO Handle >1 left/right turn lane.
+        if group.iter().map(|t| t.id.dst).collect::<HashSet<_>>().len() > 1 {
+            turns.extend(group);
+            continue;
+        }
+
+        // We have multiple lanes all with a turn to the same destination lane. Most likely, only
+        // the rightmost or leftmost can actually make the turn.
+        let road = map.get_parent(group[0].id.src);
+        if turn_type == TurnType::Right {
+            turns.push(
+                group
+                    .into_iter()
+                    .max_by_key(|t| road.dir_and_offset(t.id.src).1)
+                    .unwrap(),
+            );
+        } else if turn_type == TurnType::Left {
+            turns.push(
+                group
+                    .into_iter()
+                    .min_by_key(|t| road.dir_and_offset(t.id.src).1)
+                    .unwrap(),
+            );
+        } else {
+            unreachable!()
+        }
+    }
+    turns
 }
