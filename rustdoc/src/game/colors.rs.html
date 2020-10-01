@@ -364,6 +364,50 @@
 <span id="364">364</span>
 <span id="365">365</span>
 <span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">ColorScale</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">loading_tips</span>;
@@ -390,6 +434,8 @@
     <span class="ident">OSM</span>,
     <span class="ident">Starcat</span>,
     <span class="ident">Textured</span>,
+    <span class="ident">MapboxLight</span>,
+    <span class="ident">MapboxDark</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ColorSchemeChoice</span> {
@@ -403,6 +449,8 @@
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;osm&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">OSM</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;starcat&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">Starcat</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;textured&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">Textured</span>),
+            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;mapbox light&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">MapboxLight</span>),
+            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;mapbox dark&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">MapboxDark</span>),
         ]
     }
 }
@@ -505,6 +553,8 @@
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">OSM</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">osm</span>(),
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">Starcat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">starcat</span>(),
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">Textured</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">textured</span>(),
+            <span class="ident">ColorSchemeChoice</span>::<span class="ident">MapboxLight</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">mapbox_light</span>(),
+            <span class="ident">ColorSchemeChoice</span>::<span class="ident">MapboxDark</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">mapbox_dark</span>(),
         }
     }
 
@@ -537,8 +587,8 @@
             <span class="ident">sidewalk_lines</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.7</span>),
             <span class="ident">general_road_marking</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
             <span class="ident">road_center_line</span>: <span class="ident">Color</span>::<span class="ident">YELLOW</span>,
-            <span class="ident">light_rail_track</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#844204&quot;</span>),
-            <span class="ident">private_road</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#F0B0C0&quot;</span>),
+            <span class="ident">light_rail_track</span>: <span class="ident">hex</span>(<span class="string">&quot;#844204&quot;</span>),
+            <span class="ident">private_road</span>: <span class="ident">hex</span>(<span class="string">&quot;#F0B0C0&quot;</span>),
             <span class="ident">unzoomed_highway</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">232</span>, <span class="number">146</span>, <span class="number">162</span>),
             <span class="ident">unzoomed_arterial</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">255</span>, <span class="number">199</span>, <span class="number">62</span>),
             <span class="ident">unzoomed_residential</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
@@ -558,9 +608,9 @@
             <span class="ident">void_background</span>: <span class="ident">Color</span>::<span class="ident">BLACK</span>,
             <span class="ident">map_background</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.87</span>).<span class="ident">into</span>(),
             <span class="ident">unzoomed_interesting_intersection</span>: <span class="ident">Color</span>::<span class="ident">BLACK</span>,
-            <span class="ident">residential_building</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#C4C1BC&quot;</span>),
-            <span class="ident">commerical_building</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#9FABA7&quot;</span>),
-            <span class="ident">building_outline</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#938E85&quot;</span>),
+            <span class="ident">residential_building</span>: <span class="ident">hex</span>(<span class="string">&quot;#C4C1BC&quot;</span>),
+            <span class="ident">commerical_building</span>: <span class="ident">hex</span>(<span class="string">&quot;#9FABA7&quot;</span>),
+            <span class="ident">building_outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#938E85&quot;</span>),
             <span class="ident">parking_lot</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.7</span>),
             <span class="ident">grass</span>: <span class="ident">hex</span>(<span class="string">&quot;#94C84A&quot;</span>).<span class="ident">into</span>(),
             <span class="ident">water</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">164</span>, <span class="number">200</span>, <span class="number">234</span>).<span class="ident">into</span>(),
@@ -584,13 +634,13 @@
             <span class="ident">brake_light</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF1300&quot;</span>),
             <span class="ident">bus_body</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">50</span>, <span class="number">133</span>, <span class="number">117</span>),
             <span class="ident">bus_label</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">249</span>, <span class="number">206</span>, <span class="number">24</span>),
-            <span class="ident">train_body</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#42B6E9&quot;</span>),
+            <span class="ident">train_body</span>: <span class="ident">hex</span>(<span class="string">&quot;#42B6E9&quot;</span>),
             <span class="ident">ped_head</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">139</span>, <span class="number">69</span>, <span class="number">19</span>),
             <span class="ident">ped_foot</span>: <span class="ident">Color</span>::<span class="ident">BLACK</span>,
             <span class="ident">ped_preparing_bike_body</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">144</span>),
             <span class="ident">ped_crowd</span>: <span class="ident">Color</span>::<span class="ident">rgb_f</span>(<span class="number">0.2</span>, <span class="number">0.7</span>, <span class="number">0.7</span>),
-            <span class="ident">bike_frame</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#AAA9AD&quot;</span>),
-            <span class="ident">parked_car</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#938E85&quot;</span>),
+            <span class="ident">bike_frame</span>: <span class="ident">hex</span>(<span class="string">&quot;#AAA9AD&quot;</span>),
+            <span class="ident">parked_car</span>: <span class="ident">hex</span>(<span class="string">&quot;#938E85&quot;</span>),
 
             <span class="comment">// Layers</span>
             <span class="ident">good_to_bad_red</span>: <span class="ident">ColorScale</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">hex</span>(<span class="string">&quot;#F19A93&quot;</span>), <span class="ident">hex</span>(<span class="string">&quot;#A32015&quot;</span>)]),
@@ -728,6 +778,44 @@
         <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">Texture</span>::<span class="ident">GRASS</span>.<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">Texture</span>::<span class="ident">STILL_WATER</span>.<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">Texture</span>::<span class="ident">CONCRETE</span>.<span class="ident">into</span>();
+        <span class="ident">cs</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">mapbox_light</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#F2F3F1&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">unzoomed_highway</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
+        <span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
+        <span class="ident">cs</span>.<span class="ident">unzoomed_residential</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
+        <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#ECEEED&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#CAD2D3&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#E9E9E7&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">commerical_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#E9E9E7&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">mapbox_dark</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#343332&quot;</span>).<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#454545&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">unzoomed_highway</span> <span class="op">=</span> <span class="ident">road</span>;
+        <span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span> <span class="op">=</span> <span class="ident">road</span>;
+        <span class="ident">cs</span>.<span class="ident">unzoomed_residential</span> <span class="op">=</span> <span class="ident">road</span>;
+        <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#323432&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#181919&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#2C2C2B&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">commerical_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#2C2C2B&quot;</span>).<span class="ident">into</span>();
+
+        <span class="ident">cs</span>.<span class="ident">driving_lane</span> <span class="op">=</span> <span class="ident">road</span>;
+        <span class="ident">cs</span>.<span class="ident">parking_lane</span> <span class="op">=</span> <span class="ident">road</span>;
+        <span class="ident">cs</span>.<span class="ident">bike_lane</span> <span class="op">=</span> <span class="ident">road</span>;
+        <span class="ident">cs</span>.<span class="ident">bus_lane</span> <span class="op">=</span> <span class="ident">road</span>;
+        <span class="ident">cs</span>.<span class="ident">sidewalk</span> <span class="op">=</span> <span class="ident">road</span>;
+        <span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> <span class="op">=</span> <span class="ident">road</span>;
+        <span class="ident">cs</span>.<span class="ident">normal_intersection</span> <span class="op">=</span> <span class="ident">road</span>;
+        <span class="ident">cs</span>.<span class="ident">general_road_marking</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">building_outline</span>;
+        <span class="ident">cs</span>.<span class="ident">road_center_line</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">general_road_marking</span>;
+
         <span class="ident">cs</span>
     }
 }
