@@ -12,7 +12,7 @@ use crate::helpers::nice_map_name;
 use abstutil::Timer;
 use geom::{LonLat, Percent};
 use widgetry::{
-    Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, TextExt,
+    lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, TextExt,
     VerticalAlignment, Widget,
 };
 
@@ -35,7 +35,7 @@ impl DevToolsMode {
                     Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
                         ctx,
                         "change map",
-                        None,
+                        lctrl(Key::L),
                     ),
                 ]),
                 Widget::custom_row(vec![

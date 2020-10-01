@@ -22,3 +22,6 @@
   improvements
   - [Silicon Valley Bike Summit](https://bikesiliconvalley.org/2020/07/poster_dustin-carlino/),
     [Seattle PI](https://www.seattlepi.com/local/transportation/slideshow/solve-Seattles-traffic-problem-in-this-video-game-205839.php)
+- September: ...
+  - [SeattleMet](https://www.seattlemet.com/news-and-city-life/2020/09/a-new-game-allows-you-to-redesign-seattle-streets)
+- October: ...

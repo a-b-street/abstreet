@@ -399,11 +399,12 @@ impl ColorScheme {
         cs.parking_lane = road;
         cs.bike_lane = road;
         cs.bus_lane = road;
-        cs.sidewalk = road;
+        cs.sidewalk = Color::grey(0.3);
         cs.sidewalk_lines = road;
         cs.normal_intersection = road;
         cs.general_road_marking = cs.building_outline;
         cs.road_center_line = cs.general_road_marking;
+        cs.stop_sign = Color::rgb_f(0.67, 0.55, 0.55);
 
         cs
     }
