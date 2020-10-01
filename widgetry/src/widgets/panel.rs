@@ -1,3 +1,4 @@
+use crate::widgets::Container;
 use crate::{
     AreaSlider, Autocomplete, Checkbox, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment,
     Menu, Outcome, PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner,
@@ -48,7 +49,72 @@ impl Panel {
         self.container_dims = new_container_dims;
     }
 
+    // TODO: this method potentially gets called multiple times in a render pass as an
+    // optimization, we could replace all the current call sites with a "dirty" flag, e.g.
+    // `set_needs_layout()` and then call `layout_if_needed()` once at the last possible moment
     fn recompute_layout(&mut self, ctx: &EventCtx, recompute_bg: bool) {
+        let old_scrollable_x = self.scrollable_x;
+        let old_scrollable_y = self.scrollable_y;
+
+        self.scrollable_x = self.contents_dims.width > self.container_dims.width;
+        self.scrollable_y = self.contents_dims.height > self.container_dims.height;
+
+        // Unwrap the main widget from any scrollable containers if necessary.
+        if old_scrollable_y && !self.scrollable_y {
+            let container = self.top_level.widget.downcast_mut::<Container>().unwrap();
+            self.top_level = container.members.remove(0);
+        }
+
+        if old_scrollable_x && !self.scrollable_x {
+            let container = self.top_level.widget.downcast_mut::<Container>().unwrap();
+            self.top_level = container.members.remove(0);
+        }
+
+        let top_left = ctx
+            .canvas
+            .align_window(self.container_dims, self.horiz, self.vert);
+
+        // Wrap the main widget in scrollable containers if necessary.
+        if self.scrollable_x && !old_scrollable_x {
+            let mut place_holder = Widget::nothing();
+            std::mem::swap(&mut place_holder, &mut self.top_level);
+            self.top_level = Widget::custom_col(vec![
+                place_holder,
+                Slider::horizontal(
+                    ctx,
+                    self.container_dims.width,
+                    self.container_dims.width
+                        * (self.container_dims.width / self.contents_dims.width),
+                    0.0,
+                )
+                .named("horiz scrollbar")
+                .abs(top_left.x, top_left.y + self.container_dims.height),
+            ]);
+        }
+
+        if self.scrollable_y && !old_scrollable_y {
+            let mut place_holder = Widget::nothing();
+            std::mem::swap(&mut place_holder, &mut self.top_level);
+            self.top_level = Widget::custom_row(vec![
+                place_holder,
+                Slider::vertical(
+                    ctx,
+                    self.container_dims.height,
+                    self.container_dims.height
+                        * (self.container_dims.height / self.contents_dims.height),
+                    0.0,
+                )
+                .named("vert scrollbar")
+                .abs(top_left.x + self.container_dims.width, top_left.y),
+            ]);
+        }
+
+        self.clip_rect = if self.scrollable_x || self.scrollable_y {
+            Some(ScreenRectangle::top_left(top_left, self.container_dims))
+        } else {
+            None
+        };
+
         let mut stretch = Stretch::new();
         let root = stretch
             .new_node(
@@ -419,45 +485,6 @@ impl PanelBuilder {
         panel.contents_dims =
             ScreenDims::new(panel.top_level.rect.width(), panel.top_level.rect.height());
         panel.update_container_dims_for_canvas_dims(ctx.canvas.get_window_dims());
-
-        // If the panel fits without a scrollbar, don't add one.
-        let top_left = ctx
-            .canvas
-            .align_window(panel.container_dims, panel.horiz, panel.vert);
-        if panel.contents_dims.width > panel.container_dims.width {
-            panel.scrollable_x = true;
-            panel.top_level = Widget::custom_col(vec![
-                panel.top_level,
-                Slider::horizontal(
-                    ctx,
-                    panel.container_dims.width,
-                    panel.container_dims.width
-                        * (panel.container_dims.width / panel.contents_dims.width),
-                    0.0,
-                )
-                .named("horiz scrollbar")
-                .abs(top_left.x, top_left.y + panel.container_dims.height),
-            ]);
-        }
-        if panel.contents_dims.height > panel.container_dims.height {
-            panel.scrollable_y = true;
-            panel.top_level = Widget::custom_row(vec![
-                panel.top_level,
-                Slider::vertical(
-                    ctx,
-                    panel.container_dims.height,
-                    panel.container_dims.height
-                        * (panel.container_dims.height / panel.contents_dims.height),
-                    0.0,
-                )
-                .named("vert scrollbar")
-                .abs(top_left.x + panel.container_dims.width, top_left.y),
-            ]);
-        }
-        if panel.scrollable_x || panel.scrollable_y {
-            panel.recompute_layout(ctx, false);
-            panel.clip_rect = Some(ScreenRectangle::top_left(top_left, panel.container_dims));
-        }
 
         // Just trigger error if a button is double-defined
         panel.get_all_click_actions();
