@@ -186,6 +186,10 @@
 <span id="186">186</span>
 <span id="187">187</span>
 <span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">cli</span>;
 <span class="kw">mod</span> <span class="ident">collections</span>;
@@ -257,6 +261,8 @@
             <span class="string">&quot;data&quot;</span>.<span class="ident">to_string</span>()
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;../data/&quot;</span>.<span class="ident">to_string</span>()) {
             <span class="string">&quot;../data&quot;</span>.<span class="ident">to_string</span>()
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;../../data/&quot;</span>.<span class="ident">to_string</span>()) {
+            <span class="string">&quot;../../data&quot;</span>.<span class="ident">to_string</span>()
         } <span class="kw">else</span> {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t find the data/ directory&quot;</span>);
         }
@@ -276,6 +282,8 @@
             <span class="string">&quot;data&quot;</span>.<span class="ident">to_string</span>()
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;../data/&quot;</span>.<span class="ident">to_string</span>()) {
             <span class="string">&quot;../data&quot;</span>.<span class="ident">to_string</span>()
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;../../data/&quot;</span>.<span class="ident">to_string</span>()) {
+            <span class="string">&quot;../../data&quot;</span>.<span class="ident">to_string</span>()
         } <span class="kw">else</span> {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t find the data/ directory&quot;</span>);
         }

@@ -1181,6 +1181,10 @@ spawning, agents hitting odd parts of the map, etc</li>
 <li><code>--check_proposals</code> makes sure the edits shipped with the game still load
 properly</li>
 </ul>
+<h2><a class="header" href="#map_tests" id="map_tests">map_tests</a></h2>
+<p>The <code>map_tests</code> crate runs the full importer against really simple <code>.osm</code>
+files. To iterate rapidly on interpreting turn restrictions, for example, it
+produces goldenfiles describing all turns in the tiny map.</p>
 <h2><a class="header" href="#old-tests" id="old-tests">Old tests</a></h2>
 <p>Once upon a time, I made a little test harness that would run the simulation
 headlessly (without graphics), set up certain situations forcing a car to park

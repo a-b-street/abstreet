@@ -63,7 +63,7 @@
 
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">convert_osm</span>::<span class="ident">convert</span>(
         <span class="ident">convert_osm</span>::<span class="ident">Options</span> {
-            <span class="ident">osm_input</span>: <span class="ident">convert_osm</span>::<span class="ident">Input</span>::<span class="ident">Path</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/xian/{}.osm&quot;</span>, <span class="ident">name</span>))),
+            <span class="ident">osm_input</span>: <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/xian/osm/{}.osm&quot;</span>, <span class="ident">name</span>)),
             <span class="ident">city_name</span>: <span class="string">&quot;xian&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">to_string</span>(),
 

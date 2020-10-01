@@ -144,12 +144,6 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">clip</span>;
 <span class="kw">mod</span> <span class="ident">extract</span>;
@@ -165,14 +159,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">RawMap</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">MapConfig</span>, <span class="ident">NamePerLanguage</span>};
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Input</span> {
-    <span class="ident">Path</span>(<span class="ident">String</span>),
-    <span class="ident">Contents</span>(<span class="ident">String</span>),
-}
-
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
-    <span class="kw">pub</span> <span class="ident">osm_input</span>: <span class="ident">Input</span>,
-
+    <span class="kw">pub</span> <span class="ident">osm_input</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">city_name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
 
