@@ -1,4 +1,3 @@
-use crate::Input;
 use abstutil::{prettyprint_usize, slurp_file, Tags, Timer};
 use geom::{GPSBounds, LonLat, Pt2D};
 use map_model::osm::{NodeID, OsmID, RelationID, WayID};
@@ -40,22 +39,15 @@ pub struct Relation {
 }
 
 pub fn read(
-    input: &Input,
+    path: &str,
     input_gps_bounds: &GPSBounds,
     timer: &mut Timer,
 ) -> Result<Document, Box<dyn Error>> {
-    let bytes: Vec<u8>;
-    let tree = match input {
-        Input::Path(path) => {
-            timer.start(format!("read {}", path));
-            bytes = slurp_file(path)?;
-            let raw_string = std::str::from_utf8(&bytes)?;
-            let tree = roxmltree::Document::parse(raw_string)?;
-            timer.stop(format!("read {}", path));
-            tree
-        }
-        Input::Contents(contents) => roxmltree::Document::parse(contents)?,
-    };
+    timer.start(format!("read {}", path));
+    let bytes = slurp_file(path)?;
+    let raw_string = std::str::from_utf8(&bytes)?;
+    let tree = roxmltree::Document::parse(raw_string)?;
+    timer.stop(format!("read {}", path));
 
     let mut doc = Document {
         gps_bounds: input_gps_bounds.clone(),

@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Resembles https://www.openstreetmap.org/node/53086620: there's a left turn lane and a bike lane. -->
+<osm>
+        <bounds minlon="0.0" maxlon="0.01" minlat="0.0" maxlat="0.01"/>
+        <node id="1" lon="0.005" lat="0.005"/>
+        <node id="2" lon="0.005" lat="-1.0"/>
+        <node id="3" lon="0.005" lat="1.0"/>
+        <node id="4" lon="-0.1" lat="0.005"/>
+        <node id="5" lon="1.0" lat="0.005"/>
+        <way id="100">
+            <nd ref="1"/>
+            <nd ref="2"/>
+            <tag k="name" v="south"/>
+            <tag k="highway" v="primary"/>
+            <tag k="sidewalk" v="both"/>
+
+            <tag k="lanes" v="4"/>
+        </way>
+        <way id="101">
+            <nd ref="1"/>
+            <nd ref="3"/>
+            <tag k="name" v="north"/>
+            <tag k="highway" v="primary"/>
+            <tag k="sidewalk" v="both"/>
+
+            <tag k="lanes" v="5"/>
+            <tag k="lanes:forward" v="2"/>
+            <tag k="lanes:backward" v="3"/>
+            <tag k="turn:lanes:backward" v="left||"/>
+        </way>
+        <way id="102">
+            <nd ref="1"/>
+            <nd ref="4"/>
+            <tag k="name" v="west"/>
+            <tag k="highway" v="residential"/>
+            <tag k="sidewalk" v="both"/>
+
+            <tag k="lanes" v="2"/>
+        </way>
+        <way id="103">
+            <nd ref="1"/>
+            <nd ref="5"/>
+            <tag k="name" v="east"/>
+            <tag k="highway" v="residential"/>
+            <tag k="sidewalk" v="both"/>
+
+            <tag k="lanes" v="2"/>
+            <tag k="cycleway" v="lane"/>
+        </way>
+</osm>

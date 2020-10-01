@@ -68,6 +68,8 @@ lazy_static::lazy_static! {
             "data".to_string()
         } else if file_exists("../data/".to_string()) {
             "../data".to_string()
+        } else if file_exists("../../data/".to_string()) {
+            "../../data".to_string()
         } else {
             panic!("Can't find the data/ directory");
         }
@@ -87,6 +89,8 @@ lazy_static::lazy_static! {
             "data".to_string()
         } else if file_exists("../data/".to_string()) {
             "../data".to_string()
+        } else if file_exists("../../data/".to_string()) {
+            "../../data".to_string()
         } else {
             panic!("Can't find the data/ directory");
         }
