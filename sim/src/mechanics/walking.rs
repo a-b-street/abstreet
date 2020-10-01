@@ -1,3 +1,14 @@
+use std::collections::{BTreeMap, BTreeSet};
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
+use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
+use map_model::{
+    BuildingID, BusRouteID, DrivingSide, Map, ParkingLotID, Path, PathStep, Traversable,
+    SIDEWALK_THICKNESS,
+};
+
 use crate::sim::Ctx;
 use crate::{
     AgentID, AgentProperties, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput,
@@ -5,14 +16,6 @@ use crate::{
     PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState,
     TripID, TripManager, UnzoomedAgent,
 };
-use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
-use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
-use map_model::{
-    BuildingID, BusRouteID, DrivingSide, Map, ParkingLotID, Path, PathStep, Traversable,
-    SIDEWALK_THICKNESS,
-};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
 
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
 const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
@@ -237,6 +240,16 @@ impl WalkingSimState {
                     ctx.scheduler
                         .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                     ped.total_blocked_time += now - blocked_since;
+                    let delay = (now - blocked_since).inner_seconds() as u8;
+                    // TODO Check the delay time
+                    // TODO Check we are getting turn correctly and it won't panic
+                    if delay > 15 {
+                        self.events.push(Event::TripIntersectionDelay(
+                            ped.trip,
+                            ped.path.current_step().as_turn(),
+                            delay,
+                        ));
+                    }
                 }
             }
             PedState::LeavingBuilding(b, _) => {
