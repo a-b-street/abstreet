@@ -180,9 +180,9 @@ impl Panel {
                 Polygon::rectangle(self.container_dims.width, self.container_dims.height)
                     .translate(top_left.x, top_left.y),
             );
+            g.unfork();
         }
 
-        g.unfork();
 
         self.top_level.draw(g);
         if self.scrollable_x || self.scrollable_y {
