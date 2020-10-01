@@ -11,7 +11,7 @@ use stretch::number::Number;
 use stretch::style::{Dimension, Style};
 
 pub struct Panel {
-    pub(crate) top_level: Widget,
+    top_level: Widget,
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
     dims: Dims,
@@ -298,6 +298,10 @@ impl Panel {
 
     pub fn autocomplete_done<T: 'static + Clone>(&self, name: &str) -> Option<Vec<T>> {
         self.find::<Autocomplete<T>>(name).final_value()
+    }
+
+    pub fn maybe_find(&self, name: &str) -> Option<&Widget> {
+        self.top_level.find(name)
     }
 
     pub fn find<T: WidgetImpl>(&self, name: &str) -> &T {
