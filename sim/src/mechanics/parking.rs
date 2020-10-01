@@ -331,6 +331,7 @@ impl ParkingSim for NormalParkingSimState {
                     id: p.vehicle.id,
                     waiting_for_turn: None,
                     status: CarStatus::Parked,
+                    is_parking: false,
                     on: Traversable::Lane(lane),
                     partly_on: Vec::new(),
                     label: None,
@@ -351,6 +352,7 @@ impl ParkingSim for NormalParkingSimState {
                     id: p.vehicle.id,
                     waiting_for_turn: None,
                     status: CarStatus::Parked,
+                    is_parking: false,
                     // Just used for z-order
                     on: Traversable::Lane(pl.driving_pos.lane()),
                     partly_on: Vec::new(),

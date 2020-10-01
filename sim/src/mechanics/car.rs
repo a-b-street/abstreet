@@ -216,12 +216,12 @@ impl Car {
                 CarState::Queued { .. } => CarStatus::Moving,
                 CarState::WaitingToAdvance { .. } => CarStatus::Moving,
                 CarState::Crossing(_, _) => CarStatus::Moving,
-                // Eh they're technically moving, but this is a bit easier to spot
-                CarState::Unparking(_, _, _) => CarStatus::Parked,
-                CarState::Parking(_, _, _) => CarStatus::Parked,
+                CarState::Unparking(_, _, _) => CarStatus::Moving,
+                CarState::Parking(_, _, _) => CarStatus::Moving,
                 // Changing color for idling buses is helpful
                 CarState::IdlingAtStop(_, _) => CarStatus::Parked,
             },
+            is_parking: self.is_parking(),
             on: self.router.head(),
             partly_on,
             label: if self.vehicle.vehicle_type == VehicleType::Bus

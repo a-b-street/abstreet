@@ -83,6 +83,27 @@ impl DrawCar {
             );
         }
 
+        if input.is_parking {
+            // draw intent bubble
+            let bubble_z = -0.0001;
+            let mut bubble_batch =
+                GeomBatch::load_svg(prerender, "system/assets/map/thought_bubble.svg")
+                    .scale(0.05)
+                    .centered_on(input.body.middle())
+                    .translate(4.0, -4.0)
+                    .set_z_offset(bubble_z);
+
+            let intent_batch = GeomBatch::load_svg(prerender, "system/assets/map/parking.svg")
+                .scale(0.015)
+                .centered_on(input.body.middle())
+                .translate(4.5, -4.5)
+                .set_z_offset(bubble_z);
+
+            bubble_batch.append(intent_batch);
+
+            draw_default.append(bubble_batch);
+        }
+
         // If the vehicle is temporarily too short for anything, just omit.
         if input.body.length() >= Distance::meters(2.5) {
             let arrow_len = 0.8 * CAR_WIDTH;

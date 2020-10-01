@@ -36,6 +36,7 @@ pub struct DrawCarInput {
     pub id: CarID,
     pub waiting_for_turn: Option<TurnID>,
     pub status: CarStatus,
+    pub is_parking: bool,
     // Front of the car
     pub on: Traversable,
     // Possibly the rest
