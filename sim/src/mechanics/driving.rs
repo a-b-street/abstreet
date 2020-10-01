@@ -251,11 +251,13 @@ impl DrivingSimState {
                 let avg_speed = Speed::from_dist_time(dist_int.length(), time_cross);
                 let route = car.router.head();
                 let max_speed = route.speed_limit(ctx.map);
-                let speed_percent = avg_speed / max_speed;
-                if let Some((trip, _)) = car.trip_and_person {
-                    if let Traversable::Lane(lane) = route {
-                        self.events
-                            .push(Event::LaneSpeedPercentage(trip, lane, speed_percent));
+                let speed_percent: u8 = ((avg_speed / max_speed) * 100.0) as u8;
+                if speed_percent < 95 {
+                    if let Some((trip, _)) = car.trip_and_person {
+                        if let Traversable::Lane(lane) = route {
+                            self.events
+                                .push(Event::LaneSpeedPercentage(trip, lane, speed_percent));
+                        }
                     }
                 }
 
@@ -368,11 +370,12 @@ impl DrivingSimState {
                         return false;
                     }
                     if let Some((trip, _)) = car.trip_and_person {
-                        self.events.push(Event::TripIntersectionDelay(
-                            trip,
-                            t,
-                            now - blocked_since,
-                        ));
+                        let delay = (now - blocked_since).inner_seconds() as u8;
+                        // TODO Check the delay time
+                        if delay > 30 {
+                            self.events
+                                .push(Event::TripIntersectionDelay(trip, t, delay));
+                        }
                     }
                 }
 

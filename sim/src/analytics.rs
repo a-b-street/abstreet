@@ -33,8 +33,8 @@ pub struct Analytics {
     // TODO Hack: No TripMode means aborted
     // Finish time, ID, mode (or None as aborted), trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
-    pub trip_intersection_delays: BTreeMap<TripID, Vec<(TurnID, Duration)>>,
-    pub lane_speed_percentage: BTreeMap<TripID, Vec<(LaneID, f64)>>,
+    pub trip_intersection_delays: BTreeMap<TripID, Vec<(TurnID, u8)>>,
+    pub lane_speed_percentage: BTreeMap<TripID, Vec<(LaneID, u8)>>,
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
 
@@ -260,10 +260,10 @@ impl Analytics {
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
 
-    pub fn trip_intersection_delays(&self, trip: TripID) -> Option<&Vec<(TurnID, Duration)>> {
+    pub fn trip_intersection_delays(&self, trip: TripID) -> Option<&Vec<(TurnID, u8)>> {
         self.trip_intersection_delays.get(&trip)
     }
-    pub fn trip_lane_speeds(&self, trip: TripID) -> Option<&Vec<(LaneID, f64)>> {
+    pub fn trip_lane_speeds(&self, trip: TripID) -> Option<&Vec<(LaneID, u8)>> {
         self.lane_speed_percentage.get(&trip)
     }
 

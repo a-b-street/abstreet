@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use maplit::btreemap;
 
 use geom::{trim_f64, ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
-use map_model::{Map, Path, PathStep};
+use map_model::{Lane, LaneID, Map, Path, PathStep, Turn};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
     Btn, Color, DrawWithTooltips, EventCtx, Fill, GeomBatch, Line, LinePlot, PlotOptions,
@@ -131,9 +131,17 @@ pub fn ongoing(
         details,
         phases,
         Some(props.dist_crossed / props.total_dist),
-    ));
-    highlight_slow_intersections(app, details, id, ctx);
-    highlight_slow_lanes(app, details, id, ctx);
+    )); /*    col.push(make_timeline(
+            ctx,
+            app,
+            id,
+            open_trip,
+            details,
+            phases,
+            Some(props.dist_crossed / props.total_dist),
+        ));
+        highlight_slow_intersections(app, details, id, ctx);
+        highlight_slow_lanes(app, details, id, ctx);*/
     Widget::col(col)
 }
 
@@ -410,54 +418,37 @@ fn highlight_slow_intersections(app: &App, details: &mut Details, id: TripID, ct
         for (id, time) in data {
             let intersection = app.primary.map.get_i(id.parent);
             let (normal_delay_time, slow_delay_time) = if intersection.is_traffic_signal() {
-                (30.0, 120.0)
+                (30, 120)
             } else {
-                (5.0, 30.0)
+                (5, 30)
             };
-            if time < &Duration::seconds(normal_delay_time) {
-                details.unzoomed.push(
-                    Fill::Color(app.cs.normal_slow_intersection),
-                    intersection.polygon.clone(),
-                );
-                details.zoomed.extend(
-                    Fill::Color(app.cs.normal_slow_intersection),
-                    app.primary.map.get_t(*id).geom.dashed_lines(
-                        Distance::meters(0.75),
-                        Distance::meters(1.0),
-                        Distance::meters(0.4),
-                    ),
-                );
-            } else if time < &Duration::seconds(slow_delay_time) {
-                details.unzoomed.push(
-                    Fill::Color(app.cs.slow_intersection),
-                    intersection.polygon.clone(),
-                );
-                details.zoomed.extend(
-                    Fill::Color(app.cs.slow_intersection),
-                    app.primary.map.get_t(*id).geom.dashed_lines(
-                        Distance::meters(0.75),
-                        Distance::meters(1.0),
-                        Distance::meters(0.4),
-                    ),
-                );
+            let (fg_color, bg_color) = if time < &normal_delay_time {
+                (Color::WHITE, app.cs.normal_slow_intersection)
+            } else if time < &slow_delay_time {
+                (Color::BLACK, app.cs.slow_intersection)
             } else {
-                details.unzoomed.push(
-                    Fill::Color(app.cs.very_slow_intersection),
-                    intersection.polygon.clone(),
-                );
-                details.zoomed.extend(
-                    Fill::Color(app.cs.very_slow_intersection),
-                    app.primary.map.get_t(*id).geom.dashed_lines(
-                        Distance::meters(0.75),
-                        Distance::meters(1.0),
-                        Distance::meters(0.4),
-                    ),
-                );
-            }
+                (Color::WHITE, app.cs.very_slow_intersection)
+            };
+
+            // TODO Do we want intersection highlighting?
+            /*            details.unzoomed.push(
+                Fill::Color(colour),
+                intersection.polygon.clone(),
+            );
+            details.zoomed.extend(
+                Fill::Color(bg_color),
+                app.primary.map.get_t(*id).geom.dashed_lines(
+                    Distance::meters(0.75),
+                    Distance::meters(1.0),
+                    Distance::meters(0.4),
+                ),
+            );*/
             // Draw label after, to prevent being obscured by the line
             // TODO Change this colour?
             // TODO Should zoomed be done to?
-            let label = Text::from(Line(time.to_string())).change_fg(Color::BLACK);
+            let label = Text::from(Line(time.to_string()))
+                .change_fg(fg_color)
+                .bg(bg_color);
             let rendered = label.render(ctx).centered_on(intersection.polygon.center());
             details.unzoomed.append(rendered);
         }
@@ -468,65 +459,175 @@ fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID, ctx: &Even
     let data_opt = &app.primary.sim.get_analytics().trip_lane_speeds(id);
     if data_opt.is_some() {
         let mut data = data_opt.unwrap();
-        //data.sort_by_key(|k| k.1);
         for (id, speed_percent) in data {
-            /*            msg.push_str(&format!(
-                "ID: {},    Delay: {}",
-                id.0.to_string(),
-                time.inner_seconds().to_string(),
-            ));*/
             let lane = app.primary.map.get_l(*id);
-            if speed_percent > &0.95 {
-                details.unzoomed.push(
-                    Fill::Color(app.cs.normal_slow_intersection),
-                    lane.lane_center_pts.make_polygons(Distance::meters(10.0)),
-                );
-                details.zoomed.extend(
-                    Fill::Color(app.cs.normal_slow_intersection),
-                    lane.lane_center_pts.dashed_lines(
-                        Distance::meters(0.75),
-                        Distance::meters(1.0),
-                        Distance::meters(0.4),
-                    ),
-                );
-            } else if speed_percent > &0.6 {
-                details.unzoomed.push(
-                    Fill::Color(app.cs.slow_intersection),
-                    lane.lane_center_pts.make_polygons(Distance::meters(10.0)),
-                );
-                details.zoomed.extend(
-                    Fill::Color(app.cs.slow_intersection),
-                    lane.lane_center_pts.dashed_lines(
-                        Distance::meters(0.75),
-                        Distance::meters(1.0),
-                        Distance::meters(0.4),
-                    ),
-                );
+            let (fg_color, bg_color) = if speed_percent > &95 {
+                (Color::WHITE, app.cs.normal_slow_intersection)
+            } else if speed_percent > &60 {
+                (Color::BLACK, app.cs.slow_intersection)
             } else {
-                details.unzoomed.push(
-                    Fill::Color(app.cs.very_slow_intersection),
-                    lane.lane_center_pts.make_polygons(Distance::meters(10.0)),
-                );
-                details.zoomed.extend(
-                    Fill::Color(app.cs.very_slow_intersection),
-                    lane.lane_center_pts.dashed_lines(
-                        Distance::meters(0.75),
-                        Distance::meters(1.0),
-                        Distance::meters(0.4),
-                    ),
-                );
-            }
+                (Color::WHITE, app.cs.very_slow_intersection)
+            };
+            // TODO Do we want lane highlighting?
+            details.unzoomed.push(
+                Fill::Color(bg_color),
+                lane.lane_center_pts.make_polygons(Distance::meters(10.0)),
+            );
+            details.zoomed.extend(
+                Fill::Color(bg_color),
+                lane.lane_center_pts.dashed_lines(
+                    Distance::meters(0.75),
+                    Distance::meters(1.0),
+                    Distance::meters(0.4),
+                ),
+            );
             // Draw label after, to prevent being obscured by the line
             // TODO Change this colour?
             // TODO Should zoomed be done to?
-            let label = Text::from(Line(trim_f64(speed_percent))).change_fg(Color::BLACK);
+            let label = Text::from(Line(format!("{}s", speed_percent)))
+                .change_fg(fg_color)
+                .bg(bg_color);
             let (pt, angle) = lane
                 .lane_center_pts
                 .must_dist_along(lane.lane_center_pts.length() / 2.0);
             let rendered = label.render(ctx).centered_on(pt); //.rotate(angle);
-            details.unzoomed.append(rendered);
+            details.unzoomed.append(rendered.clone());
+            details.zoomed.append(rendered);
         }
     }
+}
+
+fn make_bar(
+    ctx: &mut EventCtx,
+    app: &App,
+    trip_id: TripID,
+    phases: &Vec<TripPhase>,
+) -> Vec<Widget> {
+    let map = &app.primary.map;
+    let sim = &app.primary.sim;
+    let data_inter_opt = &app
+        .primary
+        .sim
+        .get_analytics()
+        .trip_intersection_delays(trip_id);
+    let data_lane_opt = &app.primary.sim.get_analytics().trip_lane_speeds(trip_id);
+    let box_width = 0.22 * ctx.canvas.window_width;
+    let mut sum_phase_dist = Distance::meters(0.0);
+    let mut alt_phase_dist = Distance::meters(0.0);
+    let mut segments: Vec<(Distance, Color, Text)> = Vec::new();
+    let data_inter = if data_inter_opt.is_some() {
+        data_inter_opt.unwrap().to_vec()
+    } else {
+        Vec::new()
+    };
+    let data_lane: Vec<(LaneID, u8)> = if data_lane_opt.is_some() {
+        data_lane_opt.unwrap().to_vec()
+    } else {
+        Vec::new()
+    };
+    for (_, p) in phases.into_iter().enumerate() {
+        let norm_color = color_for_trip_phase(app, p.phase_type).alpha(0.7);
+        if let Some((total_phase_dist, step_list)) = &p.path {
+            sum_phase_dist += *total_phase_dist;
+            let mut norm_distance = Distance::meters(0.0);
+            for step in step_list.get_steps() {
+                match step {
+                    PathStep::Lane(id) | PathStep::ContraflowLane(id) => {
+                        let lane_detail = map.get_l(*id);
+                        alt_phase_dist += lane_detail.length();
+                        let mut found = false;
+                        for (lane, avg_speed) in &data_lane {
+                            if lane == id {
+                                let mut txt = Text::from(Line(&p.phase_type.describe(map)));
+                                txt.add(Line(format!("  Distance covered: {}", norm_distance)));
+                                segments.push((norm_distance, norm_color, txt));
+
+                                txt = Text::from(Line(&p.phase_type.describe(map)));
+                                txt.add(Line(format!(
+                                    "  Road: {}",
+                                    map.get_r(lane_detail.parent)
+                                        .get_name(app.opts.language.as_ref())
+                                )));
+                                txt.add(Line(format!("  Lane ID: {}", lane)));
+                                txt.add(Line(format!(
+                                    "  Distance covered: {}",
+                                    lane_detail.length()
+                                )));
+                                txt.add(Line(format!(
+                                    "  Took slower than normal with avg speed: {}",
+                                    avg_speed
+                                )));
+                                segments.push((lane_detail.length(), Color::RED, txt));
+                                norm_distance = Distance::meters(0.0);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if !found {
+                            norm_distance += lane_detail.length();
+                        }
+                    }
+                    PathStep::Turn(id) => {
+                        let turn_details = map.get_t(*id);
+                        alt_phase_dist += turn_details.geom.length();
+                        let mut found = false;
+                        for (turn, delay) in &data_inter {
+                            if turn == id {
+                                let mut txt = Text::from(Line(&p.phase_type.describe(map)));
+                                txt.add(Line(format!("  Distance covered: {}", norm_distance)));
+                                segments.push((norm_distance, norm_color, txt));
+
+                                txt = Text::from(Line(&p.phase_type.describe(map)));
+                                txt.add(Line(format!("  Intersection: {}", turn.parent)));
+                                txt.add(Line(format!(
+                                    "  Took slower than normal with delay: {}",
+                                    delay
+                                )));
+
+                                segments.push((
+                                    if 0.05 < (turn_details.geom.length() / alt_phase_dist) {
+                                        turn_details.geom.length()
+                                    } else {
+                                        alt_phase_dist * 0.05
+                                    },
+                                    Color::RED,
+                                    txt,
+                                ));
+                                norm_distance = Distance::meters(0.0);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if !found {
+                            norm_distance += turn_details.geom.length();
+                        }
+                    }
+                }
+            }
+            let mut txt = Text::from(Line(&p.phase_type.describe(map)));
+            txt.add(Line(format!("  Distance covered: {}", norm_distance)));
+            segments.push((norm_distance, norm_color, txt));
+        } else {
+            unimplemented!("We dont have a path!!");
+        }
+    }
+    let mut timeline = Vec::new();
+    for seg in segments {
+        let seg_percent = seg.0 / alt_phase_dist;
+        let seg_with = seg_percent * box_width;
+        let rect = Polygon::rectangle(seg_with, 15.0);
+        let mut batch = GeomBatch::from(vec![(seg.1, rect.clone())]);
+        timeline.push(
+            DrawWithTooltips::new(
+                ctx,
+                batch,
+                vec![(rect, seg.2)],
+                Box::new(|_| GeomBatch::new()),
+            )
+            .centered_vert(),
+        );
+    }
+    timeline
 }
 
 fn make_timeline(
@@ -637,6 +738,7 @@ fn make_timeline(
 
     let total_width = 0.22 * ctx.canvas.window_width;
     let mut timeline = Vec::new();
+    let mut timeline_2 = make_bar(ctx, app, trip_id, &phases);
     let num_phases = phases.len();
     let mut elevation = Vec::new();
     let mut path_impossible = false;
@@ -759,7 +861,7 @@ fn make_timeline(
     }
 
     let mut col = vec![
-        Widget::custom_row(vec![start_btn, Widget::custom_row(timeline), goal_btn])
+        Widget::custom_row(vec![start_btn, Widget::custom_row(timeline_2), goal_btn])
             .evenly_spaced()
             .margin_above(25),
         Widget::row(vec![
