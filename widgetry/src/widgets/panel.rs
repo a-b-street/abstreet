@@ -33,6 +33,21 @@ impl Panel {
         }
     }
 
+    fn update_container_dims_for_canvas_dims(&mut self, canvas_dims: ScreenDims) {
+        let new_container_dims = match self.dims {
+            Dims::MaxPercent(w, h) => ScreenDims::new(
+                self.contents_dims.width.min(w.inner() * canvas_dims.width),
+                self.contents_dims
+                    .height
+                    .min(h.inner() * canvas_dims.height),
+            ),
+            Dims::ExactPercent(w, h) => {
+                ScreenDims::new(w * canvas_dims.width, h * canvas_dims.height)
+            }
+        };
+        self.container_dims = new_container_dims;
+    }
+
     fn recompute_layout(&mut self, ctx: &EventCtx, recompute_bg: bool) {
         let mut stretch = Stretch::new();
         let root = stretch
@@ -146,6 +161,7 @@ impl Panel {
         }
 
         if ctx.input.is_window_resized() {
+            self.update_container_dims_for_canvas_dims(ctx.canvas.get_window_dims());
             self.recompute_layout(ctx, false);
         }
 
@@ -398,21 +414,7 @@ impl PanelBuilder {
 
         panel.contents_dims =
             ScreenDims::new(panel.top_level.rect.width(), panel.top_level.rect.height());
-        panel.container_dims = match panel.dims {
-            Dims::MaxPercent(w, h) => ScreenDims::new(
-                panel
-                    .contents_dims
-                    .width
-                    .min(w.inner() * ctx.canvas.window_width),
-                panel
-                    .contents_dims
-                    .height
-                    .min(h.inner() * ctx.canvas.window_height),
-            ),
-            Dims::ExactPercent(w, h) => {
-                ScreenDims::new(w * ctx.canvas.window_width, h * ctx.canvas.window_height)
-            }
-        };
+        panel.update_container_dims_for_canvas_dims(ctx.canvas.get_window_dims());
 
         // If the panel fits without a scrollbar, don't add one.
         let top_left = ctx
