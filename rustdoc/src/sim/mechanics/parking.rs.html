@@ -905,6 +905,79 @@
 <span id="905">905</span>
 <span id="906">906</span>
 <span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">CarStatus</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Event</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">Vehicle</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{
@@ -1564,6 +1637,9 @@
 <span class="comment">// disables the simulation of parking entirely, making driving trips just go directly between</span>
 <span class="comment">// buildings. Useful for maps without good parking data (which is currently all of them) and</span>
 <span class="comment">// experiments where parking contention skews results and just gets in the way.</span>
+<span class="comment">//</span>
+<span class="comment">// TODO Reconsider this split implementation. There&#39;s lots of copied code. We can maybe just use</span>
+<span class="comment">// NormalParkingSimState with an &#39;infinite: bool&#39; and rethinking num_spots_per_offstreet.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InfiniteParkingSimState</span> {
     <span class="attribute">#[<span class="ident">serde</span>(
@@ -1584,7 +1660,9 @@
         <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_multimap&quot;</span>
     )]</span>
     <span class="ident">driving_to_offstreet</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, (<span class="ident">BuildingID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span>,
-    <span class="ident">blackholed_buildings</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
+    <span class="comment">// For an entry b1 -&gt; b2, b1 is blackholed, so instead go park at b2 and walk the rest of the</span>
+    <span class="comment">// way.</span>
+    <span class="ident">blackholed_building_redirects</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>,
 
     <span class="ident">events</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
 }
@@ -1597,10 +1675,11 @@
             <span class="ident">reserved_spots</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
 
             <span class="ident">driving_to_offstreet</span>: <span class="ident">MultiMap</span>::<span class="ident">new</span>(),
-            <span class="ident">blackholed_buildings</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
+            <span class="ident">blackholed_building_redirects</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
 
             <span class="ident">events</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
         };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blackholes</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">driving_connection</span>(<span class="ident">map</span>) {
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>()).<span class="ident">driving_blackhole</span> {
@@ -1609,13 +1688,40 @@
                     <span class="kw">continue</span>;
                 }
             }
-            <span class="ident">sim</span>.<span class="ident">blackholed_buildings</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+            <span class="ident">blackholes</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
         }
+
+        <span class="comment">// For every blackholed building, find a nearby building that isn&#39;t blackholed</span>
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">blackholes</span> {
+            <span class="comment">// TODO This is a simple DFS. Could sort by distance.</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">map</span>.<span class="ident">find_driving_lane_near_building</span>(<span class="ident">b</span>)];
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
+            <span class="kw">loop</span> {
+                <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+                <span class="kw">if</span> <span class="ident">seen</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>) {
+                    <span class="kw">continue</span>;
+                }
+                <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">current</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">redirect</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">driving_to_offstreet</span>.<span class="ident">get</span>(<span class="ident">current</span>).<span class="ident">iter</span>().<span class="ident">next</span>() {
+                    <span class="ident">sim</span>.<span class="ident">blackholed_building_redirects</span>.<span class="ident">insert</span>(<span class="ident">b</span>, <span class="kw-2">*</span><span class="ident">redirect</span>);
+                    <span class="kw">break</span>;
+                }
+                <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_for</span>(<span class="ident">current</span>, <span class="ident">PathConstraints</span>::<span class="ident">Car</span>) {
+                    <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
+                }
+            }
+        }
+
         <span class="ident">sim</span>
     }
 
     <span class="kw">fn</span> <span class="ident">get_free_bldg_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ParkingSpot</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">blackholed_buildings</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">redirect</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">blackholed_building_redirects</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>) {
+            <span class="comment">// This won&#39;t recurse endlessly; the redirect is not a key in</span>
+            <span class="comment">// blackholed_building_redirects.</span>
+            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">get_free_bldg_spot</span>(<span class="kw-2">*</span><span class="ident">redirect</span>);
+        }
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">spot</span> <span class="op">=</span> <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="ident">i</span>);
@@ -1632,7 +1738,7 @@
         <span class="comment">// Can live edits possibly affect anything?</span>
         <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">InfiniteParkingSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>);
         <span class="self">self</span>.<span class="ident">driving_to_offstreet</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">driving_to_offstreet</span>;
-        <span class="self">self</span>.<span class="ident">blackholed_buildings</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">blackholed_buildings</span>;
+        <span class="self">self</span>.<span class="ident">blackholed_building_redirects</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">blackholed_building_redirects</span>;
 
         <span class="ident">Vec</span>::<span class="ident">new</span>()
     }
@@ -1642,12 +1748,8 @@
     }
 
     <span class="kw">fn</span> <span class="ident">get_free_offstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">blackholed_buildings</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>) {
-            <span class="ident">Vec</span>::<span class="ident">new</span>()
-        } <span class="kw">else</span> {
-            <span class="comment">// Just returns the next free spot</span>
-            <span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">get_free_bldg_spot</span>(<span class="ident">b</span>)]
-        }
+        <span class="comment">// Just returns the next free spot</span>
+        <span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">get_free_bldg_spot</span>(<span class="ident">b</span>)]
     }
 
     <span class="kw">fn</span> <span class="ident">get_free_lot_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">ParkingLotID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
@@ -1773,14 +1875,58 @@
 
     <span class="kw">fn</span> <span class="ident">path_to_free_parking_spot</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="kw">_</span>: <span class="ident">LaneID</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>,
-        <span class="kw">_</span>: <span class="ident">BuildingID</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">start</span>: <span class="ident">LaneID</span>,
+        <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>,
+        <span class="ident">target</span>: <span class="ident">BuildingID</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
-        <span class="comment">// The original building we&#39;re aiming for will always have room, unless it&#39;s located on a</span>
-        <span class="comment">// blackholed lane. In that case, there&#39;s usually a nearby building on the last connected</span>
-        <span class="comment">// lane. If not, then just give up for now.</span>
+        <span class="comment">// TODO This impl is copied from NormalParkingSimState. Instead, we already know the</span>
+        <span class="comment">// redirect... could just path to it.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">backrefs</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">TurnID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+        <span class="comment">// Don&#39;t travel far.</span>
+        <span class="comment">// This is a max-heap, so negate all distances. Tie breaker is lane ID, arbitrary but</span>
+        <span class="comment">// deterministic.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span>: <span class="ident">BinaryHeap</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="ident">LaneID</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BinaryHeap</span>::<span class="ident">new</span>();
+        <span class="ident">queue</span>.<span class="ident">push</span>((<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">start</span>));
+
+        <span class="kw">while</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">let</span> (<span class="ident">dist_so_far</span>, <span class="ident">current</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+            <span class="comment">// If the current lane has a spot open, we wouldn&#39;t be asking. This can happen if a spot</span>
+            <span class="comment">// opens up on the &#39;start&#39; lane, but behind the car.</span>
+            <span class="kw">if</span> <span class="ident">current</span> <span class="op">!</span><span class="op">=</span> <span class="ident">start</span> {
+                <span class="comment">// Pick the closest to the start of the lane, since that&#39;s closest to where we came</span>
+                <span class="comment">// from</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">spot</span>, <span class="ident">pos</span>)) <span class="op">=</span> <span class="self">self</span>
+                    .<span class="ident">get_all_free_spots</span>(<span class="ident">Position</span>::<span class="ident">start</span>(<span class="ident">current</span>), <span class="ident">vehicle</span>, <span class="ident">target</span>, <span class="ident">map</span>)
+                    .<span class="ident">into_iter</span>()
+                    .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">pos</span>)<span class="op">|</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>())
+                {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">current</span>)];
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">current</span>;
+                    <span class="kw">loop</span> {
+                        <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="ident">start</span> {
+                            <span class="comment">// Don&#39;t include PathStep::Lane(start)</span>
+                            <span class="ident">steps</span>.<span class="ident">pop</span>();
+                            <span class="ident">steps</span>.<span class="ident">reverse</span>();
+                            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">steps</span>, <span class="ident">spot</span>, <span class="ident">pos</span>));
+                        }
+                        <span class="kw">let</span> <span class="ident">turn</span> <span class="op">=</span> <span class="ident">backrefs</span>[<span class="kw-2">&amp;</span><span class="ident">current</span>];
+                        <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">turn</span>));
+                        <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">turn</span>.<span class="ident">src</span>));
+                        <span class="ident">current</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">src</span>;
+                    }
+                }
+            }
+            <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_for</span>(<span class="ident">current</span>, <span class="ident">PathConstraints</span>::<span class="ident">Car</span>) {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">backrefs</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>) {
+                    <span class="kw">let</span> <span class="ident">dist_this_step</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>() <span class="op">+</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current</span>).<span class="ident">length</span>();
+                    <span class="ident">backrefs</span>.<span class="ident">insert</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>, <span class="ident">turn</span>.<span class="ident">id</span>);
+                    <span class="comment">// Remember, keep things negative</span>
+                    <span class="ident">queue</span>.<span class="ident">push</span>((<span class="ident">dist_so_far</span> <span class="op">-</span> <span class="ident">dist_this_step</span>, <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>));
+                }
+            }
+        }
+
         <span class="prelude-val">None</span>
     }
 

@@ -327,6 +327,8 @@
 <span id="327">327</span>
 <span id="328">328</span>
 <span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>};
@@ -638,13 +640,15 @@
             <span class="macro">vec</span><span class="macro">!</span>[
                 (<span class="string">&quot;driving blackhole&quot;</span>, <span class="ident">Color</span>::<span class="ident">RED</span>),
                 (<span class="string">&quot;biking blackhole&quot;</span>, <span class="ident">Color</span>::<span class="ident">GREEN</span>),
+                (<span class="string">&quot;driving + biking blackhole&quot;</span>, <span class="ident">Color</span>::<span class="ident">BLUE</span>),
             ],
         );
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_lanes</span>() {
-            <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">driving_blackhole</span> {
+            <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">driving_blackhole</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">l</span>.<span class="ident">biking_blackhole</span> {
+                <span class="ident">colorer</span>.<span class="ident">add_l</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="string">&quot;driving + biking blackhole&quot;</span>);
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">driving_blackhole</span> {
                 <span class="ident">colorer</span>.<span class="ident">add_l</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="string">&quot;driving blackhole&quot;</span>);
-            }
-            <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">biking_blackhole</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">biking_blackhole</span> {
                 <span class="ident">colorer</span>.<span class="ident">add_l</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="string">&quot;biking blackhole&quot;</span>);
             }
         }
