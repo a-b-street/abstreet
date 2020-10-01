@@ -23,6 +23,8 @@ pub enum ColorSchemeChoice {
     OSM,
     Starcat,
     Textured,
+    MapboxLight,
+    MapboxDark,
 }
 
 impl ColorSchemeChoice {
@@ -36,6 +38,8 @@ impl ColorSchemeChoice {
             Choice::new("osm", ColorSchemeChoice::OSM),
             Choice::new("starcat", ColorSchemeChoice::Starcat),
             Choice::new("textured", ColorSchemeChoice::Textured),
+            Choice::new("mapbox light", ColorSchemeChoice::MapboxLight),
+            Choice::new("mapbox dark", ColorSchemeChoice::MapboxDark),
         ]
     }
 }
@@ -138,6 +142,8 @@ impl ColorScheme {
             ColorSchemeChoice::OSM => ColorScheme::osm(),
             ColorSchemeChoice::Starcat => ColorScheme::starcat(),
             ColorSchemeChoice::Textured => ColorScheme::textured(),
+            ColorSchemeChoice::MapboxLight => ColorScheme::mapbox_light(),
+            ColorSchemeChoice::MapboxDark => ColorScheme::mapbox_dark(),
         }
     }
 
@@ -170,8 +176,8 @@ impl ColorScheme {
             sidewalk_lines: Color::grey(0.7),
             general_road_marking: Color::WHITE,
             road_center_line: Color::YELLOW,
-            light_rail_track: Color::hex("#844204"),
-            private_road: Color::hex("#F0B0C0"),
+            light_rail_track: hex("#844204"),
+            private_road: hex("#F0B0C0"),
             unzoomed_highway: Color::rgb(232, 146, 162),
             unzoomed_arterial: Color::rgb(255, 199, 62),
             unzoomed_residential: Color::WHITE,
@@ -191,9 +197,9 @@ impl ColorScheme {
             void_background: Color::BLACK,
             map_background: Color::grey(0.87).into(),
             unzoomed_interesting_intersection: Color::BLACK,
-            residential_building: Color::hex("#C4C1BC"),
-            commerical_building: Color::hex("#9FABA7"),
-            building_outline: Color::hex("#938E85"),
+            residential_building: hex("#C4C1BC"),
+            commerical_building: hex("#9FABA7"),
+            building_outline: hex("#938E85"),
             parking_lot: Color::grey(0.7),
             grass: hex("#94C84A").into(),
             water: Color::rgb(164, 200, 234).into(),
@@ -217,13 +223,13 @@ impl ColorScheme {
             brake_light: hex("#FF1300"),
             bus_body: Color::rgb(50, 133, 117),
             bus_label: Color::rgb(249, 206, 24),
-            train_body: Color::hex("#42B6E9"),
+            train_body: hex("#42B6E9"),
             ped_head: Color::rgb(139, 69, 19),
             ped_foot: Color::BLACK,
             ped_preparing_bike_body: Color::rgb(255, 0, 144),
             ped_crowd: Color::rgb_f(0.2, 0.7, 0.7),
-            bike_frame: Color::hex("#AAA9AD"),
-            parked_car: Color::hex("#938E85"),
+            bike_frame: hex("#AAA9AD"),
+            parked_car: hex("#938E85"),
 
             // Layers
             good_to_bad_red: ColorScale(vec![hex("#F19A93"), hex("#A32015")]),
@@ -361,6 +367,44 @@ impl ColorScheme {
         cs.grass = Texture::GRASS.into();
         cs.water = Texture::STILL_WATER.into();
         cs.map_background = Texture::CONCRETE.into();
+        cs
+    }
+
+    fn mapbox_light() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        cs.map_background = hex("#F2F3F1").into();
+        cs.unzoomed_highway = Color::WHITE;
+        cs.unzoomed_arterial = Color::WHITE;
+        cs.unzoomed_residential = Color::WHITE;
+        cs.grass = hex("#ECEEED").into();
+        cs.water = hex("#CAD2D3").into();
+        cs.residential_building = hex("#E9E9E7").into();
+        cs.commerical_building = hex("#E9E9E7").into();
+        cs
+    }
+
+    fn mapbox_dark() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        cs.map_background = hex("#343332").into();
+        let road = hex("#454545");
+        cs.unzoomed_highway = road;
+        cs.unzoomed_arterial = road;
+        cs.unzoomed_residential = road;
+        cs.grass = hex("#323432").into();
+        cs.water = hex("#181919").into();
+        cs.residential_building = hex("#2C2C2B").into();
+        cs.commerical_building = hex("#2C2C2B").into();
+
+        cs.driving_lane = road;
+        cs.parking_lane = road;
+        cs.bike_lane = road;
+        cs.bus_lane = road;
+        cs.sidewalk = road;
+        cs.sidewalk_lines = road;
+        cs.normal_intersection = road;
+        cs.general_road_marking = cs.building_outline;
+        cs.road_center_line = cs.general_road_marking;
+
         cs
     }
 }
