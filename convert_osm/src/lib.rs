@@ -12,14 +12,8 @@ use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
 use map_model::raw::RawMap;
 use map_model::{osm, MapConfig, NamePerLanguage};
 
-pub enum Input {
-    Path(String),
-    Contents(String),
-}
-
 pub struct Options {
-    pub osm_input: Input,
-
+    pub osm_input: String,
     pub city_name: String,
     pub name: String,
 
