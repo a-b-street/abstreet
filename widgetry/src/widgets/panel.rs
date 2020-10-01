@@ -183,7 +183,6 @@ impl Panel {
             g.unfork();
         }
 
-
         self.top_level.draw(g);
         if self.scrollable_x || self.scrollable_y {
             g.disable_clipping();
@@ -374,7 +373,7 @@ impl PanelBuilder {
     }
 
     pub fn build_custom(self, ctx: &mut EventCtx) -> Panel {
-        let mut c = Panel {
+        let mut panel = Panel {
             top_level: self.top_level,
 
             horiz: self.horiz,
@@ -387,23 +386,26 @@ impl PanelBuilder {
             container_dims: ScreenDims::new(0.0, 0.0),
             clip_rect: None,
         };
-        if let Dims::ExactPercent(w, h) = c.dims {
+        if let Dims::ExactPercent(w, h) = panel.dims {
             // Don't set size, because then scrolling breaks -- the actual size has to be based on
             // the contents.
-            c.top_level.layout.style.min_size = Size {
+            panel.top_level.layout.style.min_size = Size {
                 width: Dimension::Points((w * ctx.canvas.window_width) as f32),
                 height: Dimension::Points((h * ctx.canvas.window_height) as f32),
             };
         }
-        c.recompute_layout(ctx, false);
+        panel.recompute_layout(ctx, false);
 
-        c.contents_dims = ScreenDims::new(c.top_level.rect.width(), c.top_level.rect.height());
-        c.container_dims = match c.dims {
+        panel.contents_dims =
+            ScreenDims::new(panel.top_level.rect.width(), panel.top_level.rect.height());
+        panel.container_dims = match panel.dims {
             Dims::MaxPercent(w, h) => ScreenDims::new(
-                c.contents_dims
+                panel
+                    .contents_dims
                     .width
                     .min(w.inner() * ctx.canvas.window_width),
-                c.contents_dims
+                panel
+                    .contents_dims
                     .height
                     .min(h.inner() * ctx.canvas.window_height),
             ),
@@ -413,45 +415,49 @@ impl PanelBuilder {
         };
 
         // If the panel fits without a scrollbar, don't add one.
-        let top_left = ctx.canvas.align_window(c.container_dims, c.horiz, c.vert);
-        if c.contents_dims.width > c.container_dims.width {
-            c.scrollable_x = true;
-            c.top_level = Widget::custom_col(vec![
-                c.top_level,
+        let top_left = ctx
+            .canvas
+            .align_window(panel.container_dims, panel.horiz, panel.vert);
+        if panel.contents_dims.width > panel.container_dims.width {
+            panel.scrollable_x = true;
+            panel.top_level = Widget::custom_col(vec![
+                panel.top_level,
                 Slider::horizontal(
                     ctx,
-                    c.container_dims.width,
-                    c.container_dims.width * (c.container_dims.width / c.contents_dims.width),
+                    panel.container_dims.width,
+                    panel.container_dims.width
+                        * (panel.container_dims.width / panel.contents_dims.width),
                     0.0,
                 )
                 .named("horiz scrollbar")
-                .abs(top_left.x, top_left.y + c.container_dims.height),
+                .abs(top_left.x, top_left.y + panel.container_dims.height),
             ]);
         }
-        if c.contents_dims.height > c.container_dims.height {
-            c.scrollable_y = true;
-            c.top_level = Widget::custom_row(vec![
-                c.top_level,
+        if panel.contents_dims.height > panel.container_dims.height {
+            panel.scrollable_y = true;
+            panel.top_level = Widget::custom_row(vec![
+                panel.top_level,
                 Slider::vertical(
                     ctx,
-                    c.container_dims.height,
-                    c.container_dims.height * (c.container_dims.height / c.contents_dims.height),
+                    panel.container_dims.height,
+                    panel.container_dims.height
+                        * (panel.container_dims.height / panel.contents_dims.height),
                     0.0,
                 )
                 .named("vert scrollbar")
-                .abs(top_left.x + c.container_dims.width, top_left.y),
+                .abs(top_left.x + panel.container_dims.width, top_left.y),
             ]);
         }
-        if c.scrollable_x || c.scrollable_y {
-            c.recompute_layout(ctx, false);
-            c.clip_rect = Some(ScreenRectangle::top_left(top_left, c.container_dims));
+        if panel.scrollable_x || panel.scrollable_y {
+            panel.recompute_layout(ctx, false);
+            panel.clip_rect = Some(ScreenRectangle::top_left(top_left, panel.container_dims));
         }
 
         // Just trigger error if a button is double-defined
-        c.get_all_click_actions();
+        panel.get_all_click_actions();
         // Let all widgets initially respond to the mouse being somewhere
-        ctx.no_op_event(true, |ctx| assert_eq!(c.event(ctx), Outcome::Nothing));
-        c
+        ctx.no_op_event(true, |ctx| assert_eq!(panel.event(ctx), Outcome::Nothing));
+        panel
     }
 
     pub fn aligned(mut self, horiz: HorizontalAlignment, vert: VerticalAlignment) -> PanelBuilder {
