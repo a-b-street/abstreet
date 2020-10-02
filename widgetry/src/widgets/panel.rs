@@ -60,12 +60,12 @@ impl Panel {
         self.scrollable_y = self.contents_dims.height > self.container_dims.height;
 
         // Unwrap the main widget from any scrollable containers if necessary.
-        if old_scrollable_y && !self.scrollable_y {
+        if old_scrollable_y {
             let container = self.top_level.widget.downcast_mut::<Container>().unwrap();
             self.top_level = container.members.remove(0);
         }
 
-        if old_scrollable_x && !self.scrollable_x {
+        if old_scrollable_x {
             let container = self.top_level.widget.downcast_mut::<Container>().unwrap();
             self.top_level = container.members.remove(0);
         }
@@ -75,7 +75,7 @@ impl Panel {
             .align_window(self.container_dims, self.horiz, self.vert);
 
         // Wrap the main widget in scrollable containers if necessary.
-        if self.scrollable_x && !old_scrollable_x {
+        if self.scrollable_x {
             let mut place_holder = Widget::nothing();
             std::mem::swap(&mut place_holder, &mut self.top_level);
             self.top_level = Widget::custom_col(vec![
@@ -92,7 +92,7 @@ impl Panel {
             ]);
         }
 
-        if self.scrollable_y && !old_scrollable_y {
+        if self.scrollable_y {
             let mut place_holder = Widget::nothing();
             std::mem::swap(&mut place_holder, &mut self.top_level);
             self.top_level = Widget::custom_row(vec![
