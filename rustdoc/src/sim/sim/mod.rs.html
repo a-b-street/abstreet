@@ -1022,9 +1022,6 @@
 <span id="1022">1022</span>
 <span id="1023">1023</span>
 <span id="1024">1024</span>
-<span id="1025">1025</span>
-<span id="1026">1026</span>
-<span id="1027">1027</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">queries</span>;
 
@@ -1104,7 +1101,6 @@
     <span class="kw">pub</span> <span class="ident">enable_pandemic_model</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">XorShiftRng</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>,
     <span class="kw">pub</span> <span class="ident">pathfinding_upfront</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">live_map_edits</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">infinite_parking</span>: <span class="ident">bool</span>,
 }
 
@@ -1140,7 +1136,6 @@
                 })
                 .<span class="ident">unwrap_or</span>(<span class="ident">AlertHandler</span>::<span class="ident">Print</span>),
             <span class="ident">pathfinding_upfront</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--pathfinding_upfront&quot;</span>),
-            <span class="ident">live_map_edits</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--live_map_edits&quot;</span>),
             <span class="ident">infinite_parking</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--infinite_parking&quot;</span>),
         }
     }
@@ -1174,7 +1169,6 @@
             <span class="ident">enable_pandemic_model</span>: <span class="prelude-val">None</span>,
             <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>::<span class="ident">Print</span>,
             <span class="ident">pathfinding_upfront</span>: <span class="bool-val">false</span>,
-            <span class="ident">live_map_edits</span>: <span class="bool-val">false</span>,
             <span class="ident">infinite_parking</span>: <span class="bool-val">false</span>,
         }
     }
