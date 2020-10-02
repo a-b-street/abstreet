@@ -404,6 +404,10 @@ impl Panel {
         self.top_level.rect.center()
     }
 
+    pub fn align(&mut self, horiz: HorizontalAlignment, vert: VerticalAlignment) {
+        self.horiz = horiz;
+        self.vert = vert;
+    }
     pub fn align_above(&mut self, ctx: &mut EventCtx, other: &Panel) {
         // Small padding
         self.vert = VerticalAlignment::Above(other.top_level.rect.y1 - 5.0);
