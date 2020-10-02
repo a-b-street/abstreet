@@ -389,15 +389,6 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
@@ -440,16 +431,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="op">!</span><span class="ident">lane</span>.<span class="ident">is_light_rail</span>() {
             <span class="ident">draw</span>.<span class="ident">push</span>(
-                <span class="kw">match</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> {
-                    <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">driving_lane</span>,
-                    <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_lane</span>,
-                    <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">parking_lane</span>,
-                    <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">sidewalk</span>,
-                    <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bike_lane</span>,
-                    <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">driving_lane</span>,
-                    <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">parking_lane</span>,
-                    <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-                },
+                <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">zoomed_road_surface</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span>, <span class="ident">road</span>.<span class="ident">get_rank</span>()),
                 <span class="self">self</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>(),
             );
         }

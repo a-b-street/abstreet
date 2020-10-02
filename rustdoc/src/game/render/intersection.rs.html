@@ -415,6 +415,10 @@
 <span id="415">415</span>
 <span id="416">416</span>
 <span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -424,7 +428,7 @@
 };
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>, <span class="ident">EPSILON_DIST</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Map</span>, <span class="ident">Road</span>,
+    <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Road</span>,
     <span class="ident">RoadWithStopSign</span>, <span class="ident">Turn</span>, <span class="ident">TurnType</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
@@ -459,8 +463,12 @@
 
         <span class="comment">// Order matters... main polygon first, then sidewalk corners.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">default_geom</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="ident">default_geom</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">normal_intersection</span>, <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
-        <span class="ident">default_geom</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">sidewalk</span>, <span class="ident">calculate_corners</span>(<span class="ident">i</span>, <span class="ident">map</span>));
+        <span class="kw">let</span> <span class="ident">rank</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_rank</span>(<span class="ident">map</span>);
+        <span class="ident">default_geom</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">zoomed_intersection_surface</span>(<span class="ident">rank</span>), <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+        <span class="ident">default_geom</span>.<span class="ident">extend</span>(
+            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>, <span class="ident">rank</span>),
+            <span class="ident">calculate_corners</span>(<span class="ident">i</span>, <span class="ident">map</span>),
+        );
 
         <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_in_intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>) {
             <span class="comment">// Avoid double-rendering</span>

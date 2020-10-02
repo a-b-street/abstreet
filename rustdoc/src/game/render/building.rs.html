@@ -246,6 +246,12 @@
 <span id="246">246</span>
 <span id="247">247</span>
 <span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -253,7 +259,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::{<span class="ident">CameraAngle</span>, <span class="ident">Options</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">OffstreetParking</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">OffstreetParking</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
 
@@ -437,7 +443,13 @@
                 }
             }
         }
-        <span class="ident">paths_batch</span>.<span class="ident">push</span>(<span class="ident">cs</span>.<span class="ident">sidewalk</span>, <span class="ident">driveway</span>.<span class="ident">make_polygons</span>(<span class="ident">NORMAL_LANE_THICKNESS</span>));
+        <span class="ident">paths_batch</span>.<span class="ident">push</span>(
+            <span class="ident">cs</span>.<span class="ident">zoomed_road_surface</span>(
+                <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>,
+                <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">bldg</span>.<span class="ident">sidewalk</span>()).<span class="ident">get_rank</span>(),
+            ),
+            <span class="ident">driveway</span>.<span class="ident">make_polygons</span>(<span class="ident">NORMAL_LANE_THICKNESS</span>),
+        );
 
         <span class="ident">DrawBuilding</span> {
             <span class="ident">id</span>: <span class="ident">bldg</span>.<span class="ident">id</span>,

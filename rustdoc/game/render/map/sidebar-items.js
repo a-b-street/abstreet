@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["rank_to_color",""]],"struct":[["AgentCache",""],["DrawMap",""],["UnzoomedAgents",""]]});
+initSidebarItems({"struct":[["AgentCache",""],["DrawMap",""],["UnzoomedAgents",""]]});
