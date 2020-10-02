@@ -39,16 +39,7 @@ impl DrawLane {
         let mut draw = GeomBatch::new();
         if !lane.is_light_rail() {
             draw.push(
-                match lane.lane_type {
-                    LaneType::Driving => app.cs.driving_lane,
-                    LaneType::Bus => app.cs.bus_lane,
-                    LaneType::Parking => app.cs.parking_lane,
-                    LaneType::Sidewalk | LaneType::Shoulder => app.cs.sidewalk,
-                    LaneType::Biking => app.cs.bike_lane,
-                    LaneType::SharedLeftTurn => app.cs.driving_lane,
-                    LaneType::Construction => app.cs.parking_lane,
-                    LaneType::LightRail => unreachable!(),
-                },
+                app.cs.zoomed_road_surface(lane.lane_type, road.get_rank()),
                 self.polygon.clone(),
             );
         }

@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork, ColorScale, DivergingScale};
+use crate::common::{ColorLegend, ColorNetwork, DivergingScale};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
 use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
@@ -285,175 +285,6 @@ impl Throughput {
     }
 }
 
-pub struct Delay {
-    time: Time,
-    compare: bool,
-    unzoomed: Drawable,
-    zoomed: Drawable,
-    panel: Panel,
-}
-
-impl Layer for Delay {
-    fn name(&self) -> Option<&'static str> {
-        Some("delay")
-    }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
-        if app.primary.sim.time() != self.time {
-            *self = Delay::new(ctx, app, self.compare);
-        }
-
-        self.panel.align_above(ctx, minimap);
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    return Some(LayerOutcome::Close);
-                }
-                _ => unreachable!(),
-            },
-            Outcome::Changed => {
-                *self = Delay::new(
-                    ctx,
-                    app,
-                    self.panel
-                        .maybe_is_checked("Compare before proposal")
-                        .unwrap_or(false),
-                );
-                self.panel.align_above(ctx, minimap);
-            }
-            _ => {}
-        }
-        None
-    }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
-    }
-    fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
-    }
-}
-
-impl Delay {
-    pub fn new(ctx: &mut EventCtx, app: &App, compare: bool) -> Delay {
-        if compare {
-            return Delay::compare_delay(ctx, app);
-        }
-
-        let mut colorer = ColorNetwork::new(app);
-
-        let (per_road, per_intersection) = app.primary.sim.worst_delay(&app.primary.map);
-        for (r, d) in per_road {
-            if d < Duration::minutes(1) {
-                continue;
-            }
-            let color = app
-                .cs
-                .good_to_bad_red
-                .eval(((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0));
-            colorer.add_r(r, color);
-        }
-        for (i, d) in per_intersection {
-            if d < Duration::minutes(1) {
-                continue;
-            }
-            let color = app
-                .cs
-                .good_to_bad_red
-                .eval(((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0));
-            colorer.add_i(i, color);
-        }
-
-        let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Delay (minutes)".draw_text(ctx),
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
-            ]),
-            if app.has_prebaked().is_some() {
-                Checkbox::switch(ctx, "Compare before proposal", None, false)
-            } else {
-                Widget::nothing()
-            },
-            ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["1", "5", "10", "15+"]),
-        ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-        .build(ctx);
-        let (unzoomed, zoomed) = colorer.build(ctx);
-
-        Delay {
-            time: app.primary.sim.time(),
-            compare: false,
-            unzoomed,
-            zoomed,
-            panel,
-        }
-    }
-
-    // TODO Needs work.
-    fn compare_delay(ctx: &mut EventCtx, app: &App) -> Delay {
-        let mut colorer = ColorNetwork::new(app);
-        let red = Color::hex("#A32015");
-        let green = Color::hex("#5D9630");
-
-        let results = app
-            .primary
-            .sim
-            .get_analytics()
-            .compare_delay(app.primary.sim.time(), app.prebaked());
-        if !results.is_empty() {
-            let fastest = results.iter().min_by_key(|(_, dt)| *dt).unwrap().1;
-            let slowest = results.iter().max_by_key(|(_, dt)| *dt).unwrap().1;
-
-            for (i, dt) in results {
-                let color = if dt < Duration::ZERO {
-                    green.lerp(Color::WHITE, 1.0 - (dt / fastest))
-                } else {
-                    Color::WHITE.lerp(red, dt / slowest)
-                };
-                colorer.add_i(i, color);
-            }
-        }
-
-        let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Delay".draw_text(ctx),
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
-            ]),
-            Checkbox::switch(ctx, "Compare before proposal", None, true),
-            ColorLegend::gradient(
-                ctx,
-                &ColorScale(vec![green, Color::WHITE, red]),
-                vec!["faster", "same", "slower"],
-            ),
-        ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-        .build(ctx);
-        let (unzoomed, zoomed) = colorer.build(ctx);
-
-        Delay {
-            time: app.primary.sim.time(),
-            compare: true,
-            unzoomed,
-            zoomed,
-            panel,
-        }
-    }
-}
-
 pub struct TrafficJams {
     time: Time,
     unzoomed: Drawable,
@@ -598,15 +429,16 @@ impl Jam {
     }
 }
 
-pub struct DelayPerAgent {
+// Shows how long each agent has been waiting in one spot.
+pub struct Delay {
     time: Time,
     unzoomed: Drawable,
     panel: Panel,
 }
 
-impl Layer for DelayPerAgent {
+impl Layer for Delay {
     fn name(&self) -> Option<&'static str> {
-        Some("delay per agent")
+        Some("delay")
     }
     fn event(
         &mut self,
@@ -615,7 +447,7 @@ impl Layer for DelayPerAgent {
         minimap: &Panel,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
-            *self = DelayPerAgent::new(ctx, app);
+            *self = Delay::new(ctx, app);
         }
 
         self.panel.align_above(ctx, minimap);
@@ -641,8 +473,8 @@ impl Layer for DelayPerAgent {
     }
 }
 
-impl DelayPerAgent {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> DelayPerAgent {
+impl Delay {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Delay {
         let mut delays = app.primary.sim.all_waiting_people();
         let mut unzoomed = GeomBatch::new();
         unzoomed.push(
@@ -666,7 +498,7 @@ impl DelayPerAgent {
             }
         }
 
-        DelayPerAgent {
+        Delay {
             time: app.primary.sim.time(),
             unzoomed: ctx.upload(unzoomed),
             panel: Panel::new(Widget::col(vec![

@@ -13,8 +13,8 @@ use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use geom::{Bounds, Circle, Distance, Polygon, Pt2D, Time};
 use map_model::{
-    osm, AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID,
-    Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, Traversable,
+    NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
@@ -210,7 +210,7 @@ impl DrawMap {
                 } else if r.is_private() {
                     cs.private_road
                 } else {
-                    rank_to_color(cs, r.get_rank())
+                    cs.unzoomed_road_surface(r.get_rank())
                 },
             ));
         }
@@ -224,7 +224,7 @@ impl DrawMap {
                     } else if i.is_private(map) {
                         cs.private_road
                     } else {
-                        rank_to_color(cs, i.get_rank(map))
+                        cs.unzoomed_road_surface(i.get_rank(map))
                     }
                 } else {
                     cs.unzoomed_interesting_intersection
@@ -520,13 +520,5 @@ impl UnzoomedAgents {
                 }
             }
         }
-    }
-}
-
-fn rank_to_color(cs: &ColorScheme, rank: osm::RoadRank) -> Color {
-    match rank {
-        osm::RoadRank::Highway => cs.unzoomed_highway,
-        osm::RoadRank::Arterial => cs.unzoomed_arterial,
-        osm::RoadRank::Local => cs.unzoomed_residential,
     }
 }

@@ -42,6 +42,12 @@ Additionally, this script does a few more tests:
 - `--check_proposals` makes sure the edits shipped with the game still load
   properly
 
+## map_tests
+
+The `map_tests` crate runs the full importer against really simple `.osm`
+files. To iterate rapidly on interpreting turn restrictions, for example, it
+produces goldenfiles describing all turns in the tiny map.
+
 ## Old tests
 
 Once upon a time, I made a little test harness that would run the simulation

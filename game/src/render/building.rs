@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::options::{CameraAngle, Options};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use geom::{Angle, Distance, Line, Polygon, Pt2D, Ring};
-use map_model::{Building, BuildingID, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
+use map_model::{Building, BuildingID, LaneType, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
 use std::cell::RefCell;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
@@ -188,7 +188,13 @@ impl DrawBuilding {
                 }
             }
         }
-        paths_batch.push(cs.sidewalk, driveway.make_polygons(NORMAL_LANE_THICKNESS));
+        paths_batch.push(
+            cs.zoomed_road_surface(
+                LaneType::Sidewalk,
+                map.get_parent(bldg.sidewalk()).get_rank(),
+            ),
+            driveway.make_polygons(NORMAL_LANE_THICKNESS),
+        );
 
         DrawBuilding {
             id: bldg.id,

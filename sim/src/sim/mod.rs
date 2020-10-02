@@ -76,7 +76,6 @@ pub struct SimOptions {
     pub enable_pandemic_model: Option<XorShiftRng>,
     pub alerts: AlertHandler,
     pub pathfinding_upfront: bool,
-    pub live_map_edits: bool,
     pub infinite_parking: bool,
 }
 
@@ -112,7 +111,6 @@ impl SimOptions {
                 })
                 .unwrap_or(AlertHandler::Print),
             pathfinding_upfront: args.enabled("--pathfinding_upfront"),
-            live_map_edits: args.enabled("--live_map_edits"),
             infinite_parking: args.enabled("--infinite_parking"),
         }
     }
@@ -146,7 +144,6 @@ impl SimOptions {
             enable_pandemic_model: None,
             alerts: AlertHandler::Print,
             pathfinding_upfront: false,
-            live_map_edits: false,
             infinite_parking: false,
         }
     }

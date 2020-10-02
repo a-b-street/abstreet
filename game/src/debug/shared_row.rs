@@ -2,14 +2,24 @@ use geojson::feature::Id;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 use map_model::{Direction, Lane, LaneType, Map, RoadID};
 
-// Exports to https://github.com/d-wasserman/shared-row/
-pub fn export(roads: Vec<RoadID>, map: &Map) {
+// Exports to https://github.com/d-wasserman/shared-row/, returns the filename
+pub fn export(roads: Vec<RoadID>, map: &Map) -> String {
+    let path = format!(
+        "shared_row_export_{}.json",
+        roads
+            .iter()
+            .take(5)
+            .map(|r| r.0.to_string())
+            .collect::<Vec<_>>()
+            .join("_")
+    );
     let geojson = GeoJson::from(FeatureCollection {
         bbox: None,
         features: roads.into_iter().map(|r| road(r, map)).collect(),
         foreign_members: None,
     });
-    abstutil::write_json("shared_row_export.json".to_string(), &geojson);
+    abstutil::write_json(path.clone(), &geojson);
+    path
 }
 
 fn road(id: RoadID, map: &Map) -> Feature {

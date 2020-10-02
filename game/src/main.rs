@@ -42,6 +42,7 @@ fn main() {
     let mut flags = Flags {
         sim_flags: SimFlags::from_args(&mut args),
         num_agents: args.optional_parse("--num_agents", |s| s.parse()),
+        live_map_edits: args.enabled("--live_map_edits"),
     };
     let mut opts = options::Options::default();
     opts.dev = args.enabled("--dev");

@@ -312,35 +312,6 @@ impl Analytics {
         results
     }
 
-    // Find intersections where the cumulative sum of delay has changed. Negative means faster.
-    pub fn compare_delay(&self, now: Time, before: &Analytics) -> Vec<(IntersectionID, Duration)> {
-        let mut results = Vec::new();
-        for (i, list1) in &self.intersection_delays {
-            if let Some(list2) = before.intersection_delays.get(i) {
-                let mut sum1 = Duration::ZERO;
-                for (_, t, dt, _) in list1 {
-                    if *t > now {
-                        break;
-                    }
-                    sum1 += *dt;
-                }
-
-                let mut sum2 = Duration::ZERO;
-                for (_, t, dt, _) in list2 {
-                    if *t > now {
-                        break;
-                    }
-                    sum2 += *dt;
-                }
-
-                if sum1 != sum2 {
-                    results.push((*i, sum1 - sum2));
-                }
-            }
-        }
-        results
-    }
-
     pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {
         let mut phases: Vec<TripPhase> = Vec::new();
         for (t, id, maybe_req, phase_type) in &self.trip_log {

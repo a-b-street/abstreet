@@ -107,17 +107,6 @@ version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "as-slice"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "generic-array 0.12.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "generic-array 0.13.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "generic-array 0.14.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "stable_deref_trait 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "ascii-canvas"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1032,40 +1021,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "generic-array"
-version = "0.13.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "typenum 1.11.2 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "generic-array"
-version = "0.14.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "typenum 1.11.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "version_check 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "geo"
-version = "0.14.2"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "geo-types 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "geographiclib-rs 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geo-types 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
- "rstar 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rstar 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "geo-booleanop"
-version = "0.3.2"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "float_next_after 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "geo-types 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geo-types 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "robust 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1080,20 +1051,11 @@ dependencies = [
 
 [[package]]
 name = "geo-types"
-version = "0.6.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "approx 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
- "rstar 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "geographiclib-rs"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rstar 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1113,12 +1075,12 @@ dependencies = [
  "aabb-quadtree 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "abstutil 0.1.0",
  "earcutr 0.1.0 (git+https://github.com/dabreegster/earcutr?branch=patch-1)",
- "geo 0.14.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "geo-booleanop 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geo 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geo-booleanop 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "histogram 0.6.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "instant 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "ordered-float 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "polylabel 2.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "polylabel 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.116 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1243,14 +1205,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "hash32"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "byteorder 1.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1275,17 +1229,6 @@ dependencies = [
  "sim 0.1.0",
  "tokio 0.2.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "url 2.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "heapless"
-version = "0.5.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "as-slice 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "generic-array 0.13.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "hash32 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "stable_deref_trait 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1808,6 +1751,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "map_tests"
+version = "0.1.0"
+dependencies = [
+ "abstutil 0.1.0",
+ "convert_osm 0.1.0",
+ "map_model 0.1.0",
+]
+
+[[package]]
 name = "maplit"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2277,11 +2229,11 @@ dependencies = [
 
 [[package]]
 name = "polylabel"
-version = "2.3.1"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "cbindgen 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "geo 0.14.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geo 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.77 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror 1.0.14 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2649,13 +2601,11 @@ dependencies = [
 
 [[package]]
 name = "rstar"
-version = "0.8.2"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "heapless 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "pdqselect 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "smallvec 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2938,11 +2888,6 @@ dependencies = [
 [[package]]
 name = "spin"
 version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "stable_deref_trait"
-version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -3306,6 +3251,18 @@ version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "traffic_seitan"
+version = "0.1.0"
+dependencies = [
+ "abstutil 0.1.0",
+ "geom 0.1.0",
+ "map_model 0.1.0",
+ "rand 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand_xorshift 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sim 0.1.0",
 ]
 
 [[package]]
@@ -3877,7 +3834,6 @@ dependencies = [
 "checksum approx 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "f0e60b75072ecd4168020818c0107f2857bb6c4e64252d8d3983f6263b40a5c3"
 "checksum arc-swap 0.4.7 (registry+https://github.com/rust-lang/crates.io-index)" = "4d25d88fd6b8041580a654f9d0c581a047baee2b3efee13275f2fc392fc75034"
 "checksum arrayvec 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "cff77d8686867eceff3105329d4698d96c2391c176d5d03adc90c7389162b5b8"
-"checksum as-slice 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "bb4d1c23475b74e3672afa8c2be22040b8b7783ad9b461021144ed10a46bb0e6"
 "checksum ascii-canvas 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b385d69402821a1c254533a011a312531cbcc0e3e24f19bbb4747a5a2daf37e2"
 "checksum atty 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)" = "d9b39be18770d11421cdb1b9947a45dd3f37e93092cbf377614828a319d5fee8"
 "checksum autocfg 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "1d49d90015b3c36167a20fe2810c5cd875ad504b39cff3d4eae7977e6b7c1cb2"
@@ -3984,13 +3940,10 @@ dependencies = [
 "checksum gdal 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ade14d6996db3d8cb123b4d6c5d10532a8ae94d9b23e834eed0c8c299d5e4756"
 "checksum gdal-sys 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f14384767373cfd3f2055aeac829d8cb146e80f73bb70ddaa000b9efa51f0979"
 "checksum generic-array 0.12.3 (registry+https://github.com/rust-lang/crates.io-index)" = "c68f0274ae0e023facc3c97b2e00f076be70e254bc851d972503b328db79b2ec"
-"checksum generic-array 0.13.2 (registry+https://github.com/rust-lang/crates.io-index)" = "0ed1e761351b56f54eb9dcd0cfaca9fd0daecf93918e1cfc01c8a3d26ee7adcd"
-"checksum generic-array 0.14.3 (registry+https://github.com/rust-lang/crates.io-index)" = "60fb4bb6bba52f78a471264d9a3b7d026cc0af47b22cd2cffbc0b787ca003e63"
-"checksum geo 0.14.2 (registry+https://github.com/rust-lang/crates.io-index)" = "139007e3210dfc1d010e166e779059be5e0f31967a71f3edae97116aefb74450"
-"checksum geo-booleanop 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "d4b68ff17c819296610e9eee41bdf5eb37f71b09870a95f0086e07d8fcc1f45b"
+"checksum geo 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6315f3b85322e42fc9967e0f080fff8294f65eddfc222f1a1dd694955b04df4d"
+"checksum geo-booleanop 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f16174b610e843fdeb3d7875f8b8f767bba18fd3605851984fafccb271895c8f"
 "checksum geo-types 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)" = "866e8f6dbd2218b05ea8a25daa1bfac32b0515fe7e0a37cb6a7b9ed0ed82a07e"
-"checksum geo-types 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "407043938de169e80c31cef3c46c99faccd4d002ea8120c637f29a6958820c62"
-"checksum geographiclib-rs 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b78e20d5d868fa2c4182a8170cb4df261e781a605810e3c1500269c1907da461"
+"checksum geo-types 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e0ff051e4c51366601441053c37acf84958a795d350fdc02a53a31717f9bae2d"
 "checksum geojson 0.19.0 (registry+https://github.com/rust-lang/crates.io-index)" = "da98686bca3298df46f3957c78166cfbf0fa399e9efcdac0cb7ff2cfed1fd2ab"
 "checksum getrandom 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)" = "7abc8dd8451921606d809ba32e95b6111925cd2906060d2dcc29c070220503eb"
 "checksum gl_generator 0.13.1 (registry+https://github.com/rust-lang/crates.io-index)" = "ca98bbde17256e02d17336a6bdb5a50f7d0ccacee502e191d3e3d0ec2f96f84a"
@@ -4003,9 +3956,7 @@ dependencies = [
 "checksum glutin_glx_sys 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "08c243de74d6cf5ea100c788826d2fb9319de315485dd4b310811a663b3809c3"
 "checksum glutin_wgl_sys 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "a93dba7ee3a0feeac0f437141ff25e71ce2066bcf1a706acab1559ffff94eb6a"
 "checksum h2 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)" = "79b7246d7e4b979c03fa093da39cfb3617a96bbeee6310af63991668d7e843ff"
-"checksum hash32 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d4041af86e63ac4298ce40e5cca669066e75b6f1aa3390fe2561ffa5e1d9f4cc"
 "checksum hashbrown 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e91b62f79061a0bc2e046024cb7ba44b08419ed238ecbd9adbd787434b9e8c25"
-"checksum heapless 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)" = "74911a68a1658cfcfb61bc0ccfbd536e3b6e906f8c2f7883ee50157e3e2184f1"
 "checksum heck 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "20564e78d53d2bb135c343b3f47714a56af2061f1c928fdb541dc7b9fdd94205"
 "checksum hermit-abi 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)" = "725cf19794cf90aa94e65050cb4191ff5d8fa87a498383774c47b332e3af952e"
 "checksum histogram 0.6.9 (registry+https://github.com/rust-lang/crates.io-index)" = "12cb882ccb290b8646e554b157ab0b71e64e8d5bef775cd66b6531e52d302669"
@@ -4117,7 +4068,7 @@ dependencies = [
 "checksum pin-utils 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 "checksum pkg-config 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)" = "05da548ad6865900e60eaba7f589cc0783590a92e940c26953ff81ddbab2d677"
 "checksum png 0.16.7 (registry+https://github.com/rust-lang/crates.io-index)" = "dfe7f9f1c730833200b134370e1d5098964231af8450bce9b78ee3ab5278b970"
-"checksum polylabel 2.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "6d2fb790ba7f482d140cc38f9e386838d7108c84fc0964692b56fb036c0443b7"
+"checksum polylabel 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f637d84247af72ced48cf3f6ea0adaaa4a2c8163943028c6814803b702ec045b"
 "checksum ppv-lite86 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)" = "74490b50b9fbe561ac330df47c08f3f33073d2d00c150f719147d7c54522fa1b"
 "checksum precomputed-hash 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c"
 "checksum priority-queue 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5ce18e1ee7a46cbd356679b420c77ee6c40f0a91ed012c925ca203041c0ef68d"
@@ -4159,7 +4110,7 @@ dependencies = [
 "checksum ring 0.16.12 (registry+https://github.com/rust-lang/crates.io-index)" = "1ba5a8ec64ee89a76c98c549af81ff14813df09c3e6dc4766c3856da48597a0c"
 "checksum robust 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "222155e5550abd9100afdcdefbd08aa1b856d226b60e327044ec21b1ece2f78e"
 "checksum roxmltree 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)" = "17dfc6c39f846bfc7d2ec442ad12055d79608d501380789b965d22f9354451f2"
-"checksum rstar 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = "3f9a31b6d446dcdf5b1c9677068e147bd86ce5efcdbce4741f0b55d747381924"
+"checksum rstar 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)" = "0650eaaa56cbd1726fd671150fce8ac6ed9d9a25d1624430d7ee9d196052f6b6"
 "checksum rustc-demangle 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)" = "4c691c0e608126e00913e33f0ccf3727d5fc84573623b8d65b2df340b5201783"
 "checksum rustc-hash 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 "checksum rustc-serialize 0.3.24 (registry+https://github.com/rust-lang/crates.io-index)" = "dcf128d1287d2ea9d80910b5f1120d0b8eede3fbf1abe91c40d39ea7d51e6fda"
@@ -4194,7 +4145,6 @@ dependencies = [
 "checksum smithay-client-toolkit 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)" = "421c8dc7acf5cb205b88160f8b4cc2c5cfabe210e43b2f80f009f4c1ef910f1d"
 "checksum socket2 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)" = "03088793f677dce356f3ccc2edb1b314ad191ab702a5de3faf49304f7e104918"
 "checksum spin 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
-"checksum stable_deref_trait 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 "checksum stb_truetype 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "f77b6b07e862c66a9f3e62a07588fee67cd90a9135a2b942409f195507b4fb51"
 "checksum stdweb 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)" = "d022496b16281348b52d0e30ae99e01a73d737b2f45d38fed4edf79f9325a1d5"
 "checksum stdweb-derive 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "c87a60a40fccc84bef0652345bbbbbe20a605bf5d0ce81719fc476f5c03b50ef"

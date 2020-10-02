@@ -407,6 +407,17 @@ impl Road {
         result
     }
 
+    // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
+    // it counts up from there.
+    pub(crate) fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
+        for &dir in [Direction::Fwd, Direction::Back].iter() {
+            if let Some(idx) = self.children(dir).iter().position(|pair| pair.0 == lane) {
+                return (dir, idx);
+            }
+        }
+        panic!("{} doesn't contain {}", self.id, lane);
+    }
+
     // TODO Deprecated
     pub(crate) fn children(&self, dir: Direction) -> Vec<(LaneID, LaneType)> {
         if dir == Direction::Fwd {

@@ -656,6 +656,9 @@ impl ParkingLane {
 // disables the simulation of parking entirely, making driving trips just go directly between
 // buildings. Useful for maps without good parking data (which is currently all of them) and
 // experiments where parking contention skews results and just gets in the way.
+//
+// TODO Reconsider this split implementation. There's lots of copied code. We can maybe just use
+// NormalParkingSimState with an 'infinite: bool' and rethinking num_spots_per_offstreet.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct InfiniteParkingSimState {
     #[serde(
@@ -676,7 +679,9 @@ pub struct InfiniteParkingSimState {
         deserialize_with = "deserialize_multimap"
     )]
     driving_to_offstreet: MultiMap<LaneID, (BuildingID, Distance)>,
-    blackholed_buildings: BTreeSet<BuildingID>,
+    // For an entry b1 -> b2, b1 is blackholed, so instead go park at b2 and walk the rest of the
+    // way.
+    blackholed_building_redirects: BTreeMap<BuildingID, BuildingID>,
 
     events: Vec<Event>,
 }
@@ -689,10 +694,11 @@ impl InfiniteParkingSimState {
             reserved_spots: BTreeSet::new(),
 
             driving_to_offstreet: MultiMap::new(),
-            blackholed_buildings: BTreeSet::new(),
+            blackholed_building_redirects: BTreeMap::new(),
 
             events: Vec::new(),
         };
+        let mut blackholes = Vec::new();
         for b in map.all_buildings() {
             if let Some((pos, _)) = b.driving_connection(map) {
                 if !map.get_l(pos.lane()).driving_blackhole {
@@ -701,13 +707,40 @@ impl InfiniteParkingSimState {
                     continue;
                 }
             }
-            sim.blackholed_buildings.insert(b.id);
+            blackholes.push(b.id);
         }
+
+        // For every blackholed building, find a nearby building that isn't blackholed
+        for b in blackholes {
+            // TODO This is a simple DFS. Could sort by distance.
+            let mut queue = vec![map.find_driving_lane_near_building(b)];
+            let mut seen = BTreeSet::new();
+            loop {
+                let current = queue.pop().unwrap();
+                if seen.contains(&current) {
+                    continue;
+                }
+                seen.insert(current);
+                if let Some((redirect, _)) = sim.driving_to_offstreet.get(current).iter().next() {
+                    sim.blackholed_building_redirects.insert(b, *redirect);
+                    break;
+                }
+                for turn in map.get_turns_for(current, PathConstraints::Car) {
+                    queue.push(turn.id.dst);
+                }
+            }
+        }
+
         sim
     }
 
     fn get_free_bldg_spot(&self, b: BuildingID) -> ParkingSpot {
-        assert!(!self.blackholed_buildings.contains(&b));
+        if let Some(redirect) = self.blackholed_building_redirects.get(&b) {
+            // This won't recurse endlessly; the redirect is not a key in
+            // blackholed_building_redirects.
+            return self.get_free_bldg_spot(*redirect);
+        }
+
         let mut i = 0;
         loop {
             let spot = ParkingSpot::Offstreet(b, i);
@@ -724,7 +757,7 @@ impl ParkingSim for InfiniteParkingSimState {
         // Can live edits possibly affect anything?
         let new = InfiniteParkingSimState::new(map);
         self.driving_to_offstreet = new.driving_to_offstreet;
-        self.blackholed_buildings = new.blackholed_buildings;
+        self.blackholed_building_redirects = new.blackholed_building_redirects;
 
         Vec::new()
     }
@@ -734,12 +767,8 @@ impl ParkingSim for InfiniteParkingSimState {
     }
 
     fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot> {
-        if self.blackholed_buildings.contains(&b) {
-            Vec::new()
-        } else {
-            // Just returns the next free spot
-            vec![self.get_free_bldg_spot(b)]
-        }
+        // Just returns the next free spot
+        vec![self.get_free_bldg_spot(b)]
     }
 
     fn get_free_lot_spots(&self, _: ParkingLotID) -> Vec<ParkingSpot> {
@@ -865,14 +894,58 @@ impl ParkingSim for InfiniteParkingSimState {
 
     fn path_to_free_parking_spot(
         &self,
-        _: LaneID,
-        _: &Vehicle,
-        _: BuildingID,
-        _: &Map,
+        start: LaneID,
+        vehicle: &Vehicle,
+        target: BuildingID,
+        map: &Map,
     ) -> Option<(Vec<PathStep>, ParkingSpot, Position)> {
-        // The original building we're aiming for will always have room, unless it's located on a
-        // blackholed lane. In that case, there's usually a nearby building on the last connected
-        // lane. If not, then just give up for now.
+        // TODO This impl is copied from NormalParkingSimState. Instead, we already know the
+        // redirect... could just path to it.
+        let mut backrefs: HashMap<LaneID, TurnID> = HashMap::new();
+        // Don't travel far.
+        // This is a max-heap, so negate all distances. Tie breaker is lane ID, arbitrary but
+        // deterministic.
+        let mut queue: BinaryHeap<(Distance, LaneID)> = BinaryHeap::new();
+        queue.push((Distance::ZERO, start));
+
+        while !queue.is_empty() {
+            let (dist_so_far, current) = queue.pop().unwrap();
+            // If the current lane has a spot open, we wouldn't be asking. This can happen if a spot
+            // opens up on the 'start' lane, but behind the car.
+            if current != start {
+                // Pick the closest to the start of the lane, since that's closest to where we came
+                // from
+                if let Some((spot, pos)) = self
+                    .get_all_free_spots(Position::start(current), vehicle, target, map)
+                    .into_iter()
+                    .min_by_key(|(_, pos)| pos.dist_along())
+                {
+                    let mut steps = vec![PathStep::Lane(current)];
+                    let mut current = current;
+                    loop {
+                        if current == start {
+                            // Don't include PathStep::Lane(start)
+                            steps.pop();
+                            steps.reverse();
+                            return Some((steps, spot, pos));
+                        }
+                        let turn = backrefs[&current];
+                        steps.push(PathStep::Turn(turn));
+                        steps.push(PathStep::Lane(turn.src));
+                        current = turn.src;
+                    }
+                }
+            }
+            for turn in map.get_turns_for(current, PathConstraints::Car) {
+                if !backrefs.contains_key(&turn.id.dst) {
+                    let dist_this_step = turn.geom.length() + map.get_l(current).length();
+                    backrefs.insert(turn.id.dst, turn.id);
+                    // Remember, keep things negative
+                    queue.push((dist_so_far - dist_this_step, turn.id.dst));
+                }
+            }
+        }
+
         None
     }
 

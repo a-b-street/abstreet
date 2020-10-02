@@ -3,7 +3,9 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
-use map_model::{Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH};
+use map_model::{
+    osm, LaneType, Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
+};
 use std::cell::RefCell;
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
 
@@ -23,7 +25,7 @@ impl DrawParkingLot {
         for aisle in &lot.aisles {
             let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
             unzoomed_batch.push(
-                cs.unzoomed_residential,
+                cs.unzoomed_road_surface(osm::RoadRank::Local),
                 PolyLine::unchecked_new(aisle.clone()).make_polygons(aisle_thickness),
             );
         }
@@ -64,14 +66,21 @@ impl Renderable for DrawParkingLot {
             // TODO This isn't getting clipped to the parking lot boundary properly, so just stick
             // this on the lowest order for now.
             batch.push(
-                app.cs.sidewalk,
+                app.cs.zoomed_road_surface(
+                    LaneType::Sidewalk,
+                    app.primary
+                        .map
+                        .get_parent(lot.sidewalk_pos.lane())
+                        .get_rank(),
+                ),
                 front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
             );
             batch.push(app.cs.parking_lot, lot.polygon.clone());
             for aisle in &lot.aisles {
                 let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
                 batch.push(
-                    app.cs.driving_lane,
+                    app.cs
+                        .zoomed_road_surface(LaneType::Driving, osm::RoadRank::Local),
                     PolyLine::unchecked_new(aisle.clone()).make_polygons(aisle_thickness),
                 );
             }

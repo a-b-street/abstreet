@@ -2,6 +2,9 @@ use widgetry::{Choice, Color, Fill, Style, Texture};
 
 use crate::common::ColorScale;
 use crate::helpers::loading_tips;
+use map_model::osm::RoadRank;
+use map_model::LaneType;
+use widgetry::{Choice, Color, Fill, Style, Texture};
 
 // I've gone back and forth how to organize color scheme code. I was previously against having one
 // centralized place with all definitions, because careful naming or comments are needed to explain
@@ -24,6 +27,9 @@ pub enum ColorSchemeChoice {
     OSM,
     Starcat,
     Textured,
+    MapboxLight,
+    MapboxDark,
+    FadedZoom,
 }
 
 impl ColorSchemeChoice {
@@ -37,11 +43,16 @@ impl ColorSchemeChoice {
             Choice::new("osm", ColorSchemeChoice::OSM),
             Choice::new("starcat", ColorSchemeChoice::Starcat),
             Choice::new("textured", ColorSchemeChoice::Textured),
+            Choice::new("mapbox light", ColorSchemeChoice::MapboxLight),
+            Choice::new("mapbox dark", ColorSchemeChoice::MapboxDark),
+            Choice::new("faded zoom", ColorSchemeChoice::FadedZoom),
         ]
     }
 }
 
 pub struct ColorScheme {
+    scheme: ColorSchemeChoice,
+
     // UI
     pub hovering: Color,
     pub panel_bg: Color,
@@ -59,19 +70,19 @@ pub struct ColorScheme {
     pub dialog_bg: Color,
 
     // Roads
-    pub driving_lane: Color,
-    pub bus_lane: Color,
-    pub parking_lane: Color,
-    pub bike_lane: Color,
-    pub sidewalk: Color,
+    driving_lane: Color,
+    bus_lane: Color,
+    parking_lane: Color,
+    bike_lane: Color,
+    sidewalk: Color,
     pub sidewalk_lines: Color,
     pub general_road_marking: Color,
     pub road_center_line: Color,
     pub light_rail_track: Color,
     pub private_road: Color,
-    pub unzoomed_highway: Color,
-    pub unzoomed_arterial: Color,
-    pub unzoomed_residential: Color,
+    unzoomed_highway: Color,
+    unzoomed_arterial: Color,
+    unzoomed_residential: Color,
 
     // Intersections
     pub normal_intersection: Color,
@@ -134,13 +145,15 @@ pub struct ColorScheme {
 
     // Misc
     pub parking_trip: Color,
+    pub bike_trip: Color,
+    pub bus_trip: Color,
     pub before_changes: Color,
     pub after_changes: Color,
 }
 
 impl ColorScheme {
     pub fn new(scheme: ColorSchemeChoice) -> ColorScheme {
-        match scheme {
+        let mut cs = match scheme {
             ColorSchemeChoice::Standard => ColorScheme::standard(),
             ColorSchemeChoice::NightMode => ColorScheme::night_mode(),
             ColorSchemeChoice::SAMGreenDay => ColorScheme::sam_green_day(),
@@ -149,13 +162,20 @@ impl ColorScheme {
             ColorSchemeChoice::OSM => ColorScheme::osm(),
             ColorSchemeChoice::Starcat => ColorScheme::starcat(),
             ColorSchemeChoice::Textured => ColorScheme::textured(),
-        }
+            ColorSchemeChoice::MapboxLight => ColorScheme::mapbox_light(),
+            ColorSchemeChoice::MapboxDark => ColorScheme::mapbox_dark(),
+            ColorSchemeChoice::FadedZoom => ColorScheme::faded_zoom(),
+        };
+        cs.scheme = scheme;
+        cs
     }
 
     fn standard() -> ColorScheme {
         let mut gui_style = Style::standard();
         gui_style.loading_tips = loading_tips();
         ColorScheme {
+            scheme: ColorSchemeChoice::Standard,
+
             // UI
             hovering: gui_style.hovering_color,
             panel_bg: gui_style.panel_bg,
@@ -181,8 +201,8 @@ impl ColorScheme {
             sidewalk_lines: Color::grey(0.7),
             general_road_marking: Color::WHITE,
             road_center_line: Color::YELLOW,
-            light_rail_track: Color::hex("#844204"),
-            private_road: Color::hex("#F0B0C0"),
+            light_rail_track: hex("#844204"),
+            private_road: hex("#F0B0C0"),
             unzoomed_highway: Color::rgb(232, 146, 162),
             unzoomed_arterial: Color::rgb(255, 199, 62),
             unzoomed_residential: Color::WHITE,
@@ -205,9 +225,9 @@ impl ColorScheme {
             void_background: Color::BLACK,
             map_background: Color::grey(0.87).into(),
             unzoomed_interesting_intersection: Color::BLACK,
-            residential_building: Color::hex("#C4C1BC"),
-            commerical_building: Color::hex("#9FABA7"),
-            building_outline: Color::hex("#938E85"),
+            residential_building: hex("#C4C1BC"),
+            commerical_building: hex("#9FABA7"),
+            building_outline: hex("#938E85"),
             parking_lot: Color::grey(0.7),
             grass: hex("#94C84A").into(),
             water: Color::rgb(164, 200, 234).into(),
@@ -237,13 +257,13 @@ impl ColorScheme {
             brake_light: hex("#FF1300"),
             bus_body: Color::rgb(50, 133, 117),
             bus_label: Color::rgb(249, 206, 24),
-            train_body: Color::hex("#42B6E9"),
+            train_body: hex("#42B6E9"),
             ped_head: Color::rgb(139, 69, 19),
             ped_foot: Color::BLACK,
             ped_preparing_bike_body: Color::rgb(255, 0, 144),
             ped_crowd: Color::rgb_f(0.2, 0.7, 0.7),
-            bike_frame: Color::hex("#AAA9AD"),
-            parked_car: Color::hex("#938E85"),
+            bike_frame: hex("#AAA9AD"),
+            parked_car: hex("#938E85"),
 
             // Layers
             good_to_bad_red: ColorScale(vec![hex("#F19A93"), hex("#A32015")]),
@@ -253,6 +273,8 @@ impl ColorScheme {
 
             // Misc
             parking_trip: hex("#4E30A6"),
+            bike_trip: Color::rgb(15, 125, 75),
+            bus_trip: Color::rgb(190, 74, 76),
             before_changes: Color::BLUE,
             after_changes: Color::RED,
         }
@@ -273,6 +295,40 @@ impl ColorScheme {
 
     pub fn rotating_color_agents(&self, idx: usize) -> Color {
         modulo_color(&self.agent_colors, idx)
+    }
+
+    pub fn unzoomed_road_surface(&self, rank: RoadRank) -> Color {
+        match rank {
+            RoadRank::Highway => self.unzoomed_highway,
+            RoadRank::Arterial => self.unzoomed_arterial,
+            RoadRank::Local => self.unzoomed_residential,
+        }
+    }
+
+    pub fn zoomed_road_surface(&self, lane: LaneType, rank: RoadRank) -> Color {
+        match self.scheme {
+            ColorSchemeChoice::FadedZoom => match rank {
+                RoadRank::Highway => hex("#BEB2C0"),
+                RoadRank::Arterial => hex("#B6BDC5"),
+                RoadRank::Local => hex("#C6CDD5"),
+            },
+            _ => match lane {
+                LaneType::Driving => self.driving_lane,
+                LaneType::Bus => self.bus_lane,
+                LaneType::Parking => self.parking_lane,
+                LaneType::Sidewalk | LaneType::Shoulder => self.sidewalk,
+                LaneType::Biking => self.bike_lane,
+                LaneType::SharedLeftTurn => self.driving_lane,
+                LaneType::Construction => self.parking_lane,
+                LaneType::LightRail => unreachable!(),
+            },
+        }
+    }
+    pub fn zoomed_intersection_surface(&self, rank: RoadRank) -> Color {
+        match self.scheme {
+            ColorSchemeChoice::FadedZoom => self.zoomed_road_surface(LaneType::Driving, rank),
+            _ => self.normal_intersection,
+        }
     }
 }
 
@@ -381,6 +437,51 @@ impl ColorScheme {
         cs.grass = Texture::GRASS.into();
         cs.water = Texture::STILL_WATER.into();
         cs.map_background = Texture::CONCRETE.into();
+        cs
+    }
+
+    fn mapbox_light() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        cs.map_background = hex("#F2F3F1").into();
+        cs.unzoomed_highway = Color::WHITE;
+        cs.unzoomed_arterial = Color::WHITE;
+        cs.unzoomed_residential = Color::WHITE;
+        cs.grass = hex("#ECEEED").into();
+        cs.water = hex("#CAD2D3").into();
+        cs.residential_building = hex("#E9E9E7").into();
+        cs.commerical_building = hex("#E9E9E7").into();
+        cs
+    }
+
+    fn mapbox_dark() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        cs.map_background = hex("#343332").into();
+        let road = hex("#454545");
+        cs.unzoomed_highway = road;
+        cs.unzoomed_arterial = road;
+        cs.unzoomed_residential = road;
+        cs.grass = hex("#323432").into();
+        cs.water = hex("#181919").into();
+        cs.residential_building = hex("#2C2C2B").into();
+        cs.commerical_building = hex("#2C2C2B").into();
+
+        // TODO Things like this could be refactored in zoomed_road_surface
+        cs.driving_lane = road;
+        cs.parking_lane = road;
+        cs.bike_lane = road;
+        cs.bus_lane = road;
+        cs.sidewalk = Color::grey(0.3);
+        cs.sidewalk_lines = road;
+        cs.normal_intersection = road;
+        cs.general_road_marking = cs.building_outline;
+        cs.road_center_line = cs.general_road_marking;
+        cs.stop_sign = Color::rgb_f(0.67, 0.55, 0.55);
+
+        cs
+    }
+
+    fn faded_zoom() -> ColorScheme {
+        let cs = ColorScheme::standard();
         cs
     }
 }

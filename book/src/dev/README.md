@@ -122,6 +122,7 @@ Constructing the map:
   scratch. pretty abandoned as of June 2020
 - `importer`: tool to run the entire import pipeline
 - `updater`: tool to download/upload large files used in the import pipeline
+- `map_tests`: tests for the map import pipeline
 
 Traffic simulation:
 
@@ -139,6 +140,10 @@ Common utilities:
 - `abstutil`: a grab-bag of IO helpers, timing and logging utilities, etc
 - `geom`: types for GPS and map-space points, lines, angles, polylines,
   polygons, circles, durations, speeds
+
+Other:
+
+- `traffic_seitan`: a bug-finding tool that randomly generates live map edits
 
 ## Code conventions
 

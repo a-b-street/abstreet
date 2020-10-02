@@ -4,8 +4,8 @@ use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Duration, Time};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, PhaseType, RoadID,
-    Traversable, TurnID, TurnPriority, TurnType,
+    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, PhaseType, Traversable,
+    TurnID, TurnPriority, TurnType,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -478,41 +478,6 @@ impl IntersectionSimState {
         }
         candidates.sort_by_key(|(_, t)| *t);
         candidates
-    }
-
-    // Weird way to measure this, but it works.
-    pub fn worst_delay(
-        &self,
-        now: Time,
-        map: &Map,
-    ) -> (
-        BTreeMap<RoadID, Duration>,
-        BTreeMap<IntersectionID, Duration>,
-    ) {
-        let mut per_road = BTreeMap::new();
-        let mut per_intersection = BTreeMap::new();
-        for (i, state) in &self.state {
-            for (req, t) in &state.waiting {
-                {
-                    let r = map.get_l(req.turn.src).parent;
-                    let worst = per_road
-                        .get(&r)
-                        .cloned()
-                        .unwrap_or(Duration::ZERO)
-                        .max(now - *t);
-                    per_road.insert(r, worst);
-                }
-                {
-                    let worst = per_intersection
-                        .get(i)
-                        .cloned()
-                        .unwrap_or(Duration::ZERO)
-                        .max(now - *t);
-                    per_intersection.insert(*i, worst);
-                }
-            }
-        }
-        (per_road, per_intersection)
     }
 
     pub fn current_stage_and_remaining_time(

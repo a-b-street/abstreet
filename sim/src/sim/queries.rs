@@ -7,7 +7,7 @@ use crate::{
 use abstutil::Counter;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position, RoadID,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position,
 };
 use std::collections::{BTreeMap, HashSet};
 
@@ -279,16 +279,6 @@ impl Sim {
 
     pub fn bldg_to_people(&self, b: BuildingID) -> Vec<PersonID> {
         self.trips.bldg_to_people(b)
-    }
-
-    pub fn worst_delay(
-        &self,
-        map: &Map,
-    ) -> (
-        BTreeMap<RoadID, Duration>,
-        BTreeMap<IntersectionID, Duration>,
-    ) {
-        self.intersections.worst_delay(self.time, map)
     }
 
     pub fn get_pandemic_model(&self) -> Option<&PandemicModel> {

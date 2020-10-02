@@ -90,7 +90,7 @@ impl EditMode {
             app.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);
-            if app.primary.current_flags.sim_flags.opts.live_map_edits {
+            if app.primary.current_flags.live_map_edits {
                 app.primary.sim = old_sim;
                 app.primary.dirty_from_edits = true;
                 app.primary

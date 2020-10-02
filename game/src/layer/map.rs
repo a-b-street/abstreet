@@ -308,13 +308,15 @@ impl Static {
             vec![
                 ("driving blackhole", Color::RED),
                 ("biking blackhole", Color::GREEN),
+                ("driving + biking blackhole", Color::BLUE),
             ],
         );
         for l in app.primary.map.all_lanes() {
-            if l.driving_blackhole {
+            if l.driving_blackhole && l.biking_blackhole {
+                colorer.add_l(l.id, "driving + biking blackhole");
+            } else if l.driving_blackhole {
                 colorer.add_l(l.id, "driving blackhole");
-            }
-            if l.biking_blackhole {
+            } else if l.biking_blackhole {
                 colorer.add_l(l.id, "biking blackhole");
             }
         }

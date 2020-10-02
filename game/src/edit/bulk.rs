@@ -18,12 +18,12 @@ pub struct BulkSelect {
 impl BulkSelect {
     pub fn new(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State> {
         let selector = RoadSelector::new(ctx, app, btreeset! {start});
-        let panel = make_select_panel(ctx, app, &selector);
+        let panel = make_select_panel(ctx, &selector);
         Box::new(BulkSelect { panel, selector })
     }
 }
 
-fn make_select_panel(ctx: &mut EventCtx, app: &App, selector: &RoadSelector) -> Panel {
+fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
     Panel::new(Widget::col(vec![
         Line("Edit many roads").small_heading().draw(ctx),
         selector.make_controls(ctx),
@@ -37,15 +37,11 @@ fn make_select_panel(ctx: &mut EventCtx, app: &App, selector: &RoadSelector) -> 
                     hotkeys(vec![Key::E, Key::Enter]),
                 )
             },
-            if app.opts.dev {
-                Btn::text_fg(format!(
-                    "Export {} roads to shared-row",
-                    selector.roads.len()
-                ))
-                .build(ctx, "export roads to shared-row", None)
-            } else {
-                Widget::nothing()
-            },
+            Btn::text_fg(format!(
+                "Export {} roads to shared-row",
+                selector.roads.len()
+            ))
+            .build(ctx, "export roads to shared-row", None),
             Btn::text_fg("Cancel").build_def(ctx, Key::Escape),
         ])
         .evenly_spaced(),
@@ -69,20 +65,25 @@ impl State for BulkSelect {
                     ));
                 }
                 "export roads to shared-row" => {
-                    crate::debug::shared_row::export(
+                    let path = crate::debug::shared_row::export(
                         self.selector.roads.iter().cloned().collect(),
                         &app.primary.map,
                     );
+                    return Transition::Push(PopupMsg::new(
+                        ctx,
+                        "Roads exported",
+                        vec![format!("Roads exported to shared-row format at {}", path)],
+                    ));
                 }
                 x => {
                     if self.selector.event(ctx, app, Some(x)) {
-                        self.panel = make_select_panel(ctx, app, &self.selector);
+                        self.panel = make_select_panel(ctx, &self.selector);
                     }
                 }
             },
             _ => {
                 if self.selector.event(ctx, app, None) {
-                    self.panel = make_select_panel(ctx, app, &self.selector);
+                    self.panel = make_select_panel(ctx, &self.selector);
                 }
             }
         }
