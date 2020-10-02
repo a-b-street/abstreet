@@ -141,6 +141,10 @@ Common utilities:
 - `geom`: types for GPS and map-space points, lines, angles, polylines,
   polygons, circles, durations, speeds
 
+Other:
+
+- `traffic_seitan`: a bug-finding tool that randomly generates live map edits
+
 ## Code conventions
 
 All code is automatically formatted using

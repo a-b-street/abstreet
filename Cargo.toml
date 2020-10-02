@@ -12,6 +12,7 @@ members = [
   "map_model",
   "map_tests",
   "sim",
+  "traffic_seitan",
   "updater",
   "widgetry",
 ]
