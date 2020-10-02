@@ -250,7 +250,11 @@ impl DrivingSimState {
                 let time_cross = now - time_int.start;
                 let avg_speed = Speed::from_dist_time(dist_int.length(), time_cross);
                 let route = car.router.head();
-                let max_speed = route.speed_limit(ctx.map);
+                let max_speed = route.speed_limit(ctx.map).min(
+                    car.vehicle
+                        .max_speed
+                        .unwrap_or(Speed::meters_per_second(100.0)),
+                );
                 let speed_percent: u8 = ((avg_speed / max_speed) * 100.0) as u8;
                 if speed_percent < 95 {
                     if let Some((trip, _)) = car.trip_and_person {

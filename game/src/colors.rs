@@ -1,10 +1,9 @@
+use map_model::osm::RoadRank;
+use map_model::LaneType;
 use widgetry::{Choice, Color, Fill, Style, Texture};
 
 use crate::common::ColorScale;
 use crate::helpers::loading_tips;
-use map_model::osm::RoadRank;
-use map_model::LaneType;
-use widgetry::{Choice, Color, Fill, Style, Texture};
 
 // I've gone back and forth how to organize color scheme code. I was previously against having one
 // centralized place with all definitions, because careful naming or comments are needed to explain

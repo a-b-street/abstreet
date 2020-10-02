@@ -2,12 +2,12 @@ use std::collections::BTreeMap;
 
 use maplit::btreemap;
 
-use geom::{trim_f64, ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
-use map_model::{Lane, LaneID, Map, Path, PathStep, Turn};
+use geom::{ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
+use map_model::{LaneID, Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
     Btn, Color, DrawWithTooltips, EventCtx, Fill, GeomBatch, Line, LinePlot, PlotOptions,
-    RewriteColor, Series, Text, TextExt, TextSpan, Widget,
+    RewriteColor, Series, Text, TextExt, Widget,
 };
 
 use crate::app::App;
@@ -329,25 +329,6 @@ pub fn finished(
                 .force_width_pct(ctx, col_width),
             Line(trip.purpose.to_string()).secondary().draw(ctx),
         ]));
-        {
-            let data_opt = &app.primary.sim.get_analytics().trip_intersection_delays(id);
-            if data_opt.is_some() {
-                let data = data_opt.unwrap();
-                let mut msg = String::new();
-                for (intersection, time) in data {
-                    /*                    msg.push_str(&format!(
-                        "ID: {},    Delay: {}",
-                        intersection.0.to_string(),
-                        time.inner_seconds().to_string(),
-                    ));*/
-                }
-                col.push(Widget::custom_row(vec![
-                    Widget::custom_row(vec![Line("Delays").secondary().draw(ctx)])
-                        .force_width_pct(ctx, col_width),
-                    Line(msg).secondary().draw(ctx),
-                ]));
-            }
-        }
     }
 
     col.push(make_timeline(
@@ -487,7 +468,7 @@ fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID, ctx: &Even
             let label = Text::from(Line(format!("{}s", speed_percent)))
                 .change_fg(fg_color)
                 .bg(bg_color);
-            let (pt, angle) = lane
+            let (pt, _) = lane
                 .lane_center_pts
                 .must_dist_along(lane.lane_center_pts.length() / 2.0);
             let rendered = label.render(ctx).centered_on(pt); //.rotate(angle);
@@ -502,9 +483,9 @@ fn make_bar(
     app: &App,
     trip_id: TripID,
     phases: &Vec<TripPhase>,
-) -> Vec<Widget> {
+    progress_along_path: Option<f64>,
+) -> Widget {
     let map = &app.primary.map;
-    let sim = &app.primary.sim;
     let data_inter_opt = &app
         .primary
         .sim
@@ -515,6 +496,9 @@ fn make_bar(
     let mut sum_phase_dist = Distance::meters(0.0);
     let mut alt_phase_dist = Distance::meters(0.0);
     let mut segments: Vec<(Distance, Color, Text)> = Vec::new();
+    let trip = app.primary.sim.trip_info(trip_id);
+    let end_time = phases.last().as_ref().and_then(|p| p.end_time);
+    let total_duration_so_far = end_time.unwrap_or_else(|| app.primary.sim.time()) - trip.departure;
     let data_inter = if data_inter_opt.is_some() {
         data_inter_opt.unwrap().to_vec()
     } else {
@@ -525,8 +509,75 @@ fn make_bar(
     } else {
         Vec::new()
     };
-    for (_, p) in phases.into_iter().enumerate() {
+    let mut icons: Vec<Widget> = Vec::new();
+    for (idx, p) in phases.into_iter().enumerate() {
+        let mut msgs = Vec::new();
         let norm_color = color_for_trip_phase(app, p.phase_type).alpha(0.7);
+        msgs.push(p.phase_type.describe(map));
+        msgs.push(format!("  Started at {}", p.start_time.ampm_tostring()));
+        let phase_duration = if let Some(t2) = p.end_time {
+            let d = t2 - p.start_time;
+            msgs.push(format!(
+                "  Ended at {} (duration: {})",
+                t2.ampm_tostring(),
+                d
+            ));
+            d
+        } else {
+            let d = app.primary.sim.time() - p.start_time;
+            msgs.push(format!("  Ongoing (duration so far: {})", d));
+            d
+        };
+        // TODO Problems when this is really low?
+        let percent_duration = if total_duration_so_far == Duration::ZERO {
+            0.0
+        } else {
+            phase_duration / total_duration_so_far
+        };
+
+        let phase_width = box_width * percent_duration;
+        if idx == phases.len() - 1 {
+            if let Some(p) = progress_along_path {
+                icons.push(Widget::draw_batch(
+                    ctx,
+                    GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/current_pos.svg")
+                        .centered_on(Pt2D::new(p * phase_width, 7.5)),
+                ));
+            }
+        }
+        icons.push(Widget::draw_batch(
+            ctx,
+            GeomBatch::load_svg(
+                ctx.prerender,
+                match p.phase_type {
+                    TripPhaseType::Driving => "system/assets/timeline/driving.svg",
+                    TripPhaseType::Walking => "system/assets/timeline/walking.svg",
+                    TripPhaseType::Biking => "system/assets/timeline/biking.svg",
+                    TripPhaseType::Parking => "system/assets/timeline/parking.svg",
+                    TripPhaseType::WaitingForBus(_, _) => {
+                        "system/assets/timeline/waiting_for_bus.svg"
+                    }
+                    TripPhaseType::RidingBus(_, _, _) => "system/assets/timeline/riding_bus.svg",
+                    TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
+                    TripPhaseType::DelayedStart => "system/assets/timeline/delayed_start.svg",
+                    // TODO What icon should represent this?
+                    TripPhaseType::Remote => "system/assets/timeline/delayed_start.svg",
+                },
+            )
+            .centered_on(
+                // TODO Hardcoded layouting...
+                Pt2D::new(0.5 * phase_width, -20.0),
+            ),
+        ));
+        msgs.push(format!(
+            "  {}% of trip percentage",
+            (100.0 * percent_duration) as usize
+        ));
+
+        msgs.push(format!(
+            "  Total delayed time {}",
+            app.primary.sim.trip_blocked_time(trip_id)
+        ));
         if let Some((total_phase_dist, step_list)) = &p.path {
             sum_phase_dist += *total_phase_dist;
             let mut norm_distance = Distance::meters(0.0);
@@ -538,26 +589,24 @@ fn make_bar(
                         let mut found = false;
                         for (lane, avg_speed) in &data_lane {
                             if lane == id {
-                                let mut txt = Text::from(Line(&p.phase_type.describe(map)));
-                                txt.add(Line(format!("  Distance covered: {}", norm_distance)));
-                                segments.push((norm_distance, norm_color, txt));
-
-                                txt = Text::from(Line(&p.phase_type.describe(map)));
-                                txt.add(Line(format!(
+                                segments.push((
+                                    norm_distance,
+                                    norm_color,
+                                    build_text(&msgs, &norm_distance),
+                                ));
+                                let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
+                                display_txt.add(Line(format!(
                                     "  Road: {}",
                                     map.get_r(lane_detail.parent)
                                         .get_name(app.opts.language.as_ref())
                                 )));
-                                txt.add(Line(format!("  Lane ID: {}", lane)));
-                                txt.add(Line(format!(
-                                    "  Distance covered: {}",
-                                    lane_detail.length()
+                                display_txt.add(Line(format!("  Lane ID: {}", lane)));
+                                display_txt.add(Line(format!(
+                                    "  Lane distance: {}",
+                                    lane_detail.length().describe_rounded()
                                 )));
-                                txt.add(Line(format!(
-                                    "  Took slower than normal with avg speed: {}",
-                                    avg_speed
-                                )));
-                                segments.push((lane_detail.length(), Color::RED, txt));
+                                display_txt.add(Line(format!("  Average speed: {}", avg_speed)));
+                                segments.push((lane_detail.length(), Color::RED, display_txt));
                                 norm_distance = Distance::meters(0.0);
                                 found = true;
                                 break;
@@ -573,17 +622,18 @@ fn make_bar(
                         let mut found = false;
                         for (turn, delay) in &data_inter {
                             if turn == id {
-                                let mut txt = Text::from(Line(&p.phase_type.describe(map)));
-                                txt.add(Line(format!("  Distance covered: {}", norm_distance)));
-                                segments.push((norm_distance, norm_color, txt));
+                                segments.push((
+                                    norm_distance,
+                                    norm_color,
+                                    build_text(&msgs, &norm_distance),
+                                ));
 
-                                txt = Text::from(Line(&p.phase_type.describe(map)));
-                                txt.add(Line(format!("  Intersection: {}", turn.parent)));
-                                txt.add(Line(format!(
-                                    "  Took slower than normal with delay: {}",
-                                    delay
+                                let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
+                                display_txt.add(Line(format!("  Intersection: {}", turn.parent)));
+                                display_txt.add(Line(format!(
+                                    "  Delay: {}",
+                                    Duration::seconds(*delay as f64)
                                 )));
-
                                 segments.push((
                                     if 0.05 < (turn_details.geom.length() / alt_phase_dist) {
                                         turn_details.geom.length()
@@ -591,7 +641,7 @@ fn make_bar(
                                         alt_phase_dist * 0.05
                                     },
                                     Color::RED,
-                                    txt,
+                                    display_txt,
                                 ));
                                 norm_distance = Distance::meters(0.0);
                                 found = true;
@@ -604,9 +654,7 @@ fn make_bar(
                     }
                 }
             }
-            let mut txt = Text::from(Line(&p.phase_type.describe(map)));
-            txt.add(Line(format!("  Distance covered: {}", norm_distance)));
-            segments.push((norm_distance, norm_color, txt));
+            segments.push((norm_distance, norm_color, build_text(&msgs, &norm_distance)));
         } else {
             unimplemented!("We dont have a path!!");
         }
@@ -627,7 +675,22 @@ fn make_bar(
             .centered_vert(),
         );
     }
-    timeline
+    Widget::custom_col(vec![
+        Widget::custom_row(icons),
+        Widget::custom_row(timeline),
+    ])
+}
+
+fn build_text(msgs: &Vec<String>, distance: &Distance) -> Text {
+    let mut display_txt = Text::new();
+    for msg in msgs {
+        display_txt.add(Line(msg));
+    }
+    display_txt.add(Line(format!(
+        "  Distance covered: {}",
+        distance.describe_rounded()
+    )));
+    display_txt
 }
 
 fn make_timeline(
@@ -734,91 +797,11 @@ fn make_timeline(
         .build(ctx, format!("jump to goal of {}", trip_id), None)
     };
 
-    let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - trip.departure;
-
-    let total_width = 0.22 * ctx.canvas.window_width;
-    let mut timeline = Vec::new();
-    let mut timeline_2 = make_bar(ctx, app, trip_id, &phases);
-    let num_phases = phases.len();
+    let timeline = make_bar(ctx, app, trip_id, &phases, progress_along_path);
     let mut elevation = Vec::new();
     let mut path_impossible = false;
     for (idx, p) in phases.into_iter().enumerate() {
         let color = color_for_trip_phase(app, p.phase_type).alpha(0.7);
-
-        let mut txt = Text::from(Line(&p.phase_type.describe(map)));
-        txt.add(Line(format!(
-            "  Started at {}",
-            p.start_time.ampm_tostring()
-        )));
-        let duration = if let Some(t2) = p.end_time {
-            let d = t2 - p.start_time;
-            txt.add(Line(format!(
-                "  Ended at {} (duration: {})",
-                t2.ampm_tostring(),
-                d
-            )));
-            d
-        } else {
-            let d = sim.time() - p.start_time;
-            txt.add(Line(format!("  Ongoing (duration so far: {})", d)));
-            d
-        };
-        // TODO Problems when this is really low?
-        let percent_duration = if total_duration_so_far == Duration::ZERO {
-            0.0
-        } else {
-            duration / total_duration_so_far
-        };
-        txt.add(Line(format!(
-            "  {}% of trip duration",
-            (100.0 * percent_duration) as usize
-        )));
-
-        let phase_width = total_width * percent_duration;
-        let rect = Polygon::rectangle(phase_width, 15.0);
-        let mut batch = GeomBatch::from(vec![(color, rect.clone())]);
-        if idx == num_phases - 1 {
-            if let Some(p) = progress_along_path {
-                batch.append(
-                    GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/current_pos.svg")
-                        .centered_on(Pt2D::new(p * phase_width, 7.5)),
-                );
-            }
-        }
-        batch.append(
-            GeomBatch::load_svg(
-                ctx.prerender,
-                match p.phase_type {
-                    TripPhaseType::Driving => "system/assets/timeline/driving.svg",
-                    TripPhaseType::Walking => "system/assets/timeline/walking.svg",
-                    TripPhaseType::Biking => "system/assets/timeline/biking.svg",
-                    TripPhaseType::Parking => "system/assets/timeline/parking.svg",
-                    TripPhaseType::WaitingForBus(_, _) => {
-                        "system/assets/timeline/waiting_for_bus.svg"
-                    }
-                    TripPhaseType::RidingBus(_, _, _) => "system/assets/timeline/riding_bus.svg",
-                    TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
-                    TripPhaseType::DelayedStart => "system/assets/timeline/delayed_start.svg",
-                    // TODO What icon should represent this?
-                    TripPhaseType::Remote => "system/assets/timeline/delayed_start.svg",
-                },
-            )
-            .centered_on(
-                // TODO Hardcoded layouting...
-                Pt2D::new(0.5 * phase_width, -20.0),
-            ),
-        );
-
-        timeline.push(
-            DrawWithTooltips::new(
-                ctx,
-                batch,
-                vec![(rect, txt)],
-                Box::new(|_| GeomBatch::new()),
-            )
-            .centered_vert(),
-        );
-
         if let Some((dist, ref path)) = p.path {
             if app.opts.dev
                 && (p.phase_type == TripPhaseType::Walking || p.phase_type == TripPhaseType::Biking)
@@ -861,7 +844,7 @@ fn make_timeline(
     }
 
     let mut col = vec![
-        Widget::custom_row(vec![start_btn, Widget::custom_row(timeline_2), goal_btn])
+        Widget::custom_row(vec![start_btn, timeline, goal_btn])
             .evenly_spaced()
             .margin_above(25),
         Widget::row(vec![

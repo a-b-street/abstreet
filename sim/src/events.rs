@@ -89,18 +89,18 @@ pub enum TripPhaseType {
 impl TripPhaseType {
     pub fn describe(self, map: &Map) -> String {
         match self {
-            TripPhaseType::Driving => "driving".to_string(),
-            TripPhaseType::Walking => "walking".to_string(),
-            TripPhaseType::Biking => "biking".to_string(),
-            TripPhaseType::Parking => "parking".to_string(),
+            TripPhaseType::Driving => "Driving".to_string(),
+            TripPhaseType::Walking => "Walking".to_string(),
+            TripPhaseType::Biking => "Biking".to_string(),
+            TripPhaseType::Parking => "Parking".to_string(),
             TripPhaseType::WaitingForBus(r, _) => {
-                format!("waiting for bus {}", map.get_br(r).full_name)
+                format!("Waiting for bus {}", map.get_br(r).full_name)
             }
-            TripPhaseType::RidingBus(r, _, _) => format!("riding bus {}", map.get_br(r).full_name),
-            TripPhaseType::Aborted => "trip aborted due to some bug".to_string(),
-            TripPhaseType::Finished => "trip finished".to_string(),
-            TripPhaseType::DelayedStart => "delayed by previous trip taking too long".to_string(),
-            TripPhaseType::Remote => "remote trip outside the map boundaries".to_string(),
+            TripPhaseType::RidingBus(r, _, _) => format!("Riding bus {}", map.get_br(r).full_name),
+            TripPhaseType::Aborted => "Trip was aborted due to some bug".to_string(),
+            TripPhaseType::Finished => "Trip finished".to_string(),
+            TripPhaseType::DelayedStart => "Delayed by a previous trip taking too long".to_string(),
+            TripPhaseType::Remote => "Remote trip outside is the map boundaries".to_string(),
         }
     }
 }

@@ -1,15 +1,17 @@
+use std::collections::{BTreeMap, HashSet};
+
+use abstutil::Counter;
+use geom::{Distance, Duration, PolyLine, Pt2D, Time};
+use map_model::{
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position,
+};
+
 use crate::analytics::Window;
 use crate::{
     AgentID, AgentType, Analytics, CarID, GetDrawAgents, OrigPersonID, PandemicModel, ParkedCar,
     ParkingSim, PedestrianID, Person, PersonID, PersonState, Scenario, Sim, TripID, TripInfo,
     TripResult, VehicleType,
 };
-use abstutil::Counter;
-use geom::{Distance, Duration, PolyLine, Pt2D, Time};
-use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position,
-};
-use std::collections::{BTreeMap, HashSet};
 
 // Queries of all sorts
 // TODO Many of these just delegate to an inner piece. This is unorganized and hard to maintain.
@@ -107,6 +109,9 @@ impl Sim {
     // If trip is finished, returns (total time, total waiting time)
     pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
         self.trips.finished_trip_time(id)
+    }
+    pub fn trip_blocked_time(&self, id: TripID) -> Duration {
+        self.trips.trip_blocked_time(id)
     }
 
     pub fn trip_to_person(&self, id: TripID) -> PersonID {
