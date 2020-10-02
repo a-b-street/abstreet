@@ -49,10 +49,7 @@ impl Panel {
         self.container_dims = new_container_dims;
     }
 
-    // TODO: this method potentially gets called multiple times in a render pass as an
-    // optimization, we could replace all the current call sites with a "dirty" flag, e.g.
-    // `set_needs_layout()` and then call `layout_if_needed()` once at the last possible moment
-    fn recompute_layout(&mut self, ctx: &EventCtx, recompute_bg: bool) {
+    fn recompute_scrollbar_layout(&mut self, ctx: &EventCtx) {
         let old_scrollable_x = self.scrollable_x;
         let old_scrollable_y = self.scrollable_y;
 
@@ -114,7 +111,13 @@ impl Panel {
         } else {
             None
         };
+    }
 
+    // TODO: this method potentially gets called multiple times in a render pass as an
+    // optimization, we could replace all the current call sites with a "dirty" flag, e.g.
+    // `set_needs_layout()` and then call `layout_if_needed()` once at the last possible moment
+    fn recompute_layout(&mut self, ctx: &EventCtx, recompute_bg: bool) {
+        self.recompute_scrollbar_layout(ctx);
         let mut stretch = Stretch::new();
         let root = stretch
             .new_node(
