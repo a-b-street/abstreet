@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{Map, Road, RoadID};
+use map_model::{LaneType, Map, Road, RoadID};
 use std::cell::RefCell;
 use widgetry::{Drawable, GeomBatch, GfxCtx, Line, Text};
 
@@ -86,9 +86,11 @@ impl Renderable for DrawRoad {
                             app.cs.road_center_line
                         };
                         let bg = if r.is_private() {
-                            app.cs.driving_lane.lerp(app.cs.private_road, 0.5)
+                            app.cs
+                                .zoomed_road_surface(LaneType::Driving, r.get_rank())
+                                .lerp(app.cs.private_road, 0.5)
                         } else {
-                            app.cs.driving_lane
+                            app.cs.zoomed_road_surface(LaneType::Driving, r.get_rank())
                         };
 
                         if false {

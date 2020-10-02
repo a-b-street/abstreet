@@ -6,7 +6,7 @@ use crate::render::{
 };
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
-    Direction, DrivingSide, Intersection, IntersectionID, IntersectionType, Map, Road,
+    Direction, DrivingSide, Intersection, IntersectionID, IntersectionType, LaneType, Map, Road,
     RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
 };
 use std::cell::RefCell;
@@ -41,8 +41,12 @@ impl DrawIntersection {
 
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
-        default_geom.push(app.cs.normal_intersection, i.polygon.clone());
-        default_geom.extend(app.cs.sidewalk, calculate_corners(i, map));
+        let rank = i.get_rank(map);
+        default_geom.push(app.cs.zoomed_intersection_surface(rank), i.polygon.clone());
+        default_geom.extend(
+            app.cs.zoomed_road_surface(LaneType::Sidewalk, rank),
+            calculate_corners(i, map),
+        );
 
         for turn in map.get_turns_in_intersection(i.id) {
             // Avoid double-rendering
