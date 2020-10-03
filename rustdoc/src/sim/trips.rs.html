@@ -1675,13 +1675,6 @@
 <span id="1675">1675</span>
 <span id="1676">1676</span>
 <span id="1677">1677</span>
-<span id="1678">1678</span>
-<span id="1679">1679</span>
-<span id="1680">1680</span>
-<span id="1681">1681</span>
-<span id="1682">1682</span>
-<span id="1683">1683</span>
-<span id="1684">1684</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sim</span>::<span class="ident">Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1822,7 +1815,6 @@
             <span class="ident">started</span>: <span class="bool-val">false</span>,
             <span class="ident">finished_at</span>: <span class="prelude-val">None</span>,
             <span class="ident">total_blocked_time</span>: <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
-            <span class="ident">aborted</span>: <span class="bool-val">false</span>,
             <span class="ident">cancelled</span>: <span class="bool-val">false</span>,
             <span class="ident">legs</span>: <span class="ident">VecDeque</span>::<span class="ident">from</span>(<span class="ident">legs</span>),
         };
@@ -2000,7 +1992,7 @@
                 <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
                     <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">trip</span>.<span class="ident">person</span>),
                     <span class="macro">format</span><span class="macro">!</span>(
-                        <span class="string">&quot;Aborting {} because no path for the car portion! {} to {}&quot;</span>,
+                        <span class="string">&quot;Cancelling {} because no path for the car portion! {} to {}&quot;</span>,
                         <span class="ident">trip</span>.<span class="ident">id</span>, <span class="ident">start</span>, <span class="ident">end</span>
                     ),
                 ));
@@ -2043,7 +2035,7 @@
             <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
                 <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">trip</span>.<span class="ident">person</span>),
                 <span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;Aborting {} because no bike connection at {:?}&quot;</span>,
+                    <span class="string">&quot;Cancelling {} because no bike connection at {:?}&quot;</span>,
                     <span class="ident">trip</span>.<span class="ident">id</span>, <span class="ident">drive_to</span>
                 ),
             ));
@@ -2079,8 +2071,8 @@
             <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
                 <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">trip</span>.<span class="ident">person</span>),
                 <span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;Aborting {} because no path for the bike portion (or sidewalk connection at \
-                     the end)! {} to {}&quot;</span>,
+                    <span class="string">&quot;Cancelling {} because no path for the bike portion (or sidewalk connection \
+                     at the end)! {} to {}&quot;</span>,
                     <span class="ident">trip</span>.<span class="ident">id</span>, <span class="ident">driving_pos</span>, <span class="ident">end</span>
                 ),
             ));
@@ -2405,13 +2397,13 @@
         <span class="self">self</span>.<span class="ident">person_finished_trip</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">ctx</span>);
     }
 
+    <span class="comment">// TODO Consolidate this and abort_trip</span>
     <span class="comment">// Different than aborting a trip. Don&#39;t warp any vehicles or change where the person is.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel_trip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TripID</span>) {
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">id</span>.<span class="number">0</span>];
         <span class="self">self</span>.<span class="ident">unfinished_trips</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
         <span class="ident">trip</span>.<span class="ident">cancelled</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="comment">// TODO Still representing the same way in analytics</span>
-        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripAborted</span>(<span class="ident">trip</span>.<span class="ident">id</span>));
+        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripCancelled</span>(<span class="ident">trip</span>.<span class="ident">id</span>));
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">abort_trip</span>(
@@ -2423,8 +2415,8 @@
     ) {
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">id</span>.<span class="number">0</span>];
         <span class="self">self</span>.<span class="ident">unfinished_trips</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="ident">trip</span>.<span class="ident">aborted</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripAborted</span>(<span class="ident">trip</span>.<span class="ident">id</span>));
+        <span class="ident">trip</span>.<span class="ident">cancelled</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripCancelled</span>(<span class="ident">trip</span>.<span class="ident">id</span>));
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">person</span>;
 
         <span class="comment">// Maintain consistentency for anyone listening to events</span>
@@ -2454,7 +2446,8 @@
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spot</span>) <span class="op">=</span> <span class="ident">ctx</span>
                         .<span class="ident">parking</span>
                         .<span class="ident">get_all_free_spots</span>(<span class="ident">Position</span>::<span class="ident">start</span>(<span class="ident">driving_lane</span>), <span class="kw-2">&amp;</span><span class="ident">vehicle</span>, <span class="ident">b</span>, <span class="ident">ctx</span>.<span class="ident">map</span>)
-                        <span class="comment">// TODO Could pick something closer, but meh, aborted trips are bugs anyway</span>
+                        <span class="comment">// TODO Could pick something closer, but meh, cancelled trips are bugs</span>
+                        <span class="comment">// anyway</span>
                         .<span class="ident">get</span>(<span class="number">0</span>)
                         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">spot</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">spot</span>.<span class="ident">clone</span>())
                         .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
@@ -2466,7 +2459,7 @@
                         <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
                             <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">person</span>),
                             <span class="macro">format</span><span class="macro">!</span>(
-                                <span class="string">&quot;{} had a trip aborted, and their car was warped to {:?}&quot;</span>,
+                                <span class="string">&quot;{} had a trip cancelled, and their car was warped to {:?}&quot;</span>,
                                 <span class="ident">person</span>, <span class="ident">spot</span>
                             ),
                         ));
@@ -2480,7 +2473,7 @@
                         <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
                             <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">person</span>),
                             <span class="macro">format</span><span class="macro">!</span>(
-                                <span class="string">&quot;{} had a trip aborted, but nowhere to warp their car! Sucks.&quot;</span>,
+                                <span class="string">&quot;{} had a trip cancelled, but nowhere to warp their car! Sucks.&quot;</span>,
                                 <span class="ident">person</span>
                             ),
                         ));
@@ -2488,7 +2481,7 @@
                 }
             }
         } <span class="kw">else</span> {
-            <span class="comment">// If the trip was aborted because we&#39;e totally out of parking, don&#39;t forget to clean</span>
+            <span class="comment">// If the trip was cancelled because we&#39;e totally out of parking, don&#39;t forget to clean</span>
             <span class="comment">// this up.</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">TripLeg</span>::<span class="ident">Drive</span>(<span class="ident">c</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">trip</span>.<span class="ident">legs</span>[<span class="number">0</span>] {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">active_trip_mode</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)) {
@@ -2521,9 +2514,6 @@
 
         <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">finished_at</span>.<span class="ident">is_some</span>() {
             <span class="kw">return</span> <span class="ident">TripResult</span>::<span class="ident">TripDone</span>;
-        }
-        <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">aborted</span> {
-            <span class="kw">return</span> <span class="ident">TripResult</span>::<span class="ident">TripAborted</span>;
         }
         <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">cancelled</span> {
             <span class="kw">return</span> <span class="ident">TripResult</span>::<span class="ident">TripCancelled</span>;
@@ -2664,7 +2654,6 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Ctx</span>,
     ) {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">cancelled</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">aborted</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinding_upfront</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">maybe_path</span>.<span class="ident">is_none</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">maybe_req</span>.<span class="ident">is_some</span>() {
             <span class="ident">maybe_path</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">maybe_req</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>());
         }
@@ -2805,13 +2794,13 @@
                         <span class="self">self</span>.<span class="ident">abort_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>.<span class="ident">vehicle</span>), <span class="ident">ctx</span>);
                     }
                 } <span class="kw">else</span> {
-                    <span class="comment">// This should only happen when a driving trip has been aborted and there was</span>
+                    <span class="comment">// This should only happen when a driving trip has been cancelled and there was</span>
                     <span class="comment">// absolutely no room to warp the car.</span>
                     <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
                         <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">person</span>.<span class="ident">id</span>),
                         <span class="macro">format</span><span class="macro">!</span>(
                             <span class="string">&quot;{} should have {} parked somewhere, but it&#39;s unavailable, so \
-                             aborting {}&quot;</span>,
+                             cancelling {}&quot;</span>,
                             <span class="ident">person</span>.<span class="ident">id</span>, <span class="ident">car</span>, <span class="ident">trip</span>
                         ),
                     ));
@@ -2985,7 +2974,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_arrivals_at_border</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">AgentType</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">times</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span> {
-            <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">aborted</span> <span class="op">|</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">cancelled</span> {
+            <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">cancelled</span> {
                 <span class="kw">continue</span>;
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">t</span>.<span class="ident">info</span>.<span class="ident">start</span> {
@@ -3046,7 +3035,6 @@
     <span class="ident">started</span>: <span class="ident">bool</span>,
     <span class="ident">finished_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
     <span class="ident">total_blocked_time</span>: <span class="ident">Duration</span>,
-    <span class="ident">aborted</span>: <span class="ident">bool</span>,
     <span class="ident">cancelled</span>: <span class="ident">bool</span>,
     <span class="ident">legs</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">TripLeg</span><span class="op">&gt;</span>,
     <span class="ident">person</span>: <span class="ident">PersonID</span>,
@@ -3067,7 +3055,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Trip</span> {
-    <span class="comment">// Returns true if this succeeds. If not, trip aborted.</span>
+    <span class="comment">// Returns true if this succeeds. If not, trip cancelled.</span>
     <span class="kw">fn</span> <span class="ident">spawn_ped</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,
@@ -3093,7 +3081,7 @@
             <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
                 <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="self">self</span>.<span class="ident">person</span>),
                 <span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;Aborting {} because no path for the walking portion! {:?} to {:?}&quot;</span>,
+                    <span class="string">&quot;Cancelling {} because no path for the walking portion! {:?} to {:?}&quot;</span>,
                     <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">start</span>, <span class="ident">walk_to</span>
                 ),
             ));
@@ -3275,7 +3263,6 @@
     <span class="ident">TripDone</span>,
     <span class="ident">TripDoesntExist</span>,
     <span class="ident">TripNotStarted</span>,
-    <span class="ident">TripAborted</span>,
     <span class="ident">TripCancelled</span>,
     <span class="ident">RemoteTrip</span>,
 }
@@ -3295,7 +3282,6 @@
             <span class="ident">TripResult</span>::<span class="ident">TripDone</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripResult</span>::<span class="ident">TripDone</span>,
             <span class="ident">TripResult</span>::<span class="ident">TripDoesntExist</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripResult</span>::<span class="ident">TripDoesntExist</span>,
             <span class="ident">TripResult</span>::<span class="ident">TripNotStarted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripResult</span>::<span class="ident">TripNotStarted</span>,
-            <span class="ident">TripResult</span>::<span class="ident">TripAborted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripResult</span>::<span class="ident">TripAborted</span>,
             <span class="ident">TripResult</span>::<span class="ident">TripCancelled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripResult</span>::<span class="ident">TripCancelled</span>,
             <span class="ident">TripResult</span>::<span class="ident">RemoteTrip</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripResult</span>::<span class="ident">RemoteTrip</span>,
         }

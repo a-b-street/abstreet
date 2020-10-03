@@ -742,7 +742,7 @@
 <span class="kw">struct</span> <span class="ident">FinishedTrip</span> {
     <span class="ident">id</span>: <span class="ident">TripID</span>,
     <span class="ident">duration</span>: <span class="ident">Duration</span>,
-    <span class="comment">// TODO Hack: No TripMode means aborted</span>
+    <span class="comment">// TODO Hack: No TripMode means cancelled</span>
     <span class="ident">mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
     <span class="ident">capped</span>: <span class="ident">bool</span>,
 }

@@ -600,6 +600,7 @@
 <span id="600">600</span>
 <span id="601">601</span>
 <span id="602">602</span>
+<span id="603">603</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentType</span>, <span class="ident">AlertLocation</span>, <span class="ident">CarID</span>, <span class="ident">Event</span>, <span class="ident">ParkingSpot</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>, <span class="ident">TripPhaseType</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Counter</span>;
@@ -630,8 +631,8 @@
     <span class="kw">pub</span> <span class="ident">passengers_alighting</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BusStopID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="kw">pub</span> <span class="ident">started_trips</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">Time</span><span class="op">&gt;</span>,
-    <span class="comment">// TODO Hack: No TripMode means aborted</span>
-    <span class="comment">// Finish time, ID, mode (or None as aborted), trip duration</span>
+    <span class="comment">// TODO Hack: No TripMode means cancelled</span>
+    <span class="comment">// Finish time, ID, mode, trip duration</span>
     <span class="kw">pub</span> <span class="ident">finished_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">TripID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span>,
     <span class="comment">// TODO This subsumes finished_trips</span>
     <span class="kw">pub</span> <span class="ident">trip_log</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">TripID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="ident">TripPhaseType</span>)<span class="op">&gt;</span>,
@@ -720,7 +721,7 @@
         }
         <span class="kw">match</span> <span class="ident">ev</span> {
             <span class="ident">Event</span>::<span class="ident">PersonLeavesMap</span>(<span class="kw">_</span>, <span class="ident">maybe_a</span>, <span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="comment">// Ignore aborted trips</span>
+                <span class="comment">// Ignore cancelled trips</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="ident">maybe_a</span> {
                     <span class="self">self</span>.<span class="ident">intersection_thruput</span>.<span class="ident">record</span>(<span class="ident">time</span>, <span class="ident">i</span>, <span class="ident">a</span>.<span class="ident">to_type</span>(), <span class="number">1</span>);
                 }
@@ -765,7 +766,7 @@
         {
             <span class="self">self</span>.<span class="ident">finished_trips</span>
                 .<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">trip</span>, <span class="prelude-val">Some</span>(<span class="ident">mode</span>), <span class="ident">total_time</span>));
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event</span>::<span class="ident">TripAborted</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">ev</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event</span>::<span class="ident">TripCancelled</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">ev</span> {
             <span class="self">self</span>.<span class="ident">started_trips</span>.<span class="ident">entry</span>(<span class="ident">id</span>).<span class="ident">or_insert</span>(<span class="ident">time</span>);
             <span class="self">self</span>.<span class="ident">finished_trips</span>.<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">id</span>, <span class="prelude-val">None</span>, <span class="ident">Duration</span>::<span class="ident">ZERO</span>));
         }
@@ -811,8 +812,9 @@
             <span class="ident">Event</span>::<span class="ident">TripPhaseStarting</span>(<span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">maybe_req</span>, <span class="ident">phase_type</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">trip_log</span>.<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">id</span>, <span class="ident">maybe_req</span>, <span class="ident">phase_type</span>));
             }
-            <span class="ident">Event</span>::<span class="ident">TripAborted</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">trip_log</span>.<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">id</span>, <span class="prelude-val">None</span>, <span class="ident">TripPhaseType</span>::<span class="ident">Aborted</span>));
+            <span class="ident">Event</span>::<span class="ident">TripCancelled</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">trip_log</span>
+                    .<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">id</span>, <span class="prelude-val">None</span>, <span class="ident">TripPhaseType</span>::<span class="ident">Cancelled</span>));
             }
             <span class="ident">Event</span>::<span class="ident">TripFinished</span> { <span class="ident">trip</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">trip_log</span>
@@ -841,7 +843,7 @@
     <span class="comment">// TODO If these ever need to be speeded up, just cache the histogram and index in the events</span>
     <span class="comment">// list.</span>
 
-    <span class="comment">// Ignores the current time. Returns None for aborted trips.</span>
+    <span class="comment">// Ignores the current time. Returns None for cancelled trips.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finished_trip_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">trip</span>: <span class="ident">TripID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
         <span class="comment">// TODO This is so inefficient!</span>
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="ident">maybe_mode</span>, <span class="ident">dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">finished_trips</span> {
@@ -895,7 +897,7 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">last</span>) <span class="op">=</span> <span class="ident">phases</span>.<span class="ident">last_mut</span>() {
                 <span class="ident">last</span>.<span class="ident">end_time</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>);
             }
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">phase_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripPhaseType</span>::<span class="ident">Finished</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">phase_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripPhaseType</span>::<span class="ident">Aborted</span> {
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">phase_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripPhaseType</span>::<span class="ident">Finished</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">phase_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripPhaseType</span>::<span class="ident">Cancelled</span> {
                 <span class="kw">break</span>;
             }
             <span class="ident">phases</span>.<span class="ident">push</span>(<span class="ident">TripPhase</span> {
@@ -924,8 +926,8 @@
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">phase_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripPhaseType</span>::<span class="ident">Finished</span> {
                 <span class="kw">continue</span>;
             }
-            <span class="comment">// Remove aborted trips</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">phase_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripPhaseType</span>::<span class="ident">Aborted</span> {
+            <span class="comment">// Remove cancelled trips</span>
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">phase_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripPhaseType</span>::<span class="ident">Cancelled</span> {
                 <span class="ident">trips</span>.<span class="ident">remove</span>(<span class="ident">id</span>);
                 <span class="kw">continue</span>;
             }

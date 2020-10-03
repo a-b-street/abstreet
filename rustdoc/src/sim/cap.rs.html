@@ -202,7 +202,7 @@
         }
         <span class="kw-2">*</span><span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
-        <span class="comment">// TODO Make the responses configurable: abort the trip, reroute, delay an hour, switch</span>
+        <span class="comment">// TODO Make the responses configurable: cancel the trip, reroute, delay an hour, switch</span>
         <span class="comment">// modes. Where should this policy be specified? Is it simulation-wide?</span>
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avoid_lanes</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();

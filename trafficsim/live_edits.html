@@ -169,16 +169,16 @@ more stages.</p>
 long as <code>pathfinding_upfront</code> is disabled (currently the default), there's
 nothing to do. For currently active trips, in some cases, rerouting would be
 ideal but not necessary (like if speed limits changed). In other cases -- like
-changing access restrictions, modifying lane types, closing intersections -- the
-route must be recomputed. As a simple first attempt, we could just abort all
-active trips whose path crosses an edited road or intersection. Later, we can
-figure out rerouting.</p>
+changing access restrictions, modifying lane types, closing intersections --
+the route must be recomputed. As a simple first attempt, we could just cancel
+all active trips whose path crosses an edited road or intersection. Later, we
+can figure out rerouting.</p>
 <p>And actually, the only other case to handle is <code>ChangeRouteSchedule</code>, which
 should just be rescheduling the <code>StartBus</code> commands.</p>
 <h2><a class="header" href="#todo-parking" id="todo-parking">TODO: Parking</a></h2>
 <p>What happens if you modify a parking lane while there are cars on it? For now,
 just delete them. Trips later making use of them will just act as if the car
-never had room to be spawned at all and be aborted or fallback to walking.</p>
+never had room to be spawned at all and get cancelled or fallback to walking.</p>
 <p>A better resolution would be to relocate them to other parking spots. If the
 owner is home, it'd be neat to have them walk outside, move the car, and go back
 in. But this greatly complicates the simulation -- the edited lane is in a
