@@ -306,6 +306,13 @@ impl<'a> ColorNetwork<'a> {
             self.add_r(r, scale.eval((cnt as f64) / max));
         }
     }
+    // Interpolate a color for each intersection based on the max count.
+    pub fn pct_intersections(&mut self, counter: Counter<IntersectionID>, scale: &ColorScale) {
+        let max = counter.max() as f64;
+        for (i, cnt) in counter.consume() {
+            self.add_i(i, scale.eval((cnt as f64) / max));
+        }
+    }
 
     pub fn build(self, ctx: &mut EventCtx) -> (Drawable, Drawable) {
         (ctx.upload(self.unzoomed), ctx.upload(self.zoomed))

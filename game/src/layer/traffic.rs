@@ -90,8 +90,8 @@ impl Backpressure {
         .build(ctx);
 
         let mut colorer = ColorNetwork::new(app);
-        colorer.ranked_roads(cnt_per_r, &app.cs.good_to_bad_red);
-        colorer.ranked_intersections(cnt_per_i, &app.cs.good_to_bad_red);
+        colorer.pct_roads(cnt_per_r, &app.cs.good_to_bad_red);
+        colorer.pct_intersections(cnt_per_i, &app.cs.good_to_bad_red);
         let (unzoomed, zoomed) = colorer.build(ctx);
 
         Backpressure {
@@ -211,14 +211,7 @@ impl Throughput {
             } else {
                 Widget::nothing()
             },
-            ColorLegend::gradient(
-                ctx,
-                &app.cs.good_to_bad_red,
-                vec![
-                    "0".to_string(),
-                    prettyprint_usize(road_counter.max().max(intersection_counter.max())),
-                ],
-            ),
+            ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "highest"]),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
