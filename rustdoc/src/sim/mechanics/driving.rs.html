@@ -1042,6 +1042,7 @@
 <span id="1042">1042</span>
 <span id="1043">1043</span>
 <span id="1044">1044</span>
+<span id="1045">1045</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::{<span class="ident">Car</span>, <span class="ident">CarState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
@@ -1504,9 +1505,10 @@
                     }
                     <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd</span>::<span class="ident">GiveUpOnParking</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">car</span>.<span class="ident">total_blocked_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">blocked_since</span>;
-                        <span class="ident">trips</span>.<span class="ident">abort_trip</span>(
+                        <span class="ident">trips</span>.<span class="ident">cancel_trip</span>(
                             <span class="ident">now</span>,
                             <span class="ident">car</span>.<span class="ident">trip_and_person</span>.<span class="ident">unwrap</span>().<span class="number">0</span>,
+                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;no available parking anywhere&quot;</span>),
                             <span class="comment">// If we couldn&#39;t find parking normally, doesn&#39;t make sense to warp the</span>
                             <span class="comment">// car to the destination. There&#39;s no parking!</span>
                             <span class="prelude-val">None</span>,

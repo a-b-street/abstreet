@@ -437,6 +437,9 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">DrivingGoal</span>, <span class="ident">OffMapLocation</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkSpot</span>,
@@ -824,7 +827,10 @@
             };
 
             <span class="kw">if</span> <span class="ident">cancelled</span> {
-                <span class="ident">trips</span>.<span class="ident">cancel_trip</span>(<span class="ident">trip</span>);
+                <span class="ident">trips</span>.<span class="ident">cancel_unstarted_trip</span>(
+                    <span class="ident">trip</span>,
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;traffic pattern modifier cancelled this trip&quot;</span>),
+                );
             } <span class="kw">else</span> {
                 <span class="ident">scheduler</span>.<span class="ident">push</span>(
                     <span class="ident">start_time</span>,

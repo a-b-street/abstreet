@@ -665,6 +665,11 @@
 <span id="665">665</span>
 <span id="666">666</span>
 <span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">State</span>;
@@ -741,7 +746,7 @@
     <span class="ident">starts_off_map</span>: <span class="ident">bool</span>,
     <span class="ident">ends_off_map</span>: <span class="ident">bool</span>,
     <span class="ident">duration_before</span>: <span class="ident">Duration</span>,
-    <span class="comment">// TODO Reason</span>
+    <span class="ident">reason</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">struct</span> <span class="ident">UnfinishedTrip</span> {
@@ -797,6 +802,9 @@
         };
 
         <span class="kw">if</span> <span class="ident">maybe_mode</span>.<span class="ident">is_none</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">duration_before</span>.<span class="ident">is_none</span>() {
+            <span class="kw">let</span> <span class="ident">reason</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">cancellation_reason</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;trip succeeded now, but not before the current proposal&quot;</span>
+            ));
             <span class="ident">cancelled</span>.<span class="ident">push</span>(<span class="ident">CancelledTrip</span> {
                 <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
                 <span class="ident">mode</span>: <span class="ident">trip</span>.<span class="ident">mode</span>,
@@ -804,6 +812,7 @@
                 <span class="ident">starts_off_map</span>,
                 <span class="ident">ends_off_map</span>,
                 <span class="ident">duration_before</span>: <span class="ident">duration_before</span>.<span class="ident">unwrap_or</span>(<span class="ident">Duration</span>::<span class="ident">ZERO</span>),
+                <span class="ident">reason</span>,
             });
             <span class="kw">continue</span>;
         };
@@ -1123,6 +1132,7 @@
             <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">duration_before</span>))),
         );
     }
+    <span class="ident">table</span>.<span class="ident">static_col</span>(<span class="string">&quot;Reason&quot;</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">reason</span>.<span class="ident">clone</span>()));
 
     <span class="ident">table</span>
 }

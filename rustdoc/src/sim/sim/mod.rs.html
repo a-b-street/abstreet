@@ -1022,6 +1022,26 @@
 <span id="1022">1022</span>
 <span id="1023">1023</span>
 <span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">queries</span>;
 
@@ -1541,10 +1561,6 @@
                 } <span class="kw">else</span> {
                     <span class="comment">// Buses don&#39;t use Command::SpawnCar, so this must exist.</span>
                     <span class="kw">let</span> (<span class="ident">trip</span>, <span class="ident">person</span>) <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">trip_and_person</span>.<span class="ident">unwrap</span>();
-                    <span class="macro">println</span><span class="macro">!</span>(
-                        <span class="string">&quot;No room to spawn car for {} by {}. Not retrying!&quot;</span>,
-                        <span class="ident">trip</span>, <span class="ident">person</span>
-                    );
                     <span class="comment">// Have to redeclare for the borrow checker</span>
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Ctx</span> {
                         <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
@@ -1553,8 +1569,16 @@
                         <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                         <span class="ident">map</span>,
                     };
-                    <span class="self">self</span>.<span class="ident">trips</span>
-                        .<span class="ident">abort_trip</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">trip</span>, <span class="prelude-val">Some</span>(<span class="ident">create_car</span>.<span class="ident">vehicle</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
+                    <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">cancel_trip</span>(
+                        <span class="self">self</span>.<span class="ident">time</span>,
+                        <span class="ident">trip</span>,
+                        <span class="macro">format</span><span class="macro">!</span>(
+                            <span class="string">&quot;no room to spawn car for {} by {}, not retrying&quot;</span>,
+                            <span class="ident">trip</span>, <span class="ident">person</span>
+                        ),
+                        <span class="prelude-val">Some</span>(<span class="ident">create_car</span>.<span class="ident">vehicle</span>),
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
+                    );
                 }
             }
             <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="ident">create_ped</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -1943,12 +1967,24 @@
             <span class="kw">match</span> <span class="ident">agent</span> {
                 <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">vehicle</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">delete_car</span>(<span class="ident">car</span>, <span class="self">self</span>.<span class="ident">time</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
-                    <span class="self">self</span>.<span class="ident">trips</span>
-                        .<span class="ident">abort_trip</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">trip</span>, <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
+                    <span class="comment">// TODO Plumb more info about the reason</span>
+                    <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">cancel_trip</span>(
+                        <span class="self">self</span>.<span class="ident">time</span>,
+                        <span class="ident">trip</span>,
+                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;map edited without reset&quot;</span>),
+                        <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>),
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
+                    );
                 }
                 <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">ped</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">walking</span>.<span class="ident">delete_ped</span>(<span class="ident">ped</span>, <span class="ident">ctx</span>.<span class="ident">scheduler</span>);
-                    <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">abort_trip</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">trip</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
+                    <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">cancel_trip</span>(
+                        <span class="self">self</span>.<span class="ident">time</span>,
+                        <span class="ident">trip</span>,
+                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;map edited without reset&quot;</span>),
+                        <span class="prelude-val">None</span>,
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
+                    );
                 }
                 <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             }
@@ -2014,9 +2050,13 @@
                 <span class="ident">map</span>,
             };
             <span class="kw">let</span> <span class="ident">vehicle</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">delete_car</span>(<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">time</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
-            <span class="self">self</span>.<span class="ident">trips</span>
-                .<span class="ident">abort_trip</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">trip</span>, <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
-            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Forcibly killed {}&quot;</span>, <span class="ident">id</span>);
+            <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">cancel_trip</span>(
+                <span class="self">self</span>.<span class="ident">time</span>,
+                <span class="ident">trip</span>,
+                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} deleted manually through the UI&quot;</span>, <span class="ident">id</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>),
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
+            );
         } <span class="kw">else</span> {
             <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{} has no trip?!&quot;</span>, <span class="ident">id</span>);
         }
