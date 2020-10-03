@@ -106,7 +106,6 @@ impl Backpressure {
 // TODO Filter by mode
 pub struct Throughput {
     time: Time,
-    compare: bool,
     tooltip: Option<Text>,
     unzoomed: Drawable,
     zoomed: Drawable,
@@ -125,7 +124,7 @@ impl Layer for Throughput {
     ) -> Option<LayerOutcome> {
         let mut recalc_tooltip = false;
         if app.primary.sim.time() != self.time {
-            *self = Throughput::new(ctx, app, self.compare);
+            *self = Throughput::new(ctx, app);
             recalc_tooltip = true;
         }
 
@@ -142,26 +141,20 @@ impl Layer for Throughput {
                     false,
                 ) {
                     Some(ID::Road(r)) => {
-                        if self.compare {
-                        } else {
-                            let cnt = app.primary.sim.get_analytics().road_thruput.total_for(r);
-                            if cnt > 0 {
-                                self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
-                            }
+                        let cnt = app.primary.sim.get_analytics().road_thruput.total_for(r);
+                        if cnt > 0 {
+                            self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
                         }
                     }
                     Some(ID::Intersection(i)) => {
-                        if self.compare {
-                        } else {
-                            let cnt = app
-                                .primary
-                                .sim
-                                .get_analytics()
-                                .intersection_thruput
-                                .total_for(i);
-                            if cnt > 0 {
-                                self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
-                            }
+                        let cnt = app
+                            .primary
+                            .sim
+                            .get_analytics()
+                            .intersection_thruput
+                            .total_for(i);
+                        if cnt > 0 {
+                            self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
                         }
                     }
                     _ => {}
@@ -180,14 +173,9 @@ impl Layer for Throughput {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                *self = Throughput::new(
-                    ctx,
-                    app,
-                    self.panel
-                        .maybe_is_checked("Compare before proposal")
-                        .unwrap_or(false),
-                );
-                self.panel.align_above(ctx, minimap);
+                return Some(LayerOutcome::Replace(Box::new(CompareThroughput::new(
+                    ctx, app,
+                ))));
             }
             _ => {}
         }
@@ -210,10 +198,7 @@ impl Layer for Throughput {
 }
 
 impl Throughput {
-    pub fn new(ctx: &mut EventCtx, app: &App, compare: bool) -> Throughput {
-        if compare {
-            return Throughput::compare_throughput(ctx, app);
-        }
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Throughput {
         let stats = &app.primary.sim.get_analytics();
         let road_counter = stats.road_thruput.all_total_counts();
         let intersection_counter = stats.intersection_thruput.all_total_counts();
@@ -252,15 +237,65 @@ impl Throughput {
 
         Throughput {
             time: app.primary.sim.time(),
-            compare: false,
             tooltip: None,
             unzoomed,
             zoomed,
             panel,
         }
     }
+}
 
-    fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Throughput {
+pub struct CompareThroughput {
+    time: Time,
+    unzoomed: Drawable,
+    zoomed: Drawable,
+    panel: Panel,
+}
+
+impl Layer for CompareThroughput {
+    fn name(&self) -> Option<&'static str> {
+        Some("throughput")
+    }
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        minimap: &Panel,
+    ) -> Option<LayerOutcome> {
+        if app.primary.sim.time() != self.time {
+            *self = CompareThroughput::new(ctx, app);
+        }
+
+        self.panel.align_above(ctx, minimap);
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            },
+            Outcome::Changed => {
+                return Some(LayerOutcome::Replace(Box::new(Throughput::new(ctx, app))));
+            }
+            _ => {}
+        }
+        None
+    }
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.panel.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
+    }
+    fn draw_minimap(&self, g: &mut GfxCtx) {
+        g.redraw(&self.unzoomed);
+    }
+}
+
+impl CompareThroughput {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> CompareThroughput {
         let after = app.primary.sim.get_analytics();
         let before = app.prebaked();
         let hour = app.primary.sim.time().get_hours();
@@ -324,10 +359,8 @@ impl Throughput {
         .build(ctx);
         let (unzoomed, zoomed) = colorer.build(ctx);
 
-        Throughput {
+        CompareThroughput {
             time: app.primary.sim.time(),
-            compare: true,
-            tooltip: None,
             unzoomed,
             zoomed,
             panel,

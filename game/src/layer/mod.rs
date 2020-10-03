@@ -46,6 +46,7 @@ impl dyn Layer {
 // TODO Just return a bool for closed? Less readable...
 pub enum LayerOutcome {
     Close,
+    Replace(Box<dyn Layer>),
 }
 
 // TODO Maybe overkill, but could embed a minimap and preview the layer on hover
@@ -64,6 +65,10 @@ impl PickLayer {
         match layer.event(ctx, app, minimap) {
             Some(LayerOutcome::Close) => {
                 app.layer = None;
+                return None;
+            }
+            Some(LayerOutcome::Replace(l)) => {
+                app.layer = Some(l);
                 return None;
             }
             None => {}
@@ -212,7 +217,7 @@ impl State for PickLayer {
                     )));
                 }
                 "throughput" => {
-                    app.layer = Some(Box::new(traffic::Throughput::new(ctx, app, false)));
+                    app.layer = Some(Box::new(traffic::Throughput::new(ctx, app)));
                 }
                 "traffic jams" => {
                     app.layer = Some(Box::new(traffic::TrafficJams::new(ctx, app)));
