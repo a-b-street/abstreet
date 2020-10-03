@@ -7,7 +7,7 @@ use crate::{
 use abstutil::Counter;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position, TurnID,
 };
 use std::collections::{BTreeMap, HashSet};
 
@@ -238,6 +238,9 @@ impl Sim {
 
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
         self.intersections.get_accepted_agents(id)
+    }
+    pub fn get_waiting_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID, Time)> {
+        self.intersections.get_waiting_agents(id)
     }
     pub fn get_blocked_by(&self, a: AgentID) -> HashSet<AgentID> {
         self.intersections.get_blocked_by(a)

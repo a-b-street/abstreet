@@ -50,6 +50,9 @@ are missing, etc. A summary of the commands available so far:
   - **GET /traffic-signals/get-cumulative-thruput?id=42**: Returns the number of
     agents passing through intersection #42 since midnight, grouped by direction
     of travel.
+  - **GET /traffic-signals/get-all-current-state**: Returns the current state
+    of all traffic signals, including the stage timing, waiting, and accepted
+    agents.
 - **/data**
   - **GET /data/get-finished-trips**: Returns a JSON list of all finished trips.
     Each tuple is (time the trip finished in seconds after midnight, trip ID,

@@ -445,6 +445,14 @@ impl IntersectionSimState {
             .collect()
     }
 
+    pub fn get_waiting_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID, Time)> {
+        self.state[&id]
+            .waiting
+            .iter()
+            .map(|(req, time)| (req.agent, req.turn, *time))
+            .collect()
+    }
+
     pub fn get_blocked_by(&self, a: AgentID) -> HashSet<AgentID> {
         let mut blocked_by = HashSet::new();
         if let AgentID::Car(c) = a {

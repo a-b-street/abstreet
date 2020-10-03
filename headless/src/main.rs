@@ -17,16 +17,16 @@ use geom::{Duration, LonLat, Time};
 use hyper::{Body, Request, Response, Server, StatusCode};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
-    MovementID, PermanentMapEdits, RoadID,
+    MovementID, PermanentMapEdits, RoadID, TurnID,
 };
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 use sim::{
-    AgentType, ExternalPerson, GetDrawAgents, PersonID, Scenario, ScenarioModifier, Sim, SimFlags,
-    SimOptions, TripID, TripMode, VehicleType,
+    AgentID, AgentType, ExternalPerson, GetDrawAgents, PersonID, Scenario, ScenarioModifier, Sim,
+    SimFlags, SimOptions, TripID, TripMode, VehicleType,
 };
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::convert::TryFrom;
 use std::error::Error;
 use std::sync::RwLock;
@@ -250,6 +250,26 @@ fn handle_command(
             }
             Ok(abstutil::to_json(&thruput))
         }
+        "/traffic-signals/get-all-current-state" => {
+            let mut all_state = BTreeMap::new();
+            for i in map.all_intersections() {
+                if !i.is_traffic_signal() {
+                    continue;
+                }
+                let (current_stage_idx, remaining_time) =
+                    sim.current_stage_and_remaining_time(i.id);
+                all_state.insert(
+                    i.id,
+                    TrafficSignalState {
+                        current_stage_idx,
+                        remaining_time,
+                        accepted: sim.get_accepted_agents(i.id).into_iter().collect(),
+                        waiting: sim.get_waiting_agents(i.id),
+                    },
+                );
+            }
+            Ok(abstutil::to_json(&all_state))
+        }
         // Querying data
         "/data/get-finished-trips" => {
             let mut trips = Vec::new();
@@ -344,6 +364,15 @@ struct AgentPosition {
 struct RoadThroughput {
     // (road, agent type, hour since midnight, throughput for that one hour period)
     counts: Vec<(RoadID, AgentType, usize, usize)>,
+}
+
+#[derive(Serialize)]
+struct TrafficSignalState {
+    current_stage_idx: usize,
+    remaining_time: Duration,
+    accepted: BTreeSet<AgentID>,
+    // Some agent has been waiting to start a turn since some time
+    waiting: Vec<(AgentID, TurnID, Time)>,
 }
 
 #[derive(Deserialize)]
