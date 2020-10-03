@@ -332,32 +332,36 @@ fn remove_merging_turns(map: &Map, input: Vec<Turn>, turn_type: TurnType) -> Vec
             continue;
         }
 
-        // TODO Handle >1 left/right turn lane.
-        if group.iter().map(|t| t.id.dst).collect::<HashSet<_>>().len() > 1 {
-            turns.extend(group);
-            continue;
-        }
-
-        // We have multiple lanes all with a turn to the same destination lane. Most likely, only
+        // We have multiple lanes all with a turn to the same destination road. Most likely, only
         // the rightmost or leftmost can actually make the turn.
+        // TODO If OSM turn restrictions explicitly have something like "left|left|", then there
+        // are multiple source lanes!
         let road = map.get_parent(group[0].id.src);
-        if turn_type == TurnType::Right {
-            turns.push(
-                group
-                    .into_iter()
-                    .max_by_key(|t| road.dir_and_offset(t.id.src).1)
-                    .unwrap(),
-            );
+        let src = if turn_type == TurnType::Right {
+            group
+                .iter()
+                .max_by_key(|t| road.dir_and_offset(t.id.src).1)
+                .unwrap()
+                .id
+                .src
         } else if turn_type == TurnType::Left {
-            turns.push(
-                group
-                    .into_iter()
-                    .min_by_key(|t| road.dir_and_offset(t.id.src).1)
-                    .unwrap(),
-            );
+            group
+                .iter()
+                .min_by_key(|t| road.dir_and_offset(t.id.src).1)
+                .unwrap()
+                .id
+                .src
         } else {
             unreachable!()
+        };
+        for t in group {
+            if t.id.src == src {
+                turns.push(t);
+            }
         }
+
+        // That left or rightmost lane can turn into all lanes on the destination road. Tempting to
+        // remove this, but it may remove some valid U-turn movements (like on Mercer).
     }
     turns
 }

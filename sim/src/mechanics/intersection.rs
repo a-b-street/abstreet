@@ -781,13 +781,14 @@ impl SignalState {
 // TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity. Workaround
 // for now.
 fn allow_block_the_box(osm_node_id: i64) -> bool {
-    // 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler
-    osm_node_id == 53211694
-        || osm_node_id == 53211693
+    // 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler, Lake Wash and Madison
+    osm_node_id == 53211693
         || osm_node_id == 53214134
         || osm_node_id == 53214133
         || osm_node_id == 53165712
         || osm_node_id == 281487826
         || osm_node_id == 53209840
         || osm_node_id == 4249361353
+        || osm_node_id == 987334546
+        || osm_node_id == 848817336
 }
