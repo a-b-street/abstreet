@@ -107,7 +107,7 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
     }
 
     pub fn max(&self) -> usize {
-        *self.map.values().max().unwrap()
+        self.map.values().max().cloned().unwrap_or(0)
     }
     pub fn sum(&self) -> usize {
         self.sum
