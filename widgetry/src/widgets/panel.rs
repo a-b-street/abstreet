@@ -73,10 +73,9 @@ impl Panel {
 
         // Wrap the main widget in scrollable containers if necessary.
         if self.scrollable_x {
-            let mut place_holder = Widget::nothing();
-            std::mem::swap(&mut place_holder, &mut self.top_level);
+            let old_top_level = std::mem::replace(&mut self.top_level, Widget::nothing());
             self.top_level = Widget::custom_col(vec![
-                place_holder,
+                old_top_level,
                 Slider::horizontal(
                     ctx,
                     self.container_dims.width,
@@ -90,10 +89,9 @@ impl Panel {
         }
 
         if self.scrollable_y {
-            let mut place_holder = Widget::nothing();
-            std::mem::swap(&mut place_holder, &mut self.top_level);
+            let old_top_level = std::mem::replace(&mut self.top_level, Widget::nothing());
             self.top_level = Widget::custom_row(vec![
-                place_holder,
+                old_top_level,
                 Slider::vertical(
                     ctx,
                     self.container_dims.height,
