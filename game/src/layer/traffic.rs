@@ -1,4 +1,4 @@
-use crate::app::{App, ShowEverything};
+use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork, DivergingScale};
 use crate::helpers::ID;
 use crate::layer::{Layer, LayerOutcome};
@@ -6,7 +6,7 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 use maplit::btreeset;
-use sim::{DontDrawAgents, GetDrawAgents};
+use sim::GetDrawAgents;
 use std::collections::BTreeSet;
 use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
@@ -132,14 +132,7 @@ impl Layer for Throughput {
         if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             if ctx.redo_mouseover() || recalc_tooltip {
                 self.tooltip = None;
-                match app.calculate_current_selection(
-                    ctx,
-                    &DontDrawAgents {},
-                    &ShowEverything::new(),
-                    false,
-                    true,
-                    false,
-                ) {
+                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
                     Some(ID::Road(r)) => {
                         let cnt = app.primary.sim.get_analytics().road_thruput.total_for(r);
                         if cnt > 0 {

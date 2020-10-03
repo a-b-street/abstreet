@@ -69,14 +69,8 @@ impl State for TrafficSignalDemand {
         // TODO DrawWithTooltips works great in screenspace; make a similar tool for mapspace?
         if ctx.redo_mouseover() {
             self.selected = None;
-            if let Some(ID::Intersection(i)) = app.calculate_current_selection(
-                ctx,
-                &DontDrawAgents {},
-                &ShowEverything::new(),
-                false,
-                false,
-                false,
-            ) {
+            app.recalculate_current_selection(ctx);
+            if let Some(ID::Intersection(i)) = app.primary.current_selection.take() {
                 if let Some(ts) = app.primary.map.maybe_get_traffic_signal(i) {
                     // If we're mousing over something, the cursor is on the map.
                     let pt = ctx.canvas.get_cursor_in_map_space().unwrap();

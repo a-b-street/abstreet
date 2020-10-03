@@ -10,7 +10,7 @@ use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable};
 use maplit::btreemap;
 use rand::seq::SliceRandom;
-use sim::{Analytics, GetDrawAgents, Sim, SimCallback, SimFlags};
+use sim::{Analytics, DontDrawAgents, GetDrawAgents, Sim, SimCallback, SimFlags};
 use std::collections::BTreeMap;
 use widgetry::{EventCtx, GfxCtx, Prerender};
 
@@ -298,10 +298,41 @@ impl App {
         );
     }
 
-    // Because we have to sometimes borrow part of self for GetDrawAgents, this just returns the
-    // Option<ID> that the caller should assign. When this monolithic UI nonsense is dismantled,
-    // this weirdness goes away.
-    pub fn calculate_current_selection(
+    pub fn mouseover_unzoomed_roads_and_intersections(&self, ctx: &EventCtx) -> Option<ID> {
+        self.calculate_current_selection(
+            ctx,
+            &DontDrawAgents {},
+            &ShowEverything::new(),
+            false,
+            true,
+            false,
+        )
+    }
+    pub fn mouseover_unzoomed_buildings(&self, ctx: &EventCtx) -> Option<ID> {
+        self.calculate_current_selection(
+            ctx,
+            &DontDrawAgents {},
+            &ShowEverything::new(),
+            false,
+            false,
+            true,
+        )
+    }
+    pub fn mouseover_unzoomed_everything(&self, ctx: &EventCtx) -> Option<ID> {
+        self.calculate_current_selection(
+            ctx,
+            &DontDrawAgents {},
+            &ShowEverything::new(),
+            false,
+            true,
+            true,
+        )
+    }
+    pub fn mouseover_debug_mode(&self, ctx: &EventCtx, show_objs: &dyn ShowObject) -> Option<ID> {
+        self.calculate_current_selection(ctx, &self.primary.sim, show_objs, true, false, false)
+    }
+
+    fn calculate_current_selection(
         &self,
         ctx: &EventCtx,
         source: &dyn GetDrawAgents,

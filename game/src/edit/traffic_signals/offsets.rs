@@ -1,4 +1,4 @@
-use crate::app::{App, ShowEverything};
+use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::traffic_signals::fade_irrelevant;
 use crate::game::{State, Transition};
@@ -6,7 +6,7 @@ use crate::helpers::ID;
 use geom::{Distance, Duration};
 use map_model::IntersectionID;
 use maplit::btreeset;
-use sim::{DontDrawAgents, Scenario};
+use sim::Scenario;
 use std::collections::BTreeSet;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
@@ -59,14 +59,7 @@ impl State for ShowAbsolute {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            app.primary.current_selection = app.calculate_current_selection(
-                ctx,
-                &DontDrawAgents {},
-                &ShowEverything::new(),
-                false,
-                true,
-                false,
-            );
+            app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
         }
         if let Some(ID::Intersection(i)) = app.primary.current_selection {
             if self.members.contains(&i) {
@@ -168,14 +161,7 @@ impl State for ShowRelative {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            app.primary.current_selection = app.calculate_current_selection(
-                ctx,
-                &DontDrawAgents {},
-                &ShowEverything::new(),
-                false,
-                true,
-                false,
-            );
+            app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
         }
         if let Some(ID::Intersection(i)) = app.primary.current_selection {
             if self.members.contains(&i) && i != self.base {

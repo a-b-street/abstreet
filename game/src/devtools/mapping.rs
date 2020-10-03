@@ -1,4 +1,4 @@
-use crate::app::{App, ShowEverything};
+use crate::app::App;
 use crate::common::{CityPicker, ColorLegend};
 use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
@@ -6,7 +6,6 @@ use abstutil::{prettyprint_usize, Tags, Timer};
 use geom::{Distance, FindClosest, PolyLine, Polygon};
 use map_model::{osm, RoadID};
 use osm::WayID;
-use sim::DontDrawAgents;
 use std::collections::{BTreeMap, HashSet};
 use std::error::Error;
 use std::fs::File;
@@ -192,14 +191,7 @@ impl State for ParkingMapper {
 
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            let mut maybe_r = match app.calculate_current_selection(
-                ctx,
-                &DontDrawAgents {},
-                &ShowEverything::new(),
-                false,
-                true,
-                false,
-            ) {
+            let mut maybe_r = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
                 Some(ID::Road(r)) => Some(r),
                 Some(ID::Lane(l)) => Some(map.get_l(l).parent),
                 _ => None,
