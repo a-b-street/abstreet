@@ -116,14 +116,6 @@ pub fn trips(
                     },
                 )
             }
-            TripResult::TripAborted => {
-                // Aborted trips can happen anywhere in the schedule right now
-                (
-                    "broken",
-                    Color::hex("#EB3223"),
-                    open_trips.get(t).map(|_| trip::aborted(ctx, app, *t)),
-                )
-            }
             TripResult::TripCancelled => {
                 // Cancelled trips can happen anywhere in the schedule right now
                 (

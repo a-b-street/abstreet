@@ -137,7 +137,6 @@ impl TripManager {
             started: false,
             finished_at: None,
             total_blocked_time: Duration::ZERO,
-            aborted: false,
             cancelled: false,
             legs: VecDeque::from(legs),
         };
@@ -315,7 +314,7 @@ impl TripManager {
                 self.events.push(Event::Alert(
                     AlertLocation::Person(trip.person),
                     format!(
-                        "Aborting {} because no path for the car portion! {} to {}",
+                        "Cancelling {} because no path for the car portion! {} to {}",
                         trip.id, start, end
                     ),
                 ));
@@ -358,7 +357,7 @@ impl TripManager {
             self.events.push(Event::Alert(
                 AlertLocation::Person(trip.person),
                 format!(
-                    "Aborting {} because no bike connection at {:?}",
+                    "Cancelling {} because no bike connection at {:?}",
                     trip.id, drive_to
                 ),
             ));
@@ -394,8 +393,8 @@ impl TripManager {
             self.events.push(Event::Alert(
                 AlertLocation::Person(trip.person),
                 format!(
-                    "Aborting {} because no path for the bike portion (or sidewalk connection at \
-                     the end)! {} to {}",
+                    "Cancelling {} because no path for the bike portion (or sidewalk connection \
+                     at the end)! {} to {}",
                     trip.id, driving_pos, end
                 ),
             ));
@@ -720,13 +719,13 @@ impl TripManager {
         self.person_finished_trip(now, person, ctx);
     }
 
+    // TODO Consolidate this and abort_trip
     // Different than aborting a trip. Don't warp any vehicles or change where the person is.
     pub fn cancel_trip(&mut self, id: TripID) {
         let trip = &mut self.trips[id.0];
         self.unfinished_trips -= 1;
         trip.cancelled = true;
-        // TODO Still representing the same way in analytics
-        self.events.push(Event::TripAborted(trip.id));
+        self.events.push(Event::TripCancelled(trip.id));
     }
 
     pub fn abort_trip(
@@ -738,8 +737,8 @@ impl TripManager {
     ) {
         let trip = &mut self.trips[id.0];
         self.unfinished_trips -= 1;
-        trip.aborted = true;
-        self.events.push(Event::TripAborted(trip.id));
+        trip.cancelled = true;
+        self.events.push(Event::TripCancelled(trip.id));
         let person = trip.person;
 
         // Maintain consistentency for anyone listening to events
@@ -769,7 +768,8 @@ impl TripManager {
                     if let Some(spot) = ctx
                         .parking
                         .get_all_free_spots(Position::start(driving_lane), &vehicle, b, ctx.map)
-                        // TODO Could pick something closer, but meh, aborted trips are bugs anyway
+                        // TODO Could pick something closer, but meh, cancelled trips are bugs
+                        // anyway
                         .get(0)
                         .map(|(spot, _)| spot.clone())
                         .or_else(|| {
@@ -781,7 +781,7 @@ impl TripManager {
                         self.events.push(Event::Alert(
                             AlertLocation::Person(person),
                             format!(
-                                "{} had a trip aborted, and their car was warped to {:?}",
+                                "{} had a trip cancelled, and their car was warped to {:?}",
                                 person, spot
                             ),
                         ));
@@ -795,7 +795,7 @@ impl TripManager {
                         self.events.push(Event::Alert(
                             AlertLocation::Person(person),
                             format!(
-                                "{} had a trip aborted, but nowhere to warp their car! Sucks.",
+                                "{} had a trip cancelled, but nowhere to warp their car! Sucks.",
                                 person
                             ),
                         ));
@@ -803,7 +803,7 @@ impl TripManager {
                 }
             }
         } else {
-            // If the trip was aborted because we'e totally out of parking, don't forget to clean
+            // If the trip was cancelled because we'e totally out of parking, don't forget to clean
             // this up.
             if let TripLeg::Drive(c, _) = &trip.legs[0] {
                 if let Some(t) = self.active_trip_mode.remove(&AgentID::Car(*c)) {
@@ -836,9 +836,6 @@ impl TripManager {
 
         if trip.finished_at.is_some() {
             return TripResult::TripDone;
-        }
-        if trip.aborted {
-            return TripResult::TripAborted;
         }
         if trip.cancelled {
             return TripResult::TripCancelled;
@@ -979,7 +976,6 @@ impl TripManager {
         ctx: &mut Ctx,
     ) {
         assert!(!self.trips[trip.0].cancelled);
-        assert!(!self.trips[trip.0].aborted);
         if !self.pathfinding_upfront && maybe_path.is_none() && maybe_req.is_some() {
             maybe_path = ctx.map.pathfind(maybe_req.clone().unwrap());
         }
@@ -1120,13 +1116,13 @@ impl TripManager {
                         self.abort_trip(now, trip, Some(parked_car.vehicle), ctx);
                     }
                 } else {
-                    // This should only happen when a driving trip has been aborted and there was
+                    // This should only happen when a driving trip has been cancelled and there was
                     // absolutely no room to warp the car.
                     self.events.push(Event::Alert(
                         AlertLocation::Person(person.id),
                         format!(
                             "{} should have {} parked somewhere, but it's unavailable, so \
-                             aborting {}",
+                             cancelling {}",
                             person.id, car, trip
                         ),
                     ));
@@ -1300,7 +1296,7 @@ impl TripManager {
     pub fn all_arrivals_at_border(&self, at: IntersectionID) -> Vec<(Time, AgentType)> {
         let mut times = Vec::new();
         for t in &self.trips {
-            if t.aborted || t.cancelled {
+            if t.cancelled {
                 continue;
             }
             if let TripEndpoint::Border(i, _) = t.info.start {
@@ -1361,7 +1357,6 @@ struct Trip {
     started: bool,
     finished_at: Option<Time>,
     total_blocked_time: Duration,
-    aborted: bool,
     cancelled: bool,
     legs: VecDeque<TripLeg>,
     person: PersonID,
@@ -1382,7 +1377,7 @@ pub struct TripInfo {
 }
 
 impl Trip {
-    // Returns true if this succeeds. If not, trip aborted.
+    // Returns true if this succeeds. If not, trip cancelled.
     fn spawn_ped(
         &self,
         now: Time,
@@ -1408,7 +1403,7 @@ impl Trip {
             events.push(Event::Alert(
                 AlertLocation::Person(self.person),
                 format!(
-                    "Aborting {} because no path for the walking portion! {:?} to {:?}",
+                    "Cancelling {} because no path for the walking portion! {:?} to {:?}",
                     self.id, start, walk_to
                 ),
             ));
@@ -1590,7 +1585,6 @@ pub enum TripResult<T> {
     TripDone,
     TripDoesntExist,
     TripNotStarted,
-    TripAborted,
     TripCancelled,
     RemoteTrip,
 }
@@ -1610,7 +1604,6 @@ impl<T> TripResult<T> {
             TripResult::TripDone => TripResult::TripDone,
             TripResult::TripDoesntExist => TripResult::TripDoesntExist,
             TripResult::TripNotStarted => TripResult::TripNotStarted,
-            TripResult::TripAborted => TripResult::TripAborted,
             TripResult::TripCancelled => TripResult::TripCancelled,
             TripResult::RemoteTrip => TripResult::RemoteTrip,
         }

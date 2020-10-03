@@ -332,35 +332,11 @@ pub fn finished(
     Widget::col(col)
 }
 
-pub fn aborted(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
-    let trip = app.primary.sim.trip_info(id);
-
-    let mut col = vec![Text::from_multiline(vec![
-        Line("A glitch in the simulation happened."),
-        Line("This trip, however, did not."),
-    ])
-    .draw(ctx)];
-
-    // TODO Warp buttons. make_table is showing its age.
-    let (_, _, name1) = endpoint(&trip.start, app);
-    let (_, _, name2) = endpoint(&trip.end, app);
-    col.extend(make_table(
-        ctx,
-        vec![
-            ("Departure", trip.departure.ampm_tostring()),
-            ("From", name1),
-            ("To", name2),
-            ("Purpose", trip.purpose.to_string()),
-        ],
-    ));
-
-    Widget::col(col)
-}
-
 pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
     let trip = app.primary.sim.trip_info(id);
 
-    let mut col = vec!["Trip cancelled due to traffic pattern modifications".draw_text(ctx)];
+    // TODO Plumb a reason here instead
+    let mut col = vec!["Trip cancelled".draw_text(ctx)];
 
     // TODO Warp buttons. make_table is showing its age.
     let (_, _, name1) = endpoint(&trip.start, app);
@@ -544,7 +520,7 @@ fn make_timeline(
                         "system/assets/timeline/waiting_for_bus.svg"
                     }
                     TripPhaseType::RidingBus(_, _, _) => "system/assets/timeline/riding_bus.svg",
-                    TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
+                    TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
                     TripPhaseType::DelayedStart => "system/assets/timeline/delayed_start.svg",
                     // TODO What icon should represent this?
                     TripPhaseType::Remote => "system/assets/timeline/delayed_start.svg",

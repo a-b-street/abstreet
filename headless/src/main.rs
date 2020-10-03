@@ -329,7 +329,7 @@ fn handle_command(
 struct FinishedTrip {
     id: TripID,
     duration: Duration,
-    // TODO Hack: No TripMode means aborted
+    // TODO Hack: No TripMode means cancelled
     mode: Option<TripMode>,
     capped: bool,
 }

@@ -116,19 +116,19 @@ func run(pct int64) (*results, error) {
 	results.successTime = make(map[uint64]float64)
 	for _, trip := range trips {
 		if trip.Mode == "" {
-			results.numAborted++
+			results.numCancelled++
 		} else {
 			results.successTime[trip.ID] = trip.Duration
 		}
 	}
 
-	fmt.Printf("%v with %v%% of people cancelled: %v trips aborted, %v trips succeeded. Simulation took %v\n", *mapName, pct, results.numAborted, len(results.successTime), time.Since(start))
+	fmt.Printf("%v with %v%% of people cancelled: %v trips cancelled, %v trips succeeded. Simulation took %v\n", *mapName, pct, results.numCancelled, len(results.successTime), time.Since(start))
 
 	return &results, nil
 }
 
 type results struct {
-	numAborted int
+	numCancelled int
 	// Trip ID to duration
 	successTime map[uint64]float64
 }

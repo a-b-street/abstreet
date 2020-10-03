@@ -904,8 +904,8 @@ impl Sim {
     pub fn handle_live_edits(&mut self, map: &Map) {
         let affected = self.find_trips_affected_by_live_edits(map);
 
-        // V1: Just abort every trip crossing an affected area.
-        // (V2 is probably rerouting everyone, only aborting when that fails)
+        // V1: Just cancel every trip crossing an affected area.
+        // (V2 is probably rerouting everyone, only cancelling when that fails)
         // TODO If we delete a bus, deal with all its passengers
         let mut ctx = Ctx {
             parking: &mut self.parking,

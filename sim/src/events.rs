@@ -24,7 +24,7 @@ pub enum Event {
 
     PersonEntersBuilding(PersonID, BuildingID),
     PersonLeavesBuilding(PersonID, BuildingID),
-    // None if aborted
+    // None if cancelled
     PersonLeavesMap(
         PersonID,
         Option<AgentID>,
@@ -50,7 +50,7 @@ pub enum Event {
         total_time: Duration,
         blocked_time: Duration,
     },
-    TripAborted(TripID),
+    TripCancelled(TripID),
     TripPhaseStarting(TripID, PersonID, Option<PathRequest>, TripPhaseType),
 
     // Just use for parking replanning. Not happy about copying the full path in here, but the way
@@ -77,7 +77,7 @@ pub enum TripPhaseType {
     WaitingForBus(BusRouteID, BusStopID),
     // What stop did they board at?
     RidingBus(BusRouteID, BusStopID, CarID),
-    Aborted,
+    Cancelled,
     Finished,
     DelayedStart,
     Remote,
@@ -94,7 +94,7 @@ impl TripPhaseType {
                 format!("waiting for bus {}", map.get_br(r).full_name)
             }
             TripPhaseType::RidingBus(r, _, _) => format!("riding bus {}", map.get_br(r).full_name),
-            TripPhaseType::Aborted => "trip aborted due to some bug".to_string(),
+            TripPhaseType::Cancelled => "trip cancelled due to some bug".to_string(),
             TripPhaseType::Finished => "trip finished".to_string(),
             TripPhaseType::DelayedStart => "delayed by previous trip taking too long".to_string(),
             TripPhaseType::Remote => "remote trip outside the map boundaries".to_string(),

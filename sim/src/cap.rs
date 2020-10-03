@@ -88,7 +88,7 @@ impl CapSimState {
         }
         *capped = true;
 
-        // TODO Make the responses configurable: abort the trip, reroute, delay an hour, switch
+        // TODO Make the responses configurable: cancel the trip, reroute, delay an hour, switch
         // modes. Where should this policy be specified? Is it simulation-wide?
 
         let mut avoid_lanes: BTreeSet<LaneID> = BTreeSet::new();

@@ -558,14 +558,14 @@ fn make_table_unfinished_trips(app: &App) -> Table<UnfinishedTrip, Filters> {
 
 fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget {
     let (finished, unfinished) = app.primary.sim.num_trips();
-    let mut aborted = 0;
+    let mut cancelled = 0;
     // TODO Can we avoid iterating through this again?
     for (_, _, maybe_mode, _) in &app.primary.sim.get_analytics().finished_trips {
         if maybe_mode.is_none() {
-            aborted += 1;
+            cancelled += 1;
         }
     }
-    let total = finished + aborted + unfinished;
+    let total = finished + cancelled + unfinished;
 
     let btn = |dash, action, label| {
         if dash == tab {
@@ -595,7 +595,7 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
         btn(
             DashTab::CancelledTripTable,
             "cancelled trips",
-            format!("{} Cancelled Trips", prettyprint_usize(aborted)),
+            format!("{} Cancelled Trips", prettyprint_usize(cancelled)),
         )
         .margin_right(28),
         btn(

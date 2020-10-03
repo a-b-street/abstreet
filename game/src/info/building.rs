@@ -127,7 +127,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
                     // TODO What to do here? This is meant for building callers right now
                     break;
                 }
-                TripResult::TripDone | TripResult::TripAborted | TripResult::TripCancelled => {}
+                TripResult::TripDone | TripResult::TripCancelled => {}
                 TripResult::TripDoesntExist | TripResult::RemoteTrip => unreachable!(),
             }
         }

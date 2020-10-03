@@ -148,7 +148,7 @@ pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
         TripPhaseType::Parking => app.cs.parking_trip,
         TripPhaseType::WaitingForBus(_, _) => app.cs.bus_layer,
         TripPhaseType::RidingBus(_, _, _) => app.cs.bus_trip,
-        TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
+        TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
         TripPhaseType::DelayedStart => Color::YELLOW,
         TripPhaseType::Remote => Color::PINK,
     }

@@ -27,8 +27,8 @@ pub struct Analytics {
     pub passengers_alighting: BTreeMap<BusStopID, Vec<(Time, BusRouteID)>>,
 
     pub started_trips: BTreeMap<TripID, Time>,
-    // TODO Hack: No TripMode means aborted
-    // Finish time, ID, mode (or None as aborted), trip duration
+    // TODO Hack: No TripMode means cancelled
+    // Finish time, ID, mode, trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
@@ -117,7 +117,7 @@ impl Analytics {
         }
         match ev {
             Event::PersonLeavesMap(_, maybe_a, i, _) => {
-                // Ignore aborted trips
+                // Ignore cancelled trips
                 if let Some(a) = maybe_a {
                     self.intersection_thruput.record(time, i, a.to_type(), 1);
                 }
@@ -162,7 +162,7 @@ impl Analytics {
         {
             self.finished_trips
                 .push((time, trip, Some(mode), total_time));
-        } else if let Event::TripAborted(id) = ev {
+        } else if let Event::TripCancelled(id) = ev {
             self.started_trips.entry(id).or_insert(time);
             self.finished_trips.push((time, id, None, Duration::ZERO));
         }
@@ -208,8 +208,9 @@ impl Analytics {
             Event::TripPhaseStarting(id, _, maybe_req, phase_type) => {
                 self.trip_log.push((time, id, maybe_req, phase_type));
             }
-            Event::TripAborted(id) => {
-                self.trip_log.push((time, id, None, TripPhaseType::Aborted));
+            Event::TripCancelled(id) => {
+                self.trip_log
+                    .push((time, id, None, TripPhaseType::Cancelled));
             }
             Event::TripFinished { trip, .. } => {
                 self.trip_log
@@ -238,7 +239,7 @@ impl Analytics {
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
 
-    // Ignores the current time. Returns None for aborted trips.
+    // Ignores the current time. Returns None for cancelled trips.
     pub fn finished_trip_time(&self, trip: TripID) -> Option<Duration> {
         // TODO This is so inefficient!
         for (_, id, maybe_mode, dt) in &self.finished_trips {
@@ -292,7 +293,7 @@ impl Analytics {
             if let Some(ref mut last) = phases.last_mut() {
                 last.end_time = Some(*t);
             }
-            if *phase_type == TripPhaseType::Finished || *phase_type == TripPhaseType::Aborted {
+            if *phase_type == TripPhaseType::Finished || *phase_type == TripPhaseType::Cancelled {
                 break;
             }
             phases.push(TripPhase {
@@ -321,8 +322,8 @@ impl Analytics {
             if *phase_type == TripPhaseType::Finished {
                 continue;
             }
-            // Remove aborted trips
-            if *phase_type == TripPhaseType::Aborted {
+            // Remove cancelled trips
+            if *phase_type == TripPhaseType::Cancelled {
                 trips.remove(id);
                 continue;
             }
