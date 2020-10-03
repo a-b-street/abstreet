@@ -23,10 +23,3 @@ members = [
 # update dependencies often).
 [profile.dev.package."*"]
 opt-level = 3
-
-[patch.crates-io]
-# Bug fixes merged since 0.22.2:
-# - web: DPI vs. custom cursor icon: https://github.com/rust-windowing/winit/pull/1652
-# - web: vscroll inverted: https://github.com/rust-windowing/winit/pull/1665
-# - mac: hscroll inverted: https://github.com/rust-windowing/winit/pull/1696
-winit = { git = "https://github.com/rust-windowing/winit" }
