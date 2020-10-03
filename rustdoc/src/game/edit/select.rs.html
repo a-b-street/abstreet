@@ -310,20 +310,11 @@
 <span id="310">310</span>
 <span id="311">311</span>
 <span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::{<span class="ident">intersections_from_roads</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">DontDrawAgents</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">RewriteColor</span>, <span class="ident">Widget</span>};
 
@@ -426,14 +417,7 @@
     <span class="comment">// Pass None. Returns true if anything changed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">clicked</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">calculate_current_selection</span>(
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;</span><span class="ident">DontDrawAgents</span> {},
-                <span class="kw-2">&amp;</span><span class="ident">ShowEverything</span>::<span class="ident">new</span>(),
-                <span class="bool-val">false</span>,
-                <span class="bool-val">true</span>,
-                <span class="bool-val">false</span>,
-            );
+            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>);
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
                 <span class="ident">Mode</span>::<span class="ident">Pan</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;

@@ -688,16 +688,8 @@
 <span id="688">688</span>
 <span id="689">689</span>
 <span id="690">690</span>
-<span id="691">691</span>
-<span id="692">692</span>
-<span id="693">693</span>
-<span id="694">694</span>
-<span id="695">695</span>
-<span id="696">696</span>
-<span id="697">697</span>
-<span id="698">698</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::{<span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">ID</span>};
@@ -705,7 +697,6 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">osm</span>::<span class="ident">WayID</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">DontDrawAgents</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -891,14 +882,7 @@
 
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">maybe_r</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">calculate_current_selection</span>(
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;</span><span class="ident">DontDrawAgents</span> {},
-                <span class="kw-2">&amp;</span><span class="ident">ShowEverything</span>::<span class="ident">new</span>(),
-                <span class="bool-val">false</span>,
-                <span class="bool-val">true</span>,
-                <span class="bool-val">false</span>,
-            ) {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">maybe_r</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
                 <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
                 <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>),
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
