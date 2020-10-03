@@ -353,7 +353,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">values</span>().<span class="ident">max</span>().<span class="ident">unwrap</span>()
+        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">values</span>().<span class="ident">max</span>().<span class="ident">cloned</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>)
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">sum</span>
