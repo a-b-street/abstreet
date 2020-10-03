@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["cluster_jams",""]],"struct":[["Backpressure",""],["Delay",""],["Jam",""],["Throughput",""],["TrafficJams",""]]});
+initSidebarItems({"fn":[["cluster_jams",""]],"struct":[["Backpressure",""],["CompareThroughput",""],["Delay",""],["Jam",""],["Throughput",""],["TrafficJams",""]]});

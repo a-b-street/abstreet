@@ -249,6 +249,11 @@
 <span id="249">249</span>
 <span id="250">250</span>
 <span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">elevation</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">map</span>;
@@ -298,6 +303,7 @@
 <span class="comment">// TODO Just return a bool for closed? Less readable...</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LayerOutcome</span> {
     <span class="ident">Close</span>,
+    <span class="ident">Replace</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Layer</span><span class="op">&gt;</span>),
 }
 
 <span class="comment">// TODO Maybe overkill, but could embed a minimap and preview the layer on hover</span>
@@ -316,6 +322,10 @@
         <span class="kw">match</span> <span class="ident">layer</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">minimap</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome</span>::<span class="ident">Close</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">app</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            }
+            <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome</span>::<span class="ident">Replace</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">app</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {}
@@ -464,7 +474,7 @@
                     )));
                 }
                 <span class="string">&quot;throughput&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">Throughput</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>)));
+                    <span class="ident">app</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">Throughput</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;traffic jams&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">TrafficJams</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
