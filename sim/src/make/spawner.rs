@@ -384,7 +384,10 @@ impl TripSpawner {
             };
 
             if cancelled {
-                trips.cancel_trip(trip);
+                trips.cancel_unstarted_trip(
+                    trip,
+                    format!("traffic pattern modifier cancelled this trip"),
+                );
             } else {
                 scheduler.push(
                     start_time,

@@ -516,10 +516,6 @@ impl Sim {
                 } else {
                     // Buses don't use Command::SpawnCar, so this must exist.
                     let (trip, person) = create_car.trip_and_person.unwrap();
-                    println!(
-                        "No room to spawn car for {} by {}. Not retrying!",
-                        trip, person
-                    );
                     // Have to redeclare for the borrow checker
                     let mut ctx = Ctx {
                         parking: &mut self.parking,
@@ -528,8 +524,16 @@ impl Sim {
                         scheduler: &mut self.scheduler,
                         map,
                     };
-                    self.trips
-                        .abort_trip(self.time, trip, Some(create_car.vehicle), &mut ctx);
+                    self.trips.cancel_trip(
+                        self.time,
+                        trip,
+                        format!(
+                            "no room to spawn car for {} by {}, not retrying",
+                            trip, person
+                        ),
+                        Some(create_car.vehicle),
+                        &mut ctx,
+                    );
                 }
             }
             Command::SpawnPed(create_ped) => {
@@ -918,12 +922,24 @@ impl Sim {
             match agent {
                 AgentID::Car(car) => {
                     let vehicle = self.driving.delete_car(car, self.time, &mut ctx);
-                    self.trips
-                        .abort_trip(self.time, trip, Some(vehicle), &mut ctx);
+                    // TODO Plumb more info about the reason
+                    self.trips.cancel_trip(
+                        self.time,
+                        trip,
+                        format!("map edited without reset"),
+                        Some(vehicle),
+                        &mut ctx,
+                    );
                 }
                 AgentID::Pedestrian(ped) => {
                     self.walking.delete_ped(ped, ctx.scheduler);
-                    self.trips.abort_trip(self.time, trip, None, &mut ctx);
+                    self.trips.cancel_trip(
+                        self.time,
+                        trip,
+                        format!("map edited without reset"),
+                        None,
+                        &mut ctx,
+                    );
                 }
                 AgentID::BusPassenger(_, _) => unreachable!(),
             }
@@ -989,9 +1005,13 @@ impl Sim {
                 map,
             };
             let vehicle = self.driving.delete_car(id, self.time, &mut ctx);
-            self.trips
-                .abort_trip(self.time, trip, Some(vehicle), &mut ctx);
-            println!("Forcibly killed {}", id);
+            self.trips.cancel_trip(
+                self.time,
+                trip,
+                format!("{} deleted manually through the UI", id),
+                Some(vehicle),
+                &mut ctx,
+            );
         } else {
             println!("{} has no trip?!", id);
         }

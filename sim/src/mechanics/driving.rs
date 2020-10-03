@@ -459,9 +459,10 @@ impl DrivingSimState {
                     }
                     Some(ActionAtEnd::GiveUpOnParking) => {
                         car.total_blocked_time += now - blocked_since;
-                        trips.abort_trip(
+                        trips.cancel_trip(
                             now,
                             car.trip_and_person.unwrap().0,
+                            format!("no available parking anywhere"),
                             // If we couldn't find parking normally, doesn't make sense to warp the
                             // car to the destination. There's no parking!
                             None,

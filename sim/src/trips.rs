@@ -132,12 +132,12 @@ impl TripManager {
                 purpose,
                 modified,
                 capped: false,
+                cancellation_reason: None,
             },
             person,
             started: false,
             finished_at: None,
             total_blocked_time: Duration::ZERO,
-            cancelled: false,
             legs: VecDeque::from(legs),
         };
         self.unfinished_trips += 1;
@@ -310,18 +310,17 @@ impl TripManager {
                 );
             }
             None => {
-                // TODO The reason might be exceeding the cap
-                self.events.push(Event::Alert(
-                    AlertLocation::Person(trip.person),
-                    format!(
-                        "Cancelling {} because no path for the car portion! {} to {}",
-                        trip.id, start, end
-                    ),
-                ));
                 // Move the car to the destination...
                 ctx.parking.remove_parked_car(parked_car.clone());
                 let trip = trip.id;
-                self.abort_trip(now, trip, Some(parked_car.vehicle), ctx);
+                // TODO The reason might be exceeding the cap
+                self.cancel_trip(
+                    now,
+                    trip,
+                    format!("no path to drive from {} to {}", start, end),
+                    Some(parked_car.vehicle),
+                    ctx,
+                );
             }
         }
     }
@@ -354,15 +353,14 @@ impl TripManager {
         let end = if let Some(end) = drive_to.goal_pos(PathConstraints::Bike, ctx.map) {
             end
         } else {
-            self.events.push(Event::Alert(
-                AlertLocation::Person(trip.person),
-                format!(
-                    "Cancelling {} because no bike connection at {:?}",
-                    trip.id, drive_to
-                ),
-            ));
             let trip = trip.id;
-            self.abort_trip(now, trip, None, ctx);
+            self.cancel_trip(
+                now,
+                trip,
+                format!("no bike connection at {:?}", drive_to),
+                None,
+                ctx,
+            );
             return;
         };
         let req = PathRequest {
@@ -390,16 +388,17 @@ impl TripManager {
                 ),
             );
         } else {
-            self.events.push(Event::Alert(
-                AlertLocation::Person(trip.person),
-                format!(
-                    "Cancelling {} because no path for the bike portion (or sidewalk connection \
-                     at the end)! {} to {}",
-                    trip.id, driving_pos, end
-                ),
-            ));
             let trip = trip.id;
-            self.abort_trip(now, trip, None, ctx);
+            self.cancel_trip(
+                now,
+                trip,
+                format!(
+                    "no path for the bike portion (or sidewalk connection at end), from {} to {}",
+                    driving_pos, end
+                ),
+                None,
+                ctx,
+            );
         }
     }
 
@@ -719,25 +718,27 @@ impl TripManager {
         self.person_finished_trip(now, person, ctx);
     }
 
-    // TODO Consolidate this and abort_trip
-    // Different than aborting a trip. Don't warp any vehicles or change where the person is.
-    pub fn cancel_trip(&mut self, id: TripID) {
+    // Cancel a trip before it's started. The person will stay where they are.
+    pub fn cancel_unstarted_trip(&mut self, id: TripID, reason: String) {
         let trip = &mut self.trips[id.0];
         self.unfinished_trips -= 1;
-        trip.cancelled = true;
+        trip.info.cancellation_reason = Some(reason);
         self.events.push(Event::TripCancelled(trip.id));
     }
 
-    pub fn abort_trip(
+    // Cancel a trip after it's started. The person will be magically warped to their destination,
+    // along with their car, as if the trip had completed normally.
+    pub fn cancel_trip(
         &mut self,
         now: Time,
         id: TripID,
+        reason: String,
         abandoned_vehicle: Option<Vehicle>,
         ctx: &mut Ctx,
     ) {
         let trip = &mut self.trips[id.0];
         self.unfinished_trips -= 1;
-        trip.cancelled = true;
+        trip.info.cancellation_reason = Some(reason);
         self.events.push(Event::TripCancelled(trip.id));
         let person = trip.person;
 
@@ -837,7 +838,7 @@ impl TripManager {
         if trip.finished_at.is_some() {
             return TripResult::TripDone;
         }
-        if trip.cancelled {
+        if trip.info.cancellation_reason.is_some() {
             return TripResult::TripCancelled;
         }
         if !trip.started {
@@ -975,7 +976,7 @@ impl TripManager {
         mut maybe_path: Option<Path>,
         ctx: &mut Ctx,
     ) {
-        assert!(!self.trips[trip.0].cancelled);
+        assert!(self.trips[trip.0].info.cancellation_reason.is_none());
         if !self.pathfinding_upfront && maybe_path.is_none() && maybe_req.is_some() {
             maybe_path = ctx.map.pathfind(maybe_req.clone().unwrap());
         }
@@ -1050,14 +1051,16 @@ impl TripManager {
                     }
                     None => {
                         // TODO Reason might be related to cap
-                        self.events.push(Event::Alert(
-                            AlertLocation::Person(person),
+                        self.cancel_trip(
+                            now,
+                            trip,
                             format!(
                                 "VehicleAppearing trip couldn't find the first path: {}",
                                 req
                             ),
-                        ));
-                        self.abort_trip(now, trip, Some(vehicle), ctx);
+                            Some(vehicle),
+                            ctx,
+                        );
                     }
                 }
             }
@@ -1067,12 +1070,14 @@ impl TripManager {
                 error,
                 ..
             } => {
-                self.events.push(Event::Alert(
-                    AlertLocation::Intersection(i),
-                    format!("{} couldn't spawn at border {}: {}", person.id, i, error),
-                ));
                 let vehicle = person.get_vehicle(use_vehicle);
-                self.abort_trip(now, trip, Some(vehicle), ctx);
+                self.cancel_trip(
+                    now,
+                    trip,
+                    format!("couldn't spawn at border {}: {}", i, error),
+                    Some(vehicle),
+                    ctx,
+                );
             }
             TripSpec::UsingParkedCar {
                 car, start_bldg, ..
@@ -1107,26 +1112,26 @@ impl TripManager {
                             }),
                         );
                     } else {
-                        self.events.push(Event::Alert(
-                            AlertLocation::Person(person.id),
-                            format!("UsingParkedCar trip couldn't find the walking path {}", req),
-                        ));
                         // Move the car to the destination
                         ctx.parking.remove_parked_car(parked_car.clone());
-                        self.abort_trip(now, trip, Some(parked_car.vehicle), ctx);
+                        self.cancel_trip(
+                            now,
+                            trip,
+                            format!("UsingParkedCar trip couldn't find the walking path {}", req),
+                            Some(parked_car.vehicle),
+                            ctx,
+                        );
                     }
                 } else {
                     // This should only happen when a driving trip has been cancelled and there was
                     // absolutely no room to warp the car.
-                    self.events.push(Event::Alert(
-                        AlertLocation::Person(person.id),
-                        format!(
-                            "{} should have {} parked somewhere, but it's unavailable, so \
-                             cancelling {}",
-                            person.id, car, trip
-                        ),
-                    ));
-                    self.abort_trip(now, trip, None, ctx);
+                    self.cancel_trip(
+                        now,
+                        trip,
+                        format!("should have {} parked somewhere, but it's unavailable", car),
+                        None,
+                        ctx,
+                    );
                 }
             }
             TripSpec::JustWalking { start, goal } => {
@@ -1175,11 +1180,13 @@ impl TripManager {
                         }),
                     );
                 } else {
-                    self.events.push(Event::Alert(
-                        AlertLocation::Person(person.id),
+                    self.cancel_trip(
+                        now,
+                        trip,
                         format!("JustWalking trip couldn't find the first path {}", req),
-                    ));
-                    self.abort_trip(now, trip, None, ctx);
+                        None,
+                        ctx,
+                    );
                 }
             }
             TripSpec::UsingBike { start, .. } => {
@@ -1203,21 +1210,25 @@ impl TripManager {
                             }),
                         );
                     } else {
-                        self.events.push(Event::Alert(
-                            AlertLocation::Person(person.id),
+                        self.cancel_trip(
+                            now,
+                            trip,
                             format!("UsingBike trip couldn't find the first path {}", req),
-                        ));
-                        self.abort_trip(now, trip, None, ctx);
+                            None,
+                            ctx,
+                        );
                     }
                 } else {
-                    self.events.push(Event::Alert(
-                        AlertLocation::Person(person.id),
+                    self.cancel_trip(
+                        now,
+                        trip,
                         format!(
                             "UsingBike trip couldn't find a way to start biking from {}",
                             start
                         ),
-                    ));
-                    self.abort_trip(now, trip, None, ctx);
+                        None,
+                        ctx,
+                    );
                 }
             }
             TripSpec::UsingTransit { start, stop1, .. } => {
@@ -1267,11 +1278,13 @@ impl TripManager {
                         }),
                     );
                 } else {
-                    self.events.push(Event::Alert(
-                        AlertLocation::Person(person.id),
+                    self.cancel_trip(
+                        now,
+                        trip,
                         format!("UsingTransit trip couldn't find the first path {}", req),
-                    ));
-                    self.abort_trip(now, trip, None, ctx);
+                        None,
+                        ctx,
+                    );
                 }
             }
             TripSpec::Remote {
@@ -1296,7 +1309,7 @@ impl TripManager {
     pub fn all_arrivals_at_border(&self, at: IntersectionID) -> Vec<(Time, AgentType)> {
         let mut times = Vec::new();
         for t in &self.trips {
-            if t.cancelled {
+            if t.info.cancellation_reason.is_some() {
                 continue;
             }
             if let TripEndpoint::Border(i, _) = t.info.start {
@@ -1357,7 +1370,6 @@ struct Trip {
     started: bool,
     finished_at: Option<Time>,
     total_blocked_time: Duration,
-    cancelled: bool,
     legs: VecDeque<TripLeg>,
     person: PersonID,
 }
@@ -1374,6 +1386,7 @@ pub struct TripInfo {
     pub modified: bool,
     // Was this trip affected by a congestion cap?
     pub capped: bool,
+    pub cancellation_reason: Option<String>,
 }
 
 impl Trip {

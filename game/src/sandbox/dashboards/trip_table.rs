@@ -73,7 +73,7 @@ struct CancelledTrip {
     starts_off_map: bool,
     ends_off_map: bool,
     duration_before: Duration,
-    // TODO Reason
+    reason: String,
 }
 
 struct UnfinishedTrip {
@@ -129,6 +129,9 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
         };
 
         if maybe_mode.is_none() || duration_before.is_none() {
+            let reason = trip.cancellation_reason.clone().unwrap_or(format!(
+                "trip succeeded now, but not before the current proposal"
+            ));
             cancelled.push(CancelledTrip {
                 id: *id,
                 mode: trip.mode,
@@ -136,6 +139,7 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
                 starts_off_map,
                 ends_off_map,
                 duration_before: duration_before.unwrap_or(Duration::ZERO),
+                reason,
             });
             continue;
         };
@@ -455,6 +459,7 @@ fn make_table_cancelled_trips(app: &App) -> Table<CancelledTrip, Filters> {
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
         );
     }
+    table.static_col("Reason", Box::new(|x| x.reason.clone()));
 
     table
 }

@@ -335,8 +335,12 @@ pub fn finished(
 pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
     let trip = app.primary.sim.trip_info(id);
 
-    // TODO Plumb a reason here instead
-    let mut col = vec!["Trip cancelled".draw_text(ctx)];
+    let mut col = vec![Text::from(Line(format!(
+        "Trip cancelled: {}",
+        trip.cancellation_reason.as_ref().unwrap()
+    )))
+    .wrap_to_pct(ctx, 20)
+    .draw(ctx)];
 
     // TODO Warp buttons. make_table is showing its age.
     let (_, _, name1) = endpoint(&trip.start, app);
