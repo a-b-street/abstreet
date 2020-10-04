@@ -1,16 +1,3 @@
-mod analytics;
-mod cap;
-mod events;
-mod make;
-mod mechanics;
-mod pandemic;
-mod render;
-mod router;
-mod scheduler;
-mod sim;
-mod transit;
-mod trips;
-
 #[macro_use]
 extern crate log;
 
@@ -46,6 +33,19 @@ use map_model::{
 };
 use serde::{Deserialize, Serialize};
 use std::fmt;
+
+mod analytics;
+mod cap;
+mod events;
+mod make;
+mod mechanics;
+mod pandemic;
+mod render;
+mod router;
+mod scheduler;
+mod sim;
+mod transit;
+mod trips;
 
 // http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
 pub const BIKE_LENGTH: Distance = Distance::const_meters(1.8);

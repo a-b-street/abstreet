@@ -1,5 +1,3 @@
-mod queries;
-
 pub use self::queries::AgentProperties;
 use crate::{
     AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrawCarInput,
@@ -22,6 +20,8 @@ use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashSet};
 use std::panic;
+
+mod queries;
 
 // TODO Do something else.
 const BLIND_RETRY_TO_SPAWN: Duration = Duration::const_seconds(5.0);

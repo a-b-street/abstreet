@@ -1,20 +1,3 @@
-mod angle;
-mod bounds;
-mod circle;
-mod distance;
-mod duration;
-mod find_closest;
-mod gps;
-mod line;
-mod percent;
-mod polygon;
-mod polyline;
-mod pt;
-mod ring;
-mod speed;
-mod stats;
-mod time;
-
 pub use crate::angle::Angle;
 pub use crate::bounds::{Bounds, GPSBounds};
 pub use crate::circle::Circle;
@@ -31,6 +14,23 @@ pub use crate::ring::Ring;
 pub use crate::speed::Speed;
 pub use crate::stats::{HgramValue, Histogram, Statistic};
 pub use crate::time::Time;
+
+mod angle;
+mod bounds;
+mod circle;
+mod distance;
+mod duration;
+mod find_closest;
+mod gps;
+mod line;
+mod percent;
+mod polygon;
+mod polyline;
+mod pt;
+mod ring;
+mod speed;
+mod stats;
+mod time;
 
 // About 0.4 inches... which is quite tiny on the scale of things. :)
 pub const EPSILON_DIST: Distance = Distance::const_meters(0.01);

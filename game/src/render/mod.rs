@@ -1,17 +1,3 @@
-mod area;
-mod bike;
-mod building;
-mod bus_stop;
-mod car;
-mod intersection;
-mod lane;
-mod map;
-mod parking_lot;
-mod pedestrian;
-mod road;
-pub mod traffic_signal;
-mod turn;
-
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
@@ -27,6 +13,20 @@ use geom::{Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, VehicleType};
 use widgetry::{GfxCtx, Prerender};
+
+mod area;
+mod bike;
+mod building;
+mod bus_stop;
+mod car;
+mod intersection;
+mod lane;
+mod map;
+mod parking_lot;
+mod pedestrian;
+mod road;
+pub mod traffic_signal;
+mod turn;
 
 pub const BIG_ARROW_THICKNESS: Distance = Distance::const_meters(0.5);
 

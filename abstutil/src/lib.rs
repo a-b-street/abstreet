@@ -5,14 +5,6 @@
 // - A/B Street-specific filesystem paths
 // - true utility functions (collections, prettyprinting, CLI parsing
 
-mod abst_paths;
-mod cli;
-mod collections;
-mod io;
-mod serde;
-mod time;
-mod utils;
-
 #[macro_use]
 extern crate log;
 
@@ -32,5 +24,11 @@ pub use cli::*;
 pub use collections::*;
 pub use time::*;
 pub use utils::*;
+
+mod cli;
+mod collections;
+mod io;
+mod random;
+mod time;
 
 const PROGRESS_FREQUENCY_SECONDS: f64 = 0.2;

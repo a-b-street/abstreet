@@ -1,3 +1,8 @@
+use abstutil::Timer;
+use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
+use map_model::raw::RawMap;
+use map_model::{osm, MapConfig, NamePerLanguage};
+
 mod clip;
 mod extract;
 mod parking;
@@ -6,11 +11,6 @@ mod snappy;
 mod split_ways;
 mod srtm;
 mod transit;
-
-use abstutil::Timer;
-use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
-use map_model::raw::RawMap;
-use map_model::{osm, MapConfig, NamePerLanguage};
 
 pub struct Options {
     pub osm_input: String,

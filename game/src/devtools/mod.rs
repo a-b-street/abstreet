@@ -1,10 +1,3 @@
-mod destinations;
-mod kml;
-pub mod mapping;
-mod polygon;
-mod scenario;
-mod story;
-
 use crate::app::App;
 use crate::common::CityPicker;
 use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
@@ -15,6 +8,13 @@ use widgetry::{
     lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, TextExt,
     VerticalAlignment, Widget,
 };
+
+mod destinations;
+mod kml;
+pub mod mapping;
+mod polygon;
+mod scenario;
+mod story;
 
 pub struct DevToolsMode {
     panel: Panel,

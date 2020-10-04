@@ -1,9 +1,3 @@
-mod floodfill;
-mod objects;
-pub mod path_counter;
-mod polygons;
-pub mod shared_row;
-
 use crate::app::{App, ShowLayers, ShowObject};
 use crate::common::{tool_panel, CommonState, ContextualActions};
 use crate::game::{ChooseSomething, DrawBaselayer, PopupMsg, PromptInput, State, Transition};
@@ -20,6 +14,12 @@ use widgetry::{
     lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, Text, UpdateType, VerticalAlignment, Widget,
 };
+
+mod floodfill;
+mod objects;
+pub mod path_counter;
+mod polygons;
+pub mod shared_row;
 
 pub struct DebugMode {
     panel: Panel,

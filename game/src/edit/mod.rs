@@ -1,13 +1,3 @@
-mod bulk;
-mod cluster_traffic_signals;
-mod lanes;
-mod routes;
-mod select;
-mod stop_signs;
-mod traffic_signals;
-mod validate;
-mod zones;
-
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
 pub use self::lanes::LaneEditor;
 pub use self::routes::RouteEditor;
@@ -31,6 +21,16 @@ use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
     Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
+
+mod bulk;
+mod cluster_traffic_signals;
+mod lanes;
+mod routes;
+mod select;
+mod stop_signs;
+mod traffic_signals;
+mod validate;
+mod zones;
 
 pub struct EditMode {
     tool_panel: Panel,

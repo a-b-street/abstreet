@@ -28,33 +28,6 @@
 #[macro_use]
 extern crate log;
 
-mod assets;
-#[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
-mod backend_glow;
-#[cfg(feature = "glow-backend")]
-mod backend_glow_native;
-#[cfg(feature = "wasm-backend")]
-mod backend_glow_wasm;
-mod canvas;
-mod color;
-mod drawing;
-mod event;
-mod event_ctx;
-mod geom;
-mod input;
-mod runner;
-mod screen_geom;
-mod style;
-mod svg;
-mod text;
-mod tools;
-mod widgets;
-
-mod backend {
-    #[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
-    pub use crate::backend_glow::*;
-}
-
 pub use crate::backend::Drawable;
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::{Color, Fill, LinearGradient, Texture};
@@ -86,6 +59,33 @@ pub use crate::widgets::slider::{AreaSlider, Slider};
 pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;
 pub use crate::widgets::{EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput};
+
+mod assets;
+#[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
+mod backend_glow;
+#[cfg(feature = "glow-backend")]
+mod backend_glow_native;
+#[cfg(feature = "wasm-backend")]
+mod backend_glow_wasm;
+mod canvas;
+mod color;
+mod drawing;
+mod event;
+mod event_ctx;
+mod geom;
+mod input;
+mod runner;
+mod screen_geom;
+mod style;
+mod svg;
+mod text;
+mod tools;
+mod widgets;
+
+mod backend {
+    #[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
+    pub use crate::backend_glow::*;
+}
 
 pub struct Choice<T> {
     pub label: String,

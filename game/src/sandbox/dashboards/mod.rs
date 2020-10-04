@@ -1,3 +1,10 @@
+use crate::app::App;
+use crate::game::Transition;
+pub use commuter::CommuterPatterns;
+pub use traffic_signals::TrafficSignalDemand;
+pub use trip_table::FinishedTripTable;
+use widgetry::{Btn, Choice, EventCtx, Key, Line, Panel, TextExt, Widget};
+
 mod commuter;
 mod generic_trip_table;
 mod misc;
@@ -6,13 +13,6 @@ mod summaries;
 mod table;
 mod traffic_signals;
 mod trip_table;
-
-use crate::app::App;
-use crate::game::Transition;
-pub use commuter::CommuterPatterns;
-pub use traffic_signals::TrafficSignalDemand;
-pub use trip_table::FinishedTripTable;
-use widgetry::{Btn, Choice, EventCtx, Key, Line, Panel, TextExt, Widget};
 
 // Oh the dashboards melted, but we still had the radio
 #[derive(Clone, Copy, PartialEq, Debug)]
