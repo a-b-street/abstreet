@@ -1,12 +1,3 @@
-mod building;
-mod bus;
-mod debug;
-mod intersection;
-mod lane;
-mod parking_lot;
-mod person;
-mod trip;
-
 use crate::app::App;
 use crate::common::Warping;
 use crate::debug::path_counter::PathCounter;
@@ -26,6 +17,15 @@ use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget,
 };
+
+mod building;
+mod bus;
+mod debug;
+mod intersection;
+mod lane;
+mod parking_lot;
+mod person;
+mod trip;
 
 pub struct InfoPanel {
     tab: Tab,

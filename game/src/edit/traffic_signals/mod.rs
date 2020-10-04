@@ -1,8 +1,3 @@
-mod edits;
-mod offsets;
-mod picker;
-mod preview;
-
 use crate::app::{App, ShowEverything};
 use crate::common::{CommonState, Warping};
 use crate::edit::{apply_map_edits, ConfirmDiscard};
@@ -21,6 +16,11 @@ use widgetry::{
     lctrl, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     MultiButton, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
+
+mod edits;
+mod offsets;
+mod picker;
+mod preview;
 
 // Welcome to one of the most overwhelmingly complicated parts of the UI...
 

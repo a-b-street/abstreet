@@ -1,11 +1,11 @@
-mod pandemic;
-
 use geom::{Duration, Time};
 pub use pandemic::{Cmd, PandemicModel};
 use rand::Rng;
 use rand_distr::{Distribution, Exp, Normal};
 use rand_xorshift::XorShiftRng;
 use std::ops;
+
+mod pandemic;
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct AnyTime(f64);

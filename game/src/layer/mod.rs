@@ -1,3 +1,10 @@
+use crate::app::App;
+use crate::common::HeatmapOptions;
+use crate::game::{DrawBaselayer, State, Transition};
+use crate::helpers::hotkey_btn;
+use crate::sandbox::dashboards;
+use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget};
+
 mod elevation;
 pub mod map;
 mod pandemic;
@@ -5,13 +12,6 @@ mod parking;
 mod population;
 pub mod traffic;
 pub mod transit;
-
-use crate::app::App;
-use crate::common::HeatmapOptions;
-use crate::game::{DrawBaselayer, State, Transition};
-use crate::helpers::hotkey_btn;
-use crate::sandbox::dashboards;
-use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget};
 
 // TODO Good ideas in
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70

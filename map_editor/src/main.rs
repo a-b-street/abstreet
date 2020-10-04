@@ -1,6 +1,3 @@
-mod model;
-mod world;
-
 use abstutil::{CmdArgs, Timer};
 use geom::{Distance, Line, Polygon};
 use map_model::osm;
@@ -10,6 +7,9 @@ use widgetry::{
     Btn, Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, ScreenPt, Text, VerticalAlignment, Widget, GUI,
 };
+
+mod model;
+mod world;
 
 struct UI {
     model: Model,

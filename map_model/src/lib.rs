@@ -21,17 +21,6 @@
 // - t = turn
 // - ts = traffic signal
 
-mod city;
-pub mod connectivity;
-mod edits;
-mod make;
-mod map;
-mod objects;
-pub mod osm;
-mod pathfind;
-pub mod raw;
-mod traversable;
-
 #[macro_use]
 extern crate log;
 
@@ -65,6 +54,17 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Bounds, Distance, GPSBounds, Polygon};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+
+mod city;
+pub mod connectivity;
+mod edits;
+mod make;
+mod map;
+mod objects;
+pub mod osm;
+mod pathfind;
+pub mod raw;
+mod traversable;
 
 // TODO Minimize uses of these!
 pub const NORMAL_LANE_THICKNESS: Distance = Distance::const_meters(2.5);

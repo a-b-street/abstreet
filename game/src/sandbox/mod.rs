@@ -1,10 +1,3 @@
-pub mod dashboards;
-pub mod gameplay;
-mod misc_tools;
-mod speed;
-mod time_warp;
-mod uber_turns;
-
 use self::misc_tools::{RoutePreview, TurnExplorer};
 use crate::app::App;
 use crate::common::{tool_panel, CommonState, ContextualActions, IsochroneViewer, Minimap};
@@ -29,6 +22,13 @@ use widgetry::{
     lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
     TextExt, UpdateType, VerticalAlignment, Widget,
 };
+
+pub mod dashboards;
+pub mod gameplay;
+mod misc_tools;
+mod speed;
+mod time_warp;
+mod uber_turns;
 
 pub struct SandboxMode {
     gameplay: Box<dyn gameplay::GameplayState>,

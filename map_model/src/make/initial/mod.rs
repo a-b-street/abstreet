@@ -1,9 +1,6 @@
 // Naming is confusing, but RawMap -> InitialMap -> Map. InitialMap is separate pretty much just
 // for the step of producing https://dabreegster.github.io/abstreet/map/importing/geometry.html.
 
-mod geometry;
-pub mod lane_specs;
-
 pub use self::geometry::intersection_polygon;
 use crate::raw::{OriginalRoad, RawMap, RawRoad};
 use crate::{osm, DrivingSide, IntersectionType};
@@ -11,6 +8,9 @@ use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use lane_specs::LaneSpec;
 use std::collections::{BTreeMap, BTreeSet};
+
+mod geometry;
+pub mod lane_specs;
 
 pub struct InitialMap {
     pub roads: BTreeMap<OriginalRoad, Road>,

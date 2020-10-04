@@ -1,16 +1,6 @@
 // See https://dabreegster.github.io/abstreet/map/importing/index.html for an overview. This module
 // covers the RawMap->Map stage.
 
-mod bridges;
-mod buildings;
-pub mod initial;
-mod parking_lots;
-mod remove_disconnected;
-pub mod traffic_signals;
-mod transit;
-pub mod turns;
-mod walking_turns;
-
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
@@ -21,6 +11,16 @@ use crate::{
 use abstutil::{Parallelism, Timer};
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+
+mod bridges;
+mod buildings;
+pub mod initial;
+mod parking_lots;
+mod remove_disconnected;
+pub mod traffic_signals;
+mod transit;
+pub mod turns;
+mod walking_turns;
 
 impl Map {
     pub fn create_from_raw(mut raw: RawMap, build_ch: bool, timer: &mut Timer) -> Map {

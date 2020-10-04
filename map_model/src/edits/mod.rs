@@ -2,9 +2,6 @@
 // the changes to a file (as PermanentMapEdits). See
 // https://dabreegster.github.io/abstreet/map/edits.html.
 
-mod compat;
-mod perma;
-
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
@@ -16,6 +13,9 @@ use geom::{Speed, Time};
 pub use perma::PermanentMapEdits;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+
+mod compat;
+mod perma;
 
 // Represents changes to a map. Note this isn't serializable -- that's what PermanentMapEdits does.
 #[derive(Debug, Clone, PartialEq)]

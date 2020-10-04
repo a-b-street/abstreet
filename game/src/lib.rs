@@ -1,3 +1,12 @@
+#[macro_use]
+extern crate log;
+
+use abstutil::{CmdArgs, Timer};
+use geom::Duration;
+use sim::SimFlags;
+
+use crate::app::Flags;
+
 mod app;
 mod challenges;
 mod colors;
@@ -14,14 +23,6 @@ mod options;
 mod pregame;
 mod render;
 mod sandbox;
-
-#[macro_use]
-extern crate log;
-
-use crate::app::Flags;
-use abstutil::{CmdArgs, Timer};
-use geom::Duration;
-use sim::SimFlags;
 
 pub fn main() {
     let mut args = CmdArgs::new();

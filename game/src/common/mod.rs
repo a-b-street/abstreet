@@ -1,11 +1,3 @@
-mod city_picker;
-mod colors;
-mod heatmap;
-mod isochrone;
-mod minimap;
-mod navigate;
-mod warp;
-
 pub use self::city_picker::CityPicker;
 pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
 pub use self::heatmap::{make_heatmap, HeatmapOptions};
@@ -23,6 +15,14 @@ use widgetry::{
     lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
     ScreenDims, ScreenPt, ScreenRectangle, Text, VerticalAlignment, Widget,
 };
+
+mod city_picker;
+mod colors;
+mod heatmap;
+mod isochrone;
+mod minimap;
+mod navigate;
+mod warp;
 
 // TODO This is now just used in two modes...
 pub struct CommonState {

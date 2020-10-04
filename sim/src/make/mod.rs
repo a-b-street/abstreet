@@ -1,10 +1,5 @@
-mod activity_model;
-mod external;
-mod generator;
-mod load;
-mod modifier;
-mod scenario;
-mod spawner;
+use rand::{RngCore, SeedableRng};
+use rand_xorshift::XorShiftRng;
 
 pub use self::external::{ExternalPerson, ExternalTrip};
 pub use self::generator::{
@@ -16,8 +11,14 @@ pub use self::scenario::{
     IndividTrip, OffMapLocation, PersonSpec, Scenario, SpawnTrip, TripPurpose,
 };
 pub use self::spawner::{TripSpawner, TripSpec};
-use rand::{RngCore, SeedableRng};
-use rand_xorshift::XorShiftRng;
+
+mod activity_model;
+mod external;
+mod generator;
+mod load;
+mod modifier;
+mod scenario;
+mod spawner;
 
 // Need to explain this trick -- basically keeps consistency between two different simulations when
 // each one might make slightly different sequences of calls to the RNG.
