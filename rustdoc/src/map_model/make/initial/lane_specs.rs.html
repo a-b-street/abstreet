@@ -699,9 +699,9 @@
         }
     }
 
-    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;narrow&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
         <span class="kw">for</span> <span class="ident">spec</span> <span class="kw">in</span> <span class="ident">fwd_side</span>.<span class="ident">iter_mut</span>().<span class="ident">chain</span>(<span class="ident">back_side</span>.<span class="ident">iter_mut</span>()) {
-            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> {
+            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">|</span><span class="op">|</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span> {
                 <span class="ident">spec</span>.<span class="ident">width</span> <span class="op">=</span> <span class="ident">SERVICE_ROAD_LANE_THICKNESS</span>;
             }
         }
