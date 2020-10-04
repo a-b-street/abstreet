@@ -606,3 +606,10 @@ changes here.
 - UI changes in progress for trip tables, summaries, bulk edit
 - more API / Python example work for congestion capping
 - bug fixes: isometric buildings, documentation links, dropdown widgets, turn restrictions
+
+0.2.14
+
+- improve turn generation, with goldenfile tests
+- UI adjustments: unzoomed routes, better delay layer, include reasons for cancelled trips, throughput layer counts
+- small map importing fixes: multipolygon parking lots,
+- fix infinite parking and blackholed buildings
