@@ -240,9 +240,9 @@ pub fn get_lane_specs_ltr(tags: &Tags, driving_side: DrivingSide) -> Vec<LaneSpe
         }
     }
 
-    if tags.is(osm::HIGHWAY, "service") {
+    if tags.is(osm::HIGHWAY, "service") || tags.is("narrow", "yes") {
         for spec in fwd_side.iter_mut().chain(back_side.iter_mut()) {
-            if spec.lt == LaneType::Driving {
+            if spec.lt == LaneType::Driving || spec.lt == LaneType::Parking {
                 spec.width = SERVICE_ROAD_LANE_THICKNESS;
             }
         }
