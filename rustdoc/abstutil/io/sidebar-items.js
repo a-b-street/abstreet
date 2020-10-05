@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["delete_file",""],["file_exists",""],["find_next_file",""],["find_prev_file",""],["list_all_objects",""],["list_dir",""],["load_all_objects",""],["maybe_read_binary",""],["maybe_read_json",""],["maybe_write_binary",""],["maybe_write_json",""],["read_binary",""],["read_json",""],["read_object",""],["slurp_file",""],["write_binary",""],["write_json",""]],"struct":[["FileWithProgress",""]]});
+initSidebarItems({"fn":[["find_next_file",""],["find_prev_file",""],["maybe_read_json",""],["read_binary",""],["read_json",""],["read_object",""]]});

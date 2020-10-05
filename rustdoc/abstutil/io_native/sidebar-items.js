@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["delete_file",""],["file_exists",""],["list_all_objects",""],["list_dir",""],["load_all_objects",""],["maybe_read_binary",""],["maybe_write_binary",""],["maybe_write_json",""],["slurp_file",""],["write_binary",""],["write_json",""]],"struct":[["FileWithProgress",""]]});
