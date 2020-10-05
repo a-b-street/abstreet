@@ -282,10 +282,7 @@ pub fn checkbox_per_mode(
 }
 
 pub fn open_browser(url: String) {
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        let _ = webbrowser::open(&url);
-    }
+    let _ = webbrowser::open(&url);
 }
 
 pub fn loading_tips() -> Text {
