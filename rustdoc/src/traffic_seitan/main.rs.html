@@ -57,6 +57,42 @@
 <span id="57">57</span>
 <span id="58">58</span>
 <span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This is a tool that runs a simulation, constantly interrupting to apply random map edits to the</span>
 <span class="comment">// live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.</span>
@@ -81,7 +117,16 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;cause mass chaos&quot;</span>);
     <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">map</span>, <span class="kw-2">mut</span> <span class="ident">sim</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>) <span class="op">=</span> <span class="ident">sim_flags</span>.<span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
 
-    <span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">AssertUnwindSafe</span>(<span class="op">|</span><span class="op">|</span> {
+        <span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+    })) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+        <span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span> <span class="string">&quot;traffic_seitan_crash&quot;</span>.<span class="ident">to_string</span>();
+        <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+        <span class="ident">map</span>.<span class="ident">save_edits</span>();
+
+        <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">resume_unwind</span>(<span class="ident">err</span>)
+    }
 }
 
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Sim</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
@@ -93,8 +138,35 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
         <span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span> <span class="string">&quot;chaos&quot;</span>.<span class="ident">to_string</span>();
         <span class="ident">nuke_random_parking</span>(<span class="ident">map</span>, <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">edits</span>);
+        <span class="ident">alter_turn_destinations</span>(<span class="ident">sim</span>, <span class="ident">map</span>, <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">edits</span>);
         <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
         <span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">alter_turn_destinations</span>(<span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">edits</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">MapEdits</span>) {
+    <span class="kw">let</span> <span class="ident">num_edits</span> <span class="op">=</span> <span class="number">3</span>;
+
+    <span class="comment">// Find active turns</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">active_destinations</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">t</span>) <span class="kw">in</span> <span class="ident">sim</span>.<span class="ident">get_accepted_agents</span>(<span class="ident">i</span>.<span class="ident">id</span>) {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">dst</span>).<span class="ident">is_walkable</span>() {
+                <span class="ident">active_destinations</span>.<span class="ident">push</span>(<span class="ident">t</span>.<span class="ident">dst</span>);
+            }
+        }
+    }
+    <span class="ident">active_destinations</span>.<span class="ident">sort</span>();
+    <span class="ident">active_destinations</span>.<span class="ident">dedup</span>();
+    <span class="ident">active_destinations</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
+
+    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">active_destinations</span>.<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">num_edits</span>) {
+        <span class="comment">// TODO Also need to change all parking lanes on the road; otherwise we might wind up</span>
+        <span class="comment">// making an edit that the UI blocks the player from doing.</span>
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
+        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
+            <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">l</span>)].<span class="number">0</span> <span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span>;
+        }));
     }
 }
 

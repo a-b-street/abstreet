@@ -2027,7 +2027,7 @@
             <span class="kw">if</span> <span class="ident">intersections</span>
                 .<span class="ident">get_accepted_agents</span>(<span class="ident">i</span>)
                 .<span class="ident">iter</span>()
-                .<span class="ident">any</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">a</span>, <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="kw">_</span>)))
+                .<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">a</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">a</span>, <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="kw">_</span>)))
             {
                 <span class="kw">return</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;someone&#39;s turning in {} still&quot;</span>, <span class="ident">i</span>);
             }

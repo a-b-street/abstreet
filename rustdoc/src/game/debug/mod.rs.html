@@ -747,6 +747,12 @@
 <span id="747">747</span>
 <span id="748">748</span>
 <span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">floodfill</span>;
 <span class="kw">mod</span> <span class="ident">objects</span>;
@@ -1023,7 +1029,13 @@
                 {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
                     <span class="kw">let</span> <span class="ident">agents</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">id</span> {
-                        <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_accepted_agents</span>(<span class="ident">i</span>),
+                        <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>
+                            .<span class="ident">primary</span>
+                            .<span class="ident">sim</span>
+                            .<span class="ident">get_accepted_agents</span>(<span class="ident">i</span>)
+                            .<span class="ident">into_iter</span>()
+                            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">a</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">a</span>)
+                            .<span class="ident">collect</span>(),
                         <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_blocked_by</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>)),
                         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                     };

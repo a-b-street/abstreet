@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""],["nuke_random_parking",""],["run",""]]});
+initSidebarItems({"fn":[["alter_turn_destinations",""],["main",""],["nuke_random_parking",""],["run",""]]});
