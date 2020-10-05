@@ -4,7 +4,7 @@ use crate::{elapsed_seconds, prettyprint_usize, to_json, Timer, PROGRESS_FREQUEN
 use instant::Instant;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::{stdout, BufReader, BufWriter, Error, ErrorKind, Read, Write};
 use std::path::Path;
@@ -90,50 +90,6 @@ pub fn list_all_objects(dir: String) -> Vec<String> {
         Err(e) => panic!(e),
     };
     results.into_iter().collect()
-}
-
-// Load all serialized things from a directory, return sorted by name, with file extension removed.
-// Detects JSON or binary. Filters out broken files.
-pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
-    let mut timer = Timer::new(format!("load_all_objects from {}", dir));
-    let mut tree: BTreeMap<String, T> = BTreeMap::new();
-    match std::fs::read_dir(&dir) {
-        Ok(iter) => {
-            for entry in iter {
-                let filename = entry.unwrap().file_name();
-                let path = Path::new(&filename);
-                let path_str = path.to_string_lossy();
-                if path_str.starts_with('.') {
-                    continue;
-                }
-                let full_path = format!("{}/{}", dir, path_str);
-                let name = path
-                    .file_stem()
-                    .unwrap()
-                    .to_os_string()
-                    .into_string()
-                    .unwrap();
-                let maybe_load: Result<T, Error> = if path_str.ends_with(".json") {
-                    maybe_read_json(full_path.clone(), &mut timer)
-                } else if path_str.ends_with(".bin") {
-                    maybe_read_binary(full_path.clone(), &mut timer)
-                } else {
-                    panic!("Don't know what {} is", full_path);
-                };
-                match maybe_load {
-                    Ok(x) => {
-                        tree.insert(name, x);
-                    }
-                    Err(err) => {
-                        println!("Couldn't load {}: {}", full_path, err);
-                    }
-                }
-            }
-        }
-        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
-        Err(e) => panic!(e),
-    };
-    tree.into_iter().collect()
 }
 
 // TODO I'd like to get rid of this and just use Timer.read_file, but external libraries consume
@@ -222,16 +178,17 @@ impl Read for FileWithProgress {
     }
 }
 
-pub fn list_dir(dir: &std::path::Path) -> Vec<String> {
+// Returns full paths
+pub fn list_dir(path: String) -> Vec<String> {
     let mut files: Vec<String> = Vec::new();
-    match std::fs::read_dir(dir) {
+    match std::fs::read_dir(&path) {
         Ok(iter) => {
             for entry in iter {
                 files.push(entry.unwrap().path().to_str().unwrap().to_string());
             }
         }
         Err(ref e) if e.kind() == ErrorKind::NotFound => {}
-        Err(e) => panic!("Couldn't read_dir {:?}: {}", dir, e),
+        Err(e) => panic!("Couldn't read_dir {:?}: {}", path, e),
     };
     files.sort();
     files

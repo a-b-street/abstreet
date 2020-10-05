@@ -53,3 +53,7 @@ pub fn basename(path: &str) -> String {
         .into_string()
         .unwrap()
 }
+
+pub fn parent_path(path: &str) -> String {
+    format!("{}", std::path::Path::new(path).parent().unwrap().display())
+}

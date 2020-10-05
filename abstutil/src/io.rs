@@ -1,5 +1,6 @@
-use crate::{list_dir, maybe_read_binary, slurp_file, Timer};
+use crate::{basename, list_dir, maybe_read_binary, parent_path, slurp_file, Timer};
 use serde::de::DeserializeOwned;
+use std::collections::BTreeMap;
 use std::io::{Error, ErrorKind};
 
 pub fn maybe_read_json<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T, Error> {
@@ -40,12 +41,30 @@ pub fn read_object<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Resu
 
 // Keeps file extensions
 pub fn find_prev_file(orig: String) -> Option<String> {
-    let mut files = list_dir(std::path::Path::new(&orig).parent().unwrap());
+    let mut files = list_dir(parent_path(&orig));
     files.reverse();
     files.into_iter().find(|f| *f < orig)
 }
 
 pub fn find_next_file(orig: String) -> Option<String> {
-    let files = list_dir(std::path::Path::new(&orig).parent().unwrap());
+    let files = list_dir(parent_path(&orig));
     files.into_iter().find(|f| *f > orig)
+}
+
+// Load all serialized things from a directory, return sorted by name, with file extension removed.
+// Detects JSON or binary. Filters out broken files.
+pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
+    let mut timer = Timer::new(format!("load_all_objects from {}", dir));
+    let mut tree: BTreeMap<String, T> = BTreeMap::new();
+    for path in list_dir(dir) {
+        match read_object(path.clone(), &mut timer) {
+            Ok(obj) => {
+                tree.insert(basename(&path), obj);
+            }
+            Err(err) => {
+                error!("Couldn't load {}: {}", path, err);
+            }
+        }
+    }
+    tree.into_iter().collect()
 }

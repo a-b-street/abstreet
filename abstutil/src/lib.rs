@@ -13,6 +13,9 @@ mod serde;
 mod time;
 mod utils;
 
+#[macro_use]
+extern crate log;
+
 #[cfg(not(target_arch = "wasm32"))]
 mod io_native;
 #[cfg(not(target_arch = "wasm32"))]

@@ -177,10 +177,10 @@ impl State for ViewKML {
                         ctx,
                         "Load file",
                         Choice::strings(
-                            abstutil::list_dir(std::path::Path::new(&abstutil::path(format!(
+                            abstutil::list_dir(abstutil::path(format!(
                                 "input/{}/",
                                 app.primary.map.get_city_name()
-                            ))))
+                            )))
                             .into_iter()
                             .filter(|x| {
                                 (x.ends_with(".bin") || x.ends_with(".kml"))

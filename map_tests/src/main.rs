@@ -8,7 +8,7 @@ use std::io::Write;
 // but the test maps are.
 fn main() -> Result<(), std::io::Error> {
     // TODO It's kind of a hack to reference the crate's directory relative to the data dir.
-    for path in abstutil::list_dir(std::path::Path::new(&abstutil::path("../map_tests/input"))) {
+    for path in abstutil::list_dir(abstutil::path("../map_tests/input")) {
         let map = import_map(path);
         // Enable to debug the result wih the normal GUI
         if false {
