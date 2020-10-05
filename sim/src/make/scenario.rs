@@ -1,3 +1,4 @@
+use crate::make::fork_rng;
 use crate::{
     CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim,
     TripEndpoint, TripMode, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
@@ -181,7 +182,7 @@ impl Scenario {
             for (t, maybe_idx) in p.trips.iter().zip(vehicle_foreach_trip) {
                 // The RNG call might change over edits for picking the spawning lane from a border
                 // with multiple choices for a vehicle type.
-                let mut tmp_rng = abstutil::fork_rng(rng);
+                let mut tmp_rng = fork_rng(rng);
                 let spec = t.trip.clone().to_trip_spec(
                     maybe_idx.map(|idx| person.vehicles[idx].id),
                     &mut tmp_rng,
@@ -351,7 +352,7 @@ fn seed_parked_cars(
     }
     // Changing parking on one road shouldn't affect far-off roads. Fork carefully.
     for r in map.all_roads() {
-        let mut tmp_rng = abstutil::fork_rng(base_rng);
+        let mut tmp_rng = fork_rng(base_rng);
         if let Some(ref mut spots) = open_spots_per_road.get_mut(&r.id) {
             spots.shuffle(&mut tmp_rng);
         }

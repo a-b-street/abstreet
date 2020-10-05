@@ -1,7 +1,13 @@
+// The contents of this crate need to be organized better:
+//
+// - Timer (a mix of logging, profiling, and even parallel execution)
+// - IO utilities, some of which have web equivalents using include_dir
+// - A/B Street-specific filesystem paths
+// - true utility functions (collections, prettyprinting, CLI parsing
+
 mod cli;
 mod collections;
 mod io;
-mod random;
 mod time;
 
 pub use crate::cli::CmdArgs;
@@ -16,7 +22,6 @@ pub use crate::io::{
     serialize_btreemap, serialize_multimap, serialize_usize, serialized_size_bytes, slurp_file,
     to_json, write_binary, write_json, FileWithProgress,
 };
-pub use crate::random::{fork_rng, WeightedUsizeChoice};
 pub use crate::time::{
     elapsed_seconds, prettyprint_usize, start_profiler, stop_profiler, Parallelism, Profiler,
     Timer, TimerSink,

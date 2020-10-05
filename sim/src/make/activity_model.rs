@@ -1,3 +1,4 @@
+use crate::make::fork_rng;
 use crate::{
     IndividTrip, PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnTrip, TripEndpoint,
     TripMode, TripPurpose,
@@ -153,7 +154,7 @@ impl ScenarioGenerator {
                     }
                 };
 
-                (home, work, abstutil::fork_rng(rng))
+                (home, work, fork_rng(rng))
             })
             .collect();
 
