@@ -118,25 +118,9 @@
 <span id="118">118</span>
 <span id="119">119</span>
 <span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>};
-<span class="kw">use</span> <span class="ident">quick_xml</span>::<span class="ident">events</span>::<span class="ident">Event</span>;
-<span class="kw">use</span> <span class="ident">quick_xml</span>::<span class="ident">Reader</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
@@ -152,109 +136,97 @@
     <span class="kw">pub</span> <span class="ident">attributes</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(
     <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
     <span class="ident">require_all_pts_in_bounds</span>: <span class="ident">bool</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ExtraShapes</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Opening {}&quot;</span>, <span class="ident">path</span>);
-    <span class="kw">let</span> (<span class="ident">f</span>, <span class="ident">done</span>) <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">FileWithProgress</span>::<span class="ident">new</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-    <span class="comment">// TODO FileWithProgress should implement BufRead, so we don&#39;t have to double wrap like this</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">Reader</span>::<span class="ident">from_reader</span>(<span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">BufReader</span>::<span class="ident">new</span>(<span class="ident">f</span>));
-    <span class="ident">reader</span>.<span class="ident">trim_text</span>(<span class="bool-val">true</span>);
+    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;read {}&quot;</span>, <span class="ident">path</span>));
+    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">slurp_file</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">raw_string</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">roxmltree</span>::<span class="ident">Document</span>::<span class="ident">parse</span>(<span class="ident">raw_string</span>)<span class="question-mark">?</span>;
+    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;read {}&quot;</span>, <span class="ident">path</span>));
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-
-    <span class="comment">// TODO uncomfortably stateful</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scanned_schema</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attributes</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attrib_key</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">skipped_count</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">kv</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
 
-    <span class="kw">loop</span> {
-        <span class="kw">match</span> <span class="ident">reader</span>.<span class="ident">read_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">Event</span>::<span class="ident">Start</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">unescape_and_decode</span>(<span class="kw-2">&amp;</span><span class="ident">reader</span>).<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Placemark&quot;</span> {
-                    <span class="ident">scanned_schema</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;SimpleData name=\&quot;&quot;</span>) {
-                    <span class="ident">attrib_key</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>[<span class="string">&quot;SimpleData name=\&quot;&quot;</span>.<span class="ident">len</span>()..<span class="ident">name</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>].<span class="ident">to_string</span>());
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;coordinates&quot;</span> {
-                    <span class="ident">attrib_key</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>);
-                } <span class="kw">else</span> {
-                    <span class="ident">attrib_key</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                }
-            }
-            <span class="prelude-val">Ok</span>(<span class="ident">Event</span>::<span class="ident">Text</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">scanned_schema</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">key</span>) <span class="op">=</span> <span class="ident">attrib_key</span> {
-                        <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">unescape_and_decode</span>(<span class="kw-2">&amp;</span><span class="ident">reader</span>).<span class="ident">unwrap</span>();
-                        <span class="kw">if</span> <span class="ident">key</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;coordinates&quot;</span> {
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any_oob</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any_ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-                            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">text</span>.<span class="ident">split</span>(<span class="string">&#39; &#39;</span>) {
-                                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">parse_pt</span>(<span class="ident">pair</span>) {
-                                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
-                                    <span class="kw">if</span> <span class="ident">gps_bounds</span>.<span class="ident">contains</span>(<span class="ident">pt</span>) {
-                                        <span class="ident">any_ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                                    } <span class="kw">else</span> {
-                                        <span class="ident">any_oob</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                                    }
-                                } <span class="kw">else</span> {
-                                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Malformed coordinates: {}&quot;</span>, <span class="ident">pair</span>).<span class="ident">into</span>());
-                                }
-                            }
-                            <span class="kw">if</span> <span class="ident">any_ok</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> (<span class="op">!</span><span class="ident">any_oob</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">require_all_pts_in_bounds</span>) {
-                                <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
-                                    <span class="ident">points</span>: <span class="ident">pts</span>,
-                                    <span class="ident">attributes</span>: <span class="ident">attributes</span>.<span class="ident">clone</span>(),
-                                });
-                            } <span class="kw">else</span> {
-                                <span class="ident">skipped_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                            }
-                            <span class="ident">attributes</span>.<span class="ident">clear</span>();
-                        } <span class="kw">else</span> {
-                            <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="ident">key</span>.<span class="ident">to_string</span>(), <span class="ident">text</span>);
-                        }
-                    }
-                }
-            }
-            <span class="prelude-val">Ok</span>(<span class="ident">Event</span>::<span class="ident">Eof</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(
-                <span class="string">&quot;XML error at position {}: {:?}&quot;</span>,
-                <span class="ident">reader</span>.<span class="ident">buffer_position</span>(),
-                <span class="ident">e</span>
-            ),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (),
-        }
-        <span class="ident">buf</span>.<span class="ident">clear</span>();
-    }
+    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;scrape objects&quot;</span>);
+    <span class="ident">recurse</span>(
+        <span class="ident">tree</span>.<span class="ident">root</span>(),
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">shapes</span>,
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">skipped_count</span>,
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">kv</span>,
+        <span class="ident">gps_bounds</span>,
+        <span class="ident">require_all_pts_in_bounds</span>,
+    )<span class="question-mark">?</span>;
+    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;scrape objects&quot;</span>);
 
-    <span class="macro">println</span><span class="macro">!</span>(
+    <span class="ident">timer</span>.<span class="ident">note</span>(<span class="macro">format</span><span class="macro">!</span>(
         <span class="string">&quot;Got {} shapes from {} and skipped {} shapes&quot;</span>,
         <span class="ident">prettyprint_usize</span>(<span class="ident">shapes</span>.<span class="ident">len</span>()),
         <span class="ident">path</span>,
         <span class="ident">prettyprint_usize</span>(<span class="ident">skipped_count</span>)
-    );
-    <span class="ident">done</span>(<span class="ident">timer</span>);
+    ));
 
     <span class="prelude-val">Ok</span>(<span class="ident">ExtraShapes</span> { <span class="ident">shapes</span> })
 }
 
-<span class="comment">// TODO Handle FileWithProgress on web</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(
-    <span class="ident">_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">_gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
-    <span class="ident">_require_all_pts_in_bounds</span>: <span class="ident">bool</span>,
-    <span class="ident">_timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ExtraShapes</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="prelude-val">Ok</span>(<span class="ident">ExtraShapes</span> { <span class="ident">shapes</span>: <span class="ident">Vec</span>::<span class="ident">new</span>() })
+<span class="kw">fn</span> <span class="ident">recurse</span>(
+    <span class="ident">node</span>: <span class="ident">roxmltree</span>::<span class="ident">Node</span>,
+    <span class="ident">shapes</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExtraShape</span><span class="op">&gt;</span>,
+    <span class="ident">skipped_count</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
+    <span class="ident">kv</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
+    <span class="ident">require_all_pts_in_bounds</span>: <span class="ident">bool</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">for</span> <span class="ident">child</span> <span class="kw">in</span> <span class="ident">node</span>.<span class="ident">children</span>() {
+        <span class="ident">recurse</span>(
+            <span class="ident">child</span>,
+            <span class="ident">shapes</span>,
+            <span class="ident">skipped_count</span>,
+            <span class="ident">kv</span>,
+            <span class="ident">gps_bounds</span>,
+            <span class="ident">require_all_pts_in_bounds</span>,
+        )<span class="question-mark">?</span>;
+    }
+    <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">tag_name</span>().<span class="ident">name</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;SimpleData&quot;</span> {
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">attribute</span>(<span class="string">&quot;name&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">to_string</span>();
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">node</span>
+            .<span class="ident">text</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>())
+            .<span class="ident">unwrap_or_else</span>(<span class="ident">String</span>::<span class="ident">new</span>);
+        <span class="ident">kv</span>.<span class="ident">insert</span>(<span class="ident">key</span>, <span class="ident">value</span>);
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">tag_name</span>().<span class="ident">name</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;coordinates&quot;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any_oob</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any_ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">txt</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">text</span>() {
+            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">txt</span>.<span class="ident">split</span>(<span class="string">&#39; &#39;</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">parse_pt</span>(<span class="ident">pair</span>) {
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
+                    <span class="kw">if</span> <span class="ident">gps_bounds</span>.<span class="ident">contains</span>(<span class="ident">pt</span>) {
+                        <span class="ident">any_ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    } <span class="kw">else</span> {
+                        <span class="ident">any_oob</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    }
+                } <span class="kw">else</span> {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Malformed coordinates: {}&quot;</span>, <span class="ident">pair</span>).<span class="ident">into</span>());
+                }
+            }
+        }
+        <span class="kw">if</span> <span class="ident">any_ok</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> (<span class="op">!</span><span class="ident">any_oob</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">require_all_pts_in_bounds</span>) {
+            <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="ident">kv</span>, <span class="ident">BTreeMap</span>::<span class="ident">new</span>());
+            <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
+                <span class="ident">points</span>: <span class="ident">pts</span>,
+                <span class="ident">attributes</span>,
+            });
+        } <span class="kw">else</span> {
+            <span class="kw-2">*</span><span class="ident">skipped_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        }
+    }
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">fn</span> <span class="ident">parse_pt</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> {
