@@ -15,6 +15,7 @@ members = [
   "traffic_seitan",
   "updater",
   "widgetry",
+  "widgetry_demo",
 ]
 
 # See https://doc.rust-lang.org/cargo/reference/profiles.html#overrides. This

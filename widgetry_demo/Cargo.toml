@@ -1,0 +1,22 @@
+[package]
+name = "widgetry_demo"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+default = ["widgetry/glow-backend"]
+wasm = ["console_log", "wasm-bindgen", "widgetry/wasm-backend"]
+
+[dependencies]
+console_log = { version = "0.1", optional = true }
+geom = { path = "../geom" }
+log = "0.4.11"
+rand = "0.7.0"
+rand_xorshift = "0.2.0"
+svg_face = "0.1.2"
+wasm-bindgen = { version = "0.2.68", optional = true }
+widgetry = { path = "../widgetry", default-features=false }

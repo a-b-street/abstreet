@@ -1,10 +1,3 @@
-// To run:
-// > cargo run --example demo
-//
-// Try the web version, but there's no text rendering yet:
-// > cargo web start --target wasm32-unknown-unknown --no-default-features \
-// --features wasm-backend --example demo
-
 use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
@@ -15,7 +8,7 @@ use widgetry::{
     Text, TextExt, Texture, UpdateType, VerticalAlignment, Widget, GUI,
 };
 
-fn main() {
+pub fn main() {
     // Control flow surrendered here. App implements State, which has an event handler and a draw
     // callback.
     widgetry::run(widgetry::Settings::new("widgetry demo"), |ctx| {
@@ -367,4 +360,17 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
+}
+
+// Boilerplate for web support
+
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(start)]
+pub fn run() {
+    console_log::init_with_level(log::Level::Debug).unwrap();
+
+    main();
 }
