@@ -190,11 +190,22 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// The contents of this crate need to be organized better:</span>
+<span class="comment">//</span>
+<span class="comment">// - Timer (a mix of logging, profiling, and even parallel execution)</span>
+<span class="comment">// - IO utilities, some of which have web equivalents using include_dir</span>
+<span class="comment">// - A/B Street-specific filesystem paths</span>
+<span class="comment">// - true utility functions (collections, prettyprinting, CLI parsing</span>
+
 <span class="kw">mod</span> <span class="ident">cli</span>;
 <span class="kw">mod</span> <span class="ident">collections</span>;
 <span class="kw">mod</span> <span class="ident">io</span>;
-<span class="kw">mod</span> <span class="ident">random</span>;
 <span class="kw">mod</span> <span class="ident">time</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">cli</span>::<span class="ident">CmdArgs</span>;
@@ -209,7 +220,6 @@
     <span class="ident">serialize_btreemap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">serialize_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">slurp_file</span>,
     <span class="ident">to_json</span>, <span class="ident">write_binary</span>, <span class="ident">write_json</span>, <span class="ident">FileWithProgress</span>,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">random</span>::{<span class="ident">fork_rng</span>, <span class="ident">WeightedUsizeChoice</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">time</span>::{
     <span class="ident">elapsed_seconds</span>, <span class="ident">prettyprint_usize</span>, <span class="ident">start_profiler</span>, <span class="ident">stop_profiler</span>, <span class="ident">Parallelism</span>, <span class="ident">Profiler</span>,
     <span class="ident">Timer</span>, <span class="ident">TimerSink</span>,

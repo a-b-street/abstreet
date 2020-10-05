@@ -321,7 +321,9 @@
 <span id="321">321</span>
 <span id="322">322</span>
 <span id="323">323</span>
+<span id="324">324</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">fork_rng</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>,
     <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>,
@@ -477,7 +479,7 @@
                     }
                 };
 
-                (<span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">abstutil</span>::<span class="ident">fork_rng</span>(<span class="ident">rng</span>))
+                (<span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">fork_rng</span>(<span class="ident">rng</span>))
             })
             .<span class="ident">collect</span>();
 

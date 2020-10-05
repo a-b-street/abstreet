@@ -1,5 +1,5 @@
 var N = null;var sourcesIndex = {};
-sourcesIndex["abstutil"] = {"name":"","files":["cli.rs","collections.rs","io.rs","lib.rs","random.rs","time.rs"]};
+sourcesIndex["abstutil"] = {"name":"","files":["cli.rs","collections.rs","io.rs","lib.rs","time.rs"]};
 sourcesIndex["convert_osm"] = {"name":"","files":["clip.rs","extract.rs","lib.rs","parking.rs","reader.rs","snappy.rs","split_ways.rs","srtm.rs","transit.rs"]};
 sourcesIndex["dump_map"] = {"name":"","files":["dump_map.rs"]};
 sourcesIndex["dump_scenario"] = {"name":"","files":["dump_scenario.rs"]};
