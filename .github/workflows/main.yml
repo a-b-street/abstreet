@@ -102,8 +102,8 @@ jobs:
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: 1.46.0
-      - name: Install cargo-web
-        run: cargo install cargo-web
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: Cache build
         uses: actions/cache@v2
         with:
@@ -112,5 +112,5 @@ jobs:
                 key: wasm-build
       - name: Build game
         working-directory: game
-        run: cargo web check --target wasm32-unknown-unknown --no-default-features --features wasm
+        run: wasm-pack build --dev --target web -- --no-default-features --features wasm
         # TODO For now, just check that the build works. Later, build fully and package.

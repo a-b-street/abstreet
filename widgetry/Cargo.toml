@@ -7,7 +7,7 @@ edition = "2018"
 [features]
 default = ["glow-backend"]
 glow-backend = ["glow", "glutin", "usvg/text", "usvg/text_native"]
-wasm-backend = ["glow/stdweb", "instant/stdweb", "stdweb", "usvg/text", "usvg/text_stdweb", "webgl_stdweb", "winit/stdweb"]
+wasm-backend = ["glow/web-sys", "instant/wasm-bindgen", "usvg/text", "usvg/text_web-sys", "wasm-bindgen", "web-sys", "winit/web-sys"]
 
 [dependencies]
 abstutil = { path = "../abstutil" }
@@ -25,14 +25,9 @@ lru = "0.6.0"
 # maybe related: https://github.com/nical/lyon/issues/607
 lyon = "0.15.8"
 serde = "1.0.116"
-stdweb  = { version = "0.4.20", optional = true }
 stretch = "0.3.2"
 ttf-parser = "0.8.2"
 usvg = { git = "https://github.com/dabreegster/resvg/", branch = "wasm", default-features=false }
-webgl_stdweb = { version = "0.3", optional = true }
+wasm-bindgen = { version = "0.2.68", optional = true }
+web-sys = { version = "0.3.45", optional = true }
 winit = "0.23.0"
-
-[dev-dependencies]
-rand = "0.7.0"
-rand_xorshift = "0.2.0"
-svg_face = "0.1.2"

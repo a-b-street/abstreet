@@ -24,4 +24,3 @@ termion = "1.5.1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 include_dir = "0.6.0"
-stdweb = "0.4.20"

@@ -250,7 +250,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
     let mut last_update = Instant::now();
     event_loop.run(move |event, _, control_flow| {
         if dump_raw_events {
-            println!("Event: {:?}", event);
+            debug!("Event: {:?}", event);
         }
         let ev = match event {
             winit::event::Event::WindowEvent {
