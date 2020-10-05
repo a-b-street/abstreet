@@ -68,3 +68,8 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
     }
     tree.into_iter().collect()
 }
+
+// Just list all things from a directory, return sorted by name, with file extension removed.
+pub fn list_all_objects(dir: String) -> Vec<String> {
+    list_dir(dir).into_iter().map(|x| basename(&x)).collect()
+}

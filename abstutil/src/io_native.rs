@@ -1,13 +1,52 @@
+// Normal file IO using the filesystem
+
 pub use crate::io::*;
 use crate::time::{clear_current_line, prettyprint_time};
 use crate::{elapsed_seconds, prettyprint_usize, to_json, Timer, PROGRESS_FREQUENCY_SECONDS};
 use instant::Instant;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::{stdout, BufReader, BufWriter, Error, ErrorKind, Read, Write};
 use std::path::Path;
+
+pub fn file_exists<I: Into<String>>(path: I) -> bool {
+    Path::new(&path.into()).exists()
+}
+
+// Returns full paths
+pub fn list_dir(path: String) -> Vec<String> {
+    let mut files: Vec<String> = Vec::new();
+    match std::fs::read_dir(&path) {
+        Ok(iter) => {
+            for entry in iter {
+                files.push(entry.unwrap().path().to_str().unwrap().to_string());
+            }
+        }
+        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
+        Err(e) => panic!("Couldn't read_dir {:?}: {}", path, e),
+    };
+    files.sort();
+    files
+}
+
+pub fn slurp_file(path: &str) -> Result<Vec<u8>, Error> {
+    let mut file = File::open(path)?;
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer)?;
+    Ok(buffer)
+}
+
+pub fn maybe_read_binary<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T, Error> {
+    if !path.ends_with(".bin") {
+        panic!("read_binary needs {} to end with .bin", path);
+    }
+
+    timer.read_file(&path)?;
+    let obj: T =
+        bincode::deserialize_from(timer).map_err(|err| Error::new(ErrorKind::Other, err))?;
+    Ok(obj)
+}
 
 // TODO Idea: Have a wrapper type DotJSON(...) and DotBin(...) to distinguish raw path strings
 fn maybe_write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
@@ -29,24 +68,6 @@ pub fn write_json<T: Serialize>(path: String, obj: &T) {
     println!("Wrote {}", path);
 }
 
-pub fn slurp_file(path: &str) -> Result<Vec<u8>, Error> {
-    let mut file = File::open(path)?;
-    let mut buffer = Vec::new();
-    file.read_to_end(&mut buffer)?;
-    Ok(buffer)
-}
-
-pub fn maybe_read_binary<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T, Error> {
-    if !path.ends_with(".bin") {
-        panic!("read_binary needs {} to end with .bin", path);
-    }
-
-    timer.read_file(&path)?;
-    let obj: T =
-        bincode::deserialize_from(timer).map_err(|err| Error::new(ErrorKind::Other, err))?;
-    Ok(obj)
-}
-
 fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     if !path.ends_with(".bin") {
         panic!("write_binary needs {} to end with .bin", path);
@@ -66,30 +87,14 @@ pub fn write_binary<T: Serialize>(path: String, obj: &T) {
     println!("Wrote {}", path);
 }
 
-// Just list all things from a directory, return sorted by name, with file extension removed.
-pub fn list_all_objects(dir: String) -> Vec<String> {
-    let mut results: BTreeSet<String> = BTreeSet::new();
-    match std::fs::read_dir(dir) {
-        Ok(iter) => {
-            for entry in iter {
-                let filename = entry.unwrap().file_name();
-                let path = Path::new(&filename);
-                if path.to_string_lossy().starts_with('.') {
-                    continue;
-                }
-                let name = path
-                    .file_stem()
-                    .unwrap()
-                    .to_os_string()
-                    .into_string()
-                    .unwrap();
-                results.insert(name);
-            }
-        }
-        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
-        Err(e) => panic!(e),
-    };
-    results.into_iter().collect()
+// Idempotent
+pub fn delete_file<I: Into<String>>(path: I) {
+    let path = path.into();
+    if std::fs::remove_file(&path).is_ok() {
+        println!("Deleted {}", path);
+    } else {
+        println!("{} doesn't exist, so not deleting it", path);
+    }
 }
 
 // TODO I'd like to get rid of this and just use Timer.read_file, but external libraries consume
@@ -175,35 +180,5 @@ impl Read for FileWithProgress {
         }
 
         Ok(bytes)
-    }
-}
-
-// Returns full paths
-pub fn list_dir(path: String) -> Vec<String> {
-    let mut files: Vec<String> = Vec::new();
-    match std::fs::read_dir(&path) {
-        Ok(iter) => {
-            for entry in iter {
-                files.push(entry.unwrap().path().to_str().unwrap().to_string());
-            }
-        }
-        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
-        Err(e) => panic!("Couldn't read_dir {:?}: {}", path, e),
-    };
-    files.sort();
-    files
-}
-
-pub fn file_exists<I: Into<String>>(path: I) -> bool {
-    Path::new(&path.into()).exists()
-}
-
-// Idempotent
-pub fn delete_file<I: Into<String>>(path: I) {
-    let path = path.into();
-    if std::fs::remove_file(&path).is_ok() {
-        println!("Deleted {}", path);
-    } else {
-        println!("{} doesn't exist, so not deleting it", path);
     }
 }
