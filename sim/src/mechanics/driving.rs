@@ -375,7 +375,7 @@ impl DrivingSimState {
                     }
                     if let Some((trip, _)) = car.trip_and_person {
                         let delay = (now - blocked_since).inner_seconds() as u8;
-                        // TODO Check the delay time
+                        // Maybe alter the minimum delay time to be recorded
                         if delay > 30 {
                             self.events
                                 .push(Event::TripIntersectionDelay(trip, t, delay));

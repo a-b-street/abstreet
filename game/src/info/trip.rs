@@ -2,17 +2,14 @@ use std::collections::BTreeMap;
 
 use maplit::btreemap;
 
-use geom::{ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
+use geom::{ArrowCap, Distance, Duration, Percent, Polygon, PolyLine, Pt2D, Time};
 use map_model::{LaneID, Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
-use widgetry::{
-    Btn, Color, DrawWithTooltips, EventCtx, Fill, GeomBatch, Line, LinePlot, PlotOptions,
-    RewriteColor, Series, Text, TextExt, Widget,
-};
+use widgetry::{Btn, Color, DrawWithTooltips, EventCtx, Fill, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text, TextExt, Widget, TextSpan};
 
 use crate::app::App;
 use crate::helpers::{color_for_trip_phase, ID};
-use crate::info::{make_table, Details, Tab};
+use crate::info::{Details, make_table, Tab};
 
 #[derive(Clone)]
 pub struct OpenTrip {
@@ -70,7 +67,7 @@ pub fn ongoing(
                 Line(props.total_time.to_string()),
                 Line(format!(" {} / {} this trip", activity, time_so_far)).secondary(),
             ])
-            .draw(ctx),
+                .draw(ctx),
         ]));
     }
     {
@@ -82,12 +79,12 @@ pub fn ongoing(
                     Line(props.dist_crossed.describe_rounded()),
                     Line(format!("/{}", props.total_dist.describe_rounded())).secondary(),
                 ])
-                .draw(ctx),
+                    .draw(ctx),
                 Text::from_all(vec![
                     Line(format!("{} lanes", props.lanes_crossed)),
                     Line(format!("/{}", props.total_lanes)).secondary(),
                 ])
-                .draw(ctx),
+                    .draw(ctx),
             ]),
         ]));
     }
@@ -111,7 +108,7 @@ pub fn ongoing(
                     },
                     Line(format!(" total of {} time spent waiting", activity)).secondary(),
                 ])
-                .draw(ctx),
+                    .draw(ctx),
             ]),
         ]));
     }
@@ -202,8 +199,8 @@ pub fn future(
                     "system/assets/timeline/start_pos.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
-                .tooltip(Text::from(Line(name1)))
-                .build(ctx, format!("jump to start of {}", id), None),
+                    .tooltip(Text::from(Line(name1)))
+                    .build(ctx, format!("jump to start of {}", id), None),
                 if details.can_jump_to_time {
                     Btn::text_bg2("Wait for trip")
                         .tooltip(Text::from(Line(format!(
@@ -218,10 +215,10 @@ pub fn future(
                     "system/assets/timeline/goal_pos.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
-                .tooltip(Text::from(Line(name2)))
-                .build(ctx, format!("jump to goal of {}", id), None),
+                    .tooltip(Text::from(Line(name2)))
+                    .build(ctx, format!("jump to goal of {}", id), None),
             ])
-            .evenly_spaced(),
+                .evenly_spaced(),
         );
 
         col.extend(make_table(
@@ -281,7 +278,7 @@ pub fn finished(
                 app.cs.section_bg,
                 app.cs.hovering,
             )
-            .build_def(ctx, None),
+                .build_def(ctx, None),
         );
     } else if app.has_prebaked().is_some() {
         let mut open = open_trips.clone();
@@ -302,7 +299,7 @@ pub fn finished(
                 app.cs.section_bg,
                 app.cs.hovering,
             )
-            .build_def(ctx, None),
+                .build_def(ctx, None),
         );
     }
 
@@ -352,7 +349,7 @@ pub fn aborted(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
         Line("A glitch in the simulation happened."),
         Line("This trip, however, did not."),
     ])
-    .draw(ctx)];
+        .draw(ctx)];
 
     // TODO Warp buttons. make_table is showing its age.
     let (_, _, name1) = endpoint(&trip.start, app);
@@ -391,13 +388,14 @@ pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
     Widget::col(col)
 }
 
+/// Highlights intersections which were "slow" on the map
 fn highlight_slow_intersections(app: &App, details: &mut Details, id: TripID, ctx: &EventCtx) {
     let data_opt = &app.primary.sim.get_analytics().trip_intersection_delays(id);
     if data_opt.is_some() {
         let data = data_opt.unwrap();
-        //data.sort_by_key(|k| k.1);
         for (id, time) in data {
             let intersection = app.primary.map.get_i(id.parent);
+            // Maybe alter the delay times
             let (normal_delay_time, slow_delay_time) = if intersection.is_traffic_signal() {
                 (30, 120)
             } else {
@@ -410,36 +408,24 @@ fn highlight_slow_intersections(app: &App, details: &mut Details, id: TripID, ct
             } else {
                 (Color::WHITE, app.cs.very_slow_intersection)
             };
-
-            // TODO Do we want intersection highlighting?
-            /*            details.unzoomed.push(
-                Fill::Color(colour),
-                intersection.polygon.clone(),
-            );
-            details.zoomed.extend(
-                Fill::Color(bg_color),
-                app.primary.map.get_t(*id).geom.dashed_lines(
-                    Distance::meters(0.75),
-                    Distance::meters(1.0),
-                    Distance::meters(0.4),
-                ),
-            );*/
             // Draw label after, to prevent being obscured by the line
-            // TODO Change this colour?
-            // TODO Should zoomed be done to?
-            let label = Text::from(Line(time.to_string()))
-                .change_fg(fg_color)
+            let time_duration = Duration::seconds(*time as f64);
+            let unzoomed_label = Text::from(TextSpan::from(Line(format!("{}", time_duration)).secondary().fg(fg_color))).bg(bg_color);
+            let zoomed_label = Text::from(TextSpan::from(Line(format!("{}", time_duration)).small().fg(fg_color)))
                 .bg(bg_color);
-            let rendered = label.render(ctx).centered_on(intersection.polygon.center());
-            details.unzoomed.append(rendered);
+            let unzoomed_rendered = unzoomed_label.render(ctx).centered_on(intersection.polygon.center());
+            let zoomed_rendered = zoomed_label.render(ctx).centered_on(intersection.polygon.center());
+            details.unzoomed.append(unzoomed_rendered.clone());
+            details.zoomed.append(zoomed_rendered);
         }
     }
 }
 
+/// Highlights lanes which were "slow" on the map
 fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID, ctx: &EventCtx) {
     let data_opt = &app.primary.sim.get_analytics().trip_lane_speeds(id);
     if data_opt.is_some() {
-        let mut data = data_opt.unwrap();
+        let data = data_opt.unwrap();
         for (id, speed_percent) in data {
             let lane = app.primary.map.get_l(*id);
             let (fg_color, bg_color) = if speed_percent > &95 {
@@ -449,7 +435,6 @@ fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID, ctx: &Even
             } else {
                 (Color::WHITE, app.cs.very_slow_intersection)
             };
-            // TODO Do we want lane highlighting?
             details.unzoomed.push(
                 Fill::Color(bg_color),
                 lane.lane_center_pts.make_polygons(Distance::meters(10.0)),
@@ -463,21 +448,36 @@ fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID, ctx: &Even
                 ),
             );
             // Draw label after, to prevent being obscured by the line
-            // TODO Change this colour?
-            // TODO Should zoomed be done to?
-            let label = Text::from(Line(format!("{}s", speed_percent)))
-                .change_fg(fg_color)
+            let unzoomed_label = Text::from(TextSpan::from(Line(format!("{}s", speed_percent)).secondary().fg(fg_color))).bg(bg_color);
+            let zoomed_label = Text::from(TextSpan::from(Line(format!("{}s", speed_percent)).small().fg(fg_color)))
                 .bg(bg_color);
+
             let (pt, _) = lane
                 .lane_center_pts
                 .must_dist_along(lane.lane_center_pts.length() / 2.0);
-            let rendered = label.render(ctx).centered_on(pt); //.rotate(angle);
-            details.unzoomed.append(rendered.clone());
-            details.zoomed.append(rendered);
+            let unzoomed_rendered = unzoomed_label.render(ctx).centered_on(pt); //.rotate(angle);
+            let zoomed_rendered = zoomed_label.render(ctx).centered_on(pt); //.rotate(angle);
+            details.unzoomed.append(unzoomed_rendered.clone());
+            details.zoomed.append(zoomed_rendered);
         }
     }
 }
 
+/// Helper func for make_bar()
+/// Builds a default text overlay widget
+fn build_text(msgs: &Vec<String>, distance: &Distance) -> Text {
+    let mut display_txt = Text::new();
+    for msg in msgs {
+        display_txt.add(Line(msg));
+    }
+    display_txt.add(Line(format!(
+        "  Distance covered: {}",
+        distance.describe_rounded()
+    )));
+    display_txt
+}
+
+/// Makes the timeline bar in trip info panel
 fn make_bar(
     ctx: &mut EventCtx,
     app: &App,
@@ -493,8 +493,7 @@ fn make_bar(
         .trip_intersection_delays(trip_id);
     let data_lane_opt = &app.primary.sim.get_analytics().trip_lane_speeds(trip_id);
     let box_width = 0.22 * ctx.canvas.window_width;
-    let mut sum_phase_dist = Distance::meters(0.0);
-    let mut alt_phase_dist = Distance::meters(0.0);
+    let mut total_dist = Distance::meters(0.0);
     let mut segments: Vec<(Distance, Color, Text)> = Vec::new();
     let trip = app.primary.sim.trip_info(trip_id);
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
@@ -509,7 +508,9 @@ fn make_bar(
     } else {
         Vec::new()
     };
-    let mut icons: Vec<Widget> = Vec::new();
+    let mut icons = Vec::new();
+    let mut icons_geom = Vec::new();
+    let mut icon_pos = Vec::new();
     for (idx, p) in phases.into_iter().enumerate() {
         let mut msgs = Vec::new();
         let norm_color = color_for_trip_phase(app, p.phase_type).alpha(0.7);
@@ -545,8 +546,7 @@ fn make_bar(
                 ));
             }
         }
-        icons.push(Widget::draw_batch(
-            ctx,
+        icons_geom.push(
             GeomBatch::load_svg(
                 ctx.prerender,
                 match p.phase_type {
@@ -564,11 +564,7 @@ fn make_bar(
                     TripPhaseType::Remote => "system/assets/timeline/delayed_start.svg",
                 },
             )
-            .centered_on(
-                // TODO Hardcoded layouting...
-                Pt2D::new(0.5 * phase_width, -20.0),
-            ),
-        ));
+        );
         msgs.push(format!(
             "  {}% of trip percentage",
             (100.0 * percent_duration) as usize
@@ -578,14 +574,14 @@ fn make_bar(
             "  Total delayed time {}",
             app.primary.sim.trip_blocked_time(trip_id)
         ));
-        if let Some((total_phase_dist, step_list)) = &p.path {
-            sum_phase_dist += *total_phase_dist;
+        let mut sum_phase_dist = Distance::ZERO;
+        if let Some((_, step_list)) = &p.path {
             let mut norm_distance = Distance::meters(0.0);
             for step in step_list.get_steps() {
                 match step {
                     PathStep::Lane(id) | PathStep::ContraflowLane(id) => {
                         let lane_detail = map.get_l(*id);
-                        alt_phase_dist += lane_detail.length();
+                        sum_phase_dist += lane_detail.length();
                         let mut found = false;
                         for (lane, avg_speed) in &data_lane {
                             if lane == id {
@@ -618,7 +614,7 @@ fn make_bar(
                     }
                     PathStep::Turn(id) => {
                         let turn_details = map.get_t(*id);
-                        alt_phase_dist += turn_details.geom.length();
+                        sum_phase_dist += turn_details.geom.length();
                         let mut found = false;
                         for (turn, delay) in &data_inter {
                             if turn == id {
@@ -635,10 +631,10 @@ fn make_bar(
                                     Duration::seconds(*delay as f64)
                                 )));
                                 segments.push((
-                                    if 0.05 < (turn_details.geom.length() / alt_phase_dist) {
+                                    if 0.05 < (turn_details.geom.length() / sum_phase_dist) {
                                         turn_details.geom.length()
                                     } else {
-                                        alt_phase_dist * 0.05
+                                        sum_phase_dist * 0.05
                                     },
                                     Color::RED,
                                     display_txt,
@@ -656,15 +652,27 @@ fn make_bar(
             }
             segments.push((norm_distance, norm_color, build_text(&msgs, &norm_distance)));
         } else {
+            // TODO Think of something to do instead
             unimplemented!("We dont have a path!!");
         }
+        icon_pos.push(sum_phase_dist);
+        total_dist += sum_phase_dist;
     }
     let mut timeline = Vec::new();
+    let mut icons = Vec::new();
+    assert_eq!(icons_geom.len(), icon_pos.len());
+    for index in 0..icon_pos.len() {
+        icons.push(Widget::draw_batch(
+            ctx, icons_geom.get(index).unwrap().to_owned().centered_on(
+                // TODO Hardcoded layouting...
+                Pt2D::new(0.5 * box_width * (*icon_pos.get(index).unwrap() / total_dist), -20.0),
+            )));
+    }
     for seg in segments {
-        let seg_percent = seg.0 / alt_phase_dist;
+        let seg_percent = seg.0 / total_dist;
         let seg_with = seg_percent * box_width;
         let rect = Polygon::rectangle(seg_with, 15.0);
-        let mut batch = GeomBatch::from(vec![(seg.1, rect.clone())]);
+        let batch = GeomBatch::from(vec![(seg.1, rect.clone())]);
         timeline.push(
             DrawWithTooltips::new(
                 ctx,
@@ -672,7 +680,7 @@ fn make_bar(
                 vec![(rect, seg.2)],
                 Box::new(|_| GeomBatch::new()),
             )
-            .centered_vert(),
+                .centered_vert(),
         );
     }
     Widget::custom_col(vec![
@@ -681,18 +689,8 @@ fn make_bar(
     ])
 }
 
-fn build_text(msgs: &Vec<String>, distance: &Distance) -> Text {
-    let mut display_txt = Text::new();
-    for msg in msgs {
-        display_txt.add(Line(msg));
-    }
-    display_txt.add(Line(format!(
-        "  Distance covered: {}",
-        distance.describe_rounded()
-    )));
-    display_txt
-}
-
+/// Builds the timeline widget
+/// And draws the route on the map
 fn make_timeline(
     ctx: &mut EventCtx,
     app: &App,
@@ -715,7 +713,7 @@ fn make_timeline(
         if let TripEndpoint::Border(_, ref loc) = trip.start {
             if let Some(loc) = loc {
                 if let Ok(pl) =
-                    PolyLine::new(vec![Pt2D::from_gps(loc.gps, map.get_gps_bounds()), center])
+                PolyLine::new(vec![Pt2D::from_gps(loc.gps, map.get_gps_bounds()), center])
                 {
                     let arrow = pl.make_arrow(Distance::meters(5.0), ArrowCap::Triangle);
                     details.unzoomed.push(Color::GREEN, arrow.clone());
@@ -748,8 +746,8 @@ fn make_timeline(
             "system/assets/timeline/start_pos.svg",
             RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
-        .tooltip(Text::from(Line(name)))
-        .build(ctx, format!("jump to start of {}", trip_id), None)
+            .tooltip(Text::from(Line(name)))
+            .build(ctx, format!("jump to start of {}", trip_id), None)
     };
 
     let goal_btn = {
@@ -760,7 +758,7 @@ fn make_timeline(
         if let TripEndpoint::Border(_, ref loc) = trip.end {
             if let Some(loc) = loc {
                 if let Ok(pl) =
-                    PolyLine::new(vec![center, Pt2D::from_gps(loc.gps, map.get_gps_bounds())])
+                PolyLine::new(vec![center, Pt2D::from_gps(loc.gps, map.get_gps_bounds())])
                 {
                     let arrow = pl.make_arrow(Distance::meters(5.0), ArrowCap::Triangle);
                     details.unzoomed.push(Color::GREEN, arrow.clone());
@@ -793,8 +791,8 @@ fn make_timeline(
             "system/assets/timeline/goal_pos.svg",
             RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
-        .tooltip(Text::from(Line(name)))
-        .build(ctx, format!("jump to goal of {}", trip_id), None)
+            .tooltip(Text::from(Line(name)))
+            .build(ctx, format!("jump to goal of {}", trip_id), None)
     };
 
     let timeline = make_bar(ctx, app, trip_id, &phases, progress_along_path);
@@ -865,14 +863,14 @@ fn make_timeline(
                     "system/assets/speed/info_jump_to_time.svg",
                     RewriteColor::Change(Color::WHITE, app.cs.hovering),
                 )
-                .tooltip({
-                    let mut txt = Text::from(Line("This will jump to "));
-                    txt.append(Line(trip.departure.ampm_tostring()).fg(Color::hex("#F9EC51")));
-                    txt.add(Line("The simulation will continue, and your score"));
-                    txt.add(Line("will be calculated at this new time."));
-                    txt
-                })
-                .build(ctx, format!("jump to {}", trip.departure), None)
+                    .tooltip({
+                        let mut txt = Text::from(Line("This will jump to "));
+                        txt.append(Line(trip.departure.ampm_tostring()).fg(Color::hex("#F9EC51")));
+                        txt.add(Line("The simulation will continue, and your score"));
+                        txt.add(Line("will be calculated at this new time."));
+                        txt
+                    })
+                    .build(ctx, format!("jump to {}", trip.departure), None)
             } else {
                 Widget::nothing()
             },
@@ -885,15 +883,15 @@ fn make_timeline(
                         "system/assets/speed/info_jump_to_time.svg",
                         RewriteColor::Change(Color::WHITE, app.cs.hovering),
                     )
-                    .tooltip({
-                        let mut txt = Text::from(Line("This will jump to "));
-                        txt.append(Line(t.ampm_tostring()).fg(Color::hex("#F9EC51")));
-                        txt.add(Line("The simulation will continue, and your score"));
-                        txt.add(Line("will be calculated at this new time."));
-                        txt
-                    })
-                    .build(ctx, format!("jump to {}", t), None)
-                    .align_right()
+                        .tooltip({
+                            let mut txt = Text::from(Line("This will jump to "));
+                            txt.append(Line(t.ampm_tostring()).fg(Color::hex("#F9EC51")));
+                            txt.add(Line("The simulation will continue, and your score"));
+                            txt.add(Line("will be calculated at this new time."));
+                            txt
+                        })
+                        .build(ctx, format!("jump to {}", t), None)
+                        .align_right()
                 } else {
                     Widget::nothing()
                 }
@@ -931,7 +929,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
             } else {
                 "Elevation for biking"
             }
-            .to_string(),
+                .to_string(),
             color,
             pts: pts
                 .into_iter()

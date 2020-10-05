@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use geom::Duration;
 use map_model::{
     BuildingID, BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, Path,
-    PathRequest, Traversable, Turn, TurnID,
+    PathRequest, Traversable, TurnID,
 };
 
 use crate::{

@@ -241,8 +241,7 @@ impl WalkingSimState {
                         .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                     ped.total_blocked_time += now - blocked_since;
                     let delay = (now - blocked_since).inner_seconds() as u8;
-                    // TODO Check the delay time
-                    // TODO Check we are getting turn correctly and it won't panic
+                    // Maybe alter the minimum delay time to be recorded
                     if delay > 15 {
                         self.events.push(Event::TripIntersectionDelay(
                             ped.trip,
