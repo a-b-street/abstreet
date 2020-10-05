@@ -273,7 +273,13 @@ impl State for DebugMode {
                 {
                     let mut batch = GeomBatch::new();
                     let agents = match id {
-                        ID::Intersection(i) => app.primary.sim.get_accepted_agents(i),
+                        ID::Intersection(i) => app
+                            .primary
+                            .sim
+                            .get_accepted_agents(i)
+                            .into_iter()
+                            .map(|(a, _)| a)
+                            .collect(),
                         ID::Car(c) => app.primary.sim.get_blocked_by(AgentID::Car(c)),
                         _ => unreachable!(),
                     };

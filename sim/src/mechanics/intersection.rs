@@ -437,11 +437,11 @@ impl IntersectionSimState {
         }
     }
 
-    pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
+    pub fn get_accepted_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID)> {
         self.state[&id]
             .accepted
             .iter()
-            .map(|req| req.agent)
+            .map(|req| (req.agent, req.turn))
             .collect()
     }
 

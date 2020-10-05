@@ -981,7 +981,7 @@ impl DrivingSimState {
             if intersections
                 .get_accepted_agents(i)
                 .iter()
-                .any(|a| matches!(a, AgentID::Car(_)))
+                .any(|(a, _)| matches!(a, AgentID::Car(_)))
             {
                 return format!("someone's turning in {} still", i);
             }

@@ -236,7 +236,7 @@ impl Sim {
         }
     }
 
-    pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
+    pub fn get_accepted_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID)> {
         self.intersections.get_accepted_agents(id)
     }
     pub fn get_waiting_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID, Time)> {
