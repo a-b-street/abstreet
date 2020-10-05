@@ -1,24 +1,15 @@
 use crate::time::{clear_current_line, prettyprint_time};
-use crate::{elapsed_seconds, prettyprint_usize, MultiMap, Timer, PROGRESS_FREQUENCY_SECONDS};
-use bincode;
+use crate::{elapsed_seconds, prettyprint_usize, to_json, Timer, PROGRESS_FREQUENCY_SECONDS};
 use instant::Instant;
 use serde::de::DeserializeOwned;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use serde_json;
-use std;
-use std::cmp::Ord;
+use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet};
-use std::convert::TryFrom;
 use std::fs::File;
 use std::io::{stdout, BufReader, BufWriter, Error, ErrorKind, Read, Write};
 use std::path::Path;
 
 #[cfg(target_arch = "wasm32")]
 static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!("../data/system");
-
-pub fn to_json<T: Serialize>(obj: &T) -> String {
-    serde_json::to_string_pretty(obj).unwrap()
-}
 
 // TODO Idea: Have a wrapper type DotJSON(...) and DotBin(...) to distinguish raw path strings
 fn maybe_write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
@@ -87,10 +78,6 @@ pub fn read_json<T: DeserializeOwned>(path: String, timer: &mut Timer) -> T {
     }
 }
 
-pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Error> {
-    serde_json::from_slice(raw).map_err(|err| Error::new(ErrorKind::Other, err))
-}
-
 fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     if !path.ends_with(".bin") {
         panic!("write_binary needs {} to end with .bin", path);
@@ -101,10 +88,6 @@ fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
 
     let file = BufWriter::new(File::create(path)?);
     bincode::serialize_into(file, obj).map_err(|err| Error::new(ErrorKind::Other, err))
-}
-
-pub fn serialized_size_bytes<T: Serialize>(obj: &T) -> usize {
-    bincode::serialized_size(obj).unwrap() as usize
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -162,74 +145,6 @@ pub fn read_object<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Resu
     } else {
         maybe_read_json(path, timer)
     }
-}
-
-// For BTreeMaps with struct keys. See https://github.com/serde-rs/json/issues/402.
-
-pub fn serialize_btreemap<S: Serializer, K: Serialize, V: Serialize>(
-    map: &BTreeMap<K, V>,
-    s: S,
-) -> Result<S::Ok, S::Error> {
-    map.iter().collect::<Vec<(_, _)>>().serialize(s)
-}
-
-pub fn deserialize_btreemap<
-    'de,
-    D: Deserializer<'de>,
-    K: Deserialize<'de> + Ord,
-    V: Deserialize<'de>,
->(
-    d: D,
-) -> Result<BTreeMap<K, V>, D::Error> {
-    let vec = <Vec<(K, V)>>::deserialize(d)?;
-    let mut map = BTreeMap::new();
-    for (k, v) in vec {
-        map.insert(k, v);
-    }
-    Ok(map)
-}
-
-pub fn serialize_multimap<
-    S: Serializer,
-    K: Serialize + Eq + Ord + Clone,
-    V: Serialize + Eq + Ord + Clone,
->(
-    map: &MultiMap<K, V>,
-    s: S,
-) -> Result<S::Ok, S::Error> {
-    // TODO maybe need to sort to have deterministic output
-    map.raw_map().iter().collect::<Vec<(_, _)>>().serialize(s)
-}
-
-pub fn deserialize_multimap<
-    'de,
-    D: Deserializer<'de>,
-    K: Deserialize<'de> + Eq + Ord + Clone,
-    V: Deserialize<'de> + Eq + Ord + Clone,
->(
-    d: D,
-) -> Result<MultiMap<K, V>, D::Error> {
-    let vec = <Vec<(K, Vec<V>)>>::deserialize(d)?;
-    let mut map = MultiMap::new();
-    for (key, values) in vec {
-        for value in values {
-            map.insert(key.clone(), value);
-        }
-    }
-    Ok(map)
-}
-
-pub fn serialize_usize<S: Serializer>(x: &usize, s: S) -> Result<S::Ok, S::Error> {
-    if let Ok(x) = u32::try_from(*x) {
-        x.serialize(s)
-    } else {
-        Err(serde::ser::Error::custom(format!("{} can't fit in u32", x)))
-    }
-}
-
-pub fn deserialize_usize<'de, D: Deserializer<'de>>(d: D) -> Result<usize, D::Error> {
-    let x = <u32>::deserialize(d)?;
-    Ok(x as usize)
 }
 
 // Just list all things from a directory, return sorted by name, with file extension removed.
@@ -434,15 +349,6 @@ pub fn list_dir(dir: &std::path::Path) -> Vec<String> {
     };
     files.sort();
     files
-}
-
-pub fn basename(path: &str) -> String {
-    Path::new(path)
-        .file_stem()
-        .unwrap()
-        .to_os_string()
-        .into_string()
-        .unwrap()
 }
 
 #[cfg(not(target_arch = "wasm32"))]
