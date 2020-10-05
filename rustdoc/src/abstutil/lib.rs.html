@@ -31,6 +31,9 @@
 <span id="31">31</span>
 <span id="32">32</span>
 <span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// The contents of this crate need to be organized better:</span>
 <span class="comment">//</span>
@@ -46,6 +49,9 @@
 <span class="kw">mod</span> <span class="ident">serde</span>;
 <span class="kw">mod</span> <span class="ident">time</span>;
 <span class="kw">mod</span> <span class="ident">utils</span>;
+
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">io_native</span>;

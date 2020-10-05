@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["basename",""],["clamp",""],["plain_list_names",""],["prettyprint_usize",""]]});
+initSidebarItems({"fn":[["basename",""],["clamp",""],["parent_path",""],["plain_list_names",""],["prettyprint_usize",""]]});
