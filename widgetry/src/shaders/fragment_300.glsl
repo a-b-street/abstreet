@@ -5,7 +5,7 @@ precision mediump sampler2DArray;
 
 // (x offset, y offset, zoom)
 uniform vec3 transform;
-// (window width, window height, _)
+// (window width, window height, z value)
 uniform vec3 window;
 
 in vec4 pass_style;
