@@ -52,6 +52,7 @@ impl Panel {
     fn recompute_scrollbar_layout(&mut self, ctx: &EventCtx) {
         let old_scrollable_x = self.scrollable_x;
         let old_scrollable_y = self.scrollable_y;
+        let old_scroll_offset = self.scroll_offset();
 
         self.scrollable_x = self.contents_dims.width > self.container_dims.width;
         self.scrollable_y = self.contents_dims.height > self.container_dims.height;
@@ -103,6 +104,8 @@ impl Panel {
                 .abs(top_left.x + self.container_dims.width, top_left.y),
             ]);
         }
+
+        self.update_scroll_sliders(ctx, old_scroll_offset);
 
         self.clip_rect = if self.scrollable_x || self.scrollable_y {
             Some(ScreenRectangle::top_left(top_left, self.container_dims))
@@ -177,7 +180,7 @@ impl Panel {
         (x, y)
     }
 
-    fn set_scroll_offset(&mut self, ctx: &EventCtx, offset: (f64, f64)) {
+    fn update_scroll_sliders(&mut self, ctx: &EventCtx, offset: (f64, f64)) -> bool {
         let mut changed = false;
         if self.scrollable_x {
             changed = true;
@@ -199,7 +202,11 @@ impl Panel {
                     .set_percent(ctx, abstutil::clamp(offset.1, 0.0, max) / max);
             }
         }
-        if changed {
+        changed
+    }
+
+    fn set_scroll_offset(&mut self, ctx: &EventCtx, offset: (f64, f64)) {
+        if self.update_scroll_sliders(ctx, offset) {
             self.recompute_layout(ctx, false);
         }
     }
