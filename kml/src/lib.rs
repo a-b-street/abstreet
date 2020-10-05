@@ -1,7 +1,5 @@
 use abstutil::{prettyprint_usize, Timer};
 use geom::{GPSBounds, LonLat};
-use quick_xml::events::Event;
-use quick_xml::Reader;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::error::Error;
@@ -17,109 +15,97 @@ pub struct ExtraShape {
     pub attributes: BTreeMap<String, String>,
 }
 
-#[cfg(not(target_arch = "wasm32"))]
 pub fn load(
     path: &str,
     gps_bounds: &GPSBounds,
     require_all_pts_in_bounds: bool,
     timer: &mut Timer,
 ) -> Result<ExtraShapes, Box<dyn Error>> {
-    println!("Opening {}", path);
-    let (f, done) = abstutil::FileWithProgress::new(path)?;
-    // TODO FileWithProgress should implement BufRead, so we don't have to double wrap like this
-    let mut reader = Reader::from_reader(std::io::BufReader::new(f));
-    reader.trim_text(true);
+    timer.start(format!("read {}", path));
+    let bytes = abstutil::slurp_file(path)?;
+    let raw_string = std::str::from_utf8(&bytes)?;
+    let tree = roxmltree::Document::parse(raw_string)?;
+    timer.stop(format!("read {}", path));
 
-    let mut buf = Vec::new();
-
-    // TODO uncomfortably stateful
     let mut shapes = Vec::new();
-    let mut scanned_schema = false;
-    let mut attributes: BTreeMap<String, String> = BTreeMap::new();
-    let mut attrib_key: Option<String> = None;
-
     let mut skipped_count = 0;
+    let mut kv = BTreeMap::new();
 
-    loop {
-        match reader.read_event(&mut buf) {
-            Ok(Event::Start(e)) => {
-                let name = e.unescape_and_decode(&reader).unwrap();
-                if name == "Placemark" {
-                    scanned_schema = true;
-                } else if name.starts_with("SimpleData name=\"") {
-                    attrib_key = Some(name["SimpleData name=\"".len()..name.len() - 1].to_string());
-                } else if name == "coordinates" {
-                    attrib_key = Some(name);
-                } else {
-                    attrib_key = None;
-                }
-            }
-            Ok(Event::Text(e)) => {
-                if scanned_schema {
-                    if let Some(ref key) = attrib_key {
-                        let text = e.unescape_and_decode(&reader).unwrap();
-                        if key == "coordinates" {
-                            let mut any_oob = false;
-                            let mut any_ok = false;
-                            let mut pts: Vec<LonLat> = Vec::new();
-                            for pair in text.split(' ') {
-                                if let Some(pt) = parse_pt(pair) {
-                                    pts.push(pt);
-                                    if gps_bounds.contains(pt) {
-                                        any_ok = true;
-                                    } else {
-                                        any_oob = true;
-                                    }
-                                } else {
-                                    return Err(format!("Malformed coordinates: {}", pair).into());
-                                }
-                            }
-                            if any_ok && (!any_oob || !require_all_pts_in_bounds) {
-                                shapes.push(ExtraShape {
-                                    points: pts,
-                                    attributes: attributes.clone(),
-                                });
-                            } else {
-                                skipped_count += 1;
-                            }
-                            attributes.clear();
-                        } else {
-                            attributes.insert(key.to_string(), text);
-                        }
-                    }
-                }
-            }
-            Ok(Event::Eof) => break,
-            Err(e) => panic!(
-                "XML error at position {}: {:?}",
-                reader.buffer_position(),
-                e
-            ),
-            _ => (),
-        }
-        buf.clear();
-    }
+    timer.start("scrape objects");
+    recurse(
+        tree.root(),
+        &mut shapes,
+        &mut skipped_count,
+        &mut kv,
+        gps_bounds,
+        require_all_pts_in_bounds,
+    )?;
+    timer.stop("scrape objects");
 
-    println!(
+    timer.note(format!(
         "Got {} shapes from {} and skipped {} shapes",
         prettyprint_usize(shapes.len()),
         path,
         prettyprint_usize(skipped_count)
-    );
-    done(timer);
+    ));
 
     Ok(ExtraShapes { shapes })
 }
 
-// TODO Handle FileWithProgress on web
-#[cfg(target_arch = "wasm32")]
-pub fn load(
-    _path: &str,
-    _gps_bounds: &GPSBounds,
-    _require_all_pts_in_bounds: bool,
-    _timer: &mut Timer,
-) -> Result<ExtraShapes, Box<dyn Error>> {
-    Ok(ExtraShapes { shapes: Vec::new() })
+fn recurse(
+    node: roxmltree::Node,
+    shapes: &mut Vec<ExtraShape>,
+    skipped_count: &mut usize,
+    kv: &mut BTreeMap<String, String>,
+    gps_bounds: &GPSBounds,
+    require_all_pts_in_bounds: bool,
+) -> Result<(), Box<dyn Error>> {
+    for child in node.children() {
+        recurse(
+            child,
+            shapes,
+            skipped_count,
+            kv,
+            gps_bounds,
+            require_all_pts_in_bounds,
+        )?;
+    }
+    if node.tag_name().name() == "SimpleData" {
+        let key = node.attribute("name").unwrap().to_string();
+        let value = node
+            .text()
+            .map(|x| x.to_string())
+            .unwrap_or_else(String::new);
+        kv.insert(key, value);
+    } else if node.tag_name().name() == "coordinates" {
+        let mut any_oob = false;
+        let mut any_ok = false;
+        let mut pts: Vec<LonLat> = Vec::new();
+        if let Some(txt) = node.text() {
+            for pair in txt.split(' ') {
+                if let Some(pt) = parse_pt(pair) {
+                    pts.push(pt);
+                    if gps_bounds.contains(pt) {
+                        any_ok = true;
+                    } else {
+                        any_oob = true;
+                    }
+                } else {
+                    return Err(format!("Malformed coordinates: {}", pair).into());
+                }
+            }
+        }
+        if any_ok && (!any_oob || !require_all_pts_in_bounds) {
+            let attributes = std::mem::replace(kv, BTreeMap::new());
+            shapes.push(ExtraShape {
+                points: pts,
+                attributes,
+            });
+        } else {
+            *skipped_count += 1;
+        }
+    }
+    Ok(())
 }
 
 fn parse_pt(input: &str) -> Option<LonLat> {

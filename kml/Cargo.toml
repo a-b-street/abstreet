@@ -7,5 +7,5 @@ edition = "2018"
 [dependencies]
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
-quick-xml = "0.18.1"
+roxmltree = "0.13.0"
 serde = "1.0.116"
