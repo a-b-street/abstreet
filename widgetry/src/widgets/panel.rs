@@ -485,11 +485,23 @@ impl PanelBuilder {
                 height: Dimension::Points((h * ctx.canvas.window_height) as f32),
             };
         }
-        panel.recompute_layout(ctx, false);
 
+        // There is a dependency cycle in our layout logic. As a consequence:
+        //   1. we have to call `recompute_layout` twice here
+        //   2. panels don't responsively change `contents_dims`
+        //
+        // - `panel.top_level.rect`, used here to set content_dims, is set by `recompute_layout`.
+        // - the output of `recompute_layout` depends on `container_dims`
+        // - `container_dims`, in the case of `MaxPercent`, depend on `content_dims`
+        //
+        // TODO: to support Panel's that can resize their `contents_dims`, we'll need to detangle
+        // this dependency. This might entail decomposing the flexbox calculation to layout first
+        // the inner content, and then potentially a second pass to layout any x/y scrollbars.
+        panel.recompute_layout(ctx, false);
         panel.contents_dims =
             ScreenDims::new(panel.top_level.rect.width(), panel.top_level.rect.height());
         panel.update_container_dims_for_canvas_dims(ctx.canvas.get_window_dims());
+        panel.recompute_layout(ctx, false);
 
         // Just trigger error if a button is double-defined
         panel.get_all_click_actions();
