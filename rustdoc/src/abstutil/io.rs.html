@@ -68,6 +68,11 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">basename</span>, <span class="ident">list_dir</span>, <span class="ident">maybe_read_binary</span>, <span class="ident">parent_path</span>, <span class="ident">slurp_file</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">DeserializeOwned</span>;
@@ -138,6 +143,11 @@
         }
     }
     <span class="ident">tree</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>()
+}
+
+<span class="comment">// Just list all things from a directory, return sorted by name, with file extension removed.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_objects</span>(<span class="ident">dir</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="ident">list_dir</span>(<span class="ident">dir</span>).<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">basename</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>)).<span class="ident">collect</span>()
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "abstutil";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
