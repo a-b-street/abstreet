@@ -102,6 +102,6 @@ impl WindowAdapter {
         &self.0
     }
 
-    pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {}
+    pub fn window_resized(&self, _new_size: ScreenDims, _scale_factor: f64) {}
     pub fn draw_finished(&self, _gfc_ctx_innards: GfxCtxInnards) {}
 }

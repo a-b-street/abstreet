@@ -1,4 +1,4 @@
-use abstutil::{prettyprint_usize, FileWithProgress, Timer};
+use abstutil::{prettyprint_usize, Timer};
 use geom::{GPSBounds, LonLat};
 use quick_xml::events::Event;
 use quick_xml::Reader;
@@ -17,6 +17,7 @@ pub struct ExtraShape {
     pub attributes: BTreeMap<String, String>,
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 pub fn load(
     path: &str,
     gps_bounds: &GPSBounds,
@@ -24,7 +25,7 @@ pub fn load(
     timer: &mut Timer,
 ) -> Result<ExtraShapes, Box<dyn Error>> {
     println!("Opening {}", path);
-    let (f, done) = FileWithProgress::new(path)?;
+    let (f, done) = abstutil::FileWithProgress::new(path)?;
     // TODO FileWithProgress should implement BufRead, so we don't have to double wrap like this
     let mut reader = Reader::from_reader(std::io::BufReader::new(f));
     reader.trim_text(true);
@@ -108,6 +109,17 @@ pub fn load(
     done(timer);
 
     Ok(ExtraShapes { shapes })
+}
+
+// TODO Handle FileWithProgress on web
+#[cfg(target_arch = "wasm32")]
+pub fn load(
+    _path: &str,
+    _gps_bounds: &GPSBounds,
+    _require_all_pts_in_bounds: bool,
+    _timer: &mut Timer,
+) -> Result<ExtraShapes, Box<dyn Error>> {
+    Ok(ExtraShapes { shapes: Vec::new() })
 }
 
 fn parse_pt(input: &str) -> Option<LonLat> {

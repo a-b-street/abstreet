@@ -13,12 +13,20 @@ mod serde;
 mod time;
 mod utils;
 
+#[cfg(not(target_arch = "wasm32"))]
+mod io_native;
+#[cfg(not(target_arch = "wasm32"))]
+pub use io_native::*;
+#[cfg(target_arch = "wasm32")]
+mod io_web;
+#[cfg(target_arch = "wasm32")]
+pub use io_web::*;
+
 // I'm not generally a fan of wildcard exports, but they're more maintable here.
 pub use crate::serde::*;
 pub use abst_paths::*;
 pub use cli::*;
 pub use collections::*;
-pub use io::*;
 pub use time::*;
 pub use utils::*;
 
