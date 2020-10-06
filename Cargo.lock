@@ -2747,7 +2747,7 @@ dependencies = [
 [[package]]
 name = "usvg"
 version = "0.11.0"
-source = "git+https://github.com/dabreegster/resvg/?branch=wasm#a2a938ef2b382181931eaae97b824efb1489946a"
+source = "git+https://github.com/dabreegster/resvg/?branch=wasm#ea9ce84336fb3223270f4820511a6688eed81571"
 dependencies = [
  "base64 0.12.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "data-url 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
