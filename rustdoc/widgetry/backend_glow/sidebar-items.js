@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Buffer",""],["Drawable",""],["GfxCtxInnards",""],["PrerenderInnards",""],["VertexArray",""]],"type":[["WindowAdapter",""]]});
+initSidebarItems({"fn":[["load_textures","Uploads a sprite sheet of textures to the GPU so they can be used by Fill::Texture and friends to paint shapes."]],"struct":[["Buffer",""],["Drawable",""],["GfxCtxInnards",""],["PrerenderInnards",""],["VertexArray",""]],"type":[["WindowAdapter",""]]});

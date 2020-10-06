@@ -593,7 +593,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_update</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
     <span class="ident">event_loop</span>.<span class="ident">run</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">event</span>, <span class="kw">_</span>, <span class="ident">control_flow</span><span class="op">|</span> {
         <span class="kw">if</span> <span class="ident">dump_raw_events</span> {
-            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Event: {:?}&quot;</span>, <span class="ident">event</span>);
+            <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Event: {:?}&quot;</span>, <span class="ident">event</span>);
         }
         <span class="kw">let</span> <span class="ident">ev</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">event</span> {
             <span class="ident">winit</span>::<span class="ident">event</span>::<span class="ident">Event</span>::<span class="ident">WindowEvent</span> {

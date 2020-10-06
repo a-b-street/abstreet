@@ -298,9 +298,6 @@
 <span id="298">298</span>
 <span id="299">299</span>
 <span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">PerMap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Pt2D</span>};
@@ -586,10 +583,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open_browser</span>(<span class="ident">url</span>: <span class="ident">String</span>) {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-    {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">webbrowser</span>::<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>);
-    }
+    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">webbrowser</span>::<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>);
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">loading_tips</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
