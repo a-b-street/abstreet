@@ -175,6 +175,7 @@
 <span id="175">175</span>
 <span id="176">176</span>
 <span id="177">177</span>
+<span id="178">178</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Zones and AccessRestrictions are used to model things like:</span>
 <span class="comment">// 1) gated communities, where only trips beginning or ending at a building in the neighborhood may</span>
@@ -327,6 +328,7 @@
 
 <span class="kw">fn</span> <span class="ident">floodfill</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">start</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Zone</span> {
     <span class="kw">let</span> <span class="ident">match_constraints</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start</span>).<span class="ident">access_restrictions</span>.<span class="ident">clone</span>();
+    <span class="kw">let</span> <span class="ident">merge_zones</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">merge_zones</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">start</span>];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">members</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borders</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
@@ -338,7 +340,7 @@
         <span class="ident">members</span>.<span class="ident">insert</span>(<span class="ident">current</span>);
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_next_roads</span>(<span class="ident">current</span>) {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span> <span class="op">=</span><span class="op">=</span> <span class="ident">match_constraints</span> {
+            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span> <span class="op">=</span><span class="op">=</span> <span class="ident">match_constraints</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">merge_zones</span> {
                 <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">id</span>);
             } <span class="kw">else</span> {
                 <span class="ident">borders</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">current</span>).<span class="ident">common_endpt</span>(<span class="ident">r</span>));

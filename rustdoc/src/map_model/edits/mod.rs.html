@@ -657,6 +657,15 @@
 <span id="657">657</span>
 <span id="658">658</span>
 <span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Once a Map exists, the player can edit it in the UI (producing MapEdits in-memory), then save</span>
 <span class="comment">// the changes to a file (as PermanentMapEdits). See</span>
@@ -687,6 +696,10 @@
     <span class="comment">// A stack, oldest edit is first. The same intersection may be edited multiple times in this</span>
     <span class="comment">// stack, until compress() happens.</span>
     <span class="kw">pub</span> <span class="ident">commands</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">EditCmd</span><span class="op">&gt;</span>,
+    <span class="comment">// If false, adjacent roads with the same AccessRestrictions will not be merged into the same</span>
+    <span class="comment">// Zone; every Road will be its own Zone. This is used to experiment with a per-road cap. Note</span>
+    <span class="comment">// this is a map-wide setting.</span>
+    <span class="kw">pub</span> <span class="ident">merge_zones</span>: <span class="ident">bool</span>,
 
     <span class="comment">// Derived from commands, kept up to date by update_derived</span>
     <span class="kw">pub</span> <span class="ident">changed_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
@@ -793,6 +806,7 @@
             <span class="ident">proposal_description</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">proposal_link</span>: <span class="prelude-val">None</span>,
             <span class="ident">commands</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">merge_zones</span>: <span class="bool-val">true</span>,
 
             <span class="ident">changed_roads</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
             <span class="ident">original_intersections</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
@@ -1259,13 +1273,17 @@
             }
         }
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">zones</span> <span class="op">=</span> <span class="ident">Zone</span>::<span class="ident">make_all</span>(<span class="self">self</span>);
-        }
+        <span class="kw">let</span> <span class="ident">merge_zones_changed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">merge_zones</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_edits</span>.<span class="ident">merge_zones</span>;
 
         <span class="ident">new_edits</span>.<span class="ident">update_derived</span>(<span class="self">self</span>);
         <span class="self">self</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="ident">new_edits</span>;
         <span class="self">self</span>.<span class="ident">pathfinder_dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
+
+        <span class="comment">// Update zones after setting the new edits, since it&#39;ll pull merge_zones from there</span>
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">merge_zones_changed</span> {
+            <span class="self">self</span>.<span class="ident">zones</span> <span class="op">=</span> <span class="ident">Zone</span>::<span class="ident">make_all</span>(<span class="self">self</span>);
+        }
+
         (
             <span class="ident">effects</span>.<span class="ident">changed_roads</span>,
             <span class="ident">effects</span>.<span class="ident">deleted_turns</span>,
