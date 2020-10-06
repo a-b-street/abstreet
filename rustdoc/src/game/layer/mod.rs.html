@@ -388,11 +388,8 @@
                     <span class="ident">btn</span>(<span class="string">&quot;backpressure&quot;</span>, <span class="ident">Key</span>::<span class="ident">Z</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;elevation&quot;</span>, <span class="ident">Key</span>::<span class="ident">V</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;parking efficiency&quot;</span>, <span class="ident">Key</span>::<span class="ident">O</span>),
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                        <span class="ident">btn</span>(<span class="string">&quot;blackholes&quot;</span>, <span class="ident">Key</span>::<span class="ident">L</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">Widget</span>::<span class="ident">nothing</span>()
-                    },
+                    <span class="ident">btn</span>(<span class="string">&quot;blackholes&quot;</span>, <span class="ident">Key</span>::<span class="ident">L</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;congestion caps&quot;</span>, <span class="ident">Key</span>::<span class="ident">C</span>),
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_pandemic_model</span>().<span class="ident">is_some</span>() {
                         <span class="ident">btn</span>(<span class="string">&quot;pandemic model&quot;</span>, <span class="ident">Key</span>::<span class="ident">Y</span>)
                     } <span class="kw">else</span> {
@@ -402,7 +399,7 @@
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Data&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;traffic signal demand&quot;</span>, <span class="ident">Key</span>::<span class="ident">M</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;commuter patterns&quot;</span>, <span class="ident">Key</span>::<span class="ident">C</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;commuter patterns&quot;</span>, <span class="ident">Key</span>::<span class="ident">R</span>),
                 ]),
             ])
             .<span class="ident">evenly_spaced</span>(),
@@ -457,6 +454,9 @@
                 }
                 <span class="string">&quot;blackholes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">Static</span>::<span class="ident">blackholes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                }
+                <span class="string">&quot;congestion caps&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">app</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">CongestionCaps</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;parking occupancy&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">parking</span>::<span class="ident">Occupancy</span>::<span class="ident">new</span>(
