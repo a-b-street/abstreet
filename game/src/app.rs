@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::collections::BTreeMap;
 
 use maplit::btreemap;
@@ -569,6 +570,9 @@ pub struct PerMap {
     pub dirty_from_edits: bool,
     // Any ScenarioModifiers in effect?
     pub has_modified_trips: bool,
+
+    // Sometimes we need the map before any edits have been applied. Cache it here.
+    pub unedited_map: RefCell<Option<Map>>,
 }
 
 impl PerMap {
@@ -604,6 +608,7 @@ impl PerMap {
             show_zorder: high_z,
             dirty_from_edits: false,
             has_modified_trips: false,
+            unedited_map: RefCell::new(None),
         }
     }
 
@@ -618,6 +623,24 @@ impl PerMap {
                 &mut Timer::new("reset simulation"),
             ),
         )
+    }
+
+    // If needed, makes sure the unedited_map is populated. Callers can then do
+    // self.unedited_map.borrow().unwrap_or(&self.map).
+    // TODO I'd like to return &Map or something here, but can't get the borrow checker to work.
+    pub fn calculate_unedited_map(&self) {
+        if self.map.get_edits().commands.is_empty() {
+            return;
+        }
+
+        let mut orig_map = self.unedited_map.borrow_mut();
+        if orig_map.is_none() {
+            let mut timer = Timer::new("load unedited map");
+            *orig_map = Some(Map::new(
+                abstutil::path_map(self.map.get_name()),
+                &mut timer,
+            ));
+        }
     }
 }
 

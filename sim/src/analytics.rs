@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, VecDeque};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{Counter, Timer};
+use abstutil::Counter;
 use geom::{Distance, Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
@@ -287,8 +287,8 @@ impl Analytics {
         results
     }
 
-    // This shouldn't be used on prebaked Analytics, because the map may have been edited since the
-    // recording, invalidating some of the paths.
+    // If calling on prebaked Analytics, be careful to pass in an unedited map, to match how the
+    // simulation was originally run. Otherwise the paths may be nonsense.
     pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {
         let mut phases: Vec<TripPhase> = Vec::new();
         for (t, id, maybe_req, phase_type) in &self.trip_log {
@@ -313,24 +313,6 @@ impl Analytics {
             })
         }
         phases
-    }
-
-    // Works around https://github.com/dabreegster/abstreet/issues/361 by first reverting any
-    // current edits before calculating paths.
-    pub fn get_trip_phases_before_edits(
-        &self,
-        trip: TripID,
-        map: &Map,
-    ) -> (Vec<TripPhase>, Option<Map>) {
-        if map.get_edits().commands.is_empty() {
-            return (self.get_trip_phases(trip, map), None);
-        }
-
-        // TODO Many approaches for doing this -- quietly keep the original contraction hierarchy
-        // in memory, have the caller cache this original map alongside app.primary, etc...
-        let mut timer = Timer::new("pathfind on original map");
-        let orig_map = Map::new(abstutil::path_map(map.get_name()), &mut timer);
-        (self.get_trip_phases(trip, &orig_map), Some(orig_map))
     }
 
     pub fn get_all_trip_phases(&self) -> BTreeMap<TripID, Vec<TripPhase>> {

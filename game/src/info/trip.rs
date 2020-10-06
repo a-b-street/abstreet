@@ -130,7 +130,7 @@ pub fn ongoing(
         open_trip,
         details,
         phases,
-        None,
+        &app.primary.map,
         Some(props.dist_crossed / props.total_dist),
     ));
 
@@ -168,11 +168,19 @@ pub fn future(
             ],
         ));
 
-        let (phases, orig_map) = app
-            .prebaked()
-            .get_trip_phases_before_edits(id, &app.primary.map);
+        app.primary.calculate_unedited_map();
+        let borrow = app.primary.unedited_map.borrow();
+        let unedited_map = borrow.as_ref().unwrap_or(&app.primary.map);
+        let phases = app.prebaked().get_trip_phases(id, unedited_map);
         col.push(make_timeline(
-            ctx, app, id, open_trip, details, phases, orig_map, None,
+            ctx,
+            app,
+            id,
+            open_trip,
+            details,
+            phases,
+            unedited_map,
+            None,
         ));
     } else {
         // TODO Warp buttons. make_table is showing its age.
@@ -238,18 +246,27 @@ pub fn finished(
     id: TripID,
     details: &mut Details,
 ) -> Widget {
+    // Weird order to make sure the borrow remains in scope in case we need it.
+    if !open_trips[&id].show_after {
+        app.primary.calculate_unedited_map();
+    }
+    let borrow = app.primary.unedited_map.borrow();
+
     let trip = app.primary.sim.trip_info(id);
-    let (phases, orig_map) = if open_trips[&id].show_after {
+    let (phases, map_for_pathfinding) = if open_trips[&id].show_after {
         (
             app.primary
                 .sim
                 .get_analytics()
                 .get_trip_phases(id, &app.primary.map),
-            None,
+            &app.primary.map,
         )
     } else {
-        app.prebaked()
-            .get_trip_phases_before_edits(id, &app.primary.map)
+        let unedited_map = borrow.as_ref().unwrap_or(&app.primary.map);
+        (
+            app.prebaked().get_trip_phases(id, unedited_map),
+            unedited_map,
+        )
     };
 
     let mut col = Vec::new();
@@ -336,7 +353,7 @@ pub fn finished(
         open_trips.get_mut(&id).unwrap(),
         details,
         phases,
-        orig_map,
+        map_for_pathfinding,
         None,
     ));
 
@@ -376,7 +393,7 @@ fn make_timeline(
     open_trip: &mut OpenTrip,
     details: &mut Details,
     phases: Vec<TripPhase>,
-    map_for_pathfinding: Option<Map>,
+    map_for_pathfinding: &Map,
     progress_along_path: Option<f64>,
 ) -> Widget {
     let map = &app.primary.map;
@@ -573,9 +590,7 @@ fn make_timeline(
 
             // This is expensive, so cache please
             if idx == open_trip.cached_routes.len() {
-                if let Some(trace) =
-                    path.trace(map_for_pathfinding.as_ref().unwrap_or(map), dist, None)
-                {
+                if let Some(trace) = path.trace(map_for_pathfinding, dist, None) {
                     open_trip.cached_routes.push(Some((
                         trace.make_polygons(Distance::meters(10.0)),
                         trace.dashed_lines(
