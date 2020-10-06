@@ -448,8 +448,6 @@
 <span id="448">448</span>
 <span id="449">449</span>
 <span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -599,13 +597,11 @@
 }
 
 <span class="comment">// TODO Need to filter out extraneous crosswalks. Why weren&#39;t they being created before?</span>
-<span class="kw">fn</span> <span class="ident">_new_make_walking_turns</span>(
-    <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>,
-    <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>,
-    <span class="ident">all_roads</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Road</span><span class="op">&gt;</span>,
-    <span class="ident">all_lanes</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Lane</span><span class="op">&gt;</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_make_walking_turns_v2</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">driving_side</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span>;
+    <span class="kw">let</span> <span class="ident">all_roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_roads</span>();
+    <span class="kw">let</span> <span class="ident">all_lanes</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>();
+
     <span class="comment">// Consider all roads in counter-clockwise order. Every road has up to two sidewalks. Gather</span>
     <span class="comment">// those in order, remembering what roads don&#39;t have them.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Lane</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
