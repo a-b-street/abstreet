@@ -1,17 +1,20 @@
+use std::collections::BTreeSet;
+
+use maplit::btreeset;
+
+use geom::{Distance, Duration};
+use map_model::IntersectionID;
+use sim::Scenario;
+use widgetry::{
+    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    RewriteColor, Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
+
 use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::traffic_signals::fade_irrelevant;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
-use geom::{Distance, Duration};
-use map_model::IntersectionID;
-use maplit::btreeset;
-use sim::Scenario;
-use std::collections::BTreeSet;
-use widgetry::{
-    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    RewriteColor, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 
 pub struct ShowAbsolute {
     members: BTreeSet<IntersectionID>,

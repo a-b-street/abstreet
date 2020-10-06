@@ -1,6 +1,8 @@
-use crate::Duration;
-use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+
+use serde::{Deserialize, Serialize};
+
+use crate::Duration;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Statistic {

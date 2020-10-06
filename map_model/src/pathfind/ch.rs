@@ -1,6 +1,10 @@
 // Uses https://github.com/easbar/fast_paths. Slower creation during map importing, but very fast
 // queries.
 
+use serde::{Deserialize, Serialize};
+
+use abstutil::Timer;
+
 use crate::pathfind::driving::VehiclePathfinder;
 use crate::pathfind::walking::{
     one_step_walking_path, walking_path_to_steps, SidewalkPathfinder, WalkingNode,
@@ -9,8 +13,6 @@ use crate::{
     BusRouteID, BusStopID, Intersection, Map, Path, PathConstraints, PathRequest, Position, TurnID,
     Zone,
 };
-use abstutil::Timer;
-use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct ContractionHierarchyPathfinder {

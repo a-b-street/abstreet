@@ -1,7 +1,9 @@
-use crate::{trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST};
+use std::fmt;
+
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
-use std::fmt;
+
+use crate::{trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST};
 
 // This represents world-space in meters.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]

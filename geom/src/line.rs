@@ -1,7 +1,9 @@
-use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
+use std::fmt;
+
 use geo::prelude::ClosestPoint;
 use serde::{Deserialize, Serialize};
-use std::fmt;
+
+use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 
 // Segment, technically. Should rename.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]

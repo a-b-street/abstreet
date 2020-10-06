@@ -1,9 +1,12 @@
-use crate::raw::RestrictionType;
-use crate::{Intersection, Lane, LaneID, Map, RoadID, Turn, TurnID, TurnType};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+
+use nbez::{Bez3o, BezCurve, Point2d};
+
 use abstutil::Timer;
 use geom::{Distance, PolyLine, Pt2D};
-use nbez::{Bez3o, BezCurve, Point2d};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+
+use crate::raw::RestrictionType;
+use crate::{Intersection, Lane, LaneID, Map, RoadID, Turn, TurnID, TurnType};
 
 // Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
 pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {

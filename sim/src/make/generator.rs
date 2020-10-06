@@ -1,14 +1,17 @@
-use crate::{
-    DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip, TripPurpose,
-};
-use abstutil::Timer;
-use geom::{Duration, Time};
-use map_model::{BuildingID, DirectedRoadID, Map, PathConstraints};
+use std::collections::BTreeSet;
+
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
+
+use abstutil::Timer;
+use geom::{Duration, Time};
+use map_model::{BuildingID, DirectedRoadID, Map, PathConstraints};
+
+use crate::{
+    DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip, TripPurpose,
+};
 
 // A way to generate Scenarios
 #[derive(Clone, Serialize, Deserialize, Debug)]

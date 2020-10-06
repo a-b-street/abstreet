@@ -1,6 +1,17 @@
 #[macro_use]
 extern crate log;
 
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_usize, serialize_usize};
+use geom::{Distance, Pt2D, Speed, Time};
+use map_model::{
+    BuildingID, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID,
+    Path, PathConstraints, PathRequest, Position,
+};
+
 pub use self::analytics::{Analytics, TripPhase};
 pub(crate) use self::cap::CapSimState;
 pub(crate) use self::events::Event;
@@ -25,14 +36,6 @@ pub use crate::render::{
     CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents,
     PedCrowdLocation, UnzoomedAgent,
 };
-use abstutil::{deserialize_usize, serialize_usize};
-use geom::{Distance, Pt2D, Speed, Time};
-use map_model::{
-    BuildingID, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID,
-    Path, PathConstraints, PathRequest, Position,
-};
-use serde::{Deserialize, Serialize};
-use std::fmt;
 
 mod analytics;
 mod cap;

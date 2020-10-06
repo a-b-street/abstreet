@@ -1,7 +1,9 @@
-use byteorder::{BigEndian, ReadBytesExt};
-use geom::{Distance, LonLat};
 use std::fs::File;
 use std::io;
+
+use byteorder::{BigEndian, ReadBytesExt};
+
+use geom::{Distance, LonLat};
 
 // TODO Make sure this actually works, and link to references describing the format.
 // - It's VERY wrong! Look at 19th and Boyer, and Delmar.

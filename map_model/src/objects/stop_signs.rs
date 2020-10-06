@@ -1,10 +1,13 @@
+use std::collections::{BTreeMap, HashMap};
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_btreemap, serialize_btreemap};
+
 use crate::{
     osm, Direction, DrivingSide, IntersectionID, LaneID, Map, RoadID, TurnID, TurnPriority,
     TurnType,
 };
-use abstutil::{deserialize_btreemap, serialize_btreemap};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
 
 // TODO These are old notes, they don't reflect current reality. But some of the ideas here should
 // be implemented, so keeping them...

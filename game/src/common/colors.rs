@@ -1,9 +1,11 @@
-use crate::app::App;
+use std::collections::HashMap;
+
 use abstutil::Counter;
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
-use std::collections::HashMap;
 use widgetry::{Color, Drawable, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Widget};
+
+use crate::app::App;
 
 pub struct ColorDiscrete<'a> {
     map: &'a Map,

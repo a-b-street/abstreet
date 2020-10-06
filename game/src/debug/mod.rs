@@ -1,3 +1,14 @@
+use std::collections::HashSet;
+
+use abstutil::{Parallelism, Tags, Timer};
+use geom::{Distance, Pt2D};
+use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
+use sim::{AgentID, Sim};
+use widgetry::{
+    lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, Text, UpdateType, VerticalAlignment, Widget,
+};
+
 use crate::app::{App, ShowLayers, ShowObject};
 use crate::common::{tool_panel, CommonState, ContextualActions};
 use crate::game::{ChooseSomething, DrawBaselayer, PopupMsg, PromptInput, State, Transition};
@@ -5,15 +16,6 @@ use crate::helpers::ID;
 use crate::options::OptionsPanel;
 use crate::render::{calculate_corners, DrawOptions};
 use crate::sandbox::GameplayMode;
-use abstutil::{Parallelism, Tags, Timer};
-use geom::{Distance, Pt2D};
-use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
-use sim::{AgentID, Sim};
-use std::collections::HashSet;
-use widgetry::{
-    lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, Text, UpdateType, VerticalAlignment, Widget,
-};
 
 mod floodfill;
 mod objects;

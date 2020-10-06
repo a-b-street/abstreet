@@ -1,13 +1,15 @@
-use crate::app::App;
-use crate::colors::ColorScheme;
-use crate::render::{traffic_signal, BIG_ARROW_THICKNESS};
+use std::collections::{HashMap, HashSet};
+
 use geom::{Angle, ArrowCap, Circle, Distance, PolyLine, Polygon};
 use map_model::{
     IntersectionCluster, IntersectionID, LaneID, Map, MovementID, TurnPriority, UberTurnGroup,
     SIDEWALK_THICKNESS,
 };
-use std::collections::{HashMap, HashSet};
 use widgetry::{Color, GeomBatch, Prerender};
+
+use crate::app::App;
+use crate::colors::ColorScheme;
+use crate::render::{traffic_signal, BIG_ARROW_THICKNESS};
 
 const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(1.5);
 

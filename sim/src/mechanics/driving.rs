@@ -1,3 +1,11 @@
+use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_btreemap, serialize_btreemap};
+use geom::{Distance, Duration, PolyLine, Time};
+use map_model::{LaneID, Map, Path, PathStep, Traversable};
+
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
 use crate::sim::Ctx;
@@ -7,11 +15,6 @@ use crate::{
     PersonID, Scheduler, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent,
     Vehicle, WalkingSimState, FOLLOWING_DISTANCE,
 };
-use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Distance, Duration, PolyLine, Time};
-use map_model::{LaneID, Map, Path, PathStep, Traversable};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
 const TIME_TO_UNPARK_ONSTRET: Duration = Duration::const_seconds(10.0);
 const TIME_TO_PARK_ONSTREET: Duration = Duration::const_seconds(15.0);

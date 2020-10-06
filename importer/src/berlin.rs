@@ -1,12 +1,15 @@
-use crate::configuration::ImporterConfiguration;
-use crate::utils::{download, download_kml, osmconvert};
-use abstutil::{prettyprint_usize, Timer};
-use geom::{Polygon, Ring};
-use kml::ExtraShapes;
+use std::fs::File;
+
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use serde::Deserialize;
-use std::fs::File;
+
+use abstutil::{prettyprint_usize, Timer};
+use geom::{Polygon, Ring};
+use kml::ExtraShapes;
+
+use crate::configuration::ImporterConfiguration;
+use crate::utils::{download, download_kml, osmconvert};
 
 fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     download(

@@ -1,16 +1,18 @@
+use instant::Instant;
+
+use abstutil::prettyprint_usize;
+use geom::{Duration, Polygon, Pt2D, Ring, Time};
+use widgetry::{
+    AreaSlider, Btn, Checkbox, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    Panel, Text, UpdateType, Widget,
+};
+
 use crate::app::{App, FindDelayedIntersections, ShowEverything};
 use crate::common::Warping;
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
-use abstutil::prettyprint_usize;
-use geom::{Duration, Polygon, Pt2D, Ring, Time};
-use instant::Instant;
-use widgetry::{
-    AreaSlider, Btn, Checkbox, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, Text, UpdateType, Widget,
-};
 
 // TODO Text entry would be great
 pub struct JumpToTime {

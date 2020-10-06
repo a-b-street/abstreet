@@ -1,7 +1,3 @@
-use crate::app::{App, ShowEverything};
-use crate::common::ColorLegend;
-use crate::game::{DrawBaselayer, State, Transition};
-use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use geom::{ArrowCap, Distance, Time};
 use map_model::{LaneID, TurnType};
 use sim::{AgentID, DontDrawAgents};
@@ -9,6 +5,11 @@ use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, Text, TextExt, VerticalAlignment, Widget,
 };
+
+use crate::app::{App, ShowEverything};
+use crate::common::ColorLegend;
+use crate::game::{DrawBaselayer, State, Transition};
+use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 
 pub struct RoutePreview {
     preview: Option<(AgentID, Time, Drawable)>,

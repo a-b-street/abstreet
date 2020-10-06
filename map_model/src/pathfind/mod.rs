@@ -1,5 +1,14 @@
 // Everything related to pathfinding through a map for different types of agents.
 
+use std::collections::{BTreeSet, VecDeque};
+use std::fmt;
+
+use enumset::EnumSetType;
+use serde::{Deserialize, Serialize};
+
+use abstutil::Timer;
+use geom::{Distance, PolyLine, EPSILON_DIST};
+
 pub use self::ch::ContractionHierarchyPathfinder;
 pub use self::driving::driving_cost;
 pub use self::walking::{walking_cost, WalkingNode};
@@ -7,12 +16,6 @@ use crate::{
     osm, BusRouteID, BusStopID, Lane, LaneID, LaneType, Map, Position, Traversable, TurnID,
     UberTurn,
 };
-use abstutil::Timer;
-use enumset::EnumSetType;
-use geom::{Distance, PolyLine, EPSILON_DIST};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeSet, VecDeque};
-use std::fmt;
 
 mod ch;
 mod dijkstra;

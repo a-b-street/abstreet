@@ -1,21 +1,24 @@
-use crate::make::fork_rng;
-use crate::{
-    CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim,
-    TripEndpoint, TripMode, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
-    MAX_CAR_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
-};
+use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+use std::fmt;
+
+use rand::seq::SliceRandom;
+use rand::{Rng, SeedableRng};
+use rand_xorshift::XorShiftRng;
+use serde::{Deserialize, Serialize};
+
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, LonLat, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, DirectedRoadID, Map, OffstreetParking, PathConstraints,
     Position, RoadID,
 };
-use rand::seq::SliceRandom;
-use rand::{Rng, SeedableRng};
-use rand_xorshift::XorShiftRng;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
-use std::fmt;
+
+use crate::make::fork_rng;
+use crate::{
+    CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim,
+    TripEndpoint, TripMode, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
+    MAX_CAR_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
+};
 
 // How to start a simulation.
 #[derive(Clone, Serialize, Deserialize, Debug)]

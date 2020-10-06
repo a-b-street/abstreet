@@ -1,7 +1,9 @@
-use crate::configuration::ImporterConfiguration;
-use abstutil::Timer;
 use std::path::Path;
 use std::process::Command;
+
+use abstutil::Timer;
+
+use crate::configuration::ImporterConfiguration;
 
 // If the output file doesn't already exist, downloads the URL into that location. Automatically
 // uncompresses .zip and .gz files.

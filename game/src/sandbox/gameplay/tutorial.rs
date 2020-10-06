@@ -1,3 +1,19 @@
+use std::collections::BTreeSet;
+
+use abstutil::Timer;
+use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
+use map_model::raw::OriginalRoad;
+use map_model::{osm, BuildingID, DirectedRoadID, Direction, Map, Position};
+use sim::{
+    AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
+    PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, TripPurpose,
+    VehicleType,
+};
+use widgetry::{
+    hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
+};
+
 use crate::app::App;
 use crate::common::{tool_panel, Minimap, Warping};
 use crate::cutscene::CutsceneBuilder;
@@ -8,20 +24,6 @@ use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
     maybe_exit_sandbox, spawn_agents_around, Actions, AgentMeter, SandboxControls, SandboxMode,
     SpeedControls, TimePanel,
-};
-use abstutil::Timer;
-use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
-use map_model::raw::OriginalRoad;
-use map_model::{osm, BuildingID, DirectedRoadID, Direction, Map, Position};
-use sim::{
-    AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
-    PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, TripPurpose,
-    VehicleType,
-};
-use std::collections::BTreeSet;
-use widgetry::{
-    hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
 };
 
 const ESCORT: CarID = CarID(0, VehicleType::Car);

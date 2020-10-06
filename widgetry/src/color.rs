@@ -1,6 +1,8 @@
-use geom::{Line, Pt2D};
-use serde::{Deserialize, Serialize};
 use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
+use geom::{Line, Pt2D};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Color {

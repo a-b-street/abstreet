@@ -1,3 +1,15 @@
+pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
+use maplit::btreeset;
+pub use speed::{SpeedControls, TimePanel};
+pub use time_warp::TimeWarpScreen;
+
+use geom::Time;
+use sim::AgentType;
+use widgetry::{
+    lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    TextExt, UpdateType, VerticalAlignment, Widget,
+};
+
 use self::misc_tools::{RoutePreview, TurnExplorer};
 use crate::app::App;
 use crate::common::{tool_panel, CommonState, ContextualActions, IsochroneViewer, Minimap};
@@ -12,16 +24,6 @@ use crate::layer::PickLayer;
 use crate::options::OptionsPanel;
 use crate::pregame::MainMenu;
 use crate::render::UnzoomedAgents;
-pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
-use geom::Time;
-use maplit::btreeset;
-use sim::AgentType;
-pub use speed::{SpeedControls, TimePanel};
-pub use time_warp::TimeWarpScreen;
-use widgetry::{
-    lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
-    TextExt, UpdateType, VerticalAlignment, Widget,
-};
 
 pub mod dashboards;
 pub mod gameplay;

@@ -1,8 +1,10 @@
-use aabb_quadtree::{ItemId, QuadTree};
-use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
+
+use aabb_quadtree::{ItemId, QuadTree};
+
+use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 
 pub trait ObjectID: Clone + Copy + Debug + Eq + Hash {

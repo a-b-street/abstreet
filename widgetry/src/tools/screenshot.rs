@@ -1,8 +1,10 @@
-use crate::runner::{State, GUI};
-use crate::Prerender;
-use abstutil::Timer;
 use std::io::Write;
 use std::{fs, process, thread, time};
+
+use abstutil::Timer;
+
+use crate::runner::{State, GUI};
+use crate::Prerender;
 
 pub(crate) fn screenshot_everything<G: GUI>(
     state: &mut State<G>,

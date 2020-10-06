@@ -1,11 +1,14 @@
+use std::collections::VecDeque;
+
+use serde::{Deserialize, Serialize};
+
+use geom::{Distance, Duration, PolyLine, Time};
+use map_model::{Direction, Map, Traversable};
+
 use crate::{
     CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, PersonID, Router, TimeInterval,
     TransitSimState, TripID, Vehicle, VehicleType,
 };
-use geom::{Distance, Duration, PolyLine, Time};
-use map_model::{Direction, Map, Traversable};
-use serde::{Deserialize, Serialize};
-use std::collections::VecDeque;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Car {

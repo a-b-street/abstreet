@@ -1,7 +1,8 @@
-use abstutil::{CmdArgs, Timer};
-use map_model::Map;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
+
+use abstutil::{CmdArgs, Timer};
+use map_model::Map;
 use sim::ScenarioGenerator;
 
 fn main() {

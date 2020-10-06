@@ -1,8 +1,11 @@
-use crate::{Key, ScreenDims, ScreenPt, ScreenRectangle, UpdateType, UserInput};
+use std::cell::RefCell;
+
+use serde::{Deserialize, Serialize};
+
 use abstutil::Timer;
 use geom::{Bounds, Pt2D};
-use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
+
+use crate::{Key, ScreenDims, ScreenPt, ScreenRectangle, UpdateType, UserInput};
 
 // Click and release counts as a normal click, not a drag, if the distance between click and
 // release is less than this.

@@ -1,16 +1,19 @@
-use crate::{CarID, CarStatus, DrawCarInput, Event, ParkedCar, ParkingSpot, PersonID, Vehicle};
+use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
+
+use enum_dispatch::enum_dispatch;
+use serde::{Deserialize, Serialize};
+
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
     Timer,
 };
-use enum_dispatch::enum_dispatch;
 use geom::{Distance, PolyLine, Pt2D};
 use map_model::{
     BuildingID, Lane, LaneID, LaneType, Map, OffstreetParking, ParkingLotID, PathConstraints,
     PathStep, Position, Traversable, TurnID,
 };
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
+
+use crate::{CarID, CarStatus, DrawCarInput, Event, ParkedCar, ParkingSpot, PersonID, Vehicle};
 
 #[enum_dispatch(ParkingSimState)]
 pub trait ParkingSim {

@@ -1,12 +1,14 @@
 // Purely from OSM tags, determine the lanes that a road segment has.
 
+use std::iter;
+
+use abstutil::Tags;
+use geom::Distance;
+
 use crate::{
     osm, Direction, DrivingSide, LaneType, NORMAL_LANE_THICKNESS, SERVICE_ROAD_LANE_THICKNESS,
     SHOULDER_THICKNESS, SIDEWALK_THICKNESS,
 };
-use abstutil::Tags;
-use geom::Distance;
-use std::iter;
 
 #[derive(PartialEq)]
 pub struct LaneSpec {

@@ -1,13 +1,16 @@
 // Pathfinding for cars, bikes, buses, and trains using contraction hierarchies
 
+use std::cell::RefCell;
+
+use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
+use serde::{Deserialize, Serialize};
+use thread_local::ThreadLocal;
+
+use abstutil::MultiMap;
+
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
 use crate::{Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, Turn, TurnID};
-use abstutil::MultiMap;
-use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
-use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use thread_local::ThreadLocal;
 
 #[derive(Serialize, Deserialize)]
 pub struct VehiclePathfinder {

@@ -1,11 +1,12 @@
-use crate::app::App;
-use crate::colors::ColorScheme;
-use crate::helpers::ID;
-use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon};
 use map_model::{DrivingSide, Map, SIDEWALK_THICKNESS};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+
+use crate::app::App;
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
+use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 
 pub struct DrawPedestrian {
     pub id: PedestrianID,

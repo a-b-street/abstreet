@@ -1,6 +1,7 @@
+use serde::Deserialize;
+
 use abstutil::{CmdArgs, Timer};
 use map_model::Map;
-use serde::Deserialize;
 use sim::{ExternalPerson, Scenario};
 
 fn main() {

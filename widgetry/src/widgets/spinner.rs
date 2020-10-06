@@ -1,8 +1,9 @@
+use geom::{Polygon, Pt2D};
+
 use crate::{
     text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
     ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::{Polygon, Pt2D};
 
 // TODO MAX_CHAR_WIDTH is a hardcoded nonsense value
 const TEXT_WIDTH: f64 = 2.0 * text::MAX_CHAR_WIDTH;

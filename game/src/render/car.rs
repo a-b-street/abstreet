@@ -1,11 +1,12 @@
-use crate::app::App;
-use crate::colors::ColorScheme;
-use crate::helpers::ID;
-use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D, Ring};
 use map_model::{Map, TurnType};
 use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+
+use crate::app::App;
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
+use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 
 const CAR_WIDTH: Distance = Distance::const_meters(1.75);
 

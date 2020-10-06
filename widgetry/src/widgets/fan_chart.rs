@@ -1,12 +1,14 @@
+use std::collections::VecDeque;
+
+use geom::{
+    Angle, Distance, Duration, HgramValue, Histogram, PolyLine, Polygon, Pt2D, Statistic, Time,
+};
+
 use crate::widgets::line_plot::{make_legend, thick_lineseries, Yvalue};
 use crate::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, PlotOptions, ScreenDims,
     ScreenPt, Series, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::{
-    Angle, Distance, Duration, HgramValue, Histogram, PolyLine, Polygon, Pt2D, Statistic, Time,
-};
-use std::collections::VecDeque;
 
 // The X is always time
 pub struct FanChart {

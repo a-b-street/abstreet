@@ -1,14 +1,16 @@
+use std::collections::{BTreeSet, HashMap};
+
+use abstutil::prettyprint_usize;
+use geom::{Duration, Time};
+use sim::{TripEndpoint, TripID, TripMode};
+use widgetry::{Btn, Checkbox, EventCtx, Filler, Line, Panel, Text, Widget};
+
 use crate::app::App;
 use crate::game::State;
 use crate::helpers::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
 use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
 use crate::sandbox::dashboards::table::{Col, Filter, Table};
 use crate::sandbox::dashboards::DashTab;
-use abstutil::prettyprint_usize;
-use geom::{Duration, Time};
-use sim::{TripEndpoint, TripID, TripMode};
-use std::collections::{BTreeSet, HashMap};
-use widgetry::{Btn, Checkbox, EventCtx, Filler, Line, Panel, Text, Widget};
 
 pub struct FinishedTripTable;
 

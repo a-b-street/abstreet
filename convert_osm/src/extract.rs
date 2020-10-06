@@ -1,13 +1,16 @@
-use crate::reader::{Document, Relation};
-use crate::transit;
-use crate::Options;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
+
+use osm::{NodeID, OsmID, RelationID, WayID};
+
 use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, PolyLine, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType};
 use map_model::{osm, AreaType, NamePerLanguage};
-use osm::{NodeID, OsmID, RelationID, WayID};
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+
+use crate::reader::{Document, Relation};
+use crate::transit;
+use crate::Options;
 
 pub struct OsmExtract {
     // Unsplit roads

@@ -1,9 +1,12 @@
-use crate::{Bounds, Distance, Pt2D};
-use aabb_quadtree::geom::{Point, Rect};
+use std::collections::BTreeMap;
+
 use aabb_quadtree::QuadTree;
 use geo::algorithm::contains::Contains;
 use geo::prelude::{ClosestPoint, EuclideanDistance};
-use std::collections::BTreeMap;
+
+use aabb_quadtree::geom::{Point, Rect};
+
+use crate::{Bounds, Distance, Pt2D};
 
 // TODO Maybe use https://crates.io/crates/spatial-join proximity maps
 

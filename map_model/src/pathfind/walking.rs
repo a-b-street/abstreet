@@ -1,18 +1,21 @@
 // Pathfinding for pedestrians using contraction hierarchies, as well as figuring out if somebody
 // should use public transit.
 
+use std::cell::RefCell;
+use std::collections::HashSet;
+
+use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
+use serde::{Deserialize, Serialize};
+use thread_local::ThreadLocal;
+
+use geom::{Distance, Speed};
+
 use crate::pathfind::driving::VehiclePathfinder;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::{
     BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathConstraints,
     PathRequest, PathStep, Position,
 };
-use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
-use geom::{Distance, Speed};
-use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::collections::HashSet;
-use thread_local::ThreadLocal;
 
 #[derive(Serialize, Deserialize)]
 pub struct SidewalkPathfinder {

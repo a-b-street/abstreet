@@ -1,14 +1,15 @@
-use crate::app::{App, Flags, ShowEverything};
-use crate::options::Options;
-use crate::pregame::TitleScreen;
-use crate::render::DrawOptions;
-use crate::sandbox::{GameplayMode, SandboxMode};
 use geom::Polygon;
 use map_model::PermanentMapEdits;
 use widgetry::{
     hotkeys, Btn, Canvas, Choice, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Menu, Outcome, Panel, ScreenRectangle, Text, VerticalAlignment, Widget, GUI,
 };
+
+use crate::app::{App, Flags, ShowEverything};
+use crate::options::Options;
+use crate::pregame::TitleScreen;
+use crate::render::DrawOptions;
+use crate::sandbox::{GameplayMode, SandboxMode};
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
 // top-level game states.

@@ -1,8 +1,11 @@
-use crate::{CarID, VehicleType};
+use std::collections::{BTreeMap, BTreeSet};
+
+use serde::{Deserialize, Serialize};
+
 use geom::{Duration, Time};
 use map_model::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+
+use crate::{CarID, VehicleType};
 
 // Note this only indexes into the zones we track here, not all of them in the map.
 type ZoneIdx = usize;

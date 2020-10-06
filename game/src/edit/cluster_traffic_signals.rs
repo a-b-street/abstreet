@@ -1,13 +1,15 @@
-use crate::app::{App, ShowEverything};
-use crate::game::{DrawBaselayer, State, Transition};
-use crate::render::{DrawOptions, DrawUberTurnGroup, BIG_ARROW_THICKNESS};
+use std::collections::BTreeSet;
+
 use geom::ArrowCap;
 use map_model::{IntersectionCluster, IntersectionID};
-use std::collections::BTreeSet;
 use widgetry::{
     Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, VerticalAlignment,
     Widget,
 };
+
+use crate::app::{App, ShowEverything};
+use crate::game::{DrawBaselayer, State, Transition};
+use crate::render::{DrawOptions, DrawUberTurnGroup, BIG_ARROW_THICKNESS};
 
 pub struct ClusterTrafficSignalEditor {
     panel: Panel,

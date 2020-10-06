@@ -1,12 +1,14 @@
-use crate::{
-    AgentID, CarID, OffMapLocation, ParkingSpot, PedestrianID, PersonID, TripID, TripMode,
-};
+use serde::{Deserialize, Serialize};
+
 use geom::Duration;
 use map_model::{
     BuildingID, BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, Path,
     PathRequest, Traversable,
 };
-use serde::{Deserialize, Serialize};
+
+use crate::{
+    AgentID, CarID, OffMapLocation, ParkingSpot, PedestrianID, PersonID, TripID, TripMode,
+};
 
 // Many of these were created for a test framework that's been abandoned. They could be removed or
 // have their API adjusted, but it's not urgent; publishing an event that's not used by Analytics

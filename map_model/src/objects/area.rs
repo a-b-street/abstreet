@@ -1,10 +1,13 @@
 // Areas are just used for drawing.
 
-use crate::osm;
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::Polygon;
-use serde::{Deserialize, Serialize};
-use std::fmt;
+
+use crate::osm;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct AreaID(

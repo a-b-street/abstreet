@@ -6,11 +6,12 @@
 //
 // TODO Eventually rewrite this to go through the public API. Faster to iterate in Rust for now.
 
+use rand::seq::SliceRandom;
+use rand_xorshift::XorShiftRng;
+
 use abstutil::{CmdArgs, Timer};
 use geom::Duration;
 use map_model::{LaneID, LaneType, Map, MapEdits};
-use rand::seq::SliceRandom;
-use rand_xorshift::XorShiftRng;
 use sim::{Sim, SimFlags};
 
 fn main() {

@@ -1,9 +1,10 @@
 // Some helpers for working with fast_paths.
 
-use fast_paths::{NodeId, ShortestPath};
-use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::BTreeMap;
 use std::fmt::Debug;
+
+use fast_paths::{NodeId, ShortestPath};
+use serde::{Deserialize, Deserializer, Serialize};
 
 // TODO Upstream this in fast_paths when this is more solid.
 #[derive(Serialize)]

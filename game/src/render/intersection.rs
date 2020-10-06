@@ -1,16 +1,18 @@
+use std::cell::RefCell;
+
+use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
+use map_model::{
+    Direction, DrivingSide, Intersection, IntersectionID, IntersectionType, LaneType, Map, Road,
+    RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
+};
+use widgetry::{Color, Drawable, GeomBatch, GfxCtx, RewriteColor};
+
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{
     traffic_signal, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
-use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
-use map_model::{
-    Direction, DrivingSide, Intersection, IntersectionID, IntersectionType, LaneType, Map, Road,
-    RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
-};
-use std::cell::RefCell;
-use widgetry::{Color, Drawable, GeomBatch, GfxCtx, RewriteColor};
 
 pub struct DrawIntersection {
     pub id: IntersectionID,

@@ -1,5 +1,6 @@
-use crate::{Canvas, Event, Key, MultiKey, ScreenPt};
 use geom::Duration;
+
+use crate::{Canvas, Event, Key, MultiKey, ScreenPt};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.

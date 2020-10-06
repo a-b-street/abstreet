@@ -1,6 +1,8 @@
-use crate::{AreaType, Map};
-use geom::{LonLat, Polygon, Ring};
 use serde::{Deserialize, Serialize};
+
+use geom::{LonLat, Polygon, Ring};
+
+use crate::{AreaType, Map};
 
 // A single city (like Seattle) can be broken down into multiple boundary polygons (udistrict,
 // ballard, downtown, etc). The load map screen uses this struct to display the entire city.

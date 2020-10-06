@@ -1,10 +1,13 @@
 // TODO Possibly these should be methods on Map.
 
+use std::collections::{HashMap, HashSet};
+
+use petgraph::graphmap::DiGraphMap;
+
+use geom::Distance;
+
 pub use crate::pathfind::driving_cost;
 use crate::{BuildingID, LaneID, Map, PathConstraints, PathRequest};
-use geom::Distance;
-use petgraph::graphmap::DiGraphMap;
-use std::collections::{HashMap, HashSet};
 
 // Calculate the srongy connected components (SCC) of the part of the map accessible by constraints
 // (ie, the graph of sidewalks or driving+bike lanes). The largest component is the "main" graph;

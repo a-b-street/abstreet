@@ -1,8 +1,9 @@
+use abstutil::MultiMap;
+
 use crate::{
     Choice, EventCtx, GfxCtx, Menu, Outcome, ScreenDims, ScreenPt, TextBox, Widget, WidgetImpl,
     WidgetOutput,
 };
-use abstutil::MultiMap;
 
 const NUM_SEARCH_RESULTS: usize = 10;
 

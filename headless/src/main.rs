@@ -12,24 +12,26 @@
 #[macro_use]
 extern crate log;
 
-use abstutil::{serialize_btreemap, CmdArgs, Timer};
-use geom::{Duration, LonLat, Time};
-use hyper::{Body, Request, Response, Server, StatusCode};
-use map_model::{
-    CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
-    MovementID, PermanentMapEdits, RoadID, TurnID,
-};
-use rand::SeedableRng;
-use rand_xorshift::XorShiftRng;
-use serde::{Deserialize, Serialize};
-use sim::{
-    AgentID, AgentType, ExternalPerson, GetDrawAgents, PersonID, Scenario, ScenarioModifier, Sim,
-    SimFlags, SimOptions, TripID, TripMode, VehicleType,
-};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::convert::TryFrom;
 use std::error::Error;
 use std::sync::RwLock;
+
+use hyper::{Body, Request, Response, Server, StatusCode};
+use rand::SeedableRng;
+use rand_xorshift::XorShiftRng;
+use serde::{Deserialize, Serialize};
+
+use abstutil::{serialize_btreemap, CmdArgs, Timer};
+use geom::{Duration, LonLat, Time};
+use map_model::{
+    CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
+    MovementID, PermanentMapEdits, RoadID, TurnID,
+};
+use sim::{
+    AgentID, AgentType, ExternalPerson, GetDrawAgents, PersonID, Scenario, ScenarioModifier, Sim,
+    SimFlags, SimOptions, TripID, TripMode, VehicleType,
+};
 
 lazy_static::lazy_static! {
     static ref MAP: RwLock<Map> = RwLock::new(Map::blank());

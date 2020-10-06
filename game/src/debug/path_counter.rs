@@ -1,15 +1,16 @@
 // A state to count the number of trips that will cross different roads.
 
-use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork, CommonState};
-use crate::game::{State, Transition};
-use crate::helpers::ID;
 use abstutil::Counter;
 use map_model::{IntersectionID, PathStep, RoadID, Traversable};
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
     VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{ColorLegend, ColorNetwork, CommonState};
+use crate::game::{State, Transition};
+use crate::helpers::ID;
 
 pub struct PathCounter {
     panel: Panel,

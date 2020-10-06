@@ -1,9 +1,10 @@
-use crate::app::App;
-use crate::game::{DrawBaselayer, State, Transition};
 use widgetry::{
     hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, RewriteColor,
     Text, Widget,
 };
+
+use crate::app::App;
+use crate::game::{DrawBaselayer, State, Transition};
 
 pub struct CutsceneBuilder {
     name: String,

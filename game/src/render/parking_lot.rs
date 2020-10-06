@@ -1,13 +1,15 @@
-use crate::app::App;
-use crate::colors::ColorScheme;
-use crate::helpers::ID;
-use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use std::cell::RefCell;
+
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{
     osm, LaneType, Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
 };
-use std::cell::RefCell;
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
+
+use crate::app::App;
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
+use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 
 pub struct DrawParkingLot {
     pub id: ParkingLotID,

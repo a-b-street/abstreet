@@ -151,6 +151,11 @@ All code is automatically formatted using
 <https://github.com/rust-lang/rustfmt>; please run `cargo +nightly fmt` before
 sending a PR. (You have to install the nightly toolchain just for fmt)
 
+cargo fmt can't yet organize imports, but we follow a convention to minimize
+conflict with what some IDEs do. Follow existing code to group imports: std,
+external crates, other crates in the project, the current crate, then finally
+any module declarations.
+
 The error handling is unfortunately inconsistent. The goal is to gracefully
 degrade instead of crashing the game. If a crash does happen, make sure the logs
 will have enough context to reproduce and debug. For example, giving up when

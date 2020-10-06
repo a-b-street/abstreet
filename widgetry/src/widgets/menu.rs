@@ -1,8 +1,9 @@
+use geom::Pt2D;
+
 use crate::{
     text, Choice, EventCtx, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt, ScreenRectangle,
     Style, Text, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::Pt2D;
 
 pub struct Menu<T> {
     choices: Vec<Choice<T>>,

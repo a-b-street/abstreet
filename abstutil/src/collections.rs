@@ -1,7 +1,8 @@
-use itertools::Itertools;
-use serde::{Deserialize, Serialize};
 use std::cmp::Ord;
 use std::collections::{BTreeMap, BTreeSet};
+
+use itertools::Itertools;
+use serde::{Deserialize, Serialize};
 
 // TODO Ideally derive Serialize and Deserialize, but I can't seem to express the lifetimes
 // correctly.

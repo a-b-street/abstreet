@@ -1,10 +1,12 @@
-use crate::Distance;
-use ordered_float::NotNan;
-use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fmt;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+
+use ordered_float::NotNan;
+use serde::{Deserialize, Serialize};
+
+use crate::Distance;
 
 // longitude is x, latitude is y
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]

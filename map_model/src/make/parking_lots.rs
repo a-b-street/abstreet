@@ -2,15 +2,17 @@
 // sidewalk + driving lane, then automatically generate individual parking spots perpendicular to
 // the aisles.
 
+use std::collections::HashSet;
+
+use abstutil::Timer;
+use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
+
 use crate::make::match_points_to_lanes;
 use crate::raw::RawParkingLot;
 use crate::{
     osm, Map, ParkingLot, ParkingLotID, PathConstraints, Position, NORMAL_LANE_THICKNESS,
     PARKING_LOT_SPOT_LENGTH,
 };
-use abstutil::Timer;
-use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
-use std::collections::HashSet;
 
 pub fn make_all_parking_lots(
     input: &Vec<RawParkingLot>,

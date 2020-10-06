@@ -1,19 +1,22 @@
-use crate::app::App;
-use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, OpenTrip, Tab};
-use geom::{Angle, Duration, Time};
-use map_model::Map;
+use std::collections::BTreeMap;
+
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
+
+use geom::{Angle, Duration, Time};
+use map_model::Map;
 use sim::{
     AgentID, CarID, ParkingSpot, PedestrianID, Person, PersonID, PersonState, TripEndpoint, TripID,
     TripMode, TripResult, VehicleType,
 };
-use std::collections::BTreeMap;
 use widgetry::{
     Btn, Color, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan,
     Widget,
 };
+
+use crate::app::App;
+use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, OpenTrip, Tab};
 
 pub fn trips(
     ctx: &mut EventCtx,

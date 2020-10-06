@@ -1,11 +1,12 @@
-use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork};
-use crate::layer::{Layer, LayerOutcome};
 use geom::{ArrowCap, Distance, PolyLine};
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, Text,
     TextExt, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{ColorLegend, ColorNetwork};
+use crate::layer::{Layer, LayerOutcome};
 
 pub struct Elevation {
     unzoomed: Drawable,

@@ -1,8 +1,9 @@
+use geom::Polygon;
+
 use crate::{
     Btn, Button, Choice, Color, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey, Outcome,
     ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::Polygon;
 
 // TODO Radio buttons in the menu
 pub struct PersistentSplit<T: Clone + PartialEq> {

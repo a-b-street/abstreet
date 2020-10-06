@@ -5,14 +5,16 @@
 //    the zone
 // 3) Congestion capping, where only so many cars per hour can enter the zone
 
+use std::collections::BTreeSet;
+
+use enumset::EnumSet;
+use petgraph::graphmap::DiGraphMap;
+use serde::{Deserialize, Serialize};
+
 use crate::pathfind::{driving_cost, walking_cost, WalkingNode};
 use crate::{
     IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoadID, TurnID,
 };
-use enumset::EnumSet;
-use petgraph::graphmap::DiGraphMap;
-use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct AccessRestrictions {

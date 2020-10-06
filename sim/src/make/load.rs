@@ -1,8 +1,10 @@
-use crate::{Scenario, ScenarioModifier, Sim, SimOptions};
-use abstutil::CmdArgs;
-use map_model::{Map, MapEdits};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
+
+use abstutil::CmdArgs;
+use map_model::{Map, MapEdits};
+
+use crate::{Scenario, ScenarioModifier, Sim, SimOptions};
 
 #[derive(Clone)]
 pub struct SimFlags {

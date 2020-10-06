@@ -1,13 +1,15 @@
 // Heuristically generate a ControlTrafficSignal just based on the roads leading to each traffic
 // signal.
 
+use std::collections::HashSet;
+
+use abstutil::Timer;
+use geom::Duration;
+
 use crate::{
     ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Movement, MovementID,
     PhaseType, RoadID, Stage, TurnPriority, TurnType,
 };
-use abstutil::Timer;
-use geom::Duration;
-use std::collections::HashSet;
 
 // Applies a bunch of heuristics to a single intersection, returning the valid results in
 // best-first order.

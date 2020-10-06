@@ -1,9 +1,10 @@
-pub use crate::backend_glow::Drawable;
-use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
-use crate::ScreenDims;
 use glow::HasContext;
 use wasm_bindgen::JsCast;
 use winit::platform::web::WindowExtWebSys;
+
+pub use crate::backend_glow::Drawable;
+use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
+use crate::ScreenDims;
 
 pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     info!("Setting up widgetry");

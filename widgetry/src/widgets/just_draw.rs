@@ -1,8 +1,9 @@
+use geom::Polygon;
+
 use crate::{
     svg, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, ScreenDims, ScreenPt,
     ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::Polygon;
 
 // Just draw something, no interaction.
 pub struct JustDraw {

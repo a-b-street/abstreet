@@ -1,7 +1,9 @@
-use crate::{IndividTrip, PersonID, PersonSpec, SpawnTrip, TripEndpoint, TripMode, TripPurpose};
+use serde::Deserialize;
+
 use geom::{Distance, FindClosest, LonLat, Pt2D, Time};
 use map_model::Map;
-use serde::Deserialize;
+
+use crate::{IndividTrip, PersonID, PersonSpec, SpawnTrip, TripEndpoint, TripMode, TripPurpose};
 
 #[derive(Deserialize)]
 pub struct ExternalPerson {

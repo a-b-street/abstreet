@@ -1,14 +1,16 @@
+use rand::seq::SliceRandom;
+use rand::Rng;
+use rand_xorshift::XorShiftRng;
+
+use abstutil::{prettyprint_usize, Parallelism, Timer};
+use geom::{Distance, Duration, Time};
+use map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
+
 use crate::make::fork_rng;
 use crate::{
     IndividTrip, PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnTrip, TripEndpoint,
     TripMode, TripPurpose,
 };
-use abstutil::{prettyprint_usize, Parallelism, Timer};
-use geom::{Distance, Duration, Time};
-use map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
-use rand::seq::SliceRandom;
-use rand::Rng;
-use rand_xorshift::XorShiftRng;
 
 impl ScenarioGenerator {
     // Designed in https://github.com/dabreegster/abstreet/issues/154

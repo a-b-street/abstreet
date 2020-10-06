@@ -1,8 +1,10 @@
-use crate::drawing::Uniforms;
-use crate::{Canvas, Color, GeomBatch, ScreenDims, ScreenRectangle};
-use glow::HasContext;
 use std::cell::Cell;
 use std::rc::Rc;
+
+use glow::HasContext;
+
+use crate::drawing::Uniforms;
+use crate::{Canvas, Color, GeomBatch, ScreenDims, ScreenRectangle};
 
 #[cfg(feature = "glow-backend")]
 pub use crate::backend_glow_native::setup;

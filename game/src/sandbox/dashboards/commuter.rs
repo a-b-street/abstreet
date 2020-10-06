@@ -1,18 +1,21 @@
+use std::collections::{BTreeSet, HashMap, HashSet};
+
+use maplit::hashset;
+
+use abstutil::{prettyprint_usize, Counter, MultiMap};
+use geom::{Distance, PolyLine, Polygon, Time};
+use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
+use sim::{DontDrawAgents, TripEndpoint, TripInfo, TripMode};
+use widgetry::{
+    AreaSlider, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+};
+
 use crate::app::{App, ShowEverything};
 use crate::common::{ColorLegend, CommonState};
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::checkbox_per_mode;
 use crate::render::DrawOptions;
-use abstutil::{prettyprint_usize, Counter, MultiMap};
-use geom::{Distance, PolyLine, Polygon, Time};
-use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
-use maplit::hashset;
-use sim::{DontDrawAgents, TripEndpoint, TripInfo, TripMode};
-use std::collections::{BTreeSet, HashMap, HashSet};
-use widgetry::{
-    AreaSlider, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
-};
 
 pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,

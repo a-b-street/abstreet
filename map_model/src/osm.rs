@@ -1,7 +1,8 @@
 // Useful utilities for working with OpenStreetMap.
 
-use serde::{Deserialize, Serialize};
 use std::fmt;
+
+use serde::{Deserialize, Serialize};
 
 // These are common OSM keys. Keys used in just one or two places don't really need to be defined
 // here.

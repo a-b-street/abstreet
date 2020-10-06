@@ -1,9 +1,11 @@
+use std::collections::HashSet;
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
 use crate::{
     Angle, Bounds, Distance, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, Ring, EPSILON_DIST,
 };
-use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
-use std::fmt;
 
 // TODO How to tune this?
 const MITER_THRESHOLD: f64 = 500.0;

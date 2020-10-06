@@ -1,10 +1,12 @@
-use crate::reader::{Document, Relation};
+use std::collections::HashMap;
+
 use abstutil::Timer;
 use geom::{HashablePt2D, Polygon, Pt2D};
 use map_model::osm::{NodeID, OsmID, RelationID, WayID};
 use map_model::raw::{OriginalRoad, RawBusRoute, RawBusStop, RawMap};
 use map_model::{osm, Direction};
-use std::collections::HashMap;
+
+use crate::reader::{Document, Relation};
 
 pub fn extract_route(
     rel_id: RelationID,

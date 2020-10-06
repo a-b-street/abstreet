@@ -1,13 +1,15 @@
-use crate::app::App;
-use crate::game::{DrawBaselayer, State, Transition};
-use crate::sandbox::gameplay::Tutorial;
-use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
+use std::collections::{BTreeMap, HashSet};
+
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Duration, Percent, Time};
 use map_model::Map;
 use sim::{AlertHandler, OrigPersonID, Scenario, Sim, SimFlags, SimOptions};
-use std::collections::{BTreeMap, HashSet};
 use widgetry::{Btn, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, Widget};
+
+use crate::app::App;
+use crate::game::{DrawBaselayer, State, Transition};
+use crate::sandbox::gameplay::Tutorial;
+use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
 
 // TODO Also have some kind of screenshot to display for each challenge
 pub struct Challenge {

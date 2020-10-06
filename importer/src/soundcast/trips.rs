@@ -1,4 +1,5 @@
-use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
+use std::collections::HashMap;
+
 use abstutil::{prettyprint_usize, MultiMap, Parallelism, Timer};
 use geom::LonLat;
 use map_model::{osm, BuildingID, IntersectionID, Map, PathConstraints, PathRequest, PathStep};
@@ -6,7 +7,8 @@ use sim::{
     IndividTrip, OffMapLocation, OrigPersonID, PersonID, PersonSpec, Scenario, SpawnTrip,
     TripEndpoint, TripMode,
 };
-use std::collections::HashMap;
+
+use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
 
 #[derive(Clone, Debug)]
 struct Trip {

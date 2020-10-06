@@ -1,7 +1,8 @@
-use crate::app::App;
-use crate::info::{header_btns, make_table, Details};
 use map_model::AreaID;
 use widgetry::{EventCtx, Line, Widget};
+
+use crate::app::App;
+use crate::info::{header_btns, make_table, Details};
 
 pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widget> {
     let mut rows = vec![];

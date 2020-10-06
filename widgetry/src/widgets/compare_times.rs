@@ -1,8 +1,9 @@
+use geom::{Angle, Circle, Distance, Duration, Pt2D};
+
 use crate::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ScreenDims, ScreenPt,
     ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::{Angle, Circle, Distance, Duration, Pt2D};
 
 // TODO This is tuned for the trip time comparison right now.
 // - Generic types for x and y axis

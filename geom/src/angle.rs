@@ -1,5 +1,6 @@
-use serde::{Deserialize, Serialize};
 use std::fmt;
+
+use serde::{Deserialize, Serialize};
 
 // Stores in radians
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]

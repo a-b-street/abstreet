@@ -1,10 +1,12 @@
+use std::cell::{Cell, RefCell};
+
+use geom::{Bounds, Polygon, Pt2D};
+
 use crate::assets::Assets;
 use crate::backend::{GfxCtxInnards, PrerenderInnards};
 use crate::{
     Canvas, Color, Drawable, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle, Style, Text,
 };
-use geom::{Bounds, Polygon, Pt2D};
-use std::cell::{Cell, RefCell};
 
 // We organize major layers of the app with whole number z values, with lower values being more on
 // top.

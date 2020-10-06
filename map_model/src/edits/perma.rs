@@ -1,10 +1,13 @@
+use std::collections::{BTreeMap, BTreeSet};
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_btreemap, serialize_btreemap};
+use geom::Time;
+
 use crate::edits::{EditCmd, EditIntersection, EditRoad, MapEdits};
 use crate::raw::OriginalRoad;
 use crate::{osm, ControlStopSign, IntersectionID, Map};
-use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::Time;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
 
 // MapEdits are converted to this before serializing. Referencing things like LaneID in a Map won't
 // work if the basemap is rebuilt from new OSM data, so instead we use stabler OSM IDs that're less

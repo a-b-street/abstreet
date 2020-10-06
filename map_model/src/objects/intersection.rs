@@ -2,12 +2,15 @@
 // signals. Roads that lead to the boundary of the map end at border intersections, with only that
 // one road attached.
 
-use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
-use abstutil::{deserialize_usize, serialize_usize};
-use geom::{Distance, Polygon};
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_usize, serialize_usize};
+use geom::{Distance, Polygon};
+
+use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct IntersectionID(
