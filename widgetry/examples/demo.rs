@@ -151,8 +151,10 @@ impl GUI for App {
                     self.elapsed += offset;
                     self.redraw_stopwatch(ctx);
                 }
-                "apply textures" => {
-                    let (bg_texture, fg_texture) = self.controls.dropdown_value("texture dropdown");
+                "apply" => {
+                    let (v_align, h_align) = self.controls.dropdown_value("alignment");
+                    self.controls.align(v_align, h_align);
+                    let (bg_texture, fg_texture) = self.controls.dropdown_value("texture");
                     self.texture_demo = setup_texture_demo(ctx, bg_texture, fg_texture);
                 }
                 _ => unimplemented!("clicked: {:?}", x),
@@ -328,14 +330,38 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         Widget::row(vec![
             Widget::dropdown(
                 ctx,
-                "texture dropdown",
+                "alignment",
+                (HorizontalAlignment::Center, VerticalAlignment::Top),
+                vec![
+                    Choice::new("Top", (HorizontalAlignment::Center, VerticalAlignment::Top)),
+                    Choice::new(
+                        "Left",
+                        (HorizontalAlignment::Left, VerticalAlignment::Center),
+                    ),
+                    Choice::new(
+                        "Bottom",
+                        (HorizontalAlignment::Center, VerticalAlignment::Bottom),
+                    ),
+                    Choice::new(
+                        "Right",
+                        (HorizontalAlignment::Right, VerticalAlignment::Center),
+                    ),
+                    Choice::new(
+                        "Center",
+                        (HorizontalAlignment::Center, VerticalAlignment::Center),
+                    ),
+                ],
+            ),
+            Widget::dropdown(
+                ctx,
+                "texture",
                 (Texture::SAND, Texture::CACTUS),
                 vec![
                     Choice::new("Cold", (Texture::SNOW, Texture::SNOW_PERSON)),
                     Choice::new("Hot", (Texture::SAND, Texture::CACTUS)),
                 ],
             ),
-            Btn::text_fg("Apply Textures").build(ctx, "apply textures", None),
+            Btn::text_fg("Apply").build(ctx, "apply", None),
         ])
         .margin_above(30),
     ]))

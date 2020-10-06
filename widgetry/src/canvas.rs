@@ -338,7 +338,7 @@ impl Canvas {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum HorizontalAlignment {
     Left,
     Center,
@@ -347,7 +347,7 @@ pub enum HorizontalAlignment {
     Centered(f64),
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum VerticalAlignment {
     Top,
     Center,
