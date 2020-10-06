@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
