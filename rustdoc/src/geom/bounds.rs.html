@@ -166,10 +166,14 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
-<span class="kw">use</span> <span class="ident">aabb_quadtree</span>::<span class="ident">geom</span>::{<span class="ident">Point</span>, <span class="ident">Rect</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">aabb_quadtree</span>::<span class="ident">geom</span>::{<span class="ident">Point</span>, <span class="ident">Rect</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Bounds</span> {

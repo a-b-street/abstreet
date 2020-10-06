@@ -145,6 +145,11 @@
 <span id="145">145</span>
 <span id="146">146</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">RawMap</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">MapConfig</span>, <span class="ident">NamePerLanguage</span>};
+
 <span class="kw">mod</span> <span class="ident">clip</span>;
 <span class="kw">mod</span> <span class="ident">extract</span>;
 <span class="kw">mod</span> <span class="ident">parking</span>;
@@ -153,11 +158,6 @@
 <span class="kw">mod</span> <span class="ident">split_ways</span>;
 <span class="kw">mod</span> <span class="ident">srtm</span>;
 <span class="kw">mod</span> <span class="ident">transit</span>;
-
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">RawMap</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">MapConfig</span>, <span class="ident">NamePerLanguage</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
     <span class="kw">pub</span> <span class="ident">osm_input</span>: <span class="ident">String</span>,

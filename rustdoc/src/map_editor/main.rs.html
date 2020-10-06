@@ -365,19 +365,21 @@
 <span id="365">365</span>
 <span id="366">366</span>
 <span id="367">367</span>
+<span id="368">368</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">mod</span> <span class="ident">model</span>;
-<span class="kw">mod</span> <span class="ident">world</span>;
+<span class="kw">use</span> <span class="ident">model</span>::{<span class="ident">Model</span>, <span class="ident">ID</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
-<span class="kw">use</span> <span class="ident">model</span>::{<span class="ident">Model</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Btn</span>, <span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
     <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">GUI</span>,
 };
+
+<span class="kw">mod</span> <span class="ident">model</span>;
+<span class="kw">mod</span> <span class="ident">world</span>;
 
 <span class="kw">struct</span> <span class="ident">UI</span> {
     <span class="ident">model</span>: <span class="ident">Model</span>,

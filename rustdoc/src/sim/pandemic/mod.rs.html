@@ -339,15 +339,19 @@
 <span id="339">339</span>
 <span id="340">340</span>
 <span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">mod</span> <span class="ident">pandemic</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pandemic</span>::{<span class="ident">Cmd</span>, <span class="ident">PandemicModel</span>};
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 <span class="kw">use</span> <span class="ident">rand_distr</span>::{<span class="ident">Distribution</span>, <span class="ident">Exp</span>, <span class="ident">Normal</span>};
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>;
+
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
+
+<span class="kw">mod</span> <span class="ident">pandemic</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AnyTime</span>(<span class="ident">f64</span>);

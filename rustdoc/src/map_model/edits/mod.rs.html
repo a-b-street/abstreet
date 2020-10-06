@@ -654,13 +654,21 @@
 <span id="654">654</span>
 <span id="655">655</span>
 <span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Once a Map exists, the player can edit it in the UI (producing MapEdits in-memory), then save</span>
 <span class="comment">// the changes to a file (as PermanentMapEdits). See</span>
 <span class="comment">// https://dabreegster.github.io/abstreet/map/edits.html.</span>
 
-<span class="kw">mod</span> <span class="ident">compat</span>;
-<span class="kw">mod</span> <span class="ident">perma</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">perma</span>::<span class="ident">PermanentMapEdits</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Speed</span>, <span class="ident">Time</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>::<span class="ident">lane_specs</span>::<span class="ident">get_lane_specs_ltr</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -668,11 +676,9 @@
     <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>,
     <span class="ident">Pathfinder</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
 };
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Speed</span>, <span class="ident">Time</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">perma</span>::<span class="ident">PermanentMapEdits</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+
+<span class="kw">mod</span> <span class="ident">compat</span>;
+<span class="kw">mod</span> <span class="ident">perma</span>;
 
 <span class="comment">// Represents changes to a map. Note this isn&#39;t serializable -- that&#39;s what PermanentMapEdits does.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>

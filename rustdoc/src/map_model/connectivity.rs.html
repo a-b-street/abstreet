@@ -64,14 +64,20 @@
 <span id="64">64</span>
 <span id="65">65</span>
 <span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// TODO Possibly these should be methods on Map.</span>
 
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+
+<span class="kw">use</span> <span class="ident">petgraph</span>::<span class="ident">graphmap</span>::<span class="ident">DiGraphMap</span>;
+
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
+
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">driving_cost</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BuildingID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
-<span class="kw">use</span> <span class="ident">petgraph</span>::<span class="ident">graphmap</span>::<span class="ident">DiGraphMap</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="comment">// Calculate the srongy connected components (SCC) of the part of the map accessible by constraints</span>
 <span class="comment">// (ie, the graph of sidewalks or driving+bike lanes). The largest component is the &quot;main&quot; graph;</span>

@@ -108,16 +108,20 @@
 <span id="108">108</span>
 <span id="109">109</span>
 <span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Pathfinding without needing to build a separate contraction hierarchy.</span>
+
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
+
+<span class="kw">use</span> <span class="ident">petgraph</span>::<span class="ident">graphmap</span>::<span class="ident">DiGraphMap</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">driving</span>::<span class="ident">driving_cost</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">walking</span>::{
     <span class="ident">one_step_walking_path</span>, <span class="ident">walking_cost</span>, <span class="ident">walking_path_to_steps</span>, <span class="ident">WalkingNode</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">TurnID</span>};
-<span class="kw">use</span> <span class="ident">petgraph</span>::<span class="ident">graphmap</span>::<span class="ident">DiGraphMap</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
 <span class="comment">// TODO These should maybe keep the DiGraphMaps as state. It&#39;s cheap to recalculate it for edits.</span>
 

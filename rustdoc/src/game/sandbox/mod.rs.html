@@ -518,13 +518,20 @@
 <span id="518">518</span>
 <span id="519">519</span>
 <span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dashboards</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gameplay</span>;
-<span class="kw">mod</span> <span class="ident">misc_tools</span>;
-<span class="kw">mod</span> <span class="ident">speed</span>;
-<span class="kw">mod</span> <span class="ident">time_warp</span>;
-<span class="kw">mod</span> <span class="ident">uber_turns</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
+<span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">speed</span>::{<span class="ident">SpeedControls</span>, <span class="ident">TimePanel</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">time_warp</span>::<span class="ident">TimeWarpScreen</span>;
+
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Time</span>;
+<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AgentType</span>;
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+};
 
 <span class="kw">use</span> <span class="self">self</span>::<span class="ident">misc_tools</span>::{<span class="ident">RoutePreview</span>, <span class="ident">TurnExplorer</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -540,16 +547,13 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">OptionsPanel</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pregame</span>::<span class="ident">MainMenu</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">UnzoomedAgents</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Time</span>;
-<span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AgentType</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">speed</span>::{<span class="ident">SpeedControls</span>, <span class="ident">TimePanel</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">time_warp</span>::<span class="ident">TimeWarpScreen</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
-};
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dashboards</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gameplay</span>;
+<span class="kw">mod</span> <span class="ident">misc_tools</span>;
+<span class="kw">mod</span> <span class="ident">speed</span>;
+<span class="kw">mod</span> <span class="ident">time_warp</span>;
+<span class="kw">mod</span> <span class="ident">uber_turns</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SandboxMode</span> {
     <span class="ident">gameplay</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">gameplay</span>::<span class="ident">GameplayState</span><span class="op">&gt;</span>,

@@ -410,6 +410,8 @@
 <span id="410">410</span>
 <span id="411">411</span>
 <span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
@@ -425,24 +427,26 @@
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">serialize_btreemap</span>, <span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">hyper</span>::{<span class="ident">Body</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">Server</span>, <span class="ident">StatusCode</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">CompressedMovementID</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>,
-    <span class="ident">MovementID</span>, <span class="ident">PermanentMapEdits</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>,
-};
-<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">SeedableRng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">ExternalPerson</span>, <span class="ident">GetDrawAgents</span>, <span class="ident">PersonID</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">Sim</span>,
-    <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>, <span class="ident">VehicleType</span>,
-};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">RwLock</span>;
+
+<span class="kw">use</span> <span class="ident">hyper</span>::{<span class="ident">Body</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">Server</span>, <span class="ident">StatusCode</span>};
+<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">SeedableRng</span>;
+<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">serialize_btreemap</span>, <span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{
+    <span class="ident">CompressedMovementID</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>,
+    <span class="ident">MovementID</span>, <span class="ident">PermanentMapEdits</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>,
+};
+<span class="kw">use</span> <span class="ident">sim</span>::{
+    <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">ExternalPerson</span>, <span class="ident">GetDrawAgents</span>, <span class="ident">PersonID</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">Sim</span>,
+    <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>, <span class="ident">VehicleType</span>,
+};
 
 <span class="ident">lazy_static</span>::<span class="macro">lazy_static</span><span class="macro">!</span> {
     <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">MAP</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="ident">Map</span>::<span class="ident">blank</span>());

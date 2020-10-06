@@ -790,7 +790,21 @@
 <span id="790">790</span>
 <span id="791">791</span>
 <span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_multimap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">MultiMap</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{
+    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">DrivingSide</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">Traversable</span>,
+    <span class="ident">SIDEWALK_THICKNESS</span>,
+};
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sim</span>::<span class="ident">Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">AgentID</span>, <span class="ident">AgentProperties</span>, <span class="ident">Command</span>, <span class="ident">CreatePedestrian</span>, <span class="ident">DistanceInterval</span>, <span class="ident">DrawPedCrowdInput</span>,
@@ -798,14 +812,6 @@
     <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">TimeInterval</span>, <span class="ident">TransitSimState</span>,
     <span class="ident">TripID</span>, <span class="ident">TripManager</span>, <span class="ident">UnzoomedAgent</span>,
 };
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_multimap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">MultiMap</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">DrivingSide</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">Traversable</span>,
-    <span class="ident">SIDEWALK_THICKNESS</span>,
-};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">const</span> <span class="ident">TIME_TO_START_BIKING</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">30.0</span>);
 <span class="kw">const</span> <span class="ident">TIME_TO_FINISH_BIKING</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">45.0</span>);

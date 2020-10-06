@@ -239,14 +239,18 @@
 <span id="239">239</span>
 <span id="240">240</span>
 <span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">LinearGradient</span>, <span class="ident">Prerender</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">VecMap</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">lyon</span>::<span class="ident">math</span>::<span class="ident">Point</span>;
 <span class="kw">use</span> <span class="ident">lyon</span>::<span class="ident">path</span>::<span class="ident">PathEvent</span>;
 <span class="kw">use</span> <span class="ident">lyon</span>::<span class="ident">tessellation</span>;
 <span class="kw">use</span> <span class="ident">lyon</span>::<span class="ident">tessellation</span>::<span class="ident">geometry_builder</span>::{<span class="ident">simple_builder</span>, <span class="ident">VertexBuffers</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">VecMap</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">LinearGradient</span>, <span class="ident">Prerender</span>};
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">HIGH_QUALITY</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">0.01</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LOW_QUALITY</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">1.0</span>;

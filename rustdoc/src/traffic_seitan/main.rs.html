@@ -93,6 +93,7 @@
 <span id="93">93</span>
 <span id="94">94</span>
 <span id="95">95</span>
+<span id="96">96</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This is a tool that runs a simulation, constantly interrupting to apply random map edits to the</span>
 <span class="comment">// live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.</span>
@@ -102,11 +103,12 @@
 <span class="comment">//</span>
 <span class="comment">// TODO Eventually rewrite this to go through the public API. Faster to iterate in Rust for now.</span>
 
+<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
+<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
+
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>};
-<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Sim</span>, <span class="ident">SimFlags</span>};
 
 <span class="kw">fn</span> <span class="ident">main</span>() {

@@ -440,17 +440,21 @@
 <span id="440">440</span>
 <span id="441">441</span>
 <span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">DrivingGoal</span>, <span class="ident">OffMapLocation</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkSpot</span>,
-    <span class="ident">TripEndpoint</span>, <span class="ident">TripLeg</span>, <span class="ident">TripManager</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>, <span class="ident">VehicleType</span>,
-};
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>,
 };
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">DrivingGoal</span>, <span class="ident">OffMapLocation</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkSpot</span>,
+    <span class="ident">TripEndpoint</span>, <span class="ident">TripLeg</span>, <span class="ident">TripManager</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>, <span class="ident">VehicleType</span>,
+};
 
 <span class="comment">// TODO Some of these fields are unused now that we separately pass TripEndpoint</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>

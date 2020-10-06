@@ -73,11 +73,15 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">basename</span>, <span class="ident">list_dir</span>, <span class="ident">maybe_read_binary</span>, <span class="ident">parent_path</span>, <span class="ident">slurp_file</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">DeserializeOwned</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
+
+<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">DeserializeOwned</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">basename</span>, <span class="ident">list_dir</span>, <span class="ident">maybe_read_binary</span>, <span class="ident">parent_path</span>, <span class="ident">slurp_file</span>, <span class="ident">Timer</span>};
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_read_json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="op">!</span><span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.json&quot;</span>) <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.geojson&quot;</span>) {

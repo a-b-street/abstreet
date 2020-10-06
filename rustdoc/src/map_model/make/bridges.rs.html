@@ -30,10 +30,12 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
+<span id="33">33</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Road</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Road</span>, <span class="ident">RoadID</span>};
 
 <span class="comment">// Look for roads underneath bridges, then lower their z-order. OSM tags bridges and tunnels, but</span>
 <span class="comment">// not the roads that pass under bridges.</span>

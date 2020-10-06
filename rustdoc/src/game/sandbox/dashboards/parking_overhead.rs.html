@@ -189,15 +189,17 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
+<span id="192">192</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripPhaseType</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Checkbox</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">State</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>::<span class="ident">generic_trip_table</span>::<span class="ident">GenericTripTable</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>::<span class="ident">table</span>::{<span class="ident">Col</span>, <span class="ident">Filter</span>, <span class="ident">Table</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>::<span class="ident">DashTab</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripPhaseType</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Checkbox</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
 <span class="comment">// TODO Compare all of these things before/after</span>
 

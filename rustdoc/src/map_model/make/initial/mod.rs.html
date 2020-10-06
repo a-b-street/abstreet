@@ -155,20 +155,26 @@
 <span id="155">155</span>
 <span id="156">156</span>
 <span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Naming is confusing, but RawMap -&gt; InitialMap -&gt; Map. InitialMap is separate pretty much just</span>
 <span class="comment">// for the step of producing https://dabreegster.github.io/abstreet/map/importing/geometry.html.</span>
 
-<span class="kw">mod</span> <span class="ident">geometry</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">lane_specs</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+
+<span class="kw">use</span> <span class="ident">lane_specs</span>::<span class="ident">LaneSpec</span>;
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">geometry</span>::<span class="ident">intersection_polygon</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>, <span class="ident">RawRoad</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionType</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">lane_specs</span>::<span class="ident">LaneSpec</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+
+<span class="kw">mod</span> <span class="ident">geometry</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">lane_specs</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InitialMap</span> {
     <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,

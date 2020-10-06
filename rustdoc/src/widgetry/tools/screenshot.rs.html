@@ -102,12 +102,16 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">runner</span>::{<span class="ident">State</span>, <span class="ident">GUI</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Prerender</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fs</span>, <span class="ident">process</span>, <span class="ident">thread</span>, <span class="ident">time</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">runner</span>::{<span class="ident">State</span>, <span class="ident">GUI</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Prerender</span>;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">screenshot_everything</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">GUI</span><span class="op">&gt;</span>(
     <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">G</span><span class="op">&gt;</span>,

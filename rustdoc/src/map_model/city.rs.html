@@ -50,10 +50,14 @@
 <span id="50">50</span>
 <span id="51">51</span>
 <span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AreaType</span>, <span class="ident">Map</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AreaType</span>, <span class="ident">Map</span>};
 
 <span class="comment">// A single city (like Seattle) can be broken down into multiple boundary polygons (udistrict,</span>
 <span class="comment">// ballard, downtown, etc). The load map screen uses this struct to display the entire city.</span>

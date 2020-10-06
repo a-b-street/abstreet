@@ -24,14 +24,10 @@
 <span id="24">24</span>
 <span id="25">25</span>
 <span id="26">26</span>
+<span id="27">27</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">mod</span> <span class="ident">activity_model</span>;
-<span class="kw">mod</span> <span class="ident">external</span>;
-<span class="kw">mod</span> <span class="ident">generator</span>;
-<span class="kw">mod</span> <span class="ident">load</span>;
-<span class="kw">mod</span> <span class="ident">modifier</span>;
-<span class="kw">mod</span> <span class="ident">scenario</span>;
-<span class="kw">mod</span> <span class="ident">spawner</span>;
+<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">RngCore</span>, <span class="ident">SeedableRng</span>};
+<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">external</span>::{<span class="ident">ExternalPerson</span>, <span class="ident">ExternalTrip</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">generator</span>::{
@@ -43,8 +39,14 @@
     <span class="ident">IndividTrip</span>, <span class="ident">OffMapLocation</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripPurpose</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">spawner</span>::{<span class="ident">TripSpawner</span>, <span class="ident">TripSpec</span>};
-<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">RngCore</span>, <span class="ident">SeedableRng</span>};
-<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
+
+<span class="kw">mod</span> <span class="ident">activity_model</span>;
+<span class="kw">mod</span> <span class="ident">external</span>;
+<span class="kw">mod</span> <span class="ident">generator</span>;
+<span class="kw">mod</span> <span class="ident">load</span>;
+<span class="kw">mod</span> <span class="ident">modifier</span>;
+<span class="kw">mod</span> <span class="ident">scenario</span>;
+<span class="kw">mod</span> <span class="ident">spawner</span>;
 
 <span class="comment">// Need to explain this trick -- basically keeps consistency between two different simulations when</span>
 <span class="comment">// each one might make slightly different sequences of calls to the RNG.</span>

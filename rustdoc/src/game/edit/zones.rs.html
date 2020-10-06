@@ -222,7 +222,22 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
+
+<span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSet</span>;
+<span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
+
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">TripMode</span>;
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
+    <span class="ident">Spinner</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+};
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">ColorDiscrete</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
@@ -230,15 +245,6 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">select</span>::<span class="ident">RoadSelector</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">intersections_from_roads</span>};
-<span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSet</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">TripMode</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">Spinner</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
-};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZoneEditor</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,

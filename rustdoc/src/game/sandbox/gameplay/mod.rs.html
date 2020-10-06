@@ -397,13 +397,18 @@
 <span id="397">397</span>
 <span id="398">398</span>
 <span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">commute</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fix_traffic_signals</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">freeform</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">play_scenario</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tutorial</span>;
+<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Analytics</span>, <span class="ident">OrigPersonID</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">ScenarioModifier</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">freeform</span>::<span class="ident">spawn_agents_around</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">tutorial</span>::{<span class="ident">Tutorial</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
@@ -413,14 +418,13 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pregame</span>::<span class="ident">MainMenu</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>};
-<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Analytics</span>, <span class="ident">OrigPersonID</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">ScenarioModifier</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
-};
+
+<span class="comment">// TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">commute</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fix_traffic_signals</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">freeform</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">play_scenario</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tutorial</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GameplayMode</span> {

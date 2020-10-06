@@ -645,22 +645,23 @@
 <span id="645">645</span>
 <span id="646">646</span>
 <span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">mod</span> <span class="ident">analytics</span>;
-<span class="kw">mod</span> <span class="ident">cap</span>;
-<span class="kw">mod</span> <span class="ident">events</span>;
-<span class="kw">mod</span> <span class="ident">make</span>;
-<span class="kw">mod</span> <span class="ident">mechanics</span>;
-<span class="kw">mod</span> <span class="ident">pandemic</span>;
-<span class="kw">mod</span> <span class="ident">render</span>;
-<span class="kw">mod</span> <span class="ident">router</span>;
-<span class="kw">mod</span> <span class="ident">scheduler</span>;
-<span class="kw">mod</span> <span class="ident">sim</span>;
-<span class="kw">mod</span> <span class="ident">transit</span>;
-<span class="kw">mod</span> <span class="ident">trips</span>;
-
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{
+    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>,
+    <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>,
+};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">analytics</span>::{<span class="ident">Analytics</span>, <span class="ident">TripPhase</span>};
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">cap</span>::<span class="ident">CapSimState</span>;
@@ -686,14 +687,19 @@
     <span class="ident">CarStatus</span>, <span class="ident">DontDrawAgents</span>, <span class="ident">DrawCarInput</span>, <span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>, <span class="ident">GetDrawAgents</span>,
     <span class="ident">PedCrowdLocation</span>, <span class="ident">UnzoomedAgent</span>,
 };
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>,
-    <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>,
-};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+
+<span class="kw">mod</span> <span class="ident">analytics</span>;
+<span class="kw">mod</span> <span class="ident">cap</span>;
+<span class="kw">mod</span> <span class="ident">events</span>;
+<span class="kw">mod</span> <span class="ident">make</span>;
+<span class="kw">mod</span> <span class="ident">mechanics</span>;
+<span class="kw">mod</span> <span class="ident">pandemic</span>;
+<span class="kw">mod</span> <span class="ident">render</span>;
+<span class="kw">mod</span> <span class="ident">router</span>;
+<span class="kw">mod</span> <span class="ident">scheduler</span>;
+<span class="kw">mod</span> <span class="ident">sim</span>;
+<span class="kw">mod</span> <span class="ident">transit</span>;
+<span class="kw">mod</span> <span class="ident">trips</span>;
 
 <span class="comment">// http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BIKE_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">1.8</span>);

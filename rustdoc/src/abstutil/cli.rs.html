@@ -165,11 +165,15 @@
 <span id="165">165</span>
 <span id="166">166</span>
 <span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">elapsed_seconds</span>;
-<span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">RwLock</span>;
+
+<span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">elapsed_seconds</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CmdArgs</span> {
     <span class="ident">kv</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>,

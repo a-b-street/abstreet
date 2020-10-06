@@ -39,23 +39,6 @@
 <span id="39">39</span>
 <span id="40">40</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">mod</span> <span class="ident">angle</span>;
-<span class="kw">mod</span> <span class="ident">bounds</span>;
-<span class="kw">mod</span> <span class="ident">circle</span>;
-<span class="kw">mod</span> <span class="ident">distance</span>;
-<span class="kw">mod</span> <span class="ident">duration</span>;
-<span class="kw">mod</span> <span class="ident">find_closest</span>;
-<span class="kw">mod</span> <span class="ident">gps</span>;
-<span class="kw">mod</span> <span class="ident">line</span>;
-<span class="kw">mod</span> <span class="ident">percent</span>;
-<span class="kw">mod</span> <span class="ident">polygon</span>;
-<span class="kw">mod</span> <span class="ident">polyline</span>;
-<span class="kw">mod</span> <span class="ident">pt</span>;
-<span class="kw">mod</span> <span class="ident">ring</span>;
-<span class="kw">mod</span> <span class="ident">speed</span>;
-<span class="kw">mod</span> <span class="ident">stats</span>;
-<span class="kw">mod</span> <span class="ident">time</span>;
-
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">angle</span>::<span class="ident">Angle</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">bounds</span>::{<span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">circle</span>::<span class="ident">Circle</span>;
@@ -72,6 +55,23 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">speed</span>::<span class="ident">Speed</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">stats</span>::{<span class="ident">HgramValue</span>, <span class="ident">Histogram</span>, <span class="ident">Statistic</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">time</span>::<span class="ident">Time</span>;
+
+<span class="kw">mod</span> <span class="ident">angle</span>;
+<span class="kw">mod</span> <span class="ident">bounds</span>;
+<span class="kw">mod</span> <span class="ident">circle</span>;
+<span class="kw">mod</span> <span class="ident">distance</span>;
+<span class="kw">mod</span> <span class="ident">duration</span>;
+<span class="kw">mod</span> <span class="ident">find_closest</span>;
+<span class="kw">mod</span> <span class="ident">gps</span>;
+<span class="kw">mod</span> <span class="ident">line</span>;
+<span class="kw">mod</span> <span class="ident">percent</span>;
+<span class="kw">mod</span> <span class="ident">polygon</span>;
+<span class="kw">mod</span> <span class="ident">polyline</span>;
+<span class="kw">mod</span> <span class="ident">pt</span>;
+<span class="kw">mod</span> <span class="ident">ring</span>;
+<span class="kw">mod</span> <span class="ident">speed</span>;
+<span class="kw">mod</span> <span class="ident">stats</span>;
+<span class="kw">mod</span> <span class="ident">time</span>;
 
 <span class="comment">// About 0.4 inches... which is quite tiny on the scale of things. :)</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">EPSILON_DIST</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">0.01</span>);

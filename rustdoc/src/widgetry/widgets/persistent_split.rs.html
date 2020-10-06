@@ -94,12 +94,14 @@
 <span id="94">94</span>
 <span id="95">95</span>
 <span id="96">96</span>
+<span id="97">97</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
+
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Btn</span>, <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>,
     <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
 
 <span class="comment">// TODO Radio buttons in the menu</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PersistentSplit</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PartialEq</span><span class="op">&gt;</span> {

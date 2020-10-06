@@ -394,9 +394,24 @@
 <span id="394">394</span>
 <span id="395">395</span>
 <span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// See https://dabreegster.github.io/abstreet/map/importing/index.html for an overview. This module</span>
 <span class="comment">// covers the RawMap-&gt;Map stage.</span>
+
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">Pathfinder</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">connectivity</span>, <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>,
+    <span class="ident">Direction</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>,
+    <span class="ident">Movement</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">Zone</span>,
+};
 
 <span class="kw">mod</span> <span class="ident">bridges</span>;
 <span class="kw">mod</span> <span class="ident">buildings</span>;
@@ -407,17 +422,6 @@
 <span class="kw">mod</span> <span class="ident">transit</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">turns</span>;
 <span class="kw">mod</span> <span class="ident">walking_turns</span>;
-
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">Pathfinder</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">connectivity</span>, <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>,
-    <span class="ident">Direction</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>,
-    <span class="ident">Movement</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">Zone</span>,
-};
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">impl</span> <span class="ident">Map</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_from_raw</span>(<span class="kw-2">mut</span> <span class="ident">raw</span>: <span class="ident">RawMap</span>, <span class="ident">build_ch</span>: <span class="ident">bool</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span> {

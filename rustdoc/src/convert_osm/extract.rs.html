@@ -714,17 +714,23 @@
 <span id="714">714</span>
 <span id="715">715</span>
 <span id="716">716</span>
+<span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">reader</span>::{<span class="ident">Document</span>, <span class="ident">Relation</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">transit</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Options</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
+
+<span class="kw">use</span> <span class="ident">osm</span>::{<span class="ident">NodeID</span>, <span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
+
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">HashablePt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::{<span class="ident">RawArea</span>, <span class="ident">RawBuilding</span>, <span class="ident">RawMap</span>, <span class="ident">RawParkingLot</span>, <span class="ident">RawRoad</span>, <span class="ident">RestrictionType</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">AreaType</span>, <span class="ident">NamePerLanguage</span>};
-<span class="kw">use</span> <span class="ident">osm</span>::{<span class="ident">NodeID</span>, <span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">reader</span>::{<span class="ident">Document</span>, <span class="ident">Relation</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">transit</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Options</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OsmExtract</span> {
     <span class="comment">// Unsplit roads</span>

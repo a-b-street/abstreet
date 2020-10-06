@@ -447,10 +447,11 @@
 <span id="447">447</span>
 <span id="448">448</span>
 <span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::{<span class="ident">Layer</span>, <span class="ident">LayerOutcome</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
+
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Parallelism</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
@@ -458,11 +459,14 @@
     <span class="ident">NORMAL_LANE_THICKNESS</span>,
 };
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">GetDrawAgents</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Scenario</span>, <span class="ident">VehicleType</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
     <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::{<span class="ident">Layer</span>, <span class="ident">LayerOutcome</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Occupancy</span> {
     <span class="ident">time</span>: <span class="ident">Time</span>,

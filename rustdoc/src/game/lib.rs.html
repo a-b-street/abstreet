@@ -214,7 +214,17 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
+<span id="217">217</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
+<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">SimFlags</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">Flags</span>;
+
 <span class="kw">mod</span> <span class="ident">app</span>;
 <span class="kw">mod</span> <span class="ident">challenges</span>;
 <span class="kw">mod</span> <span class="ident">colors</span>;
@@ -231,14 +241,6 @@
 <span class="kw">mod</span> <span class="ident">pregame</span>;
 <span class="kw">mod</span> <span class="ident">render</span>;
 <span class="kw">mod</span> <span class="ident">sandbox</span>;
-
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
-
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">Flags</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">SimFlags</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();

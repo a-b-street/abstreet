@@ -978,20 +978,26 @@
 <span id="978">978</span>
 <span id="979">979</span>
 <span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">CarStatus</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Event</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">Vehicle</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
+
+<span class="kw">use</span> <span class="ident">enum_dispatch</span>::<span class="ident">enum_dispatch</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
 <span class="kw">use</span> <span class="ident">abstutil</span>::{
     <span class="ident">deserialize_btreemap</span>, <span class="ident">deserialize_multimap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">MultiMap</span>,
     <span class="ident">Timer</span>,
 };
-<span class="kw">use</span> <span class="ident">enum_dispatch</span>::<span class="ident">enum_dispatch</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BuildingID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">OffstreetParking</span>, <span class="ident">ParkingLotID</span>, <span class="ident">PathConstraints</span>,
     <span class="ident">PathStep</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
 };
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">CarStatus</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Event</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">Vehicle</span>};
 
 <span class="attribute">#[<span class="ident">enum_dispatch</span>(<span class="ident">ParkingSimState</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ParkingSim</span> {

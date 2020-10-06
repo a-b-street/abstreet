@@ -68,13 +68,15 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
+<span id="71">71</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Some helpers for working with fast_paths.</span>
 
-<span class="kw">use</span> <span class="ident">fast_paths</span>::{<span class="ident">NodeId</span>, <span class="ident">ShortestPath</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
+
+<span class="kw">use</span> <span class="ident">fast_paths</span>::{<span class="ident">NodeId</span>, <span class="ident">ShortestPath</span>};
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>};
 
 <span class="comment">// TODO Upstream this in fast_paths when this is more solid.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>

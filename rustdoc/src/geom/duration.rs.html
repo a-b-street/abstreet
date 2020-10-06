@@ -310,13 +310,19 @@
 <span id="310">310</span>
 <span id="311">311</span>
 <span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">trim_f64</span>, <span class="ident">Distance</span>, <span class="ident">Speed</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">elapsed_seconds</span>;
-<span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">ops</span>};
+
+<span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">elapsed_seconds</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">trim_f64</span>, <span class="ident">Distance</span>, <span class="ident">Speed</span>};
 
 <span class="comment">// In seconds. Can be negative.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>

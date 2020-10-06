@@ -212,13 +212,15 @@
 <span id="212">212</span>
 <span id="213">213</span>
 <span id="214">214</span>
+<span id="215">215</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">OnstreetParking</span>, <span class="ident">Options</span>, <span class="ident">PrivateOffstreetParking</span>, <span class="ident">PublicOffstreetParking</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::<span class="ident">ExtraShapes</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">OnstreetParking</span>, <span class="ident">Options</span>, <span class="ident">PrivateOffstreetParking</span>, <span class="ident">PublicOffstreetParking</span>};
 
 <span class="comment">// Just used for matching hints to different sides of a road.</span>
 <span class="kw">const</span> <span class="ident">DIRECTED_ROAD_THICKNESS</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">2.5</span>);

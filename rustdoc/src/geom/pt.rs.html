@@ -189,11 +189,15 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">trim_f64</span>, <span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">EPSILON_DIST</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+
 <span class="kw">use</span> <span class="ident">ordered_float</span>::<span class="ident">NotNan</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">trim_f64</span>, <span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">EPSILON_DIST</span>};
 
 <span class="comment">// This represents world-space in meters.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>

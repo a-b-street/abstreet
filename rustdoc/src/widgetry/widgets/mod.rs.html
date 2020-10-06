@@ -732,7 +732,28 @@
 <span id="732">732</span>
 <span id="733">733</span>
 <span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
+
+<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">geometry</span>::{<span class="ident">Rect</span>, <span class="ident">Size</span>};
+<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">node</span>::{<span class="ident">Node</span>, <span class="ident">Stretch</span>};
+<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">number</span>::<span class="ident">Number</span>;
+<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">style</span>::{
+    <span class="ident">AlignItems</span>, <span class="ident">Dimension</span>, <span class="ident">FlexDirection</span>, <span class="ident">FlexWrap</span>, <span class="ident">JustifyContent</span>, <span class="ident">PositionType</span>, <span class="ident">Style</span>,
+};
+
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">containers</span>::{<span class="ident">Container</span>, <span class="ident">Nothing</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">panel</span>::<span class="ident">Panel</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">Drawable</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
+    <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">Menu</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>,
+};
+
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">autocomplete</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">button</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">checkbox</span>;
@@ -750,21 +771,6 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">slider</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">spinner</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">text_box</span>;
-
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">containers</span>::{<span class="ident">Container</span>, <span class="ident">Nothing</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">panel</span>::<span class="ident">Panel</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">Drawable</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
-    <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">Menu</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>,
-};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
-<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">geometry</span>::{<span class="ident">Rect</span>, <span class="ident">Size</span>};
-<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">node</span>::{<span class="ident">Node</span>, <span class="ident">Stretch</span>};
-<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">number</span>::<span class="ident">Number</span>;
-<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">style</span>::{
-    <span class="ident">AlignItems</span>, <span class="ident">Dimension</span>, <span class="ident">FlexDirection</span>, <span class="ident">FlexWrap</span>, <span class="ident">JustifyContent</span>, <span class="ident">PositionType</span>, <span class="ident">Style</span>,
-};
 
 <span class="doccomment">/// Create a new widget by implementing this trait. You can instantiate your widget by calling</span>
 <span class="doccomment">/// `Widget::new(Box::new(instance of your new widget))`, which gives you the usual style options.</span>

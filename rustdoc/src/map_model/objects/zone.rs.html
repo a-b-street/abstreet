@@ -173,6 +173,8 @@
 <span id="173">173</span>
 <span id="174">174</span>
 <span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Zones and AccessRestrictions are used to model things like:</span>
 <span class="comment">// 1) gated communities, where only trips beginning or ending at a building in the neighborhood may</span>
@@ -181,14 +183,16 @@
 <span class="comment">//    the zone</span>
 <span class="comment">// 3) Congestion capping, where only so many cars per hour can enter the zone</span>
 
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
+
+<span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSet</span>;
+<span class="kw">use</span> <span class="ident">petgraph</span>::<span class="ident">graphmap</span>::<span class="ident">DiGraphMap</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::{<span class="ident">driving_cost</span>, <span class="ident">walking_cost</span>, <span class="ident">WalkingNode</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>,
 };
-<span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSet</span>;
-<span class="kw">use</span> <span class="ident">petgraph</span>::<span class="ident">graphmap</span>::<span class="ident">DiGraphMap</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AccessRestrictions</span> {

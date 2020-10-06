@@ -234,6 +234,9 @@
 <span id="234">234</span>
 <span id="235">235</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">configuration</span>::{<span class="ident">load_configuration</span>, <span class="ident">ImporterConfiguration</span>};
+<span class="kw">use</span> <span class="ident">dependencies</span>::<span class="ident">are_dependencies_callable</span>;
+
 <span class="kw">mod</span> <span class="ident">berlin</span>;
 <span class="kw">mod</span> <span class="ident">configuration</span>;
 <span class="kw">mod</span> <span class="ident">dependencies</span>;
@@ -245,9 +248,6 @@
 <span class="kw">mod</span> <span class="ident">tel_aviv</span>;
 <span class="kw">mod</span> <span class="ident">utils</span>;
 <span class="kw">mod</span> <span class="ident">xian</span>;
-
-<span class="kw">use</span> <span class="ident">configuration</span>::{<span class="ident">load_configuration</span>, <span class="ident">ImporterConfiguration</span>};
-<span class="kw">use</span> <span class="ident">dependencies</span>::<span class="ident">are_dependencies_callable</span>;
 
 <span class="comment">// TODO Might be cleaner to express as a dependency graph?</span>
 

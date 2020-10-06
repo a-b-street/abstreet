@@ -204,14 +204,20 @@
 <span id="204">204</span>
 <span id="205">205</span>
 <span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Time</span>;
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edits</span>::{<span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">EditRoad</span>, <span class="ident">MapEdits</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">ControlStopSign</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Time</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="comment">// MapEdits are converted to this before serializing. Referencing things like LaneID in a Map won&#39;t</span>
 <span class="comment">// work if the basemap is rebuilt from new OSM data, so instead we use stabler OSM IDs that&#39;re less</span>

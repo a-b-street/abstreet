@@ -846,16 +846,21 @@
 <span id="846">846</span>
 <span id="847">847</span>
 <span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">mod</span> <span class="ident">bulk</span>;
-<span class="kw">mod</span> <span class="ident">cluster_traffic_signals</span>;
-<span class="kw">mod</span> <span class="ident">lanes</span>;
-<span class="kw">mod</span> <span class="ident">routes</span>;
-<span class="kw">mod</span> <span class="ident">select</span>;
-<span class="kw">mod</span> <span class="ident">stop_signs</span>;
-<span class="kw">mod</span> <span class="ident">traffic_signals</span>;
-<span class="kw">mod</span> <span class="ident">validate</span>;
-<span class="kw">mod</span> <span class="ident">zones</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
+
+<span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Speed</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">MapEdits</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Menu</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">cluster_traffic_signals</span>::<span class="ident">ClusterTrafficSignalEditor</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">lanes</span>::<span class="ident">LaneEditor</span>;
@@ -871,15 +876,16 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">OptionsPanel</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">DrawMap</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>, <span class="ident">TimeWarpScreen</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Speed</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">MapEdits</span>};
-<span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Menu</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
-};
+
+<span class="kw">mod</span> <span class="ident">bulk</span>;
+<span class="kw">mod</span> <span class="ident">cluster_traffic_signals</span>;
+<span class="kw">mod</span> <span class="ident">lanes</span>;
+<span class="kw">mod</span> <span class="ident">routes</span>;
+<span class="kw">mod</span> <span class="ident">select</span>;
+<span class="kw">mod</span> <span class="ident">stop_signs</span>;
+<span class="kw">mod</span> <span class="ident">traffic_signals</span>;
+<span class="kw">mod</span> <span class="ident">validate</span>;
+<span class="kw">mod</span> <span class="ident">zones</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EditMode</span> {
     <span class="ident">tool_panel</span>: <span class="ident">Panel</span>,

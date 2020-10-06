@@ -143,15 +143,21 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">text</span>::<span class="ident">Font</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">text</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Bounds</span>;
-<span class="kw">use</span> <span class="ident">lru</span>::<span class="ident">LruCache</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
+
+<span class="kw">use</span> <span class="ident">lru</span>::<span class="ident">LruCache</span>;
 <span class="kw">use</span> <span class="ident">usvg</span>::<span class="ident">fontdb</span>;
 <span class="kw">use</span> <span class="ident">usvg</span>::<span class="ident">Options</span>;
+
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Bounds</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">text</span>::<span class="ident">Font</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">text</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
 
 <span class="comment">// TODO We don&#39;t need refcell maybe? Can we take &amp;mut Assets?</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Assets</span> {

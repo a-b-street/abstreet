@@ -571,17 +571,21 @@
 <span id="571">571</span>
 <span id="572">572</span>
 <span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Heuristically generate a ControlTrafficSignal just based on the roads leading to each traffic</span>
 <span class="comment">// signal.</span>
+
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionCluster</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>,
     <span class="ident">PhaseType</span>, <span class="ident">RoadID</span>, <span class="ident">Stage</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
 };
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
 <span class="comment">// Applies a bunch of heuristics to a single intersection, returning the valid results in</span>
 <span class="comment">// best-first order.</span>

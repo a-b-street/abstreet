@@ -80,7 +80,18 @@
 <span id="80">80</span>
 <span id="81">81</span>
 <span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">commuter</span>::<span class="ident">CommuterPatterns</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">traffic_signals</span>::<span class="ident">TrafficSignalDemand</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip_table</span>::<span class="ident">FinishedTripTable</span>;
+
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
+
 <span class="kw">mod</span> <span class="ident">commuter</span>;
 <span class="kw">mod</span> <span class="ident">generic_trip_table</span>;
 <span class="kw">mod</span> <span class="ident">misc</span>;
@@ -89,13 +100,6 @@
 <span class="kw">mod</span> <span class="ident">table</span>;
 <span class="kw">mod</span> <span class="ident">traffic_signals</span>;
 <span class="kw">mod</span> <span class="ident">trip_table</span>;
-
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">commuter</span>::<span class="ident">CommuterPatterns</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">traffic_signals</span>::<span class="ident">TrafficSignalDemand</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip_table</span>::<span class="ident">FinishedTripTable</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="comment">// Oh the dashboards melted, but we still had the radio</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>

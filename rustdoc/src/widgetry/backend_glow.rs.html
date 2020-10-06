@@ -552,12 +552,16 @@
 <span id="552">552</span>
 <span id="553">553</span>
 <span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">drawing</span>::<span class="ident">Uniforms</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">GeomBatch</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenRectangle</span>};
-<span class="kw">use</span> <span class="ident">glow</span>::<span class="ident">HasContext</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
+
+<span class="kw">use</span> <span class="ident">glow</span>::<span class="ident">HasContext</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">drawing</span>::<span class="ident">Uniforms</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">GeomBatch</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenRectangle</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glow-backend&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glow_native</span>::<span class="ident">setup</span>;

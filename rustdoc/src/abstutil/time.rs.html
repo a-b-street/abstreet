@@ -626,11 +626,15 @@
 <span id="626">626</span>
 <span id="627">627</span>
 <span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">PROGRESS_FREQUENCY_SECONDS</span>};
-<span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">stdout</span>, <span class="ident">BufReader</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="ident">Read</span>, <span class="ident">Write</span>};
+
+<span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">PROGRESS_FREQUENCY_SECONDS</span>};
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">elapsed_seconds</span>(<span class="ident">since</span>: <span class="ident">Instant</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
     <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">since</span>.<span class="ident">elapsed</span>();

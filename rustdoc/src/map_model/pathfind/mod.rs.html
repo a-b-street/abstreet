@@ -632,16 +632,20 @@
 <span id="632">632</span>
 <span id="633">633</span>
 <span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Everything related to pathfinding through a map for different types of agents.</span>
 
-<span class="kw">mod</span> <span class="ident">ch</span>;
-<span class="kw">mod</span> <span class="ident">dijkstra</span>;
-<span class="kw">mod</span> <span class="ident">driving</span>;
-<span class="kw">mod</span> <span class="ident">node_map</span>;
-<span class="comment">// TODO tmp</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">uber_turns</span>;
-<span class="kw">mod</span> <span class="ident">walking</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+
+<span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSetType</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">EPSILON_DIST</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ch</span>::<span class="ident">ContractionHierarchyPathfinder</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">driving</span>::<span class="ident">driving_cost</span>;
@@ -650,12 +654,14 @@
     <span class="ident">osm</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
     <span class="ident">UberTurn</span>,
 };
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
-<span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSetType</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">EPSILON_DIST</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+
+<span class="kw">mod</span> <span class="ident">ch</span>;
+<span class="kw">mod</span> <span class="ident">dijkstra</span>;
+<span class="kw">mod</span> <span class="ident">driving</span>;
+<span class="kw">mod</span> <span class="ident">node_map</span>;
+<span class="comment">// TODO tmp</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">uber_turns</span>;
+<span class="kw">mod</span> <span class="ident">walking</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PathStep</span> {

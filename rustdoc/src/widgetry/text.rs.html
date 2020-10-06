@@ -548,15 +548,19 @@
 <span id="548">548</span>
 <span id="549">549</span>
 <span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::<span class="ident">DefaultHasher</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Write</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>::<span class="ident">Hasher</span>;
+
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">assets</span>::<span class="ident">Assets</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">svg</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">JustDraw</span>, <span class="ident">MultiKey</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">Widget</span>,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::<span class="ident">DefaultHasher</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Write</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>::<span class="ident">Hasher</span>;
 
 <span class="comment">// Same as body()</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">DEFAULT_FONT</span>: <span class="ident">Font</span> <span class="op">=</span> <span class="ident">Font</span>::<span class="ident">OverpassRegular</span>;

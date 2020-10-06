@@ -302,14 +302,16 @@
 <span id="302">302</span>
 <span id="303">303</span>
 <span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">mod</span> <span class="ident">city_picker</span>;
-<span class="kw">mod</span> <span class="ident">colors</span>;
-<span class="kw">mod</span> <span class="ident">heatmap</span>;
-<span class="kw">mod</span> <span class="ident">isochrone</span>;
-<span class="kw">mod</span> <span class="ident">minimap</span>;
-<span class="kw">mod</span> <span class="ident">navigate</span>;
-<span class="kw">mod</span> <span class="ident">warp</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
+
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>,
+    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">city_picker</span>::<span class="ident">CityPicker</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">colors</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>, <span class="ident">ColorScale</span>, <span class="ident">DivergingScale</span>};
@@ -322,12 +324,14 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::{<span class="ident">list_names</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::<span class="ident">InfoPanel</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">ContextualActions</span>, <span class="ident">Tab</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
-};
+
+<span class="kw">mod</span> <span class="ident">city_picker</span>;
+<span class="kw">mod</span> <span class="ident">colors</span>;
+<span class="kw">mod</span> <span class="ident">heatmap</span>;
+<span class="kw">mod</span> <span class="ident">isochrone</span>;
+<span class="kw">mod</span> <span class="ident">minimap</span>;
+<span class="kw">mod</span> <span class="ident">navigate</span>;
+<span class="kw">mod</span> <span class="ident">warp</span>;
 
 <span class="comment">// TODO This is now just used in two modes...</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CommonState</span> {

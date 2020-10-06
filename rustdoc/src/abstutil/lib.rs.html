@@ -42,14 +42,6 @@
 <span class="comment">// - A/B Street-specific filesystem paths</span>
 <span class="comment">// - true utility functions (collections, prettyprinting, CLI parsing</span>
 
-<span class="kw">mod</span> <span class="ident">abst_paths</span>;
-<span class="kw">mod</span> <span class="ident">cli</span>;
-<span class="kw">mod</span> <span class="ident">collections</span>;
-<span class="kw">mod</span> <span class="ident">io</span>;
-<span class="kw">mod</span> <span class="ident">serde</span>;
-<span class="kw">mod</span> <span class="ident">time</span>;
-<span class="kw">mod</span> <span class="ident">utils</span>;
-
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
@@ -69,6 +61,14 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">collections</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">time</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">utils</span>::<span class="kw-2">*</span>;
+
+<span class="kw">mod</span> <span class="ident">abst_paths</span>;
+<span class="kw">mod</span> <span class="ident">cli</span>;
+<span class="kw">mod</span> <span class="ident">collections</span>;
+<span class="kw">mod</span> <span class="ident">io</span>;
+<span class="kw">mod</span> <span class="ident">serde</span>;
+<span class="kw">mod</span> <span class="ident">time</span>;
+<span class="kw">mod</span> <span class="ident">utils</span>;
 
 <span class="kw">const</span> <span class="ident">PROGRESS_FREQUENCY_SECONDS</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.2</span>;
 </pre></div>

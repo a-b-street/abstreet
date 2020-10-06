@@ -214,13 +214,17 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">extract</span>::<span class="ident">OsmExtract</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
+
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawIntersection</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">IntersectionType</span>, <span class="ident">NamePerLanguage</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">extract</span>::<span class="ident">OsmExtract</span>;
 
 <span class="comment">// Returns amenities and a mapping of all points to split road. (Some internal points on roads are</span>
 <span class="comment">// removed, so this mapping isn&#39;t redundant.)</span>

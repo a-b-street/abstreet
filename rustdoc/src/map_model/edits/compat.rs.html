@@ -250,15 +250,21 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
+
+<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
+<span class="kw">use</span> <span class="ident">serde_json</span>::<span class="ident">Value</span>;
+
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Speed</span>;
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">Direction</span>, <span class="ident">EditCmd</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PermanentMapEdits</span>, <span class="ident">RoadID</span>,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Speed</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
-<span class="kw">use</span> <span class="ident">serde_json</span>::<span class="ident">Value</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
 <span class="comment">// When the PermanentMapEdits format changes, add a transformation here to automatically convert</span>
 <span class="comment">// edits written with the old format.</span>

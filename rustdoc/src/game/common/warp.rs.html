@@ -264,18 +264,22 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
+
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Pt2D</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">RoadID</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Warper</span>, <span class="ident">Widget</span>};
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">PerMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Tab</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::<span class="ident">OpenTrip</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">SandboxMode</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Pt2D</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Warper</span>, <span class="ident">Widget</span>};
 
 <span class="kw">const</span> <span class="ident">WARP_TO_CAM_ZOOM</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">10.0</span>;
 
