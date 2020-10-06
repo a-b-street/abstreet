@@ -2,17 +2,20 @@
 // the changes to a file (as PermanentMapEdits). See
 // https://dabreegster.github.io/abstreet/map/edits.html.
 
+use std::collections::{BTreeMap, BTreeSet};
+
+pub use perma::PermanentMapEdits;
+use serde::{Deserialize, Serialize};
+
+use abstutil::{retain_btreemap, retain_btreeset, Timer};
+use geom::{Speed, Time};
+
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
     DrivingSide, IntersectionID, IntersectionType, LaneID, LaneType, Map, PathConstraints,
     Pathfinder, Road, RoadID, TurnID, Zone,
 };
-use abstutil::{retain_btreemap, retain_btreeset, Timer};
-use geom::{Speed, Time};
-pub use perma::PermanentMapEdits;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
 
 mod compat;
 mod perma;

@@ -1,7 +1,8 @@
+use glow::HasContext;
+
 pub use crate::backend_glow::Drawable;
 use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
 use crate::ScreenDims;
-use glow::HasContext;
 
 pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     let event_loop = winit::event_loop::EventLoop::new();

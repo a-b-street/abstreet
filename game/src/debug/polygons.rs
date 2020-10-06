@@ -1,10 +1,11 @@
-use crate::app::App;
-use crate::game::{State, Transition};
 use geom::{Polygon, Pt2D, Triangle};
 use widgetry::{
     Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider, Text,
     TextExt, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::game::{State, Transition};
 
 pub struct PolygonDebugger {
     panel: Panel,

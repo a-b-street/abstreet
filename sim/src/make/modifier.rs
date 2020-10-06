@@ -1,11 +1,14 @@
-use crate::{IndividTrip, PersonID, Scenario, SpawnTrip, TripMode};
-use abstutil::Timer;
-use geom::{Duration, Time};
-use map_model::Map;
+use std::collections::BTreeSet;
+
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde::Deserialize;
-use std::collections::BTreeSet;
+
+use abstutil::Timer;
+use geom::{Duration, Time};
+use map_model::Map;
+
+use crate::{IndividTrip, PersonID, Scenario, SpawnTrip, TripMode};
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Deserialize)]
 pub enum ScenarioModifier {

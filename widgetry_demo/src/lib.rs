@@ -1,7 +1,7 @@
-use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
-use std::collections::HashSet;
+
+use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
     lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions, Series,

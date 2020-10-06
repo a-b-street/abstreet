@@ -1,6 +1,11 @@
 // See https://dabreegster.github.io/abstreet/map/importing/index.html for an overview. This module
 // covers the RawMap->Map stage.
 
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+
+use abstutil::{Parallelism, Timer};
+use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
+
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
@@ -8,9 +13,6 @@ use crate::{
     Direction, Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits,
     Movement, PathConstraints, Position, Road, RoadID, Zone,
 };
-use abstutil::{Parallelism, Timer};
-use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 mod bridges;
 mod buildings;

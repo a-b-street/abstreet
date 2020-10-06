@@ -1,12 +1,14 @@
 // Pathfinding without needing to build a separate contraction hierarchy.
 
+use std::collections::BTreeSet;
+
+use petgraph::graphmap::DiGraphMap;
+
 use crate::pathfind::driving::driving_cost;
 use crate::pathfind::walking::{
     one_step_walking_path, walking_cost, walking_path_to_steps, WalkingNode,
 };
 use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, TurnID};
-use petgraph::graphmap::DiGraphMap;
-use std::collections::BTreeSet;
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
 

@@ -1,11 +1,12 @@
+use geom::Duration;
+use sim::{TripEndpoint, TripID, TripPhaseType};
+use widgetry::{Checkbox, EventCtx, Filler, Line, Panel, Text, Widget};
+
 use crate::app::App;
 use crate::game::State;
 use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
 use crate::sandbox::dashboards::table::{Col, Filter, Table};
 use crate::sandbox::dashboards::DashTab;
-use geom::Duration;
-use sim::{TripEndpoint, TripID, TripPhaseType};
-use widgetry::{Checkbox, EventCtx, Filler, Line, Panel, Text, Widget};
 
 // TODO Compare all of these things before/after
 

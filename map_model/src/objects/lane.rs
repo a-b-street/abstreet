@@ -1,13 +1,16 @@
 // A road segment is broken down into individual lanes, which have a LaneType.
 
+use std::collections::BTreeSet;
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_usize, serialize_usize};
+use geom::{Distance, Line, PolyLine, Pt2D};
+
 use crate::{
     osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, Road, RoadID, TurnType,
 };
-use abstutil::{deserialize_usize, serialize_usize};
-use geom::{Distance, Line, PolyLine, Pt2D};
-use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
-use std::fmt;
 
 // Bit longer than the longest car.
 pub const PARKING_SPOT_LENGTH: Distance = Distance::const_meters(8.0);

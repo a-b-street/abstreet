@@ -1,17 +1,19 @@
+use std::collections::HashMap;
+
+use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
+use geom::{ArrowCap, Distance, Duration, Polygon, Time};
+use map_model::{ControlTrafficSignal, IntersectionID, MovementID, PathStep, TurnType};
+use sim::{DontDrawAgents, TripEndpoint};
+use widgetry::{
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
+
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
-use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
-use geom::{ArrowCap, Distance, Duration, Polygon, Time};
-use map_model::{ControlTrafficSignal, IntersectionID, MovementID, PathStep, TurnType};
-use sim::{DontDrawAgents, TripEndpoint};
-use std::collections::HashMap;
-use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 
 pub struct TrafficSignalDemand {
     panel: Panel,

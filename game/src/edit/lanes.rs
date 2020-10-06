@@ -1,3 +1,9 @@
+use map_model::{EditCmd, LaneID, LaneType, Map};
+use widgetry::{
+    Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    TextExt, VerticalAlignment, Widget,
+};
+
 use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::zones::ZoneEditor;
@@ -8,11 +14,6 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::Renderable;
 use crate::sandbox::GameplayMode;
-use map_model::{EditCmd, LaneID, LaneType, Map};
-use widgetry::{
-    Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
-    TextExt, VerticalAlignment, Widget,
-};
 
 pub struct LaneEditor {
     l: LaneID,

@@ -1,3 +1,18 @@
+use std::collections::{BTreeSet, HashSet};
+use std::panic;
+
+use instant::Instant;
+use rand::SeedableRng;
+use rand_xorshift::XorShiftRng;
+use serde::{Deserialize, Serialize};
+
+use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, Parallelism, Timer};
+use geom::{Distance, Duration, Speed, Time};
+use map_model::{
+    BuildingID, BusRoute, LaneID, Map, ParkingLotID, Path, PathConstraints, PathRequest, Position,
+    Traversable,
+};
+
 pub use self::queries::AgentProperties;
 use crate::{
     AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrawCarInput,
@@ -8,18 +23,6 @@ use crate::{
     VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
     SPAWN_DIST,
 };
-use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, Parallelism, Timer};
-use geom::{Distance, Duration, Speed, Time};
-use instant::Instant;
-use map_model::{
-    BuildingID, BusRoute, LaneID, Map, ParkingLotID, Path, PathConstraints, PathRequest, Position,
-    Traversable,
-};
-use rand::SeedableRng;
-use rand_xorshift::XorShiftRng;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeSet, HashSet};
-use std::panic;
 
 mod queries;
 

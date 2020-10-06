@@ -1,12 +1,14 @@
+use std::cell::RefCell;
+
+use geom::{Angle, Distance, Line, Polygon, Pt2D, Ring};
+use map_model::{Building, BuildingID, LaneType, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
+
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::options::{CameraAngle, Options};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use geom::{Angle, Distance, Line, Polygon, Pt2D, Ring};
-use map_model::{Building, BuildingID, LaneType, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
-use std::cell::RefCell;
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
 pub struct DrawBuilding {
     pub id: BuildingID,

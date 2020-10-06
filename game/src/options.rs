@@ -1,12 +1,13 @@
-use crate::app::App;
-use crate::colors::ColorSchemeChoice;
-use crate::game::{State, Transition};
-use crate::render::DrawBuilding;
 use geom::Duration;
 use widgetry::{
     Btn, Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner,
     TextExt, Widget,
 };
+
+use crate::app::App;
+use crate::colors::ColorSchemeChoice;
+use crate::game::{State, Transition};
+use crate::render::DrawBuilding;
 
 // TODO SimOptions stuff too
 #[derive(Clone)]

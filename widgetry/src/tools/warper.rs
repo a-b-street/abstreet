@@ -1,6 +1,8 @@
-use crate::{EventCtx, UpdateType};
-use geom::{Line, Pt2D};
 use instant::Instant;
+
+use geom::{Line, Pt2D};
+
+use crate::{EventCtx, UpdateType};
 
 pub struct Warper {
     started: Instant,

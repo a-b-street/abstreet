@@ -2,16 +2,19 @@
 // structure is useful to iterate quickly on parts of the map importing pipeline without having to
 // constantly read .osm files, and to visualize the intermediate state with map_editor.
 
+use std::collections::{BTreeMap, BTreeSet};
+use std::fmt;
+
+use petgraph::graphmap::DiGraphMap;
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
+use geom::{Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
+
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
     osm, AreaType, Direction, DrivingSide, IntersectionType, LaneType, MapConfig, NamePerLanguage,
 };
-use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
-use geom::{Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
-use petgraph::graphmap::DiGraphMap;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
-use std::fmt;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawMap {

@@ -1,7 +1,9 @@
-use crate::{trim_f64, Duration};
-use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::{cmp, ops};
+
+use serde::{Deserialize, Serialize};
+
+use crate::{trim_f64, Duration};
 
 // In seconds since midnight. Can't be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]

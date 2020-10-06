@@ -1,12 +1,14 @@
-use crate::{
-    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
-};
+use std::collections::HashSet;
+
 use abstutil::prettyprint_usize;
 use geom::{
     Angle, Bounds, Circle, Distance, Duration, FindClosest, Percent, PolyLine, Polygon, Pt2D, Time,
 };
-use std::collections::HashSet;
+
+use crate::{
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
+};
 
 // The X is always time
 pub struct LinePlot<T: Yvalue<T>> {

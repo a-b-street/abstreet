@@ -1,12 +1,13 @@
-use crate::app::App;
-use crate::common::ColorNetwork;
-use crate::helpers::ID;
-use crate::info::{header_btns, make_tabs, Details, Tab};
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Time};
 use map_model::{BusRoute, BusRouteID, BusStopID, PathStep};
 use sim::{AgentID, CarID};
 use widgetry::{Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
+
+use crate::app::App;
+use crate::common::ColorNetwork;
+use crate::helpers::ID;
+use crate::info::{header_btns, make_tabs, Details, Tab};
 
 pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
     let bs = app.primary.map.get_bs(id);

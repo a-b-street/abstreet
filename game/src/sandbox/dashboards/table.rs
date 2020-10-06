@@ -1,7 +1,8 @@
-use crate::app::App;
 use abstutil::prettyprint_usize;
 use geom::Polygon;
 use widgetry::{Btn, Color, EventCtx, GeomBatch, Key, Line, Panel, Text, TextExt, Widget};
+
+use crate::app::App;
 
 // TODO With a bit more detangling from App, this could be lifted to widgetry!
 

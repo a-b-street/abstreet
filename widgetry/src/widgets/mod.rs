@@ -1,16 +1,19 @@
-use crate::widgets::containers::{Container, Nothing};
-pub use crate::widgets::panel::Panel;
-use crate::{
-    Button, Choice, Color, DeferDraw, DrawWithTooltips, Drawable, Dropdown, EventCtx, GeomBatch,
-    GfxCtx, JustDraw, Menu, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, TextBox,
-};
-use geom::{Distance, Percent, Polygon};
 use std::collections::HashSet;
+
 use stretch::geometry::{Rect, Size};
 use stretch::node::{Node, Stretch};
 use stretch::number::Number;
 use stretch::style::{
     AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, PositionType, Style,
+};
+
+use geom::{Distance, Percent, Polygon};
+
+use crate::widgets::containers::{Container, Nothing};
+pub use crate::widgets::panel::Panel;
+use crate::{
+    Button, Choice, Color, DeferDraw, DrawWithTooltips, Drawable, Dropdown, EventCtx, GeomBatch,
+    GfxCtx, JustDraw, Menu, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, TextBox,
 };
 
 pub mod autocomplete;

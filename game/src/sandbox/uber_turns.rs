@@ -1,17 +1,19 @@
+use std::collections::BTreeSet;
+
+use geom::ArrowCap;
+use map_model::{IntersectionCluster, IntersectionID, PathConstraints};
+use sim::DontDrawAgents;
+use widgetry::{
+    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+};
+
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::edit::ClusterTrafficSignalEditor;
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
-use geom::ArrowCap;
-use map_model::{IntersectionCluster, IntersectionID, PathConstraints};
-use sim::DontDrawAgents;
-use std::collections::BTreeSet;
-use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
-};
 
 pub struct UberTurnPicker {
     members: BTreeSet<IntersectionID>,

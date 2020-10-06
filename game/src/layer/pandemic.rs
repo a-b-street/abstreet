@@ -1,14 +1,16 @@
-use crate::app::App;
-use crate::common::{make_heatmap, HeatmapOptions};
-use crate::layer::{Layer, LayerOutcome};
+use std::collections::HashSet;
+
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
 use sim::{GetDrawAgents, PersonState};
-use std::collections::HashSet;
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{make_heatmap, HeatmapOptions};
+use crate::layer::{Layer, LayerOutcome};
 
 // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
 // return this kind of data instead!

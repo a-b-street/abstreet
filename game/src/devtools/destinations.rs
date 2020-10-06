@@ -1,7 +1,3 @@
-use crate::app::App;
-use crate::common::{make_heatmap, HeatmapOptions};
-use crate::game::{State, Transition};
-use crate::helpers::{amenity_type, ID};
 use abstutil::Counter;
 use map_model::BuildingID;
 use sim::{Scenario, TripEndpoint};
@@ -9,6 +5,11 @@ use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, Text, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{make_heatmap, HeatmapOptions};
+use crate::game::{State, Transition};
+use crate::helpers::{amenity_type, ID};
 
 pub struct PopularDestinations {
     per_bldg: Counter<BuildingID>,

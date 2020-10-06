@@ -1,10 +1,12 @@
+use std::collections::{BTreeMap, HashMap, HashSet};
+
+use serde::{Deserialize, Serialize};
+
 use abstutil::{prettyprint_usize, Counter, FileWithProgress, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::{osm, Map};
-use serde::{Deserialize, Serialize};
 use sim::{OrigPersonID, TripMode, TripPurpose};
-use std::collections::{BTreeMap, HashMap, HashSet};
 
 #[derive(Serialize, Deserialize)]
 pub struct PopDat {

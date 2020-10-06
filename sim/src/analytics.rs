@@ -1,12 +1,15 @@
-use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
+use std::collections::{BTreeMap, VecDeque};
+
+use serde::{Deserialize, Serialize};
+
 use abstutil::Counter;
 use geom::{Distance, Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
     ParkingLotID, Path, PathRequest, RoadID, Traversable,
 };
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, VecDeque};
+
+use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Analytics {

@@ -1,8 +1,9 @@
+use model::{Model, ID};
+
 use abstutil::{CmdArgs, Timer};
 use geom::{Distance, Line, Polygon};
 use map_model::osm;
 use map_model::raw::OriginalRoad;
-use model::{Model, ID};
 use widgetry::{
     Btn, Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, ScreenPt, Text, VerticalAlignment, Widget, GUI,

@@ -1,7 +1,3 @@
-use crate::app::App;
-use crate::common::{ColorDiscrete, ColorLegend, ColorNetwork};
-use crate::helpers::amenity_type;
-use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
 use geom::{Distance, Time};
 use map_model::LaneType;
@@ -10,6 +6,11 @@ use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, Text, TextExt,
     VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{ColorDiscrete, ColorLegend, ColorNetwork};
+use crate::helpers::amenity_type;
+use crate::layer::{Layer, LayerOutcome};
 
 pub struct BikeNetwork {
     panel: Panel,

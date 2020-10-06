@@ -1,3 +1,18 @@
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+
+pub use trip::OpenTrip;
+
+use geom::{Circle, Distance, Time};
+use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
+use sim::{
+    AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID,
+    VehicleType,
+};
+use widgetry::{
+    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget,
+};
+
 use crate::app::App;
 use crate::common::Warping;
 use crate::debug::path_counter::PathCounter;
@@ -5,18 +20,6 @@ use crate::edit::{EditMode, RouteEditor};
 use crate::game::Transition;
 use crate::helpers::{color_for_agent_type, hotkey_btn, open_browser, ID};
 use crate::sandbox::{dashboards, GameplayMode, SandboxMode, TimeWarpScreen};
-use geom::{Circle, Distance, Time};
-use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
-use sim::{
-    AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID,
-    VehicleType,
-};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-pub use trip::OpenTrip;
-use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget,
-};
 
 mod building;
 mod bus;

@@ -1,9 +1,11 @@
+use std::collections::BTreeSet;
+
+use map_model::{IntersectionID, RoadID};
+use widgetry::{Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
+
 use crate::app::App;
 use crate::common::CommonState;
 use crate::helpers::{intersections_from_roads, ID};
-use map_model::{IntersectionID, RoadID};
-use std::collections::BTreeSet;
-use widgetry::{Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
 
 pub struct RoadSelector {
     pub roads: BTreeSet<RoadID>,

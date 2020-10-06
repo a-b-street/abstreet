@@ -1,3 +1,7 @@
+use geom::{Distance, Pt2D};
+use sim::{TripEndpoint, TripID};
+use widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Outcome, Panel, RewriteColor, ScreenPt};
+
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::color_for_trip_phase;
@@ -6,9 +10,6 @@ use crate::sandbox::dashboards::table::Table;
 use crate::sandbox::dashboards::trip_table;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
-use geom::{Distance, Pt2D};
-use sim::{TripEndpoint, TripID};
-use widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Outcome, Panel, RewriteColor, ScreenPt};
 
 pub struct GenericTripTable<T, F, P: 'static + Fn(&mut EventCtx, &App, &Table<T, F>) -> Panel> {
     table: Table<T, F>,

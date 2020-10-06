@@ -1,7 +1,9 @@
-use crate::{prettyprint_usize, PROGRESS_FREQUENCY_SECONDS};
-use instant::Instant;
 use std::fs::File;
 use std::io::{stdout, BufReader, Error, ErrorKind, Read, Write};
+
+use instant::Instant;
+
+use crate::{prettyprint_usize, PROGRESS_FREQUENCY_SECONDS};
 
 pub fn elapsed_seconds(since: Instant) -> f64 {
     let dt = since.elapsed();

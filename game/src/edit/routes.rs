@@ -1,12 +1,13 @@
-use crate::app::App;
-use crate::edit::apply_map_edits;
-use crate::game::{State, Transition};
 use geom::{Duration, Time};
 use map_model::{BusRouteID, EditCmd};
 use widgetry::{
     Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, TextExt,
     VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::edit::apply_map_edits;
+use crate::game::{State, Transition};
 
 pub struct RouteEditor {
     panel: Panel,

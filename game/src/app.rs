@@ -1,3 +1,14 @@
+use std::collections::BTreeMap;
+
+use maplit::btreemap;
+use rand::seq::SliceRandom;
+
+use abstutil::Timer;
+use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
+use map_model::{IntersectionID, Map, Traversable};
+use sim::{Analytics, DontDrawAgents, GetDrawAgents, Sim, SimCallback, SimFlags};
+use widgetry::{EventCtx, GfxCtx, Prerender};
+
 use crate::challenges::HighScore;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
@@ -5,14 +16,6 @@ use crate::layer::Layer;
 use crate::options::Options;
 use crate::render::{AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents};
 use crate::sandbox::{GameplayMode, TutorialState};
-use abstutil::Timer;
-use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
-use map_model::{IntersectionID, Map, Traversable};
-use maplit::btreemap;
-use rand::seq::SliceRandom;
-use sim::{Analytics, DontDrawAgents, GetDrawAgents, Sim, SimCallback, SimFlags};
-use std::collections::BTreeMap;
-use widgetry::{EventCtx, GfxCtx, Prerender};
 
 pub struct App {
     // Naming is from older days when there was an A/B test, "side-by-side" mode. Keeping this

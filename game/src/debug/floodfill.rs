@@ -1,12 +1,14 @@
-use crate::app::App;
-use crate::common::ColorDiscrete;
-use crate::game::{State, Transition};
-use map_model::{connectivity, LaneID, Map, PathConstraints};
 use std::collections::HashSet;
+
+use map_model::{connectivity, LaneID, Map, PathConstraints};
 use widgetry::{
     Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     TextExt, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::ColorDiscrete;
+use crate::game::{State, Transition};
 
 pub struct Floodfiller {
     panel: Panel,

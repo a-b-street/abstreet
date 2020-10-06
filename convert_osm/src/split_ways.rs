@@ -1,9 +1,11 @@
-use crate::extract::OsmExtract;
+use std::collections::HashMap;
+
 use abstutil::{Counter, Timer};
 use geom::{Distance, HashablePt2D, Pt2D};
 use map_model::raw::{OriginalRoad, RawIntersection, RawMap};
 use map_model::{osm, IntersectionType, NamePerLanguage};
-use std::collections::HashMap;
+
+use crate::extract::OsmExtract;
 
 // Returns amenities and a mapping of all points to split road. (Some internal points on roads are
 // removed, so this mapping isn't redundant.)

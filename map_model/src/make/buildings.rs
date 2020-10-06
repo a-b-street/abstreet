@@ -1,15 +1,18 @@
 // Finalize importing of buildings, mostly by matching them to the nearest sidewalk.
 
+use std::collections::{BTreeMap, BTreeSet, HashSet};
+
+use rand::{Rng, SeedableRng};
+use rand_xorshift::XorShiftRng;
+
+use abstutil::{Tags, Timer};
+use geom::{Distance, HashablePt2D, Line, Polygon};
+
 use crate::make::match_points_to_lanes;
 use crate::raw::RawBuilding;
 use crate::{
     osm, Building, BuildingID, BuildingType, LaneID, Map, NamePerLanguage, OffstreetParking,
 };
-use abstutil::{Tags, Timer};
-use geom::{Distance, HashablePt2D, Line, Polygon};
-use rand::{Rng, SeedableRng};
-use rand_xorshift::XorShiftRng;
-use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 pub fn make_all_buildings(
     input: &BTreeMap<osm::OsmID, RawBuilding>,

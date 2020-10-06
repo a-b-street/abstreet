@@ -1,6 +1,8 @@
-use crate::{trim_f64, Distance, Duration, EPSILON_DIST};
-use serde::{Deserialize, Serialize};
 use std::{fmt, ops};
+
+use serde::{Deserialize, Serialize};
+
+use crate::{trim_f64, Distance, Duration, EPSILON_DIST};
 
 // In meters per second. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]

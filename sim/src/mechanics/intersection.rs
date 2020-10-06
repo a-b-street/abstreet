@@ -1,14 +1,17 @@
-use crate::mechanics::car::Car;
-use crate::mechanics::Queue;
-use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
+
+use serde::{Deserialize, Serialize};
+
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Duration, Time};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, PhaseType, Traversable,
     TurnID, TurnPriority, TurnType,
 };
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+
+use crate::mechanics::car::Car;
+use crate::mechanics::Queue;
+use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
 
 const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(0.5);
 const WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL: Duration = Duration::const_seconds(0.2);

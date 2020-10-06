@@ -1,11 +1,12 @@
-use crate::app::App;
-use crate::colors::ColorScheme;
-use crate::helpers::ID;
-use crate::render::{DrawOptions, Renderable};
 use geom::{ArrowCap, Circle, Distance, Line, PolyLine, Polygon};
 use map_model::{Map, SIDEWALK_THICKNESS};
 use sim::{CarID, DrawCarInput};
 use widgetry::{Drawable, GeomBatch, GfxCtx, Prerender};
+
+use crate::app::App;
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
+use crate::render::{DrawOptions, Renderable};
 
 pub struct DrawBike {
     pub id: CarID,

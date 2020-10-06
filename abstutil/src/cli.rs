@@ -1,7 +1,9 @@
-use crate::elapsed_seconds;
-use instant::Instant;
 use std::collections::{HashMap, HashSet};
 use std::sync::RwLock;
+
+use instant::Instant;
+
+use crate::elapsed_seconds;
 
 pub struct CmdArgs {
     kv: HashMap<String, String>,

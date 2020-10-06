@@ -1,3 +1,18 @@
+use std::collections::HashMap;
+
+use instant::Instant;
+use rand::Rng;
+use rand_xorshift::XorShiftRng;
+
+use abstutil::Timer;
+use geom::{Duration, Line, Percent, Pt2D, Speed};
+use map_model::PermanentMapEdits;
+use sim::ScenarioGenerator;
+use widgetry::{
+    hotkeys, Btn, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, RewriteColor, Text,
+    UpdateType, Widget,
+};
+
 use crate::app::App;
 use crate::challenges::ChallengesPicker;
 use crate::devtools::DevToolsMode;
@@ -6,18 +21,6 @@ use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::open_browser;
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode};
-use abstutil::Timer;
-use geom::{Duration, Line, Percent, Pt2D, Speed};
-use instant::Instant;
-use map_model::PermanentMapEdits;
-use rand::Rng;
-use rand_xorshift::XorShiftRng;
-use sim::ScenarioGenerator;
-use std::collections::HashMap;
-use widgetry::{
-    hotkeys, Btn, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, RewriteColor, Text,
-    UpdateType, Widget,
-};
 
 pub struct TitleScreen {
     panel: Panel,

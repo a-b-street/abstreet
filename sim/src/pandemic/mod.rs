@@ -1,9 +1,11 @@
-use geom::{Duration, Time};
+use std::ops;
+
 pub use pandemic::{Cmd, PandemicModel};
 use rand::Rng;
 use rand_distr::{Distribution, Exp, Normal};
 use rand_xorshift::XorShiftRng;
-use std::ops;
+
+use geom::{Duration, Time};
 
 mod pandemic;
 

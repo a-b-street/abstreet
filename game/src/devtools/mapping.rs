@@ -1,19 +1,22 @@
-use crate::app::App;
-use crate::common::{CityPicker, ColorLegend};
-use crate::game::{PopupMsg, State, Transition};
-use crate::helpers::{nice_map_name, open_browser, ID};
-use abstutil::{prettyprint_usize, Tags, Timer};
-use geom::{Distance, FindClosest, PolyLine, Polygon};
-use map_model::{osm, RoadID};
-use osm::WayID;
 use std::collections::{BTreeMap, HashSet};
 use std::error::Error;
 use std::fs::File;
 use std::io::Write;
+
+use osm::WayID;
+
+use abstutil::{prettyprint_usize, Tags, Timer};
+use geom::{Distance, FindClosest, PolyLine, Polygon};
+use map_model::{osm, RoadID};
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Menu, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{CityPicker, ColorLegend};
+use crate::game::{PopupMsg, State, Transition};
+use crate::helpers::{nice_map_name, open_browser, ID};
 
 pub struct ParkingMapper {
     panel: Panel,

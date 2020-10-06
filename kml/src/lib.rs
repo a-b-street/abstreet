@@ -1,8 +1,10 @@
-use abstutil::{prettyprint_usize, Timer};
-use geom::{GPSBounds, LonLat};
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::error::Error;
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{prettyprint_usize, Timer};
+use geom::{GPSBounds, LonLat};
 
 #[derive(Serialize, Deserialize)]
 pub struct ExtraShapes {

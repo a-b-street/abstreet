@@ -1,9 +1,10 @@
+use geom::{Angle, Circle, Distance, Duration, PolyLine, Pt2D, Time};
+
 use crate::widgets::line_plot::{make_legend, Yvalue};
 use crate::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, PlotOptions, ScreenDims,
     ScreenPt, Series, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::{Angle, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 
 // The X is always time
 pub struct ScatterPlot {

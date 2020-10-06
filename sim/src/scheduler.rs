@@ -1,12 +1,15 @@
-use crate::{
-    pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, TripID, TripSpec,
-};
-use geom::{Duration, Histogram, Time};
-use map_model::{BusRouteID, IntersectionID, Path, PathRequest};
-use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, BinaryHeap};
+
+use serde::{Deserialize, Serialize};
+
+use geom::{Duration, Histogram, Time};
+use map_model::{BusRouteID, IntersectionID, Path, PathRequest};
+
+use crate::{
+    pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, TripID, TripSpec,
+};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub enum Command {

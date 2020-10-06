@@ -1,9 +1,10 @@
+use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget};
+
 use crate::app::App;
 use crate::common::HeatmapOptions;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::hotkey_btn;
 use crate::sandbox::dashboards;
-use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget};
 
 mod elevation;
 pub mod map;

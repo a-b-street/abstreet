@@ -1,15 +1,17 @@
+use std::collections::BTreeSet;
+
+use map_model::IntersectionID;
+use widgetry::{
+    hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, VerticalAlignment, Widget,
+};
+
 use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::TrafficSignalEditor;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::GameplayMode;
-use map_model::IntersectionID;
-use std::collections::BTreeSet;
-use widgetry::{
-    hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, VerticalAlignment, Widget,
-};
 
 pub struct SignalPicker {
     members: BTreeSet<IntersectionID>,

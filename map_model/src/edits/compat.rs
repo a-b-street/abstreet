@@ -1,11 +1,14 @@
+use std::collections::BTreeMap;
+
+use serde::Deserialize;
+use serde_json::Value;
+
+use geom::Speed;
+
 use crate::raw::OriginalRoad;
 use crate::{
     osm, AccessRestrictions, Direction, EditCmd, EditRoad, LaneType, Map, PermanentMapEdits, RoadID,
 };
-use geom::Speed;
-use serde::Deserialize;
-use serde_json::Value;
-use std::collections::BTreeMap;
 
 // When the PermanentMapEdits format changes, add a transformation here to automatically convert
 // edits written with the old format.

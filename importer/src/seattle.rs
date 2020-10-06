@@ -1,12 +1,15 @@
-use crate::configuration::ImporterConfiguration;
-use crate::utils::{download, download_kml, osmconvert};
+use std::collections::BTreeMap;
+use std::fs::File;
+
+use serde::Deserialize;
+
 use abstutil::MultiMap;
 use geom::{Duration, Time};
 use map_model::{BusRouteID, Map};
-use serde::Deserialize;
 use sim::Scenario;
-use std::collections::BTreeMap;
-use std::fs::File;
+
+use crate::configuration::ImporterConfiguration;
+use crate::utils::{download, download_kml, osmconvert};
 
 fn input(config: &ImporterConfiguration, timer: &mut abstutil::Timer) {
     download(

@@ -1,3 +1,15 @@
+use std::collections::BTreeSet;
+
+use maplit::btreeset;
+
+use abstutil::Timer;
+use geom::Speed;
+use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
+use widgetry::{
+    lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
+    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+};
+
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
 pub use self::lanes::LaneEditor;
 pub use self::routes::RouteEditor;
@@ -12,15 +24,6 @@ use crate::helpers::ID;
 use crate::options::OptionsPanel;
 use crate::render::DrawMap;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
-use abstutil::Timer;
-use geom::Speed;
-use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
-use maplit::btreeset;
-use std::collections::BTreeSet;
-use widgetry::{
-    lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
-};
 
 mod bulk;
 mod cluster_traffic_signals;

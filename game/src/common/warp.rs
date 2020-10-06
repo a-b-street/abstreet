@@ -1,14 +1,16 @@
+use std::collections::BTreeMap;
+
+use geom::Pt2D;
+use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, RoadID};
+use sim::{PedestrianID, PersonID, TripID};
+use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, Warper, Widget};
+
 use crate::app::{App, PerMap};
 use crate::common::Tab;
 use crate::game::{PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::info::OpenTrip;
 use crate::sandbox::SandboxMode;
-use geom::Pt2D;
-use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, RoadID};
-use sim::{PedestrianID, PersonID, TripID};
-use std::collections::BTreeMap;
-use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, Warper, Widget};
 
 const WARP_TO_CAM_ZOOM: f64 = 10.0;
 

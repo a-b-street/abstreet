@@ -1,10 +1,12 @@
+use std::cell::RefCell;
+
+use geom::{Distance, Polygon, Pt2D};
+use map_model::{LaneType, Map, Road, RoadID};
+use widgetry::{Drawable, GeomBatch, GfxCtx, Line, Text};
+
 use crate::app::App;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use geom::{Distance, Polygon, Pt2D};
-use map_model::{LaneType, Map, Road, RoadID};
-use std::cell::RefCell;
-use widgetry::{Drawable, GeomBatch, GfxCtx, Line, Text};
 
 pub struct DrawRoad {
     pub id: RoadID,

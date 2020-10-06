@@ -1,17 +1,19 @@
+use std::collections::{BTreeMap, BTreeSet};
+
+use abstutil::prettyprint_usize;
+use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Time};
+use map_model::{IntersectionID, IntersectionType, PhaseType};
+use sim::AgentType;
+use widgetry::{
+    Btn, Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
+    ScatterPlot, Series, Text, Widget,
+};
+
 use crate::app::App;
 use crate::helpers::color_for_agent_type;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use crate::options::TrafficSignalStyle;
 use crate::render::traffic_signal::draw_signal_stage;
-use abstutil::prettyprint_usize;
-use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Time};
-use map_model::{IntersectionID, IntersectionType, PhaseType};
-use sim::AgentType;
-use std::collections::{BTreeMap, BTreeSet};
-use widgetry::{
-    Btn, Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
-    ScatterPlot, Series, Text, Widget,
-};
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::IntersectionInfo(id));

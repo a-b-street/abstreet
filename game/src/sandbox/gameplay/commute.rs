@@ -1,3 +1,12 @@
+use std::collections::BTreeMap;
+
+use geom::{Duration, Time};
+use sim::{OrigPersonID, PersonID, TripID};
+use widgetry::{
+    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, RewriteColor, Text,
+    TextExt, VerticalAlignment, Widget,
+};
+
 use crate::app::App;
 use crate::challenges::{Challenge, HighScore};
 use crate::common::Tab;
@@ -7,13 +16,6 @@ use crate::game::{State, Transition};
 use crate::helpers::cmp_duration_shorter;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls};
-use geom::{Duration, Time};
-use sim::{OrigPersonID, PersonID, TripID};
-use std::collections::BTreeMap;
-use widgetry::{
-    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, RewriteColor, Text,
-    TextExt, VerticalAlignment, Widget,
-};
 
 // TODO Avoid hack entirely, or tune appearance
 const METER_HACK: f64 = -15.0;

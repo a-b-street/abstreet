@@ -1,9 +1,12 @@
-use crate::{trim_f64, Distance, Speed};
-use abstutil::elapsed_seconds;
-use instant::Instant;
-use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::{cmp, ops};
+
+use instant::Instant;
+use serde::{Deserialize, Serialize};
+
+use abstutil::elapsed_seconds;
+
+use crate::{trim_f64, Distance, Speed};
 
 // In seconds. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]

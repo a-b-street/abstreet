@@ -1,15 +1,18 @@
 // A Road represents a segment between exactly two Intersections. It contains Lanes as children.
 
+use std::fmt;
+
+use enumset::EnumSet;
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_usize, serialize_usize, Tags};
+use geom::{Distance, PolyLine, Polygon, Speed};
+
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{
     osm, AccessRestrictions, BusStopID, IntersectionID, Lane, LaneID, LaneType, Map,
     PathConstraints, Zone,
 };
-use abstutil::{deserialize_usize, serialize_usize, Tags};
-use enumset::EnumSet;
-use geom::{Distance, PolyLine, Polygon, Speed};
-use serde::{Deserialize, Serialize};
-use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct RoadID(

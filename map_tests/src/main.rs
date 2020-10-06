@@ -1,6 +1,7 @@
-use map_model::Map;
 use std::fs::File;
 use std::io::Write;
+
+use map_model::Map;
 
 // Test the map pipeline by importing simple, handcrafted .osm files, then emitting goldenfiles
 // that summarize part of the generated map. Keep the goldenfiles under version control to notice

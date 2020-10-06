@@ -1,5 +1,13 @@
 // A bunch of (mostly read-only) queries on a Map.
 
+use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+
+use petgraph::graphmap::UnGraphMap;
+use serde::{Deserialize, Serialize};
+
+use abstutil::Timer;
+use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D, Ring, Time};
+
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     osm, Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
@@ -7,11 +15,6 @@ use crate::{
     LaneType, Map, MapEdits, MovementID, OffstreetParking, ParkingLot, ParkingLotID, Path,
     PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, Turn, TurnID, TurnType, Zone,
 };
-use abstutil::Timer;
-use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D, Ring, Time};
-use petgraph::graphmap::UnGraphMap;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MapConfig {

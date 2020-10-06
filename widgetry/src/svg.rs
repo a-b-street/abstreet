@@ -1,10 +1,12 @@
-use crate::{Color, Fill, GeomBatch, LinearGradient, Prerender};
-use abstutil::VecMap;
-use geom::{Bounds, Polygon, Pt2D};
 use lyon::math::Point;
 use lyon::path::PathEvent;
 use lyon::tessellation;
 use lyon::tessellation::geometry_builder::{simple_builder, VertexBuffers};
+
+use abstutil::VecMap;
+use geom::{Bounds, Polygon, Pt2D};
+
+use crate::{Color, Fill, GeomBatch, LinearGradient, Prerender};
 
 pub const HIGH_QUALITY: f32 = 0.01;
 pub const LOW_QUALITY: f32 = 1.0;

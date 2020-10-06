@@ -1,17 +1,20 @@
-use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork, DivergingScale};
-use crate::helpers::ID;
-use crate::layer::{Layer, LayerOutcome};
+use std::collections::BTreeSet;
+
+use maplit::btreeset;
+
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
-use maplit::btreeset;
 use sim::GetDrawAgents;
-use std::collections::BTreeSet;
 use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{ColorLegend, ColorNetwork, DivergingScale};
+use crate::helpers::ID;
+use crate::layer::{Layer, LayerOutcome};
 
 pub struct Backpressure {
     time: Time,

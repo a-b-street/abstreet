@@ -1,3 +1,14 @@
+use std::collections::{BTreeMap, VecDeque};
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
+use geom::{Duration, Speed, Time};
+use map_model::{
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Path, PathConstraints, PathRequest,
+    Position,
+};
+
 use crate::sim::Ctx;
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
@@ -6,14 +17,6 @@ use crate::{
     TransitSimState, TripID, TripPhaseType, TripPurpose, TripSpec, Vehicle, VehicleSpec,
     VehicleType, WalkingSimState,
 };
-use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
-use geom::{Duration, Speed, Time};
-use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Path, PathConstraints, PathRequest,
-    Position,
-};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, VecDeque};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TripManager {

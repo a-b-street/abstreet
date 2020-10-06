@@ -1,10 +1,11 @@
+use geom::Polygon;
+use map_model::{Area, AreaID, AreaType, Map};
+use widgetry::{Color, EventCtx, Fill, GeomBatch, GfxCtx, Line, Text};
+
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use geom::Polygon;
-use map_model::{Area, AreaID, AreaType, Map};
-use widgetry::{Color, EventCtx, Fill, GeomBatch, GfxCtx, Line, Text};
 
 pub struct DrawArea {
     pub id: AreaID,

@@ -1,15 +1,18 @@
+use std::collections::HashSet;
+
+use stretch::geometry::Size;
+use stretch::node::Stretch;
+use stretch::number::Number;
+use stretch::style::{Dimension, Style};
+
+use geom::{Percent, Polygon};
+
 use crate::widgets::Container;
 use crate::{
     AreaSlider, Autocomplete, Checkbox, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment,
     Menu, Outcome, PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner,
     TextBox, VerticalAlignment, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::{Percent, Polygon};
-use std::collections::HashSet;
-use stretch::geometry::Size;
-use stretch::node::Stretch;
-use stretch::number::Number;
-use stretch::style::{Dimension, Style};
 
 pub struct Panel {
     top_level: Widget,

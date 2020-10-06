@@ -1,11 +1,14 @@
-use crate::text::Font;
-use crate::{text, EventCtx, GeomBatch, GfxCtx};
-use geom::Bounds;
-use lru::LruCache;
 use std::cell::RefCell;
 use std::collections::HashMap;
+
+use lru::LruCache;
 use usvg::fontdb;
 use usvg::Options;
+
+use geom::Bounds;
+
+use crate::text::Font;
+use crate::{text, EventCtx, GeomBatch, GfxCtx};
 
 // TODO We don't need refcell maybe? Can we take &mut Assets?
 pub struct Assets {

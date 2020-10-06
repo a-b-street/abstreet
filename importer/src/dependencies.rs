@@ -1,6 +1,7 @@
-use crate::configuration::ImporterConfiguration;
 use std::ffi::OsStr;
 use std::process::Command;
+
+use crate::configuration::ImporterConfiguration;
 
 pub fn are_dependencies_callable(config: &ImporterConfiguration) -> bool {
     let mut result = true;

@@ -1,9 +1,12 @@
-use crate::mechanics::car::{Car, CarState};
-use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
+
+use serde::{Deserialize, Serialize};
+
 use geom::{Distance, Time};
 use map_model::{Map, Traversable};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, VecDeque};
+
+use crate::mechanics::car::{Car, CarState};
+use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Queue {

@@ -1,6 +1,7 @@
-use crate::{CarID, PedestrianID, PersonID, VehicleType};
 use geom::{Angle, Distance, PolyLine, Pt2D, Time};
 use map_model::{BuildingID, Map, ParkingLotID, Traversable, TurnID};
+
+use crate::{CarID, PedestrianID, PersonID, VehicleType};
 
 // Intermediate structures so that sim and game crates don't have a cyclic dependency.
 #[derive(Clone)]
