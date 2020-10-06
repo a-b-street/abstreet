@@ -42,7 +42,7 @@ void main() {
     // An arbitrary factor to scale the textures we're using.
     //
     // The proper value depends on the design of the particular sprite sheet.
-    // If we want to support multiple sprite sheets, this could become a 
+    // If we want to support multiple sprite sheets, this could become a
     // uniform, or a vertex attribute depending on how we expect it to change.
     float texture_scale = 16.0;
 

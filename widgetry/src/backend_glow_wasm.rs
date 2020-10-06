@@ -95,6 +95,8 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
         );
     }
 
+    crate::backend_glow::load_textures(&gl, "system/assets/textures/spritesheet.png", 64).unwrap();
+
     (
         PrerenderInnards::new(gl, program, WindowAdapter(winit_window)),
         event_loop,
