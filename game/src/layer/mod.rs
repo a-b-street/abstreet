@@ -130,11 +130,8 @@ impl PickLayer {
                     btn("backpressure", Key::Z),
                     btn("elevation", Key::V),
                     btn("parking efficiency", Key::O),
-                    if app.opts.dev {
-                        btn("blackholes", Key::L)
-                    } else {
-                        Widget::nothing()
-                    },
+                    btn("blackholes", Key::L),
+                    btn("congestion caps", Key::C),
                     if app.primary.sim.get_pandemic_model().is_some() {
                         btn("pandemic model", Key::Y)
                     } else {
@@ -144,7 +141,7 @@ impl PickLayer {
                 Widget::col(vec![
                     "Data".draw_text(ctx),
                     btn("traffic signal demand", Key::M),
-                    btn("commuter patterns", Key::C),
+                    btn("commuter patterns", Key::R),
                 ]),
             ])
             .evenly_spaced(),
@@ -199,6 +196,9 @@ impl State for PickLayer {
                 }
                 "blackholes" => {
                     app.layer = Some(Box::new(map::Static::blackholes(ctx, app)));
+                }
+                "congestion caps" => {
+                    app.layer = Some(Box::new(map::CongestionCaps::new(ctx, app)));
                 }
                 "parking occupancy" => {
                     app.layer = Some(Box::new(parking::Occupancy::new(
