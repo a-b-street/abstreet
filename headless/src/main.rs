@@ -265,7 +265,11 @@ fn handle_command(
                     TrafficSignalState {
                         current_stage_idx,
                         remaining_time,
-                        accepted: sim.get_accepted_agents(i.id).into_iter().collect(),
+                        accepted: sim
+                            .get_accepted_agents(i.id)
+                            .into_iter()
+                            .map(|(a, _)| a)
+                            .collect(),
                         waiting: sim.get_waiting_agents(i.id),
                     },
                 );
