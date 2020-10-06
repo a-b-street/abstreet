@@ -41,6 +41,8 @@ def main():
 
         if args.cap_all_roads:
             edits['commands'] = cap_all_roads(args)
+            # Individual cap per road; don't merge adjacent roads that happen to have the same cap.
+            edits['merge_zones'] = False
         else:
             # Cap the busiest road
             busiest_road, thruput = find_busiest_road(args)

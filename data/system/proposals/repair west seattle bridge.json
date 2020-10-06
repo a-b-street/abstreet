@@ -1,7 +1,7 @@
 {
   "map_name": "west_seattle",
   "edits_name": "repair west seattle bridge",
-  "version": 2,
+  "version": 3,
   "commands": [
     {
       "ChangeRoad": {
@@ -1996,6 +1996,7 @@
       }
     }
   ],
+  "merge_zones": true,
   "proposal_description": [
     "Repair the West Seattle bridge",
     "This reopens the West Seattle bridge and removes the bus-only restrictions on the low bridge. Use this to explore what traffic might've looked like before March 2020."

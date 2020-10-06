@@ -1,7 +1,7 @@
 {
   "map_name": "lakeslice",
   "edits_name": "stay healthy lake wash blvd",
-  "version": 2,
+  "version": 3,
   "commands": [
     {
       "ChangeRoad": {
@@ -7026,6 +7026,7 @@
       }
     }
   ],
+  "merge_zones": true,
   "proposal_description": [
     "Convert Lake Washington Blvd to a Stay Healthy Street",
     "No vehicle access north of Madison"

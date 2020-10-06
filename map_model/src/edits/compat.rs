@@ -45,6 +45,13 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits, String>
             .unwrap()
             .insert("version".to_string(), Value::Number(2.into()));
     }
+    if value["version"] == Value::Number(2.into()) {
+        fix_merge_zones(&mut value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert("version".to_string(), Value::Number(3.into()));
+    }
 
     abstutil::from_json(&value.to_string().into_bytes()).map_err(|x| x.to_string())
 }
@@ -194,6 +201,14 @@ fn fix_old_lane_cmds(value: &mut Value, map: &Map) -> Result<(), String> {
     }
     value.as_object_mut().unwrap()["commands"] = Value::Array(commands);
     Ok(())
+}
+
+// a3af291b2966c89d63b719e41821705077d063d2 added a map-wide merge_zones field
+fn fix_merge_zones(value: &mut Value) {
+    let obj = value.as_object_mut().unwrap();
+    if !obj.contains_key("merge_zones") {
+        obj.insert("merge_zones".to_string(), Value::Bool(true.into()));
+    }
 }
 
 // These're old structs used in fix_old_lane_cmds.

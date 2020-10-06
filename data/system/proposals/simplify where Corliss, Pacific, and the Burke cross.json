@@ -1,7 +1,7 @@
 {
   "map_name": "udistrict",
   "edits_name": "simplify where Corliss, Pacific, and the Burke cross",
-  "version": 2,
+  "version": 3,
   "commands": [
     {
       "ChangeRoad": {
@@ -90,6 +90,7 @@
       }
     }
   ],
+  "merge_zones": true,
   "proposal_description": [
     "Disconnect Pacific St from Northlake Way by the Burke Gilman",
     "I've seen many near-accidents between drivers and cyclists at the intersection of Pacific St, N 36th, and Corliss Ave. Removing the one-way shortcuts to Northlake way would make this intersection less stressful.",
