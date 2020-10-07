@@ -5,7 +5,10 @@ use maplit::btreemap;
 use geom::{ArrowCap, Distance, Duration, Percent, Polygon, PolyLine, Pt2D, Time};
 use map_model::{LaneID, Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
-use widgetry::{Btn, Color, DrawWithTooltips, EventCtx, Fill, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text, TextExt, Widget, TextSpan};
+use widgetry::{
+    Btn, Color, DrawWithTooltips, EventCtx, Fill, GeomBatch, Line, LinePlot, PlotOptions,
+    RewriteColor, Series, Text, TextExt, TextSpan, Widget,
+};
 
 use crate::app::App;
 use crate::helpers::{color_for_trip_phase, ID};
@@ -402,11 +405,20 @@ fn highlight_slow_intersections(app: &App, details: &mut Details, id: TripID, ct
             };
             // Draw label after, to prevent being obscured by the line
             let time_duration = Duration::seconds(*time as f64);
-            let unzoomed_label = Text::from(TextSpan::from(Line(format!("{}", time_duration)).body().fg(fg_color))).bg(bg_color);
-            let zoomed_label = Text::from(TextSpan::from(Line(format!("{}", time_duration)).size(6).fg(fg_color)))
+            let unzoomed_label = Text::from(TextSpan::from(
+                Line(format!("{}", time_duration)).body().fg(fg_color),
+            ))
                 .bg(bg_color);
-            let unzoomed_rendered = unzoomed_label.render(ctx).centered_on(intersection.polygon.center());
-            let zoomed_rendered = zoomed_label.render(ctx).centered_on(intersection.polygon.center());
+            let zoomed_label = Text::from(TextSpan::from(
+                Line(format!("{}", time_duration)).size(6).fg(fg_color),
+            ))
+                .bg(bg_color);
+            let unzoomed_rendered = unzoomed_label
+                .render(ctx)
+                .centered_on(intersection.polygon.center());
+            let zoomed_rendered = zoomed_label
+                .render(ctx)
+                .centered_on(intersection.polygon.center());
             details.unzoomed.append(unzoomed_rendered.clone());
             details.zoomed.append(zoomed_rendered);
         }
@@ -440,8 +452,13 @@ fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID, ctx: &Even
                 ),
             );
             // Draw label after, to prevent being obscured by the line
-            let unzoomed_label = Text::from(TextSpan::from(Line(format!("{}s", speed_percent)).body().fg(fg_color))).bg(bg_color);
-            let zoomed_label = Text::from(TextSpan::from(Line(format!("{}s", speed_percent)).small().fg(fg_color)))
+            let unzoomed_label = Text::from(TextSpan::from(
+                Line(format!("{}s", speed_percent)).body().fg(fg_color),
+            ))
+                .bg(bg_color);
+            let zoomed_label = Text::from(TextSpan::from(
+                Line(format!("{}s", speed_percent)).small().fg(fg_color),
+            ))
                 .bg(bg_color);
 
             let (pt, _) = lane
@@ -538,25 +555,21 @@ fn make_bar(
                 ));
             }
         }
-        icons_geom.push(
-            GeomBatch::load_svg(
-                ctx.prerender,
-                match p.phase_type {
-                    TripPhaseType::Driving => "system/assets/timeline/driving.svg",
-                    TripPhaseType::Walking => "system/assets/timeline/walking.svg",
-                    TripPhaseType::Biking => "system/assets/timeline/biking.svg",
-                    TripPhaseType::Parking => "system/assets/timeline/parking.svg",
-                    TripPhaseType::WaitingForBus(_, _) => {
-                        "system/assets/timeline/waiting_for_bus.svg"
-                    }
-                    TripPhaseType::RidingBus(_, _, _) => "system/assets/timeline/riding_bus.svg",
-                    TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
-                    TripPhaseType::DelayedStart => "system/assets/timeline/delayed_start.svg",
-                    // TODO What icon should represent this?
-                    TripPhaseType::Remote => "system/assets/timeline/delayed_start.svg",
-                },
-            )
-        );
+        icons_geom.push(GeomBatch::load_svg(
+            ctx.prerender,
+            match p.phase_type {
+                TripPhaseType::Driving => "system/assets/timeline/driving.svg",
+                TripPhaseType::Walking => "system/assets/timeline/walking.svg",
+                TripPhaseType::Biking => "system/assets/timeline/biking.svg",
+                TripPhaseType::Parking => "system/assets/timeline/parking.svg",
+                TripPhaseType::WaitingForBus(_, _) => "system/assets/timeline/waiting_for_bus.svg",
+                TripPhaseType::RidingBus(_, _, _) => "system/assets/timeline/riding_bus.svg",
+                TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
+                TripPhaseType::DelayedStart => "system/assets/timeline/delayed_start.svg",
+                // TODO What icon should represent this?
+                TripPhaseType::Remote => "system/assets/timeline/delayed_start.svg",
+            },
+        ));
         msgs.push(format!(
             "  {}% of trip percentage",
             (100.0 * percent_duration) as usize
@@ -655,10 +668,15 @@ fn make_bar(
     assert_eq!(icons_geom.len(), icon_pos.len());
     for index in 0..icon_pos.len() {
         icons.push(Widget::draw_batch(
-            ctx, icons_geom.get(index).unwrap().to_owned().centered_on(
+            ctx,
+            icons_geom.get(index).unwrap().to_owned().centered_on(
                 // TODO Hardcoded layouting...
-                Pt2D::new(0.5 * box_width * (*icon_pos.get(index).unwrap() / total_dist), -20.0),
-            )));
+                Pt2D::new(
+                    0.5 * box_width * (*icon_pos.get(index).unwrap() / total_dist),
+                    -20.0,
+                ),
+            ),
+        ));
     }
     for seg in segments {
         let seg_percent = seg.0 / total_dist;
