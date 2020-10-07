@@ -529,7 +529,7 @@ impl SidewalkSpot {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
 pub struct TimeInterval {
     // TODO Private fields
     pub start: Time,
@@ -562,7 +562,7 @@ impl TimeInterval {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
 pub struct DistanceInterval {
     // TODO Private fields
     pub start: Distance,

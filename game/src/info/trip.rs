@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use maplit::btreemap;
 
-use geom::{ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
+use geom::{ArrowCap, Distance, Duration, Percent, Polygon, PolyLine, Pt2D, Time};
 use map_model::{LaneID, Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
@@ -12,7 +12,7 @@ use widgetry::{
 
 use crate::app::App;
 use crate::helpers::{color_for_trip_phase, ID};
-use crate::info::{make_table, Details, Tab};
+use crate::info::{Details, make_table, Tab};
 
 #[derive(Clone)]
 pub struct OpenTrip {
@@ -570,7 +570,7 @@ fn make_bar(
                 TripPhaseType::Parking => "system/assets/timeline/parking.svg",
                 TripPhaseType::WaitingForBus(_, _) => "system/assets/timeline/waiting_for_bus.svg",
                 TripPhaseType::RidingBus(_, _, _) => "system/assets/timeline/riding_bus.svg",
-                TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
+                TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
                 TripPhaseType::DelayedStart => "system/assets/timeline/delayed_start.svg",
                 // TODO What icon should represent this?
                 TripPhaseType::Remote => "system/assets/timeline/delayed_start.svg",
