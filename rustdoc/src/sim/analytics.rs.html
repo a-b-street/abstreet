@@ -604,30 +604,12 @@
 <span id="604">604</span>
 <span id="605">605</span>
 <span id="606">606</span>
-<span id="607">607</span>
-<span id="608">608</span>
-<span id="609">609</span>
-<span id="610">610</span>
-<span id="611">611</span>
-<span id="612">612</span>
-<span id="613">613</span>
-<span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
-<span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Counter</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>,
@@ -912,8 +894,8 @@
         <span class="ident">results</span>
     }
 
-    <span class="comment">// This shouldn&#39;t be used on prebaked Analytics, because the map may have been edited since the</span>
-    <span class="comment">// recording, invalidating some of the paths.</span>
+    <span class="comment">// If calling on prebaked Analytics, be careful to pass in an unedited map, to match how the</span>
+    <span class="comment">// simulation was originally run. Otherwise the paths may be nonsense.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_trip_phases</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">trip</span>: <span class="ident">TripID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripPhase</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">phases</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripPhase</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">id</span>, <span class="ident">maybe_req</span>, <span class="ident">phase_type</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trip_log</span> {
@@ -938,24 +920,6 @@
             })
         }
         <span class="ident">phases</span>
-    }
-
-    <span class="comment">// Works around https://github.com/dabreegster/abstreet/issues/361 by first reverting any</span>
-    <span class="comment">// current edits before calculating paths.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_trip_phases_before_edits</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">trip</span>: <span class="ident">TripID</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripPhase</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> (<span class="self">self</span>.<span class="ident">get_trip_phases</span>(<span class="ident">trip</span>, <span class="ident">map</span>), <span class="prelude-val">None</span>);
-        }
-
-        <span class="comment">// TODO Many approaches for doing this -- quietly keep the original contraction hierarchy</span>
-        <span class="comment">// in memory, have the caller cache this original map alongside app.primary, etc...</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;pathfind on original map&quot;</span>);
-        <span class="kw">let</span> <span class="ident">orig_map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="ident">map</span>.<span class="ident">get_name</span>()), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-        (<span class="self">self</span>.<span class="ident">get_trip_phases</span>(<span class="ident">trip</span>, <span class="kw-2">&amp;</span><span class="ident">orig_map</span>), <span class="prelude-val">Some</span>(<span class="ident">orig_map</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_all_trip_phases</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripPhase</span><span class="op">&gt;</span><span class="op">&gt;</span> {

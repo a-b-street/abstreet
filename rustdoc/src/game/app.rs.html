@@ -682,7 +682,31 @@
 <span id="682">682</span>
 <span id="683">683</span>
 <span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreemap</span>;
@@ -1254,6 +1278,9 @@
     <span class="kw">pub</span> <span class="ident">dirty_from_edits</span>: <span class="ident">bool</span>,
     <span class="comment">// Any ScenarioModifiers in effect?</span>
     <span class="kw">pub</span> <span class="ident">has_modified_trips</span>: <span class="ident">bool</span>,
+
+    <span class="comment">// Sometimes we need the map before any edits have been applied. Cache it here.</span>
+    <span class="kw">pub</span> <span class="ident">unedited_map</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">PerMap</span> {
@@ -1289,6 +1316,7 @@
             <span class="ident">show_zorder</span>: <span class="ident">high_z</span>,
             <span class="ident">dirty_from_edits</span>: <span class="bool-val">false</span>,
             <span class="ident">has_modified_trips</span>: <span class="bool-val">false</span>,
+            <span class="ident">unedited_map</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>),
         }
     }
 
@@ -1303,6 +1331,24 @@
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;reset simulation&quot;</span>),
             ),
         )
+    }
+
+    <span class="comment">// If needed, makes sure the unedited_map is populated. Callers can then do</span>
+    <span class="comment">// self.unedited_map.borrow().unwrap_or(&amp;self.map).</span>
+    <span class="comment">// TODO I&#39;d like to return &amp;Map or something here, but can&#39;t get the borrow checker to work.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_unedited_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">orig_map</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unedited_map</span>.<span class="ident">borrow_mut</span>();
+        <span class="kw">if</span> <span class="ident">orig_map</span>.<span class="ident">is_none</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;load unedited map&quot;</span>);
+            <span class="kw-2">*</span><span class="ident">orig_map</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Map</span>::<span class="ident">new</span>(
+                <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
+            ));
+        }
     }
 }
 
