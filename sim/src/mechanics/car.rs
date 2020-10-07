@@ -221,7 +221,10 @@ impl Car {
                 // Changing color for idling buses is helpful
                 CarState::IdlingAtStop(_, _) => CarStatus::Parked,
             },
-            is_parking: self.is_parking(),
+            show_parking_intent: match (self.is_parking(), &self.state) {
+                (true, _) | (_, CarState::Unparking(_, _, _)) => true,
+                _ => false,
+            },
             on: self.router.head(),
             partly_on,
             label: if self.vehicle.vehicle_type == VehicleType::Bus

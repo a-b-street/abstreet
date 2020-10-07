@@ -83,7 +83,7 @@ impl DrawCar {
             );
         }
 
-        if input.is_parking {
+        if input.show_parking_intent {
             // draw intent bubble
             let bubble_z = -0.0001;
             let mut bubble_batch =
