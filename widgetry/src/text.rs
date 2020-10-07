@@ -2,12 +2,12 @@ use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
 use std::hash::Hasher;
 
-use geom::{Polygon, PolyLine};
+use geom::{PolyLine, Polygon};
 
-use crate::{
-    Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, Prerender, ScreenDims, svg, Widget,
-};
 use crate::assets::Assets;
+use crate::{
+    svg, Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, Prerender, ScreenDims, Widget,
+};
 
 // Same as body()
 pub const DEFAULT_FONT: Font = Font::OverpassRegular;
@@ -392,8 +392,8 @@ impl Text {
                         svg::LOW_QUALITY,
                         assets,
                     )
-                        .get_dims()
-                        .width;
+                    .get_dims()
+                    .width;
                     if width_left > width {
                         current_span.text.push(' ');
                         current_span.text.push_str(word);
@@ -439,7 +439,7 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
             _ => "",
         }
     )
-        .unwrap();
+    .unwrap();
 
     let mut contents = String::new();
     for span in spans {
@@ -455,7 +455,7 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
             },
             htmlescape::encode_minimal(&span.text)
         )
-            .unwrap();
+        .unwrap();
     }
     write!(&mut svg, "{}</text></svg>", contents).unwrap();
 
@@ -506,14 +506,14 @@ impl TextSpan {
             &mut svg,
             r##"<path id="txtpath" fill="none" stroke="none" d=""##
         )
-            .unwrap();
+        .unwrap();
         write!(
             &mut svg,
             "M {} {}",
             path.points()[0].x(),
             path.points()[0].y()
         )
-            .unwrap();
+        .unwrap();
         for pt in path.points().into_iter().skip(1) {
             write!(&mut svg, " L {} {}", pt.x(), pt.y()).unwrap();
         }
@@ -543,7 +543,7 @@ impl TextSpan {
             r##"<textPath href="#txtpath">{}</textPath></text></svg>"##,
             self.text
         )
-            .unwrap();
+        .unwrap();
 
         let svg_tree = match usvg::Tree::from_str(&svg, &assets.text_opts) {
             Ok(t) => t,

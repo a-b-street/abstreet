@@ -15,7 +15,7 @@ use abstutil::Counter;
 use geom::{Distance, Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
-    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID
+    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID,
 };
 
 use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};

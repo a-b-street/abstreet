@@ -1,5 +1,5 @@
-use map_model::LaneType;
 use map_model::osm::RoadRank;
+use map_model::LaneType;
 use widgetry::{Choice, Color, Fill, Style, Texture};
 
 use crate::common::ColorScale;
