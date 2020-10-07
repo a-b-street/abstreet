@@ -793,7 +793,15 @@
 <span id="793">793</span>
 <span id="794">794</span>
 <span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Simulates pedestrians. Unlike vehicles, pedestrians can move bidirectionally on sidewalks and</span>
+<span class="comment">// just &quot;ghost&quot; through each other. There&#39;s no queueing or slowdown when many people are</span>
+<span class="comment">// overlapping. They&#39;re simply grouped together into a DrawPedCrowdInput for rendering.</span>
+
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};

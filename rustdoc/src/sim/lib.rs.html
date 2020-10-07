@@ -648,7 +648,21 @@
 <span id="648">648</span>
 <span id="649">649</span>
 <span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// The sim crate runs a traffic simulation on top of the map_model. See also</span>
+<span class="comment">// https://dabreegster.github.io/abstreet/trafficsim/index.html.</span>
+<span class="comment">//</span>
+<span class="comment">// The simulation is very roughly layered into two pieces: the low-level &quot;mechanics&quot; of simulating</span>
+<span class="comment">// individual agents over time, and higher-level systems like TripManager and TransitSimState that</span>
+<span class="comment">// glue together individual goals executed by the agents.</span>
+
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 

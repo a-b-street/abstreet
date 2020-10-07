@@ -277,7 +277,13 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Represents a single vehicle. Note &quot;car&quot; is a misnomer; it could also be a bus or bike.</span>
+
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -525,6 +531,8 @@
     }
 }
 
+<span class="comment">// See https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html for details about the</span>
+<span class="comment">// state machine encoded here.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CarState</span> {
     <span class="ident">Crossing</span>(<span class="ident">TimeInterval</span>, <span class="ident">DistanceInterval</span>),

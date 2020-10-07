@@ -126,7 +126,14 @@
 <span id="126">126</span>
 <span id="127">127</span>
 <span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// SimFlags specifies a simulation to setup.</span>
+
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
@@ -137,6 +144,10 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimFlags</span> {
+    <span class="comment">// A path to some file.</span>
+    <span class="comment">// - a savestate: restore the simulation exactly from some savestate</span>
+    <span class="comment">// - a scenario</span>
+    <span class="comment">// - some kind of map: start an empty simulation on the map</span>
     <span class="kw">pub</span> <span class="ident">load</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">modifiers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">rng_seed</span>: <span class="ident">u8</span>,
@@ -178,7 +189,6 @@
         <span class="ident">XorShiftRng</span>::<span class="ident">from_seed</span>([<span class="self">self</span>.<span class="ident">rng_seed</span>; <span class="number">16</span>])
     }
 
-    <span class="comment">// Convenience method to setup everything.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Map</span>, <span class="ident">Sim</span>, <span class="ident">XorShiftRng</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_rng</span>();
 

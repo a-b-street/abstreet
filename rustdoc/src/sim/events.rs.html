@@ -103,7 +103,15 @@
 <span id="103">103</span>
 <span id="104">104</span>
 <span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// As a simulation runs, different systems emit Events. This cleanly separates the internal</span>
+<span class="comment">// mechanics of the simulation from consumers that just want to know what&#39;s happening.</span>
+
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
@@ -116,6 +124,8 @@
     <span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">OffMapLocation</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>,
 };
 
+<span class="comment">// An Event always occurs at a particular time, plumbed separately to consumers.</span>
+<span class="comment">//</span>
 <span class="comment">// Many of these were created for a test framework that&#39;s been abandoned. They could be removed or</span>
 <span class="comment">// have their API adjusted, but it&#39;s not urgent; publishing an event that&#39;s not used by Analytics</span>
 <span class="comment">// has no performance impact.</span>

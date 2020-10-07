@@ -445,7 +445,13 @@
 <span id="445">445</span>
 <span id="446">446</span>
 <span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically</span>
+<span class="comment">// lane-change to avoid a slow lane, can can handle re-planning to look for available parking.</span>
+
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};

@@ -304,7 +304,15 @@
 <span id="304">304</span>
 <span id="305">305</span>
 <span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where</span>
+<span class="comment">// https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#exact-positions is</span>
+<span class="comment">// implemented.</span>
+
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};

@@ -795,7 +795,25 @@
 <span id="795">795</span>
 <span id="796">796</span>
 <span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Manages conflicts at intersections. When an agent has reached the end of a lane, they call</span>
+<span class="comment">// maybe_start_turn to make a Request. Based on the intersection type (stop sign, traffic signal,</span>
+<span class="comment">// or a &quot;freeform policy&quot;), the Request gets queued or immediately accepted. When agents finish</span>
+<span class="comment">// turns or when some time passes (for traffic signals), the intersection also gets a chance to</span>
+<span class="comment">// react, maybe granting one of the pending requests.</span>
+<span class="comment">//</span>
+<span class="comment">// Most of the complexity comes from attempting to workaround</span>
+<span class="comment">// https://dabreegster.github.io/abstreet/trafficsim/gridlock.html.</span>
+
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};

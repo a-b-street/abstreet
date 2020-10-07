@@ -1691,7 +1691,21 @@
 <span id="1691">1691</span>
 <span id="1692">1692</span>
 <span id="1693">1693</span>
+<span id="1694">1694</span>
+<span id="1695">1695</span>
+<span id="1696">1696</span>
+<span id="1697">1697</span>
+<span id="1698">1698</span>
+<span id="1699">1699</span>
+<span id="1700">1700</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Manages people, each of which executes some trips through the day. Each trip is further broken</span>
+<span class="comment">// down into legs -- for example, a driving trip might start with somebody walking to their car,</span>
+<span class="comment">// driving somewhere, parking, and then walking to their final destination.</span>
+<span class="comment">// https://dabreegster.github.io/abstreet/trafficsim/trips.html describes some of the variations.</span>
+<span class="comment">//</span>
+<span class="comment">// Here be dragons, keep hands and feet inside the ride at all times...</span>
+
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
