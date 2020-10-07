@@ -128,17 +128,9 @@ pub fn ongoing(
         details,
         phases,
         Some(props.dist_crossed / props.total_dist),
-    )); /*    col.push(make_timeline(
-            ctx,
-            app,
-            id,
-            open_trip,
-            details,
-            phases,
-            Some(props.dist_crossed / props.total_dist),
-        ));
-        highlight_slow_intersections(app, details, id, ctx);
-        highlight_slow_lanes(app, details, id, ctx);*/
+    ));
+    highlight_slow_intersections(app, details, id, ctx);
+    highlight_slow_lanes(app, details, id, ctx);
     Widget::col(col)
 }
 
@@ -410,8 +402,8 @@ fn highlight_slow_intersections(app: &App, details: &mut Details, id: TripID, ct
             };
             // Draw label after, to prevent being obscured by the line
             let time_duration = Duration::seconds(*time as f64);
-            let unzoomed_label = Text::from(TextSpan::from(Line(format!("{}", time_duration)).secondary().fg(fg_color))).bg(bg_color);
-            let zoomed_label = Text::from(TextSpan::from(Line(format!("{}", time_duration)).small().fg(fg_color)))
+            let unzoomed_label = Text::from(TextSpan::from(Line(format!("{}", time_duration)).body().fg(fg_color))).bg(bg_color);
+            let zoomed_label = Text::from(TextSpan::from(Line(format!("{}", time_duration)).size(6).fg(fg_color)))
                 .bg(bg_color);
             let unzoomed_rendered = unzoomed_label.render(ctx).centered_on(intersection.polygon.center());
             let zoomed_rendered = zoomed_label.render(ctx).centered_on(intersection.polygon.center());
@@ -448,7 +440,7 @@ fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID, ctx: &Even
                 ),
             );
             // Draw label after, to prevent being obscured by the line
-            let unzoomed_label = Text::from(TextSpan::from(Line(format!("{}s", speed_percent)).secondary().fg(fg_color))).bg(bg_color);
+            let unzoomed_label = Text::from(TextSpan::from(Line(format!("{}s", speed_percent)).body().fg(fg_color))).bg(bg_color);
             let zoomed_label = Text::from(TextSpan::from(Line(format!("{}s", speed_percent)).small().fg(fg_color)))
                 .bg(bg_color);
 
