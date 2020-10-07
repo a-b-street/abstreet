@@ -351,23 +351,33 @@ impl ControlTrafficSignal {
     ) -> Result<ControlTrafficSignal, String> {
         let mut stages = Vec::new();
         for s in raw.phases {
-            let num_protected = s.protected_turns.len();
-            let num_permitted = s.permitted_turns.len();
-            let protected_movements = s
-                .protected_turns
-                .into_iter()
-                .filter_map(|t| import_movement(t, map))
-                .collect::<BTreeSet<_>>();
-            let yield_movements = s
-                .permitted_turns
-                .into_iter()
-                .filter_map(|t| import_movement(t, map))
-                .collect::<BTreeSet<_>>();
-            if protected_movements.len() == num_protected && yield_movements.len() == num_permitted
-            {
+            let mut errors = Vec::new();
+            let mut protected_movements = BTreeSet::new();
+            for t in s.protected_turns {
+                match import_movement(t, map) {
+                    Ok(mvmnt) => {
+                        protected_movements.insert(mvmnt);
+                    }
+                    Err(err) => {
+                        errors.push(err);
+                    }
+                }
+            }
+            let mut permitted_movements = BTreeSet::new();
+            for t in s.permitted_turns {
+                match import_movement(t, map) {
+                    Ok(mvmnt) => {
+                        permitted_movements.insert(mvmnt);
+                    }
+                    Err(err) => {
+                        errors.push(err);
+                    }
+                }
+            }
+            if errors.is_empty() {
                 stages.push(Stage {
                     protected_movements,
-                    yield_movements,
+                    yield_movements: permitted_movements,
                     phase_type: match s.phase_type {
                         seattle_traffic_signals::PhaseType::Fixed(d) => {
                             PhaseType::Fixed(Duration::seconds(d as f64))
@@ -378,10 +388,7 @@ impl ControlTrafficSignal {
                     },
                 });
             } else {
-                return Err(format!(
-                    "Failed to import some of the movements for {}",
-                    raw.intersection_osm_node_id
-                ));
+                return Err(errors.join("; "));
             }
         }
         let ts = ControlTrafficSignal {
@@ -417,25 +424,21 @@ fn export_movement(id: &MovementID, map: &Map) -> seattle_traffic_signals::Turn 
     }
 }
 
-fn import_movement(id: seattle_traffic_signals::Turn, map: &Map) -> Option<MovementID> {
-    Some(MovementID {
+fn import_movement(id: seattle_traffic_signals::Turn, map: &Map) -> Result<MovementID, String> {
+    Ok(MovementID {
         from: find_r(id.from, map)?,
         to: find_r(id.to, map)?,
-        parent: map
-            .find_i_by_osm_id(osm::NodeID(id.intersection_osm_node_id))
-            .ok()?,
+        parent: map.find_i_by_osm_id(osm::NodeID(id.intersection_osm_node_id))?,
         crosswalk: id.is_crosswalk,
     })
 }
 
-fn find_r(id: seattle_traffic_signals::DirectedRoad, map: &Map) -> Option<DirectedRoadID> {
-    Some(DirectedRoadID {
-        id: map
-            .find_r_by_osm_id(OriginalRoad::new(
-                id.osm_way_id,
-                (id.osm_node1, id.osm_node2),
-            ))
-            .ok()?,
+fn find_r(id: seattle_traffic_signals::DirectedRoad, map: &Map) -> Result<DirectedRoadID, String> {
+    Ok(DirectedRoadID {
+        id: map.find_r_by_osm_id(OriginalRoad::new(
+            id.osm_way_id,
+            (id.osm_node1, id.osm_node2),
+        ))?,
         dir: if id.is_forwards {
             Direction::Fwd
         } else {

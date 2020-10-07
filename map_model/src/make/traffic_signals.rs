@@ -26,15 +26,19 @@ pub fn get_possible_policies(
         .unwrap()
         .remove(&map.get_i(id).orig_id.0)
     {
-        if let Ok(ts) = ControlTrafficSignal::import(raw, id, map) {
-            results.push(("hand-mapped current real settings".to_string(), ts));
-        } else {
-            let i = map.get_i(id);
-            timer.error(format!(
-                "seattle_traffic_signals data for {} ({}) out of date, go update it",
-                i.orig_id,
-                i.name(None, map)
-            ));
+        match ControlTrafficSignal::import(raw, id, map) {
+            Ok(ts) => {
+                results.push(("hand-mapped current real settings".to_string(), ts));
+            }
+            Err(err) => {
+                let i = map.get_i(id);
+                timer.error(format!(
+                    "seattle_traffic_signals data for {} ({}) out of date, go update it: {}",
+                    i.orig_id,
+                    i.name(None, map),
+                    err
+                ));
+            }
         }
     }
 
