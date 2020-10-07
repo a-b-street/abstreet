@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ExternalPerson",""],["ExternalTrip",""]]});
+initSidebarItems({"enum":[["ExternalTripEndpoint",""]],"struct":[["ExternalPerson",""],["ExternalTrip",""]]});

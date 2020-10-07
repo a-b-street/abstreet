@@ -198,8 +198,8 @@ the delay experienced by every agent passing through intersection #42 from
 <li><strong>GET /traffic-signals/get-cumulative-thruput?id=42</strong>: Returns the number of
 agents passing through intersection #42 since midnight, grouped by direction
 of travel.</li>
-<li><strong>GET /traffic-signals/get-all-current-state</strong>: Returns the current state
-of all traffic signals, including the stage timing, waiting, and accepted
+<li><strong>GET /traffic-signals/get-all-current-state</strong>: Returns the current state of
+all traffic signals, including the stage timing, waiting, and accepted
 agents.</li>
 </ul>
 </li>
@@ -230,6 +230,8 @@ modified and then added to map edits.</li>
 <p>If you need to deeply inspect the map, you can dump it to JSON:</p>
 <pre><code>cargo run --bin dump_map data/system/maps/montlake.bin &gt; montlake.json
 </code></pre>
+<p>See some example code that
+<a href="https://github.com/dabreegster/abstreet/blob/master/headless/examples/generate_traffic.py">reads this JSON and finds buildings</a>.</p>
 <p>The format of the map isn't well-documented yet. See the
 <a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html">generated API docs</a>
 and <a href="../map/index.html">the map model docs</a> in the meantime.</p>
