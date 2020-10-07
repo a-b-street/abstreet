@@ -642,9 +642,12 @@ fn make_bar(
                                     Duration::seconds(*delay as f64)
                                 )));
                                 segments.push((
+                                    // To make sure that the hotspot isn't too small
                                     if 0.05 < (turn_details.geom.length() / sum_phase_dist) {
                                         turn_details.geom.length()
                                     } else {
+                                        sum_phase_dist += sum_phase_dist * 0.05;
+                                        sum_phase_dist -= turn_details.geom.length();
                                         sum_phase_dist * 0.05
                                     },
                                     Color::RED,
@@ -666,23 +669,25 @@ fn make_bar(
             // TODO Think of something to do instead
             unimplemented!("We dont have a path!!");
         }
-        icon_pos.push(sum_phase_dist);
+        icon_pos.push(sum_phase_dist / 2.0);
         total_dist += sum_phase_dist;
     }
     let mut timeline = Vec::new();
     let mut icons = Vec::new();
     assert_eq!(icons_geom.len(), icon_pos.len());
+    let mut offset = 0.0;
     for index in 0..icon_pos.len() {
+        let pos = box_width * (*icon_pos.get(index).unwrap() / total_dist);
+        let img = icons_geom.get(index).unwrap().to_owned();
+        let img_size = img.get_dims();
         icons.push(Widget::draw_batch(
             ctx,
-            icons_geom.get(index).unwrap().to_owned().centered_on(
+            img.centered_on(
                 // TODO Hardcoded layouting...
-                Pt2D::new(
-                    0.5 * box_width * (*icon_pos.get(index).unwrap() / total_dist),
-                    -20.0,
-                ),
+                Pt2D::new(pos + offset, -20.0),
             ),
         ));
+        offset += (pos * 2.0) - img_size.width;
     }
     for seg in segments {
         let seg_percent = seg.0 / total_dist;
