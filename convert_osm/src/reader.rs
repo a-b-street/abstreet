@@ -1,8 +1,9 @@
+use std::collections::BTreeMap;
+use std::error::Error;
+
 use abstutil::{prettyprint_usize, slurp_file, Tags, Timer};
 use geom::{GPSBounds, LonLat, Pt2D};
 use map_model::osm::{NodeID, OsmID, RelationID, WayID};
-use std::collections::BTreeMap;
-use std::error::Error;
 
 // References to missing objects are just filtered out.
 // Per https://wiki.openstreetmap.org/wiki/OSM_XML#Certainties_and_Uncertainties, we assume

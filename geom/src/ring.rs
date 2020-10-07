@@ -1,7 +1,9 @@
-use crate::{Distance, Line, PolyLine, Polygon, Pt2D};
-use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
+use crate::{Distance, Line, PolyLine, Polygon, Pt2D};
 
 // Maybe a misnomer, but like a PolyLine, but closed.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

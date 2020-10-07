@@ -26,10 +26,10 @@ Many of the edits will influence routes. For trips that haven't started yet, as
 long as `pathfinding_upfront` is disabled (currently the default), there's
 nothing to do. For currently active trips, in some cases, rerouting would be
 ideal but not necessary (like if speed limits changed). In other cases -- like
-changing access restrictions, modifying lane types, closing intersections -- the
-route must be recomputed. As a simple first attempt, we could just abort all
-active trips whose path crosses an edited road or intersection. Later, we can
-figure out rerouting.
+changing access restrictions, modifying lane types, closing intersections --
+the route must be recomputed. As a simple first attempt, we could just cancel
+all active trips whose path crosses an edited road or intersection. Later, we
+can figure out rerouting.
 
 And actually, the only other case to handle is `ChangeRouteSchedule`, which
 should just be rescheduling the `StartBus` commands.
@@ -38,7 +38,7 @@ should just be rescheduling the `StartBus` commands.
 
 What happens if you modify a parking lane while there are cars on it? For now,
 just delete them. Trips later making use of them will just act as if the car
-never had room to be spawned at all and be aborted or fallback to walking.
+never had room to be spawned at all and get cancelled or fallback to walking.
 
 A better resolution would be to relocate them to other parking spots. If the
 owner is home, it'd be neat to have them walk outside, move the car, and go back

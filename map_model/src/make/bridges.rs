@@ -1,6 +1,7 @@
-use crate::{Road, RoadID};
 use abstutil::Timer;
 use geom::{Bounds, Distance, FindClosest};
+
+use crate::{Road, RoadID};
 
 // Look for roads underneath bridges, then lower their z-order. OSM tags bridges and tunnels, but
 // not the roads that pass under bridges.

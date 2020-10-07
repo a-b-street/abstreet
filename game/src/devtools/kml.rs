@@ -1,16 +1,19 @@
-use crate::app::App;
-use crate::colors::ColorScheme;
-use crate::game::{ChooseSomething, State, Transition};
+use std::collections::{BTreeMap, HashMap, HashSet};
+
 use aabb_quadtree::QuadTree;
+
 use abstutil::{prettyprint_usize, Parallelism};
 use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::ExtraShapes;
 use map_model::BuildingID;
-use std::collections::{BTreeMap, HashMap, HashSet};
 use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::colors::ColorScheme;
+use crate::game::{ChooseSomething, State, Transition};
 
 pub struct ViewKML {
     panel: Panel,
@@ -177,10 +180,10 @@ impl State for ViewKML {
                         ctx,
                         "Load file",
                         Choice::strings(
-                            abstutil::list_dir(std::path::Path::new(&abstutil::path(format!(
+                            abstutil::list_dir(abstutil::path(format!(
                                 "input/{}/",
                                 app.primary.map.get_city_name()
-                            ))))
+                            )))
                             .into_iter()
                             .filter(|x| {
                                 (x.ends_with(".bin") || x.ends_with(".kml"))

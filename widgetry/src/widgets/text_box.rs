@@ -1,8 +1,9 @@
+use geom::Polygon;
+
 use crate::{
     text, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt, ScreenRectangle,
     Text, WidgetImpl, WidgetOutput,
 };
-use geom::Polygon;
 
 // TODO right now, only a single line
 

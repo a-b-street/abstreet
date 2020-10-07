@@ -1,13 +1,15 @@
-use crate::app::App;
-use crate::common::Warping;
-use crate::game::{State, Transition};
-use crate::helpers::ID;
-use map_model::RoadID;
 use std::collections::HashSet;
+
+use map_model::RoadID;
 use widgetry::{
     Autocomplete, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
     Text, Widget,
 };
+
+use crate::app::App;
+use crate::common::Warping;
+use crate::game::{State, Transition};
+use crate::helpers::ID;
 
 // TODO Canonicalize names, handling abbreviations like east/e and street/st
 pub struct Navigator {

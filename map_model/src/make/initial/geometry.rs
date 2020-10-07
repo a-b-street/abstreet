@@ -5,12 +5,14 @@
 // 3) "Trimming back" the center lines to avoid the overlap
 // 4) Producing a polygon for the intersection itsef
 
+use std::collections::BTreeMap;
+
+use abstutil::{wraparound_get, Timer};
+use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
+
 use crate::make::initial::{Intersection, Road};
 use crate::osm;
 use crate::raw::OriginalRoad;
-use abstutil::{wraparound_get, Timer};
-use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
-use std::collections::BTreeMap;
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5);
 

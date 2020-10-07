@@ -1,15 +1,16 @@
-use crate::app::App;
-use crate::common::{ColorDiscrete, ColorLegend, ColorNetwork};
-use crate::helpers::amenity_type;
-use crate::layer::{Layer, LayerOutcome};
-use abstutil::Counter;
+use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Time};
-use map_model::LaneType;
+use map_model::{LaneType, PathConstraints};
 use sim::AgentType;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, Text, TextExt,
     VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{ColorDiscrete, ColorLegend, ColorNetwork};
+use crate::helpers::{amenity_type, ID};
+use crate::layer::{Layer, LayerOutcome};
 
 pub struct BikeNetwork {
     panel: Panel,
@@ -327,5 +328,120 @@ impl Static {
             "blackholes".to_string(),
             Widget::nothing(),
         )
+    }
+}
+
+pub struct CongestionCaps {
+    panel: Panel,
+    time: Time,
+    unzoomed: Drawable,
+    zoomed: Drawable,
+    tooltip: Option<Text>,
+}
+
+impl Layer for CongestionCaps {
+    fn name(&self) -> Option<&'static str> {
+        Some("congestion caps")
+    }
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        minimap: &Panel,
+    ) -> Option<LayerOutcome> {
+        let mut recalc_tooltip = false;
+        if app.primary.sim.time() != self.time {
+            *self = CongestionCaps::new(ctx, app);
+            recalc_tooltip = true;
+        }
+
+        // Show a tooltip with count, only when unzoomed
+        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            if ctx.redo_mouseover() || recalc_tooltip {
+                self.tooltip = None;
+                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                    Some(ID::Road(r)) => {
+                        if let Some(cap) = app
+                            .primary
+                            .map
+                            .get_r(r)
+                            .access_restrictions
+                            .cap_vehicles_per_hour
+                        {
+                            self.tooltip = Some(Text::from(Line(format!(
+                                "Cap of {} vehicles per hour",
+                                prettyprint_usize(cap)
+                            ))));
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        } else {
+            self.tooltip = None;
+        }
+
+        Layer::simple_event(ctx, minimap, &mut self.panel)
+    }
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.panel.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
+        if let Some(ref txt) = self.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
+        }
+    }
+    fn draw_minimap(&self, g: &mut GfxCtx) {
+        g.redraw(&self.unzoomed);
+    }
+}
+
+impl CongestionCaps {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> CongestionCaps {
+        let mut colorer = ColorNetwork::new(app);
+        let map = &app.primary.map;
+
+        let mut num_roads = 0;
+        for r in map.all_roads() {
+            if let Some(cap) = r.access_restrictions.cap_vehicles_per_hour {
+                num_roads += 1;
+                if let Some(l) = r
+                    .all_lanes()
+                    .into_iter()
+                    .find(|l| PathConstraints::Car.can_use(map.get_l(*l), map))
+                {
+                    let current = app.primary.sim.get_cap_counter(l);
+                    let pct = ((current as f64) / (cap as f64)).min(1.0);
+                    colorer.add_r(r.id, app.cs.good_to_bad_red.eval(pct));
+                }
+            }
+        }
+
+        let panel = Panel::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
+                "Congestion caps".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", Key::Escape)
+                    .align_right(),
+            ]),
+            format!("{} roads have caps", prettyprint_usize(num_roads)).draw_text(ctx),
+            ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["available", "full"]),
+        ]))
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx);
+
+        let (unzoomed, zoomed) = colorer.build(ctx);
+
+        CongestionCaps {
+            panel,
+            time: app.primary.sim.time(),
+            unzoomed,
+            zoomed,
+            tooltip: None,
+        }
     }
 }

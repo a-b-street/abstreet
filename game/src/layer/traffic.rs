@@ -1,16 +1,20 @@
-use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork, DivergingScale};
-use crate::layer::{Layer, LayerOutcome};
-use abstutil::Counter;
+use std::collections::BTreeSet;
+
+use maplit::btreeset;
+
+use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
-use maplit::btreeset;
 use sim::GetDrawAgents;
-use std::collections::BTreeSet;
 use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{ColorLegend, ColorNetwork, DivergingScale};
+use crate::helpers::ID;
+use crate::layer::{Layer, LayerOutcome};
 
 pub struct Backpressure {
     time: Time,
@@ -89,8 +93,8 @@ impl Backpressure {
         .build(ctx);
 
         let mut colorer = ColorNetwork::new(app);
-        colorer.ranked_roads(cnt_per_r, &app.cs.good_to_bad_red);
-        colorer.ranked_intersections(cnt_per_i, &app.cs.good_to_bad_red);
+        colorer.pct_roads(cnt_per_r, &app.cs.good_to_bad_red);
+        colorer.pct_intersections(cnt_per_i, &app.cs.good_to_bad_red);
         let (unzoomed, zoomed) = colorer.build(ctx);
 
         Backpressure {
@@ -105,7 +109,7 @@ impl Backpressure {
 // TODO Filter by mode
 pub struct Throughput {
     time: Time,
-    compare: bool,
+    tooltip: Option<Text>,
     unzoomed: Drawable,
     zoomed: Drawable,
     panel: Panel,
@@ -121,8 +125,39 @@ impl Layer for Throughput {
         app: &mut App,
         minimap: &Panel,
     ) -> Option<LayerOutcome> {
+        let mut recalc_tooltip = false;
         if app.primary.sim.time() != self.time {
-            *self = Throughput::new(ctx, app, self.compare);
+            *self = Throughput::new(ctx, app);
+            recalc_tooltip = true;
+        }
+
+        // Show a tooltip with count, only when unzoomed
+        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            if ctx.redo_mouseover() || recalc_tooltip {
+                self.tooltip = None;
+                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                    Some(ID::Road(r)) => {
+                        let cnt = app.primary.sim.get_analytics().road_thruput.total_for(r);
+                        if cnt > 0 {
+                            self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
+                        }
+                    }
+                    Some(ID::Intersection(i)) => {
+                        let cnt = app
+                            .primary
+                            .sim
+                            .get_analytics()
+                            .intersection_thruput
+                            .total_for(i);
+                        if cnt > 0 {
+                            self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        } else {
+            self.tooltip = None;
         }
 
         self.panel.align_above(ctx, minimap);
@@ -134,14 +169,102 @@ impl Layer for Throughput {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                *self = Throughput::new(
-                    ctx,
-                    app,
-                    self.panel
-                        .maybe_is_checked("Compare before proposal")
-                        .unwrap_or(false),
-                );
-                self.panel.align_above(ctx, minimap);
+                return Some(LayerOutcome::Replace(Box::new(CompareThroughput::new(
+                    ctx, app,
+                ))));
+            }
+            _ => {}
+        }
+        None
+    }
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.panel.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
+        if let Some(ref txt) = self.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
+        }
+    }
+    fn draw_minimap(&self, g: &mut GfxCtx) {
+        g.redraw(&self.unzoomed);
+    }
+}
+
+impl Throughput {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Throughput {
+        let stats = &app.primary.sim.get_analytics();
+        let road_counter = stats.road_thruput.all_total_counts();
+        let intersection_counter = stats.intersection_thruput.all_total_counts();
+        let panel = Panel::new(Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
+                "Throughput".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", Key::Escape)
+                    .align_right(),
+            ]),
+            Text::from(Line("This counts all people crossing since midnight").secondary())
+                .wrap_to_pct(ctx, 15)
+                .draw(ctx),
+            if app.has_prebaked().is_some() {
+                Checkbox::switch(ctx, "Compare before proposal", None, false)
+            } else {
+                Widget::nothing()
+            },
+            ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "highest"]),
+        ]))
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx);
+
+        let mut colorer = ColorNetwork::new(app);
+        colorer.ranked_roads(road_counter, &app.cs.good_to_bad_red);
+        colorer.ranked_intersections(intersection_counter, &app.cs.good_to_bad_red);
+        let (unzoomed, zoomed) = colorer.build(ctx);
+
+        Throughput {
+            time: app.primary.sim.time(),
+            tooltip: None,
+            unzoomed,
+            zoomed,
+            panel,
+        }
+    }
+}
+
+pub struct CompareThroughput {
+    time: Time,
+    unzoomed: Drawable,
+    zoomed: Drawable,
+    panel: Panel,
+}
+
+impl Layer for CompareThroughput {
+    fn name(&self) -> Option<&'static str> {
+        Some("throughput")
+    }
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        minimap: &Panel,
+    ) -> Option<LayerOutcome> {
+        if app.primary.sim.time() != self.time {
+            *self = CompareThroughput::new(ctx, app);
+        }
+
+        self.panel.align_above(ctx, minimap);
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            },
+            Outcome::Changed => {
+                return Some(LayerOutcome::Replace(Box::new(Throughput::new(ctx, app))));
             }
             _ => {}
         }
@@ -160,58 +283,8 @@ impl Layer for Throughput {
     }
 }
 
-impl Throughput {
-    pub fn new(ctx: &mut EventCtx, app: &App, compare: bool) -> Throughput {
-        if compare {
-            return Throughput::compare_throughput(ctx, app);
-        }
-        let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Throughput".draw_text(ctx),
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
-            ]),
-            Text::from(Line("This counts all people crossing since midnight").secondary())
-                .wrap_to_pct(ctx, 15)
-                .draw(ctx),
-            if app.has_prebaked().is_some() {
-                Checkbox::switch(ctx, "Compare before proposal", None, false)
-            } else {
-                Widget::nothing()
-            },
-            ColorLegend::gradient(
-                ctx,
-                &app.cs.good_to_bad_red,
-                vec!["lowest count", "highest"],
-            ),
-        ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-        .build(ctx);
-
-        let mut colorer = ColorNetwork::new(app);
-        let stats = &app.primary.sim.get_analytics();
-        colorer.ranked_roads(
-            stats.road_thruput.all_total_counts(),
-            &app.cs.good_to_bad_red,
-        );
-        colorer.ranked_intersections(
-            stats.intersection_thruput.all_total_counts(),
-            &app.cs.good_to_bad_red,
-        );
-        let (unzoomed, zoomed) = colorer.build(ctx);
-
-        Throughput {
-            time: app.primary.sim.time(),
-            compare: false,
-            unzoomed,
-            zoomed,
-            panel,
-        }
-    }
-
-    fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Throughput {
+impl CompareThroughput {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> CompareThroughput {
         let after = app.primary.sim.get_analytics();
         let before = app.prebaked();
         let hour = app.primary.sim.time().get_hours();
@@ -275,9 +348,8 @@ impl Throughput {
         .build(ctx);
         let (unzoomed, zoomed) = colorer.build(ctx);
 
-        Throughput {
+        CompareThroughput {
             time: app.primary.sim.time(),
-            compare: true,
             unzoomed,
             zoomed,
             panel,

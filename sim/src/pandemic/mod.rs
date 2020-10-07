@@ -1,11 +1,17 @@
-mod pandemic;
+// An experimental SEIR model by https://github.com/omalaspinas/ glued to the traffic simulation.
+// Transmission may occur when people spend time in shared spaces like buildings, bus stops, and
+// buses.
 
-use geom::{Duration, Time};
+use std::ops;
+
 pub use pandemic::{Cmd, PandemicModel};
 use rand::Rng;
 use rand_distr::{Distribution, Exp, Normal};
 use rand_xorshift::XorShiftRng;
-use std::ops;
+
+use geom::{Duration, Time};
+
+mod pandemic;
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct AnyTime(f64);

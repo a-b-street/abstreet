@@ -1,11 +1,16 @@
+// Represents a single vehicle. Note "car" is a misnomer; it could also be a bus or bike.
+
+use std::collections::VecDeque;
+
+use serde::{Deserialize, Serialize};
+
+use geom::{Distance, Duration, PolyLine, Time};
+use map_model::{Direction, Map, Traversable};
+
 use crate::{
     CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, PersonID, Router, TimeInterval,
     TransitSimState, TripID, Vehicle, VehicleType,
 };
-use geom::{Distance, Duration, PolyLine, Time};
-use map_model::{Direction, Map, Traversable};
-use serde::{Deserialize, Serialize};
-use std::collections::VecDeque;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Car {
@@ -242,6 +247,8 @@ impl Car {
     }
 }
 
+// See https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html for details about the
+// state machine encoded here.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum CarState {
     Crossing(TimeInterval, DistanceInterval),

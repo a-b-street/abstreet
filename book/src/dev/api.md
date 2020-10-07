@@ -50,12 +50,14 @@ are missing, etc. A summary of the commands available so far:
   - **GET /traffic-signals/get-cumulative-thruput?id=42**: Returns the number of
     agents passing through intersection #42 since midnight, grouped by direction
     of travel.
+  - **GET /traffic-signals/get-all-current-state**: Returns the current state
+    of all traffic signals, including the stage timing, waiting, and accepted
+    agents.
 - **/data**
   - **GET /data/get-finished-trips**: Returns a JSON list of all finished trips.
     Each tuple is (time the trip finished in seconds after midnight, trip ID,
     mode, duration of trip in seconds). The mode is either a string like "Walk"
-    or "Drive", or null if the trip was aborted (due to a simulation bug or
-    disconnected map).
+    or "Drive", or null if the trip was cancelled for any reason.
   - **GET /data/get-agent-positions**: Returns a JSON list of all active agents.
     Vehicle type (or pedestrian), person ID, and position is included.
   - **GET /data/get-road-thruput**: Returns a JSON list of (road, agent type,

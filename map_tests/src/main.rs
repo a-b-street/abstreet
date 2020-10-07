@@ -1,6 +1,7 @@
-use map_model::Map;
 use std::fs::File;
 use std::io::Write;
+
+use map_model::Map;
 
 // Test the map pipeline by importing simple, handcrafted .osm files, then emitting goldenfiles
 // that summarize part of the generated map. Keep the goldenfiles under version control to notice
@@ -8,7 +9,7 @@ use std::io::Write;
 // but the test maps are.
 fn main() -> Result<(), std::io::Error> {
     // TODO It's kind of a hack to reference the crate's directory relative to the data dir.
-    for path in abstutil::list_dir(std::path::Path::new(&abstutil::path("../map_tests/input"))) {
+    for path in abstutil::list_dir(abstutil::path("../map_tests/input")) {
         let map = import_map(path);
         // Enable to debug the result wih the normal GUI
         if false {

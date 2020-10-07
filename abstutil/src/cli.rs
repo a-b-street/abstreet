@@ -1,7 +1,9 @@
-use crate::elapsed_seconds;
-use instant::Instant;
 use std::collections::{HashMap, HashSet};
 use std::sync::RwLock;
+
+use instant::Instant;
+
+use crate::elapsed_seconds;
 
 pub struct CmdArgs {
     kv: HashMap<String, String>,
@@ -13,13 +15,6 @@ pub struct CmdArgs {
 
 impl CmdArgs {
     pub fn new() -> CmdArgs {
-        // TODO Hijacking this to also initialize logging!
-        log::set_boxed_logger(Box::new(Logger {
-            last_fp_note: RwLock::new(None),
-        }))
-        .unwrap();
-        log::set_max_level(log::LevelFilter::Debug);
-
         let mut args = CmdArgs {
             kv: HashMap::new(),
             bits: HashSet::new(),
@@ -27,18 +22,28 @@ impl CmdArgs {
             used: HashSet::new(),
         };
 
-        for arg in std::env::args().skip(1) {
-            let parts: Vec<&str> = arg.split('=').collect();
-            if parts.len() == 1 {
-                if arg.starts_with("--") {
-                    args.bits.insert(arg);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            // TODO Hijacking this to also initialize logging!
+            log::set_boxed_logger(Box::new(Logger {
+                last_fp_note: RwLock::new(None),
+            }))
+            .unwrap();
+            log::set_max_level(log::LevelFilter::Debug);
+
+            for arg in std::env::args().skip(1) {
+                let parts: Vec<&str> = arg.split('=').collect();
+                if parts.len() == 1 {
+                    if arg.starts_with("--") {
+                        args.bits.insert(arg);
+                    } else {
+                        args.free.push(arg);
+                    }
+                } else if parts.len() == 2 {
+                    args.kv.insert(parts[0].to_string(), parts[1].to_string());
                 } else {
-                    args.free.push(arg);
+                    panic!("Weird argument {}", arg);
                 }
-            } else if parts.len() == 2 {
-                args.kv.insert(parts[0].to_string(), parts[1].to_string());
-            } else {
-                panic!("Weird argument {}", arg);
             }
         }
 

@@ -1,21 +1,16 @@
-// To run:
-// > cargo run --example demo
-//
-// Try the web version, but there's no text rendering yet:
-// > cargo web start --target wasm32-unknown-unknown --no-default-features \
-// --features wasm-backend --example demo
+use std::collections::HashSet;
 
-use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
-use std::collections::HashSet;
+
+use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
     lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions, Series,
     Text, TextExt, Texture, UpdateType, VerticalAlignment, Widget, GUI,
 };
 
-fn main() {
+pub fn main() {
     // Control flow surrendered here. App implements State, which has an event handler and a draw
     // callback.
     widgetry::run(widgetry::Settings::new("widgetry demo"), |ctx| {
@@ -151,8 +146,10 @@ impl GUI for App {
                     self.elapsed += offset;
                     self.redraw_stopwatch(ctx);
                 }
-                "apply textures" => {
-                    let (bg_texture, fg_texture) = self.controls.dropdown_value("texture dropdown");
+                "apply" => {
+                    let (v_align, h_align) = self.controls.dropdown_value("alignment");
+                    self.controls.align(v_align, h_align);
+                    let (bg_texture, fg_texture) = self.controls.dropdown_value("texture");
                     self.texture_demo = setup_texture_demo(ctx, bg_texture, fg_texture);
                 }
                 _ => unimplemented!("clicked: {:?}", x),
@@ -328,17 +325,54 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         Widget::row(vec![
             Widget::dropdown(
                 ctx,
-                "texture dropdown",
+                "alignment",
+                (HorizontalAlignment::Center, VerticalAlignment::Top),
+                vec![
+                    Choice::new("Top", (HorizontalAlignment::Center, VerticalAlignment::Top)),
+                    Choice::new(
+                        "Left",
+                        (HorizontalAlignment::Left, VerticalAlignment::Center),
+                    ),
+                    Choice::new(
+                        "Bottom",
+                        (HorizontalAlignment::Center, VerticalAlignment::Bottom),
+                    ),
+                    Choice::new(
+                        "Right",
+                        (HorizontalAlignment::Right, VerticalAlignment::Center),
+                    ),
+                    Choice::new(
+                        "Center",
+                        (HorizontalAlignment::Center, VerticalAlignment::Center),
+                    ),
+                ],
+            ),
+            Widget::dropdown(
+                ctx,
+                "texture",
                 (Texture::SAND, Texture::CACTUS),
                 vec![
                     Choice::new("Cold", (Texture::SNOW, Texture::SNOW_PERSON)),
                     Choice::new("Hot", (Texture::SAND, Texture::CACTUS)),
                 ],
             ),
-            Btn::text_fg("Apply Textures").build(ctx, "apply textures", None),
+            Btn::text_fg("Apply").build(ctx, "apply", None),
         ])
         .margin_above(30),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
+}
+
+// Boilerplate for web support
+
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(start)]
+pub fn run() {
+    console_log::init_with_level(log::Level::Debug).unwrap();
+
+    main();
 }

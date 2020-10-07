@@ -1,14 +1,26 @@
-use crate::mechanics::car::Car;
-use crate::mechanics::Queue;
-use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
+// Manages conflicts at intersections. When an agent has reached the end of a lane, they call
+// maybe_start_turn to make a Request. Based on the intersection type (stop sign, traffic signal,
+// or a "freeform policy"), the Request gets queued or immediately accepted. When agents finish
+// turns or when some time passes (for traffic signals), the intersection also gets a chance to
+// react, maybe granting one of the pending requests.
+//
+// Most of the complexity comes from attempting to workaround
+// https://dabreegster.github.io/abstreet/trafficsim/gridlock.html.
+
+use std::collections::{BTreeMap, BTreeSet, HashSet};
+
+use serde::{Deserialize, Serialize};
+
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Duration, Time};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, PhaseType, Traversable,
     TurnID, TurnPriority, TurnType,
 };
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+
+use crate::mechanics::car::Car;
+use crate::mechanics::Queue;
+use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
 
 const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(0.5);
 const WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL: Duration = Duration::const_seconds(0.2);
@@ -437,11 +449,19 @@ impl IntersectionSimState {
         }
     }
 
-    pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
+    pub fn get_accepted_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID)> {
         self.state[&id]
             .accepted
             .iter()
-            .map(|req| req.agent)
+            .map(|req| (req.agent, req.turn))
+            .collect()
+    }
+
+    pub fn get_waiting_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID, Time)> {
+        self.state[&id]
+            .waiting
+            .iter()
+            .map(|(req, time)| (req.agent, req.turn, *time))
             .collect()
     }
 
@@ -773,13 +793,14 @@ impl SignalState {
 // TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity. Workaround
 // for now.
 fn allow_block_the_box(osm_node_id: i64) -> bool {
-    // 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler
-    osm_node_id == 53211694
-        || osm_node_id == 53211693
+    // 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler, Lake Wash and Madison
+    osm_node_id == 53211693
         || osm_node_id == 53214134
         || osm_node_id == 53214133
         || osm_node_id == 53165712
         || osm_node_id == 281487826
         || osm_node_id == 53209840
         || osm_node_id == 4249361353
+        || osm_node_id == 987334546
+        || osm_node_id == 848817336
 }

@@ -1,10 +1,12 @@
-use crate::{Angle, Bounds, Distance, HashablePt2D, PolyLine, Pt2D, Ring};
+use std::convert::TryFrom;
+use std::fmt;
+
 use geo::algorithm::area::Area;
 use geo::algorithm::convexhull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
-use std::fmt;
+
+use crate::{Angle, Bounds, Distance, HashablePt2D, PolyLine, Pt2D, Ring};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {

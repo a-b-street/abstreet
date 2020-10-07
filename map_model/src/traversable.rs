@@ -1,7 +1,10 @@
-use crate::{LaneID, Map, TurnID};
-use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
-use serde::{Deserialize, Serialize};
 use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
+use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
+
+use crate::{LaneID, Map, TurnID};
 
 // Represents a specific point some distance along a lane.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]

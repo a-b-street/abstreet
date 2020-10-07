@@ -55,6 +55,7 @@ pub fn ongoing(
         .get_analytics()
         .get_trip_phases(id, &app.primary.map);
     let trip = app.primary.sim.trip_info(id);
+
     let col_width = Percent::int(7);
     let props = app.primary.sim.agent_properties(agent);
     let activity = agent.to_type().ongoing_verb();
@@ -130,6 +131,7 @@ pub fn ongoing(
         open_trip,
         details,
         phases,
+        &app.primary.map,
         Some(props.dist_crossed / props.total_dist),
     ));
     highlight_slow_intersections(app, details, id, ctx);
@@ -168,9 +170,19 @@ pub fn future(
             ],
         ));
 
-        let phases = app.prebaked().get_trip_phases(id, &app.primary.map);
+        app.primary.calculate_unedited_map();
+        let borrow = app.primary.unedited_map.borrow();
+        let unedited_map = borrow.as_ref().unwrap_or(&app.primary.map);
+        let phases = app.prebaked().get_trip_phases(id, unedited_map);
         col.push(make_timeline(
-            ctx, app, id, open_trip, details, phases, None,
+            ctx,
+            app,
+            id,
+            open_trip,
+            details,
+            phases,
+            unedited_map,
+            None,
         ));
     } else {
         // TODO Warp buttons. make_table is showing its age.
@@ -236,14 +248,27 @@ pub fn finished(
     id: TripID,
     details: &mut Details,
 ) -> Widget {
+    // Weird order to make sure the borrow remains in scope in case we need it.
+    if !open_trips[&id].show_after {
+        app.primary.calculate_unedited_map();
+    }
+    let borrow = app.primary.unedited_map.borrow();
+
     let trip = app.primary.sim.trip_info(id);
-    let phases = if open_trips[&id].show_after {
-        app.primary
-            .sim
-            .get_analytics()
-            .get_trip_phases(id, &app.primary.map)
+    let (phases, map_for_pathfinding) = if open_trips[&id].show_after {
+        (
+            app.primary
+                .sim
+                .get_analytics()
+                .get_trip_phases(id, &app.primary.map),
+            &app.primary.map,
+        )
     } else {
-        app.prebaked().get_trip_phases(id, &app.primary.map)
+        let unedited_map = borrow.as_ref().unwrap_or(&app.primary.map);
+        (
+            app.prebaked().get_trip_phases(id, unedited_map),
+            unedited_map,
+        )
     };
 
     let mut col = Vec::new();
@@ -330,6 +355,7 @@ pub fn finished(
         open_trips.get_mut(&id).unwrap(),
         details,
         phases,
+        map_for_pathfinding,
         None,
     ));
     highlight_slow_intersections(app, details, id, ctx);
@@ -337,35 +363,15 @@ pub fn finished(
     Widget::col(col)
 }
 
-pub fn aborted(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
-    let trip = app.primary.sim.trip_info(id);
-
-    let mut col = vec![Text::from_multiline(vec![
-        Line("A glitch in the simulation happened."),
-        Line("This trip, however, did not."),
-    ])
-        .draw(ctx)];
-
-    // TODO Warp buttons. make_table is showing its age.
-    let (_, _, name1) = endpoint(&trip.start, app);
-    let (_, _, name2) = endpoint(&trip.end, app);
-    col.extend(make_table(
-        ctx,
-        vec![
-            ("Departure", trip.departure.ampm_tostring()),
-            ("From", name1),
-            ("To", name2),
-            ("Purpose", trip.purpose.to_string()),
-        ],
-    ));
-
-    Widget::col(col)
-}
-
 pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
     let trip = app.primary.sim.trip_info(id);
 
-    let mut col = vec!["Trip cancelled due to traffic pattern modifications".draw_text(ctx)];
+    let mut col = vec![Text::from(Line(format!(
+        "Trip cancelled: {}",
+        trip.cancellation_reason.as_ref().unwrap()
+    )))
+    .wrap_to_pct(ctx, 20)
+    .draw(ctx)];
 
     // TODO Warp buttons. make_table is showing its age.
     let (_, _, name1) = endpoint(&trip.start, app);
@@ -708,6 +714,7 @@ fn make_timeline(
     open_trip: &mut OpenTrip,
     details: &mut Details,
     phases: Vec<TripPhase>,
+    map_for_pathfinding: &Map,
     progress_along_path: Option<f64>,
 ) -> Widget {
     let map = &app.primary.map;
@@ -825,7 +832,7 @@ fn make_timeline(
 
             // This is expensive, so cache please
             if idx == open_trip.cached_routes.len() {
-                if let Some(trace) = path.trace(map, dist, None) {
+                if let Some(trace) = path.trace(map_for_pathfinding, dist, None) {
                     open_trip.cached_routes.push(Some((
                         trace.make_polygons(Distance::meters(10.0)),
                         trace.dashed_lines(

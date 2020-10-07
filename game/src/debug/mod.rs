@@ -1,8 +1,13 @@
-mod floodfill;
-mod objects;
-pub mod path_counter;
-mod polygons;
-pub mod shared_row;
+use std::collections::HashSet;
+
+use abstutil::{Parallelism, Tags, Timer};
+use geom::{Distance, Pt2D};
+use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
+use sim::{AgentID, Sim};
+use widgetry::{
+    lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, Text, UpdateType, VerticalAlignment, Widget,
+};
 
 use crate::app::{App, ShowLayers, ShowObject};
 use crate::common::{tool_panel, CommonState, ContextualActions};
@@ -11,15 +16,12 @@ use crate::helpers::ID;
 use crate::options::OptionsPanel;
 use crate::render::{calculate_corners, DrawOptions};
 use crate::sandbox::GameplayMode;
-use abstutil::{Parallelism, Tags, Timer};
-use geom::{Distance, Pt2D};
-use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
-use sim::{AgentID, Sim};
-use std::collections::HashSet;
-use widgetry::{
-    lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, Text, UpdateType, VerticalAlignment, Widget,
-};
+
+mod floodfill;
+mod objects;
+pub mod path_counter;
+mod polygons;
+pub mod shared_row;
 
 pub struct DebugMode {
     panel: Panel,
@@ -112,8 +114,7 @@ impl State for DebugMode {
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
-            app.primary.current_selection =
-                app.calculate_current_selection(ctx, &app.primary.sim, self, true, false, false);
+            app.primary.current_selection = app.mouseover_debug_mode(ctx, self);
         }
 
         match self.panel.event(ctx) {
@@ -200,14 +201,7 @@ impl State for DebugMode {
                 }
                 "unhide everything" => {
                     self.hidden.clear();
-                    app.primary.current_selection = app.calculate_current_selection(
-                        ctx,
-                        &app.primary.sim,
-                        self,
-                        true,
-                        false,
-                        false,
-                    );
+                    app.primary.current_selection = app.mouseover_debug_mode(ctx, self);
                     self.reset_info(ctx);
                 }
                 "search OSM metadata" => {
@@ -281,7 +275,13 @@ impl State for DebugMode {
                 {
                     let mut batch = GeomBatch::new();
                     let agents = match id {
-                        ID::Intersection(i) => app.primary.sim.get_accepted_agents(i),
+                        ID::Intersection(i) => app
+                            .primary
+                            .sim
+                            .get_accepted_agents(i)
+                            .into_iter()
+                            .map(|(a, _)| a)
+                            .collect(),
                         ID::Car(c) => app.primary.sim.get_blocked_by(AgentID::Car(c)),
                         _ => unreachable!(),
                     };

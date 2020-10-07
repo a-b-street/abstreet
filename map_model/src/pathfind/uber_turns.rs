@@ -1,12 +1,15 @@
 // To deal with complicated intersections and short roads in OSM, cluster intersections close
 // together and then calculate UberTurns that string together several turns.
 
-use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map, TurnID};
-use abstutil::MultiMap;
-use geom::{Angle, Distance, PolyLine, Pt2D};
+use std::collections::{BTreeMap, BTreeSet};
+
 use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+
+use abstutil::MultiMap;
+use geom::{Angle, Distance, PolyLine, Pt2D};
+
+use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map, TurnID};
 
 // This only applies to VehiclePathfinder; walking through these intersections is nothing special.
 // TODO I haven't seen any cases yet with "interior" intersections. Some stuff might break.

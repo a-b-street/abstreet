@@ -1,13 +1,19 @@
+// Manages public transit vehicles (buses and trains) that follow a route. The transit model is
+// currently kind of broken, so not describing the state machine yet.
+
+use std::collections::{BTreeMap, BTreeSet};
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_btreemap, serialize_btreemap};
+use geom::Time;
+use map_model::{BusRoute, BusRouteID, BusStopID, Map, Path, PathRequest, Position};
+
 use crate::sim::Ctx;
 use crate::{
     CarID, Event, PedestrianID, PersonID, Router, TripID, TripManager, TripPhaseType, VehicleType,
     WalkingSimState,
 };
-use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::Time;
-use map_model::{BusRoute, BusRouteID, BusStopID, Map, Path, PathRequest, Position};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
 
 // These index stops along a route, not stops along a single sidewalk.
 type StopIdx = usize;

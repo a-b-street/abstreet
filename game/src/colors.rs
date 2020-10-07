@@ -29,6 +29,7 @@ pub enum ColorSchemeChoice {
     MapboxLight,
     MapboxDark,
     FadedZoom,
+    NegativeSpace,
 }
 
 impl ColorSchemeChoice {
@@ -45,6 +46,7 @@ impl ColorSchemeChoice {
             Choice::new("mapbox light", ColorSchemeChoice::MapboxLight),
             Choice::new("mapbox dark", ColorSchemeChoice::MapboxDark),
             Choice::new("faded zoom", ColorSchemeChoice::FadedZoom),
+            Choice::new("negative space", ColorSchemeChoice::NegativeSpace),
         ]
     }
 }
@@ -94,6 +96,7 @@ pub struct ColorScheme {
     pub signal_spinner: Color,
     pub signal_turn_block_bg: Color,
 
+    // Timeline delay highlighting
     pub very_slow_intersection: Color,
     pub slow_intersection: Color,
     pub normal_slow_intersection: Color,
@@ -158,6 +161,7 @@ impl ColorScheme {
             ColorSchemeChoice::MapboxLight => ColorScheme::mapbox_light(),
             ColorSchemeChoice::MapboxDark => ColorScheme::mapbox_dark(),
             ColorSchemeChoice::FadedZoom => ColorScheme::faded_zoom(),
+            ColorSchemeChoice::NegativeSpace => ColorScheme::negative_space(),
         };
         cs.scheme = scheme;
         cs
@@ -211,10 +215,12 @@ impl ColorScheme {
             signal_spinner: hex("#F2994A"),
             signal_turn_block_bg: Color::grey(0.6),
 
-            // Other static elements
+            // Timeline delay highlighting
             very_slow_intersection: Color::RED,
             slow_intersection: Color::YELLOW,
             normal_slow_intersection: Color::GREEN,
+
+            // Other static elements
             void_background: Color::BLACK,
             map_background: Color::grey(0.87).into(),
             unzoomed_interesting_intersection: Color::BLACK,
@@ -285,6 +291,10 @@ impl ColorScheme {
     }
 
     pub fn unzoomed_road_surface(&self, rank: RoadRank) -> Color {
+        if self.scheme == ColorSchemeChoice::NegativeSpace {
+            return Color::BLACK;
+        }
+
         match rank {
             RoadRank::Highway => self.unzoomed_highway,
             RoadRank::Arterial => self.unzoomed_arterial,
@@ -299,6 +309,7 @@ impl ColorScheme {
                 RoadRank::Arterial => hex("#B6BDC5"),
                 RoadRank::Local => hex("#C6CDD5"),
             },
+            ColorSchemeChoice::NegativeSpace => Color::BLACK,
             _ => match lane {
                 LaneType::Driving => self.driving_lane,
                 LaneType::Bus => self.bus_lane,
@@ -469,6 +480,27 @@ impl ColorScheme {
 
     fn faded_zoom() -> ColorScheme {
         let cs = ColorScheme::standard();
+        cs
+    }
+
+    fn negative_space() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        let nonempty_space = Color::BLACK;
+        cs.map_background = Color::WHITE.into();
+        cs.residential_building = nonempty_space;
+        cs.commerical_building = nonempty_space;
+        cs.building_outline = nonempty_space;
+        cs.normal_intersection = nonempty_space;
+        cs.general_road_marking = nonempty_space;
+        cs.road_center_line = nonempty_space;
+        cs.stop_sign = nonempty_space;
+        cs.stop_sign_pole = nonempty_space;
+        cs.sidewalk_lines = nonempty_space;
+        cs.parking_lot = nonempty_space;
+        cs.grass = nonempty_space.into();
+        cs.water = nonempty_space.into();
+        // TODO Why is this showing up?!
+        cs.light_rail_track = Color::INVISIBLE;
         cs
     }
 }

@@ -2,6 +2,14 @@
 // fixed duration. During a single Stage, some movements are protected (can proceed with the highest
 // priority), while others are permitted (have to yield before proceeding).
 
+use std::collections::{BTreeMap, BTreeSet};
+use std::convert::TryFrom;
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
+use geom::{Distance, Duration, Speed};
+
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
 use crate::objects::traffic_signals::PhaseType::{Adaptive, Fixed};
 use crate::raw::OriginalRoad;
@@ -9,11 +17,6 @@ use crate::{
     osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
     MovementID, TurnID, TurnPriority, TurnType,
 };
-use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
-use geom::{Distance, Duration, Speed};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
-use std::convert::TryFrom;
 
 // The pace to use for crosswalk pace in m/s
 // https://en.wikipedia.org/wiki/Preferred_walking_speed

@@ -1,13 +1,21 @@
+// An activity model creates "people" that follow a set schedule of activities through the day.
+// Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go
+// somewhere at some time. This is an extremely simple activity model that just uses data inferred
+// from OSM.
+
+use rand::seq::SliceRandom;
+use rand::Rng;
+use rand_xorshift::XorShiftRng;
+
+use abstutil::{prettyprint_usize, Parallelism, Timer};
+use geom::{Distance, Duration, Time};
+use map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
+
+use crate::make::fork_rng;
 use crate::{
     IndividTrip, PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnTrip, TripEndpoint,
     TripMode, TripPurpose,
 };
-use abstutil::{prettyprint_usize, Parallelism, Timer};
-use geom::{Distance, Duration, Time};
-use map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
-use rand::seq::SliceRandom;
-use rand::Rng;
-use rand_xorshift::XorShiftRng;
 
 impl ScenarioGenerator {
     // Designed in https://github.com/dabreegster/abstreet/issues/154
@@ -153,7 +161,7 @@ impl ScenarioGenerator {
                     }
                 };
 
-                (home, work, abstutil::fork_rng(rng))
+                (home, work, fork_rng(rng))
             })
             .collect();
 

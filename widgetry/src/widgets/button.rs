@@ -1,8 +1,9 @@
+use geom::{Distance, Polygon};
+
 use crate::{
     svg, Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, Outcome,
     RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
-use geom::{Distance, Polygon};
 
 pub struct Button {
     pub action: String,

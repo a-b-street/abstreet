@@ -1,14 +1,15 @@
-use crate::app::{App, ShowEverything};
-use crate::common::{make_heatmap, HeatmapOptions};
-use crate::game::{State, Transition};
-use crate::helpers::{amenity_type, ID};
 use abstutil::Counter;
 use map_model::BuildingID;
-use sim::{DontDrawAgents, Scenario, TripEndpoint};
+use sim::{Scenario, TripEndpoint};
 use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, Text, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{make_heatmap, HeatmapOptions};
+use crate::game::{State, Transition};
+use crate::helpers::{amenity_type, ID};
 
 pub struct PopularDestinations {
     per_bldg: Counter<BuildingID>,
@@ -111,14 +112,7 @@ impl State for PopularDestinations {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            app.primary.current_selection = app.calculate_current_selection(
-                ctx,
-                &DontDrawAgents {},
-                &ShowEverything::new(),
-                false,
-                false,
-                true,
-            );
+            app.primary.current_selection = app.mouseover_unzoomed_buildings(ctx);
             if let Some(ID::Building(_)) = app.primary.current_selection {
             } else {
                 app.primary.current_selection = None;

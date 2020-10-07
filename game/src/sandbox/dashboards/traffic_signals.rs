@@ -1,17 +1,19 @@
+use std::collections::HashMap;
+
+use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
+use geom::{ArrowCap, Distance, Duration, Polygon, Time};
+use map_model::{ControlTrafficSignal, IntersectionID, MovementID, PathStep, TurnType};
+use sim::{DontDrawAgents, TripEndpoint};
+use widgetry::{
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
+
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
-use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
-use geom::{ArrowCap, Distance, Duration, Polygon, Time};
-use map_model::{ControlTrafficSignal, IntersectionID, MovementID, PathStep, TurnType};
-use sim::{DontDrawAgents, TripEndpoint};
-use std::collections::HashMap;
-use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 
 pub struct TrafficSignalDemand {
     panel: Panel,
@@ -69,14 +71,8 @@ impl State for TrafficSignalDemand {
         // TODO DrawWithTooltips works great in screenspace; make a similar tool for mapspace?
         if ctx.redo_mouseover() {
             self.selected = None;
-            if let Some(ID::Intersection(i)) = app.calculate_current_selection(
-                ctx,
-                &DontDrawAgents {},
-                &ShowEverything::new(),
-                false,
-                false,
-                false,
-            ) {
+            app.recalculate_current_selection(ctx);
+            if let Some(ID::Intersection(i)) = app.primary.current_selection.take() {
                 if let Some(ts) = app.primary.map.maybe_get_traffic_signal(i) {
                     // If we're mousing over something, the cursor is on the map.
                     let pt = ctx.canvas.get_cursor_in_map_space().unwrap();

@@ -1,9 +1,16 @@
-use crate::mechanics::car::{Car, CarState};
-use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
+// A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where
+// https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#exact-positions is
+// implemented.
+
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
+
+use serde::{Deserialize, Serialize};
+
 use geom::{Distance, Time};
 use map_model::{Map, Traversable};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, VecDeque};
+
+use crate::mechanics::car::{Car, CarState};
+use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Queue {

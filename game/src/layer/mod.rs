@@ -1,3 +1,11 @@
+use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget};
+
+use crate::app::App;
+use crate::common::HeatmapOptions;
+use crate::game::{DrawBaselayer, State, Transition};
+use crate::helpers::hotkey_btn;
+use crate::sandbox::dashboards;
+
 mod elevation;
 pub mod map;
 mod pandemic;
@@ -5,13 +13,6 @@ mod parking;
 mod population;
 pub mod traffic;
 pub mod transit;
-
-use crate::app::App;
-use crate::common::HeatmapOptions;
-use crate::game::{DrawBaselayer, State, Transition};
-use crate::helpers::hotkey_btn;
-use crate::sandbox::dashboards;
-use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget};
 
 // TODO Good ideas in
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70
@@ -46,6 +47,7 @@ impl dyn Layer {
 // TODO Just return a bool for closed? Less readable...
 pub enum LayerOutcome {
     Close,
+    Replace(Box<dyn Layer>),
 }
 
 // TODO Maybe overkill, but could embed a minimap and preview the layer on hover
@@ -64,6 +66,10 @@ impl PickLayer {
         match layer.event(ctx, app, minimap) {
             Some(LayerOutcome::Close) => {
                 app.layer = None;
+                return None;
+            }
+            Some(LayerOutcome::Replace(l)) => {
+                app.layer = Some(l);
                 return None;
             }
             None => {}
@@ -124,11 +130,8 @@ impl PickLayer {
                     btn("backpressure", Key::Z),
                     btn("elevation", Key::V),
                     btn("parking efficiency", Key::O),
-                    if app.opts.dev {
-                        btn("blackholes", Key::L)
-                    } else {
-                        Widget::nothing()
-                    },
+                    btn("blackholes", Key::L),
+                    btn("congestion caps", Key::C),
                     if app.primary.sim.get_pandemic_model().is_some() {
                         btn("pandemic model", Key::Y)
                     } else {
@@ -138,7 +141,7 @@ impl PickLayer {
                 Widget::col(vec![
                     "Data".draw_text(ctx),
                     btn("traffic signal demand", Key::M),
-                    btn("commuter patterns", Key::C),
+                    btn("commuter patterns", Key::R),
                 ]),
             ])
             .evenly_spaced(),
@@ -194,6 +197,9 @@ impl State for PickLayer {
                 "blackholes" => {
                     app.layer = Some(Box::new(map::Static::blackholes(ctx, app)));
                 }
+                "congestion caps" => {
+                    app.layer = Some(Box::new(map::CongestionCaps::new(ctx, app)));
+                }
                 "parking occupancy" => {
                     app.layer = Some(Box::new(parking::Occupancy::new(
                         ctx, app, true, true, true, false, true,
@@ -212,7 +218,7 @@ impl State for PickLayer {
                     )));
                 }
                 "throughput" => {
-                    app.layer = Some(Box::new(traffic::Throughput::new(ctx, app, false)));
+                    app.layer = Some(Box::new(traffic::Throughput::new(ctx, app)));
                 }
                 "traffic jams" => {
                     app.layer = Some(Box::new(traffic::TrafficJams::new(ctx, app)));

@@ -1,3 +1,10 @@
+use geom::{Duration, Time};
+use map_model::IntersectionID;
+use widgetry::{
+    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
+    Text, VerticalAlignment, Widget,
+};
+
 use crate::app::{App, FindDelayedIntersections};
 use crate::challenges::HighScore;
 use crate::common::Warping;
@@ -7,12 +14,6 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
-use geom::{Duration, Time};
-use map_model::IntersectionID;
-use widgetry::{
-    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
-    Text, VerticalAlignment, Widget,
-};
 
 const THRESHOLD: Duration = Duration::const_seconds(20.0 * 60.0);
 // TODO Avoid hack entirely, or tune appearance

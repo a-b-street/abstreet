@@ -1,10 +1,13 @@
+use std::collections::{BTreeMap, BTreeSet};
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_btreemap, serialize_btreemap};
+use geom::Time;
+
 use crate::edits::{EditCmd, EditIntersection, EditRoad, MapEdits};
 use crate::raw::OriginalRoad;
 use crate::{osm, ControlStopSign, IntersectionID, Map};
-use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::Time;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
 
 // MapEdits are converted to this before serializing. Referencing things like LaneID in a Map won't
 // work if the basemap is rebuilt from new OSM data, so instead we use stabler OSM IDs that're less
@@ -15,6 +18,10 @@ pub struct PermanentMapEdits {
     pub edits_name: String,
     pub version: usize,
     commands: Vec<PermanentEditCmd>,
+    // If false, adjacent roads with the same AccessRestrictions will not be merged into the same
+    // Zone; every Road will be its own Zone. This is used to experiment with a per-road cap. Note
+    // this is a map-wide setting.
+    merge_zones: bool,
 
     // Edits without these are player generated.
     pub proposal_description: Vec<String>,
@@ -84,10 +91,11 @@ impl PermanentMapEdits {
             map_name: map.get_name().to_string(),
             edits_name: edits.edits_name.clone(),
             // Increase this every time there's a schema change
-            version: 2,
+            version: 3,
             proposal_description: edits.proposal_description.clone(),
             proposal_link: edits.proposal_link.clone(),
             commands: edits.commands.iter().map(|cmd| cmd.to_perma(map)).collect(),
+            merge_zones: edits.merge_zones,
         }
     }
 
@@ -143,6 +151,7 @@ impl PermanentMapEdits {
                     }
                 })
                 .collect::<Result<Vec<EditCmd>, String>>()?,
+            merge_zones: perma.merge_zones,
 
             changed_roads: BTreeSet::new(),
             original_intersections: BTreeMap::new(),

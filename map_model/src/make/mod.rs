@@ -1,6 +1,19 @@
 // See https://dabreegster.github.io/abstreet/map/importing/index.html for an overview. This module
 // covers the RawMap->Map stage.
 
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+
+use abstutil::{Parallelism, Timer};
+use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
+
+use crate::pathfind::Pathfinder;
+use crate::raw::{OriginalRoad, RawMap};
+use crate::{
+    connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
+    Direction, Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits,
+    Movement, PathConstraints, Position, Road, RoadID, Zone,
+};
+
 mod bridges;
 mod buildings;
 pub mod initial;
@@ -10,17 +23,6 @@ pub mod traffic_signals;
 mod transit;
 pub mod turns;
 mod walking_turns;
-
-use crate::pathfind::Pathfinder;
-use crate::raw::{OriginalRoad, RawMap};
-use crate::{
-    connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
-    Direction, Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits,
-    Movement, PathConstraints, Position, Road, RoadID, Zone,
-};
-use abstutil::{Parallelism, Timer};
-use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 impl Map {
     pub fn create_from_raw(mut raw: RawMap, build_ch: bool, timer: &mut Timer) -> Map {

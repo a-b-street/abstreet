@@ -1,7 +1,12 @@
-use crate::{IndividTrip, PersonID, PersonSpec, SpawnTrip, TripEndpoint, TripMode, TripPurpose};
+// Some users of the API (https://dabreegster.github.io/abstreet/dev/api.html) have their own
+// simulation input data; import it here.
+
+use serde::Deserialize;
+
 use geom::{Distance, FindClosest, LonLat, Pt2D, Time};
 use map_model::Map;
-use serde::Deserialize;
+
+use crate::{IndividTrip, PersonID, PersonSpec, SpawnTrip, TripEndpoint, TripMode, TripPurpose};
 
 #[derive(Deserialize)]
 pub struct ExternalPerson {

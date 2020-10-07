@@ -1,14 +1,16 @@
 // Construct the final model of bus/train stops and routes. This is quite broken currently, so not
 // going to describe how it works.
 
+use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
+
+use abstutil::Timer;
+use geom::{Distance, Duration, FindClosest, HashablePt2D, Time};
+
 use crate::make::match_points_to_lanes;
 use crate::raw::{RawBusRoute, RawBusStop};
 use crate::{
     BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathConstraints, Position,
 };
-use abstutil::Timer;
-use geom::{Distance, Duration, FindClosest, HashablePt2D, Time};
-use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 
 pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer: &mut Timer) {
     timer.start("make transit stops and routes");

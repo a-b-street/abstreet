@@ -1,12 +1,15 @@
+use std::cell::{Cell, RefCell};
+use std::panic;
+
+use image::{GenericImageView, Pixel};
+use instant::Instant;
+use winit::window::Icon;
+
+use geom::Duration;
+
 use crate::assets::Assets;
 use crate::tools::screenshot::screenshot_everything;
 use crate::{Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, Text, UpdateType, UserInput};
-use geom::Duration;
-use image::{GenericImageView, Pixel};
-use instant::Instant;
-use std::cell::{Cell, RefCell};
-use std::panic;
-use winit::window::Icon;
 
 const UPDATE_FREQUENCY: std::time::Duration = std::time::Duration::from_millis(1000 / 30);
 
@@ -250,7 +253,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
     let mut last_update = Instant::now();
     event_loop.run(move |event, _, control_flow| {
         if dump_raw_events {
-            println!("Event: {:?}", event);
+            debug!("Event: {:?}", event);
         }
         let ev = match event {
             winit::event::Event::WindowEvent {

@@ -1,42 +1,49 @@
+use glow::HasContext;
+use wasm_bindgen::JsCast;
+use winit::platform::web::WindowExtWebSys;
+
 pub use crate::backend_glow::Drawable;
 use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
 use crate::ScreenDims;
-use glow::HasContext;
-use stdweb::traits::INode;
-use webgl_stdweb::WebGL2RenderingContext;
-use winit::platform::web::WindowExtStdweb;
 
 pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
-    stdweb::console!(log, "Setting up widgetry");
+    info!("Setting up widgetry");
 
     // This doesn't seem to work for the shader panics here, but later it does work. Huh.
     std::panic::set_hook(Box::new(|info| {
-        stdweb::console!(log, "panicked: %s", format!("{}", info));
+        error!("Panicked: {}", info);
     }));
 
     let event_loop = winit::event_loop::EventLoop::new();
     let size = {
         // TODO Not sure how to get scrollbar dims
-        let scrollbars = 30;
-        let win = stdweb::web::window();
+        let scrollbars = 30.0;
+        let win = web_sys::window().unwrap();
         // `inner_width` corresponds to the browser's `self.innerWidth` function, which are in
         // Logical, not Physical, pixels
         winit::dpi::LogicalSize::new(
-            win.inner_width() - scrollbars,
-            win.inner_height() - scrollbars,
+            win.inner_width().unwrap().as_f64().unwrap() - scrollbars,
+            win.inner_height().unwrap().as_f64().unwrap() - scrollbars,
         )
     };
-    let window = winit::window::WindowBuilder::new()
+    let winit_window = winit::window::WindowBuilder::new()
         .with_title(window_title)
         .with_inner_size(size)
         .build(&event_loop)
         .unwrap();
-    let canvas = window.canvas();
-    let document = stdweb::web::document();
-    let body: stdweb::web::Node = document.body().expect("Get HTML body").into();
-    body.append_child(&canvas);
+    let canvas = winit_window.canvas();
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+    let body = document.body().unwrap();
+    body.append_child(&canvas)
+        .expect("Append canvas to HTML body");
 
-    let webgl2_context: WebGL2RenderingContext = canvas.get_context().unwrap();
+    let webgl2_context = canvas
+        .get_context("webgl2")
+        .unwrap()
+        .unwrap()
+        .dyn_into::<web_sys::WebGl2RenderingContext>()
+        .unwrap();
     let gl = glow::Context::from_webgl2_context(webgl2_context);
 
     let program = unsafe { gl.create_program().expect("Cannot create program") };
@@ -57,7 +64,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
             gl.shader_source(shader, source);
             gl.compile_shader(shader);
             if !gl.get_shader_compile_status(shader) {
-                stdweb::console!(log, "Shader error: %s", gl.get_shader_info_log(shader));
+                error!("Shader error: {}", gl.get_shader_info_log(shader));
                 panic!(gl.get_shader_info_log(shader));
             }
             gl.attach_shader(program, shader);
@@ -66,7 +73,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
         .collect::<Vec<_>>();
         gl.link_program(program);
         if !gl.get_program_link_status(program) {
-            stdweb::console!(log, "Linking error: %s", gl.get_program_info_log(program));
+            error!("Linking error: {}", gl.get_program_info_log(program));
             panic!(gl.get_program_info_log(program));
         }
         for shader in shaders {
@@ -89,8 +96,10 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
         );
     }
 
+    crate::backend_glow::load_textures(&gl, "system/assets/textures/spritesheet.png", 64).unwrap();
+
     (
-        PrerenderInnards::new(gl, program, WindowAdapter(window)),
+        PrerenderInnards::new(gl, program, WindowAdapter(winit_window)),
         event_loop,
     )
 }
@@ -102,6 +111,6 @@ impl WindowAdapter {
         &self.0
     }
 
-    pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {}
+    pub fn window_resized(&self, _new_size: ScreenDims, _scale_factor: f64) {}
     pub fn draw_finished(&self, _gfc_ctx_innards: GfxCtxInnards) {}
 }

@@ -1,10 +1,11 @@
-use crate::app::{App, ShowEverything};
+use std::collections::BTreeSet;
+
+use map_model::{IntersectionID, RoadID};
+use widgetry::{Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
+
+use crate::app::App;
 use crate::common::CommonState;
 use crate::helpers::{intersections_from_roads, ID};
-use map_model::{IntersectionID, RoadID};
-use sim::DontDrawAgents;
-use std::collections::BTreeSet;
-use widgetry::{Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
 
 pub struct RoadSelector {
     pub roads: BTreeSet<RoadID>,
@@ -105,14 +106,7 @@ impl RoadSelector {
     // Pass None. Returns true if anything changed.
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App, clicked: Option<&str>) -> bool {
         if ctx.redo_mouseover() {
-            app.primary.current_selection = app.calculate_current_selection(
-                ctx,
-                &DontDrawAgents {},
-                &ShowEverything::new(),
-                false,
-                true,
-                false,
-            );
+            app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
             match self.mode {
                 Mode::Pan => {
                     app.primary.current_selection = None;

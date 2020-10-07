@@ -1,11 +1,13 @@
+use std::collections::BTreeSet;
+
+use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
+use map_model::{IntersectionID, Movement, Stage, TurnPriority, SIDEWALK_THICKNESS};
+use widgetry::{Color, GeomBatch, Line, Prerender, RewriteColor, Text};
+
 use crate::app::App;
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::BIG_ARROW_THICKNESS;
-use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
-use map_model::{IntersectionID, Movement, Stage, TurnPriority, SIDEWALK_THICKNESS};
-use std::collections::BTreeSet;
-use widgetry::{Color, GeomBatch, Line, Prerender, RewriteColor, Text};
 
 pub fn draw_signal_stage(
     prerender: &Prerender,

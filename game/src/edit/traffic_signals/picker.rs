@@ -1,16 +1,17 @@
-use crate::app::{App, ShowEverything};
+use std::collections::BTreeSet;
+
+use map_model::IntersectionID;
+use widgetry::{
+    hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, VerticalAlignment, Widget,
+};
+
+use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::TrafficSignalEditor;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::GameplayMode;
-use map_model::IntersectionID;
-use sim::DontDrawAgents;
-use std::collections::BTreeSet;
-use widgetry::{
-    hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, VerticalAlignment, Widget,
-};
 
 pub struct SignalPicker {
     members: BTreeSet<IntersectionID>,
@@ -48,14 +49,7 @@ impl State for SignalPicker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            app.primary.current_selection = app.calculate_current_selection(
-                ctx,
-                &DontDrawAgents {},
-                &ShowEverything::new(),
-                false,
-                true,
-                false,
-            );
+            app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
         }
         if let Some(ID::Intersection(i)) = app.primary.current_selection {
             if app.primary.map.maybe_get_traffic_signal(i).is_some() {

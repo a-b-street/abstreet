@@ -1,5 +1,6 @@
 use geojson::feature::Id;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
+
 use map_model::{Direction, Lane, LaneType, Map, RoadID};
 
 // Exports to https://github.com/d-wasserman/shared-row/, returns the filename

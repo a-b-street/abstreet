@@ -1,9 +1,11 @@
+// All sorts of read-only queries about a simulation
+
 use std::collections::{BTreeMap, HashSet};
 
 use abstutil::Counter;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position, TurnID,
 };
 
 use crate::analytics::Window;
@@ -13,7 +15,6 @@ use crate::{
     TripResult, VehicleType,
 };
 
-// Queries of all sorts
 // TODO Many of these just delegate to an inner piece. This is unorganized and hard to maintain.
 impl Sim {
     pub fn time(&self) -> Time {
@@ -110,6 +111,7 @@ impl Sim {
     pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
         self.trips.finished_trip_time(id)
     }
+    // Returns the total time a trip was blocked for
     pub fn trip_blocked_time(&self, id: TripID) -> Duration {
         self.trips.trip_blocked_time(id)
     }
@@ -241,8 +243,11 @@ impl Sim {
         }
     }
 
-    pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
+    pub fn get_accepted_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID)> {
         self.intersections.get_accepted_agents(id)
+    }
+    pub fn get_waiting_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID, Time)> {
+        self.intersections.get_waiting_agents(id)
     }
     pub fn get_blocked_by(&self, a: AgentID) -> HashSet<AgentID> {
         self.intersections.get_blocked_by(a)

@@ -1,12 +1,19 @@
-use crate::{
-    pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, TripID, TripSpec,
-};
-use geom::{Duration, Histogram, Time};
-use map_model::{BusRouteID, IntersectionID, Path, PathRequest};
-use serde::{Deserialize, Serialize};
+// The priority queue driving the discrete event simulation. Different pieces of the simulation
+// schedule Commands to happen at a specific time, and the Scheduler hands out the commands in
+// order.
+
 use std::cmp::Ordering;
 use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, BinaryHeap};
+
+use serde::{Deserialize, Serialize};
+
+use geom::{Duration, Histogram, Time};
+use map_model::{BusRouteID, IntersectionID, Path, PathRequest};
+
+use crate::{
+    pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, TripID, TripSpec,
+};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub enum Command {

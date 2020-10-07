@@ -4,12 +4,15 @@
 // A Movement groups all turns from one road to another, letting traffic signals operate at a
 // higher level of abstraction.
 
-use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map};
-use abstutil::MultiMap;
-use geom::{Angle, Distance, PolyLine, Pt2D};
-use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::MultiMap;
+use geom::{Angle, Distance, PolyLine, Pt2D};
+
+use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map};
 
 // Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
 // Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.

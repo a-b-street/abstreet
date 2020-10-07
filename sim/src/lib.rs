@@ -1,3 +1,10 @@
+// The sim crate runs a traffic simulation on top of the map_model. See also
+// https://dabreegster.github.io/abstreet/trafficsim/index.html.
+//
+// The simulation is very roughly layered into two pieces: the low-level "mechanics" of simulating
+// individual agents over time, and higher-level systems like TripManager and TransitSimState that
+// glue together individual goals executed by the agents.
+
 #[macro_use]
 extern crate log;
 
@@ -10,11 +17,6 @@ use geom::{Distance, Pt2D, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID,
     Path, PathConstraints, PathRequest, Position,
-};
-
-pub use crate::render::{
-    CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents,
-    PedCrowdLocation, UnzoomedAgent,
 };
 
 pub use self::analytics::{Analytics, TripPhase};
@@ -37,6 +39,10 @@ pub(crate) use self::transit::TransitSimState;
 pub use self::trips::{Person, PersonState, TripInfo, TripResult};
 pub use self::trips::{TripEndpoint, TripMode};
 pub(crate) use self::trips::{TripLeg, TripManager};
+pub use crate::render::{
+    CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents,
+    PedCrowdLocation, UnzoomedAgent,
+};
 
 mod analytics;
 mod cap;
@@ -522,7 +528,7 @@ impl SidewalkSpot {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct TimeInterval {
     // TODO Private fields
     pub start: Time,
@@ -555,7 +561,7 @@ impl TimeInterval {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct DistanceInterval {
     // TODO Private fields
     pub start: Distance,

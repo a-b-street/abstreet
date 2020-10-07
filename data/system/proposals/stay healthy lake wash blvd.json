@@ -1,7 +1,7 @@
 {
   "map_name": "lakeslice",
   "edits_name": "stay healthy lake wash blvd",
-  "version": 2,
+  "version": 3,
   "commands": [
     {
       "ChangeRoad": {
@@ -4258,11 +4258,19 @@
               "Back"
             ],
             [
+              "Parking",
+              "Back"
+            ],
+            [
               "Driving",
               "Back"
             ],
             [
               "Driving",
+              "Fwd"
+            ],
+            [
+              "Parking",
               "Fwd"
             ],
             [
@@ -4283,11 +4291,94 @@
               "Back"
             ],
             [
+              "Parking",
+              "Back"
+            ],
+            [
               "Driving",
               "Back"
             ],
             [
               "Driving",
+              "Fwd"
+            ],
+            [
+              "Parking",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 11.176,
+          "access_restrictions": {
+            "allow_through_traffic": 31,
+            "cap_vehicles_per_hour": null
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 65588097,
+          "i1": 53214133,
+          "i2": 53129474
+        },
+        "new": {
+          "lanes_ltr": [
+            [
+              "Sidewalk",
+              "Back"
+            ],
+            [
+              "Parking",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Parking",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 6.7056,
+          "access_restrictions": {
+            "allow_through_traffic": 31,
+            "cap_vehicles_per_hour": null
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            [
+              "Sidewalk",
+              "Back"
+            ],
+            [
+              "Parking",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Parking",
               "Fwd"
             ],
             [
@@ -4532,8 +4623,8 @@
       "ChangeRoad": {
         "r": {
           "osm_way_id": 65588097,
-          "i1": 3656117337,
-          "i2": 53231628
+          "i1": 2383890261,
+          "i2": 53074017
         },
         "new": {
           "lanes_ltr": [
@@ -4542,11 +4633,19 @@
               "Back"
             ],
             [
+              "Parking",
+              "Back"
+            ],
+            [
               "Driving",
               "Back"
             ],
             [
               "Driving",
+              "Fwd"
+            ],
+            [
+              "Parking",
               "Fwd"
             ],
             [
@@ -4567,11 +4666,19 @@
               "Back"
             ],
             [
+              "Parking",
+              "Back"
+            ],
+            [
               "Driving",
               "Back"
             ],
             [
               "Driving",
+              "Fwd"
+            ],
+            [
+              "Parking",
               "Fwd"
             ],
             [
@@ -4590,9 +4697,9 @@
     {
       "ChangeRoad": {
         "r": {
-          "osm_way_id": 157279807,
-          "i1": 53064784,
-          "i2": 53064782
+          "osm_way_id": 65588097,
+          "i1": 3656117337,
+          "i2": 53231628
         },
         "new": {
           "lanes_ltr": [
@@ -6919,6 +7026,7 @@
       }
     }
   ],
+  "merge_zones": true,
   "proposal_description": [
     "Convert Lake Washington Blvd to a Stay Healthy Street",
     "No vehicle access north of Madison"

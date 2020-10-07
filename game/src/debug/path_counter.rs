@@ -1,16 +1,16 @@
 // A state to count the number of trips that will cross different roads.
 
-use crate::app::{App, ShowEverything};
-use crate::common::{ColorLegend, ColorNetwork, CommonState};
-use crate::game::{State, Transition};
-use crate::helpers::ID;
 use abstutil::Counter;
 use map_model::{IntersectionID, PathStep, RoadID, Traversable};
-use sim::DontDrawAgents;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
     VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{ColorLegend, ColorNetwork, CommonState};
+use crate::game::{State, Transition};
+use crate::helpers::ID;
 
 pub struct PathCounter {
     panel: Panel,
@@ -88,14 +88,7 @@ impl State for PathCounter {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            app.primary.current_selection = app.calculate_current_selection(
-                ctx,
-                &DontDrawAgents {},
-                &ShowEverything::new(),
-                false,
-                true,
-                false,
-            );
+            app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
             self.tooltip = None;
             if let Some(r) = match app.primary.current_selection {
                 Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),

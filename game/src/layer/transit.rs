@@ -1,11 +1,12 @@
-use crate::app::App;
-use crate::common::ColorDiscrete;
-use crate::layer::{Layer, LayerOutcome};
 use map_model::{PathConstraints, PathStep};
 use widgetry::{
     Btn, Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, TextExt,
     VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::ColorDiscrete;
+use crate::layer::{Layer, LayerOutcome};
 
 pub struct TransitNetwork {
     panel: Panel,

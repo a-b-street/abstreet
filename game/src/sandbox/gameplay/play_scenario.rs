@@ -1,3 +1,13 @@
+use std::collections::BTreeSet;
+
+use maplit::btreeset;
+
+use sim::{ScenarioModifier, TripMode};
+use widgetry::{
+    lctrl, AreaSlider, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
+
 use crate::app::App;
 use crate::common::CityPicker;
 use crate::edit::EditMode;
@@ -6,13 +16,6 @@ use crate::helpers::{checkbox_per_mode, nice_map_name};
 use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
-use maplit::btreeset;
-use sim::{ScenarioModifier, TripMode};
-use std::collections::BTreeSet;
-use widgetry::{
-    lctrl, AreaSlider, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 
 pub struct PlayScenario {
     top_center: Panel,

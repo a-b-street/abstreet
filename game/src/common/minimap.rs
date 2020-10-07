@@ -1,13 +1,14 @@
-use crate::app::App;
-use crate::common::{navigate, Warping};
-use crate::game::Transition;
-use crate::layer::PickLayer;
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
 use widgetry::{
     Btn, Checkbox, Color, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome,
     Panel, ScreenPt, Spinner, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{navigate, Warping};
+use crate::game::Transition;
+use crate::layer::PickLayer;
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
 pub struct Minimap {

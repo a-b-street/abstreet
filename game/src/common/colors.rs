@@ -1,9 +1,11 @@
-use crate::app::App;
+use std::collections::HashMap;
+
 use abstutil::Counter;
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
-use std::collections::HashMap;
 use widgetry::{Color, Drawable, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Widget};
+
+use crate::app::App;
 
 pub struct ColorDiscrete<'a> {
     map: &'a Map,
@@ -304,6 +306,13 @@ impl<'a> ColorNetwork<'a> {
         let max = counter.max() as f64;
         for (r, cnt) in counter.consume() {
             self.add_r(r, scale.eval((cnt as f64) / max));
+        }
+    }
+    // Interpolate a color for each intersection based on the max count.
+    pub fn pct_intersections(&mut self, counter: Counter<IntersectionID>, scale: &ColorScale) {
+        let max = counter.max() as f64;
+        for (i, cnt) in counter.consume() {
+            self.add_i(i, scale.eval((cnt as f64) / max));
         }
     }
 

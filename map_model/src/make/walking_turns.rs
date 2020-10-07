@@ -1,10 +1,12 @@
+use std::collections::BTreeSet;
+
+use abstutil::{wraparound_get, Timer};
+use geom::{Distance, Line, PolyLine, Pt2D, Ring};
+
 use crate::{
     Direction, DrivingSide, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, Road, Turn,
     TurnID, TurnType,
 };
-use abstutil::{wraparound_get, Timer};
-use geom::{Distance, Line, PolyLine, Pt2D, Ring};
-use std::collections::BTreeSet;
 
 // Generate Crosswalk and SharedSidewalkCorner (places where two sidewalks directly meet) turns
 pub fn make_walking_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
@@ -144,13 +146,11 @@ pub fn make_walking_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec
 }
 
 // TODO Need to filter out extraneous crosswalks. Why weren't they being created before?
-fn _new_make_walking_turns(
-    driving_side: DrivingSide,
-    i: &Intersection,
-    all_roads: &Vec<Road>,
-    all_lanes: &Vec<Lane>,
-    timer: &mut Timer,
-) -> Vec<Turn> {
+pub fn _make_walking_turns_v2(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
+    let driving_side = map.config.driving_side;
+    let all_roads = map.all_roads();
+    let all_lanes = map.all_lanes();
+
     // Consider all roads in counter-clockwise order. Every road has up to two sidewalks. Gather
     // those in order, remembering what roads don't have them.
     let mut lanes: Vec<Option<&Lane>> = Vec::new();

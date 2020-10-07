@@ -1,12 +1,13 @@
-use crate::app::App;
-use crate::game::{DrawBaselayer, State, Transition};
-use crate::helpers::nice_map_name;
-use crate::render::DrawArea;
 use geom::{Distance, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
     Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenPt, Text, Widget,
 };
+
+use crate::app::App;
+use crate::game::{DrawBaselayer, State, Transition};
+use crate::helpers::nice_map_name;
+use crate::render::DrawArea;
 
 pub struct CityPicker {
     panel: Panel,

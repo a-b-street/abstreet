@@ -1,13 +1,15 @@
-use crate::app::App;
-use crate::common::CommonState;
-use crate::game::{State, Transition};
-use geom::{Circle, Distance, LonLat, Pt2D, Ring};
 use std::fs::File;
 use std::io::{Error, Write};
+
+use geom::{Circle, Distance, LonLat, Pt2D, Ring};
 use widgetry::{
     Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
     VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::CommonState;
+use crate::game::{State, Transition};
 
 const POINT_RADIUS: Distance = Distance::const_meters(10.0);
 // Localized and internal, so don't put in ColorScheme.

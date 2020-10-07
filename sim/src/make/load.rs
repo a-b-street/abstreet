@@ -1,11 +1,19 @@
-use crate::{Scenario, ScenarioModifier, Sim, SimOptions};
-use abstutil::CmdArgs;
-use map_model::{Map, MapEdits};
+// SimFlags specifies a simulation to setup.
+
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
+use abstutil::CmdArgs;
+use map_model::{Map, MapEdits};
+
+use crate::{Scenario, ScenarioModifier, Sim, SimOptions};
+
 #[derive(Clone)]
 pub struct SimFlags {
+    // A path to some file.
+    // - a savestate: restore the simulation exactly from some savestate
+    // - a scenario
+    // - some kind of map: start an empty simulation on the map
     pub load: String,
     pub modifiers: Vec<ScenarioModifier>,
     pub rng_seed: u8,
@@ -47,7 +55,6 @@ impl SimFlags {
         XorShiftRng::from_seed([self.rng_seed; 16])
     }
 
-    // Convenience method to setup everything.
     pub fn load(&self, timer: &mut abstutil::Timer) -> (Map, Sim, XorShiftRng) {
         let mut rng = self.make_rng();
 

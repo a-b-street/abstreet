@@ -1,9 +1,12 @@
-// TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?
-pub mod commute;
-pub mod fix_traffic_signals;
-pub mod freeform;
-pub mod play_scenario;
-pub mod tutorial;
+use rand_xorshift::XorShiftRng;
+
+use abstutil::Timer;
+use geom::Duration;
+use map_model::{EditCmd, EditIntersection, Map, MapEdits};
+use sim::{Analytics, OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
+use widgetry::{
+    lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget,
+};
 
 pub use self::freeform::spawn_agents_around;
 pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
@@ -13,14 +16,13 @@ use crate::edit::{apply_map_edits, SaveEdits};
 use crate::game::{State, Transition};
 use crate::pregame::MainMenu;
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
-use abstutil::Timer;
-use geom::Duration;
-use map_model::{EditCmd, EditIntersection, Map, MapEdits};
-use rand_xorshift::XorShiftRng;
-use sim::{Analytics, OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
-use widgetry::{
-    lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget,
-};
+
+// TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?
+pub mod commute;
+pub mod fix_traffic_signals;
+pub mod freeform;
+pub mod play_scenario;
+pub mod tutorial;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub enum GameplayMode {

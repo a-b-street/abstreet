@@ -1,17 +1,19 @@
-use crate::app::App;
-use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
-use crate::helpers::color_for_mode;
-use crate::sandbox::dashboards::DashTab;
-use abstutil::prettyprint_usize;
-use geom::{Distance, Duration, Polygon, Pt2D};
-use sim::TripMode;
 use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::Write;
+
+use abstutil::prettyprint_usize;
+use geom::{Distance, Duration, Polygon, Pt2D};
+use sim::TripMode;
 use widgetry::{
     Btn, Checkbox, Choice, Color, CompareTimes, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx,
     Line, Outcome, Panel, Text, TextExt, Widget,
 };
+
+use crate::app::App;
+use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
+use crate::helpers::color_for_mode;
+use crate::sandbox::dashboards::DashTab;
 
 pub struct TripSummaries {
     panel: Panel,

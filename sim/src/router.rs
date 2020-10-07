@@ -1,15 +1,21 @@
-use crate::mechanics::Queue;
-use crate::{
-    AlertLocation, CarID, Event, ParkingSim, ParkingSimState, ParkingSpot, PersonID, SidewalkSpot,
-    TripID, TripPhaseType, Vehicle, VehicleType,
-};
+// For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically
+// lane-change to avoid a slow lane, can can handle re-planning to look for available parking.
+
+use std::collections::BTreeMap;
+
+use serde::{Deserialize, Serialize};
+
 use geom::Distance;
 use map_model::{
     BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
     Position, Traversable, TurnID,
 };
-use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+
+use crate::mechanics::Queue;
+use crate::{
+    AlertLocation, CarID, Event, ParkingSim, ParkingSimState, ParkingSpot, PersonID, SidewalkSpot,
+    TripID, TripPhaseType, Vehicle, VehicleType,
+};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Router {

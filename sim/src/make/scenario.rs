@@ -1,22 +1,27 @@
-use crate::{
-    CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim,
-    TripEndpoint, TripMode, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
-    MAX_CAR_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
-};
+// A Scenario describes all the input to a simulation. Usually a scenario covers one day.
+
+use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+use std::fmt;
+
+use rand::seq::SliceRandom;
+use rand::{Rng, SeedableRng};
+use rand_xorshift::XorShiftRng;
+use serde::{Deserialize, Serialize};
+
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, LonLat, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, DirectedRoadID, Map, OffstreetParking, PathConstraints,
     Position, RoadID,
 };
-use rand::seq::SliceRandom;
-use rand::{Rng, SeedableRng};
-use rand_xorshift::XorShiftRng;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
-use std::fmt;
 
-// How to start a simulation.
+use crate::make::fork_rng;
+use crate::{
+    CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim,
+    TripEndpoint, TripMode, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
+    MAX_CAR_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
+};
+
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {
     pub scenario_name: String,
@@ -181,7 +186,7 @@ impl Scenario {
             for (t, maybe_idx) in p.trips.iter().zip(vehicle_foreach_trip) {
                 // The RNG call might change over edits for picking the spawning lane from a border
                 // with multiple choices for a vehicle type.
-                let mut tmp_rng = abstutil::fork_rng(rng);
+                let mut tmp_rng = fork_rng(rng);
                 let spec = t.trip.clone().to_trip_spec(
                     maybe_idx.map(|idx| person.vehicles[idx].id),
                     &mut tmp_rng,
@@ -351,7 +356,7 @@ fn seed_parked_cars(
     }
     // Changing parking on one road shouldn't affect far-off roads. Fork carefully.
     for r in map.all_roads() {
-        let mut tmp_rng = abstutil::fork_rng(base_rng);
+        let mut tmp_rng = fork_rng(base_rng);
         if let Some(ref mut spots) = open_spots_per_road.get_mut(&r.id) {
             spots.shuffle(&mut tmp_rng);
         }

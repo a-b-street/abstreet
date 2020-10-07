@@ -1,8 +1,3 @@
-use crate::app::App;
-use crate::common::Tab;
-use crate::game::{DrawBaselayer, State, Transition};
-use crate::sandbox::dashboards::DashTab;
-use crate::sandbox::SandboxMode;
 use abstutil::{prettyprint_usize, Counter};
 use geom::Time;
 use map_model::BusRouteID;
@@ -10,6 +5,12 @@ use widgetry::{
     Autocomplete, Btn, EventCtx, GfxCtx, Line, LinePlot, Outcome, Panel, PlotOptions, Series,
     TextExt, Widget,
 };
+
+use crate::app::App;
+use crate::common::Tab;
+use crate::game::{DrawBaselayer, State, Transition};
+use crate::sandbox::dashboards::DashTab;
+use crate::sandbox::SandboxMode;
 
 pub struct ActiveTraffic {
     panel: Panel,

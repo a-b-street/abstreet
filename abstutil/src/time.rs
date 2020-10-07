@@ -1,8 +1,9 @@
-use crate::PROGRESS_FREQUENCY_SECONDS;
-use instant::Instant;
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::{stdout, BufReader, Error, ErrorKind, Read, Write};
+
+use instant::Instant;
+
+use crate::{prettyprint_usize, PROGRESS_FREQUENCY_SECONDS};
 
 pub fn elapsed_seconds(since: Instant) -> f64 {
     let dt = since.elapsed();
@@ -171,7 +172,7 @@ impl<'a> Timer<'a> {
         }
         #[cfg(target_arch = "wasm32")]
         {
-            stdweb::console!(log, "%s", &line);
+            debug!("{}", line);
         }
         if let Some(ref mut sink) = maybe_sink {
             sink.println(line);
@@ -479,99 +480,6 @@ impl<'a> std::ops::Drop for Timer<'a> {
             );
         }
     }
-}
-
-// For repeated things
-pub struct Profiler {
-    entries: Vec<ProfilerEntry>,
-    current_entries: HashMap<String, Instant>,
-}
-
-struct ProfilerEntry {
-    name: String,
-    total_seconds: f64,
-    rounds: usize,
-}
-
-impl Profiler {
-    pub fn new() -> Profiler {
-        Profiler {
-            entries: Vec::new(),
-            current_entries: HashMap::new(),
-        }
-    }
-
-    // TODO Nested stuff winds up sorted before the parent
-    pub fn start(&mut self, name: &str) {
-        if self.current_entries.contains_key(name) {
-            panic!(
-                "Can't start profiling {}; it's already being recorded",
-                name
-            );
-        }
-        self.current_entries
-            .insert(name.to_string(), Instant::now());
-    }
-
-    pub fn stop(&mut self, name: &str) {
-        let start = self.current_entries.remove(name).expect(&format!(
-            "Can't stop profiling {}, because it was never started",
-            name
-        ));
-        let duration = elapsed_seconds(start);
-
-        if let Some(ref mut entry) = self.entries.iter_mut().find(|e| e.name == name) {
-            entry.total_seconds += duration;
-            entry.rounds += 1;
-        } else {
-            self.entries.push(ProfilerEntry {
-                name: name.to_string(),
-                total_seconds: duration,
-                rounds: 1,
-            });
-        }
-    }
-
-    pub fn dump(&self) {
-        if !self.current_entries.is_empty() {
-            panic!(
-                "Can't dump Profiler with active entries {:?}",
-                self.current_entries.keys()
-            );
-        }
-
-        println!("Profiler results so far:");
-        for entry in &self.entries {
-            // Suppress things that don't take any time.
-            let time_per_round = entry.total_seconds / (entry.rounds as f64);
-            if time_per_round < 0.0001 {
-                // TODO Actually, the granularity of the rounds might differ. Don't do this.
-                //continue;
-            }
-
-            println!(
-                "  - {}: {} over {} rounds ({} / round)",
-                entry.name,
-                prettyprint_time(entry.total_seconds),
-                prettyprint_usize(entry.rounds),
-                prettyprint_time(time_per_round),
-            );
-        }
-    }
-}
-
-pub fn prettyprint_usize(x: usize) -> String {
-    let num = format!("{}", x);
-    let mut result = String::new();
-    let mut i = num.len();
-    for c in num.chars() {
-        result.push(c);
-        i -= 1;
-        if i > 0 && i % 3 == 0 {
-            result.push(',');
-        }
-    }
-    result
 }
 
 pub fn prettyprint_time(seconds: f64) -> String {

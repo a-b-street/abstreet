@@ -1,8 +1,10 @@
-use crate::{CarID, PedestrianID, PersonID, VehicleType};
+// Intermediate structures so that sim and game crates don't have a cyclic dependency.
+
 use geom::{Angle, Distance, PolyLine, Pt2D, Time};
 use map_model::{BuildingID, Map, ParkingLotID, Traversable, TurnID};
 
-// Intermediate structures so that sim and game crates don't have a cyclic dependency.
+use crate::{CarID, PedestrianID, PersonID, VehicleType};
+
 #[derive(Clone)]
 pub struct DrawPedestrianInput {
     pub id: PedestrianID,

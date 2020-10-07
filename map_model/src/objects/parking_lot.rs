@@ -1,10 +1,13 @@
 // Parking lots have some fixed capacity for cars, and are connected to a sidewalk and road.
 
-use crate::{osm, Position};
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Angle, Line, PolyLine, Polygon, Pt2D};
-use serde::{Deserialize, Serialize};
-use std::fmt;
+
+use crate::{osm, Position};
 
 // TODO For now, ignore the mapped roads linking things and just use the same driveway approach
 // that buildings use.

@@ -1,11 +1,14 @@
 // Bus stops and routes.
 // TODO Rename public transit -- these also cover light rail now.
 
-use crate::{osm, LaneID, Map, PathConstraints, PathRequest, Position};
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::Time;
-use serde::{Deserialize, Serialize};
-use std::fmt;
+
+use crate::{osm, LaneID, Map, PathConstraints, PathRequest, Position};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct BusStopID {

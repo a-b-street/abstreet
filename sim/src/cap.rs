@@ -1,8 +1,14 @@
-use crate::{CarID, VehicleType};
+// Some roads (grouped into zones) may have a cap on the number of vehicles that can enter per
+// hour. CapSimState enforces this.
+
+use std::collections::{BTreeMap, BTreeSet};
+
+use serde::{Deserialize, Serialize};
+
 use geom::{Duration, Time};
 use map_model::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep};
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+
+use crate::{CarID, VehicleType};
 
 // Note this only indexes into the zones we track here, not all of them in the map.
 type ZoneIdx = usize;
@@ -74,6 +80,8 @@ impl CapSimState {
         true
     }
 
+    // Before the driving portion of a trip begins, check that the desired path doesn't exceed any
+    // caps. If so, attempt to reroute around.
     pub fn validate_path(
         &mut self,
         req: &PathRequest,
@@ -88,7 +96,7 @@ impl CapSimState {
         }
         *capped = true;
 
-        // TODO Make the responses configurable: abort the trip, reroute, delay an hour, switch
+        // TODO Make the responses configurable: cancel the trip, reroute, delay an hour, switch
         // modes. Where should this policy be specified? Is it simulation-wide?
 
         let mut avoid_lanes: BTreeSet<LaneID> = BTreeSet::new();

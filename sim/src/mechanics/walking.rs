@@ -1,3 +1,7 @@
+// Simulates pedestrians. Unlike vehicles, pedestrians can move bidirectionally on sidewalks and
+// just "ghost" through each other. There's no queueing or slowdown when many people are
+// overlapping. They're simply grouped together into a DrawPedCrowdInput for rendering.
+
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
@@ -241,7 +245,7 @@ impl WalkingSimState {
                         .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                     ped.total_blocked_time += now - blocked_since;
                     let delay = (now - blocked_since).inner_seconds() as u8;
-                    // Maybe alter the minimum delay time to be recorded
+                    // Maybe alter the minimum delay threshold
                     if delay > 15 {
                         self.events.push(Event::TripIntersectionDelay(
                             ped.trip,

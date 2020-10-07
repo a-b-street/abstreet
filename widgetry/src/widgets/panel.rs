@@ -1,17 +1,21 @@
-use crate::{
-    AreaSlider, Autocomplete, Checkbox, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment,
-    Menu, Outcome, PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner,
-    TextBox, VerticalAlignment, Widget, WidgetImpl, WidgetOutput,
-};
-use geom::{Percent, Polygon};
 use std::collections::HashSet;
+
 use stretch::geometry::Size;
 use stretch::node::Stretch;
 use stretch::number::Number;
 use stretch::style::{Dimension, Style};
 
+use geom::{Percent, Polygon};
+
+use crate::widgets::Container;
+use crate::{
+    AreaSlider, Autocomplete, Checkbox, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment,
+    Menu, Outcome, PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner,
+    TextBox, VerticalAlignment, Widget, WidgetImpl, WidgetOutput,
+};
+
 pub struct Panel {
-    pub(crate) top_level: Widget,
+    top_level: Widget,
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
     dims: Dims,
@@ -33,7 +37,91 @@ impl Panel {
         }
     }
 
+    fn update_container_dims_for_canvas_dims(&mut self, canvas_dims: ScreenDims) {
+        let new_container_dims = match self.dims {
+            Dims::MaxPercent(w, h) => ScreenDims::new(
+                self.contents_dims.width.min(w.inner() * canvas_dims.width),
+                self.contents_dims
+                    .height
+                    .min(h.inner() * canvas_dims.height),
+            ),
+            Dims::ExactPercent(w, h) => {
+                ScreenDims::new(w * canvas_dims.width, h * canvas_dims.height)
+            }
+        };
+        self.container_dims = new_container_dims;
+    }
+
+    fn recompute_scrollbar_layout(&mut self, ctx: &EventCtx) {
+        let old_scrollable_x = self.scrollable_x;
+        let old_scrollable_y = self.scrollable_y;
+        let old_scroll_offset = self.scroll_offset();
+
+        self.scrollable_x = self.contents_dims.width > self.container_dims.width;
+        self.scrollable_y = self.contents_dims.height > self.container_dims.height;
+
+        // Unwrap the main widget from any scrollable containers if necessary.
+        if old_scrollable_y {
+            let container = self.top_level.widget.downcast_mut::<Container>().unwrap();
+            self.top_level = container.members.remove(0);
+        }
+
+        if old_scrollable_x {
+            let container = self.top_level.widget.downcast_mut::<Container>().unwrap();
+            self.top_level = container.members.remove(0);
+        }
+
+        let top_left = ctx
+            .canvas
+            .align_window(self.container_dims, self.horiz, self.vert);
+
+        // Wrap the main widget in scrollable containers if necessary.
+        if self.scrollable_x {
+            let old_top_level = std::mem::replace(&mut self.top_level, Widget::nothing());
+            self.top_level = Widget::custom_col(vec![
+                old_top_level,
+                Slider::horizontal(
+                    ctx,
+                    self.container_dims.width,
+                    self.container_dims.width
+                        * (self.container_dims.width / self.contents_dims.width),
+                    0.0,
+                )
+                .named("horiz scrollbar")
+                .abs(top_left.x, top_left.y + self.container_dims.height),
+            ]);
+        }
+
+        if self.scrollable_y {
+            let old_top_level = std::mem::replace(&mut self.top_level, Widget::nothing());
+            self.top_level = Widget::custom_row(vec![
+                old_top_level,
+                Slider::vertical(
+                    ctx,
+                    self.container_dims.height,
+                    self.container_dims.height
+                        * (self.container_dims.height / self.contents_dims.height),
+                    0.0,
+                )
+                .named("vert scrollbar")
+                .abs(top_left.x + self.container_dims.width, top_left.y),
+            ]);
+        }
+
+        self.update_scroll_sliders(ctx, old_scroll_offset);
+
+        self.clip_rect = if self.scrollable_x || self.scrollable_y {
+            Some(ScreenRectangle::top_left(top_left, self.container_dims))
+        } else {
+            None
+        };
+    }
+
+    // TODO: this method potentially gets called multiple times in a render pass as an
+    // optimization, we could replace all the current call sites with a "dirty" flag, e.g.
+    // `set_needs_layout()` and then call `layout_if_needed()` once at the last possible moment
     fn recompute_layout(&mut self, ctx: &EventCtx, recompute_bg: bool) {
+        self.recompute_scrollbar_layout(ctx);
         let mut stretch = Stretch::new();
         let root = stretch
             .new_node(
@@ -95,7 +183,7 @@ impl Panel {
         (x, y)
     }
 
-    fn set_scroll_offset(&mut self, ctx: &EventCtx, offset: (f64, f64)) {
+    fn update_scroll_sliders(&mut self, ctx: &EventCtx, offset: (f64, f64)) -> bool {
         let mut changed = false;
         if self.scrollable_x {
             changed = true;
@@ -117,7 +205,11 @@ impl Panel {
                     .set_percent(ctx, abstutil::clamp(offset.1, 0.0, max) / max);
             }
         }
-        if changed {
+        changed
+    }
+
+    fn set_scroll_offset(&mut self, ctx: &EventCtx, offset: (f64, f64)) {
+        if self.update_scroll_sliders(ctx, offset) {
             self.recompute_layout(ctx, false);
         }
     }
@@ -146,6 +238,7 @@ impl Panel {
         }
 
         if ctx.input.is_window_resized() {
+            self.update_container_dims_for_canvas_dims(ctx.canvas.get_window_dims());
             self.recompute_layout(ctx, false);
         }
 
@@ -180,9 +273,8 @@ impl Panel {
                 Polygon::rectangle(self.container_dims.width, self.container_dims.height)
                     .translate(top_left.x, top_left.y),
             );
+            g.unfork();
         }
-
-        g.unfork();
 
         self.top_level.draw(g);
         if self.scrollable_x || self.scrollable_y {
@@ -285,6 +377,10 @@ impl Panel {
         self.find::<Autocomplete<T>>(name).final_value()
     }
 
+    pub fn maybe_find(&self, name: &str) -> Option<&Widget> {
+        self.top_level.find(name)
+    }
+
     pub fn find<T: WidgetImpl>(&self, name: &str) -> &T {
         if let Some(w) = self.top_level.find(name) {
             if let Some(x) = w.widget.downcast_ref::<T>() {
@@ -319,6 +415,10 @@ impl Panel {
         self.top_level.rect.center()
     }
 
+    pub fn align(&mut self, horiz: HorizontalAlignment, vert: VerticalAlignment) {
+        self.horiz = horiz;
+        self.vert = vert;
+    }
     pub fn align_above(&mut self, ctx: &mut EventCtx, other: &Panel) {
         // Small padding
         self.vert = VerticalAlignment::Above(other.top_level.rect.y1 - 5.0);
@@ -374,7 +474,7 @@ impl PanelBuilder {
     }
 
     pub fn build_custom(self, ctx: &mut EventCtx) -> Panel {
-        let mut c = Panel {
+        let mut panel = Panel {
             top_level: self.top_level,
 
             horiz: self.horiz,
@@ -387,71 +487,37 @@ impl PanelBuilder {
             container_dims: ScreenDims::new(0.0, 0.0),
             clip_rect: None,
         };
-        if let Dims::ExactPercent(w, h) = c.dims {
+        if let Dims::ExactPercent(w, h) = panel.dims {
             // Don't set size, because then scrolling breaks -- the actual size has to be based on
             // the contents.
-            c.top_level.layout.style.min_size = Size {
+            panel.top_level.layout.style.min_size = Size {
                 width: Dimension::Points((w * ctx.canvas.window_width) as f32),
                 height: Dimension::Points((h * ctx.canvas.window_height) as f32),
             };
         }
-        c.recompute_layout(ctx, false);
 
-        c.contents_dims = ScreenDims::new(c.top_level.rect.width(), c.top_level.rect.height());
-        c.container_dims = match c.dims {
-            Dims::MaxPercent(w, h) => ScreenDims::new(
-                c.contents_dims
-                    .width
-                    .min(w.inner() * ctx.canvas.window_width),
-                c.contents_dims
-                    .height
-                    .min(h.inner() * ctx.canvas.window_height),
-            ),
-            Dims::ExactPercent(w, h) => {
-                ScreenDims::new(w * ctx.canvas.window_width, h * ctx.canvas.window_height)
-            }
-        };
-
-        // If the panel fits without a scrollbar, don't add one.
-        let top_left = ctx.canvas.align_window(c.container_dims, c.horiz, c.vert);
-        if c.contents_dims.width > c.container_dims.width {
-            c.scrollable_x = true;
-            c.top_level = Widget::custom_col(vec![
-                c.top_level,
-                Slider::horizontal(
-                    ctx,
-                    c.container_dims.width,
-                    c.container_dims.width * (c.container_dims.width / c.contents_dims.width),
-                    0.0,
-                )
-                .named("horiz scrollbar")
-                .abs(top_left.x, top_left.y + c.container_dims.height),
-            ]);
-        }
-        if c.contents_dims.height > c.container_dims.height {
-            c.scrollable_y = true;
-            c.top_level = Widget::custom_row(vec![
-                c.top_level,
-                Slider::vertical(
-                    ctx,
-                    c.container_dims.height,
-                    c.container_dims.height * (c.container_dims.height / c.contents_dims.height),
-                    0.0,
-                )
-                .named("vert scrollbar")
-                .abs(top_left.x + c.container_dims.width, top_left.y),
-            ]);
-        }
-        if c.scrollable_x || c.scrollable_y {
-            c.recompute_layout(ctx, false);
-            c.clip_rect = Some(ScreenRectangle::top_left(top_left, c.container_dims));
-        }
+        // There is a dependency cycle in our layout logic. As a consequence:
+        //   1. we have to call `recompute_layout` twice here
+        //   2. panels don't responsively change `contents_dims`
+        //
+        // - `panel.top_level.rect`, used here to set content_dims, is set by `recompute_layout`.
+        // - the output of `recompute_layout` depends on `container_dims`
+        // - `container_dims`, in the case of `MaxPercent`, depend on `content_dims`
+        //
+        // TODO: to support Panel's that can resize their `contents_dims`, we'll need to detangle
+        // this dependency. This might entail decomposing the flexbox calculation to layout first
+        // the inner content, and then potentially a second pass to layout any x/y scrollbars.
+        panel.recompute_layout(ctx, false);
+        panel.contents_dims =
+            ScreenDims::new(panel.top_level.rect.width(), panel.top_level.rect.height());
+        panel.update_container_dims_for_canvas_dims(ctx.canvas.get_window_dims());
+        panel.recompute_layout(ctx, false);
 
         // Just trigger error if a button is double-defined
-        c.get_all_click_actions();
+        panel.get_all_click_actions();
         // Let all widgets initially respond to the mouse being somewhere
-        ctx.no_op_event(true, |ctx| assert_eq!(c.event(ctx), Outcome::Nothing));
-        c
+        ctx.no_op_event(true, |ctx| assert_eq!(panel.event(ctx), Outcome::Nothing));
+        panel
     }
 
     pub fn aligned(mut self, horiz: HorizontalAlignment, vert: VerticalAlignment) -> PanelBuilder {

@@ -7,15 +7,16 @@ considering cleaning up the API surface and making it a proper standalone crate.
 
 ## Running the demo
 
-[Example code](examples/demo.rs)
+Because of wasm-pack issues, normal Rust example binaries don't work. The example code is instead in the [widgetry_demo crate](../widgetry_demo/src/lib.rs).
 
 ```
 git clone https://github.com/dabreegster/abstreet.git
-cd abstreet/widgetry
-cargo run --example demo
+cd abstreet/widgetry_demo
+cargo run
 
 # Or for web
-cargo web start --target wasm32-unknown-unknown --no-default-features --features wasm-backend --example demo
+cd abstreet/widgetry_demo
+./run_web.sh
 ```
 
 ![demo](demo.gif)

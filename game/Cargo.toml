@@ -4,11 +4,12 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
-# TODO Can't toggle based on target_arch. https://github.com/rust-lang/cargo/issues/2524
-# cargo web start --target wasm32-unknown-unknown --no-default-features --features wasm
+[lib]
+crate-type = ["cdylib", "lib"]
+
 [features]
-default = ["built", "widgetry/glow-backend", "reqwest", "webbrowser"]
-wasm = ["widgetry/wasm-backend"]
+default = ["built", "widgetry/glow-backend", "reqwest"]
+wasm = ["console_log", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
 aabb-quadtree = "0.1.0"
@@ -16,6 +17,7 @@ abstutil = { path = "../abstutil" }
 built = { version = "0.4.3", optional = true, features=["chrono"] }
 chrono = "0.4.15"
 colorous = "1.0.3"
+console_log = { version = "0.1", optional = true }
 contour = "0.2.0"
 downcast-rs = "1.2.0"
 enumset = "1.0.1"
@@ -35,7 +37,8 @@ serde = "1.0.116"
 serde_json = "1.0.57"
 svg_face = "0.1.2"
 sim = { path = "../sim" }
-webbrowser = { version = "0.5.5", optional = true }
+wasm-bindgen = { version = "0.2.68", optional = true }
+webbrowser = "0.5.5"
 widgetry = { path = "../widgetry", default-features=false }
 xmltree = "0.10.1"
 

@@ -1,11 +1,14 @@
+use std::collections::VecDeque;
+
+use instant::Instant;
+
+use abstutil::{elapsed_seconds, Timer, TimerSink};
+use geom::{Percent, Polygon};
+
 use crate::{
     svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel,
     Prerender, ScreenDims, Style, Text, UserInput, VerticalAlignment, Widget,
 };
-use abstutil::{elapsed_seconds, Timer, TimerSink};
-use geom::{Percent, Polygon};
-use instant::Instant;
-use std::collections::VecDeque;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum UpdateType {

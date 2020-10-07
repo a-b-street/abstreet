@@ -1,20 +1,21 @@
-mod destinations;
-mod kml;
-pub mod mapping;
-mod polygon;
-mod scenario;
-mod story;
-
-use crate::app::App;
-use crate::common::CityPicker;
-use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
-use crate::helpers::nice_map_name;
 use abstutil::Timer;
 use geom::{LonLat, Percent};
 use widgetry::{
     lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, TextExt,
     VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::CityPicker;
+use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
+use crate::helpers::nice_map_name;
+
+mod destinations;
+mod kml;
+pub mod mapping;
+mod polygon;
+mod scenario;
+mod story;
 
 pub struct DevToolsMode {
     panel: Panel,

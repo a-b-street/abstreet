@@ -1,6 +1,8 @@
-use crate::{trim_f64, Duration, Speed};
-use serde::{Deserialize, Serialize};
 use std::{cmp, f64, fmt, ops};
+
+use serde::{Deserialize, Serialize};
+
+use crate::{trim_f64, Duration, Speed};
 
 // In meters. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]

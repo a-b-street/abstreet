@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="module">
+        import { default as init } from './game.js';
+
+        async function run() {
+            await init('./game_bg.wasm');
+        }
+
+        run();
+    </script>
+</head>
+<body>
+</body>
+<html>

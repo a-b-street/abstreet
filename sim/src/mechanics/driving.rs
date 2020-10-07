@@ -1,3 +1,5 @@
+// Simulates vehicles!
+
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
 use serde::{Deserialize, Serialize};
@@ -488,9 +490,10 @@ impl DrivingSimState {
                     }
                     Some(ActionAtEnd::GiveUpOnParking) => {
                         car.total_blocked_time += now - blocked_since;
-                        trips.abort_trip(
+                        trips.cancel_trip(
                             now,
                             car.trip_and_person.unwrap().0,
+                            format!("no available parking anywhere"),
                             // If we couldn't find parking normally, doesn't make sense to warp the
                             // car to the destination. There's no parking!
                             None,
@@ -1009,7 +1012,7 @@ impl DrivingSimState {
             if intersections
                 .get_accepted_agents(i)
                 .iter()
-                .any(|a| matches!(a, AgentID::Car(_)))
+                .any(|(a, _)| matches!(a, AgentID::Car(_)))
             {
                 return format!("someone's turning in {} still", i);
             }

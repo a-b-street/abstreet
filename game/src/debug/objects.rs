@@ -1,8 +1,9 @@
-use crate::app::App;
-use crate::helpers::ID;
 use map_model::{Map, PathConstraints};
 use sim::{AgentID, Sim};
 use widgetry::{EventCtx, GfxCtx, Key, Line, Text};
+
+use crate::app::App;
+use crate::helpers::ID;
 
 pub struct ObjectDebugger {
     debug_tooltip_key_held: bool,

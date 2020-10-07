@@ -5,12 +5,16 @@ precision mediump sampler2DArray;
 
 // (x offset, y offset, zoom)
 uniform vec3 transform;
-// (window width, window height, _)
+// (window width, window height, z value)
 uniform vec3 window;
+// textures grid
+uniform sampler2DArray textures;
 
-in vec4 pass_style;
-out vec4 f_color;
+in vec4 fs_color;
+in vec3 fs_texture_coord;
+
+out vec4 out_color;
 
 void main() {
-    f_color = pass_style;
+    out_color = fs_color * texture(textures, fs_texture_coord);
 }

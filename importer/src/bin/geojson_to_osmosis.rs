@@ -1,5 +1,6 @@
-use geojson::{GeoJson, Value};
 use std::io::{self, Read};
+
+use geojson::{GeoJson, Value};
 
 /// Convert geojson boundary suitable for osmfilter and other osmosis based tools.
 /// Expects the input to contain no element other than the boundary of interest.

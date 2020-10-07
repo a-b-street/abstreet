@@ -1,9 +1,11 @@
-use crate::app::App;
-use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, Details, Tab};
+use std::collections::HashSet;
+
 use abstutil::prettyprint_usize;
 use map_model::{LaneID, PathConstraints};
-use std::collections::HashSet;
 use widgetry::{Btn, EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Widget};
+
+use crate::app::App;
+use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, Details, Tab};
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::LaneInfo(id));

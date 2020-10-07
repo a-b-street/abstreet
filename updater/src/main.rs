@@ -3,6 +3,7 @@ use std::error::Error;
 use std::fs::{create_dir_all, remove_file, set_permissions, File, Permissions};
 use std::io::{copy, BufRead, BufReader, Read, Write};
 use std::process::Command;
+
 use walkdir::WalkDir;
 
 const MD5_BUF_READ_SIZE: usize = 4096;

@@ -1,14 +1,16 @@
+use std::collections::{BTreeSet, HashMap};
+
+use abstutil::prettyprint_usize;
+use geom::{Duration, Time};
+use sim::{TripEndpoint, TripID, TripMode};
+use widgetry::{Btn, Checkbox, EventCtx, Filler, Line, Panel, Text, Widget};
+
 use crate::app::App;
 use crate::game::State;
 use crate::helpers::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
 use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
 use crate::sandbox::dashboards::table::{Col, Filter, Table};
 use crate::sandbox::dashboards::DashTab;
-use abstutil::prettyprint_usize;
-use geom::{Duration, Time};
-use sim::{TripEndpoint, TripID, TripMode};
-use std::collections::{BTreeSet, HashMap};
-use widgetry::{Btn, Checkbox, EventCtx, Filler, Line, Panel, Text, Widget};
 
 pub struct FinishedTripTable;
 
@@ -73,7 +75,7 @@ struct CancelledTrip {
     starts_off_map: bool,
     ends_off_map: bool,
     duration_before: Duration,
-    // TODO Reason
+    reason: String,
 }
 
 struct UnfinishedTrip {
@@ -129,6 +131,9 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
         };
 
         if maybe_mode.is_none() || duration_before.is_none() {
+            let reason = trip.cancellation_reason.clone().unwrap_or(format!(
+                "trip succeeded now, but not before the current proposal"
+            ));
             cancelled.push(CancelledTrip {
                 id: *id,
                 mode: trip.mode,
@@ -136,6 +141,7 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
                 starts_off_map,
                 ends_off_map,
                 duration_before: duration_before.unwrap_or(Duration::ZERO),
+                reason,
             });
             continue;
         };
@@ -455,6 +461,7 @@ fn make_table_cancelled_trips(app: &App) -> Table<CancelledTrip, Filters> {
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
         );
     }
+    table.static_col("Reason", Box::new(|x| x.reason.clone()));
 
     table
 }
@@ -558,14 +565,14 @@ fn make_table_unfinished_trips(app: &App) -> Table<UnfinishedTrip, Filters> {
 
 fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget {
     let (finished, unfinished) = app.primary.sim.num_trips();
-    let mut aborted = 0;
+    let mut cancelled = 0;
     // TODO Can we avoid iterating through this again?
     for (_, _, maybe_mode, _) in &app.primary.sim.get_analytics().finished_trips {
         if maybe_mode.is_none() {
-            aborted += 1;
+            cancelled += 1;
         }
     }
-    let total = finished + aborted + unfinished;
+    let total = finished + cancelled + unfinished;
 
     let btn = |dash, action, label| {
         if dash == tab {
@@ -595,7 +602,7 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
         btn(
             DashTab::CancelledTripTable,
             "cancelled trips",
-            format!("{} Cancelled Trips", prettyprint_usize(aborted)),
+            format!("{} Cancelled Trips", prettyprint_usize(cancelled)),
         )
         .margin_right(28),
         btn(

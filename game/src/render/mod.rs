@@ -1,3 +1,20 @@
+use geom::{Distance, Polygon, Pt2D};
+use map_model::{IntersectionID, Map};
+use sim::{DrawCarInput, VehicleType};
+use widgetry::{GfxCtx, Prerender};
+
+use crate::app::App;
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
+pub use crate::render::area::DrawArea;
+use crate::render::bike::DrawBike;
+pub use crate::render::building::DrawBuilding;
+use crate::render::car::DrawCar;
+pub use crate::render::intersection::{calculate_corners, DrawIntersection};
+pub use crate::render::map::{AgentCache, DrawMap, UnzoomedAgents};
+pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
+pub use crate::render::turn::{DrawMovement, DrawUberTurnGroup};
+
 mod area;
 mod bike;
 mod building;
@@ -11,22 +28,6 @@ mod pedestrian;
 mod road;
 pub mod traffic_signal;
 mod turn;
-
-use crate::app::App;
-use crate::colors::ColorScheme;
-use crate::helpers::ID;
-pub use crate::render::area::DrawArea;
-use crate::render::bike::DrawBike;
-pub use crate::render::building::DrawBuilding;
-use crate::render::car::DrawCar;
-pub use crate::render::intersection::{calculate_corners, DrawIntersection};
-pub use crate::render::map::{AgentCache, DrawMap, UnzoomedAgents};
-pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
-pub use crate::render::turn::{DrawMovement, DrawUberTurnGroup};
-use geom::{Distance, Polygon, Pt2D};
-use map_model::{IntersectionID, Map};
-use sim::{DrawCarInput, VehicleType};
-use widgetry::{GfxCtx, Prerender};
 
 pub const BIG_ARROW_THICKNESS: Distance = Distance::const_meters(0.5);
 

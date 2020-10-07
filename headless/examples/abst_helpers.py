@@ -27,25 +27,25 @@ def run_sim(args, modifiers=[], edits=None):
          params={'t': '{}:00:00'.format(args.hours)})
     raw_trips = get(args, '/data/get-finished-trips').json()
 
-    # Map trip ID to the duration (in seconds) of the trip. Filter out aborted
-    # (failed) trips.
-    num_aborted = 0
+    # Map trip ID to the duration (in seconds) of the trip. Filter out
+    # cancelled trips.
+    num_cancelled = 0
     trip_times = {}
     capped_trips = set()
     for trip in raw_trips:
         if trip['mode'] is None:
-            num_aborted += 1
+            num_cancelled += 1
         else:
             trip_times[trip['id']] = trip['duration']
         if trip['capped']:
             capped_trips.add(trip['id'])
 
-    return Results(num_aborted, trip_times, capped_trips)
+    return Results(num_cancelled, trip_times, capped_trips)
 
 
 class Results:
-    def __init__(self, num_aborted, trip_times, capped_trips):
-        self.num_aborted = num_aborted
+    def __init__(self, num_cancelled, trip_times, capped_trips):
+        self.num_cancelled = num_cancelled
         # Maps trip ID to seconds
         self.trip_times = trip_times
         # A set of trip IDs
@@ -71,8 +71,8 @@ class Results:
             len(faster), avg(faster)))
         print('{:,} trips slower, average {:.1f}s loss'.format(
             len(slower), avg(slower)))
-        print('{:,} trips aborted before, {:,} after'.format(
-            self.num_aborted, results2.num_aborted))
+        print('{:,} trips cancelled before, {:,} after'.format(
+            self.num_cancelled, results2.num_cancelled))
 
 
 def avg(data):

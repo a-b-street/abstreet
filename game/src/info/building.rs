@@ -1,11 +1,13 @@
-use crate::app::App;
-use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
-use crate::render::DrawPedestrian;
+use std::collections::BTreeMap;
+
 use geom::{Angle, Circle, Distance, Speed, Time};
 use map_model::{BuildingID, LaneID, OffstreetParking, Traversable, SIDEWALK_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripMode, TripResult};
-use std::collections::BTreeMap;
 use widgetry::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
+
+use crate::app::App;
+use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
+use crate::render::DrawPedestrian;
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::BldgInfo(id));
@@ -127,7 +129,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
                     // TODO What to do here? This is meant for building callers right now
                     break;
                 }
-                TripResult::TripDone | TripResult::TripAborted | TripResult::TripCancelled => {}
+                TripResult::TripDone | TripResult::TripCancelled => {}
                 TripResult::TripDoesntExist | TripResult::RemoteTrip => unreachable!(),
             }
         }

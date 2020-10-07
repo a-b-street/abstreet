@@ -1,3 +1,30 @@
+use std::collections::BTreeSet;
+
+use maplit::btreeset;
+
+use abstutil::Timer;
+use geom::Speed;
+use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
+use widgetry::{
+    lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
+    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+};
+
+pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
+pub use self::lanes::LaneEditor;
+pub use self::routes::RouteEditor;
+pub use self::stop_signs::StopSignEditor;
+pub use self::traffic_signals::TrafficSignalEditor;
+pub use self::validate::{check_blackholes, check_sidewalk_connectivity, try_change_lt};
+use crate::app::App;
+use crate::common::{tool_panel, ColorLegend, CommonState, Warping};
+use crate::debug::DebugMode;
+use crate::game::{ChooseSomething, PopupMsg, State, Transition};
+use crate::helpers::ID;
+use crate::options::OptionsPanel;
+use crate::render::DrawMap;
+use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
+
 mod bulk;
 mod cluster_traffic_signals;
 mod lanes;
@@ -7,31 +34,6 @@ mod stop_signs;
 mod traffic_signals;
 mod validate;
 mod zones;
-
-pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
-pub use self::lanes::LaneEditor;
-pub use self::routes::RouteEditor;
-pub use self::stop_signs::StopSignEditor;
-pub use self::traffic_signals::TrafficSignalEditor;
-pub use self::validate::{check_blackholes, check_sidewalk_connectivity, try_change_lt};
-use crate::app::{App, ShowEverything};
-use crate::common::{tool_panel, ColorLegend, CommonState, Warping};
-use crate::debug::DebugMode;
-use crate::game::{ChooseSomething, PopupMsg, State, Transition};
-use crate::helpers::ID;
-use crate::options::OptionsPanel;
-use crate::render::DrawMap;
-use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
-use abstutil::Timer;
-use geom::Speed;
-use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
-use maplit::btreeset;
-use sim::DontDrawAgents;
-use std::collections::BTreeSet;
-use widgetry::{
-    lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
-};
 
 pub struct EditMode {
     tool_panel: Panel,
@@ -127,14 +129,7 @@ impl State for EditMode {
         ctx.canvas_movement();
         // Restrict what can be selected.
         if ctx.redo_mouseover() {
-            app.primary.current_selection = app.calculate_current_selection(
-                ctx,
-                &DontDrawAgents {},
-                &ShowEverything::new(),
-                false,
-                true,
-                false,
-            );
+            app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
             if let Some(ID::Lane(l)) = app.primary.current_selection {
                 if !can_edit_lane(&self.mode, l, app) {
                     app.primary.current_selection = None;

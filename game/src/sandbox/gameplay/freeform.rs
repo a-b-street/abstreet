@@ -1,23 +1,25 @@
-use crate::app::{App, ShowEverything};
+use rand::seq::SliceRandom;
+use rand::Rng;
+
+use abstutil::Timer;
+use geom::{Distance, Polygon};
+use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
+use sim::{
+    DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip,
+    TripEndpoint, TripMode, TripPurpose, TripSpec,
+};
+use widgetry::{
+    lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
+
+use crate::app::App;
 use crate::common::{CityPicker, CommonState};
 use crate::edit::EditMode;
 use crate::game::{ChooseSomething, PopupMsg, PromptInput, State, Transition};
 use crate::helpers::{nice_map_name, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
-use abstutil::Timer;
-use geom::{Distance, Polygon};
-use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
-use rand::seq::SliceRandom;
-use rand::Rng;
-use sim::{
-    DontDrawAgents, DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot,
-    SpawnTrip, TripEndpoint, TripMode, TripPurpose, TripSpec,
-};
-use widgetry::{
-    lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 
 // TODO Maybe remember what things were spawned, offer to replay this later
 pub struct Freeform {
@@ -357,14 +359,7 @@ impl State for AgentSpawner {
         }
 
         if ctx.redo_mouseover() {
-            app.primary.current_selection = app.calculate_current_selection(
-                ctx,
-                &DontDrawAgents {},
-                &ShowEverything::new(),
-                false,
-                true,
-                true,
-            );
+            app.primary.current_selection = app.mouseover_unzoomed_everything(ctx);
             if let Some(ID::Intersection(i)) = app.primary.current_selection {
                 if !app.primary.map.get_i(i).is_border() {
                     app.primary.current_selection = None;

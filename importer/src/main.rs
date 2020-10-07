@@ -1,3 +1,6 @@
+use configuration::{load_configuration, ImporterConfiguration};
+use dependencies::are_dependencies_callable;
+
 mod berlin;
 mod configuration;
 mod dependencies;
@@ -9,9 +12,6 @@ mod soundcast;
 mod tel_aviv;
 mod utils;
 mod xian;
-
-use configuration::{load_configuration, ImporterConfiguration};
-use dependencies::are_dependencies_callable;
 
 // TODO Might be cleaner to express as a dependency graph?
 

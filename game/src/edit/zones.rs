@@ -1,3 +1,15 @@
+use std::collections::BTreeSet;
+
+use enumset::EnumSet;
+use maplit::btreeset;
+
+use map_model::{AccessRestrictions, PathConstraints, RoadID};
+use sim::TripMode;
+use widgetry::{
+    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    Spinner, Text, TextExt, VerticalAlignment, Widget,
+};
+
 use crate::app::App;
 use crate::common::ColorDiscrete;
 use crate::common::CommonState;
@@ -5,15 +17,6 @@ use crate::edit::apply_map_edits;
 use crate::edit::select::RoadSelector;
 use crate::game::{State, Transition};
 use crate::helpers::{checkbox_per_mode, intersections_from_roads};
-use enumset::EnumSet;
-use map_model::{AccessRestrictions, PathConstraints, RoadID};
-use maplit::btreeset;
-use sim::TripMode;
-use std::collections::BTreeSet;
-use widgetry::{
-    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    Spinner, Text, TextExt, VerticalAlignment, Widget,
-};
 
 pub struct ZoneEditor {
     panel: Panel,

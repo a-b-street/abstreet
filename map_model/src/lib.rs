@@ -21,19 +21,15 @@
 // - t = turn
 // - ts = traffic signal
 
-mod city;
-pub mod connectivity;
-mod edits;
-mod make;
-mod map;
-mod objects;
-pub mod osm;
-mod pathfind;
-pub mod raw;
-mod traversable;
-
 #[macro_use]
 extern crate log;
+
+use std::collections::BTreeMap;
+
+use serde::{Deserialize, Serialize};
+
+use abstutil::{deserialize_btreemap, serialize_btreemap};
+use geom::{Bounds, Distance, GPSBounds, Polygon};
 
 pub use crate::city::City;
 pub use crate::edits::{
@@ -61,10 +57,17 @@ pub use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn, UberTurnGro
 use crate::pathfind::Pathfinder;
 pub use crate::pathfind::{Path, PathConstraints, PathRequest, PathStep};
 pub use crate::traversable::{Position, Traversable};
-use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Bounds, Distance, GPSBounds, Polygon};
-use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+
+mod city;
+pub mod connectivity;
+mod edits;
+mod make;
+mod map;
+mod objects;
+pub mod osm;
+mod pathfind;
+pub mod raw;
+mod traversable;
 
 // TODO Minimize uses of these!
 pub const NORMAL_LANE_THICKNESS: Distance = Distance::const_meters(2.5);

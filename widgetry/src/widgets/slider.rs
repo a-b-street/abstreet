@@ -1,8 +1,9 @@
+use geom::{Circle, Distance, Polygon, Pt2D};
+
 use crate::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle, Widget,
     WidgetImpl, WidgetOutput,
 };
-use geom::{Circle, Distance, Polygon, Pt2D};
 
 pub struct Slider {
     current_percent: f64,

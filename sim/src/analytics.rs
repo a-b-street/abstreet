@@ -1,3 +1,12 @@
+// As a simulation runs, different pieces emit Events. The Analytics object listens to these,
+// organizing and storing some information from them. The UI queries Analytics to draw time-series
+// and display statistics.
+//
+// For all maps whose weekday scenario fully runs, the game's release includes some "prebaked
+// results." These are just serialized Analytics after running the simulation on a map without any
+// edits for the full day. This is the basis of A/B testing -- the player can edit the map, start
+// running the simulation, and compare the live Analytics to the prebaked baseline Analytics.
+
 use std::collections::{BTreeMap, VecDeque};
 
 use serde::{Deserialize, Serialize};
@@ -6,7 +15,7 @@ use abstutil::Counter;
 use geom::{Distance, Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
-    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID,
+    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID
 };
 
 use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
@@ -20,7 +29,8 @@ pub struct Analytics {
     // intersection. So for now, eat the file size cost.
     pub traffic_signal_thruput: TimeSeriesCount<CompressedMovementID>,
 
-    // Unlike everything else in Analytics, this is just for a moment in time.
+    // Most fields in Analytics are cumulative over time, but this is just for the current moment
+    // in time.
     pub demand: BTreeMap<MovementID, usize>,
 
     // TODO Reconsider this one
@@ -30,11 +40,19 @@ pub struct Analytics {
     pub passengers_alighting: BTreeMap<BusStopID, Vec<(Time, BusRouteID)>>,
 
     pub started_trips: BTreeMap<TripID, Time>,
-    // TODO Hack: No TripMode means aborted
-    // Finish time, ID, mode (or None as aborted), trip duration
+    // TODO Hack: No TripMode means cancelled
+    // Finish time, ID, mode, trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
+
+    // Records how long was spent waiting at each turn (Intersection) for a given trip
+    // Over a certain threshold
+    // TripID, [(TurnID, Time Waiting In Seconds)]
     pub trip_intersection_delays: BTreeMap<TripID, Vec<(TurnID, u8)>>,
+    // Records how long was spent waiting at each lane for a given trip
+    // Over a certain threshold
+    // TripID, [(LaneID, Time Waiting In Seconds)]
     pub lane_speed_percentage: BTreeMap<TripID, Vec<(LaneID, u8)>>,
+
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
 
@@ -124,7 +142,7 @@ impl Analytics {
         }
         match ev {
             Event::PersonLeavesMap(_, maybe_a, i, _) => {
-                // Ignore aborted trips
+                // Ignore cancelled trips
                 if let Some(a) = maybe_a {
                     self.intersection_thruput.record(time, i, a.to_type(), 1);
                 }
@@ -169,7 +187,7 @@ impl Analytics {
         {
             self.finished_trips
                 .push((time, trip, Some(mode), total_time));
-        } else if let Event::TripAborted(id) = ev {
+        } else if let Event::TripCancelled(id) = ev {
             self.started_trips.entry(id).or_insert(time);
             self.finished_trips.push((time, id, None, Duration::ZERO));
         }
@@ -230,8 +248,9 @@ impl Analytics {
             Event::TripPhaseStarting(id, _, maybe_req, phase_type) => {
                 self.trip_log.push((time, id, maybe_req, phase_type));
             }
-            Event::TripAborted(id) => {
-                self.trip_log.push((time, id, None, TripPhaseType::Aborted));
+            Event::TripCancelled(id) => {
+                self.trip_log
+                    .push((time, id, None, TripPhaseType::Cancelled));
             }
             Event::TripFinished { trip, .. } => {
                 self.trip_log
@@ -260,14 +279,18 @@ impl Analytics {
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
 
+    // Returns a list of turns(Intersections), with a delay over the threshold
+    // (u8 represents the time waiting in seconds)
     pub fn trip_intersection_delays(&self, trip: TripID) -> Option<&Vec<(TurnID, u8)>> {
         self.trip_intersection_delays.get(&trip)
     }
+    // Returns a list of lanes, with a delay over the threshold
+    // (u8 represents the time waiting in seconds)
     pub fn trip_lane_speeds(&self, trip: TripID) -> Option<&Vec<(LaneID, u8)>> {
         self.lane_speed_percentage.get(&trip)
     }
 
-    // Ignores the current time. Returns None for aborted trips.
+    // Ignores the current time. Returns None for cancelled trips.
     pub fn finished_trip_time(&self, trip: TripID) -> Option<Duration> {
         // TODO This is so inefficient!
         for (_, id, maybe_mode, dt) in &self.finished_trips {
@@ -312,6 +335,8 @@ impl Analytics {
         results
     }
 
+    // If calling on prebaked Analytics, be careful to pass in an unedited map, to match how the
+    // simulation was originally run. Otherwise the paths may be nonsense.
     pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {
         let mut phases: Vec<TripPhase> = Vec::new();
         for (t, id, maybe_req, phase_type) in &self.trip_log {
@@ -321,14 +346,12 @@ impl Analytics {
             if let Some(ref mut last) = phases.last_mut() {
                 last.end_time = Some(*t);
             }
-            if *phase_type == TripPhaseType::Finished || *phase_type == TripPhaseType::Aborted {
+            if *phase_type == TripPhaseType::Finished || *phase_type == TripPhaseType::Cancelled {
                 break;
             }
             phases.push(TripPhase {
                 start_time: *t,
                 end_time: None,
-                // Unwrap should be safe, because this is the request that was actually done...
-                // TODO Not if this is prebaked data and we've made edits. Woops.
                 path: maybe_req.as_ref().and_then(|req| {
                     map.pathfind(req.clone())
                         .map(|path| (req.start.dist_along(), path))
@@ -350,8 +373,8 @@ impl Analytics {
             if *phase_type == TripPhaseType::Finished {
                 continue;
             }
-            // Remove aborted trips
-            if *phase_type == TripPhaseType::Aborted {
+            // Remove cancelled trips
+            if *phase_type == TripPhaseType::Cancelled {
                 trips.remove(id);
                 continue;
             }
@@ -488,6 +511,7 @@ pub struct TripPhase {
     pub phase_type: TripPhaseType,
 }
 
+// See https://github.com/dabreegster/abstreet/issues/85
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TimeSeriesCount<X: Ord + Clone> {
     // (Road or intersection, type, hour block) -> count for that hour

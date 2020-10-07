@@ -1,11 +1,14 @@
-use crate::pandemic::{AnyTime, State};
-use crate::{CarID, Event, OffMapLocation, Person, PersonID, Scheduler, TripPhaseType};
-use geom::{Duration, Time};
-use map_model::{BuildingID, BusStopID};
+use std::collections::BTreeMap;
+
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+
+use geom::{Duration, Time};
+use map_model::{BuildingID, BusStopID};
+
+use crate::pandemic::{AnyTime, State};
+use crate::{CarID, Event, OffMapLocation, Person, PersonID, Scheduler, TripPhaseType};
 
 // TODO This does not model transmission by surfaces; only person-to-person.
 // TODO If two people are in the same shared space indefinitely and neither leaves, we don't model

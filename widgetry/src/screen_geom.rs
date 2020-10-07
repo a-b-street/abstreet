@@ -1,6 +1,8 @@
-use crate::Canvas;
-use geom::{trim_f64, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
+
+use geom::{trim_f64, Polygon, Pt2D};
+
+use crate::Canvas;
 
 /// ScreenPt is in units of logical pixels, as opposed to physical pixels.
 #[derive(Debug, Clone, Copy, PartialEq)]

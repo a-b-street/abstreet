@@ -1,3 +1,15 @@
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+
+use maplit::btreemap;
+use rand::seq::SliceRandom;
+
+use abstutil::Timer;
+use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
+use map_model::{IntersectionID, Map, Traversable};
+use sim::{Analytics, DontDrawAgents, GetDrawAgents, Sim, SimCallback, SimFlags};
+use widgetry::{EventCtx, GfxCtx, Prerender};
+
 use crate::challenges::HighScore;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
@@ -5,14 +17,6 @@ use crate::layer::Layer;
 use crate::options::Options;
 use crate::render::{AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents};
 use crate::sandbox::{GameplayMode, TutorialState};
-use abstutil::Timer;
-use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
-use map_model::{IntersectionID, Map, Traversable};
-use maplit::btreemap;
-use rand::seq::SliceRandom;
-use sim::{Analytics, GetDrawAgents, Sim, SimCallback, SimFlags};
-use std::collections::BTreeMap;
-use widgetry::{EventCtx, GfxCtx, Prerender};
 
 pub struct App {
     // Naming is from older days when there was an A/B test, "side-by-side" mode. Keeping this
@@ -298,10 +302,41 @@ impl App {
         );
     }
 
-    // Because we have to sometimes borrow part of self for GetDrawAgents, this just returns the
-    // Option<ID> that the caller should assign. When this monolithic UI nonsense is dismantled,
-    // this weirdness goes away.
-    pub fn calculate_current_selection(
+    pub fn mouseover_unzoomed_roads_and_intersections(&self, ctx: &EventCtx) -> Option<ID> {
+        self.calculate_current_selection(
+            ctx,
+            &DontDrawAgents {},
+            &ShowEverything::new(),
+            false,
+            true,
+            false,
+        )
+    }
+    pub fn mouseover_unzoomed_buildings(&self, ctx: &EventCtx) -> Option<ID> {
+        self.calculate_current_selection(
+            ctx,
+            &DontDrawAgents {},
+            &ShowEverything::new(),
+            false,
+            false,
+            true,
+        )
+    }
+    pub fn mouseover_unzoomed_everything(&self, ctx: &EventCtx) -> Option<ID> {
+        self.calculate_current_selection(
+            ctx,
+            &DontDrawAgents {},
+            &ShowEverything::new(),
+            false,
+            true,
+            true,
+        )
+    }
+    pub fn mouseover_debug_mode(&self, ctx: &EventCtx, show_objs: &dyn ShowObject) -> Option<ID> {
+        self.calculate_current_selection(ctx, &self.primary.sim, show_objs, true, false, false)
+    }
+
+    fn calculate_current_selection(
         &self,
         ctx: &EventCtx,
         source: &dyn GetDrawAgents,
@@ -535,6 +570,9 @@ pub struct PerMap {
     pub dirty_from_edits: bool,
     // Any ScenarioModifiers in effect?
     pub has_modified_trips: bool,
+
+    // Sometimes we need the map before any edits have been applied. Cache it here.
+    pub unedited_map: RefCell<Option<Map>>,
 }
 
 impl PerMap {
@@ -570,6 +608,7 @@ impl PerMap {
             show_zorder: high_z,
             dirty_from_edits: false,
             has_modified_trips: false,
+            unedited_map: RefCell::new(None),
         }
     }
 
@@ -584,6 +623,24 @@ impl PerMap {
                 &mut Timer::new("reset simulation"),
             ),
         )
+    }
+
+    // If needed, makes sure the unedited_map is populated. Callers can then do
+    // self.unedited_map.borrow().unwrap_or(&self.map).
+    // TODO I'd like to return &Map or something here, but can't get the borrow checker to work.
+    pub fn calculate_unedited_map(&self) {
+        if self.map.get_edits().commands.is_empty() {
+            return;
+        }
+
+        let mut orig_map = self.unedited_map.borrow_mut();
+        if orig_map.is_none() {
+            let mut timer = Timer::new("load unedited map");
+            *orig_map = Some(Map::new(
+                abstutil::path_map(self.map.get_name()),
+                &mut timer,
+            ));
+        }
     }
 }
 

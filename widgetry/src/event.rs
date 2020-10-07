@@ -1,8 +1,10 @@
-use crate::{EventCtx, Line, ScreenDims, ScreenPt, TextSpan};
-use geom::Duration;
 use winit::event::{
     ElementState, KeyboardInput, MouseButton, MouseScrollDelta, VirtualKeyCode, WindowEvent,
 };
+
+use geom::Duration;
+
+use crate::{EventCtx, Line, ScreenDims, ScreenPt, TextSpan};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Event {

@@ -36,8 +36,8 @@ def main():
     for pct in range(100, 0, -10):
         start = time.time()
         results = abst_helpers.run_sim(args, modifiers=[{'CancelPeople': pct}])
-        print('{}% of people cancelled: {:,} trips aborted, {:,} trips succeeded. Simulation took {:.1f}s'.format(
-            pct, results.num_aborted, len(results.trip_times), time.time() - start))
+        print('{}% of people cancelled: {:,} trips cancelled, {:,} trips succeeded. Simulation took {:.1f}s'.format(
+            pct, results.num_cancelled, len(results.trip_times), time.time() - start))
         if len(results.trip_times) < num_succeeded_last:
             print('--> less trips succeeded this round, so likely hit gridlock')
             break

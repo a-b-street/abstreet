@@ -5,14 +5,16 @@
 //    the zone
 // 3) Congestion capping, where only so many cars per hour can enter the zone
 
+use std::collections::BTreeSet;
+
+use enumset::EnumSet;
+use petgraph::graphmap::DiGraphMap;
+use serde::{Deserialize, Serialize};
+
 use crate::pathfind::{driving_cost, walking_cost, WalkingNode};
 use crate::{
     IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoadID, TurnID,
 };
-use enumset::EnumSet;
-use petgraph::graphmap::DiGraphMap;
-use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct AccessRestrictions {
@@ -147,6 +149,7 @@ impl Zone {
 
 fn floodfill(map: &Map, start: RoadID) -> Zone {
     let match_constraints = map.get_r(start).access_restrictions.clone();
+    let merge_zones = map.get_edits().merge_zones;
     let mut queue = vec![start];
     let mut members = BTreeSet::new();
     let mut borders = BTreeSet::new();
@@ -158,7 +161,7 @@ fn floodfill(map: &Map, start: RoadID) -> Zone {
         members.insert(current);
         for r in map.get_next_roads(current) {
             let r = map.get_r(r);
-            if r.access_restrictions == match_constraints {
+            if r.access_restrictions == match_constraints && merge_zones {
                 queue.push(r.id);
             } else {
                 borders.insert(map.get_r(current).common_endpt(r));

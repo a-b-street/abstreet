@@ -1,14 +1,16 @@
-use crate::app::App;
-use crate::edit::select::RoadSelector;
-use crate::edit::{apply_map_edits, speed_limit_choices, try_change_lt, ConfirmDiscard};
-use crate::game::{PopupMsg, State, Transition};
+use maplit::btreeset;
+
 use geom::Speed;
 use map_model::{LaneType, RoadID};
-use maplit::btreeset;
 use widgetry::{
     hotkeys, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::edit::select::RoadSelector;
+use crate::edit::{apply_map_edits, speed_limit_choices, try_change_lt, ConfirmDiscard};
+use crate::game::{PopupMsg, State, Transition};
 
 pub struct BulkSelect {
     panel: Panel,

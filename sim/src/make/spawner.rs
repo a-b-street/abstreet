@@ -1,13 +1,18 @@
-use crate::{
-    CarID, Command, DrivingGoal, OffMapLocation, Person, PersonID, Scheduler, SidewalkSpot,
-    TripEndpoint, TripLeg, TripManager, TripMode, TripPurpose, VehicleType,
-};
+// Intermediate structures used to instantiate a Scenario. Badly needs simplification:
+// https://github.com/dabreegster/abstreet/issues/258
+
+use serde::{Deserialize, Serialize};
+
 use abstutil::{Parallelism, Timer};
 use geom::{Duration, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
-use serde::{Deserialize, Serialize};
+
+use crate::{
+    CarID, Command, DrivingGoal, OffMapLocation, Person, PersonID, Scheduler, SidewalkSpot,
+    TripEndpoint, TripLeg, TripManager, TripMode, TripPurpose, VehicleType,
+};
 
 // TODO Some of these fields are unused now that we separately pass TripEndpoint
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -384,7 +389,10 @@ impl TripSpawner {
             };
 
             if cancelled {
-                trips.cancel_trip(trip);
+                trips.cancel_unstarted_trip(
+                    trip,
+                    format!("traffic pattern modifier cancelled this trip"),
+                );
             } else {
                 scheduler.push(
                     start_time,

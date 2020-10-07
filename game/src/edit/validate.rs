@@ -1,10 +1,12 @@
+use std::collections::BTreeSet;
+
+use abstutil::Timer;
+use map_model::{connectivity, EditCmd, LaneID, LaneType, Map, PathConstraints};
+use widgetry::{Color, EventCtx};
+
 use crate::app::App;
 use crate::common::ColorDiscrete;
 use crate::game::{PopupMsg, State};
-use abstutil::Timer;
-use map_model::{connectivity, EditCmd, LaneID, LaneType, Map, PathConstraints};
-use std::collections::BTreeSet;
-use widgetry::{Color, EventCtx};
 
 // All of these take a candidate EditCmd to do, then see if it's valid. If they return None, it's
 // fine. They always leave the map in the original state without the new EditCmd.

@@ -1,7 +1,15 @@
-mod edits;
-mod offsets;
-mod picker;
-mod preview;
+use std::collections::{BTreeSet, VecDeque};
+
+use abstutil::Timer;
+use geom::{Distance, Duration, Line, Polygon, Pt2D};
+use map_model::{
+    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, PhaseType, Stage,
+    TurnPriority,
+};
+use widgetry::{
+    lctrl, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    MultiButton, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+};
 
 use crate::app::{App, ShowEverything};
 use crate::common::{CommonState, Warping};
@@ -10,17 +18,11 @@ use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::options::TrafficSignalStyle;
 use crate::render::{traffic_signal, DrawMovement, DrawOptions};
 use crate::sandbox::GameplayMode;
-use abstutil::Timer;
-use geom::{Distance, Duration, Line, Polygon, Pt2D};
-use map_model::{
-    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, PhaseType, Stage,
-    TurnPriority,
-};
-use std::collections::{BTreeSet, VecDeque};
-use widgetry::{
-    lctrl, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    MultiButton, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
-};
+
+mod edits;
+mod offsets;
+mod picker;
+mod preview;
 
 // Welcome to one of the most overwhelmingly complicated parts of the UI...
 

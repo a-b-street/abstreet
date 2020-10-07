@@ -1,14 +1,16 @@
-use crate::app::App;
-use crate::game::{ChooseSomething, State, Transition};
-use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
+use std::collections::BTreeSet;
+
 use abstutil::Timer;
 use geom::Duration;
 use map_model::IntersectionID;
-use std::collections::BTreeSet;
 use widgetry::{
     Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, TextExt, UpdateType,
     VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::game::{ChooseSomething, State, Transition};
+use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 
 // TODO Show diagram, auto-sync the stage.
 // TODO Auto quit after things are gone?

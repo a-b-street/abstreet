@@ -1,10 +1,10 @@
-mod city_picker;
-mod colors;
-mod heatmap;
-mod isochrone;
-mod minimap;
-mod navigate;
-mod warp;
+use std::collections::BTreeSet;
+
+use geom::Polygon;
+use widgetry::{
+    lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    ScreenDims, ScreenPt, ScreenRectangle, Text, VerticalAlignment, Widget,
+};
 
 pub use self::city_picker::CityPicker;
 pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
@@ -17,12 +17,14 @@ use crate::game::Transition;
 use crate::helpers::{list_names, ID};
 use crate::info::InfoPanel;
 pub use crate::info::{ContextualActions, Tab};
-use geom::Polygon;
-use std::collections::BTreeSet;
-use widgetry::{
-    lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
-    ScreenDims, ScreenPt, ScreenRectangle, Text, VerticalAlignment, Widget,
-};
+
+mod city_picker;
+mod colors;
+mod heatmap;
+mod isochrone;
+mod minimap;
+mod navigate;
+mod warp;
 
 // TODO This is now just used in two modes...
 pub struct CommonState {

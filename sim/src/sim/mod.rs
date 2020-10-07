@@ -1,4 +1,20 @@
-mod queries;
+// The Sim ties together all the pieces of the simulation. Its main property is the current time.
+// This file has a jumbled mess of queries, setup, and mutating methods.
+
+use std::collections::{BTreeSet, HashSet};
+use std::panic;
+
+use instant::Instant;
+use rand::SeedableRng;
+use rand_xorshift::XorShiftRng;
+use serde::{Deserialize, Serialize};
+
+use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, Parallelism, Timer};
+use geom::{Distance, Duration, Speed, Time};
+use map_model::{
+    BuildingID, BusRoute, LaneID, Map, ParkingLotID, Path, PathConstraints, PathRequest, Position,
+    Traversable,
+};
 
 pub use self::queries::AgentProperties;
 use crate::{
@@ -10,18 +26,8 @@ use crate::{
     VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
     SPAWN_DIST,
 };
-use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, Parallelism, Timer};
-use geom::{Distance, Duration, Speed, Time};
-use instant::Instant;
-use map_model::{
-    BuildingID, BusRoute, LaneID, Map, ParkingLotID, Path, PathConstraints, PathRequest, Position,
-    Traversable,
-};
-use rand::SeedableRng;
-use rand_xorshift::XorShiftRng;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeSet, HashSet};
-use std::panic;
+
+mod queries;
 
 // TODO Do something else.
 const BLIND_RETRY_TO_SPAWN: Duration = Duration::const_seconds(5.0);
@@ -516,10 +522,6 @@ impl Sim {
                 } else {
                     // Buses don't use Command::SpawnCar, so this must exist.
                     let (trip, person) = create_car.trip_and_person.unwrap();
-                    println!(
-                        "No room to spawn car for {} by {}. Not retrying!",
-                        trip, person
-                    );
                     // Have to redeclare for the borrow checker
                     let mut ctx = Ctx {
                         parking: &mut self.parking,
@@ -528,8 +530,16 @@ impl Sim {
                         scheduler: &mut self.scheduler,
                         map,
                     };
-                    self.trips
-                        .abort_trip(self.time, trip, Some(create_car.vehicle), &mut ctx);
+                    self.trips.cancel_trip(
+                        self.time,
+                        trip,
+                        format!(
+                            "no room to spawn car for {} by {}, not retrying",
+                            trip, person
+                        ),
+                        Some(create_car.vehicle),
+                        &mut ctx,
+                    );
                 }
             }
             Command::SpawnPed(create_ped) => {
@@ -904,8 +914,8 @@ impl Sim {
     pub fn handle_live_edits(&mut self, map: &Map) {
         let affected = self.find_trips_affected_by_live_edits(map);
 
-        // V1: Just abort every trip crossing an affected area.
-        // (V2 is probably rerouting everyone, only aborting when that fails)
+        // V1: Just cancel every trip crossing an affected area.
+        // (V2 is probably rerouting everyone, only cancelling when that fails)
         // TODO If we delete a bus, deal with all its passengers
         let mut ctx = Ctx {
             parking: &mut self.parking,
@@ -918,12 +928,24 @@ impl Sim {
             match agent {
                 AgentID::Car(car) => {
                     let vehicle = self.driving.delete_car(car, self.time, &mut ctx);
-                    self.trips
-                        .abort_trip(self.time, trip, Some(vehicle), &mut ctx);
+                    // TODO Plumb more info about the reason
+                    self.trips.cancel_trip(
+                        self.time,
+                        trip,
+                        format!("map edited without reset"),
+                        Some(vehicle),
+                        &mut ctx,
+                    );
                 }
                 AgentID::Pedestrian(ped) => {
                     self.walking.delete_ped(ped, ctx.scheduler);
-                    self.trips.abort_trip(self.time, trip, None, &mut ctx);
+                    self.trips.cancel_trip(
+                        self.time,
+                        trip,
+                        format!("map edited without reset"),
+                        None,
+                        &mut ctx,
+                    );
                 }
                 AgentID::BusPassenger(_, _) => unreachable!(),
             }
@@ -989,9 +1011,13 @@ impl Sim {
                 map,
             };
             let vehicle = self.driving.delete_car(id, self.time, &mut ctx);
-            self.trips
-                .abort_trip(self.time, trip, Some(vehicle), &mut ctx);
-            println!("Forcibly killed {}", id);
+            self.trips.cancel_trip(
+                self.time,
+                trip,
+                format!("{} deleted manually through the UI", id),
+                Some(vehicle),
+                &mut ctx,
+            );
         } else {
             println!("{} has no trip?!", id);
         }

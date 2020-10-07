@@ -1,8 +1,9 @@
+use geom::{Angle, Bounds, Polygon, Pt2D};
+
 use crate::widgets::button::BtnBuilder;
 use crate::{
     svg, Btn, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, Prerender, ScreenDims, Widget,
 };
-use geom::{Angle, Bounds, Polygon, Pt2D};
 
 /// A mutable builder for a group of colored polygons.
 #[derive(Clone)]

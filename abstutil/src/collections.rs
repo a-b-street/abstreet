@@ -1,7 +1,8 @@
-use itertools::Itertools;
-use serde::{Deserialize, Serialize};
 use std::cmp::Ord;
 use std::collections::{BTreeMap, BTreeSet};
+
+use itertools::Itertools;
+use serde::{Deserialize, Serialize};
 
 // TODO Ideally derive Serialize and Deserialize, but I can't seem to express the lifetimes
 // correctly.
@@ -107,7 +108,7 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
     }
 
     pub fn max(&self) -> usize {
-        *self.map.values().max().unwrap()
+        self.map.values().max().cloned().unwrap_or(0)
     }
     pub fn sum(&self) -> usize {
         self.sum

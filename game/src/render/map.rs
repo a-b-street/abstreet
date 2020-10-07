@@ -1,3 +1,18 @@
+use std::borrow::Borrow;
+use std::cell::RefCell;
+use std::collections::HashMap;
+
+use aabb_quadtree::QuadTree;
+
+use abstutil::Timer;
+use geom::{Bounds, Circle, Distance, Polygon, Pt2D, Time};
+use map_model::{
+    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, Traversable,
+    NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+};
+use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
+
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
@@ -9,18 +24,6 @@ use crate::render::lane::DrawLane;
 use crate::render::parking_lot::DrawParkingLot;
 use crate::render::road::DrawRoad;
 use crate::render::{draw_vehicle, DrawArea, DrawPedCrowd, DrawPedestrian, Renderable};
-use aabb_quadtree::QuadTree;
-use abstutil::Timer;
-use geom::{Bounds, Circle, Distance, Polygon, Pt2D, Time};
-use map_model::{
-    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, Traversable,
-    NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
-};
-use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
-use std::borrow::Borrow;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
 
 pub struct DrawMap {
     pub roads: Vec<DrawRoad>,

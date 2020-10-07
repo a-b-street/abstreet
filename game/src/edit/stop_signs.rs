@@ -1,20 +1,23 @@
+use std::collections::HashMap;
+
+use maplit::btreeset;
+
+use abstutil::Timer;
+use geom::Polygon;
+use map_model::{
+    ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
+};
+use widgetry::{
+    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    VerticalAlignment, Widget,
+};
+
 use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, TrafficSignalEditor};
 use crate::game::{State, Transition};
 use crate::render::DrawIntersection;
 use crate::sandbox::GameplayMode;
-use abstutil::Timer;
-use geom::Polygon;
-use map_model::{
-    ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
-};
-use maplit::btreeset;
-use std::collections::HashMap;
-use widgetry::{
-    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
-    VerticalAlignment, Widget,
-};
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
 // sure what to do about the player orphaning a section of the map.

@@ -1,8 +1,9 @@
+use geom::{Distance, Polygon, Pt2D};
+
 use crate::{
     Btn, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, Menu, Outcome, ScreenDims, ScreenPt,
     ScreenRectangle, WidgetImpl, WidgetOutput,
 };
-use geom::{Distance, Polygon, Pt2D};
 
 pub struct Dropdown<T: Clone> {
     current_idx: usize,

@@ -1,8 +1,3 @@
-use crate::app::App;
-use crate::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
-use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
-use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
-use crate::sandbox::GameplayMode;
 use abstutil::Timer;
 use geom::Duration;
 use map_model::{
@@ -11,6 +6,12 @@ use map_model::{
 use widgetry::{
     Btn, Checkbox, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner, TextExt, Widget,
 };
+
+use crate::app::App;
+use crate::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
+use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
+use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
+use crate::sandbox::GameplayMode;
 
 pub struct ChangeDuration {
     panel: Panel,

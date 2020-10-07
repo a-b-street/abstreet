@@ -1,6 +1,5 @@
-use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork};
-use crate::layer::{Layer, LayerOutcome};
+use std::collections::BTreeSet;
+
 use abstutil::{prettyprint_usize, Counter, Parallelism};
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_model::{
@@ -8,11 +7,14 @@ use map_model::{
     NORMAL_LANE_THICKNESS,
 };
 use sim::{GetDrawAgents, ParkingSpot, Scenario, VehicleType};
-use std::collections::BTreeSet;
 use widgetry::{
     Btn, Checkbox, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, Text, TextExt, VerticalAlignment, Widget,
 };
+
+use crate::app::App;
+use crate::common::{ColorLegend, ColorNetwork};
+use crate::layer::{Layer, LayerOutcome};
 
 pub struct Occupancy {
     time: Time,

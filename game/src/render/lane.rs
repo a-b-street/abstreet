@@ -1,13 +1,15 @@
-use crate::app::App;
-use crate::helpers::ID;
-use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use std::cell::RefCell;
+use std::collections::HashMap;
+
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
     Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID, PARKING_SPOT_LENGTH,
 };
-use std::cell::RefCell;
-use std::collections::HashMap;
 use widgetry::{Drawable, GeomBatch, GfxCtx, RewriteColor};
+
+use crate::app::App;
+use crate::helpers::ID;
+use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 
 pub struct DrawLane {
     pub id: LaneID,

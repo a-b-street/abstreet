@@ -1,14 +1,16 @@
-use crate::app::{App, ShowEverything};
-use crate::common::CommonState;
-use crate::game::{ChooseSomething, DrawBaselayer, PromptInput, State, Transition};
-use crate::render::DrawOptions;
-use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use serde::{Deserialize, Serialize};
+
+use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use sim::DontDrawAgents;
 use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, RewriteColor, Text, VerticalAlignment, Widget,
 };
+
+use crate::app::{App, ShowEverything};
+use crate::common::CommonState;
+use crate::game::{ChooseSomething, DrawBaselayer, PromptInput, State, Transition};
+use crate::render::DrawOptions;
 
 // TODO This is a really great example of things that widgetry ought to make easier. Maybe a radio
 // button-ish thing to start?

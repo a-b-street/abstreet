@@ -1,3 +1,21 @@
+use std::collections::HashSet;
+
+use stretch::geometry::{Rect, Size};
+use stretch::node::{Node, Stretch};
+use stretch::number::Number;
+use stretch::style::{
+    AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, PositionType, Style,
+};
+
+use geom::{Distance, Percent, Polygon};
+
+use crate::widgets::containers::{Container, Nothing};
+pub use crate::widgets::panel::Panel;
+use crate::{
+    Button, Choice, Color, DeferDraw, DrawWithTooltips, Drawable, Dropdown, EventCtx, GeomBatch,
+    GfxCtx, JustDraw, Menu, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, TextBox,
+};
+
 pub mod autocomplete;
 pub mod button;
 pub mod checkbox;
@@ -15,21 +33,6 @@ pub mod scatter_plot;
 pub mod slider;
 pub mod spinner;
 pub mod text_box;
-
-use crate::widgets::containers::{Container, Nothing};
-pub use crate::widgets::panel::Panel;
-use crate::{
-    Button, Choice, Color, DeferDraw, DrawWithTooltips, Drawable, Dropdown, EventCtx, GeomBatch,
-    GfxCtx, JustDraw, Menu, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, TextBox,
-};
-use geom::{Distance, Percent, Polygon};
-use std::collections::HashSet;
-use stretch::geometry::{Rect, Size};
-use stretch::node::{Node, Stretch};
-use stretch::number::Number;
-use stretch::style::{
-    AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, PositionType, Style,
-};
 
 /// Create a new widget by implementing this trait. You can instantiate your widget by calling
 /// `Widget::new(Box::new(instance of your new widget))`, which gives you the usual style options.
@@ -630,7 +633,7 @@ impl Widget {
                 w.restore(ctx, prev);
             }
         } else if self.widget.can_restore() {
-            if let Some(ref other) = prev.top_level.find(self.id.as_ref().unwrap()) {
+            if let Some(ref other) = prev.maybe_find(self.id.as_ref().unwrap()) {
                 self.widget.restore(ctx, &other.widget);
             }
         }
