@@ -4,7 +4,7 @@
 use rand::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
-pub use self::external::{ExternalPerson, ExternalTrip};
+pub use self::external::{ExternalPerson, ExternalTrip, ExternalTripEndpoint};
 pub use self::generator::{
     BorderSpawnOverTime, OriginDestination, ScenarioGenerator, SpawnOverTime,
 };

@@ -71,15 +71,19 @@ example:
   "people": [
     {
       "origin": {
-        "longitude": -122.303723,
-        "latitude": 47.6372834
+	"Position": {
+          "longitude": -122.303723,
+          "latitude": 47.6372834
+	}
       },
       "trips": [
         {
           "departure": 10800.0,
-          "position": {
-            "longitude": -122.3075948,
-            "latitude": 47.6394773
+          "destination": {
+            "Position": {
+              "longitude": -122.3075948,
+              "latitude": 47.6394773
+	    }
           },
           "mode": "Drive"
         }
