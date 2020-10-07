@@ -206,14 +206,14 @@ impl GUI for Game {
         if self.app.primary.map.get_edits().commands.is_empty() {
             println!("No edits");
         } else {
-            println!("Edits:");
-            println!(
-                "{}",
-                abstutil::to_json(&PermanentMapEdits::to_permanent(
+            abstutil::write_json(
+                "edits_during_crash.json".to_string(),
+                &PermanentMapEdits::to_permanent(
                     self.app.primary.map.get_edits(),
-                    &self.app.primary.map
-                ))
+                    &self.app.primary.map,
+                ),
             );
+            println!("Please include edits_during_crash.json in your bug report.");
         }
 
         // Repeat, because it can be hard to see the top of the report if it's long
