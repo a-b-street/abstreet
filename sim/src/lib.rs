@@ -1,3 +1,10 @@
+// The sim crate runs a traffic simulation on top of the map_model. See also
+// https://dabreegster.github.io/abstreet/trafficsim/index.html.
+//
+// The simulation is very roughly layered into two pieces: the low-level "mechanics" of simulating
+// individual agents over time, and higher-level systems like TripManager and TransitSimState that
+// glue together individual goals executed by the agents.
+
 #[macro_use]
 extern crate log;
 

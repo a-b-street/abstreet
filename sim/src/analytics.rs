@@ -1,3 +1,12 @@
+// As a simulation runs, different pieces emit Events. The Analytics object listens to these,
+// organizing and storing some information from them. The UI queries Analytics to draw time-series
+// and display statistics.
+//
+// For all maps whose weekday scenario fully runs, the game's release includes some "prebaked
+// results." These are just serialized Analytics after running the simulation on a map without any
+// edits for the full day. This is the basis of A/B testing -- the player can edit the map, start
+// running the simulation, and compare the live Analytics to the prebaked baseline Analytics.
+
 use std::collections::{BTreeMap, VecDeque};
 
 use serde::{Deserialize, Serialize};
@@ -20,7 +29,8 @@ pub struct Analytics {
     // intersection. So for now, eat the file size cost.
     pub traffic_signal_thruput: TimeSeriesCount<CompressedMovementID>,
 
-    // Unlike everything else in Analytics, this is just for a moment in time.
+    // Most fields in Analytics are cumulative over time, but this is just for the current moment
+    // in time.
     pub demand: BTreeMap<MovementID, usize>,
 
     // TODO Reconsider this one
@@ -463,6 +473,7 @@ pub struct TripPhase {
     pub phase_type: TripPhaseType,
 }
 
+// See https://github.com/dabreegster/abstreet/issues/85
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TimeSeriesCount<X: Ord + Clone> {
     // (Road or intersection, type, hour block) -> count for that hour

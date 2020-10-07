@@ -1,3 +1,6 @@
+// Manages public transit vehicles (buses and trains) that follow a route. The transit model is
+// currently kind of broken, so not describing the state machine yet.
+
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};

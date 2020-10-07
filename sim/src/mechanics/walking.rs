@@ -1,3 +1,7 @@
+// Simulates pedestrians. Unlike vehicles, pedestrians can move bidirectionally on sidewalks and
+// just "ghost" through each other. There's no queueing or slowdown when many people are
+// overlapping. They're simply grouped together into a DrawPedCrowdInput for rendering.
+
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};

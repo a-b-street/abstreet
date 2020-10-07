@@ -1,3 +1,6 @@
+// The Sim ties together all the pieces of the simulation. Its main property is the current time.
+// This file has a jumbled mess of queries, setup, and mutating methods.
+
 use std::collections::{BTreeSet, HashSet};
 use std::panic;
 

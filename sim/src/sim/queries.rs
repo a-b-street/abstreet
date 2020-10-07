@@ -1,3 +1,5 @@
+// All sorts of read-only queries about a simulation
+
 use std::collections::{BTreeMap, HashSet};
 
 use abstutil::Counter;
@@ -13,7 +15,6 @@ use crate::{
     TripResult, VehicleType,
 };
 
-// Queries of all sorts
 // TODO Many of these just delegate to an inner piece. This is unorganized and hard to maintain.
 impl Sim {
     pub fn time(&self) -> Time {

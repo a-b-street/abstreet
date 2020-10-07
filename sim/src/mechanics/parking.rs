@@ -1,3 +1,8 @@
+// Manages the state of parked cars. There are two implementations:
+// - NormalParkingSimState allows only one vehicle per ParkingSpot defined in the map
+// - InfiniteParkingSimState pretends every building has infinite capacity, and onstreet parking is
+//   ignored
+
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
 
 use enum_dispatch::enum_dispatch;

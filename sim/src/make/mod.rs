@@ -1,3 +1,6 @@
+// Everything needed to setup a simulation.
+// https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html for context.
+
 use rand::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 

@@ -1,3 +1,5 @@
+// Transforms an existing Scenario before instantiating it.
+
 use std::collections::BTreeSet;
 
 use rand::Rng;

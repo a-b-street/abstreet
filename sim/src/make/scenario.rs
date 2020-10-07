@@ -1,3 +1,5 @@
+// A Scenario describes all the input to a simulation. Usually a scenario covers one day.
+
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::fmt;
 
@@ -20,7 +22,6 @@ use crate::{
     MAX_CAR_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
 
-// How to start a simulation.
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {
     pub scenario_name: String,

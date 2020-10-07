@@ -1,3 +1,6 @@
+// Some roads (grouped into zones) may have a cap on the number of vehicles that can enter per
+// hour. CapSimState enforces this.
+
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
@@ -77,6 +80,8 @@ impl CapSimState {
         true
     }
 
+    // Before the driving portion of a trip begins, check that the desired path doesn't exceed any
+    // caps. If so, attempt to reroute around.
     pub fn validate_path(
         &mut self,
         req: &PathRequest,

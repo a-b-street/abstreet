@@ -1,3 +1,7 @@
+// The priority queue driving the discrete event simulation. Different pieces of the simulation
+// schedule Commands to happen at a specific time, and the Scheduler hands out the commands in
+// order.
+
 use std::cmp::Ordering;
 use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, BinaryHeap};

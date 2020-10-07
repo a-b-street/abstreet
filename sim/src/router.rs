@@ -1,3 +1,6 @@
+// For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically
+// lane-change to avoid a slow lane, can can handle re-planning to look for available parking.
+
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};

@@ -1,3 +1,6 @@
+// This is a much more primitive way to randomly generate trips. activity_model.rs has something
+// more realistic.
+
 use std::collections::BTreeSet;
 
 use rand::seq::SliceRandom;

@@ -1,3 +1,10 @@
+// Manages people, each of which executes some trips through the day. Each trip is further broken
+// down into legs -- for example, a driving trip might start with somebody walking to their car,
+// driving somewhere, parking, and then walking to their final destination.
+// https://dabreegster.github.io/abstreet/trafficsim/trips.html describes some of the variations.
+//
+// Here be dragons, keep hands and feet inside the ride at all times...
+
 use std::collections::{BTreeMap, VecDeque};
 
 use serde::{Deserialize, Serialize};

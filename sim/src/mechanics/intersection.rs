@@ -1,3 +1,12 @@
+// Manages conflicts at intersections. When an agent has reached the end of a lane, they call
+// maybe_start_turn to make a Request. Based on the intersection type (stop sign, traffic signal,
+// or a "freeform policy"), the Request gets queued or immediately accepted. When agents finish
+// turns or when some time passes (for traffic signals), the intersection also gets a chance to
+// react, maybe granting one of the pending requests.
+//
+// Most of the complexity comes from attempting to workaround
+// https://dabreegster.github.io/abstreet/trafficsim/gridlock.html.
+
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 use serde::{Deserialize, Serialize};

@@ -1,3 +1,8 @@
+// An activity model creates "people" that follow a set schedule of activities through the day.
+// Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go
+// somewhere at some time. This is an extremely simple activity model that just uses data inferred
+// from OSM.
+
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;

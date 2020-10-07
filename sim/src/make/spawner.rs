@@ -1,3 +1,6 @@
+// Intermediate structures used to instantiate a Scenario. Badly needs simplification:
+// https://github.com/dabreegster/abstreet/issues/258
+
 use serde::{Deserialize, Serialize};
 
 use abstutil::{Parallelism, Timer};

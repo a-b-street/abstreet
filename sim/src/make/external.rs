@@ -1,3 +1,6 @@
+// Some users of the API (https://dabreegster.github.io/abstreet/dev/api.html) have their own
+// simulation input data; import it here.
+
 use serde::Deserialize;
 
 use geom::{Distance, FindClosest, LonLat, Pt2D, Time};
