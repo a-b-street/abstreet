@@ -986,6 +986,8 @@
 <span id="986">986</span>
 <span id="987">987</span>
 <span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Manages the state of parked cars. There are two implementations:</span>
 <span class="comment">// - NormalParkingSimState allows only one vehicle per ParkingSpot defined in the map</span>
@@ -1320,6 +1322,7 @@
                     <span class="ident">id</span>: <span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>,
                     <span class="ident">waiting_for_turn</span>: <span class="prelude-val">None</span>,
                     <span class="ident">status</span>: <span class="ident">CarStatus</span>::<span class="ident">Parked</span>,
+                    <span class="ident">show_parking_intent</span>: <span class="bool-val">false</span>,
                     <span class="ident">on</span>: <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">lane</span>),
                     <span class="ident">partly_on</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
                     <span class="ident">label</span>: <span class="prelude-val">None</span>,
@@ -1340,6 +1343,7 @@
                     <span class="ident">id</span>: <span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>,
                     <span class="ident">waiting_for_turn</span>: <span class="prelude-val">None</span>,
                     <span class="ident">status</span>: <span class="ident">CarStatus</span>::<span class="ident">Parked</span>,
+                    <span class="ident">show_parking_intent</span>: <span class="bool-val">false</span>,
                     <span class="comment">// Just used for z-order</span>
                     <span class="ident">on</span>: <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">pl</span>.<span class="ident">driving_pos</span>.<span class="ident">lane</span>()),
                     <span class="ident">partly_on</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),

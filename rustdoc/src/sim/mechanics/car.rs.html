@@ -281,6 +281,9 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Represents a single vehicle. Note &quot;car&quot; is a misnomer; it could also be a bus or bike.</span>
 
@@ -500,11 +503,14 @@
                 <span class="ident">CarState</span>::<span class="ident">Queued</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus</span>::<span class="ident">Moving</span>,
                 <span class="ident">CarState</span>::<span class="ident">WaitingToAdvance</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus</span>::<span class="ident">Moving</span>,
                 <span class="ident">CarState</span>::<span class="ident">Crossing</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus</span>::<span class="ident">Moving</span>,
-                <span class="comment">// Eh they&#39;re technically moving, but this is a bit easier to spot</span>
-                <span class="ident">CarState</span>::<span class="ident">Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus</span>::<span class="ident">Parked</span>,
-                <span class="ident">CarState</span>::<span class="ident">Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus</span>::<span class="ident">Parked</span>,
+                <span class="ident">CarState</span>::<span class="ident">Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus</span>::<span class="ident">Moving</span>,
+                <span class="ident">CarState</span>::<span class="ident">Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus</span>::<span class="ident">Moving</span>,
                 <span class="comment">// Changing color for idling buses is helpful</span>
                 <span class="ident">CarState</span>::<span class="ident">IdlingAtStop</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus</span>::<span class="ident">Parked</span>,
+            },
+            <span class="ident">show_parking_intent</span>: <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_parking</span>(), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>) {
+                (<span class="bool-val">true</span>, <span class="kw">_</span>) <span class="op">|</span> (<span class="kw">_</span>, <span class="ident">CarState</span>::<span class="ident">Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
             },
             <span class="ident">on</span>: <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">head</span>(),
             <span class="ident">partly_on</span>,

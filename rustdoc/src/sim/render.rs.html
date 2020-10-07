@@ -118,6 +118,7 @@
 <span id="118">118</span>
 <span id="119">119</span>
 <span id="120">120</span>
+<span id="121">121</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Intermediate structures so that sim and game crates don&#39;t have a cyclic dependency.</span>
 
@@ -157,6 +158,7 @@
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">CarID</span>,
     <span class="kw">pub</span> <span class="ident">waiting_for_turn</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">status</span>: <span class="ident">CarStatus</span>,
+    <span class="kw">pub</span> <span class="ident">show_parking_intent</span>: <span class="ident">bool</span>,
     <span class="comment">// Front of the car</span>
     <span class="kw">pub</span> <span class="ident">on</span>: <span class="ident">Traversable</span>,
     <span class="comment">// Possibly the rest</span>
