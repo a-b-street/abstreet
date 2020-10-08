@@ -49,8 +49,6 @@
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Timer</span>;
-
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Manifest</span> {
     <span class="comment">// Keyed by path, starting with &quot;data/&quot;</span>
@@ -67,13 +65,15 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Manifest</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="ident">String</span>) {
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- Wrote {}&quot;</span>, <span class="ident">path</span>);
-        <span class="kw">crate</span>::<span class="ident">write_json</span>(<span class="ident">path</span>, <span class="self">self</span>);
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>() <span class="op">-&gt;</span> <span class="ident">Manifest</span> {
+        <span class="kw">crate</span>::<span class="ident">maybe_read_json</span>(<span class="kw">crate</span>::<span class="ident">path</span>(<span class="string">&quot;MANIFEST.json&quot;</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">Timer</span>::<span class="ident">throwaway</span>())
+            .<span class="ident">unwrap</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">path</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Manifest</span>, <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">maybe_read_json</span>(<span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>())
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>() <span class="op">-&gt;</span> <span class="ident">Manifest</span> {
+        <span class="kw">crate</span>::<span class="ident">from_json</span>(<span class="kw-2">&amp;</span><span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/MANIFEST.json&quot;</span>).<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_map_names</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
