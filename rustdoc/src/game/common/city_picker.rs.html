@@ -307,6 +307,12 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">City</span>;
@@ -521,12 +527,13 @@
 <span class="comment">// On the web, we asynchronously download the map file.</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
 <span class="kw">fn</span> <span class="ident">switch_map</span>(
-    <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
     <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
     <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
 ) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
     <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">loader</span>::<span class="ident">AsyncFileLoader</span>::<span class="ident">new</span>(
+        <span class="ident">ctx</span>,
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;http://0.0.0.0:8000/system/maps/{}.bin&quot;</span>, <span class="ident">name</span>),
         <span class="ident">on_load</span>,
     ))
@@ -552,13 +559,17 @@
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AsyncFileLoader</span> {
         <span class="ident">response</span>: <span class="ident">oneshot</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span>,
         <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
+        <span class="ident">panel</span>: <span class="ident">Panel</span>,
     }
 
     <span class="kw">impl</span> <span class="ident">AsyncFileLoader</span> {
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+            <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
             <span class="ident">url</span>: <span class="ident">String</span>,
             <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
         ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="ident">url</span>))));
+
             <span class="comment">// Make the HTTP request nonblockingly. When the response is received, send it through</span>
             <span class="comment">// the channel.</span>
             <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">oneshot</span>::<span class="ident">channel</span>();
@@ -582,6 +593,7 @@
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">AsyncFileLoader</span> {
                 <span class="ident">response</span>: <span class="ident">rx</span>,
                 <span class="ident">on_load</span>,
+                <span class="ident">panel</span>,
             })
         }
     }
@@ -610,9 +622,9 @@
         }
 
         <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-            <span class="comment">// TODO Mimic the loading screen. Ideally even count the bytes received and have a</span>
-            <span class="comment">// progress bar.</span>
-            <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">RED</span>);
+            <span class="comment">// TODO Progress bar for bytes received</span>
+            <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>);
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         }
     }
 }
