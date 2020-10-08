@@ -47,6 +47,13 @@ impl CmdArgs {
             }
         }
 
+        #[cfg(target_arch = "wasm32")]
+        {
+            // Silence some compiler warnings
+            args.free.push(String::new());
+            args.free.pop();
+        }
+
         args
     }
 

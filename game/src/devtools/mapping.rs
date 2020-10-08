@@ -1,11 +1,9 @@
 use std::collections::{BTreeMap, HashSet};
 use std::error::Error;
-use std::fs::File;
-use std::io::Write;
 
 use osm::WayID;
 
-use abstutil::{prettyprint_usize, Tags, Timer};
+use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, PolyLine, Polygon};
 use map_model::{osm, RoadID};
 use widgetry::{
@@ -518,6 +516,11 @@ fn generate_osmc(
     in_seattle: bool,
     timer: &mut Timer,
 ) -> Result<(), Box<dyn Error>> {
+    use std::fs::File;
+    use std::io::Write;
+
+    use abstutil::Tags;
+
     let mut modified_ways = Vec::new();
     timer.start_iter("fetch latest OSM data per modified way", data.len());
     for (way, value) in data {

@@ -356,6 +356,8 @@ impl<'a> Timer<'a> {
         // wasm; no threads.
         #[cfg(target_arch = "wasm32")]
         {
+            // Silence an unused warning
+            let _ = parallelism;
             let mut results: Vec<O> = Vec::new();
             self.start_iter(timer_name, requests.len());
             for req in requests {
